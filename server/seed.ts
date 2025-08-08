@@ -1,0 +1,156 @@
+import { db } from './db';
+import { useCases } from '@shared/schema';
+import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
+
+const sampleUseCases = [
+  {
+    title: "Automated Claims Triage",
+    description: "AI-powered system to automatically classify and prioritize incoming claims based on complexity, urgency, and potential fraud indicators.",
+    valueChainComponent: "Claims",
+    process: "FNOL",
+    lineOfBusiness: "Auto",
+    businessSegment: "Mid-Market",
+    geography: "UK",
+    useCaseType: "GenAI",
+    revenueImpact: 3,
+    costSavings: 4,
+    riskReduction: 5,
+    strategicFit: 4,
+    dataReadiness: 4,
+    technicalComplexity: 3,
+    changeImpact: 2,
+    adoptionReadiness: 3
+  },
+  {
+    title: "Predictive Risk Scoring",
+    description: "Machine learning model to predict policy risk levels during underwriting, improving pricing accuracy and reducing losses.",
+    valueChainComponent: "Underwriting",
+    process: "Pricing",
+    lineOfBusiness: "Property",
+    businessSegment: "Large Commercial",
+    geography: "Europe",
+    useCaseType: "Predictive ML",
+    revenueImpact: 5,
+    costSavings: 3,
+    riskReduction: 5,
+    strategicFit: 5,
+    dataReadiness: 3,
+    technicalComplexity: 4,
+    changeImpact: 4,
+    adoptionReadiness: 2
+  },
+  {
+    title: "Document Processing Automation",
+    description: "OCR and NLP solution to extract key information from policy documents, reducing manual data entry errors and processing time.",
+    valueChainComponent: "Policy Servicing",
+    process: "Quote & Bind",
+    lineOfBusiness: "Marine",
+    businessSegment: "SME",
+    geography: "Global",
+    useCaseType: "RPA",
+    revenueImpact: 2,
+    costSavings: 5,
+    riskReduction: 3,
+    strategicFit: 3,
+    dataReadiness: 5,
+    technicalComplexity: 2,
+    changeImpact: 2,
+    adoptionReadiness: 4
+  },
+  {
+    title: "Customer Sentiment Analysis",
+    description: "NLP tool to analyze customer communications and social media mentions to identify satisfaction trends and potential churn risks.",
+    valueChainComponent: "Customer Service",
+    process: "Renewal",
+    lineOfBusiness: "Life",
+    businessSegment: "E&S",
+    geography: "North America",
+    useCaseType: "NLP",
+    revenueImpact: 3,
+    costSavings: 2,
+    riskReduction: 4,
+    strategicFit: 3,
+    dataReadiness: 2,
+    technicalComplexity: 3,
+    changeImpact: 3,
+    adoptionReadiness: 2
+  },
+  {
+    title: "Cyber Risk Assessment AI",
+    description: "Advanced AI system to evaluate cyber risk exposure for commercial clients using external threat intelligence and internal data.",
+    valueChainComponent: "Underwriting",
+    process: "Pricing",
+    lineOfBusiness: "Cyber",
+    businessSegment: "Large Commercial",
+    geography: "Global",
+    useCaseType: "GenAI",
+    revenueImpact: 5,
+    costSavings: 3,
+    riskReduction: 5,
+    strategicFit: 5,
+    dataReadiness: 2,
+    technicalComplexity: 5,
+    changeImpact: 5,
+    adoptionReadiness: 2
+  },
+  {
+    title: "Fraud Detection Engine",
+    description: "Real-time machine learning system to identify potentially fraudulent claims using pattern recognition and anomaly detection.",
+    valueChainComponent: "Fraud/Compliance",
+    process: "FNOL",
+    lineOfBusiness: "Specialty",
+    businessSegment: "Mid-Market",
+    geography: "UK",
+    useCaseType: "Predictive ML",
+    revenueImpact: 4,
+    costSavings: 4,
+    riskReduction: 5,
+    strategicFit: 4,
+    dataReadiness: 3,
+    technicalComplexity: 4,
+    changeImpact: 3,
+    adoptionReadiness: 3
+  }
+];
+
+export async function seedDatabase() {
+  try {
+    // Check if data already exists
+    const existingUseCases = await db.select().from(useCases);
+    if (existingUseCases.length > 0) {
+      console.log('Database already seeded, skipping...');
+      return;
+    }
+
+    console.log('Seeding database with sample use cases...');
+    
+    for (const sampleUseCase of sampleUseCases) {
+      const impactScore = calculateImpactScore(
+        sampleUseCase.revenueImpact,
+        sampleUseCase.costSavings,
+        sampleUseCase.riskReduction,
+        sampleUseCase.strategicFit
+      );
+      
+      const effortScore = calculateEffortScore(
+        sampleUseCase.dataReadiness,
+        sampleUseCase.technicalComplexity,
+        sampleUseCase.changeImpact,
+        sampleUseCase.adoptionReadiness
+      );
+      
+      const quadrant = calculateQuadrant(impactScore, effortScore);
+      
+      await db.insert(useCases).values({
+        ...sampleUseCase,
+        impactScore,
+        effortScore,
+        quadrant
+      });
+    }
+    
+    console.log(`Successfully seeded ${sampleUseCases.length} use cases`);
+  } catch (error) {
+    console.error('Error seeding database:', error);
+  }
+}

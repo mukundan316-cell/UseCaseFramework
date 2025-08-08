@@ -1,34 +1,5 @@
 import { QuadrantType } from '../types';
-
-export function calculateImpactScore(
-  revenueImpact: number,
-  costSavings: number,
-  riskReduction: number,
-  strategicFit: number
-): number {
-  return (revenueImpact + costSavings + riskReduction + strategicFit) / 4;
-}
-
-export function calculateEffortScore(
-  dataReadiness: number,
-  technicalComplexity: number,
-  changeImpact: number,
-  adoptionReadiness: number
-): number {
-  return (dataReadiness + technicalComplexity + changeImpact + adoptionReadiness) / 4;
-}
-
-export function calculateQuadrant(impactScore: number, effortScore: number): QuadrantType {
-  if (impactScore >= 4 && effortScore <= 2.5) {
-    return "Quick Win";
-  } else if (impactScore >= 4 && effortScore > 2.5) {
-    return "Strategic Bet";
-  } else if (impactScore < 4 && effortScore <= 2.5) {
-    return "Experimental";
-  } else {
-    return "Watchlist";
-  }
-}
+export { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
 
 export function getQuadrantColor(quadrant: QuadrantType): string {
   switch (quadrant) {

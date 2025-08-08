@@ -28,11 +28,13 @@ The application currently uses a hybrid architecture designed for future scalabi
 - **Database Schema**: Structured schema for users and use cases with proper typing through Drizzle and Zod validation
 
 ### Data Storage Solutions
-The system implements a flexible storage abstraction:
+The system implements a flexible storage abstraction with full database integration:
 
-- **Current Implementation**: localStorage for client-side persistence with in-memory backend storage for development
-- **Future Migration Path**: PostgreSQL database schema already defined with Drizzle ORM, including proper relations and constraints
+- **Current Implementation**: PostgreSQL database with Neon serverless hosting for full persistence
+- **Database Schema**: Complete use case schema implemented with Drizzle ORM, including proper relations and constraints
+- **API Layer**: RESTful API endpoints for CRUD operations on use cases with proper validation
 - **Data Models**: Comprehensive use case schema capturing business metadata (value chain, processes, LOB, geography) and scoring dimensions
+- **Seeding**: Automatic database seeding with 6 sample insurance AI use cases on startup
 
 ### Scoring and Calculation Engine
 Business logic implemented through pure functions for scoring consistency:
