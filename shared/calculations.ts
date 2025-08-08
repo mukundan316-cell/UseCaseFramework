@@ -41,18 +41,18 @@ export function calculateGovernanceScore(
 
 /**
  * Determines quadrant based on impact and effort scores
- * Implements exact logic from REFERENCE.md:
- * - Quick Win: impact >= 4 && effort <= 2.5
- * - Strategic Bet: impact >= 4 && effort > 2.5
- * - Experimental: impact < 4 && effort <= 2.5
- * - Watchlist: impact < 4 && effort > 2.5
+ * Updated to match visual matrix with 3.0 threshold:
+ * - Quick Win: impact >= 3 && effort < 3 (Top Left - Green)
+ * - Strategic Bet: impact >= 3 && effort >= 3 (Top Right - Blue)  
+ * - Experimental: impact < 3 && effort < 3 (Bottom Left - Yellow)
+ * - Watchlist: impact < 3 && effort >= 3 (Bottom Right - Red)
  */
 export function calculateQuadrant(impactScore: number, effortScore: number): string {
-  if (impactScore >= 4 && effortScore <= 2.5) {
+  if (impactScore >= 3.0 && effortScore < 3.0) {
     return "Quick Win";
-  } else if (impactScore >= 4 && effortScore > 2.5) {
+  } else if (impactScore >= 3.0 && effortScore >= 3.0) {
     return "Strategic Bet";
-  } else if (impactScore < 4 && effortScore <= 2.5) {
+  } else if (impactScore < 3.0 && effortScore < 3.0) {
     return "Experimental";
   } else {
     return "Watchlist";
