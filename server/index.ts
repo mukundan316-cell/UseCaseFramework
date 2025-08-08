@@ -41,6 +41,10 @@ app.use((req, res, next) => {
   // Seed the database with sample data
   await seedDatabase();
   
+  // Check if we need to add comprehensive use cases
+  const { seedComprehensiveUseCases } = await import('./comprehensive-seed');
+  await seedComprehensiveUseCases();
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

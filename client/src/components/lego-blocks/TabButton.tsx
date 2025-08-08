@@ -7,7 +7,7 @@ interface TabButtonProps {
   label: string;
   icon: LucideIcon;
   isActive: boolean;
-  onClick: (id: string) => void;
+  onClick: (id: any) => void;
   disabled?: boolean;
   className?: string;
 }

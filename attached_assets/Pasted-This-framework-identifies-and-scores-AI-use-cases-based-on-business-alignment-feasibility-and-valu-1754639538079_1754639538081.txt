@@ -1,0 +1,49 @@
+This framework identifies and scores AI use cases based on business alignment, feasibility, and value impact, helping you confidently place them in the 2×2 matrix:
+
+🔸 1. Levers for Prioritization
+These are the dimensions RSA should assess each AI use case on:
+
+Category	Lever	Description
+Business Value	Revenue Impact	Uplift in premiums, cross-sell/upsell potential
+Cost Savings	Automation-driven FTE savings or reduced loss-adjustment expense
+Risk Reduction	Reduced fraud, improved compliance, fewer errors
+Broker/Partner Experience	Faster TAT, self-service tools, analytics access
+Strategic Fit	Alignment with RSA’s delegated, specialty, or mid-market focus
+Feasibility	Data Readiness	Clean, structured, and sufficient volume of data
+Technical Complexity	Maturity of models needed (e.g., LLMs vs ML)
+Change Impact	Degree of process and role redesign required
+Model Risk	Potential harm if model fails (regulatory, reputational, financial)
+Adoption Readiness	Stakeholder and user buy-in, especially in underwriting/claims
+AI Governance	Explainability & Bias	Responsible AI principles supported
+Regulatory Compliance	FCA, GDPR, and UK/EU AI Act readiness
+
+Each lever can be scored (1–5 scale), and then aggregated into composite scores for Impact and Effort.
+
+🧠 2×2 Use Case Matrix (Final Scoring Logic)
+Quadrant	Description	Examples
+Quick Wins (High Impact, Low Effort)	Ideal starting points. Low-risk, fast ROI.	Internal RSA GPT, FNOL summarization, delegated MI dashboards
+Strategic Bets (High Impact, High Effort)	Big impact, but needs major investment.	AI-led triage, automated underwriting for specialty, CoPilot tools
+Low-Hanging Fruit (Low Impact, Low Effort)	Cheap to do, limited upside. Test capabilities.	Internal training content gen, sentiment monitoring
+Avoid or Delay (Low Impact, High Effort)	High complexity with little value.	R&D-type use cases, VR claim reconstruction (now), AI-native fraud scoring (long-term if immature)
+
+🧮 How to Score & Place Use Cases in the Matrix
+Step-by-Step:
+Collect Details about the use case (domain, owners, value stream).
+
+Score Each Lever (1–5 scale). Use expert input and available data.
+
+Compute Weighted Scores (suggested default weights):
+
+Impact Score = (Revenue + Cost Savings + Risk + Broker Experience + Strategic Fit) × 20%
+
+Effort Score = (Data + Technical + Change + Model Risk + Adoption) × 20%
+
+Plot on Matrix:
+
+Y-axis = Impact Score
+
+X-axis = Inverted Effort Score (i.e., lower effort → further left)
+
+Color by Readiness or Business Domain (Optional: Commercial, Delegated, Ops, etc.)
+
+We can automate this in Excel or build a dashboard if you’d like.

@@ -142,7 +142,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Components</SelectItem>
-                {metadata.valueChainComponents.filter(component => component && component.trim()).map(component => (
+                {metadata?.valueChainComponents?.filter(component => component && component.trim()).map(component => (
                   <SelectItem key={component} value={component}>{component}</SelectItem>
                 ))}
               </SelectContent>
@@ -154,7 +154,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Processes</SelectItem>
-                {metadata.processes.filter(process => process && process.trim()).map(process => (
+                {metadata?.processes?.filter(process => process && process.trim()).map(process => (
                   <SelectItem key={process} value={process}>{process}</SelectItem>
                 ))}
               </SelectContent>
@@ -166,7 +166,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All LOBs</SelectItem>
-                {metadata.linesOfBusiness.filter(lob => lob && lob.trim()).map(lob => (
+                {metadata?.linesOfBusiness?.filter(lob => lob && lob.trim()).map(lob => (
                   <SelectItem key={lob} value={lob}>{lob}</SelectItem>
                 ))}
               </SelectContent>
@@ -178,7 +178,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Segments</SelectItem>
-                {metadata.businessSegments.filter(segment => segment && segment.trim()).map(segment => (
+                {metadata?.businessSegments?.filter(segment => segment && segment.trim()).map(segment => (
                   <SelectItem key={segment} value={segment}>{segment}</SelectItem>
                 ))}
               </SelectContent>
@@ -190,7 +190,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Geographies</SelectItem>
-                {metadata.geographies.filter(geo => geo && geo.trim()).map(geo => (
+                {metadata?.geographies?.filter(geo => geo && geo.trim()).map(geo => (
                   <SelectItem key={geo} value={geo}>{geo}</SelectItem>
                 ))}
               </SelectContent>
@@ -202,7 +202,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {metadata.useCaseTypes.filter(type => type && type.trim()).map(type => (
+                {metadata?.useCaseTypes?.filter(type => type && type.trim()).map(type => (
                   <SelectItem key={type} value={type}>{type}</SelectItem>
                 ))}
               </SelectContent>
