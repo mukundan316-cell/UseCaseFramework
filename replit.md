@@ -24,15 +24,17 @@ The project follows strict architectural principles and coding standards documen
 - **Real-time Calculations**: Impact and Effort scores update instantly via averaging formulas
 - **Database Persistence**: All scoring data stored in PostgreSQL with automatic migrations
 
-### Enhanced Process-Activity System
-- **Contextual Activity Filtering**: Activities filtered by selected business process using processActivityMap
-- **Streamlined Explorer Workflow**: Simplified from "Value Chain → Process → Activity → LOB → Segment → Geography" to "Process → Activity → LOB → Segment → Geography"
+### Enhanced Multi-Select System (January 2025)
+- **Multi-Select LEGO Components**: Process Activities, Business Segments, and Geographies now support multi-dimensional selection using reusable MultiSelectField component
+- **Backward Compatibility**: Single-value fields preserved alongside new array columns for seamless data migration
+- **Contextual Activity Filtering**: Activities filtered by selected business process with multi-select support
+- **Smart Filtering Logic**: Explorer filters check both single values and array values for comprehensive use case discovery
 - **Authentic RSA Metadata**: Commercial insurance terminology with 40+ process-specific activities
-- **Smart CRUD Modal**: Activity dropdown updates contextually based on selected process
 
 ### LEGO Component Architecture
-- **MetadataLegoBlock**: Reusable CRUD interface for UI dropdown values including activities management
-- **CRUDUseCaseModal**: Complete use case management with embedded scoring sliders and contextual activity selection
+- **MultiSelectField**: Reusable multi-select component supporting both single-value and array-based selections with backward compatibility
+- **MetadataLegoBlock**: Reusable CRUD interface for UI dropdown values including activities management  
+- **CRUDUseCaseModal**: Complete use case management with embedded scoring sliders and multi-dimensional business context selection
 - **Admin Panel**: Streamlined metadata management for all categories including process activities
 - **Component Library**: Standardized UI blocks (FormActionButtons, DataActionCard, FilterChip, etc.)
 

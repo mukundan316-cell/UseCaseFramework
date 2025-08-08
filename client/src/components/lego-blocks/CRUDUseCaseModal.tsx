@@ -374,26 +374,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Process Activity</Label>
-                <Select 
-                  key={`activity-${mode}-${useCase?.id}`} 
-                  value={form.watch('activity') || ''} 
-                  onValueChange={(value) => form.setValue('activity', value)}
-                  disabled={!form.watch('process')}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder={form.watch('process') ? "Select activity" : "Select process first"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getActivitiesForProcess(form.watch('process') || '').map(activity => (
-                      <SelectItem key={activity} value={activity}>{activity}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Activities filtered by selected process
-                </p>
+              {/* Process Activities handled by LEGO component below */}
+              <div className="flex items-center justify-center text-sm text-gray-500 italic">
+                Multi-select Process Activities available below
               </div>
             </div>
             {/* Multi-Select Business Context - Enhanced LEGO Components */}
@@ -449,7 +432,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 helpText="Select one or more geographic markets"
               />
               
-              {/* Activities Multi-Select */}
+              {/* Process Activities Multi-Select - Proper LEGO Component */}
               <MultiSelectField
                 label="Process Activities"
                 items={getActivitiesForProcess(form.watch('process') || '')}
