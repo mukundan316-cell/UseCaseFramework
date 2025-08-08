@@ -5,11 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Info, Plus, Edit } from 'lucide-react';
+import { Plus, Edit } from 'lucide-react';
+import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import { UseCase, UseCaseFormData } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
@@ -141,7 +141,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
 
   const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore);
 
-  // SliderField component for scoring interface
+  // SliderField component for scoring interface - now using LEGO component
   const SliderField = ({ 
     field, 
     label, 
@@ -159,39 +159,20 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     const currentValue = form.watch(field) ?? scores[field] ?? 3;
     
     return (
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <Label className="text-sm font-medium text-gray-700">{label}</Label>
-          <div className="flex items-center space-x-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Info className="h-4 w-4 text-gray-400 cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs">{tooltip}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <span className="font-semibold text-purple-600">{currentValue}</span>
-          </div>
-        </div>
-        <input
-          type="range"
-          min="1"
-          max="5"
-          value={currentValue}
-          onChange={(e) => handleSliderChange(field, parseInt(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-          style={{
-            background: `linear-gradient(to right, #005DAA 0%, #005DAA ${((currentValue - 1) / 4) * 100}%, #E5E7EB ${((currentValue - 1) / 4) * 100}%, #E5E7EB 100%)`
-          }}
-        />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>{leftLabel}</span>
-          <span>{rightLabel}</span>
-        </div>
-      </div>
+      <ScoreSliderLegoBlock
+        label={label}
+        field={field}
+        value={currentValue}
+        onChange={handleSliderChange}
+        tooltip={tooltip}
+        leftLabel={leftLabel}
+        rightLabel={rightLabel}
+        minValue={1}
+        maxValue={5}
+        disabled={false}
+        showTooltip={true}
+        valueDisplay="inline"
+      />
     );
   };
 

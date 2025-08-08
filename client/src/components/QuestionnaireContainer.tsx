@@ -279,7 +279,7 @@ export default function QuestionnaireContainer({
     const newErrors: Record<string, string> = {};
     
     currentSection.questions.forEach((question: QuestionData) => {
-      if (question.isRequired === 'true' || question.isRequired === true) {
+      if (question.isRequired === true || question.isRequired === 'true') {
         const value = responses.get(question.id);
         if (value === undefined || value === '' || 
             (Array.isArray(value) && value.length === 0)) {
@@ -551,7 +551,7 @@ export default function QuestionnaireContainer({
           ...currentSection,
           questions: currentSection.questions.map(q => ({
             ...q,
-            isRequired: q.isRequired === 'true' || q.isRequired === true
+            isRequired: q.isRequired === true || q.isRequired === 'true'
           }))
         }}
         responses={responses}

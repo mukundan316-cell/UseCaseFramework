@@ -4,10 +4,11 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
+import { InfoTooltipLegoBlock } from './InfoTooltipLegoBlock';
 
 export interface QuestionOption {
   id: string;
@@ -81,18 +82,11 @@ export default function QuestionLegoBlock({
         {isRequired && <span className="text-red-500 ml-1">*</span>}
       </Label>
       {helpText && (
-        <div className="flex items-center space-x-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="h-4 w-4 text-gray-400 cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs">{helpText}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        <InfoTooltipLegoBlock
+          content={helpText}
+          icon="info"
+          iconSize="sm"
+        />
       )}
     </div>
   );
@@ -104,26 +98,19 @@ export default function QuestionLegoBlock({
     return (
       <div>
         {renderQuestionLabel()}
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-600">{leftLabel}</span>
-          <span className="font-semibold text-[#005DAA] bg-[#E6F2FF] px-2 py-1 rounded">
-            {numericValue}
-          </span>
-          <span className="text-sm text-gray-600">{rightLabel}</span>
-        </div>
-        <Slider
-          value={[numericValue]}
-          onValueChange={([newValue]) => onChange(newValue)}
-          min={minValue}
-          max={maxValue}
-          step={1}
+        <ScoreSliderLegoBlock
+          label=""
+          field=""
+          value={numericValue}
+          onChange={(_, newValue) => onChange(newValue)}
+          leftLabel={leftLabel}
+          rightLabel={rightLabel}
+          minValue={minValue}
+          maxValue={maxValue}
           disabled={readonly}
-          className="w-full"
+          showTooltip={false}
+          valueDisplay="badge"
         />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>{minValue}</span>
-          <span>{maxValue}</span>
-        </div>
       </div>
     );
   };
@@ -213,16 +200,11 @@ export default function QuestionLegoBlock({
               {isRequired && <span className="text-red-500 ml-1">*</span>}
             </Label>
             {helpText && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="h-4 w-4 text-gray-400 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">{helpText}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <InfoTooltipLegoBlock
+                content={helpText}
+                icon="info"
+                iconSize="sm"
+              />
             )}
           </div>
         </div>
