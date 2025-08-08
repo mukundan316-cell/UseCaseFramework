@@ -141,7 +141,10 @@ export default function Explorer() {
               </div>
               <div className="text-gray-500">Effort</div>
             </div>
-            <button className="text-rsa-blue hover:text-blue-700">
+            <button 
+              onClick={() => handleEdit(useCase)}
+              className="text-rsa-blue hover:text-blue-700"
+            >
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

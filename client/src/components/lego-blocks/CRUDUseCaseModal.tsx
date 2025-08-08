@@ -92,29 +92,33 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
   // Initialize form with existing data for edit mode
   useEffect(() => {
     if (mode === 'edit' && useCase) {
+      console.log('Edit mode - useCase data:', useCase); // Debug log
+      
       const formData = {
-        title: useCase.title,
-        description: useCase.description,
-        valueChainComponent: useCase.valueChainComponent,
-        process: useCase.process,
-        lineOfBusiness: useCase.lineOfBusiness,
-        businessSegment: useCase.businessSegment,
-        geography: useCase.geography,
-        useCaseType: useCase.useCaseType,
-        // Map all enhanced framework dimensions
-        revenueImpact: (useCase as any).revenueImpact || 3,
-        costSavings: (useCase as any).costSavings || 3,
-        riskReduction: (useCase as any).riskReduction || 3,
-        brokerPartnerExperience: (useCase as any).brokerPartnerExperience || 3,
-        strategicFit: (useCase as any).strategicFit || 3,
-        dataReadiness: (useCase as any).dataReadiness || 3,
-        technicalComplexity: (useCase as any).technicalComplexity || 3,
-        changeImpact: (useCase as any).changeImpact || 3,
-        modelRisk: (useCase as any).modelRisk || 3,
-        adoptionReadiness: (useCase as any).adoptionReadiness || 3,
-        explainabilityBias: (useCase as any).explainabilityBias || 3,
-        regulatoryCompliance: (useCase as any).regulatoryCompliance || 3,
+        title: useCase.title || '',
+        description: useCase.description || '',
+        valueChainComponent: useCase.valueChainComponent || '',
+        process: useCase.process || '',
+        lineOfBusiness: useCase.lineOfBusiness || '',
+        businessSegment: useCase.businessSegment || '',
+        geography: useCase.geography || '',
+        useCaseType: useCase.useCaseType || '',
+        // Map all enhanced framework dimensions - now properly mapped from API
+        revenueImpact: (useCase as any).revenueImpact ?? 3,
+        costSavings: (useCase as any).costSavings ?? 3,
+        riskReduction: (useCase as any).riskReduction ?? 3,
+        brokerPartnerExperience: (useCase as any).brokerPartnerExperience ?? 3,
+        strategicFit: (useCase as any).strategicFit ?? 3,
+        dataReadiness: (useCase as any).dataReadiness ?? 3,
+        technicalComplexity: (useCase as any).technicalComplexity ?? 3,
+        changeImpact: (useCase as any).changeImpact ?? 3,
+        modelRisk: (useCase as any).modelRisk ?? 3,
+        adoptionReadiness: (useCase as any).adoptionReadiness ?? 3,
+        explainabilityBias: (useCase as any).explainabilityBias ?? 3,
+        regulatoryCompliance: (useCase as any).regulatoryCompliance ?? 3,
       };
+      
+      console.log('Form data mapping:', formData); // Debug log
       
       setScores({
         revenueImpact: formData.revenueImpact,

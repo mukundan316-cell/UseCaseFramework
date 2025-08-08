@@ -3,13 +3,15 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUseCaseSchema } from "@shared/schema";
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@shared/calculations";
+import { mapUseCaseToFrontend } from "@shared/mappers";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Use Case routes
   app.get("/api/use-cases", async (req, res) => {
     try {
       const useCases = await storage.getAllUseCases();
-      res.json(useCases);
+      const mappedUseCases = useCases.map(mapUseCaseToFrontend);
+      res.json(mappedUseCases);
     } catch (error) {
       console.error("Error fetching use cases:", error);
       res.status(500).json({ error: "Failed to fetch use cases" });
@@ -45,7 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const newUseCase = await storage.createUseCase(useCaseWithScores);
-      res.status(201).json(newUseCase);
+      res.status(201).json(mapUseCaseToFrontend(newUseCase));
     } catch (error) {
       console.error("Error creating use case:", error);
       res.status(400).json({ error: "Failed to create use case" });
@@ -62,7 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Use case not found" });
       }
       
-      res.json(updatedUseCase);
+      res.json(mapUseCaseToFrontend(updatedUseCase));
     } catch (error) {
       console.error("Error updating use case:", error);
       res.status(400).json({ error: "Failed to update use case" });
