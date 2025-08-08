@@ -10,6 +10,8 @@ The core functionality includes use case submission with business context (value
 
 Preferred communication style: Simple, everyday language.
 
+**LEGO-Style Architecture Mandate (Updated January 2025)**: All buttons, modals, components and features must be implemented as reusable LEGO blocks where possible. Follow the "Build Once, Reuse Everywhere" principle to maintain consistency and reduce development overhead. Every new UI element should be evaluated for reusability potential before implementation.
+
 ## Project Reference Guide
 
 The project follows strict architectural principles and coding standards documented in `REFERENCE.md`. All contributors and AI agents must review this guide before making changes to ensure consistency, modularity, and maintainability. Key principles include LEGO-style modularity, metadata-driven design, built-in quadrant logic, database-first persistence, and extensibility without regression.
@@ -56,12 +58,14 @@ Business logic implemented through pure functions for scoring consistency:
 - **Effort Calculation**: Averages data readiness, technical complexity, change impact, and adoption readiness (scale 1-5)
 - **Quadrant Logic**: Algorithmic assignment based on impact/effort thresholds (Quick Win: high impact + low effort, Strategic Bet: high impact + high effort, etc.)
 
-### Modular Feature Architecture
-The system follows a strict modular design:
+### Modular Feature Architecture - LEGO-Style Reusability
+The system follows a strict modular design with mandatory reusability:
 
+- **LEGO-Style Components**: All UI elements implemented as reusable blocks (MetadataLegoBlock, ReusableButton, ReusableModal)
 - **Independent Components**: Each major feature (form, matrix, explorer, admin) operates independently with shared data access
 - **Shared Services**: Common utilities and calculations available to all components through the context layer
 - **Extensible Metadata**: Dynamic metadata management allowing business users to modify filter categories without code changes
+- **Build Once, Reuse Everywhere**: Every new component evaluated for reusability potential before implementation
 
 ## External Dependencies
 

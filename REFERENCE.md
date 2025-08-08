@@ -18,10 +18,29 @@ It supports consistent practices across contributors, agents, and code environme
 
 **Use this guide before every commit, code proposal, or structural change.**
 
+**CRITICAL UPDATE (January 2025)**: All development must now follow the "Build Once, Reuse Everywhere" LEGO-style architecture. Every button, modal, component and feature must be implemented as a reusable block to ensure consistency and maintainability across the entire application.
+
 ## 🧱 Core Architecture Principles
 
-### Modularity (LEGO-style):
+### Modularity (LEGO-style) - Build Once, Reuse Everywhere:
+**MANDATORY REUSABILITY PRINCIPLE**: All buttons, modals, components and features MUST be implemented as reusable LEGO blocks where possible. Before creating any new UI element, check if a reusable component already exists.
+
 Every feature (e.g., Use Case Form, Matrix View, Explorer, Admin Panel) must be in its own isolated component with defined data contracts.
+
+**LEGO Component Examples:**
+- `MetadataLegoBlock` - Reusable CRUD block for all metadata management
+- `ReusableButton` - Standardized button component for all actions
+- `ReusableModal` - Consistent modal wrapper for all dialogs
+- `ReusableCard` - Standard card layout for all content blocks
+- `ReusableForm` - Base form component with validation
+
+**LEGO Component Requirements:**
+- Full CRUD operations where applicable
+- Database persistence integration
+- Consistent RSA branding and styling
+- Independent operation without tight coupling
+- Props-based configuration for different use cases
+- Built-in error handling and loading states
 
 ### Metadata-Driven Design:
 Dropdown filters and taxonomies must be driven by editable JSON or database with no hardcoded lists.
@@ -44,6 +63,13 @@ else quadrant = "Watchlist"
 
 ### Extensibility Without Regression:
 New tabs (e.g., Maturity Scorecard, ROI Dashboard) must plug into the same store and schema without breaking current functionality.
+
+### LEGO Development Workflow:
+1. **Before Building**: Search existing components for reusable patterns
+2. **Design Phase**: Identify which parts can be abstracted into LEGO blocks
+3. **Implementation**: Build with reusability in mind from day one
+4. **Testing**: Ensure LEGO blocks work in multiple contexts
+5. **Documentation**: Update component library with new LEGO blocks
 
 ### Clarity & Simplicity:
 Keep logic intuitive and minimal. Write as if the next developer will maintain it tomorrow.
@@ -71,6 +97,12 @@ Use React Context or Zustand. Avoid prop drilling or global variables.
 /components/MatrixPlot
 /components/Explorer
 /components/AdminPanel
+/components/lego-blocks/    # Reusable LEGO components
+  MetadataLegoBlock.tsx
+  ReusableButton.tsx
+  ReusableModal.tsx
+  ReusableCard.tsx
+  ReusableForm.tsx
 /data/usecases.json
 /data/filters.json
 /services/useCaseStore.js
