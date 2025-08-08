@@ -16,11 +16,15 @@ const sampleUseCases = [
     revenueImpact: 3,
     costSavings: 4,
     riskReduction: 5,
+    brokerPartnerExperience: 3,
     strategicFit: 4,
     dataReadiness: 4,
     technicalComplexity: 3,
     changeImpact: 2,
-    adoptionReadiness: 3
+    modelRisk: 3,
+    adoptionReadiness: 3,
+    explainabilityBias: 4,
+    regulatoryCompliance: 4
   },
   {
     title: "Predictive Risk Scoring",
@@ -34,11 +38,15 @@ const sampleUseCases = [
     revenueImpact: 5,
     costSavings: 3,
     riskReduction: 5,
+    brokerPartnerExperience: 4,
     strategicFit: 5,
     dataReadiness: 3,
     technicalComplexity: 4,
     changeImpact: 4,
-    adoptionReadiness: 2
+    modelRisk: 4,
+    adoptionReadiness: 2,
+    explainabilityBias: 3,
+    regulatoryCompliance: 5
   },
   {
     title: "Document Processing Automation",
@@ -52,11 +60,15 @@ const sampleUseCases = [
     revenueImpact: 2,
     costSavings: 5,
     riskReduction: 3,
+    brokerPartnerExperience: 3,
     strategicFit: 3,
     dataReadiness: 5,
     technicalComplexity: 2,
     changeImpact: 2,
-    adoptionReadiness: 4
+    modelRisk: 2,
+    adoptionReadiness: 4,
+    explainabilityBias: 2,
+    regulatoryCompliance: 3
   },
   {
     title: "Customer Sentiment Analysis",
@@ -70,11 +82,15 @@ const sampleUseCases = [
     revenueImpact: 3,
     costSavings: 2,
     riskReduction: 4,
+    brokerPartnerExperience: 4,
     strategicFit: 3,
     dataReadiness: 2,
     technicalComplexity: 3,
     changeImpact: 3,
-    adoptionReadiness: 2
+    modelRisk: 2,
+    adoptionReadiness: 2,
+    explainabilityBias: 3,
+    regulatoryCompliance: 3
   },
   {
     title: "Cyber Risk Assessment AI",
@@ -88,11 +104,15 @@ const sampleUseCases = [
     revenueImpact: 5,
     costSavings: 3,
     riskReduction: 5,
+    brokerPartnerExperience: 4,
     strategicFit: 5,
     dataReadiness: 2,
     technicalComplexity: 5,
     changeImpact: 5,
-    adoptionReadiness: 2
+    modelRisk: 4,
+    adoptionReadiness: 2,
+    explainabilityBias: 3,
+    regulatoryCompliance: 5
   },
   {
     title: "Fraud Detection Engine",
@@ -106,11 +126,15 @@ const sampleUseCases = [
     revenueImpact: 4,
     costSavings: 4,
     riskReduction: 5,
+    brokerPartnerExperience: 3,
     strategicFit: 4,
     dataReadiness: 3,
     technicalComplexity: 4,
     changeImpact: 3,
-    adoptionReadiness: 3
+    modelRisk: 3,
+    adoptionReadiness: 3,
+    explainabilityBias: 4,
+    regulatoryCompliance: 5
   }
 ];
 
@@ -133,6 +157,7 @@ export async function seedDatabase() {
         sampleUseCase.revenueImpact,
         sampleUseCase.costSavings,
         sampleUseCase.riskReduction,
+        sampleUseCase.brokerPartnerExperience,
         sampleUseCase.strategicFit
       );
       
@@ -140,6 +165,7 @@ export async function seedDatabase() {
         sampleUseCase.dataReadiness,
         sampleUseCase.technicalComplexity,
         sampleUseCase.changeImpact,
+        sampleUseCase.modelRisk,
         sampleUseCase.adoptionReadiness
       );
       

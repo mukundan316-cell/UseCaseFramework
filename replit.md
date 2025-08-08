@@ -31,6 +31,12 @@ The project follows strict architectural principles and coding standards documen
 - **Smart Filtering Logic**: Explorer filters check both single values and array values for comprehensive use case discovery
 - **Authentic RSA Metadata**: Commercial insurance terminology with 40+ process-specific activities
 
+### CRUD Operations (January 2025)
+- **Fixed Delete Operations**: Resolved JSON parsing errors in DELETE responses (204 No Content)
+- **Dual Implementation**: Both useUseCases hook and UseCaseContext support proper DELETE handling
+- **Error Handling**: Comprehensive error states with user feedback via toast notifications
+- **Data Integrity**: All CRUD operations maintain database consistency with proper validation
+
 ### LEGO Component Architecture
 - **ProcessActivityManager**: Database-driven LEGO block providing centralized process-activity relationship management without duplication across the app
 - **MultiSelectField**: Reusable multi-select component supporting both single-value and array-based selections with backward compatibility
