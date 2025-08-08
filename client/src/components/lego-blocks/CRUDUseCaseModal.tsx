@@ -163,7 +163,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         label={label}
         field={field}
         value={currentValue}
-        onChange={handleSliderChange}
+        onChange={(field, value) => handleSliderChange(field as keyof typeof scores, value)}
         tooltip={tooltip}
         leftLabel={leftLabel}
         rightLabel={rightLabel}

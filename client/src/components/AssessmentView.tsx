@@ -122,7 +122,19 @@ export default function AssessmentView() {
 
   // Handle retaking assessment
   const handleRetakeAssessment = () => {
+    // Clear localStorage assessment state
     localStorage.removeItem('rsa-assessment-state');
+    
+    // Clear any questionnaire progress data
+    const progressKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('questionnaire-progress-')) {
+        progressKeys.push(key);
+      }
+    }
+    progressKeys.forEach(key => localStorage.removeItem(key));
+    
     setAssessmentState({
       hasAssessment: false,
       isInProgress: false,
@@ -131,7 +143,8 @@ export default function AssessmentView() {
 
     toast({
       title: "Assessment Reset",
-      description: "You can now start a new assessment."
+      description: "You can now start a new assessment.",
+      duration: 3000
     });
   };
 

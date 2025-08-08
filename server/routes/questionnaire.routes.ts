@@ -164,7 +164,7 @@ router.post('/responses/start', async (req: Request, res: Response) => {
 const saveAnswerSchema = z.object({
   answers: z.array(z.object({
     questionId: z.string().min(1, 'Question ID is required'),
-    answerValue: z.string().min(0, 'Answer value is required'),
+    answerValue: z.string(), // Allow empty strings for optional answers
     score: z.number().int().optional()
   })).min(1, 'At least one answer is required')
 });
