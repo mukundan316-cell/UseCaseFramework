@@ -1,4 +1,4 @@
-# RSA GenAI Use Case Framework Microsite
+# GenAI Use Case Framework - AI Strategy & Prioritization Platform
 
 ## Overview
 

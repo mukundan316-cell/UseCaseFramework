@@ -78,9 +78,9 @@ export default function MatrixPlot() {
       <div className="matrix-container p-8">
         <div className="mb-6 text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            RSA AI Use Case Value Framework
+            GenAI Use Case Framework
           </h2>
-          <p className="text-gray-600 mb-2">AI use case prioritization based on business value and implementation complexity</p>
+          <p className="text-gray-600 mb-2">AI Strategy & Prioritization Platform</p>
           <p className="text-sm text-gray-500">As of August 2025 © RSA Insurance</p>
         </div>
         
