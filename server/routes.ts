@@ -44,6 +44,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const useCaseWithScores = {
         ...validatedData,
         linesOfBusiness: validatedData.linesOfBusiness || [validatedData.lineOfBusiness].filter(Boolean),
+        // Handle multi-select arrays with backward compatibility
+        processes: validatedData.processes || (validatedData.process ? [validatedData.process] : undefined),
+        activities: validatedData.activities || (validatedData.activity ? [validatedData.activity] : undefined),
+        businessSegments: validatedData.businessSegments || (validatedData.businessSegment ? [validatedData.businessSegment] : undefined),
+        geographies: validatedData.geographies || (validatedData.geography ? [validatedData.geography] : undefined),
         impactScore,
         effortScore,
         quadrant
@@ -62,6 +67,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const validatedData = insertUseCaseSchema.partial().parse(req.body);
       
+      // Handle multi-select arrays for updates
+      if (validatedData.linesOfBusiness) {
+        validatedData.linesOfBusiness = validatedData.linesOfBusiness.length > 0 ? validatedData.linesOfBusiness : [validatedData.lineOfBusiness].filter(Boolean);
+      }
+      if (validatedData.processes && validatedData.processes.length === 0) {
+        validatedData.processes = validatedData.process ? [validatedData.process] : undefined;
+      }
+      if (validatedData.activities && validatedData.activities.length === 0) {
+        validatedData.activities = validatedData.activity ? [validatedData.activity] : undefined;
+      }
+      if (validatedData.businessSegments && validatedData.businessSegments.length === 0) {
+        validatedData.businessSegments = validatedData.businessSegment ? [validatedData.businessSegment] : undefined;
+      }
+      if (validatedData.geographies && validatedData.geographies.length === 0) {
+        validatedData.geographies = validatedData.geography ? [validatedData.geography] : undefined;
+      }
+
       // Calculate enhanced framework scores if scoring fields are present
       let updatesWithScores = { ...validatedData };
       

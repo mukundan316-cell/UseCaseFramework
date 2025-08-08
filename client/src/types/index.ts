@@ -70,13 +70,13 @@ export interface UseCaseFormData {
 
 export interface FilterState {
   search: string;
-  process: string;
-  lineOfBusiness: string;
-  businessSegment: string;
-  geography: string;
-  useCaseType: string;
+  process?: string;
+  lineOfBusiness?: string;
+  businessSegment?: string;
+  geography?: string;
+  useCaseType?: string;
   activity?: string;
-  quadrant: string;
+  quadrant?: string;
 }
 
 export type TabType = "dashboard" | "explorer" | "admin";

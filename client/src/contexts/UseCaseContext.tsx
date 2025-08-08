@@ -29,7 +29,6 @@ const UseCaseContext = createContext<UseCaseContextType | undefined>(undefined);
 
 const initialFilters: FilterState = {
   search: '',
-  valueChainComponent: '',
   process: '',
   lineOfBusiness: '',
   businessSegment: '',
