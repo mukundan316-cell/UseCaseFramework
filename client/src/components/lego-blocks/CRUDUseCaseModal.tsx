@@ -14,7 +14,7 @@ import { UseCase, UseCaseFormData } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
-import { getActivitiesForProcess } from '@shared/processActivityMap';
+import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MultiSelectField from './MultiSelectField';
 
@@ -432,20 +432,19 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 helpText="Select one or more geographic markets"
               />
               
-              {/* Process Activities Multi-Select - Proper LEGO Component */}
-              <MultiSelectField
-                label="Process Activities"
-                items={getActivitiesForProcess(form.watch('process') || '')}
-                selectedItems={(form.watch('activities') as string[]) || [form.watch('activity')].filter(Boolean)}
-                onSelectionChange={(newItems) => {
+              {/* Process Activities - LEGO Contextual Component */}
+              <ContextualProcessActivityField
+                selectedProcess={form.watch('process') || ''}
+                selectedActivities={(form.watch('activities') as string[]) || [form.watch('activity')].filter(Boolean)}
+                onActivitiesChange={(newItems) => {
                   form.setValue('activities', newItems);
                   // Backward compatibility
                   if (newItems.length > 0) {
                     form.setValue('activity', newItems[0]);
+                  } else {
+                    form.setValue('activity', '');
                   }
                 }}
-                singleValue={form.watch('activity') || ''}
-                onSingleValueChange={(value) => form.setValue('activity', value)}
                 helpText={form.watch('process') ? "Activities filtered by selected process" : "Select process first to enable activities"}
                 placeholder={!form.watch('process') ? "Select process first" : "Select activities..."}
               />

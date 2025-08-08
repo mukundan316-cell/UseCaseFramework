@@ -32,6 +32,7 @@ The project follows strict architectural principles and coding standards documen
 - **Authentic RSA Metadata**: Commercial insurance terminology with 40+ process-specific activities
 
 ### LEGO Component Architecture
+- **ProcessActivityManager**: Database-driven LEGO block providing centralized process-activity relationship management without duplication across the app
 - **MultiSelectField**: Reusable multi-select component supporting both single-value and array-based selections with backward compatibility
 - **MetadataLegoBlock**: Reusable CRUD interface for UI dropdown values including activities management  
 - **CRUDUseCaseModal**: Complete use case management with embedded scoring sliders and multi-dimensional business context selection

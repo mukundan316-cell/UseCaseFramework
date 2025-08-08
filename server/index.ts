@@ -49,6 +49,10 @@ app.use((req, res, next) => {
   const { migrateToEnhancedFramework } = await import('./enhanced-framework-migration');
   await migrateToEnhancedFramework();
   
+  // Process-Activity LEGO Migration (Jan 2025)
+  const { migrateProcessActivities } = await import('./migrations/updateProcessActivities');
+  await migrateProcessActivities();
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
