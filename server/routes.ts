@@ -228,5 +228,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
 
+  // Register questionnaire routes
+  const questionnaireRoutes = (await import('./routes/questionnaire.routes')).default;
+  app.use('/api', questionnaireRoutes);
+
   return httpServer;
 }

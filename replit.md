@@ -24,6 +24,13 @@ The project follows strict architectural principles and coding standards documen
 - **Real-time Calculations**: Impact and Effort scores update instantly via averaging formulas
 - **Database Persistence**: All scoring data stored in PostgreSQL with automatic migrations
 
+### Questionnaire System API (January 2025)
+- **RESTful Endpoints**: Complete questionnaire management and response handling APIs
+- **Database-First Design**: No hardcoded content, all questionnaires stored in PostgreSQL
+- **Response Sessions**: Full lifecycle management from start to completion with scoring
+- **Maturity Scoring**: Automatic calculation of maturity levels and percentage assessments
+- **Hierarchical Data**: Questionnaires → Sections → Questions → Options with proper relationships
+
 ### Enhanced Multi-Select System (January 2025)
 - **Multi-Select LEGO Components**: Process Activities, Business Segments, and Geographies now support multi-dimensional selection using reusable MultiSelectField component
 - **Backward Compatibility**: Single-value fields preserved alongside new array columns for seamless data migration
