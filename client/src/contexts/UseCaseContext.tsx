@@ -205,22 +205,52 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   const getFilteredUseCases = (): UseCase[] => {
     if (!useCases || !Array.isArray(useCases)) return [];
     return useCases.filter((useCase: any) => {
+      // Search filter
       if (filters.search && !useCase.title.toLowerCase().includes(filters.search.toLowerCase()) && 
           !useCase.description.toLowerCase().includes(filters.search.toLowerCase())) {
         return false;
       }
-      if (filters.valueChainComponent && useCase.valueChainComponent !== filters.valueChainComponent) return false;
-      if (filters.process && useCase.process !== filters.process) return false;
+      
+      // Process filtering - check both single and array values
+      if (filters.process && 
+          useCase.process !== filters.process && 
+          !(useCase.processes && useCase.processes.includes(filters.process))) {
+        return false;
+      }
+      
+      // Activity filtering - check both single and array values
+      if (filters.activity && 
+          useCase.activity !== filters.activity && 
+          !(useCase.activities && useCase.activities.includes(filters.activity))) {
+        return false;
+      }
+      
+      // Line of Business filtering (already supports multi-select)
       if (filters.lineOfBusiness && filters.lineOfBusiness !== 'all') {
-        // Support filtering for multi-LOB use cases
-        const useCaseLOBs = (useCase as any).linesOfBusiness || [useCase.lineOfBusiness];
+        const useCaseLOBs = useCase.linesOfBusiness || [useCase.lineOfBusiness];
         if (!useCaseLOBs.includes(filters.lineOfBusiness)) return false;
       }
-      if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
-      if (filters.geography && useCase.geography !== filters.geography) return false;
+      
+      // Business Segment filtering - check both single and array values
+      if (filters.businessSegment && 
+          useCase.businessSegment !== filters.businessSegment && 
+          !(useCase.businessSegments && useCase.businessSegments.includes(filters.businessSegment))) {
+        return false;
+      }
+      
+      // Geography filtering - check both single and array values
+      if (filters.geography && 
+          useCase.geography !== filters.geography && 
+          !(useCase.geographies && useCase.geographies.includes(filters.geography))) {
+        return false;
+      }
+      
+      // Use Case Type filtering
       if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
-      if (filters.activity && (useCase as any).activity !== filters.activity) return false;
+      
+      // Quadrant filtering
       if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+      
       return true;
     });
   };

@@ -8,6 +8,11 @@ export interface UseCase {
   businessSegment: string;
   geography: string;
   useCaseType: string;
+  // Multi-select array fields for enhanced flexibility
+  processes?: string[];
+  activities?: string[];
+  businessSegments?: string[];
+  geographies?: string[];
   revenueImpact: number;
   costSavings: number;
   riskReduction: number;
@@ -23,6 +28,7 @@ export interface UseCase {
   impactScore: number;
   effortScore: number;
   quadrant: QuadrantType;
+  activity?: string;
   createdAt?: Date;
 }
 
@@ -39,6 +45,11 @@ export interface UseCaseFormData {
   businessSegment: string;
   geography: string;
   useCaseType: string;
+  // Multi-select array fields for enhanced flexibility
+  processes?: string[];
+  activities?: string[];
+  businessSegments?: string[];
+  geographies?: string[];
   // Business Value Levers (Impact Score)
   revenueImpact: number;
   costSavings: number;
@@ -54,6 +65,7 @@ export interface UseCaseFormData {
   // AI Governance Levers
   explainabilityBias: number;
   regulatoryCompliance: number;
+  activity?: string;
 }
 
 export interface FilterState {

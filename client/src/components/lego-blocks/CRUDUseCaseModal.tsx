@@ -16,12 +16,18 @@ import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
 import { getActivitiesForProcess } from '@shared/processActivityMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import MultiSelectField from './MultiSelectField';
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   process: z.string().min(1, 'Process is required'),
   lineOfBusiness: z.string().min(1, 'Line of business is required'),
+  // Multi-select arrays (optional)
+  processes: z.array(z.string()).optional(),
+  activities: z.array(z.string()).optional(),
+  businessSegments: z.array(z.string()).optional(),
+  geographies: z.array(z.string()).optional(),
   linesOfBusiness: z.array(z.string()).optional(),
   businessSegment: z.string().min(1, 'Business segment is required'),
   geography: z.string().min(1, 'Geography is required'),
@@ -202,6 +208,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         geography: useCase.geography || '',
         useCaseType: useCase.useCaseType || '',
         activity: (useCase as any).activity || '',
+        // Multi-select arrays with backward compatibility
+        processes: (useCase as any).processes || [useCase.process].filter(Boolean),
+        activities: (useCase as any).activities || [(useCase as any).activity].filter(Boolean),
+        businessSegments: (useCase as any).businessSegments || [useCase.businessSegment].filter(Boolean),
+        geographies: (useCase as any).geographies || [useCase.geography].filter(Boolean),
         // Map all enhanced framework dimensions - now properly mapped from API
         revenueImpact: (useCase as any).revenueImpact ?? 3,
         costSavings: (useCase as any).costSavings ?? 3,
@@ -247,6 +258,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         geography: '',
         useCaseType: '',
         activity: '',
+        // Multi-select arrays
+        processes: [],
+        activities: [],
+        businessSegments: [],
+        geographies: [],
         ...scores,
       };
       form.reset(defaultData);
@@ -380,70 +396,76 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label>Lines of Business</Label>
-                <div className="mt-1 p-3 border rounded-md max-h-32 overflow-y-auto">
-                  {metadata.linesOfBusiness.filter(lob => lob && lob.trim()).map(lob => {
-                    const currentLOBs = form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean) as string[]);
-                    const isChecked = currentLOBs.includes(lob);
-                    
-                    return (
-                      <div key={lob} className="flex items-center space-x-2 mb-2">
-                        <input
-                          type="checkbox"
-                          id={`lob-${lob}`}
-                          checked={isChecked}
-                          onChange={(e) => {
-                            const currentLOBs = form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean) as string[]);
-                            let newLOBs: string[];
-                            if (e.target.checked) {
-                              newLOBs = [...currentLOBs, lob];
-                            } else {
-                              newLOBs = currentLOBs.filter(l => l !== lob);
-                            }
-                            form.setValue('linesOfBusiness', newLOBs);
-                            // Keep the old field for backwards compatibility
-                            if (newLOBs.length > 0) {
-                              form.setValue('lineOfBusiness', newLOBs[0]);
-                            }
-                          }}
-                          className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                        />
-                        <label htmlFor={`lob-${lob}`} className="text-sm text-gray-700">
-                          {lob}
-                        </label>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              <div>
-                <Label>Business Segment</Label>
-                <Select key={`businessSegment-${mode}-${useCase?.id}`} value={form.watch('businessSegment') || ''} onValueChange={(value) => form.setValue('businessSegment', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select segment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata.businessSegments.filter(segment => segment && segment.trim()).map(segment => (
-                      <SelectItem key={segment} value={segment}>{segment}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Geography</Label>
-                <Select key={`geography-${mode}-${useCase?.id}`} value={form.watch('geography') || ''} onValueChange={(value) => form.setValue('geography', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select geography" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata.geographies.filter(geo => geo && geo.trim()).map(geo => (
-                      <SelectItem key={geo} value={geo}>{geo}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Multi-Select Business Context - Enhanced LEGO Components */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Lines of Business Multi-Select */}
+              <MultiSelectField
+                label="Lines of Business"
+                items={metadata.linesOfBusiness}
+                selectedItems={form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean) as string[])}
+                onSelectionChange={(newItems) => {
+                  form.setValue('linesOfBusiness', newItems);
+                  // Backward compatibility
+                  if (newItems.length > 0) {
+                    form.setValue('lineOfBusiness', newItems[0]);
+                  }
+                }}
+                singleValue={form.watch('lineOfBusiness') || ''}
+                onSingleValueChange={(value) => form.setValue('lineOfBusiness', value)}
+                helpText="Select one or more lines of business"
+              />
+              
+              {/* Business Segments Multi-Select */}
+              <MultiSelectField
+                label="Business Segments"
+                items={metadata.businessSegments}
+                selectedItems={(form.watch('businessSegments') as string[]) || [form.watch('businessSegment')].filter(Boolean)}
+                onSelectionChange={(newItems) => {
+                  form.setValue('businessSegments', newItems);
+                  // Backward compatibility
+                  if (newItems.length > 0) {
+                    form.setValue('businessSegment', newItems[0]);
+                  }
+                }}
+                singleValue={form.watch('businessSegment') || ''}
+                onSingleValueChange={(value) => form.setValue('businessSegment', value)}
+                helpText="Select one or more business segments"
+              />
+              
+              {/* Geographies Multi-Select */}
+              <MultiSelectField
+                label="Geographies"
+                items={metadata.geographies}
+                selectedItems={(form.watch('geographies') as string[]) || [form.watch('geography')].filter(Boolean)}
+                onSelectionChange={(newItems) => {
+                  form.setValue('geographies', newItems);
+                  // Backward compatibility
+                  if (newItems.length > 0) {
+                    form.setValue('geography', newItems[0]);
+                  }
+                }}
+                singleValue={form.watch('geography') || ''}
+                onSingleValueChange={(value) => form.setValue('geography', value)}
+                helpText="Select one or more geographic markets"
+              />
+              
+              {/* Activities Multi-Select */}
+              <MultiSelectField
+                label="Process Activities"
+                items={getActivitiesForProcess(form.watch('process') || '')}
+                selectedItems={(form.watch('activities') as string[]) || [form.watch('activity')].filter(Boolean)}
+                onSelectionChange={(newItems) => {
+                  form.setValue('activities', newItems);
+                  // Backward compatibility
+                  if (newItems.length > 0) {
+                    form.setValue('activity', newItems[0]);
+                  }
+                }}
+                singleValue={form.watch('activity') || ''}
+                onSingleValueChange={(value) => form.setValue('activity', value)}
+                helpText={form.watch('process') ? "Activities filtered by selected process" : "Select process first to enable activities"}
+                placeholder={!form.watch('process') ? "Select process first" : "Select activities..."}
+              />
             </div>
           </div>
 
