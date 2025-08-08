@@ -319,28 +319,49 @@ body {
 }
 
 @layer utilities {
-  .slider {
-    background: linear-gradient(to right, var(--rsa-blue) 0%, var(--rsa-blue) 60%, #E5E7EB 60%, #E5E7EB 100%);
-  }
-
-  .slider::-webkit-slider-thumb {
+  /* Custom Range Slider Styling */
+  input[type="range"]::-webkit-slider-thumb {
     appearance: none;
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: var(--rsa-blue);
+    background: #005DAA;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
   }
 
-  .slider::-moz-range-thumb {
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 93, 170, 0.4);
+  }
+
+  input[type="range"]::-moz-range-thumb {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: var(--rsa-blue);
+    background: #005DAA;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+  }
+
+  input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 93, 170, 0.4);
+  }
+
+  input[type="range"]::-webkit-slider-track {
+    height: 8px;
+    border-radius: 4px;
+    outline: none;
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+    outline: none;
   }
 }

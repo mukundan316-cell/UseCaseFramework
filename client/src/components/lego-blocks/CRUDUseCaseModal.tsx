@@ -176,7 +176,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
           max="5"
           value={currentValue}
           onChange={(e) => handleSliderChange(field, parseInt(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, #005DAA 0%, #005DAA ${((currentValue - 1) / 4) * 100}%, #E5E7EB ${((currentValue - 1) / 4) * 100}%, #E5E7EB 100%)`
+          }}
         />
         <div className="flex justify-between text-xs text-gray-500 mt-1">
           <span>{leftLabel}</span>
