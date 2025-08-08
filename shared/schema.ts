@@ -1,0 +1,52 @@
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, integer, real, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+});
+
+export const useCases = pgTable("use_cases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  valueChainComponent: text("value_chain_component").notNull(),
+  process: text("process").notNull(),
+  lineOfBusiness: text("line_of_business").notNull(),
+  businessSegment: text("business_segment").notNull(),
+  geography: text("geography").notNull(),
+  useCaseType: text("use_case_type").notNull(),
+  revenueImpact: integer("revenue_impact").notNull(),
+  costSavings: integer("cost_savings").notNull(),
+  riskReduction: integer("risk_reduction").notNull(),
+  strategicFit: integer("strategic_fit").notNull(),
+  dataReadiness: integer("data_readiness").notNull(),
+  technicalComplexity: integer("technical_complexity").notNull(),
+  changeImpact: integer("change_impact").notNull(),
+  adoptionReadiness: integer("adoption_readiness").notNull(),
+  impactScore: real("impact_score").notNull(),
+  effortScore: real("effort_score").notNull(),
+  quadrant: text("quadrant").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true,
+});
+
+export const insertUseCaseSchema = createInsertSchema(useCases).omit({
+  id: true,
+  impactScore: true,
+  effortScore: true,
+  quadrant: true,
+  createdAt: true,
+});
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
+export type UseCase = typeof useCases.$inferSelect;
+export type InsertUseCase = z.infer<typeof insertUseCaseSchema>;
