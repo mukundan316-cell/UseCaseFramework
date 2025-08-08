@@ -35,6 +35,7 @@ const initialFilters: FilterState = {
   businessSegment: '',
   geography: '',
   useCaseType: '',
+  activity: '',
   quadrant: ''
 };
 
@@ -218,6 +219,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
       if (filters.geography && useCase.geography !== filters.geography) return false;
       if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
+      if (filters.activity && (useCase as any).activity !== filters.activity) return false;
       if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
       return true;
     });

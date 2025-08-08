@@ -1,0 +1,231 @@
+Incremental Enhancement Prompt - RSA Metadata Integration
+Objective
+Enhance the existing RSA AI Use Case Value Framework with authentic RSA business metadata while maintaining all current functionality, LEGO architecture, and database persistence.
+Current State Analysis (From Screenshots)
+✅ Working Components to Preserve
+
+Admin Panel - UI List of Values Management with MetadataLegoBlock
+Explorer - Use Case filtering with quadrant chips (All, Quick Win, Strategic Bet, etc.)
+CRUD Modal - Complete use case management with 12-lever RSA scoring framework
+Database Structure - PostgreSQL with proper relationships and persistence
+LEGO Components - Reusable blocks for consistent UI/UX
+
+📋 Current Metadata Categories (6 categories)
+
+Value Chain Components (Claims, Underwriting, Policy Servicing, Distribution)
+Business Processes (FNOL, Quote & Bind, Pricing, Renewal)
+Lines of Business (Auto, Property, Marine, Life, Cyber, Specialty)
+Business Segments (Mid-Market, Large Commercial, SME, E&S)
+Geographies (UK)
+Use Case Types (GenAI)
+
+Enhancement Strategy
+Phase 1: Metadata Value Enhancement (No Schema Changes)
+Objective: Replace generic values with authentic RSA commercial insurance terminology
+Admin Panel Updates Required:
+typescript// Update default metadata values via Admin UI or direct database update
+const enhancedMetadata = {
+  // KEEP - Enhanced Value Chain Components (Insurance Process Focus)
+  valueChainComponents: [
+    "Risk Assessment & Underwriting",
+    "Customer Experience & Distribution", 
+    "Claims Management & Settlement",
+    "Risk Consulting & Prevention",
+    "Portfolio Management & Analytics"
+  ],
+
+  // RENAME - Business Processes → Insurance Processes
+  processes: [
+    "Submission & Quote",
+    "Underwriting", 
+    "Policy Administration",
+    "Claims Management",
+    "Risk Consulting",
+    "Reinsurance",
+    "Regulatory & Compliance",
+    "Financial Management"
+  ],
+
+  // KEEP - Enhanced Lines of Business (RSA Commercial Portfolio)
+  linesOfBusiness: [
+    "Property & Real Estate",
+    "Marine & Transportation", 
+    "Construction & Engineering",
+    "Professional & Financial",
+    "Renewable Energy",
+    "Motor & Fleet",
+    "Liability & Risk",
+    "Accident & Health",
+    "Rail",
+    "Non-Profit Organizations"
+  ],
+
+  // KEEP - Enhanced Business Segments (RSA Market Structure)
+  businessSegments: [
+    "Large Corporates",
+    "Mid-Market",
+    "Small Businesses", 
+    "Delegated Authority"
+  ],
+
+  // KEEP - Enhanced Geographies (RSA Footprint)
+  geographies: [
+    "UK Domestic",
+    "UK Regions", 
+    "London Market",
+    "European Markets",
+    "Global Network",
+    "International/Multinational"
+  ],
+
+  // KEEP - Use Case Types (Auto-derived, simplified)
+  useCaseTypes: [
+    "Analytics & Insights",
+    "Process Automation", 
+    "Customer Experience",
+    "Risk Intelligence"
+  ]
+};
+Phase 2: Add Process-Activity Hierarchy (Minor Schema Enhancement)
+Objective: Add granular activity tracking without breaking existing functionality
+Database Migration (Additive Only):
+sql-- Add new column for activities (nullable for backward compatibility)
+ALTER TABLE use_cases ADD COLUMN activity TEXT;
+
+-- Add activities array to metadata_config
+ALTER TABLE metadata_config ADD COLUMN activities TEXT[];
+
+-- Update metadata with activity options
+UPDATE metadata_config SET activities = ARRAY[
+  -- Submission & Quote Activities
+  'Risk Analysis', 'Cat Modeling', 'Market Analysis', 'Pricing', 'Pipelining',
+  
+  -- Underwriting Activities  
+  'Risk Assessment', 'Rating', 'Quality Assurance', 'Contract Certainty', 'Exposure Management',
+  
+  -- Policy Administration Activities
+  'Policy Issuance', 'Booking & Recording', 'Document Management', 'Renewal Processing', 'Contract Management',
+  
+  -- Claims Management Activities
+  'Claims Processing', 'Expert Settlement', 'Loss Fund Management', 'Subrogation', 'Claims Analysis',
+  
+  -- Risk Consulting Activities
+  'Risk Evaluation', 'Compliance Verification', 'Advisory Services', 'Risk Monitoring',
+  
+  -- Reinsurance Activities
+  'R/I Transactions', 'Contract Charging', 'Reinsurance Messages', 'Manual Adjustments',
+  
+  -- Regulatory & Compliance Activities  
+  'Regulatory Reporting', 'Sanctions Check', 'Lloyd''s Compliance', 'Licensing Check',
+  
+  -- Financial Management Activities
+  'Accounting', 'Credit Control', 'Payment Processing', 'Financial Reporting'
+] WHERE id = 'default';
+Component Enhancements:
+1. MetadataLegoBlock Enhancement (Add Activities Category)
+typescript// Add to Admin Panel categories array
+const metadataCategories = [
+  ...existingCategories,
+  { 
+    key: 'activities', 
+    title: 'Process Activities', 
+    icon: Settings,
+    placeholder: 'Add new process activity...'
+  }
+];
+2. Explorer Filter Enhancement (Add Activity Filter)
+typescript// Add to existing filter dropdowns (no replacement)
+const filterOptions = [
+  { key: 'valueChain', label: 'Value Chain', options: metadata.valueChainComponents },
+  { key: 'process', label: 'Process', options: metadata.processes },
+  { key: 'activity', label: 'Activity', options: metadata.activities }, // NEW
+  { key: 'linesOfBusiness', label: 'All LOBs', options: metadata.linesOfBusiness },
+  { key: 'segment', label: 'Segment', options: metadata.businessSegments },
+  { key: 'geography', label: 'Geography', options: metadata.geographies },
+  { key: 'type', label: 'Type', options: metadata.useCaseTypes }
+];
+3. CRUD Modal Enhancement (Add Activity Dropdown)
+typescript// Add to Business Context section (after Process dropdown)
+<FormField>
+  <FormLabel>Process Activity</FormLabel>
+  <Select 
+    value={form.values.activity}
+    onChange={(value) => form.setFieldValue('activity', value)}
+    disabled={!form.values.process} // Only enabled when process selected
+  >
+    {getActivitiesForProcess(form.values.process).map(activity => (
+      <SelectOption key={activity} value={activity}>{activity}</SelectOption>
+    ))}
+  </Select>
+</FormField>
+4. Smart Activity Filtering Function
+typescript// Add helper function for process-activity relationships
+const processActivityMap = {
+  "Submission & Quote": ["Risk Analysis", "Cat Modeling", "Market Analysis", "Pricing", "Pipelining"],
+  "Underwriting": ["Risk Assessment", "Rating", "Quality Assurance", "Contract Certainty", "Exposure Management"],
+  "Policy Administration": ["Policy Issuance", "Booking & Recording", "Document Management", "Renewal Processing", "Contract Management"],
+  "Claims Management": ["Claims Processing", "Expert Settlement", "Loss Fund Management", "Subrogation", "Claims Analysis"],
+  "Risk Consulting": ["Risk Evaluation", "Compliance Verification", "Advisory Services", "Risk Monitoring"],
+  "Reinsurance": ["R/I Transactions", "Contract Charging", "Reinsurance Messages", "Manual Adjustments"],
+  "Regulatory & Compliance": ["Regulatory Reporting", "Sanctions Check", "Lloyd's Compliance", "Licensing Check"],
+  "Financial Management": ["Accounting", "Credit Control", "Payment Processing", "Financial Reporting"]
+};
+
+const getActivitiesForProcess = (process) => {
+  if (!process) return [];
+  return processActivityMap[process] || [];
+};
+Implementation Prompt
+🎯 Specific Request for Development:
+"Enhance the existing RSA AI Use Case Value Framework with the following incremental improvements while preserving all current functionality:
+
+Update metadata values in the admin panel to use authentic RSA commercial insurance terminology as specified in the enhancedMetadata object above
+Add optional 'activity' field to the use case form and database schema (nullable column for backward compatibility)
+Extend MetadataLegoBlock to manage the new activities array in metadata_config table
+Add Activity filter dropdown to the Explorer alongside existing filters
+Implement smart activity filtering in the CRUD modal where activity options are contextually filtered based on selected process
+Maintain all existing LEGO architecture, database persistence, and UI/UX patterns
+Preserve the 12-lever RSA scoring framework and quadrant logic exactly as implemented
+Ensure backward compatibility - existing use cases should continue to work without the activity field
+
+Key Requirements:
+
+✅ No breaking changes to existing functionality
+✅ Database-first persistence for all new data
+✅ Reuse existing LEGO components (MetadataLegoBlock, FilterChip, etc.)
+✅ Follow REFERENCE.md coding standards and architecture principles
+✅ Maintain RSA branding and consistent UI patterns
+✅ Add proper error handling and loading states
+✅ Include TypeScript types for new fields
+
+Deliverables:
+
+Database migration script (additive only)
+Updated MetadataLegoBlock usage for activities
+Enhanced Explorer filter functionality
+Updated CRUD modal with contextual activity selection
+Helper functions for process-activity relationships
+
+This enhancement will provide granular process-activity classification while maintaining the portal's technical excellence and user experience."
+Expected Outcome
+Enhanced User Experience:
+
+Users can classify use cases with more precision (Process + Activity)
+Contextual activity options based on selected process
+Better filtering capabilities in Explorer
+Maintained simplicity with progressive disclosure
+
+Technical Benefits:
+
+Backward compatible database schema
+Extended existing LEGO components
+No code duplication
+Preserved database-first architecture
+Enhanced analytics capabilities with process-activity combinations
+
+Business Value:
+
+More accurate use case categorization using authentic RSA terminology
+Better alignment with actual insurance business processes
+Enhanced strategic decision-making through granular classification
+Scalable framework for future RSA-specific enhancements

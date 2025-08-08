@@ -196,6 +196,12 @@ export default function AdminPanel() {
                 items={metadata.useCaseTypes}
                 placeholder="Add new use case type..."
               />
+              <MetadataLegoBlock
+                category="activities"
+                title="Process Activities"
+                items={metadata.activities || []}
+                placeholder="Add new process activity..."
+              />
             </div>
           </div>
         </CardContent>

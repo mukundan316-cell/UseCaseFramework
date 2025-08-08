@@ -14,6 +14,7 @@ import { UseCase, UseCaseFormData } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
+import { getActivitiesForProcess } from '@shared/processActivityMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const formSchema = z.object({
@@ -26,6 +27,7 @@ const formSchema = z.object({
   businessSegment: z.string().min(1, 'Business segment is required'),
   geography: z.string().min(1, 'Geography is required'),
   useCaseType: z.string().min(1, 'Use case type is required'),
+  activity: z.string().optional(),
   // Enhanced RSA Framework - Business Value Levers
   revenueImpact: z.number().min(1).max(5),
   costSavings: z.number().min(1).max(5),
@@ -202,6 +204,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         businessSegment: useCase.businessSegment || '',
         geography: useCase.geography || '',
         useCaseType: useCase.useCaseType || '',
+        activity: (useCase as any).activity || '',
         // Map all enhanced framework dimensions - now properly mapped from API
         revenueImpact: (useCase as any).revenueImpact ?? 3,
         costSavings: (useCase as any).costSavings ?? 3,
@@ -247,6 +250,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         businessSegment: '',
         geography: '',
         useCaseType: '',
+        activity: '',
         ...scores,
       };
       form.reset(defaultData);
@@ -433,6 +437,27 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label>Process Activity</Label>
+                <Select 
+                  key={`activity-${mode}-${useCase?.id}`} 
+                  value={form.watch('activity') || ''} 
+                  onValueChange={(value) => form.setValue('activity', value)}
+                  disabled={!form.watch('process')}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={form.watch('process') ? "Select activity" : "Select process first"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getActivitiesForProcess(form.watch('process') || '').map(activity => (
+                      <SelectItem key={activity} value={activity}>{activity}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Activities filtered by selected process
+                </p>
               </div>
             </div>
           </div>

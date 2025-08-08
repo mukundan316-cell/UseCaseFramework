@@ -20,6 +20,7 @@ export const useCases = pgTable("use_cases", {
   businessSegment: text("business_segment").notNull(),
   geography: text("geography").notNull(),
   useCaseType: text("use_case_type").notNull(),
+  activity: text("activity"), // Optional field for granular process classification
   // Business Value Levers (Impact Score)
   revenueImpact: integer("revenue_impact").notNull(),
   costSavings: integer("cost_savings").notNull(),
@@ -72,6 +73,7 @@ export const metadataConfig = pgTable('metadata_config', {
   businessSegments: text('business_segments').array().notNull(),
   geographies: text('geographies').array().notNull(),
   useCaseTypes: text('use_case_types').array().notNull(),
+  activities: text('activities').array().notNull().default(sql`'{}'`),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 

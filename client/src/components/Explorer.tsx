@@ -275,6 +275,18 @@ export default function Explorer() {
                 ))}
               </SelectContent>
             </Select>
+
+            <Select value={filters.activity || ''} onValueChange={(value) => setFilters({ activity: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Activity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Activities</SelectItem>
+                {metadata?.activities?.filter(activity => activity && activity.trim()).map(activity => (
+                  <SelectItem key={activity} value={activity}>{activity}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>

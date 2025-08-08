@@ -66,6 +66,7 @@ export interface FilterState {
   businessSegment: string;
   geography: string;
   useCaseType: string;
+  activity?: string;
   quadrant: string;
 }
 
