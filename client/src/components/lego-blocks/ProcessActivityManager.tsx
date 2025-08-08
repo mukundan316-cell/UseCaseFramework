@@ -19,7 +19,20 @@ export function useProcessActivityManager() {
    */
   const getActivitiesForProcess = (process: string): string[] => {
     if (!process || !metadata?.processActivities) return [];
-    return metadata.processActivities[process] || [];
+    
+    // Handle both parsed object and JSON string formats
+    let processActivitiesMap: Record<string, string[]>;
+    if (typeof metadata.processActivities === 'string') {
+      try {
+        processActivitiesMap = JSON.parse(metadata.processActivities);
+      } catch {
+        return [];
+      }
+    } else {
+      processActivitiesMap = metadata.processActivities;
+    }
+    
+    return processActivitiesMap[process] || [];
   };
 
   /**
@@ -36,7 +49,19 @@ export function useProcessActivityManager() {
    */
   const getAllActivities = (): string[] => {
     if (!metadata?.processActivities) return metadata?.activities || [];
-    return Object.values(metadata.processActivities).flat();
+    
+    // Handle both parsed object and JSON string formats
+    let processActivitiesMap: Record<string, string[]>;
+    if (typeof metadata.processActivities === 'string') {
+      try {
+        processActivitiesMap = JSON.parse(metadata.processActivities);
+        return Object.values(processActivitiesMap).flat();
+      } catch {
+        return metadata?.activities || [];
+      }
+    } else {
+      return Object.values(metadata.processActivities).flat();
+    }
   };
 
   /**

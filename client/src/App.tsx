@@ -5,12 +5,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UseCaseProvider } from "./contexts/UseCaseContext";
 import HomePage from "./pages/HomePage";
+import ProcessActivityTest from "./components/lego-blocks/ProcessActivityTest";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/test" component={ProcessActivityTest} />
       <Route component={NotFound} />
     </Switch>
   );

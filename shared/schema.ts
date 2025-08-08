@@ -82,7 +82,7 @@ export const metadataConfig = pgTable('metadata_config', {
   geographies: text('geographies').array().notNull(),
   useCaseTypes: text('use_case_types').array().notNull(),
   activities: text('activities').array().notNull().default(sql`'{}'`),
-  processActivities: text('process_activities', { mode: 'json' }).$type<Record<string, string[]>>(),
+  processActivities: text('process_activities', { mode: 'json' }).$type<Record<string, string[]> | string>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
