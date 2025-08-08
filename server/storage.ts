@@ -1,6 +1,6 @@
 import { users, useCases, metadataConfig, type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 // Storage interface with metadata management for database-first compliance
