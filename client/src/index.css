@@ -252,22 +252,24 @@ body {
   content: '';
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(0, 93, 170, 0.3) 50%, transparent 100%);
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #005DAA 50%, transparent 100%);
   z-index: 1;
+  border-radius: 2px;
 }
 
 .matrix-grid::after {
   content: '';
   position: absolute;
   left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 93, 170, 0.3) 50%, transparent 100%);
+  top: 10%;
+  bottom: 15%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent 0%, #005DAA 50%, transparent 100%);
   z-index: 1;
+  border-radius: 2px;
 }
 
 /* Animation Enhancement */

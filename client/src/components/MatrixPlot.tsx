@@ -10,10 +10,10 @@ export default function MatrixPlot() {
   const quadrantCounts = getQuadrantCounts();
   const averageImpact = getAverageImpact();
 
-  // Transform data for scatter plot
+  // Transform data for scatter plot - properly balanced coordinates
   const chartData = useCases.map(useCase => ({
-    x: 6 - useCase.effortScore, // Invert effort score (lower effort = left side)
-    y: useCase.impactScore,
+    x: useCase.effortScore, // Use effort score directly (low = left, high = right)
+    y: useCase.impactScore, // Use impact score directly (low = bottom, high = top)
     name: useCase.title,
     quadrant: useCase.quadrant,
     color: getQuadrantColor(useCase.quadrant),
@@ -83,43 +83,84 @@ export default function MatrixPlot() {
           <p className="text-gray-600 text-lg">Visual prioritization of AI use cases across quadrants</p>
         </div>
         
-        {/* Matrix Chart */}
+        {/* Matrix Chart with Quadrant Backgrounds */}
         <div className="h-96 w-full matrix-grid relative">
+          {/* Quadrant Background Colors */}
+          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-0 rounded-lg overflow-hidden" style={{ margin: '60px 50px' }}>
+            {/* Top Left - Quick Win (Green) */}
+            <div className="bg-green-50/70 border-r border-b border-gray-200"></div>
+            {/* Top Right - Strategic Bet (Blue) */}
+            <div className="bg-blue-50/70 border-b border-gray-200"></div>
+            {/* Bottom Left - Experimental (Yellow) */}
+            <div className="bg-yellow-50/70 border-r border-gray-200"></div>
+            {/* Bottom Right - Watchlist (Red) */}
+            <div className="bg-red-50/70"></div>
+          </div>
+          
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 30, right: 50, bottom: 60, left: 60 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="2 2" stroke="#e2e8f0" strokeWidth={1} />
                 <XAxis 
                   type="number" 
                   dataKey="x" 
                   domain={[1, 5]} 
-                  label={{ value: 'Effort (Inverted)', position: 'insideBottom', offset: -10 }}
+                  ticks={[1, 2, 3, 4, 5]}
+                  tickCount={5}
+                  label={{ value: 'Complexity (Low → High)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fontSize: '12px', fill: '#64748b' } }}
+                  axisLine={{ stroke: '#94a3b8', strokeWidth: 2 }}
+                  tickLine={{ stroke: '#94a3b8' }}
                 />
                 <YAxis 
                   type="number" 
                   dataKey="y" 
                   domain={[1, 5]} 
-                  label={{ value: 'Impact', angle: -90, position: 'insideLeft' }}
+                  ticks={[1, 2, 3, 4, 5]}
+                  tickCount={5}
+                  label={{ value: 'Business Impact', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: '12px', fill: '#64748b' } }}
+                  axisLine={{ stroke: '#94a3b8', strokeWidth: 2 }}
+                  tickLine={{ stroke: '#94a3b8' }}
                 />
-                <ReferenceLine x={3.25} stroke="#666" strokeDasharray="2 2" />
-                <ReferenceLine y={4} stroke="#666" strokeDasharray="2 2" />
+                <ReferenceLine x={3} stroke="#005DAA" strokeWidth={2} strokeOpacity={0.7} />
+                <ReferenceLine y={3} stroke="#005DAA" strokeWidth={2} strokeOpacity={0.7} />
                 <Tooltip content={<CustomTooltip />} />
                 {chartData.map((entry, index) => (
                   <Scatter
                     key={index}
                     data={[entry]}
                     fill={entry.color}
+                    shape="circle"
                   />
                 ))}
               </ScatterChart>
             </ResponsiveContainer>
           </div>
 
-        {/* Quadrant Labels */}
-        <div className="mt-6 grid grid-cols-2 gap-6 text-sm text-gray-600 font-medium">
-          <div className="text-left">Bottom Left: <span className="text-yellow-600">Experimental</span></div>
-          <div className="text-right">Bottom Right: <span className="text-red-600">Watchlist</span></div>
-          <div className="text-left">Top Left: <span className="text-green-600">Quick Win</span></div>
-          <div className="text-right">Top Right: <span className="text-blue-600">Strategic Bet</span></div>
+        {/* Quadrant Labels - Positioned like a proper 2x2 matrix */}
+        <div className="relative mt-8 h-24">
+          <div className="absolute top-0 left-0 w-1/2 text-center">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <span className="text-green-700 font-semibold">Prioritise</span>
+              <div className="text-xs text-green-600 mt-1">Low hanging fruits</div>
+            </div>
+          </div>
+          <div className="absolute top-0 right-0 w-1/2 text-center pl-2">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <span className="text-blue-700 font-semibold">Investigate</span>
+              <div className="text-xs text-blue-600 mt-1">The Gems</div>
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 w-1/2 text-center">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <span className="text-yellow-700 font-semibold">Consider</span>
+              <div className="text-xs text-yellow-600 mt-1">The possibility</div>
+            </div>
+          </div>
+          <div className="absolute bottom-0 right-0 w-1/2 text-center pl-2">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <span className="text-red-700 font-semibold">Avoid</span>
+              <div className="text-xs text-red-600 mt-1">The Trouble</div>
+            </div>
+          </div>
         </div>
       </div>
 
