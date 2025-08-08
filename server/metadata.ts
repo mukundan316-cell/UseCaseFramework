@@ -1,0 +1,51 @@
+import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import { MetadataConfig } from '@shared/schema';
+
+const FILTERS_PATH = join(process.cwd(), 'data', 'filters.json');
+
+/**
+ * Loads metadata configuration from JSON file
+ * Implements metadata-driven design principle from REFERENCE.md
+ */
+export function loadMetadata(): MetadataConfig {
+  try {
+    const data = readFileSync(FILTERS_PATH, 'utf8');
+    return JSON.parse(data) as MetadataConfig;
+  } catch (error) {
+    console.error('Error loading metadata from filters.json:', error);
+    // Fallback to defaults if file doesn't exist
+    return getDefaultMetadata();
+  }
+}
+
+/**
+ * Saves metadata configuration to JSON file
+ * Enables admin panel to persist changes
+ */
+export function saveMetadata(metadata: MetadataConfig): void {
+  try {
+    writeFileSync(FILTERS_PATH, JSON.stringify(metadata, null, 2));
+  } catch (error) {
+    console.error('Error saving metadata to filters.json:', error);
+    throw new Error('Failed to save metadata configuration');
+  }
+}
+
+/**
+ * Default metadata configuration as fallback
+ * Used only when filters.json is not available
+ */
+function getDefaultMetadata(): MetadataConfig {
+  return {
+    valueChainComponents: [
+      "Claims", "Underwriting", "Policy Servicing", "Distribution",
+      "Product Development", "IT Operations", "Fraud/Compliance", "Customer Service"
+    ],
+    processes: ["FNOL", "Quote & Bind", "Pricing", "Renewal", "Subrogation"],
+    linesOfBusiness: ["Auto", "Property", "Marine", "Life", "Cyber", "Specialty"],
+    businessSegments: ["Mid-Market", "Large Commercial", "SME", "E&S"],
+    geographies: ["UK", "Europe", "Global", "North America"],
+    useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"]
+  };
+}

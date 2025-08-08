@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUseCaseSchema } from "@shared/schema";
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@shared/calculations";
+import { loadMetadata, saveMetadata } from "./metadata";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Use Case routes
@@ -81,6 +82,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting use case:", error);
       res.status(500).json({ error: "Failed to delete use case" });
+    }
+  });
+
+  // Metadata routes for REFERENCE.md compliance
+  app.get("/api/metadata", async (req, res) => {
+    try {
+      const metadata = loadMetadata();
+      res.json(metadata);
+    } catch (error) {
+      console.error("Error loading metadata:", error);
+      res.status(500).json({ error: "Failed to load metadata" });
+    }
+  });
+
+  app.put("/api/metadata", async (req, res) => {
+    try {
+      const metadata = req.body;
+      saveMetadata(metadata);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error saving metadata:", error);
+      res.status(500).json({ error: "Failed to save metadata" });
     }
   });
 

@@ -24,14 +24,7 @@ export interface UseCase {
 
 export type QuadrantType = "Quick Win" | "Strategic Bet" | "Experimental" | "Watchlist";
 
-export interface MetadataConfig {
-  valueChainComponents: string[];
-  processes: string[];
-  linesOfBusiness: string[];
-  businessSegments: string[];
-  geographies: string[];
-  useCaseTypes: string[];
-}
+
 
 export interface UseCaseFormData {
   title: string;

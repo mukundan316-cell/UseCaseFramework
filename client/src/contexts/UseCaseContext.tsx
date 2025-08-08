@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { UseCase, MetadataConfig, UseCaseFormData, FilterState, TabType } from '../types';
+import { UseCase, UseCaseFormData, FilterState, TabType } from '../types';
+import { MetadataConfig } from '@shared/schema';
 import { useCaseStore } from '../services/useCaseStore';
 
 interface UseCaseContextType {

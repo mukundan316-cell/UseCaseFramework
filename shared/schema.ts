@@ -50,3 +50,13 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type UseCase = typeof useCases.$inferSelect;
 export type InsertUseCase = z.infer<typeof insertUseCaseSchema>;
+
+// Metadata configuration interface for filters.json
+export interface MetadataConfig {
+  valueChainComponents: string[];
+  processes: string[];
+  linesOfBusiness: string[];
+  businessSegments: string[];
+  geographies: string[];
+  useCaseTypes: string[];
+}
