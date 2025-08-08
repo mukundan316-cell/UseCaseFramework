@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* RSA Official Brand Colors */
+  /* RSA Official Brand Colors - Enhanced for Futuristic UI */
   --rsa-blue: #005DAA;
   --rsa-light-blue: #E6F2FF;
   --rsa-dark-blue: #003D73;
@@ -13,6 +13,15 @@
   --rsa-light-gray: #F7F9FC;
   --rsa-border: #E2E8F0;
   --rsa-text: #2D3748;
+  
+  /* Futuristic Enhancement Colors */
+  --gradient-primary: linear-gradient(135deg, #005DAA 0%, #9F4F96 100%);
+  --gradient-secondary: linear-gradient(135deg, #E6F2FF 0%, #F0E6FF 100%);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --shadow-glow: 0 8px 32px rgba(0, 93, 170, 0.15);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --backdrop-blur: 16px;
   
   /* Component Colors using RSA Brand */
   --background: hsl(0 0% 100%);
@@ -101,29 +110,187 @@
   }
 }
 
-/* RSA Global Styles */
+/* RSA Global Styles - Enhanced Futuristic */
 * {
   border-color: var(--border);
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   font-family: var(--font-sans);
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
-/* RSA Button Styles */
+/* RSA Button Styles - Enhanced Futuristic */
 .btn-rsa-primary {
-  background-color: var(--rsa-blue);
+  background: var(--gradient-primary);
   color: white;
   border: none;
   padding: 12px 24px;
   border-radius: var(--radius);
   font-weight: 600;
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow-glow);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-rsa-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 93, 170, 0.25);
+}
+
+.btn-rsa-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-rsa-primary:hover::before {
+  left: 100%;
+}
+
+/* Glass Morphism Components */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--backdrop-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.futuristic-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 32px rgba(0, 93, 170, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.futuristic-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 16px 48px rgba(0, 93, 170, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Matrix Enhancement */
+.matrix-container {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 24px;
+  box-shadow: 
+    0 20px 60px rgba(0, 93, 170, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.matrix-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--gradient-primary);
+}
+
+/* Quadrant Legend Enhancement */
+.quadrant-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.quadrant-item {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.quadrant-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+.quadrant-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--quadrant-color, var(--rsa-blue));
+}
+
+/* Matrix Grid Enhancement */
+.matrix-grid {
+  position: relative;
+}
+
+.matrix-grid::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 93, 170, 0.3) 50%, transparent 100%);
+  z-index: 1;
+}
+
+.matrix-grid::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 93, 170, 0.3) 50%, transparent 100%);
+  z-index: 1;
+}
+
+/* Animation Enhancement */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 4px 20px rgba(0, 93, 170, 0.2); 
+  }
+  50% { 
+    box-shadow: 0 8px 40px rgba(0, 93, 170, 0.4); 
+  }
+}
+
+.floating-element {
+  animation: float 3s ease-in-out infinite;
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 .btn-rsa-primary:hover {

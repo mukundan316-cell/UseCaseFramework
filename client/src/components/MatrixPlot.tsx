@@ -51,28 +51,42 @@ export default function MatrixPlot() {
     subtitle: string; 
     count: number;
   }) => (
-    <Card className={`border-2`} style={{ borderColor: color + '40', backgroundColor: color + '10' }}>
-      <CardContent className="p-4 text-center">
-        <div className="w-4 h-4 rounded-full mx-auto mb-2" style={{ backgroundColor: color }}></div>
-        <div className="font-semibold" style={{ color: color }}>{title}</div>
-        <div className="text-xs text-gray-600 mb-1">{subtitle}</div>
-        <div className="text-lg font-bold text-gray-900">{count}</div>
-      </CardContent>
-    </Card>
+    <div 
+      className="quadrant-item group hover:scale-105 transition-all duration-300"
+      style={{ '--quadrant-color': color } as React.CSSProperties}
+    >
+      <div className="flex flex-col items-center space-y-3">
+        <div 
+          className="w-8 h-8 rounded-full shadow-lg flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform duration-300"
+          style={{ 
+            background: `linear-gradient(135deg, ${color} 0%, ${color}CC 100%)`,
+            boxShadow: `0 4px 20px ${color}40`
+          }}
+        >
+          {count}
+        </div>
+        <div>
+          <div className="font-bold text-lg text-gray-900 mb-1">{title}</div>
+          <div className="text-sm text-gray-600 leading-relaxed">{subtitle}</div>
+        </div>
+      </div>
+    </div>
   );
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-white rounded-2xl shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-gray-900">Impact vs Effort Matrix</CardTitle>
-          <CardDescription>Visual prioritization of AI use cases across quadrants</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Matrix Chart */}
-          <div className="h-96 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+    <div className="space-y-8">
+      <div className="matrix-container p-8">
+        <div className="mb-6">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            Impact vs Effort Matrix
+          </h2>
+          <p className="text-gray-600 text-lg">Visual prioritization of AI use cases across quadrants</p>
+        </div>
+        
+        {/* Matrix Chart */}
+        <div className="h-96 w-full matrix-grid relative">
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart margin={{ top: 30, right: 50, bottom: 60, left: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   type="number" 
@@ -100,18 +114,17 @@ export default function MatrixPlot() {
             </ResponsiveContainer>
           </div>
 
-          {/* Quadrant Labels */}
-          <div className="mt-4 grid grid-cols-2 gap-4 text-xs text-gray-500">
-            <div className="text-left">Bottom Left: Experimental</div>
-            <div className="text-right">Bottom Right: Watchlist</div>
-            <div className="text-left">Top Left: Quick Win</div>
-            <div className="text-right">Top Right: Strategic Bet</div>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Quadrant Labels */}
+        <div className="mt-6 grid grid-cols-2 gap-6 text-sm text-gray-600 font-medium">
+          <div className="text-left">Bottom Left: <span className="text-yellow-600">Experimental</span></div>
+          <div className="text-right">Bottom Right: <span className="text-red-600">Watchlist</span></div>
+          <div className="text-left">Top Left: <span className="text-green-600">Quick Win</span></div>
+          <div className="text-right">Top Right: <span className="text-blue-600">Strategic Bet</span></div>
+        </div>
+      </div>
 
       {/* Quadrant Legend */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="quadrant-legend">
         <QuadrantLegendItem
           color="#22C55E"
           title="Quick Win"
@@ -140,44 +153,44 @@ export default function MatrixPlot() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-white rounded-2xl shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Total Use Cases</h3>
-              <div className="w-8 h-8 bg-rsa-blue rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm">📊</span>
-              </div>
+        <div className="futuristic-card p-6 floating-element">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Total Use Cases</h3>
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center pulse-glow">
+              <span className="text-white text-lg">📊</span>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">{useCases.length}</div>
-            <p className="text-sm text-gray-600">Across all quadrants</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            {useCases.length}
+          </div>
+          <p className="text-sm text-gray-600">Across all quadrants</p>
+        </div>
         
-        <Card className="bg-white rounded-2xl shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">High Priority</h3>
-              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm">⭐</span>
-              </div>
+        <div className="futuristic-card p-6 floating-element" style={{ animationDelay: '0.5s' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">High Priority</h3>
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center pulse-glow">
+              <span className="text-white text-lg">⭐</span>
             </div>
-            <div className="text-3xl font-bold text-green-600 mb-2">{quadrantCounts["Quick Win"]}</div>
+          </div>
+            <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+              {quadrantCounts["Quick Win"]}
+            </div>
             <p className="text-sm text-gray-600">Quick wins identified</p>
-          </CardContent>
-        </Card>
+        </div>
         
-        <Card className="bg-white rounded-2xl shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Avg Impact</h3>
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm">📈</span>
-              </div>
+        <div className="futuristic-card p-6 floating-element" style={{ animationDelay: '1s' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Avg Impact</h3>
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center pulse-glow">
+              <span className="text-white text-lg">📈</span>
             </div>
-            <div className="text-3xl font-bold text-blue-600 mb-2">{averageImpact}</div>
-            <p className="text-sm text-gray-600">Overall portfolio</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            {averageImpact}
+          </div>
+          <p className="text-sm text-gray-600">Overall portfolio</p>
+        </div>
       </div>
     </div>
   );
