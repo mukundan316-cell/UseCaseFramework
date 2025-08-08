@@ -100,7 +100,13 @@ export default function AssessmentResultsDashboard({
       percentage: data.percentage || 0,
       description: getDescriptionForCategory(category)
     })),
-    gapAnalysis: generateGapAnalysis(maturityScores.maturityLevels || {})
+    gapAnalysis: {
+      strengths: ['Assessment completed successfully', 'Structured evaluation framework'],
+      improvements: ['Focus on identified gaps', 'Implement recommended actions'],
+      criticalGaps: Object.entries(maturityScores.maturityLevels || {})
+        .filter(([_, data]: [string, any]) => (data.percentage || 0) < 60)
+        .map(([category]) => category)
+    }
   } : undefined;
 
   // Generate gap analysis for detailed view
