@@ -16,26 +16,42 @@ export default function ScoringModelManagementBlock() {
   const { updateMetadata, metadata } = useUseCases();
   const { toast } = useToast();
   
-  // Business Value weights
-  const [revenueWeight, setRevenueWeight] = useState(20);
-  const [costWeight, setCostWeight] = useState(20);
-  const [riskWeight, setRiskWeight] = useState(20);
-  const [experienceWeight, setExperienceWeight] = useState(20);
-  const [strategicWeight, setStrategicWeight] = useState(20);
+  // Load saved model or use defaults
+  const getSavedModel = () => {
+    if (metadata?.scoringModel) {
+      try {
+        return typeof metadata.scoringModel === 'string' 
+          ? JSON.parse(metadata.scoringModel) 
+          : metadata.scoringModel;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const savedModel = getSavedModel();
   
-  // Feasibility weights  
-  const [dataWeight, setDataWeight] = useState(20);
-  const [technicalWeight, setTechnicalWeight] = useState(20);
-  const [changeWeight, setChangeWeight] = useState(20);
-  const [modelWeight, setModelWeight] = useState(20);
-  const [adoptionWeight, setAdoptionWeight] = useState(20);
+  // Business Value weights - load from database or defaults
+  const [revenueWeight, setRevenueWeight] = useState(savedModel?.businessValue?.revenueImpact || 20);
+  const [costWeight, setCostWeight] = useState(savedModel?.businessValue?.costSavings || 20);
+  const [riskWeight, setRiskWeight] = useState(savedModel?.businessValue?.riskReduction || 20);
+  const [experienceWeight, setExperienceWeight] = useState(savedModel?.businessValue?.brokerPartnerExperience || 20);
+  const [strategicWeight, setStrategicWeight] = useState(savedModel?.businessValue?.strategicFit || 20);
   
-  // AI Governance weights
-  const [explainabilityWeight, setExplainabilityWeight] = useState(50);
-  const [complianceWeight, setComplianceWeight] = useState(50);
+  // Feasibility weights - load from database or defaults
+  const [dataWeight, setDataWeight] = useState(savedModel?.feasibility?.dataReadiness || 20);
+  const [technicalWeight, setTechnicalWeight] = useState(savedModel?.feasibility?.technicalComplexity || 20);
+  const [changeWeight, setChangeWeight] = useState(savedModel?.feasibility?.changeImpact || 20);
+  const [modelWeight, setModelWeight] = useState(savedModel?.feasibility?.modelRisk || 20);
+  const [adoptionWeight, setAdoptionWeight] = useState(savedModel?.feasibility?.adoptionReadiness || 20);
   
-  // Quadrant threshold
-  const [quadrantThreshold, setQuadrantThreshold] = useState(3.0);
+  // AI Governance weights - load from database or defaults
+  const [explainabilityWeight, setExplainabilityWeight] = useState(savedModel?.aiGovernance?.explainabilityBias || 50);
+  const [complianceWeight, setComplianceWeight] = useState(savedModel?.aiGovernance?.regulatoryCompliance || 50);
+  
+  // Quadrant threshold - load from database or default
+  const [quadrantThreshold, setQuadrantThreshold] = useState(savedModel?.quadrantThreshold || 3.0);
 
   const saveModel = async () => {
     try {
