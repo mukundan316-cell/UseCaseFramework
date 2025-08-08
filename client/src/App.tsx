@@ -21,6 +21,7 @@ function Router() {
       <Route path="/test" component={ProcessActivityTest} />
       <Route path="/question-demo" component={QuestionLegoBlockDemo} />
       <Route path="/section-demo" component={SectionLegoBlockDemo} />
+      <Route path="/questionnaire" component={QuestionnaireContainerDemo} />
       <Route path="/assessment" component={QuestionnaireContainerDemo} />
       <Route path="/scoring-demo" component={ScoringDashboardDemo} />
       <Route path="/export-demo" component={ResponseExportDemo} />

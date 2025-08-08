@@ -81,6 +81,15 @@ The project follows strict architectural principles and coding standards documen
 
 ## Recent Changes (January 2025)
 
+### LEGO Architecture & Navigation Fixes (January 8, 2025)
+- **Enhanced LEGO Compliance**: Created NavigationHeader LEGO block for reusable navigation patterns
+- **Intuitive Naming**: Renamed "QuestionnaireContainer Demo" to "RSA AI Maturity Assessment" for better user understanding
+- **Dual Route Support**: Added both `/questionnaire` and `/assessment` routes for backward compatibility
+- **Navigation Integration**: Added "Back to Dashboard" functionality with proper breadcrumb navigation
+- **Fixed Route References**: Updated all internal navigation to use consistent route patterns
+- **Eliminated Duplication**: Confirmed AssessmentResultsDashboard is properly reused without redundancy
+- **Retake Assessment Fix**: Enhanced progress recovery logic to prevent completed assessments from auto-restoring
+
 ### Dashboard Optimization
 - Consolidated Portfolio Overview to eliminate redundant information display
 - Streamlined layout with single quadrant card section and clean visual hierarchy
