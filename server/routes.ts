@@ -235,6 +235,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register assessment routes
   const assessmentRoutes = (await import('./routes/assessments.routes')).default;
   app.use('/api/assessments', assessmentRoutes);
+  
+  // Register export routes
+  const exportRoutes = (await import('./routes/export.routes')).default;
+  app.use('/api', exportRoutes);
 
   return httpServer;
 }

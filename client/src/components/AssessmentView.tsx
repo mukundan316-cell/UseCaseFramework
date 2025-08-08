@@ -9,6 +9,7 @@ import { apiRequest } from '@/lib/queryClient';
 import QuestionnaireContainer from './QuestionnaireContainer';
 import ReusableButton from './lego-blocks/ReusableButton';
 import ScoringDashboardLegoBlock, { type ScoringData } from './lego-blocks/ScoringDashboardLegoBlock';
+import ResponseExportLegoBlock from './lego-blocks/ResponseExportLegoBlock';
 
 interface AssessmentState {
   hasAssessment: boolean;
@@ -342,20 +343,32 @@ export default function AssessmentView() {
                 </div>
               </div>
               
-              <ReusableButton
-                rsaStyle="secondary"
-                onClick={handleRetakeAssessment}
-                className="text-sm"
-              >
-                Retake Assessment
-              </ReusableButton>
+              <div className="flex items-center space-x-3">
+                {/* Export Results */}
+                {assessmentState.responseId && (
+                  <ResponseExportLegoBlock
+                    responseId={assessmentState.responseId}
+                    assessmentTitle="AI Maturity Assessment Results"
+                    variant="outline"
+                    size="default"
+                  />
+                )}
+                
+                <ReusableButton
+                  rsaStyle="secondary"
+                  onClick={handleRetakeAssessment}
+                  className="text-sm"
+                >
+                  Retake Assessment
+                </ReusableButton>
+              </div>
             </div>
           </CardHeader>
         </Card>
 
         {/* Scoring Dashboard LEGO Block */}
         <ScoringDashboardLegoBlock
-          data={scoringData}
+          data={scoringData ? { ...scoringData, responseId: assessmentState.responseId } : undefined}
           showGapAnalysis={true}
           title="AI Maturity Assessment Results"
           description="Comprehensive evaluation across key dimensions"

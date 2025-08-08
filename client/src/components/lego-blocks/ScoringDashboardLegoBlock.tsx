@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import ResponseExportLegoBlock from './ResponseExportLegoBlock';
 
 export interface MaturityScore {
   category: string;
@@ -220,15 +221,28 @@ export default function ScoringDashboardLegoBlock({
                 </div>
                 <Progress value={data.overallPercentage} className="h-2 mt-3" />
                 <div className="text-xs text-gray-600">Overall Maturity</div>
-                {/* Generate Recommendations Button */}
-                <Button 
-                  size="sm"
-                  onClick={() => generateRecommendations(data.responseId)}
-                  className="w-full mt-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
-                  disabled={!data.responseId}
-                >
-                  ⭐ Generate Recommendations
-                </Button>
+                <div className="flex flex-col space-y-2 mt-3">
+                  {/* Generate Recommendations Button */}
+                  <Button 
+                    size="sm"
+                    onClick={() => data.responseId && generateRecommendations(data.responseId)}
+                    className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+                    disabled={!data.responseId}
+                  >
+                    ⭐ Generate Recommendations
+                  </Button>
+                  
+                  {/* Export Results Button */}
+                  {data.responseId && (
+                    <ResponseExportLegoBlock
+                      responseId={data.responseId}
+                      assessmentTitle="AI Maturity Assessment"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                    />
+                  )}
+                </div>
               </div>
             </div>
 
