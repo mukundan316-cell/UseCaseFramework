@@ -83,18 +83,28 @@ export default function MatrixPlot() {
           <p className="text-gray-600 text-lg">Visual prioritization of AI use cases across quadrants</p>
         </div>
         
-        {/* Matrix Chart with Quadrant Backgrounds */}
-        <div className="h-96 w-full matrix-grid relative">
-          {/* Quadrant Background Colors */}
-          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-0 rounded-lg overflow-hidden" style={{ margin: '30px 50px 60px 60px' }}>
+        {/* Matrix Chart with Perfect Equal Quadrants */}
+        <div className="relative mx-auto" style={{ width: '600px', height: '480px' }}>
+          {/* Perfect Equal Quadrant Backgrounds */}
+          <div 
+            className="absolute grid grid-cols-2 grid-rows-2 border-2 border-gray-400" 
+            style={{ 
+              top: '30px', 
+              left: '60px', 
+              right: '50px', 
+              bottom: '60px',
+              width: 'calc(100% - 110px)',
+              height: 'calc(100% - 90px)'
+            }}
+          >
             {/* Top Left - Quick Win (Green) */}
-            <div className="bg-green-50/30"></div>
+            <div className="bg-green-50/50 border-r-2 border-b-2 border-gray-400"></div>
             {/* Top Right - Strategic Bet (Blue) */}
-            <div className="bg-blue-50/30"></div>
+            <div className="bg-blue-50/50 border-b-2 border-gray-400"></div>
             {/* Bottom Left - Experimental (Yellow) */}
-            <div className="bg-yellow-50/30"></div>
+            <div className="bg-yellow-50/50 border-r-2 border-gray-400"></div>
             {/* Bottom Right - Watchlist (Red) */}
-            <div className="bg-red-50/30"></div>
+            <div className="bg-red-50/50"></div>
           </div>
           
           <ResponsiveContainer width="100%" height="100%">
@@ -120,6 +130,8 @@ export default function MatrixPlot() {
                   axisLine={{ stroke: '#94a3b8', strokeWidth: 2 }}
                   tickLine={{ stroke: '#94a3b8' }}
                 />
+                <ReferenceLine x={3} stroke="#005DAA" strokeWidth={2} strokeOpacity={0.8} />
+                <ReferenceLine y={3} stroke="#005DAA" strokeWidth={2} strokeOpacity={0.8} />
 
                 <Tooltip content={<CustomTooltip />} />
                 {chartData.map((entry, index) => (

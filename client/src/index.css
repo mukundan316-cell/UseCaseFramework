@@ -248,29 +248,7 @@ body {
   position: relative;
 }
 
-.matrix-grid::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 60px;
-  right: 50px;
-  height: 1px;
-  background: #005DAA;
-  z-index: 1;
-  opacity: 0.5;
-}
-
-.matrix-grid::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 30px;
-  bottom: 60px;
-  width: 1px;
-  background: #005DAA;
-  z-index: 1;
-  opacity: 0.5;
-}
+/* Matrix grid lines handled by chart ReferenceLine components */
 
 /* Animation Enhancement */
 @keyframes float {
