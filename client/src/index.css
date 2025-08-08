@@ -1,48 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* RSA Official Brand Colors */
+  --rsa-blue: #005DAA;
+  --rsa-light-blue: #E6F2FF;
+  --rsa-dark-blue: #003D73;
+  --rsa-purple: #5B2C87;
+  --rsa-light-purple: #F0E6FF;
+  --rsa-gray: #4A5568;
+  --rsa-light-gray: #F7F9FC;
+  --rsa-border: #E2E8F0;
+  --rsa-text: #2D3748;
+  
+  /* Component Colors using RSA Brand */
   --background: hsl(0 0% 100%);
-  --foreground: hsl(210 25% 7.8431%);
-  --card: hsl(180 6.6667% 97.0588%);
-  --card-foreground: hsl(210 25% 7.8431%);
+  --foreground: hsl(208 22% 18%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(208 22% 18%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(210 25% 7.8431%);
-  --primary: hsl(210 100% 33.3333%);
+  --popover-foreground: hsl(208 22% 18%);
+  --primary: #005DAA;
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 25% 7.8431%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(240 1.9608% 90%);
-  --muted-foreground: hsl(210 25% 7.8431%);
-  --accent: hsl(211.5789 51.3514% 92.7451%);
-  --accent-foreground: hsl(210 100% 33.3333%);
-  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  --secondary: hsl(210 16% 95%);
+  --secondary-foreground: hsl(208 22% 18%);
+  --muted: hsl(210 16% 95%);
+  --muted-foreground: hsl(208 22% 18%);
+  --accent: #E6F2FF;
+  --accent-foreground: #005DAA;
+  --destructive: hsl(0 84% 60%);
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(201.4286 30.4348% 90.9804%);
-  --input: hsl(200 23.0769% 97.4510%);
-  --ring: hsl(210 100% 33.3333%);
-  --chart-1: hsl(210 100% 33.3333%);
-  --chart-2: hsl(159.7826 100% 36.0784%);
-  --chart-3: hsl(42.0290 92.8251% 56.2745%);
-  --chart-4: hsl(147.1429 78.5047% 41.9608%);
-  --chart-5: hsl(341.4894 75.2000% 50.9804%);
-  --sidebar: hsl(180 6.6667% 97.0588%);
-  --sidebar-foreground: hsl(210 25% 7.8431%);
-  --sidebar-primary: hsl(210 100% 33.3333%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(211.5789 51.3514% 92.7451%);
-  --sidebar-accent-foreground: hsl(210 100% 33.3333%);
-  --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
-  --sidebar-ring: hsl(210 100% 33.3333%);
-  --font-sans: Inter, sans-serif;
+  --border: #E2E8F0;
+  --input: hsl(210 16% 98%);
+  --ring: #005DAA;
+  
+  /* Chart colors using RSA palette */
+  --chart-1: #005DAA;
+  --chart-2: #5B2C87;
+  --chart-3: #00A0B0;
+  --chart-4: #EDC951;
+  --chart-5: #EB6841;
+  
+  /* Typography - RSA uses Source Sans Pro */
+  --font-sans: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
-  --radius: 1.3rem;
-  --rsa-blue: hsl(210 100% 33.3333%);
-  --rsa-bg: hsl(210 16.7% 97.1%);
-  --rsa-card: hsl(0 0% 100%);
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  
+  /* RSA-style radius */
+  --radius: 0.5rem;
 }
 
 .dark {
@@ -93,6 +99,76 @@
     background-color: var(--rsa-bg);
     color: var(--foreground);
   }
+}
+
+/* RSA Global Styles */
+* {
+  border-color: var(--border);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* RSA Button Styles */
+.btn-rsa-primary {
+  background-color: var(--rsa-blue);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-rsa-primary:hover {
+  background-color: var(--rsa-dark-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 93, 170, 0.3);
+}
+
+/* RSA Card Styles */
+.card-rsa {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.card-rsa:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* RSA Typography */
+.text-rsa-blue {
+  color: var(--rsa-blue);
+}
+
+.bg-rsa-blue {
+  background-color: var(--rsa-blue);
+}
+
+.bg-rsa-light {
+  background-color: var(--rsa-light-gray);
+}
+
+/* RSA Gradient Background */
+.bg-rsa-gradient {
+  background: linear-gradient(135deg, var(--rsa-blue) 0%, var(--rsa-purple) 100%);
+}
+
+/* RSA Header Style */
+.rsa-header {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 @layer utilities {
