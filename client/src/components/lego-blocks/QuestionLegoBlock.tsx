@@ -22,6 +22,7 @@ export interface QuestionData {
   questionText: string;
   questionType: 'score' | 'multi_choice' | 'checkbox' | 'text' | 'textarea' | 'number';
   isRequired: boolean;
+  questionOrder?: number;
   helpText?: string;
   options?: QuestionOption[];
   // Score-specific properties

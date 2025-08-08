@@ -1,0 +1,247 @@
+import React, { useState } from 'react';
+import { ChevronDown, ChevronRight, Clock, CheckCircle2 } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
+import QuestionLegoBlock, { QuestionData } from './QuestionLegoBlock';
+
+export interface SectionData {
+  id: string;
+  title: string;
+  sectionOrder: number;
+  estimatedTime?: number;
+  questions: QuestionData[];
+}
+
+export interface SectionLegoBlockProps {
+  section: SectionData;
+  responses: Map<string, any>;
+  onChange: (questionId: string, value: any) => void;
+  readonly?: boolean;
+  defaultExpanded?: boolean;
+  showProgress?: boolean;
+  errors?: Record<string, string>;
+  className?: string;
+}
+
+/**
+ * LEGO Block: Section Component
+ * Reusable section component that contains multiple questions
+ * Features collapsible sections, progress tracking, and time estimates
+ * Database-driven with no hardcoded content
+ */
+export default function SectionLegoBlock({
+  section,
+  responses,
+  onChange,
+  readonly = false,
+  defaultExpanded = true,
+  showProgress = true,
+  errors = {},
+  className = "",
+}: SectionLegoBlockProps) {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  const { id, title, sectionOrder, estimatedTime, questions } = section;
+
+  // Calculate section progress
+  const calculateProgress = () => {
+    if (questions.length === 0) return { completed: 0, total: 0, percentage: 0, required: { completed: 0, total: 0 }, optional: { completed: 0, total: 0 } };
+
+    const requiredQuestions = questions.filter(q => q.isRequired);
+    const optionalQuestions = questions.filter(q => !q.isRequired);
+    
+    // Count completed required questions
+    const completedRequired = requiredQuestions.filter(q => {
+      const value = responses.get(q.id);
+      return value !== undefined && value !== '' && 
+             (!Array.isArray(value) || value.length > 0);
+    }).length;
+
+    // Count completed optional questions
+    const completedOptional = optionalQuestions.filter(q => {
+      const value = responses.get(q.id);
+      return value !== undefined && value !== '' && 
+             (!Array.isArray(value) || value.length > 0);
+    }).length;
+
+    const totalCompleted = completedRequired + completedOptional;
+    const percentage = questions.length > 0 ? (totalCompleted / questions.length) * 100 : 0;
+
+    return {
+      completed: totalCompleted,
+      total: questions.length,
+      required: {
+        completed: completedRequired,
+        total: requiredQuestions.length
+      },
+      optional: {
+        completed: completedOptional,
+        total: optionalQuestions.length
+      },
+      percentage: Math.round(percentage)
+    };
+  };
+
+  const progress = calculateProgress();
+  const isCompleted = progress.percentage === 100;
+  const hasRequiredIncomplete = progress.required.completed < progress.required.total;
+
+  // Sort questions by order
+  const sortedQuestions = [...questions].sort((a, b) => 
+    (a.questionOrder || 0) - (b.questionOrder || 0)
+  );
+
+  // Section header with collapsible functionality
+  const renderSectionHeader = () => (
+    <CardHeader className="pb-4">
+      <Button
+        variant="ghost"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full justify-start p-0 h-auto hover:bg-transparent"
+        disabled={readonly}
+      >
+        <div className="flex items-start justify-between w-full">
+          <div className="flex items-start space-x-3">
+            <div className="flex items-center space-x-2 mt-1">
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-gray-500" />
+              )}
+              
+              {/* Section number badge */}
+              <div className="flex items-center justify-center w-6 h-6 bg-[#005DAA] text-white text-sm font-medium rounded-full">
+                {sectionOrder}
+              </div>
+              
+              {/* Completion status */}
+              {isCompleted && (
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+              )}
+            </div>
+            
+            <div className="text-left">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                {title}
+              </h3>
+              
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                {estimatedTime && (
+                  <div className="flex items-center space-x-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{estimatedTime} min</span>
+                  </div>
+                )}
+                
+                <span>
+                  {progress.completed} of {progress.total} questions
+                  {progress.required.total > 0 && (
+                    <span className={cn(
+                      "ml-1",
+                      hasRequiredIncomplete ? "text-amber-600" : "text-green-600"
+                    )}>
+                      ({progress.required.completed}/{progress.required.total} required)
+                    </span>
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Progress indicator */}
+          <div className="flex flex-col items-end space-y-2 mt-1">
+            <span className={cn(
+              "text-sm font-medium",
+              isCompleted ? "text-green-600" : 
+              hasRequiredIncomplete ? "text-amber-600" : "text-[#005DAA]"
+            )}>
+              {progress.percentage}%
+            </span>
+          </div>
+        </div>
+      </Button>
+      
+      {/* Progress bar */}
+      {showProgress && isExpanded && (
+        <div className="mt-3">
+          <Progress 
+            value={progress.percentage} 
+            className="h-2"
+          />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Progress</span>
+            <span>
+              {hasRequiredIncomplete ? 
+                `${progress.required.total - progress.required.completed} required remaining` :
+                'All requirements met'
+              }
+            </span>
+          </div>
+        </div>
+      )}
+    </CardHeader>
+  );
+
+  // Section content with questions
+  const renderSectionContent = () => {
+    if (!isExpanded) return null;
+
+    return (
+      <CardContent className="pt-0">
+        <div className="space-y-6">
+          {sortedQuestions.map((question, index) => (
+            <div 
+              key={question.id}
+              className={cn(
+                "relative",
+                index < sortedQuestions.length - 1 && "pb-6 border-b border-gray-100"
+              )}
+            >
+              {/* Question number indicator */}
+              <div className="absolute -left-2 top-0">
+                <div className="flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                  {index + 1}
+                </div>
+              </div>
+              
+              {/* Question content */}
+              <div className="ml-6">
+                <QuestionLegoBlock
+                  question={question}
+                  value={responses.get(question.id)}
+                  onChange={(value) => onChange(question.id, value)}
+                  error={errors[question.id]}
+                  readonly={readonly}
+                />
+              </div>
+            </div>
+          ))}
+          
+          {questions.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-sm">No questions available in this section</p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    );
+  };
+
+  return (
+    <Card 
+      className={cn(
+        "transition-all duration-200",
+        isCompleted ? "border-green-200 bg-green-50/30" :
+        hasRequiredIncomplete ? "border-amber-200 bg-amber-50/30" :
+        "border-[#005DAA]/20",
+        isExpanded && "shadow-md",
+        className
+      )}
+    >
+      {renderSectionHeader()}
+      {renderSectionContent()}
+    </Card>
+  );
+}
