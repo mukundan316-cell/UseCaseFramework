@@ -18,6 +18,10 @@ export interface IStorage {
   // Metadata methods for database-first compliance
   getMetadataConfig(): Promise<MetadataConfig | undefined>;
   updateMetadataConfig(metadata: Partial<MetadataConfig>): Promise<MetadataConfig>;
+  
+  // Individual metadata item CRUD operations
+  addMetadataItem(category: string, item: string): Promise<MetadataConfig>;
+  removeMetadataItem(category: string, item: string): Promise<MetadataConfig>;
 }
 
 /**
@@ -75,21 +79,77 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateMetadataConfig(metadata: Partial<MetadataConfig>): Promise<MetadataConfig> {
-    // Add current timestamp for updatedAt field
-    const metadataWithTimestamp = {
+    // Get existing config first to preserve all fields
+    const existingConfig = await this.getMetadataConfig();
+    
+    // Merge with existing config to ensure no null values
+    const completeMetadata = {
+      ...existingConfig,
       ...metadata,
       updatedAt: new Date()
     };
     
-    const [config] = await db
-      .insert(metadataConfig)
-      .values({ id: 'default', ...metadataWithTimestamp } as any)
-      .onConflictDoUpdate({
-        target: metadataConfig.id,
-        set: metadataWithTimestamp
-      })
-      .returning();
-    return config;
+    if (existingConfig) {
+      // Update existing record
+      const [config] = await db
+        .update(metadataConfig)
+        .set(completeMetadata)
+        .where(eq(metadataConfig.id, 'default'))
+        .returning();
+      return config;
+    } else {
+      // Insert new record (should not happen with default seeded data)
+      const [config] = await db
+        .insert(metadataConfig)
+        .values({ id: 'default', ...completeMetadata } as any)
+        .returning();
+      return config;
+    }
+  }
+
+  async addMetadataItem(category: string, item: string): Promise<MetadataConfig> {
+    const currentConfig = await this.getMetadataConfig();
+    
+    if (!currentConfig) {
+      throw new Error('Metadata config not found');
+    }
+
+    // Get current items for the category
+    const currentItems = (currentConfig as any)[category] || [];
+    
+    // Add new item if it doesn't already exist
+    if (!currentItems.includes(item)) {
+      const updatedItems = [...currentItems, item];
+      // Preserve all existing metadata to avoid null constraint violations
+      const updatedConfig = {
+        ...currentConfig,
+        [category]: updatedItems
+      };
+      return await this.updateMetadataConfig(updatedConfig);
+    }
+    
+    return currentConfig;
+  }
+
+  async removeMetadataItem(category: string, item: string): Promise<MetadataConfig> {
+    const currentConfig = await this.getMetadataConfig();
+    
+    if (!currentConfig) {
+      throw new Error('Metadata config not found');
+    }
+
+    // Get current items for the category
+    const currentItems = (currentConfig as any)[category] || [];
+    
+    // Remove the item
+    const updatedItems = currentItems.filter((i: string) => i !== item);
+    // Preserve all existing metadata to avoid null constraint violations
+    const updatedConfig = {
+      ...currentConfig,
+      [category]: updatedItems
+    };
+    
+    return await this.updateMetadataConfig(updatedConfig);
   }
 }
 

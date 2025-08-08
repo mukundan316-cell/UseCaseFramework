@@ -82,7 +82,7 @@ export default function ProcessActivityManagementBlock() {
 
       const updatedProcessActivities = {
         ...currentProcessActivities,
-        [selectedProcess]: currentProcessActivities[selectedProcess]?.filter(a => a !== activity) || []
+        [selectedProcess]: currentProcessActivities[selectedProcess]?.filter((a: string) => a !== activity) || []
       };
 
       await updateMetadata({

@@ -69,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle multi-select arrays for updates
       if (validatedData.linesOfBusiness) {
-        validatedData.linesOfBusiness = validatedData.linesOfBusiness.length > 0 ? validatedData.linesOfBusiness : [validatedData.lineOfBusiness].filter(Boolean);
+        validatedData.linesOfBusiness = validatedData.linesOfBusiness.length > 0 ? validatedData.linesOfBusiness : [validatedData.lineOfBusiness].filter(Boolean) as string[];
       }
       if (validatedData.processes && validatedData.processes.length === 0) {
         validatedData.processes = validatedData.process ? [validatedData.process] : undefined;
@@ -192,6 +192,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error saving metadata:", error);
       res.status(500).json({ error: "Failed to save metadata" });
+    }
+  });
+
+  // Individual metadata item endpoints for LEGO component CRUD operations
+  app.post("/api/metadata/:category", async (req, res) => {
+    try {
+      const { category } = req.params;
+      const { item } = req.body;
+      
+      if (!item || typeof item !== 'string') {
+        return res.status(400).json({ error: "Item is required and must be a string" });
+      }
+      
+      const updated = await storage.addMetadataItem(category, item.trim());
+      res.json(updated);
+    } catch (error) {
+      console.error("Error adding metadata item:", error);
+      res.status(500).json({ error: "Failed to add metadata item" });
+    }
+  });
+
+  app.delete("/api/metadata/:category/:item", async (req, res) => {
+    try {
+      const { category, item } = req.params;
+      const decodedItem = decodeURIComponent(item);
+      
+      const updated = await storage.removeMetadataItem(category, decodedItem);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error removing metadata item:", error);
+      res.status(500).json({ error: "Failed to remove metadata item" });
     }
   });
 
