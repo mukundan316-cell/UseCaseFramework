@@ -206,9 +206,9 @@ export default function Explorer() {
           {/* Reorganized Filters: Process → Activity → LOB → Segment → Geography → Type */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {/* 1. Primary Process Filter */}
-            <Select value={filters.process} onValueChange={(value) => setFilters({ process: value })}>
+            <Select value={filters.process || 'all'} onValueChange={(value) => setFilters({ process: value === 'all' ? '' : value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Process" />
+                <SelectValue placeholder="All Processes" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Processes</SelectItem>
@@ -245,9 +245,9 @@ export default function Explorer() {
             </Select>
 
             {/* 4. Business Segment Filter */}
-            <Select value={filters.businessSegment} onValueChange={(value) => setFilters({ businessSegment: value })}>
+            <Select value={filters.businessSegment || 'all'} onValueChange={(value) => setFilters({ businessSegment: value === 'all' ? '' : value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Segment" />
+                <SelectValue placeholder="All Segments" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Segments</SelectItem>
@@ -258,9 +258,9 @@ export default function Explorer() {
             </Select>
 
             {/* 5. Geography Filter */}
-            <Select value={filters.geography} onValueChange={(value) => setFilters({ geography: value })}>
+            <Select value={filters.geography || 'all'} onValueChange={(value) => setFilters({ geography: value === 'all' ? '' : value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Geography" />
+                <SelectValue placeholder="All Geographies" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Geographies</SelectItem>
@@ -271,9 +271,9 @@ export default function Explorer() {
             </Select>
 
             {/* 6. Use Case Type Filter */}
-            <Select value={filters.useCaseType} onValueChange={(value) => setFilters({ useCaseType: value })}>
+            <Select value={filters.useCaseType || 'all'} onValueChange={(value) => setFilters({ useCaseType: value === 'all' ? '' : value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Type" />
+                <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
