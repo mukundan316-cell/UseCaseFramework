@@ -84,7 +84,10 @@ export default function QuestionnaireContainer({
     debouncedSave,
     saveToStorage,
     loadFromStorage,
-    clearStorage
+    clearStorage,
+    setLastSaved,
+    setIsSaving,
+    setHasUnsavedChanges
   } = progressPersistence;
 
   // Enhanced debounced save function
