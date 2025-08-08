@@ -60,7 +60,9 @@ export function useUseCases() {
 
   const deleteUseCaseMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest('DELETE', `/api/use-cases/${id}`);
+      const response = await apiRequest('DELETE', `/api/use-cases/${id}`);
+      // DELETE returns 204 No Content, so don't try to parse JSON
+      return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api', 'use-cases'] });
