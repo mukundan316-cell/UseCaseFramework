@@ -16,8 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 export default function ProcessActivityManagementBlock() {
   const [selectedProcess, setSelectedProcess] = useState<string>('');
   const [newActivity, setNewActivity] = useState('');
-  const [editingProcess, setEditingProcess] = useState<string | null>(null);
   const [newProcessName, setNewProcessName] = useState('');
+  const [showAddProcess, setShowAddProcess] = useState(false);
   
   const { getActivitiesForProcess, getAllProcesses } = useProcessActivityManager();
   const { updateMetadata, addMetadataItem, removeMetadataItem, metadata } = useUseCases();
@@ -102,6 +102,48 @@ export default function ProcessActivityManagementBlock() {
     }
   };
 
+  const handleAddProcess = async () => {
+    if (!newProcessName.trim()) return;
+    
+    try {
+      // Add to processes list
+      const updatedProcesses = [...(metadata?.processes || []), newProcessName.trim()];
+      
+      // Initialize empty activities for the new process
+      const currentProcessActivities = metadata?.processActivities 
+        ? (typeof metadata.processActivities === 'string' 
+           ? JSON.parse(metadata.processActivities) 
+           : metadata.processActivities)
+        : {};
+
+      const updatedProcessActivities = {
+        ...currentProcessActivities,
+        [newProcessName.trim()]: []
+      };
+
+      await updateMetadata({
+        ...metadata!,
+        processes: updatedProcesses,
+        processActivities: updatedProcessActivities
+      });
+
+      setSelectedProcess(newProcessName.trim()); // Auto-select the new process
+      setNewProcessName('');
+      setShowAddProcess(false);
+      
+      toast({
+        title: "Process Added",
+        description: `"${newProcessName}" has been created`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add process",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -113,11 +155,47 @@ export default function ProcessActivityManagementBlock() {
       <CardContent className="space-y-4">
         {/* Process Selection */}
         <div>
-          <Label>Select Process to Manage Activities</Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label>Select Process to Manage Activities</Label>
+            <Button 
+              onClick={() => setShowAddProcess(!showAddProcess)}
+              size="sm" 
+              variant="outline"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Process
+            </Button>
+          </div>
+          
+          {/* Add New Process Form */}
+          {showAddProcess && (
+            <div className="flex gap-2 mb-3 p-3 bg-blue-50 rounded-lg">
+              <Input
+                placeholder="Enter new process name"
+                value={newProcessName}
+                onChange={(e) => setNewProcessName(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAddProcess()}
+              />
+              <Button onClick={handleAddProcess} size="sm">
+                Create
+              </Button>
+              <Button 
+                onClick={() => {
+                  setShowAddProcess(false);
+                  setNewProcessName('');
+                }}
+                size="sm" 
+                variant="ghost"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+          
           <select 
             value={selectedProcess}
             onChange={(e) => setSelectedProcess(e.target.value)}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full p-2 border rounded-md"
           >
             <option value="">-- Select Process --</option>
             {processes.map(process => (
