@@ -80,7 +80,8 @@ export default function MatrixPlot() {
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             RSA AI Value Use Case Framework
           </h2>
-          <p className="text-gray-600">AI use case prioritization based on business value and implementation complexity</p>
+          <p className="text-gray-600 mb-2">AI use case prioritization based on business value and implementation complexity</p>
+          <p className="text-sm text-gray-500">As of August 2025 © RSA Insurance</p>
         </div>
         
         {/* Gartner-Style Magic Quadrant */}
@@ -107,10 +108,7 @@ export default function MatrixPlot() {
             IMPLEMENTATION COMPLEXITY
           </div>
           
-          {/* Date stamp */}
-          <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-            As of August 2025 © RSA Insurance
-          </div>
+
 
           {/* Grid Lines */}
           <div className="absolute inset-0" style={{ margin: '40px 40px 50px 50px' }}>
