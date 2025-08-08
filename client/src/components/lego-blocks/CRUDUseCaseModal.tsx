@@ -137,6 +137,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         regulatoryCompliance: formData.regulatoryCompliance,
       });
       
+      // Use setValue for each field to ensure proper form state
+      Object.entries(formData).forEach(([key, value]) => {
+        if (typeof value === 'string' || typeof value === 'number') {
+          form.setValue(key as keyof typeof formData, value);
+        }
+      });
+      
       form.reset(formData);
     } else {
       // Reset for create mode
@@ -221,7 +228,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Use Case Type</Label>
-                <Select value={form.watch('useCaseType')} onValueChange={(value) => form.setValue('useCaseType', value)}>
+                <Select key={`useCaseType-${mode}-${useCase?.id}`} value={form.watch('useCaseType') || ''} onValueChange={(value) => form.setValue('useCaseType', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -254,7 +261,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label>Value Chain Component</Label>
-                <Select value={form.watch('valueChainComponent')} onValueChange={(value) => form.setValue('valueChainComponent', value)}>
+                <Select key={`valueChainComponent-${mode}-${useCase?.id}`} value={form.watch('valueChainComponent') || ''} onValueChange={(value) => form.setValue('valueChainComponent', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select component" />
                   </SelectTrigger>
@@ -267,7 +274,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Process</Label>
-                <Select value={form.watch('process')} onValueChange={(value) => form.setValue('process', value)}>
+                <Select key={`process-${mode}-${useCase?.id}`} value={form.watch('process') || ''} onValueChange={(value) => form.setValue('process', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select process" />
                   </SelectTrigger>
@@ -280,7 +287,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Line of Business</Label>
-                <Select value={form.watch('lineOfBusiness')} onValueChange={(value) => form.setValue('lineOfBusiness', value)}>
+                <Select key={`lineOfBusiness-${mode}-${useCase?.id}`} value={form.watch('lineOfBusiness') || ''} onValueChange={(value) => form.setValue('lineOfBusiness', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select LOB" />
                   </SelectTrigger>
@@ -293,7 +300,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Business Segment</Label>
-                <Select value={form.watch('businessSegment')} onValueChange={(value) => form.setValue('businessSegment', value)}>
+                <Select key={`businessSegment-${mode}-${useCase?.id}`} value={form.watch('businessSegment') || ''} onValueChange={(value) => form.setValue('businessSegment', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select segment" />
                   </SelectTrigger>
@@ -306,7 +313,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Geography</Label>
-                <Select value={form.watch('geography')} onValueChange={(value) => form.setValue('geography', value)}>
+                <Select key={`geography-${mode}-${useCase?.id}`} value={form.watch('geography') || ''} onValueChange={(value) => form.setValue('geography', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select geography" />
                   </SelectTrigger>
