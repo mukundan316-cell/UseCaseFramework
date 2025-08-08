@@ -1,7 +1,7 @@
 # LEGO-Style Component Library
 
 ## Overview
-This document catalogs all reusable LEGO-style components in the RSA GenAI Use Case Framework. Follow the "Build Once, Reuse Everywhere" principle.
+This document catalogs all reusable LEGO-style components in the RSA GenAI Use Case Framework. Follow the "Build Once, Reuse Everywhere" principle. The admin interface focuses on managing UI list of values (dropdown options, filter values) rather than internal component management.
 
 ## Available LEGO Components
 
@@ -160,35 +160,7 @@ This document catalogs all reusable LEGO-style components in the RSA GenAI Use C
 />
 ```
 
-### LegoBlockManager
-**Purpose**: Comprehensive admin interface for managing all LEGO components
-**Location**: `client/src/components/lego-blocks/LegoBlockManager.tsx`
-**Features**:
-- Registry of all LEGO components
-- Component documentation and props
-- Usage analytics and examples
-- Export/Import component definitions
-- Component creation wizard
 
-**Usage Example**:
-```tsx
-<LegoBlockManager />
-```
-
-### UseCaseTemplateManager
-**Purpose**: Reusable template system for pre-configured use cases
-**Location**: `client/src/components/lego-blocks/UseCaseTemplateManager.tsx`
-**Features**:
-- Pre-configured use case templates
-- Template creation and editing
-- Default scoring and metadata
-- Template usage tracking
-- Import/Export templates
-
-**Usage Example**:
-```tsx
-<UseCaseTemplateManager />
-```
 
 ### RSAHeader
 **Purpose**: Consistent header with authentic RSA branding

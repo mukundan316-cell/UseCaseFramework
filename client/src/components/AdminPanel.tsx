@@ -1,13 +1,10 @@
 import React, { useRef } from 'react';
-import { Download, Upload, RotateCcw, Blocks, FileText, Database } from 'lucide-react';
+import { Download, Upload, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DataActionCard from './lego-blocks/DataActionCard';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
-import LegoBlockManager from './lego-blocks/LegoBlockManager';
-import UseCaseTemplateManager from './lego-blocks/UseCaseTemplateManager';
 
 export default function AdminPanel() {
   const { 
@@ -113,121 +110,94 @@ export default function AdminPanel() {
       <Card className="bg-white rounded-2xl shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-900">Admin Panel</CardTitle>
-          <CardDescription>Comprehensive administration interface for metadata, LEGO components, and templates</CardDescription>
+          <CardDescription>Manage UI list of values and system configuration using LEGO-style reusable blocks</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="metadata" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="metadata" className="flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                Metadata Management
-              </TabsTrigger>
-              <TabsTrigger value="lego-blocks" className="flex items-center gap-2">
-                <Blocks className="h-4 w-4" />
-                LEGO Components
-              </TabsTrigger>
-              <TabsTrigger value="templates" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Use Case Templates
-              </TabsTrigger>
-            </TabsList>
+          {/* Data Management Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <DataActionCard
+              title="Export Data"
+              description="Download use cases and metadata as JSON"
+              icon={Download}
+              onClick={handleExport}
+              variant="primary"
+            />
+            
+            <DataActionCard
+              title="Import Data"
+              description="Upload JSON configuration file"
+              icon={Upload}
+              onClick={handleImport}
+              variant="success"
+            />
+            
+            <DataActionCard
+              title="Reset to Defaults"
+              description="Restore original configuration"
+              icon={RotateCcw}
+              onClick={handleReset}
+              variant="danger"
+            />
+          </div>
 
-            <TabsContent value="metadata" className="space-y-6 mt-6">
-              {/* Data Management Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <DataActionCard
-                  title="Export Data"
-                  description="Download use cases and metadata as JSON"
-                  icon={Download}
-                  onClick={handleExport}
-                  variant="primary"
-                />
-                
-                <DataActionCard
-                  title="Import Data"
-                  description="Upload JSON configuration file"
-                  icon={Upload}
-                  onClick={handleImport}
-                  variant="success"
-                />
-                
-                <DataActionCard
-                  title="Reset to Defaults"
-                  description="Restore original configuration"
-                  icon={RotateCcw}
-                  onClick={handleReset}
-                  variant="danger"
-                />
-              </div>
+          {/* Hidden file input for import */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleFileChange}
+            className="hidden"
+          />
 
-              {/* Hidden file input for import */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleFileChange}
-                className="hidden"
+          {/* UI List of Values Management - LEGO-Style Reusable Blocks */}
+          <div className="space-y-6">
+            <div className="text-center py-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">UI List of Values Management</h3>
+              <p className="text-sm text-gray-600">
+                Manage dropdown options, filter values, and categorization lists used throughout the application.
+                Each block below controls the available options in forms and filters.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <MetadataLegoBlock
+                category="valueChainComponents"
+                title="Value Chain Components"
+                items={metadata.valueChainComponents}
+                placeholder="Add new value chain component..."
               />
-
-              {/* Metadata Categories Management - LEGO-Style Reusable Blocks */}
-              <div className="space-y-6">
-                <div className="text-center py-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Metadata Management</h3>
-                  <p className="text-sm text-gray-600">
-                    Each block below is a reusable LEGO-style component that persists directly to the database.
-                    Add, edit, or delete items with full CRUD operations.
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <MetadataLegoBlock
-                    category="valueChainComponents"
-                    title="Value Chain Components"
-                    items={metadata.valueChainComponents}
-                    placeholder="Add new value chain component..."
-                  />
-                  <MetadataLegoBlock
-                    category="processes"
-                    title="Business Processes"
-                    items={metadata.processes}
-                    placeholder="Add new business process..."
-                  />
-                  <MetadataLegoBlock
-                    category="linesOfBusiness"
-                    title="Lines of Business"
-                    items={metadata.linesOfBusiness}
-                    placeholder="Add new line of business..."
-                  />
-                  <MetadataLegoBlock
-                    category="businessSegments"
-                    title="Business Segments"
-                    items={metadata.businessSegments}
-                    placeholder="Add new business segment..."
-                  />
-                  <MetadataLegoBlock
-                    category="geographies"
-                    title="Geographies"
-                    items={metadata.geographies}
-                    placeholder="Add new geography..."
-                  />
-                  <MetadataLegoBlock
-                    category="useCaseTypes"
-                    title="Use Case Types"
-                    items={metadata.useCaseTypes}
-                    placeholder="Add new use case type..."
-                  />
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="lego-blocks" className="mt-6">
-              <LegoBlockManager />
-            </TabsContent>
-
-            <TabsContent value="templates" className="mt-6">
-              <UseCaseTemplateManager />
-            </TabsContent>
-          </Tabs>
+              <MetadataLegoBlock
+                category="processes"
+                title="Business Processes"
+                items={metadata.processes}
+                placeholder="Add new business process..."
+              />
+              <MetadataLegoBlock
+                category="linesOfBusiness"
+                title="Lines of Business"
+                items={metadata.linesOfBusiness}
+                placeholder="Add new line of business..."
+              />
+              <MetadataLegoBlock
+                category="businessSegments"
+                title="Business Segments"
+                items={metadata.businessSegments}
+                placeholder="Add new business segment..."
+              />
+              <MetadataLegoBlock
+                category="geographies"
+                title="Geographies"
+                items={metadata.geographies}
+                placeholder="Add new geography..."
+              />
+              <MetadataLegoBlock
+                category="useCaseTypes"
+                title="Use Case Types"
+                items={metadata.useCaseTypes}
+                placeholder="Add new use case type..."
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
