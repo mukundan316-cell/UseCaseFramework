@@ -13,7 +13,8 @@ import { Info, Plus, Edit } from 'lucide-react';
 import { UseCase, UseCaseFormData } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
-import ScoringLegoBlock from './ScoringLegoBlock';
+import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -74,6 +75,92 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     explainabilityBias: 3,
     regulatoryCompliance: 3,
   });
+
+  // Tooltip definitions
+  const sliderTooltips = {
+    revenueImpact: "Potential for new revenue, premium growth, or market expansion",
+    costSavings: "Direct operational cost reductions and efficiency gains",
+    riskReduction: "Lowering underwriting, claims, fraud, operational, or regulatory risks",
+    brokerPartnerExperience: "Improving relationships and experience for brokers and partners",
+    strategicFit: "Alignment with corporate strategy, digital transformation, and competitive positioning",
+    dataReadiness: "Quality, availability, and usability of required data sets",
+    technicalComplexity: "Maturity of models needed (LLMs vs ML) and technical difficulty",
+    changeImpact: "Degree of process and role redesign required for implementation",
+    modelRisk: "Potential harm if model fails (regulatory, reputational, financial)",
+    adoptionReadiness: "Stakeholder and user buy-in, especially in underwriting/claims",
+    explainabilityBias: "Support for responsible AI principles and bias management",
+    regulatoryCompliance: "FCA, GDPR, and UK/EU AI Act readiness",
+  };
+
+  const handleSliderChange = (field: keyof typeof scores, value: number) => {
+    const newScores = { ...scores, [field]: value };
+    setScores(newScores);
+    form.setValue(field, value);
+  };
+
+  const currentImpactScore = calculateImpactScore(
+    scores.revenueImpact,
+    scores.costSavings,
+    scores.riskReduction,
+    scores.brokerPartnerExperience,
+    scores.strategicFit
+  );
+
+  const currentEffortScore = calculateEffortScore(
+    scores.dataReadiness,
+    scores.technicalComplexity,
+    scores.changeImpact,
+    scores.modelRisk,
+    scores.adoptionReadiness
+  );
+
+  const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore);
+
+  // SliderField component for scoring interface
+  const SliderField = ({ 
+    field, 
+    label, 
+    tooltip, 
+    leftLabel, 
+    rightLabel 
+  }: { 
+    field: keyof typeof scores; 
+    label: string; 
+    tooltip: string;
+    leftLabel: string;
+    rightLabel: string;
+  }) => (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <Label className="text-sm font-medium text-gray-700">{label}</Label>
+        <div className="flex items-center space-x-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="h-4 w-4 text-gray-400 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">{tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <span className="font-semibold text-purple-600">{scores[field]}</span>
+        </div>
+      </div>
+      <input
+        type="range"
+        min="1"
+        max="5"
+        value={scores[field]}
+        onChange={(e) => handleSliderChange(field, parseInt(e.target.value))}
+        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+      />
+      <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <span>{leftLabel}</span>
+        <span>{rightLabel}</span>
+      </div>
+    </div>
+  );
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -163,12 +250,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       });
     }
   }, [mode, useCase, form]);
-
-  const handleSliderChange = (field: keyof typeof scores, value: number) => {
-    const newScores = { ...scores, [field]: value };
-    setScores(newScores);
-    form.setValue(field, value);
-  };
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -292,7 +373,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 <Label>Lines of Business</Label>
                 <div className="mt-1 p-3 border rounded-md max-h-32 overflow-y-auto">
                   {metadata.linesOfBusiness.filter(lob => lob && lob.trim()).map(lob => {
-                    const currentLOBs = form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean));
+                    const currentLOBs = form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean) as string[]);
                     const isChecked = currentLOBs.includes(lob);
                     
                     return (
@@ -302,8 +383,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                           id={`lob-${lob}`}
                           checked={isChecked}
                           onChange={(e) => {
-                            const currentLOBs = form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean));
-                            let newLOBs;
+                            const currentLOBs = form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean) as string[]);
+                            let newLOBs: string[];
                             if (e.target.checked) {
                               newLOBs = [...currentLOBs, lob];
                             } else {
@@ -355,12 +436,136 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
           </div>
 
           {/* Enhanced RSA Framework Scoring */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Enhanced RSA Framework Assessment</h3>
-            <p className="text-sm text-gray-600">Use the enhanced 12-lever framework to score this use case</p>
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-700">Framework scoring will be implemented in the detailed scoring interface</p>
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Enhanced RSA Framework Assessment (1-5 Scale)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Business Value Levers */}
+              <div className="space-y-6">
+                <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Value Levers</h4>
+                <SliderField
+                  field="revenueImpact"
+                  label="Revenue Impact"
+                  tooltip={sliderTooltips.revenueImpact}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+                <SliderField
+                  field="costSavings"
+                  label="Cost Savings"
+                  tooltip={sliderTooltips.costSavings}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+                <SliderField
+                  field="riskReduction"
+                  label="Risk Reduction"
+                  tooltip={sliderTooltips.riskReduction}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+                <SliderField
+                  field="brokerPartnerExperience"
+                  label="Broker/Partner Experience"
+                  tooltip={sliderTooltips.brokerPartnerExperience}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+                <SliderField
+                  field="strategicFit"
+                  label="Strategic Fit"
+                  tooltip={sliderTooltips.strategicFit}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+              </div>
+              {/* Feasibility Levers */}
+              <div className="space-y-6">
+                <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Feasibility Levers</h4>
+                <SliderField
+                  field="dataReadiness"
+                  label="Data Readiness"
+                  tooltip={sliderTooltips.dataReadiness}
+                  leftLabel="Poor"
+                  rightLabel="Excellent"
+                />
+                <SliderField
+                  field="technicalComplexity"
+                  label="Technical Complexity"
+                  tooltip={sliderTooltips.technicalComplexity}
+                  leftLabel="Simple"
+                  rightLabel="Complex"
+                />
+                <SliderField
+                  field="changeImpact"
+                  label="Change Impact"
+                  tooltip={sliderTooltips.changeImpact}
+                  leftLabel="Minimal"
+                  rightLabel="Extensive"
+                />
+                <SliderField
+                  field="modelRisk"
+                  label="Model Risk"
+                  tooltip={sliderTooltips.modelRisk}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+                <SliderField
+                  field="adoptionReadiness"
+                  label="Adoption Readiness"
+                  tooltip={sliderTooltips.adoptionReadiness}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+              </div>
+              
+              {/* AI Governance Levers */}
+              <div className="space-y-6">
+                <h4 className="font-medium text-purple-700 text-sm uppercase tracking-wide">AI Governance Levers</h4>
+                <SliderField
+                  field="explainabilityBias"
+                  label="Explainability & Bias"
+                  tooltip={sliderTooltips.explainabilityBias}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+                <SliderField
+                  field="regulatoryCompliance"
+                  label="Regulatory Compliance"
+                  tooltip={sliderTooltips.regulatoryCompliance}
+                  leftLabel="Low"
+                  rightLabel="High"
+                />
+              </div>
             </div>
+            
+            {/* Calculated Scores */}
+            <Card className="bg-gray-50">
+              <CardHeader>
+                <CardTitle className="text-lg">Calculated Scores</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-600 mb-1">
+                      {currentImpactScore.toFixed(1)}
+                    </div>
+                    <div className="text-sm text-gray-600">Impact Score</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-orange-600 mb-1">
+                      {currentEffortScore.toFixed(1)}
+                    </div>
+                    <div className="text-sm text-gray-600">Effort Score</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-purple-600 bg-white px-4 py-2 rounded-lg">
+                      {currentQuadrant}
+                    </div>
+                    <div className="text-sm text-gray-600">Quadrant</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <DialogFooter>
