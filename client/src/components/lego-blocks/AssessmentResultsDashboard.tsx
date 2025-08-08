@@ -341,9 +341,9 @@ export default function AssessmentResultsDashboard({
               <FileText className="h-8 w-8 mx-auto mb-2 text-[#005DAA]" />
               <h4 className="font-semibold text-sm text-gray-800 mb-1">Export Results</h4>
               <p className="text-xs text-gray-600 mb-3">Download detailed reports for stakeholders</p>
-              {assessmentState.responseId && (
+              {actualResponseId && (
                 <ResponseExportLegoBlock
-                  responseId={assessmentState.responseId}
+                  responseId={actualResponseId}
                   assessmentTitle="Assessment Summary"
                   variant="outline"
                   size="sm"
@@ -365,13 +365,15 @@ export default function AssessmentResultsDashboard({
               <TrendingUp className="h-8 w-8 mx-auto mb-2 text-[#005DAA]" />
               <h4 className="font-semibold text-sm text-gray-800 mb-1">Track Progress</h4>
               <p className="text-xs text-gray-600 mb-3">Retake assessment to monitor improvement</p>
-              <ReusableButton
-                rsaStyle="primary"
-                onClick={onRetake}
-                className="w-full text-xs"
-              >
-                Retake Assessment
-              </ReusableButton>
+              {onRetake && (
+                <ReusableButton
+                  rsaStyle="primary"
+                  onClick={onRetake}
+                  className="w-full text-xs"
+                >
+                  Retake Assessment
+                </ReusableButton>
+              )}
             </div>
           </div>
         </CardContent>
