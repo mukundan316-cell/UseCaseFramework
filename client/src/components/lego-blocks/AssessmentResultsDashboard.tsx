@@ -78,14 +78,14 @@ export default function AssessmentResultsDashboard({
   const { data: responseData } = useQuery({
     queryKey: ['response', actualResponseId],
     queryFn: () => fetch(`/api/responses/${actualResponseId}`).then(res => res.json()),
-    enabled: !!actualResponseId && !assessmentState
+    enabled: !!actualResponseId
   });
 
   // Fetch maturity scores if responseId is provided  
   const { data: fetchedMaturityScores } = useQuery({
     queryKey: ['scores', actualResponseId],
     queryFn: () => fetch(`/api/responses/${actualResponseId}/scores`).then(res => res.json()),
-    enabled: !!actualResponseId && !assessmentState
+    enabled: !!actualResponseId
   });
 
   // Use fetched data or fallback to assessmentState
