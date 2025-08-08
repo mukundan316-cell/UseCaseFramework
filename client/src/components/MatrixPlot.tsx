@@ -78,33 +78,33 @@ export default function MatrixPlot() {
       <div className="matrix-container p-8">
         <div className="mb-6 text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Figure 1: Magic Quadrant for RSA GenAI Use Case Framework
+            RSA AI Value Use Case Framework
           </h2>
-          <p className="text-gray-600">RSA Insurance AI Strategy & Prioritization Platform</p>
+          <p className="text-gray-600">AI use case prioritization based on business value and implementation complexity</p>
         </div>
         
         {/* Gartner-Style Magic Quadrant */}
         <div className="bg-white border-2 border-gray-800 relative mx-auto" style={{ width: '700px', height: '500px' }}>
-          {/* Quadrant Labels - Gartner Style */}
+          {/* Quadrant Labels - RSA Framework Style */}
           <div className="absolute top-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            PRIORITIZE
+            QUICK WIN
           </div>
           <div className="absolute top-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            INVESTIGATE  
+            STRATEGIC BET
           </div>
           <div className="absolute bottom-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            CONSIDER
+            EXPERIMENTAL
           </div>
           <div className="absolute bottom-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            AVOID
+            WATCHLIST
           </div>
 
           {/* Axis Labels */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-sm font-semibold text-gray-700">
-            BUSINESS IMPACT
+            BUSINESS VALUE
           </div>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-sm font-semibold text-gray-700 pb-2">
-            IMPLEMENTATION EFFORT
+            IMPLEMENTATION COMPLEXITY
           </div>
           
           {/* Date stamp */}
@@ -154,18 +154,18 @@ export default function MatrixPlot() {
             </ResponsiveContainer>
           </div>
 
-        {/* Matrix Interpretation Guide */}
+        {/* RSA Framework Interpretation Guide */}
         <div className="mt-8 bg-gray-50 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Matrix Interpretation Guide</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">RSA AI Framework Quadrants</h3>
           <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-            {/* Top Row: High Impact */}
+            {/* Top Row: High Business Value */}
             <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                 <span className="font-semibold text-green-800">Quick Win</span>
               </div>
-              <p className="text-sm text-green-700">High Impact, Low Effort</p>
-              <p className="text-xs text-green-600 mt-1">Prioritize immediately</p>
+              <p className="text-sm text-green-700">High Business Value, Low Complexity</p>
+              <p className="text-xs text-green-600 mt-1">Immediate implementation priority</p>
             </div>
             
             <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
@@ -173,18 +173,18 @@ export default function MatrixPlot() {
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                 <span className="font-semibold text-blue-800">Strategic Bet</span>
               </div>
-              <p className="text-sm text-blue-700">High Impact, High Effort</p>
-              <p className="text-xs text-blue-600 mt-1">Plan & invest resources</p>
+              <p className="text-sm text-blue-700">High Business Value, High Complexity</p>
+              <p className="text-xs text-blue-600 mt-1">Long-term strategic investment</p>
             </div>
             
-            {/* Bottom Row: Low Impact */}
+            {/* Bottom Row: Lower Business Value */}
             <div className="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                 <span className="font-semibold text-yellow-800">Experimental</span>
               </div>
-              <p className="text-sm text-yellow-700">Low Impact, Low Effort</p>
-              <p className="text-xs text-yellow-600 mt-1">Test when resources allow</p>
+              <p className="text-sm text-yellow-700">Lower Business Value, Low Complexity</p>
+              <p className="text-xs text-yellow-600 mt-1">Pilot programs and testing</p>
             </div>
             
             <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
@@ -192,8 +192,8 @@ export default function MatrixPlot() {
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                 <span className="font-semibold text-red-800">Watchlist</span>
               </div>
-              <p className="text-sm text-red-700">Low Impact, High Effort</p>
-              <p className="text-xs text-red-600 mt-1">Avoid or reconsider scope</p>
+              <p className="text-sm text-red-700">Lower Business Value, High Complexity</p>
+              <p className="text-xs text-red-600 mt-1">Monitor for future consideration</p>
             </div>
           </div>
         </div>
