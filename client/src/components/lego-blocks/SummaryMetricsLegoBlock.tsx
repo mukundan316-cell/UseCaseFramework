@@ -119,91 +119,106 @@ export default function SummaryMetricsLegoBlock() {
         </p>
       </div>
 
-      {/* Consolidated Portfolio Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+      {/* Quadrant Cards - Top Row */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        
+        {/* Quick Win */}
+        <Card 
+          className={`
+            cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-t-4 border-t-green-500
+            ${filters.quadrant === 'Quick Win' ? 'ring-2 ring-green-500 bg-green-50' : 'hover:ring-1 hover:ring-green-500/30'}
+          `}
+          onClick={() => handleQuadrantFilter('Quick Win')}
+        >
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 mx-auto mb-3 bg-green-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">{quadrantCounts['Quick Win'] || 0}</span>
+            </div>
+            <h3 className="font-bold text-gray-900 mb-1">Quick Win</h3>
+            <p className="text-xs text-gray-600">High Impact, Low Effort</p>
+          </CardContent>
+        </Card>
+
+        {/* Strategic Bet */}
+        <Card 
+          className={`
+            cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-t-4 border-t-blue-500
+            ${filters.quadrant === 'Strategic Bet' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:ring-1 hover:ring-blue-500/30'}
+          `}
+          onClick={() => handleQuadrantFilter('Strategic Bet')}
+        >
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 mx-auto mb-3 bg-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">{quadrantCounts['Strategic Bet'] || 0}</span>
+            </div>
+            <h3 className="font-bold text-gray-900 mb-1">Strategic Bet</h3>
+            <p className="text-xs text-gray-600">High Impact, High Effort</p>
+          </CardContent>
+        </Card>
+
+        {/* Experimental */}
+        <Card 
+          className={`
+            cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-t-4 border-t-yellow-500
+            ${filters.quadrant === 'Experimental' ? 'ring-2 ring-yellow-500 bg-yellow-50' : 'hover:ring-1 hover:ring-yellow-500/30'}
+          `}
+          onClick={() => handleQuadrantFilter('Experimental')}
+        >
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 mx-auto mb-3 bg-yellow-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">{quadrantCounts['Experimental'] || 0}</span>
+            </div>
+            <h3 className="font-bold text-gray-900 mb-1">Experimental</h3>
+            <p className="text-xs text-gray-600">Low Impact, Low Effort</p>
+          </CardContent>
+        </Card>
+
+        {/* Watchlist */}
+        <Card 
+          className={`
+            cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-t-4 border-t-red-500
+            ${filters.quadrant === 'Watchlist' ? 'ring-2 ring-red-500 bg-red-50' : 'hover:ring-1 hover:ring-red-500/30'}
+          `}
+          onClick={() => handleQuadrantFilter('Watchlist')}
+        >
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 mx-auto mb-3 bg-red-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">{quadrantCounts['Watchlist'] || 0}</span>
+            </div>
+            <h3 className="font-bold text-gray-900 mb-1">Watchlist</h3>
+            <p className="text-xs text-gray-600">Low Impact, High Effort</p>
+          </CardContent>
+        </Card>
+
+      </div>
+
+      {/* Summary Metrics - Bottom Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         {/* Total Use Cases */}
         <MetricCard
           icon={BarChart3}
           label="Total Use Cases"
           value={filteredUseCases.length}
-          subtitle="In current view"
+          subtitle="Across all quadrants"
         />
 
-        {/* New This Month */}
-        <MetricCard
-          icon={Calendar}
-          label="New This Month"
-          value={newThisMonth}
-          subtitle="Recently added"
-          color="#059669"
-        />
-
-        {/* Quick Win Count */}
-        <MetricCard
-          icon={Zap}
-          label="Quick Win"
-          value={quadrantCounts['Quick Win'] || 0}
-          subtitle="High impact, low effort"
-          onClick={() => handleQuadrantFilter('Quick Win')}
-          isActive={filters.quadrant === 'Quick Win'}
-          color="#059669"
-        />
-
-        {/* Strategic Bet Count */}
+        {/* High Priority */}
         <MetricCard
           icon={Target}
-          label="Strategic Bet"
-          value={quadrantCounts['Strategic Bet'] || 0}
-          subtitle="High impact, high effort"
-          onClick={() => handleQuadrantFilter('Strategic Bet')}
-          isActive={filters.quadrant === 'Strategic Bet'}
-          color="#005DAA"
+          label="High Priority"
+          value={quadrantCounts['Quick Win'] || 0}
+          subtitle="Quick wins identified"
+          color="#059669"
         />
 
-        {/* Experimental Count */}
-        <MetricCard
-          icon={Sparkles}
-          label="Experimental"
-          value={quadrantCounts['Experimental'] || 0}
-          subtitle="Low impact, low effort"
-          onClick={() => handleQuadrantFilter('Experimental')}
-          isActive={filters.quadrant === 'Experimental'}
-          color="#7C3AED"
-        />
-
-        {/* Watchlist Count */}
-        <MetricCard
-          icon={Users}
-          label="Watchlist"
-          value={quadrantCounts['Watchlist'] || 0}
-          subtitle="Low impact, high effort"
-          onClick={() => handleQuadrantFilter('Watchlist')}
-          isActive={filters.quadrant === 'Watchlist'}
-          color="#DC2626"
-        />
-
-      </div>
-
-      {/* Average Scores Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        
-        {/* Average Impact Score */}
+        {/* Average Impact */}
         <MetricCard
           icon={TrendingUp}
-          label="Average Impact Score"
+          label="Avg Impact"
           value={averageImpact.toFixed(1)}
-          subtitle="Business value potential"
-          color="#F59E0B"
-        />
-
-        {/* Average Effort Score */}
-        <MetricCard
-          icon={Award}
-          label="Average Effort Score"
-          value={averageEffort.toFixed(1)}
-          subtitle="Implementation complexity"
-          color="#EF4444"
+          subtitle="Overall portfolio"
+          color="#7C3AED"
         />
 
       </div>
