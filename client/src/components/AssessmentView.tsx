@@ -10,6 +10,7 @@ import QuestionnaireContainer from './QuestionnaireContainer';
 import ReusableButton from './lego-blocks/ReusableButton';
 import ScoringDashboardLegoBlock, { type ScoringData } from './lego-blocks/ScoringDashboardLegoBlock';
 import ResponseExportLegoBlock from './lego-blocks/ResponseExportLegoBlock';
+import AssessmentResultsDashboard from './lego-blocks/AssessmentResultsDashboard';
 
 interface AssessmentState {
   hasAssessment: boolean;
@@ -304,77 +305,9 @@ export default function AssessmentView() {
     );
   }
 
-  // Completed State - Show Results Dashboard
+  // Completed State - Show Comprehensive Results Dashboard
   if (assessmentState.isCompleted) {
-    const { totalScore = 0, maturityScores, completedAt } = assessmentState;
-    
-    // Transform maturity scores data for ScoringDashboardLegoBlock
-    const scoringData: ScoringData | undefined = maturityScores ? {
-      overallScore: maturityScores.overallAverage || 0,
-      overallLevel: getMaturityLevel(maturityScores.overallAverage || 0),
-      overallPercentage: Math.round((maturityScores.overallAverage || 0) * 20),
-      totalResponses: Object.values(maturityScores.averageScores || {}).reduce((sum: number, data: any) => sum + (data.count || 0), 0),
-      completedAt: completedAt || new Date().toISOString(),
-      dimensionScores: Object.entries(maturityScores.maturityLevels || {}).map(([category, data]: [string, any]) => ({
-        category,
-        score: data.average || 0,
-        level: data.level || 'Initial',
-        percentage: data.percentage || 0,
-        description: getDescriptionForCategory(category)
-      })),
-      gapAnalysis: generateGapAnalysis(maturityScores.maturityLevels || {})
-    } : undefined;
-
-    return (
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Header */}
-        <Card className="border-green-200 bg-green-50">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl text-green-800">Assessment Complete!</CardTitle>
-                  <CardDescription className="text-green-700">
-                    Completed on {completedAt ? new Date(completedAt).toLocaleDateString() : 'Recently'}
-                  </CardDescription>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                {/* Export Results */}
-                {assessmentState.responseId && (
-                  <ResponseExportLegoBlock
-                    responseId={assessmentState.responseId}
-                    assessmentTitle="AI Maturity Assessment Results"
-                    variant="outline"
-                    size="default"
-                  />
-                )}
-                
-                <ReusableButton
-                  rsaStyle="secondary"
-                  onClick={handleRetakeAssessment}
-                  className="text-sm"
-                >
-                  Retake Assessment
-                </ReusableButton>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Scoring Dashboard LEGO Block */}
-        <ScoringDashboardLegoBlock
-          data={scoringData ? { ...scoringData, responseId: assessmentState.responseId } : undefined}
-          showGapAnalysis={true}
-          title="AI Maturity Assessment Results"
-          description="Comprehensive evaluation across key dimensions"
-        />
-      </div>
-    );
+    return <AssessmentResultsDashboard assessmentState={assessmentState} onRetake={handleRetakeAssessment} />;
   }
 
   return null;
