@@ -272,9 +272,49 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
   const onSubmit = async (data: FormData) => {
     try {
       console.log('Submitting form data:', data);
+      
       if (mode === 'edit' && useCase) {
-        console.log('Calling updateUseCase...');
-        const result = await updateUseCase(useCase.id, data);
+        // For edit mode, only send changed fields to prevent overwriting unchanged values
+        const originalData = {
+          title: useCase.title,
+          description: useCase.description,
+          process: useCase.process,
+          lineOfBusiness: useCase.lineOfBusiness,
+          businessSegment: useCase.businessSegment,
+          geography: useCase.geography,
+          useCaseType: useCase.useCaseType,
+          activity: (useCase as any).activity,
+          revenueImpact: (useCase as any).revenueImpact,
+          costSavings: (useCase as any).costSavings,
+          riskReduction: (useCase as any).riskReduction,
+          brokerPartnerExperience: (useCase as any).brokerPartnerExperience,
+          strategicFit: (useCase as any).strategicFit,
+          dataReadiness: (useCase as any).dataReadiness,
+          technicalComplexity: (useCase as any).technicalComplexity,
+          changeImpact: (useCase as any).changeImpact,
+          modelRisk: (useCase as any).modelRisk,
+          adoptionReadiness: (useCase as any).adoptionReadiness,
+          explainabilityBias: (useCase as any).explainabilityBias,
+          regulatoryCompliance: (useCase as any).regulatoryCompliance,
+        };
+        
+        // Only include fields that have actually changed
+        const changedData: any = {};
+        Object.keys(data).forEach(key => {
+          if (data[key as keyof FormData] !== originalData[key as keyof typeof originalData]) {
+            changedData[key] = data[key as keyof FormData];
+          }
+        });
+        
+        // Always include multi-select arrays as they may have been updated
+        if (data.linesOfBusiness) changedData.linesOfBusiness = data.linesOfBusiness;
+        if (data.processes) changedData.processes = data.processes;
+        if (data.activities) changedData.activities = data.activities;
+        if (data.businessSegments) changedData.businessSegments = data.businessSegments;
+        if (data.geographies) changedData.geographies = data.geographies;
+        
+        console.log('Sending only changed data:', changedData);
+        const result = await updateUseCase(useCase.id, changedData);
         console.log('Update successful:', result);
         toast({
           title: "Use case updated successfully",
