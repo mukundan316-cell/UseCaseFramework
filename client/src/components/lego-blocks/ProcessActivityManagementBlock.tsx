@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Trash2, Plus, Edit2 } from 'lucide-react';
 import { useProcessActivityManager } from './ProcessActivityManager';
 import { useUseCases } from '../../contexts/UseCaseContext';
@@ -17,7 +18,7 @@ export default function ProcessActivityManagementBlock() {
   const [selectedProcess, setSelectedProcess] = useState<string>('');
   const [newActivity, setNewActivity] = useState('');
   const [newProcessName, setNewProcessName] = useState('');
-  const [showAddProcess, setShowAddProcess] = useState(false);
+  const [isAddProcessModalOpen, setIsAddProcessModalOpen] = useState(false);
   
   const { getActivitiesForProcess, getAllProcesses } = useProcessActivityManager();
   const { updateMetadata, addMetadataItem, removeMetadataItem, metadata } = useUseCases();
@@ -129,7 +130,7 @@ export default function ProcessActivityManagementBlock() {
 
       setSelectedProcess(newProcessName.trim()); // Auto-select the new process
       setNewProcessName('');
-      setShowAddProcess(false);
+      setIsAddProcessModalOpen(false);
       
       toast({
         title: "Process Added",
@@ -157,40 +158,43 @@ export default function ProcessActivityManagementBlock() {
         <div>
           <div className="flex items-center justify-between mb-2">
             <Label>Select Process to Manage Activities</Label>
-            <Button 
-              onClick={() => setShowAddProcess(!showAddProcess)}
-              size="sm" 
-              variant="outline"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add Process
-            </Button>
+            <Dialog open={isAddProcessModalOpen} onOpenChange={setIsAddProcessModalOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Process
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Business Process</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <Input
+                    placeholder="Enter new process name"
+                    value={newProcessName}
+                    onChange={(e) => setNewProcessName(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddProcess()}
+                    autoFocus
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsAddProcessModalOpen(false);
+                        setNewProcessName('');
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddProcess}>
+                      Add Process
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-          
-          {/* Add New Process Form */}
-          {showAddProcess && (
-            <div className="flex gap-2 mb-3 p-3 bg-blue-50 rounded-lg">
-              <Input
-                placeholder="Enter new process name"
-                value={newProcessName}
-                onChange={(e) => setNewProcessName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddProcess()}
-              />
-              <Button onClick={handleAddProcess} size="sm">
-                Create
-              </Button>
-              <Button 
-                onClick={() => {
-                  setShowAddProcess(false);
-                  setNewProcessName('');
-                }}
-                size="sm" 
-                variant="ghost"
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
           
           <select 
             value={selectedProcess}
