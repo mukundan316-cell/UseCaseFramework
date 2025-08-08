@@ -48,9 +48,10 @@ export default function Explorer() {
           description: `"${useCase.title}" has been removed from the database.`,
         });
       } catch (error) {
+        console.error("Delete error:", error);
         toast({
           title: "Error deleting use case",
-          description: "Please try again.",
+          description: `Please try again. ${error instanceof Error ? error.message : 'Unknown error'}`,
           variant: "destructive",
         });
       }
