@@ -23,6 +23,17 @@ export async function apiRequest(
   return res;
 }
 
+// Helper function specifically for DELETE requests that don't return JSON
+export async function apiDeleteRequest(url: string): Promise<void> {
+  const res = await fetch(url, {
+    method: 'DELETE',
+    credentials: "include",
+  });
+
+  await throwIfResNotOk(res);
+  // Don't try to parse JSON for DELETE responses
+}
+
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;

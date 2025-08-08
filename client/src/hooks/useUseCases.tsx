@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient';
+import { apiRequest, apiDeleteRequest } from '../lib/queryClient';
 import { UseCase, UseCaseFormData } from '../types';
 import { InsertUseCase } from '@shared/schema';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '../utils/calculations';
@@ -60,9 +60,7 @@ export function useUseCases() {
 
   const deleteUseCaseMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('DELETE', `/api/use-cases/${id}`);
-      // DELETE returns 204 No Content, so don't try to parse JSON
-      return true;
+      await apiDeleteRequest(`/api/use-cases/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api', 'use-cases'] });
