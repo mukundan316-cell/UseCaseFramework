@@ -1,0 +1,303 @@
+- RSA-Aligned Use Case Mapping - Precise Commercial Lines Alignment
+-- Based on RSA Commercial Lines document analysis and business structure
+
+-- =====================================================
+-- UPDATE METADATA CONFIGURATION WITH RSA COMMERCIAL STRUCTURE
+-- =====================================================
+
+UPDATE metadata_config SET
+  -- RSA Commercial Insurance Processes (From RSA document analysis)
+  processes = ARRAY[
+    'Submission & Quote',
+    'Underwriting', 
+    'Policy Administration',
+    'Claims Management',
+    'Risk Consulting',
+    'Reinsurance',
+    'Regulatory & Compliance',
+    'Financial Management'
+  ],
+  
+  -- RSA Commercial Lines of Business (Exact from RSA Commercial Lines document)
+  lines_of_business = ARRAY[
+    'Property & Real Estate',
+    'Marine & Transportation', 
+    'Construction & Engineering',
+    'Professional & Financial',
+    'Renewable Energy',
+    'Motor & Fleet',
+    'Liability & Risk',
+    'Accident & Health',
+    'Rail',
+    'Non-Profit Organizations',
+    'All Lines'
+  ],
+  
+  -- RSA Business Segments (From RSA Commercial Lines structure)
+  business_segments = ARRAY[
+    'Large Corporates',
+    'Mid-Market',
+    'Small Businesses', 
+    'Delegated Authority',
+    'All Segments'
+  ],
+  
+  -- RSA Geographic Markets (From RSA global presence)
+  geographies = ARRAY[
+    'UK Domestic',
+    'UK Regions', 
+    'London Market',
+    'European Markets',
+    'Global Network',
+    'International/Multinational'
+  ],
+  
+  updated_at = NOW()
+WHERE id = 'default';
+
+-- =====================================================
+-- PRECISE RSA COMMERCIAL LINES ALIGNMENT
+-- =====================================================
+
+-- 1. Property & Real Estate Line of Business
+UPDATE use_cases SET 
+  line_of_business = 'Property & Real Estate',
+  process = CASE 
+    WHEN title = 'Unstructured Data Mining' THEN 'Underwriting'
+    WHEN title = 'FNOL Ingestion Automation' THEN 'Claims Management'
+    WHEN title = 'Dynamic Pricing Engine' THEN 'Underwriting'
+    WHEN title = 'Hyper-personalized Customer Outreach' THEN 'Submission & Quote'
+    WHEN title = 'Hyper-personalized Small Business Quotes' THEN 'Submission & Quote'
+    WHEN title = 'Custom Policy Generation' THEN 'Policy Administration'
+    WHEN title = 'Predictive Risk Scoring' THEN 'Underwriting'
+    WHEN title = 'Risk Triage System' THEN 'Underwriting'
+    WHEN title = 'AI-led Policy Comparison for Complex Products' THEN 'Underwriting'
+    WHEN title = 'Real-time Market Pricing Analysis' THEN 'Underwriting'
+    WHEN title = 'Broker-Facing Pricing Chatbot' THEN 'Submission & Quote'
+    ELSE process
+  END,
+  business_segment = CASE
+    WHEN title IN ('Unstructured Data Mining', 'Risk Triage System', 'AI-led Policy Comparison for Complex Products', 'Real-time Market Pricing Analysis') THEN 'Large Corporates'
+    WHEN title IN ('Dynamic Pricing Engine', 'Custom Policy Generation', 'Predictive Risk Scoring', 'Broker-Facing Pricing Chatbot') THEN 'Mid-Market'
+    WHEN title IN ('Hyper-personalized Small Business Quotes', 'Hyper-personalized Customer Outreach') THEN 'Small Businesses'
+    ELSE business_segment
+  END
+WHERE title IN (
+  'Unstructured Data Mining', 'FNOL Ingestion Automation', 'Dynamic Pricing Engine',
+  'Hyper-personalized Customer Outreach', 'Hyper-personalized Small Business Quotes',
+  'Custom Policy Generation', 'Predictive Risk Scoring', 'Risk Triage System',
+  'AI-led Policy Comparison for Complex Products', 'Real-time Market Pricing Analysis',
+  'Broker-Facing Pricing Chatbot'
+);
+
+-- 2. Motor & Fleet Line of Business (RSA's Auto/Fleet business)
+UPDATE use_cases SET 
+  line_of_business = 'Motor & Fleet',
+  process = CASE 
+    WHEN title = 'Subrogation Opportunity Identification' THEN 'Claims Management'
+    WHEN title = 'Prior Authorization Optimization' THEN 'Claims Management'
+    WHEN title = 'Scene Reconstruction AI' THEN 'Claims Management'
+    WHEN title = 'Automated Claims Triage' THEN 'Claims Management'
+    ELSE process
+  END,
+  business_segment = CASE
+    WHEN title = 'Prior Authorization Optimization' THEN 'All Segments'
+    WHEN title IN ('Subrogation Opportunity Identification', 'Scene Reconstruction AI') THEN 'Mid-Market'
+    WHEN title = 'Automated Claims Triage' THEN 'Mid-Market'
+    ELSE business_segment
+  END
+WHERE title IN (
+  'Subrogation Opportunity Identification', 'Prior Authorization Optimization',
+  'Scene Reconstruction AI', 'Automated Claims Triage'
+);
+
+-- 3. Professional & Financial Line of Business (Cyber, PI, D&O, etc.)
+UPDATE use_cases SET 
+  line_of_business = 'Professional & Financial',
+  process = CASE 
+    WHEN title = 'Cyber Risk Assessment AI' THEN 'Underwriting'
+    WHEN title = 'Cyber Risk Modeling' THEN 'Risk Consulting'
+    WHEN title = 'Parametric Insurance Platform' THEN 'Policy Administration'
+    WHEN title = 'Fraud Detection Engine' THEN 'Regulatory & Compliance'
+    ELSE process
+  END,
+  business_segment = CASE
+    WHEN title IN ('Cyber Risk Assessment AI', 'Cyber Risk Modeling', 'Parametric Insurance Platform') THEN 'Large Corporates'
+    WHEN title = 'Fraud Detection Engine' THEN 'Mid-Market'
+    ELSE business_segment
+  END
+WHERE title IN (
+  'Cyber Risk Assessment AI', 'Cyber Risk Modeling', 
+  'Parametric Insurance Platform', 'Fraud Detection Engine'
+);
+
+-- 4. Marine & Transportation Line of Business
+UPDATE use_cases SET 
+  line_of_business = 'Marine & Transportation',
+  process = 'Submission & Quote',
+  business_segment = 'Small Businesses'
+WHERE title = 'Document Processing Automation';
+
+-- 5. Accident & Health Line of Business (formerly Life)
+UPDATE use_cases SET 
+  line_of_business = 'Accident & Health',
+  process = 'Policy Administration',
+  business_segment = 'Delegated Authority'
+WHERE title = 'Customer Sentiment Analysis';
+
+-- 6. Small Businesses Segment Alignment
+UPDATE use_cases SET 
+  business_segment = 'Small Businesses',
+  process = CASE 
+    WHEN title = 'Hyper-personalized Small Business Quotes' THEN 'Submission & Quote'
+    WHEN title = 'Document Processing Automation' THEN 'Submission & Quote'
+    ELSE process
+  END
+WHERE title IN ('Hyper-personalized Small Business Quotes', 'Document Processing Automation');
+
+-- 7. Delegated Authority Segment (RSA's specific business model)
+UPDATE use_cases SET 
+  business_segment = 'Delegated Authority',
+  process = CASE
+    WHEN title = 'Claims Intake Automation for Delegated Products' THEN 'Claims Management'
+    WHEN title = 'AI-Generated Product Summaries for Delegated Partners' THEN 'Policy Administration'
+    WHEN title = 'AI Audit Assistant for Delegated Management Information' THEN 'Regulatory & Compliance'
+    ELSE process
+  END
+WHERE title IN (
+  'Claims Intake Automation for Delegated Products',
+  'AI-Generated Product Summaries for Delegated Partners',
+  'AI Audit Assistant for Delegated Management Information'
+);
+
+-- 8. RSA Geographic Alignment
+UPDATE use_cases SET 
+  geography = CASE
+    -- UK Domestic (RSA's home market)
+    WHEN geography = 'UK' THEN 'UK Domestic'
+    -- Global Network (RSA's 170 territories)
+    WHEN geography = 'Global' THEN 'Global Network'
+    -- European Markets (RSA's European presence)
+    WHEN geography = 'Europe' THEN 'European Markets'
+    -- International/Multinational (North America operations)
+    WHEN geography = 'North America' THEN 'International/Multinational'
+    ELSE geography
+  END;
+
+-- 9. Process Alignment with RSA Value Chain
+UPDATE use_cases SET 
+  process = CASE
+    -- Claims Management (RSA's end-to-end claims service)
+    WHEN process IN ('FNOL', 'First Notice', 'Claims Assessment', 'Investigation', 'Subrogation', 'Medical Management', 'Information Gathering') THEN 'Claims Management'
+    
+    -- Underwriting (RSA's risk assessment and pricing)
+    WHEN process IN ('Risk Analysis', 'Risk Assessment', 'Decision Making', 'Decision Explanation', 'Pricing', 'Quote Generation') THEN 'Underwriting'
+    
+    -- Policy Administration (RSA's policy lifecycle management)
+    WHEN process IN ('Policy Creation', 'Policy Issuance', 'Policy Analysis', 'Renewal', 'Customer Support', 'Query Resolution') THEN 'Policy Administration'
+    
+    -- Submission & Quote (RSA's front-end sales process)
+    WHEN process IN ('Quote & Bind', 'Lead Generation', 'Sales', 'Cross-selling', 'Customer Guidance', 'Broker Support', 'Application Processing') THEN 'Submission & Quote'
+    
+    -- Regulatory & Compliance (RSA's regulatory requirements)
+    WHEN process IN ('Audit & Compliance', 'Fraud Detection', 'Documentation', 'Document Verification') THEN 'Regulatory & Compliance'
+    
+    -- Risk Consulting (RSA's value-added services)
+    WHEN process IN ('Predictive Analytics', 'Customer Analytics', 'Product Design', 'Product Innovation', 'Testing & Validation') THEN 'Risk Consulting'
+    
+    -- Financial Management (RSA's operational processes)
+    WHEN process IN ('System Migration', 'Code Modernization', 'Quality Assurance', 'Call Handling', 'Request Routing', 'Vendor Management', 'Partner Enablement') THEN 'Financial Management'
+    
+    ELSE process
+  END;
+
+-- 10. All Lines Business Applications
+UPDATE use_cases SET 
+  line_of_business = 'All Lines',
+  business_segment = 'All Segments'
+WHERE title IN (
+  'Claims Review Copilot',
+  'Underwriting Decision Explanation Engine', 
+  'Synthetic Data Generation',
+  'Dynamic Information Collection',
+  'Automated Testing Harness',
+  'Internal RSA GPT for Broker FAQs',
+  'Auto-generated First Notice of Loss Insights',
+  'Legacy Code Migration Assistant',
+  'Automated Prefilled Forms',
+  'LLM-powered Query Handling',
+  'Enhanced Fraud Detection with Market Sentiment',
+  'Mainframe Modernization AI',
+  'Service Provider Contract Analyzer',
+  'AI Audit Assistant for Delegated Management Information',
+  'Document Discrepancy Detection'
+);
+
+-- 11. Customer-Facing Applications (Mid-Market/Mass Market focus)
+UPDATE use_cases SET 
+  line_of_business = CASE
+    WHEN title LIKE '%Personal Lines%' OR title LIKE '%Customer%' THEN 'Property & Real Estate'
+    ELSE line_of_business
+  END,
+  business_segment = CASE
+    WHEN title IN ('Concierge Assistant Bot', 'Smart Cross-selling Platform', 'IVR Replacement System', 'Product Recommendation Engine', 'Voice-to-Claim Narrative NLP Tool', 'Intelligent Routing System', 'Real-time Binding Platform', 'Virtual Customer Assistant') THEN 'Mid-Market'
+    WHEN title IN ('Hyper-personalization Engine', 'Lifetime Value Estimation', 'AI-based Decisioning Engine', 'Customer Behavior Modeling') THEN 'Mid-Market'
+    ELSE business_segment
+  END,
+  process = CASE
+    WHEN title IN ('Concierge Assistant Bot', 'Smart Cross-selling Platform', 'Product Recommendation Engine') THEN 'Submission & Quote'
+    WHEN title IN ('IVR Replacement System', 'Virtual Customer Assistant', 'Intelligent Routing System') THEN 'Policy Administration'
+    WHEN title IN ('Voice-to-Claim Narrative NLP Tool', 'Real-time Binding Platform') THEN 'Claims Management'
+    WHEN title IN ('Hyper-personalization Engine', 'AI-based Decisioning Engine') THEN 'Underwriting'
+    WHEN title IN ('Lifetime Value Estimation', 'Customer Behavior Modeling') THEN 'Risk Consulting'
+    ELSE process
+  END
+WHERE title IN (
+  'Concierge Assistant Bot', 'Smart Cross-selling Platform', 'Hyper-personalization Engine',
+  'Lifetime Value Estimation', 'IVR Replacement System', 'AI-based Decisioning Engine',
+  'Product Recommendation Engine', 'Voice-to-Claim Narrative NLP Tool', 
+  'Intelligent Routing System', 'Real-time Binding Platform', 'Customer Behavior Modeling',
+  'Virtual Customer Assistant'
+);
+
+-- =====================================================
+-- FINAL RSA ALIGNMENT VERIFICATION
+-- =====================================================
+
+-- Verify RSA Commercial Lines alignment
+SELECT 'RSA LOB Distribution' as metric, line_of_business, COUNT(*) as count 
+FROM use_cases 
+GROUP BY line_of_business 
+ORDER BY count DESC;
+
+-- Verify RSA Process alignment
+SELECT 'RSA Process Distribution' as metric, process, COUNT(*) as count 
+FROM use_cases 
+GROUP BY process 
+ORDER BY count DESC;
+
+-- Verify RSA Segment alignment
+SELECT 'RSA Segment Distribution' as metric, business_segment, COUNT(*) as count 
+FROM use_cases 
+GROUP BY business_segment 
+ORDER BY count DESC;
+
+-- Verify RSA Geography alignment
+SELECT 'RSA Geography Distribution' as metric, geography, COUNT(*) as count 
+FROM use_cases 
+GROUP BY geography 
+ORDER BY count DESC;
+
+-- Sample RSA-aligned use cases
+SELECT 
+  'RSA-Aligned Sample' as section,
+  title,
+  line_of_business as rsa_lob,
+  process as rsa_process,
+  business_segment as rsa_segment,
+  geography as rsa_geography,
+  quadrant
+FROM use_cases 
+WHERE line_of_business IN ('Property & Real Estate', 'Motor & Fleet', 'Professional & Financial', 'Marine & Transportation')
+ORDER BY line_of_business, business_segment
+LIMIT 20;
