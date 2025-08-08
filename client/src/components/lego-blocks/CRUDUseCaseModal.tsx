@@ -271,20 +271,27 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
 
   const onSubmit = async (data: FormData) => {
     try {
+      console.log('Submitting form data:', data);
       if (mode === 'edit' && useCase) {
-        await updateUseCase(useCase.id, data);
+        console.log('Calling updateUseCase...');
+        const result = await updateUseCase(useCase.id, data);
+        console.log('Update successful:', result);
         toast({
           title: "Use case updated successfully",
           description: `"${data.title}" has been updated.`,
         });
       } else {
-        await addUseCase(data);
+        console.log('Calling addUseCase...');
+        const result = await addUseCase(data);
+        console.log('Add successful:', result);
         toast({
           title: "Use case created successfully",
           description: `"${data.title}" has been added to the database.`,
         });
       }
+      console.log('About to call onClose...');
       onClose();
+      console.log('onClose called');
     } catch (error) {
       console.error('Submit error:', error);
       toast({
