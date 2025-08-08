@@ -276,12 +276,12 @@ export default function Explorer() {
               </SelectContent>
             </Select>
 
-            <Select value={filters.activity || ''} onValueChange={(value) => setFilters({ activity: value })}>
+            <Select value={filters.activity || 'all'} onValueChange={(value) => setFilters({ activity: value === 'all' ? '' : value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Activity" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Activities</SelectItem>
+                <SelectItem value="all">All Activities</SelectItem>
                 {metadata?.activities?.filter(activity => activity && activity.trim()).map(activity => (
                   <SelectItem key={activity} value={activity}>{activity}</SelectItem>
                 ))}
