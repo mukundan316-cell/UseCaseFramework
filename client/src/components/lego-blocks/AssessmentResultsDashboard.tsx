@@ -201,15 +201,13 @@ export default function AssessmentResultsDashboard({
                 />
               )}
               
-              {onRetake && (
-                <ReusableButton
-                  rsaStyle="secondary"
-                  onClick={onRetake}
-                  className="text-sm"
-                >
-                  Retake Assessment
-                </ReusableButton>
-              )}
+              <ReusableButton
+                rsaStyle="secondary"
+                onClick={() => setLocation('/questionnaire')}
+                className="text-sm"
+              >
+                Retake Assessment
+              </ReusableButton>
             </div>
           </div>
         </CardHeader>
@@ -379,24 +377,26 @@ export default function AssessmentResultsDashboard({
               <BarChart3 className="h-8 w-8 mx-auto mb-2 text-[#005DAA]" />
               <h4 className="font-semibold text-sm text-gray-800 mb-1">Explore Use Cases</h4>
               <p className="text-xs text-gray-600 mb-3">Browse AI use cases in the framework</p>
-              <Button variant="outline" size="sm" className="w-full">
+              <ReusableButton
+                rsaStyle="secondary"
+                onClick={() => setLocation('/')}
+                className="w-full text-xs"
+              >
                 View Framework
-              </Button>
+              </ReusableButton>
             </div>
             
             <div className="text-center p-4 bg-white rounded-lg border">
               <TrendingUp className="h-8 w-8 mx-auto mb-2 text-[#005DAA]" />
               <h4 className="font-semibold text-sm text-gray-800 mb-1">Track Progress</h4>
               <p className="text-xs text-gray-600 mb-3">Retake assessment to monitor improvement</p>
-              {onRetake && (
-                <ReusableButton
-                  rsaStyle="primary"
-                  onClick={onRetake}
-                  className="w-full text-xs"
-                >
-                  Retake Assessment
-                </ReusableButton>
-              )}
+              <ReusableButton
+                rsaStyle="primary"
+                onClick={() => setLocation('/questionnaire')}
+                className="w-full text-xs"
+              >
+                Retake Assessment
+              </ReusableButton>
             </div>
           </div>
         </CardContent>
