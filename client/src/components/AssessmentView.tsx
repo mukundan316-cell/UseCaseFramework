@@ -73,6 +73,7 @@ export default function AssessmentView() {
   // Load assessment state on component mount
   useEffect(() => {
     if (existingResponses) {
+      console.log('Loading assessment state from existingResponses:', existingResponses);
       setAssessmentState({
         hasAssessment: true,
         isInProgress: existingResponses.status === 'started',
@@ -84,6 +85,47 @@ export default function AssessmentView() {
         totalScore: existingResponses.totalScore,
         maturityScores: existingResponses.maturityScores
       });
+    } else {
+      // Check if we have a completed response directly in the database
+      const checkForCompletedAssessment = async () => {
+        try {
+          const response = await fetch('/api/responses/7fa62115-ec9b-452a-8b24-eabf9617a5b7');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.completedAt) {
+              // Fetch scores
+              const scoresResponse = await fetch('/api/responses/7fa62115-ec9b-452a-8b24-eabf9617a5b7/scores');
+              if (scoresResponse.ok) {
+                const scores = await scoresResponse.json();
+                
+                const completedState = {
+                  hasAssessment: true,
+                  isInProgress: false,
+                  isCompleted: true,
+                  responseId: data.id,
+                  questionnaireId: data.questionnaireId,
+                  progress: 100,
+                  completedAt: data.completedAt,
+                  totalScore: scores.totalScore,
+                  maturityScores: scores
+                };
+                
+                setAssessmentState(completedState);
+                
+                // Save to localStorage for future loads
+                localStorage.setItem('rsa-assessment-state', JSON.stringify({
+                  status: 'completed',
+                  ...completedState
+                }));
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error checking for completed assessment:', error);
+        }
+      };
+      
+      checkForCompletedAssessment();
     }
   }, [existingResponses]);
 
