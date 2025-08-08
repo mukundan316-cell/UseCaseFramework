@@ -75,12 +75,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateMetadataConfig(metadata: Partial<MetadataConfig>): Promise<MetadataConfig> {
+    // Add current timestamp for updatedAt field
+    const metadataWithTimestamp = {
+      ...metadata,
+      updatedAt: new Date()
+    };
+    
     const [config] = await db
       .insert(metadataConfig)
-      .values({ id: 'default', ...metadata } as any)
+      .values({ id: 'default', ...metadataWithTimestamp } as any)
       .onConflictDoUpdate({
         target: metadataConfig.id,
-        set: metadata
+        set: metadataWithTimestamp
       })
       .returning();
     return config;
