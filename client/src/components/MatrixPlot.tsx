@@ -76,69 +76,77 @@ export default function MatrixPlot() {
   return (
     <div className="space-y-8">
       <div className="matrix-container p-8">
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Impact vs Effort Matrix
+        <div className="mb-6 text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Figure 1: Magic Quadrant for RSA GenAI Use Case Framework
           </h2>
-          <p className="text-gray-600 text-lg">Visual prioritization of AI use cases across quadrants</p>
+          <p className="text-gray-600">RSA Insurance AI Strategy & Prioritization Platform</p>
         </div>
         
-        {/* Matrix Chart with Perfect Equal Quadrants */}
-        <div className="relative mx-auto" style={{ width: '600px', height: '480px' }}>
-          {/* Perfect Equal Quadrant Backgrounds */}
-          <div 
-            className="absolute grid grid-cols-2 grid-rows-2 border-2 border-gray-400" 
-            style={{ 
-              top: '30px', 
-              left: '60px', 
-              right: '50px', 
-              bottom: '60px',
-              width: 'calc(100% - 110px)',
-              height: 'calc(100% - 90px)'
-            }}
-          >
-            {/* Top Left - Quick Win (Green) */}
-            <div className="bg-green-50/50 border-r-2 border-b-2 border-gray-400"></div>
-            {/* Top Right - Strategic Bet (Blue) */}
-            <div className="bg-blue-50/50 border-b-2 border-gray-400"></div>
-            {/* Bottom Left - Experimental (Yellow) */}
-            <div className="bg-yellow-50/50 border-r-2 border-gray-400"></div>
-            {/* Bottom Right - Watchlist (Red) */}
-            <div className="bg-red-50/50"></div>
+        {/* Gartner-Style Magic Quadrant */}
+        <div className="bg-white border-2 border-gray-800 relative mx-auto" style={{ width: '700px', height: '500px' }}>
+          {/* Quadrant Labels - Gartner Style */}
+          <div className="absolute top-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
+            PRIORITIZE
+          </div>
+          <div className="absolute top-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
+            INVESTIGATE  
+          </div>
+          <div className="absolute bottom-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
+            CONSIDER
+          </div>
+          <div className="absolute bottom-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
+            AVOID
+          </div>
+
+          {/* Axis Labels */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-sm font-semibold text-gray-700">
+            BUSINESS IMPACT
+          </div>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-sm font-semibold text-gray-700 pb-2">
+            IMPLEMENTATION EFFORT
+          </div>
+          
+          {/* Date stamp */}
+          <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+            As of August 2025 © RSA Insurance
+          </div>
+
+          {/* Grid Lines */}
+          <div className="absolute inset-0" style={{ margin: '40px 40px 50px 50px' }}>
+            {/* Vertical center line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-600 -translate-x-0.5"></div>
+            {/* Horizontal center line */}
+            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-600 -translate-y-0.5"></div>
+            
+            {/* Light grid lines */}
+            <div className="absolute left-1/4 top-0 bottom-0 w-px bg-gray-300"></div>
+            <div className="absolute left-3/4 top-0 bottom-0 w-px bg-gray-300"></div>
+            <div className="absolute top-1/4 left-0 right-0 h-px bg-gray-300"></div>
+            <div className="absolute top-3/4 left-0 right-0 h-px bg-gray-300"></div>
           </div>
           
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 30, right: 50, bottom: 60, left: 60 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" strokeWidth={1} />
+            <ScatterChart margin={{ top: 40, right: 40, bottom: 50, left: 50 }}>
                 <XAxis 
                   type="number" 
                   dataKey="x" 
                   domain={[1, 5]} 
-                  ticks={[1, 2, 3, 4, 5]}
-                  tickCount={5}
-                  label={{ value: 'Complexity (Low → High)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fontSize: '12px', fill: '#64748b' } }}
-                  axisLine={{ stroke: '#94a3b8', strokeWidth: 2 }}
-                  tickLine={{ stroke: '#94a3b8' }}
+                  hide={true}
                 />
                 <YAxis 
                   type="number" 
                   dataKey="y" 
                   domain={[1, 5]} 
-                  ticks={[1, 2, 3, 4, 5]}
-                  tickCount={5}
-                  label={{ value: 'Business Impact', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: '12px', fill: '#64748b' } }}
-                  axisLine={{ stroke: '#94a3b8', strokeWidth: 2 }}
-                  tickLine={{ stroke: '#94a3b8' }}
+                  hide={true}
                 />
-                <ReferenceLine x={3} stroke="#005DAA" strokeWidth={2} strokeOpacity={0.8} />
-                <ReferenceLine y={3} stroke="#005DAA" strokeWidth={2} strokeOpacity={0.8} />
 
                 <Tooltip content={<CustomTooltip />} />
                 {chartData.map((entry, index) => (
                   <Scatter
                     key={index}
                     data={[entry]}
-                    fill={entry.color}
+                    fill="#1E40AF"
                     shape="circle"
                   />
                 ))}
