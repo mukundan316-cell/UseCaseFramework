@@ -63,4 +63,4 @@ export interface FilterState {
   quadrant: string;
 }
 
-export type TabType = "submit" | "matrix" | "explorer" | "admin";
+export type TabType = "dashboard" | "explorer" | "admin";

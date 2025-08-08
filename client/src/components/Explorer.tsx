@@ -1,5 +1,5 @@
-import React from 'react';
-import { Search, Filter, ChevronRight, BarChart3, Package, Tag } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Filter, ChevronRight, BarChart3, Package, Tag, Plus, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,16 +7,55 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useUseCases } from '../contexts/UseCaseContext';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../utils/calculations';
 import FilterChip from './lego-blocks/FilterChip';
+import CRUDUseCaseModal from './lego-blocks/CRUDUseCaseModal';
+import { UseCase } from '../types';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Explorer() {
   const { 
     metadata, 
     filters, 
     setFilters, 
-    getFilteredUseCases 
+    getFilteredUseCases,
+    deleteUseCase 
   } = useUseCases();
+  const { toast } = useToast();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [selectedUseCase, setSelectedUseCase] = useState<UseCase | undefined>();
 
   const filteredUseCases = getFilteredUseCases();
+
+  const handleCreate = () => {
+    setModalMode('create');
+    setSelectedUseCase(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (useCase: UseCase) => {
+    setModalMode('edit');
+    setSelectedUseCase(useCase);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (useCase: UseCase) => {
+    if (window.confirm(`Are you sure you want to delete "${useCase.title}"?`)) {
+      try {
+        await deleteUseCase(useCase.id);
+        toast({
+          title: "Use case deleted",
+          description: `"${useCase.title}" has been removed from the database.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error deleting use case",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   const quickFilters = [
     { label: 'All', value: '', active: !filters.quadrant },
@@ -26,8 +65,8 @@ export default function Explorer() {
     { label: 'Watchlist', value: 'Watchlist', active: filters.quadrant === 'Watchlist' },
   ];
 
-  const UseCaseCard = ({ useCase }: { useCase: any }) => (
-    <Card className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+  const UseCaseCard = ({ useCase }: { useCase: UseCase }) => (
+    <Card className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
@@ -38,15 +77,35 @@ export default function Explorer() {
               {useCase.description}
             </CardDescription>
           </div>
-          <span 
-            className="text-xs font-medium px-2 py-1 rounded-lg ml-4 whitespace-nowrap"
-            style={{ 
-              backgroundColor: getQuadrantBackgroundColor(useCase.quadrant),
-              color: getQuadrantColor(useCase.quadrant)
-            }}
-          >
-            {useCase.quadrant}
-          </span>
+          <div className="flex items-center gap-2">
+            <span 
+              className="text-xs font-medium px-2 py-1 rounded-lg whitespace-nowrap"
+              style={{ 
+                backgroundColor: getQuadrantBackgroundColor(useCase.quadrant),
+                color: getQuadrantColor(useCase.quadrant)
+              }}
+            >
+              {useCase.quadrant}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleEdit(useCase)}
+                className="h-8 w-8 p-0"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleDelete(useCase)}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
         
         <div className="space-y-3">
@@ -101,7 +160,7 @@ export default function Explorer() {
               <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
                 Use Case Explorer
               </CardTitle>
-              <CardDescription>Filter and search AI use cases</CardDescription>
+              <CardDescription>Browse, filter, and manage AI use cases with embedded CRUD functionality</CardDescription>
             </div>
             <div className="flex items-center space-x-4 mt-4 lg:mt-0">
               <div className="relative">
@@ -114,6 +173,10 @@ export default function Explorer() {
                   onChange={(e) => setFilters({ search: e.target.value })}
                 />
               </div>
+              <Button onClick={handleCreate} className="bg-rsa-blue hover:bg-rsa-purple">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Use Case
+              </Button>
               <Button variant="outline">
                 <Filter className="w-4 h-4 mr-2" />
                 Filters
@@ -234,6 +297,14 @@ export default function Explorer() {
           </CardContent>
         </Card>
       )}
+
+      {/* CRUD Modal for Use Case Management */}
+      <CRUDUseCaseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        mode={modalMode}
+        useCase={selectedUseCase}
+      />
     </div>
   );
 }

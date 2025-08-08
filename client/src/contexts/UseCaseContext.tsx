@@ -39,7 +39,7 @@ const initialFilters: FilterState = {
 };
 
 export function UseCaseProvider({ children }: { children: ReactNode }) {
-  const [activeTab, setActiveTab] = useState<TabType>('submit');
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [filters, setFiltersState] = useState<FilterState>(initialFilters);
   const queryClient = useQueryClient();
 

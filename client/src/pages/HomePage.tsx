@@ -1,8 +1,7 @@
 import React from 'react';
 import { useUseCases } from '../contexts/UseCaseContext';
 import Layout from '../components/Layout';
-import UseCaseForm from '../components/UseCaseForm';
-import MatrixPlot from '../components/MatrixPlot';
+import DashboardView from '../components/DashboardView';
 import Explorer from '../components/Explorer';
 import AdminPanel from '../components/AdminPanel';
 
@@ -11,16 +10,14 @@ export default function HomePage() {
 
   const renderActiveTab = () => {
     switch (activeTab) {
-      case 'submit':
-        return <UseCaseForm />;
-      case 'matrix':
-        return <MatrixPlot />;
+      case 'dashboard':
+        return <DashboardView />;
       case 'explorer':
         return <Explorer />;
       case 'admin':
         return <AdminPanel />;
       default:
-        return <UseCaseForm />;
+        return <DashboardView />;
     }
   };
 

@@ -9,8 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { activeTab, setActiveTab } = useUseCases();
 
   const tabs = [
-    { id: 'submit' as TabType, label: 'Submit Use Case', icon: PlusCircle },
-    { id: 'matrix' as TabType, label: 'Matrix View', icon: Sparkle },
+    { id: 'dashboard' as TabType, label: 'Dashboard View', icon: Sparkle },
     { id: 'explorer' as TabType, label: 'Explorer', icon: Search },
     { id: 'admin' as TabType, label: 'Admin', icon: Settings },
   ];
