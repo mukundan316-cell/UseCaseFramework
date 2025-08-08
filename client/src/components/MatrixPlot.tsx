@@ -198,75 +198,7 @@ export default function MatrixPlot() {
 
       </div>
 
-      {/* Quadrant Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <QuadrantLegendItem
-          color="#22C55E"
-          title="Quick Win"
-          subtitle="High Impact, Low Effort"
-          count={quadrantCounts["Quick Win"]}
-        />
-        <QuadrantLegendItem
-          color="#3B82F6"
-          title="Strategic Bet"
-          subtitle="High Impact, High Effort"
-          count={quadrantCounts["Strategic Bet"]}
-        />
-        <QuadrantLegendItem
-          color="#EAB308"
-          title="Experimental"
-          subtitle="Low Impact, Low Effort"
-          count={quadrantCounts["Experimental"]}
-        />
-        <QuadrantLegendItem
-          color="#EF4444"
-          title="Watchlist"
-          subtitle="Low Impact, High Effort"
-          count={quadrantCounts["Watchlist"]}
-        />
-      </div>
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="futuristic-card p-6 floating-element">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Total Use Cases</h3>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center pulse-glow">
-              <span className="text-white text-lg">📊</span>
-            </div>
-          </div>
-          <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            {useCases.length}
-          </div>
-          <p className="text-sm text-gray-600">Across all quadrants</p>
-        </div>
-        
-        <div className="futuristic-card p-6 floating-element" style={{ animationDelay: '0.5s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">High Priority</h3>
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center pulse-glow">
-              <span className="text-white text-lg">⭐</span>
-            </div>
-          </div>
-            <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
-              {quadrantCounts["Quick Win"]}
-            </div>
-            <p className="text-sm text-gray-600">Quick wins identified</p>
-        </div>
-        
-        <div className="futuristic-card p-6 floating-element" style={{ animationDelay: '1s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Avg Impact</h3>
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center pulse-glow">
-              <span className="text-white text-lg">📈</span>
-            </div>
-          </div>
-          <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            {averageImpact}
-          </div>
-          <p className="text-sm text-gray-600">Overall portfolio</p>
-        </div>
-      </div>
     </div>
   );
 }
