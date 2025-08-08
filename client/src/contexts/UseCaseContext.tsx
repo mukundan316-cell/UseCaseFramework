@@ -103,23 +103,41 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   };
 
   const addMetadataItem = async (category: keyof MetadataConfig, item: string): Promise<void> => {
-    if (!metadata) return;
+    if (!metadata) throw new Error('Metadata not loaded');
+    
+    // Skip 'id' and 'updatedAt' fields for metadata updates
+    if (category === 'id' || category === 'updatedAt') return;
+    
     const currentArray = metadata[category] as string[];
+    if (!Array.isArray(currentArray)) {
+      throw new Error(`Invalid category: ${category} is not an array`);
+    }
+    
     if (!currentArray.includes(item)) {
       const updatedMetadata = {
         ...metadata,
-        [category]: [...currentArray, item]
+        [category]: [...currentArray, item],
+        updatedAt: new Date()
       };
       await updateMetadata(updatedMetadata);
     }
   };
 
   const removeMetadataItem = async (category: keyof MetadataConfig, item: string): Promise<void> => {
-    if (!metadata) return;
+    if (!metadata) throw new Error('Metadata not loaded');
+    
+    // Skip 'id' and 'updatedAt' fields for metadata updates
+    if (category === 'id' || category === 'updatedAt') return;
+    
     const currentArray = metadata[category] as string[];
+    if (!Array.isArray(currentArray)) {
+      throw new Error(`Invalid category: ${category} is not an array`);
+    }
+    
     const updatedMetadata = {
       ...metadata,
-      [category]: currentArray.filter(i => i !== item)
+      [category]: currentArray.filter(i => i !== item),
+      updatedAt: new Date()
     };
     await updateMetadata(updatedMetadata);
   };
