@@ -60,7 +60,7 @@ interface RSAHeaderProps {
 }
 
 export default function RSAHeader({ 
-  title = "GenAI Use Case Framework", 
+  title = "RSA AI Use Case Value Framework", 
   subtitle = "AI Strategy & Prioritization Platform" 
 }: RSAHeaderProps) {
   return (

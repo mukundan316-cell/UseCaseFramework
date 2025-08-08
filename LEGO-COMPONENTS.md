@@ -1,7 +1,7 @@
 # LEGO-Style Component Library
 
 ## Overview
-This document catalogs all reusable LEGO-style components in the RSA GenAI Use Case Framework. Follow the "Build Once, Reuse Everywhere" principle. The admin interface focuses on managing UI list of values (dropdown options, filter values) rather than internal component management.
+This document catalogs all reusable LEGO-style components in the RSA AI Use Case Value Framework. Follow the "Build Once, Reuse Everywhere" principle. The admin interface focuses on managing UI list of values (dropdown options, filter values) rather than internal component management.
 
 ## Available LEGO Components
 

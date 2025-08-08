@@ -289,7 +289,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
             {mode === 'edit' ? 'Edit Use Case' : 'Create New Use Case'}
           </DialogTitle>
           <DialogDescription>
-            {mode === 'edit' ? 'Update the use case details and scoring' : 'Define a new AI/GenAI use case with RSA framework scoring'}
+            {mode === 'edit' ? 'Update the use case details and scoring' : 'Define a new AI use case with RSA framework scoring'}
           </DialogDescription>
         </DialogHeader>
 
