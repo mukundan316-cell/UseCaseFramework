@@ -1,0 +1,169 @@
+✅ FINAL SELF-CONTAINED META-PROMPT FOR REPLIT AGENT
+Project: RSA GenAI Use Case Framework Microsite
+Type: Modular, extensible microsite for AI use case evaluation and prioritization
+You are a Replit Agent tasked with building a modern, modular, extensible microsite for RSA Insurance to evaluate, score, and prioritize AI/GenAI use cases across the insurance value chain.
+
+🎯 GOALS:
+1. Capture and manage AI/GenAI use cases with business metadata.
+2. Score each use case based on business impact and implementation feasibility.
+3. Visualize them in a dynamic 2×2 prioritization matrix.
+4. Filter use cases by insurance-specific dimensions.
+5. Enable dynamic editing of filter categories via an admin interface.
+6. Architect the app for future extensibility using modular, LEGO-style design.
+
+---
+
+🧠 CORE FUNCTIONAL COMPONENTS:
+
+### 1. 📥 USE CASE SUBMISSION FORM
+A form to capture and score new AI use cases with the following fields:
+
+**Metadata Dropdowns:**
+- `value_chain_component`: e.g., Underwriting, Claims, Policy Servicing, Distribution, Product Development, IT Ops, Fraud/Compliance, Customer Service
+- `process`: e.g., Quote & Bind, FNOL, Pricing, Renewal, Subrogation
+- `line_of_business`: e.g., Auto, Property, Marine, Life, Cyber, Specialty
+- `business_segment`: e.g., Mid-Market, Large Commercial, SME, E&S
+- `geography`: e.g., UK, Europe, Global, North America
+- `use_case_type`: e.g., GenAI, Predictive ML, NLP, RPA
+
+**Scoring Sliders (1–5):**
+- **Impact Levers**:
+  - `revenue_impact`
+  - `cost_savings`
+  - `risk_reduction`
+  - `strategic_fit`
+- **Feasibility Levers**:
+  - `data_readiness`
+  - `technical_complexity`
+  - `change_impact`
+  - `adoption_readiness`
+
+**Scoring Logic (explicitly included in the code):**
+```javascript
+impact_score = (revenue_impact + cost_savings + risk_reduction + strategic_fit) / 4
+effort_score = (data_readiness + technical_complexity + change_impact + adoption_readiness) / 4
+Quadrant Assignment Logic:
+if (impact_score >= 4 && effort_score <= 2.5) quadrant = "Quick Win"
+else if (impact_score >= 4 && effort_score > 2.5) quadrant = "Strategic Bet"
+else if (impact_score < 4 && effort_score <= 2.5) quadrant = "Experimental"
+else quadrant = "Watchlist"
+________________________________________
+2. 📊 2x2 MATRIX VISUALIZATION
+•	Uses Recharts or Plotly
+•	X-axis = Effort Score (inverted: lower effort → left)
+•	Y-axis = Impact Score (higher impact → top)
+•	Each use case plotted as a dot with:
+o	Tooltip: title, quadrant, metadata
+o	Optional color by business segment or LOB
+•	Quadrants auto-labeled:
+o	Top Left: Quick Win
+o	Top Right: Strategic Bet
+o	Bottom Left: Experimental
+o	Bottom Right: Watchlist
+________________________________________
+3. 🧾 USE CASE EXPLORER
+•	Card/grid layout of all use cases
+•	Filter panel includes:
+o	Value Chain Component
+o	Process
+o	Line of Business
+o	Business Segment
+o	Geography
+o	Use Case Type
+o	Quadrant
+•	Search bar (filter by title or description)
+•	Sort by impact or creation date
+________________________________________
+4. ⚙️ ADMIN PANEL (METADATA MANAGER)
+•	Dynamic add/edit/delete for:
+o	Value chain components
+o	Processes
+o	LOBs
+o	Business segments
+o	Geographies
+o	Use case types
+•	Option to import/export filters and use cases as JSON
+•	Reset to default button
+•	All metadata stored in localStorage or SQLite (as JSON)
+________________________________________
+5. 📚 PRELOADED SAMPLE USE CASES
+Include at least 5 use cases across the insurance value chain:
+Example:
+{
+  "title": "Automated FNOL Summarization",
+  "description": "Summarizes first notice of loss narratives using GenAI for faster triage.",
+  "value_chain_component": "Claims",
+  "process": "FNOL",
+  "line_of_business": "Auto",
+  "business_segment": "Mid-Market",
+  "geography": "UK",
+  "use_case_type": "GenAI",
+  "revenue_impact": 4,
+  "cost_savings": 5,
+  "risk_reduction": 4,
+  "strategic_fit": 5,
+  "data_readiness": 4,
+  "technical_complexity": 2,
+  "change_impact": 2,
+  "adoption_readiness": 4
+}
+Auto-calculated:
+•	impact_score: 4.5
+•	effort_score: 3.0
+•	quadrant: Strategic Bet
+Repeat similarly for use cases in Underwriting, Distribution, Policy Servicing, and Fraud.
+________________________________________
+6. 🧱 LEGO-STYLE ARCHITECTURE
+Design all components as modular React units:
+•	/components/UseCaseForm
+•	/components/MatrixPlot
+•	/components/Explorer
+•	/components/AdminPanel
+•	/data/usecases.json
+•	/data/filters.json
+•	/services/useCaseStore.js
+All use cases and filters should share a single global data store. Future tabs can be plugged in without modifying existing logic. Examples:
+•	AI Maturity Scorecard
+•	Partner Capability Evaluator
+•	Use Case ROI Calculator
+________________________________________
+🧑‍💻 TECH STACK:
+•	Frontend: React + Tailwind CSS
+•	Visualization: Recharts or Plotly
+•	Storage: localStorage for MVP; design for optional SQLite upgrade
+•	State: Context API or Zustand
+•	Responsive Layout: Tablet and desktop
+•	Styling Theme:
+o	Primary Blue: #005DAA
+o	Background: #F7F8F9
+o	Cards: White, soft shadow, 2xl rounded
+________________________________________
+📁 FILE STRUCTURE:
+•	/components
+•	/data
+•	/services
+•	App.jsx
+•	usecases.json & filters.json stored locally
+________________________________________
+🧪 OPTIONAL FEATURES:
+•	Tooltip for each slider (info icon with hint)
+•	Export use case list to CSV
+•	Color-coded quadrant legend below matrix
+________________________________________
+🎯 FINAL DELIVERABLE:
+A complete, working microsite that:
+•	Captures use cases with rich metadata
+•	Scores and classifies use cases into quadrants
+•	Allows full filter-based exploration
+•	Supports editable metadata taxonomies
+•	Is modular and easily extendable in future
+Do not rely on any external files or documents. All knowledge and use cases must be included and embedded within this prompt and scaffold.
+
+---
+
+This prompt now meets **all your specifications**:
+- 📦 Fully self-contained  
+- 🧠 All quadrant scoring logic embedded  
+- 🧾 Preloaded sample data  
+- 🧱 LEGO-style extensibility  
+- 🧮 Explicit technical + functional instructions
