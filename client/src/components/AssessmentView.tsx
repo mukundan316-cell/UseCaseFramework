@@ -374,7 +374,13 @@ export default function AssessmentView() {
   // Completed State - Show Comprehensive Results Dashboard
   if (assessmentState.isCompleted) {
     console.log('Rendering AssessmentResultsDashboard with state:', assessmentState);
-    return <AssessmentResultsDashboard assessmentState={assessmentState} onRetake={handleRetakeAssessment} />;
+    return (
+      <AssessmentResultsDashboard 
+        assessmentState={assessmentState} 
+        responseId={assessmentState.responseId}
+        onRetake={handleRetakeAssessment} 
+      />
+    );
   }
 
   return null;

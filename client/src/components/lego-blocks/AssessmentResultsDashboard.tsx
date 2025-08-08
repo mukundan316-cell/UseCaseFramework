@@ -74,6 +74,7 @@ export default function AssessmentResultsDashboard({
   // Use responseId if provided, otherwise fall back to assessmentState
   const actualResponseId = responseId || assessmentState?.responseId;
   
+  // ALL HOOKS MUST BE CALLED UNCONDITIONALLY
   // Fetch response data if responseId is provided
   const { data: responseData } = useQuery({
     queryKey: ['response', actualResponseId],
@@ -88,15 +89,16 @@ export default function AssessmentResultsDashboard({
     enabled: !!actualResponseId
   });
 
+  // Hooks for recommendation system - ALWAYS CALL
+  const { useCases } = useUseCases();
+  const generateRecommendations = useGenerateRecommendations();
+  const { data: existingRecommendations } = useRecommendations(actualResponseId);
+  const [, setLocation] = useLocation();
+
   // Use fetched data or fallback to assessmentState
   const maturityScores = fetchedMaturityScores || assessmentState?.maturityScores;
   const totalScore = responseData?.totalScore || assessmentState?.totalScore || 0;
   const completedAt = responseData?.completedAt || assessmentState?.completedAt;
-
-  // Hooks for recommendation system
-  const { useCases } = useUseCases();
-  const generateRecommendations = useGenerateRecommendations();
-  const { data: existingRecommendations } = useRecommendations(actualResponseId);
 
   // Debug logging
   console.log('AssessmentResultsDashboard props:', { assessmentState, responseId, actualResponseId });
@@ -126,7 +128,7 @@ export default function AssessmentResultsDashboard({
     }
   }, [actualResponseId, maturityScores, useCases, existingRecommendations, generateRecommendations]);
 
-  // Check if we have sufficient data to display results
+  // Early return AFTER all hooks are called
   if (!maturityScores || !actualResponseId) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
@@ -185,9 +187,6 @@ export default function AssessmentResultsDashboard({
 
   // Generate gap analysis for detailed view
   const detailedGapAnalysis = maturityScores ? generateDetailedGapAnalysis(maturityScores.maturityLevels || {}) : [];
-
-  // Navigation
-  const [, setLocation] = useLocation();
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">

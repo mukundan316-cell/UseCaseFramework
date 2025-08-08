@@ -25,7 +25,7 @@ function Router() {
       <Route path="/assessment" component={QuestionnaireContainerDemo} />
       <Route path="/scoring-demo" component={ScoringDashboardDemo} />
       <Route path="/export-demo" component={ResponseExportDemo} />
-      <Route path="/results/:responseId" component={({ responseId }) => 
+      <Route path="/results/:responseId" component={({ params: { responseId } }) => 
         <AssessmentResultsDashboard 
           responseId={responseId}
         />

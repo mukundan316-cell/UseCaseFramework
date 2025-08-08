@@ -121,30 +121,9 @@ export default function ScoringDashboardLegoBlock({
     );
   }
 
-  // Empty state - no data
+  // Return null if no data - let parent component handle empty state (LEGO principle)
   if (!data) {
-    return (
-      <Card className={cn("w-full", className)}>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <BarChart3 className="h-5 w-5 text-gray-400" />
-            <span>{title}</span>
-          </CardTitle>
-          <CardDescription>{description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 space-y-4">
-            <Activity className="h-12 w-12 text-gray-300 mx-auto" />
-            <div className="space-y-2">
-              <p className="text-gray-500 font-medium">No Assessment Data</p>
-              <p className="text-sm text-gray-400">
-                Complete an AI maturity assessment to see your scores here
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   const overallStyling = getLevelStyling(data.overallLevel);

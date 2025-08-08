@@ -87,8 +87,9 @@ The project follows strict architectural principles and coding standards documen
 - **Dual Route Support**: Added both `/questionnaire` and `/assessment` routes for backward compatibility
 - **Navigation Integration**: Added "Back to Dashboard" functionality with proper breadcrumb navigation
 - **Fixed Route References**: Updated all internal navigation to use consistent route patterns
-- **Eliminated Duplication**: Confirmed AssessmentResultsDashboard is properly reused without redundancy
+- **Eliminated Assessment Results Duplication**: Consolidated to single AssessmentResultsDashboard component following LEGO principle - removed duplicate empty states from ScoringDashboardLegoBlock
 - **Retake Assessment Fix**: Enhanced progress recovery logic to prevent completed assessments from auto-restoring
+- **Component Reusability**: ScoringDashboardLegoBlock now properly returns null when no data, letting parent components handle empty states
 
 ### Dashboard Optimization
 - Consolidated Portfolio Overview to eliminate redundant information display
