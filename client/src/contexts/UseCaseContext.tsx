@@ -48,7 +48,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/use-cases'],
   });
 
-  const { data: metadata } = useQuery({
+  const { data: metadata } = useQuery<MetadataConfig>({
     queryKey: ['/api/metadata'],
   });
 
@@ -155,7 +155,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     }
     
     if (!currentArray.includes(item)) {
-      const updatedMetadata = {
+      const updatedMetadata: MetadataConfig = {
         ...metadata,
         [category]: [...currentArray, item],
         updatedAt: new Date()
@@ -175,7 +175,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       throw new Error(`Invalid category: ${category} is not an array`);
     }
     
-    const updatedMetadata = {
+    const updatedMetadata: MetadataConfig = {
       ...metadata,
       [category]: currentArray.filter(i => i !== item),
       updatedAt: new Date()
@@ -240,7 +240,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
 
   const value: UseCaseContextType = {
     useCases: Array.isArray(useCases) ? useCases : [],
-    metadata: metadata || undefined,
+    metadata: metadata,
     activeTab,
     filters,
     setActiveTab,
