@@ -93,6 +93,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
   useEffect(() => {
     if (mode === 'edit' && useCase) {
       console.log('Edit mode - useCase data:', useCase); // Debug log
+      console.log('Raw useCase object keys:', Object.keys(useCase)); // Debug keys
+      console.log('ValueChainComponent:', useCase.valueChainComponent); // Debug specific field
       
       const formData = {
         title: useCase.title || '',
@@ -219,7 +221,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Use Case Type</Label>
-                <Select onValueChange={(value) => form.setValue('useCaseType', value)}>
+                <Select value={form.watch('useCaseType')} onValueChange={(value) => form.setValue('useCaseType', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -252,7 +254,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label>Value Chain Component</Label>
-                <Select onValueChange={(value) => form.setValue('valueChainComponent', value)}>
+                <Select value={form.watch('valueChainComponent')} onValueChange={(value) => form.setValue('valueChainComponent', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select component" />
                   </SelectTrigger>
@@ -265,7 +267,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Process</Label>
-                <Select onValueChange={(value) => form.setValue('process', value)}>
+                <Select value={form.watch('process')} onValueChange={(value) => form.setValue('process', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select process" />
                   </SelectTrigger>
@@ -278,7 +280,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Line of Business</Label>
-                <Select onValueChange={(value) => form.setValue('lineOfBusiness', value)}>
+                <Select value={form.watch('lineOfBusiness')} onValueChange={(value) => form.setValue('lineOfBusiness', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select LOB" />
                   </SelectTrigger>
@@ -291,7 +293,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Business Segment</Label>
-                <Select onValueChange={(value) => form.setValue('businessSegment', value)}>
+                <Select value={form.watch('businessSegment')} onValueChange={(value) => form.setValue('businessSegment', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select segment" />
                   </SelectTrigger>
@@ -304,7 +306,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </div>
               <div>
                 <Label>Geography</Label>
-                <Select onValueChange={(value) => form.setValue('geography', value)}>
+                <Select value={form.watch('geography')} onValueChange={(value) => form.setValue('geography', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select geography" />
                   </SelectTrigger>
