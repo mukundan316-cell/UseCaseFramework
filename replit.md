@@ -23,8 +23,10 @@ The application now implements the comprehensive RSA AI Framework with full comp
 - **Weighted Calculation Logic**: Impact and Effort scores use 20% weighted formula per RSA specification
 - **Complete Framework Coverage**: All levers from RSA framework now captured including Broker/Partner Experience, Model Risk, Explainability/Bias, and Regulatory Compliance
 - **Database-First Architecture**: All data operations flow through PostgreSQL database via API endpoints
-- **Automated Migration**: Enhanced framework seamlessly integrated with existing 32 use cases
-- **LEGO-Style Components**: Comprehensive reusable component library including new ScoringLegoBlock
+- **Automated Migration**: Enhanced framework seamlessly integrated with existing use cases
+- **LEGO-Style Components**: Comprehensive reusable component library including CRUDUseCaseModal
+- **High-Impact Use Cases**: Added 10 commercial property & casualty use cases from industry analysis grid
+- **Explorer CRUD Integration**: Embedded Add/Edit/Delete functionality within Explorer tab without duplication
 
 ## System Architecture
 
