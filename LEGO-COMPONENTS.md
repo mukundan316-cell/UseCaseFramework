@@ -26,11 +26,101 @@ This document catalogs all reusable LEGO-style components in the RSA GenAI Use C
 />
 ```
 
-**Props**:
-- `category`: keyof MetadataConfig - Database field name
-- `title`: string - Display title for the block
-- `items`: string[] - Array of items to manage
-- `placeholder`: string - Placeholder text for add input
+### FormActionButtons  
+**Purpose**: Standardized form action buttons (Reset/Save)
+**Location**: `client/src/components/lego-blocks/FormActionButtons.tsx`
+**Features**:
+- Reset and Save buttons with icons
+- Loading states
+- RSA styling
+- Flexible configuration
+
+**Usage Example**:
+```tsx
+<FormActionButtons
+  onReset={resetForm}
+  resetType="button"
+  saveType="submit"
+  isLoading={form.formState.isSubmitting}
+/>
+```
+
+### DataActionCard
+**Purpose**: Reusable action cards for data operations
+**Location**: `client/src/components/lego-blocks/DataActionCard.tsx`
+**Features**:
+- Icon-based action cards
+- Multiple variants (primary, success, warning, danger)
+- Hover effects
+- Consistent styling
+
+**Usage Example**:
+```tsx
+<DataActionCard
+  title="Export Data"
+  description="Download use cases and metadata"
+  icon={Download}
+  onClick={handleExport}
+  variant="primary"
+/>
+```
+
+### FilterChip
+**Purpose**: Interactive filter chips for quick filtering
+**Location**: `client/src/components/lego-blocks/FilterChip.tsx`
+**Features**:
+- Active/inactive states
+- Multiple variants and sizes
+- Hover effects
+- RSA styling
+
+**Usage Example**:
+```tsx
+<FilterChip
+  label="Quick Win"
+  active={filters.quadrant === 'Quick Win'}
+  onClick={() => setFilters({ quadrant: 'Quick Win' })}
+  variant="primary"
+/>
+```
+
+### TabButton
+**Purpose**: Navigation tab buttons with RSA styling
+**Location**: `client/src/components/lego-blocks/TabButton.tsx`
+**Features**:
+- Active/inactive states
+- Icons and labels
+- Hover animations
+- Pill-style design
+
+**Usage Example**:
+```tsx
+<TabButton
+  id="submit"
+  label="Submit Use Case"
+  icon={PlusCircle}
+  isActive={activeTab === 'submit'}
+  onClick={setActiveTab}
+/>
+```
+
+### ReusableButton
+**Purpose**: Base button component with RSA styling
+**Location**: `client/src/components/lego-blocks/ReusableButton.tsx`
+**Features**:
+- Multiple RSA-specific styles
+- Loading states
+- Icon support
+- Full width option
+
+### ReusableModal
+**Purpose**: Consistent modal wrapper
+**Location**: `client/src/components/lego-blocks/ReusableModal.tsx`
+**Features**:
+- Multiple sizes
+- Close button
+- Header and footer slots
+- Overlay click prevention
 
 ### RSAHeader
 **Purpose**: Consistent header with authentic RSA branding

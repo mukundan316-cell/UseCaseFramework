@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUseCases } from '../contexts/UseCaseContext';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../utils/calculations';
+import FilterChip from './lego-blocks/FilterChip';
 
 export default function Explorer() {
   const { 
@@ -123,17 +124,13 @@ export default function Explorer() {
           {/* Quick Filters */}
           <div className="flex flex-wrap gap-3 mb-6">
             {quickFilters.map((filter) => (
-              <button
+              <FilterChip
                 key={filter.label}
+                label={filter.label}
+                active={filter.active}
                 onClick={() => setFilters({ quadrant: filter.value })}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                  filter.active
-                    ? 'bg-rsa-blue text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {filter.label}
-              </button>
+                variant="primary"
+              />
             ))}
           </div>
 

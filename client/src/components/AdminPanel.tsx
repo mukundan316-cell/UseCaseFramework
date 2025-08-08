@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Download, Upload, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import DataActionCard from './lego-blocks/DataActionCard';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
@@ -115,41 +115,29 @@ export default function AdminPanel() {
         <CardContent>
           {/* Data Management Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Button
+            <DataActionCard
+              title="Export Data"
+              description="Download use cases and metadata as JSON"
+              icon={Download}
               onClick={handleExport}
-              variant="outline"
-              className="p-6 h-auto flex-col space-y-3 border-gray-200 hover:border-rsa-blue hover:bg-blue-50"
-            >
-              <Download className="h-8 w-8 text-rsa-blue" />
-              <div className="text-center">
-                <div className="font-semibold text-gray-900">Export Data</div>
-                <div className="text-sm text-gray-600">Download use cases and metadata as JSON</div>
-              </div>
-            </Button>
+              variant="primary"
+            />
             
-            <Button
+            <DataActionCard
+              title="Import Data"
+              description="Upload JSON configuration file"
+              icon={Upload}
               onClick={handleImport}
-              variant="outline"
-              className="p-6 h-auto flex-col space-y-3 border-gray-200 hover:border-green-500 hover:bg-green-50"
-            >
-              <Upload className="h-8 w-8 text-green-500" />
-              <div className="text-center">
-                <div className="font-semibold text-gray-900">Import Data</div>
-                <div className="text-sm text-gray-600">Upload JSON configuration file</div>
-              </div>
-            </Button>
+              variant="success"
+            />
             
-            <Button
+            <DataActionCard
+              title="Reset to Defaults"
+              description="Restore original configuration"
+              icon={RotateCcw}
               onClick={handleReset}
-              variant="outline"
-              className="p-6 h-auto flex-col space-y-3 border-red-200 hover:border-red-500 hover:bg-red-50"
-            >
-              <RotateCcw className="h-8 w-8 text-red-500" />
-              <div className="text-center">
-                <div className="font-semibold text-gray-900">Reset to Defaults</div>
-                <div className="text-sm text-gray-600">Restore original configuration</div>
-              </div>
-            </Button>
+              variant="danger"
+            />
           </div>
 
           {/* Hidden file input for import */}

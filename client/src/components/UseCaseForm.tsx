@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, RotateCcw, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import FormActionButtons from './lego-blocks/FormActionButtons';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -424,16 +424,12 @@ export default function UseCaseForm() {
               </CardContent>
             </Card>
 
-            <div className="flex justify-end space-x-4">
-              <Button type="button" variant="outline" onClick={resetForm}>
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset Form
-              </Button>
-              <Button type="submit" className="bg-rsa-blue hover:bg-blue-700">
-                <Save className="w-4 h-4 mr-2" />
-                Save Use Case
-              </Button>
-            </div>
+            <FormActionButtons
+              onReset={resetForm}
+              resetType="button"
+              saveType="submit"
+              isLoading={form.formState.isSubmitting}
+            />
           </form>
         </CardContent>
       </Card>
