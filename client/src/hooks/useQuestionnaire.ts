@@ -164,6 +164,7 @@ export function useQuestionnaire(questionnaireId: string) {
     
     // Mutations
     startResponse: startResponseMutation.mutate,
+    startResponseAsync: startResponseMutation.mutateAsync,
     saveAnswers: saveAnswersMutation.mutate,
     completeResponse: completeResponseMutation.mutate,
     

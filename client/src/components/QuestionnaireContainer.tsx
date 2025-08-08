@@ -46,6 +46,7 @@ export default function QuestionnaireContainer({
     isLoadingQuestionnaire,
     questionnaireError,
     startResponse,
+    startResponseAsync,
     saveAnswers,
     completeResponse,
     isStartingResponse,
@@ -91,7 +92,7 @@ export default function QuestionnaireContainer({
           score: typeof value === 'number' ? value : undefined
         }));
         
-        await saveAnswers(responseId, answersArray);
+        await saveAnswers({ responseId, answers: answersArray });
         setLastSaved(new Date().toLocaleTimeString());
         setHasUnsavedChanges(false);
       } catch (error) {
@@ -125,7 +126,7 @@ export default function QuestionnaireContainer({
         if (progress.responseId && progress.answers) {
           setResponseSession({ 
             id: progress.responseId, 
-            status: 'in_progress',
+            status: 'started',
             questionnaireId 
           });
           setResponses(new Map(Object.entries(progress.answers)));
@@ -192,7 +193,7 @@ export default function QuestionnaireContainer({
           score: typeof value === 'number' ? value : undefined
         }));
         
-        await saveAnswers(responseSession.id, answersArray);
+        await saveAnswers({ responseId: responseSession.id, answers: answersArray });
         saveProgressToStorage();
         
         toast({
@@ -212,6 +213,18 @@ export default function QuestionnaireContainer({
     }
   };
 
+  // Handle successful response session creation
+  useEffect(() => {
+    if (responseSession && !hasStarted) {
+      setHasStarted(true);
+      toast({
+        title: "Assessment Started",
+        description: "Your assessment session has begun.",
+        duration: 3000
+      });
+    }
+  }, [responseSession, hasStarted, toast]);
+
   // Start response session
   const handleStartResponse = async () => {
     if (!respondentEmail.trim()) {
@@ -223,15 +236,28 @@ export default function QuestionnaireContainer({
       return;
     }
 
-    startResponse({
-      questionnaireId,
-      respondentEmail: respondentEmail.trim(),
-      respondentName: respondentName.trim() || undefined,
-      metadata: {
-        startedAt: new Date().toISOString(),
-        userAgent: navigator.userAgent
+    try {
+      const result = await startResponseAsync({
+        questionnaireId,
+        respondentEmail: respondentEmail.trim(),
+        respondentName: respondentName.trim() || undefined,
+        metadata: {
+          startedAt: new Date().toISOString(),
+          userAgent: navigator.userAgent
+        }
+      });
+
+      if (result) {
+        setResponseSession(result);
       }
-    });
+    } catch (error) {
+      console.error('Failed to start response:', error);
+      toast({
+        title: "Failed to Start Assessment",
+        description: "Unable to begin the assessment. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Validate current section
@@ -244,7 +270,7 @@ export default function QuestionnaireContainer({
     const newErrors: Record<string, string> = {};
     
     currentSection.questions.forEach((question: QuestionData) => {
-      if (question.isRequired === 'true') {
+      if (question.isRequired === 'true' || question.isRequired === true) {
         const value = responses.get(question.id);
         if (value === undefined || value === '' || 
             (Array.isArray(value) && value.length === 0)) {
@@ -512,7 +538,13 @@ export default function QuestionnaireContainer({
 
       {/* Current Section */}
       <SectionLegoBlock
-        section={currentSection}
+        section={{
+          ...currentSection,
+          questions: currentSection.questions.map(q => ({
+            ...q,
+            isRequired: q.isRequired === 'true' || q.isRequired === true
+          }))
+        }}
         responses={responses}
         onChange={handleResponseChange}
         errors={errors}
