@@ -1,4 +1,4 @@
-# GenAI Use Case Framework - AI Strategy & Prioritization Platform
+# RSA AI Use Case Value Framework - AI Strategy & Prioritization Platform
 
 ## Overview
 
