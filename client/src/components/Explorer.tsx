@@ -145,7 +145,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All Components</SelectItem>
-                {metadata.valueChainComponents.map(component => (
+                {metadata.valueChainComponents.filter(component => component && component.trim()).map(component => (
                   <SelectItem key={component} value={component}>{component}</SelectItem>
                 ))}
               </SelectContent>
@@ -157,7 +157,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All Processes</SelectItem>
-                {metadata.processes.map(process => (
+                {metadata.processes.filter(process => process && process.trim()).map(process => (
                   <SelectItem key={process} value={process}>{process}</SelectItem>
                 ))}
               </SelectContent>
@@ -169,7 +169,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All LOBs</SelectItem>
-                {metadata.linesOfBusiness.map(lob => (
+                {metadata.linesOfBusiness.filter(lob => lob && lob.trim()).map(lob => (
                   <SelectItem key={lob} value={lob}>{lob}</SelectItem>
                 ))}
               </SelectContent>
@@ -181,7 +181,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All Segments</SelectItem>
-                {metadata.businessSegments.map(segment => (
+                {metadata.businessSegments.filter(segment => segment && segment.trim()).map(segment => (
                   <SelectItem key={segment} value={segment}>{segment}</SelectItem>
                 ))}
               </SelectContent>
@@ -193,7 +193,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All Geographies</SelectItem>
-                {metadata.geographies.map(geo => (
+                {metadata.geographies.filter(geo => geo && geo.trim()).map(geo => (
                   <SelectItem key={geo} value={geo}>{geo}</SelectItem>
                 ))}
               </SelectContent>
@@ -205,7 +205,7 @@ export default function Explorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All Types</SelectItem>
-                {metadata.useCaseTypes.map(type => (
+                {metadata.useCaseTypes.filter(type => type && type.trim()).map(type => (
                   <SelectItem key={type} value={type}>{type}</SelectItem>
                 ))}
               </SelectContent>

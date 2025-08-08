@@ -89,10 +89,6 @@ export default function MatrixPlot() {
                 <ReferenceLine x={3.25} stroke="#666" strokeDasharray="2 2" />
                 <ReferenceLine y={4} stroke="#666" strokeDasharray="2 2" />
                 <Tooltip content={<CustomTooltip />} />
-                <Scatter 
-                  data={chartData} 
-                  fill={(entry: any) => entry.color}
-                />
                 {chartData.map((entry, index) => (
                   <Scatter
                     key={index}
