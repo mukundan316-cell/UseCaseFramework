@@ -5,7 +5,7 @@ import { useUseCases } from '../contexts/UseCaseContext';
 import { getQuadrantColor } from '../utils/calculations';
 
 export default function MatrixPlot() {
-  const { useCases, getQuadrantCounts, getAverageImpact } = useUseCases();
+  const { useCases, getQuadrantCounts, getAverageImpact, filters, setFilters } = useUseCases();
 
   const quadrantCounts = getQuadrantCounts();
   const averageImpact = getAverageImpact();
@@ -195,9 +195,25 @@ export default function MatrixPlot() {
             </ResponsiveContainer>
           </div>
 
-
+          {/* Recommendation Info */}
+          {useCases.some(useCase => !!useCase.recommendedByAssessment) && (
+            <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-yellow-600 text-lg">⭐</span>
+                <h4 className="font-semibold text-yellow-800">Assessment Recommendations</h4>
+              </div>
+              <p className="text-sm text-yellow-700 mb-3">
+                Use cases with gold borders and stars are recommended based on completed assessments.
+              </p>
+              <button
+                onClick={() => setFilters({ showRecommendations: !filters.showRecommendations })}
+                className="text-sm px-3 py-1 rounded-md bg-yellow-100 hover:bg-yellow-200 text-yellow-800 transition-colors"
+              >
+                {filters.showRecommendations ? 'Show All Use Cases' : 'Show Recommendations Only'}
+              </button>
+            </div>
+          )}
       </div>
-
 
     </div>
   );

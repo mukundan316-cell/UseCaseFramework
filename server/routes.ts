@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertUseCaseSchema } from "@shared/schema";
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@shared/calculations";
 import { mapUseCaseToFrontend } from "@shared/mappers";
+import recommendationRoutes from "./routes/recommendations";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Use Case routes
@@ -239,6 +240,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register export routes
   const exportRoutes = (await import('./routes/export.routes')).default;
   app.use('/api', exportRoutes);
+  
+  // Register recommendation routes
+  app.use('/api/recommendations', recommendationRoutes);
 
   return httpServer;
 }

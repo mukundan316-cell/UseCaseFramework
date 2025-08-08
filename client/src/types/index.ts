@@ -29,6 +29,8 @@ export interface UseCase {
   effortScore: number;
   quadrant: QuadrantType;
   activity?: string;
+  recommendedByAssessment?: string | null;
+  valueChainComponent?: string; // Compatibility alias for process
   createdAt?: Date;
 }
 

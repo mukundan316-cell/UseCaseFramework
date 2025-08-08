@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   CheckCircle2, 
   TrendingUp, 
@@ -11,7 +11,8 @@ import {
   FileText,
   Lightbulb,
   Home,
-  ArrowLeft
+  ArrowLeft,
+  Sparkles
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +24,8 @@ import { cn } from '@/lib/utils';
 import ScoringDashboardLegoBlock, { type ScoringData } from './ScoringDashboardLegoBlock';
 import ResponseExportLegoBlock from './ResponseExportLegoBlock';
 import ReusableButton from './ReusableButton';
+import { useGenerateRecommendations, useRecommendations } from '@/hooks/useRecommendations';
+import { useUseCases } from '@/contexts/UseCaseContext';
 
 interface AssessmentState {
   isCompleted: boolean;
@@ -90,26 +93,49 @@ export default function AssessmentResultsDashboard({
   const totalScore = responseData?.totalScore || assessmentState?.totalScore || 0;
   const completedAt = responseData?.completedAt || assessmentState?.completedAt;
 
-  // Fetch recommendations from API
-  const { data: recommendations = [] } = useQuery<Recommendation[]>({
-    queryKey: ['/api/use-cases'],
-    select: (data: any[]) => data
-      .filter(useCase => useCase.quadrant === 'Quick Win' || useCase.impactScore >= 3.5)
-      .sort((a, b) => (b.impactScore || 0) - (a.impactScore || 0))
-      .slice(0, 8)
-      .map(useCase => ({
-        id: useCase.id,
-        title: useCase.title,
-        description: useCase.description,
-        priority: useCase.quadrant === 'Quick Win' ? 'High' : 
-                 useCase.impactScore >= 4 ? 'High' : 
-                 useCase.impactScore >= 3 ? 'Medium' : 'Low',
-        category: useCase.process || useCase.processes?.[0] || 'General',
-        impactScore: useCase.impactScore,
-        effortScore: useCase.effortScore,
-        quadrant: useCase.quadrant
-      }))
-  });
+  // Hooks for recommendation system
+  const { useCases } = useUseCases();
+  const generateRecommendations = useGenerateRecommendations();
+  const { data: existingRecommendations } = useRecommendations(actualResponseId);
+
+  // Auto-generate recommendations when assessment completes
+  useEffect(() => {
+    if (actualResponseId && maturityScores && useCases.length > 0 && !existingRecommendations) {
+      const scores = {
+        responseId: actualResponseId,
+        overallScore: maturityScores.overallAverage * 20 || 0, // Convert to percentage
+        aiStrategyMaturity: maturityScores.maturityLevels?.strategy?.average || 0,
+        primaryFocusArea: 'automation', // This should come from assessment answers
+        averageByCategory: {
+          strategy: maturityScores.maturityLevels?.strategy?.average || 0,
+          governance: maturityScores.maturityLevels?.governance?.average || 0,
+          implementation: maturityScores.maturityLevels?.implementation?.average || 0
+        }
+      };
+
+      generateRecommendations.mutate({
+        assessmentId: actualResponseId,
+        scores,
+        useCases
+      });
+    }
+  }, [actualResponseId, maturityScores, useCases, existingRecommendations, generateRecommendations]);
+
+  // Get recommended use cases (those marked by assessment)
+  const recommendations: Recommendation[] = useCases
+    .filter(useCase => useCase.recommendedByAssessment === actualResponseId)
+    .map(useCase => ({
+      id: useCase.id,
+      title: useCase.title,
+      description: useCase.description,
+      priority: useCase.quadrant === 'Quick Win' ? 'High' : 
+               useCase.impactScore >= 4 ? 'High' : 
+               useCase.impactScore >= 3 ? 'Medium' : 'Low',
+      category: useCase.process || useCase.processes?.[0] || 'General',
+      impactScore: useCase.impactScore,
+      effortScore: useCase.effortScore,
+      quadrant: useCase.quadrant
+    }));
 
   // Transform maturity scores data for ScoringDashboardLegoBlock
   const scoringData: ScoringData | undefined = maturityScores ? {
