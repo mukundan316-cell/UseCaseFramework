@@ -191,37 +191,6 @@ export default function SummaryMetricsLegoBlock() {
         </Card>
 
       </div>
-
-      {/* Summary Metrics - Bottom Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
-        {/* Total Use Cases */}
-        <MetricCard
-          icon={BarChart3}
-          label="Total Use Cases"
-          value={filteredUseCases.length}
-          subtitle="Across all quadrants"
-        />
-
-        {/* High Priority */}
-        <MetricCard
-          icon={Target}
-          label="High Priority"
-          value={quadrantCounts['Quick Win'] || 0}
-          subtitle="Quick wins identified"
-          color="#059669"
-        />
-
-        {/* Average Impact */}
-        <MetricCard
-          icon={TrendingUp}
-          label="Avg Impact"
-          value={averageImpact.toFixed(1)}
-          subtitle="Overall portfolio"
-          color="#7C3AED"
-        />
-
-      </div>
     </div>
   );
 }
