@@ -119,8 +119,8 @@ export default function SummaryMetricsLegoBlock() {
         </p>
       </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      {/* Consolidated Portfolio Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         
         {/* Total Use Cases */}
         <MetricCard
@@ -158,7 +158,7 @@ export default function SummaryMetricsLegoBlock() {
           subtitle="High impact, high effort"
           onClick={() => handleQuadrantFilter('Strategic Bet')}
           isActive={filters.quadrant === 'Strategic Bet'}
-          color="#DC2626"
+          color="#005DAA"
         />
 
         {/* Experimental Count */}
@@ -180,7 +180,7 @@ export default function SummaryMetricsLegoBlock() {
           subtitle="Low impact, high effort"
           onClick={() => handleQuadrantFilter('Watchlist')}
           isActive={filters.quadrant === 'Watchlist'}
-          color="#9CA3AF"
+          color="#DC2626"
         />
 
       </div>
