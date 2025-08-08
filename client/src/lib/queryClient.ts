@@ -49,30 +49,7 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    
-    // Debug logging to catch JSON parsing issues
-    console.log('Query response:', {
-      url: queryKey.join("/"),
-      status: res.status,
-      statusText: res.statusText,
-      headers: Object.fromEntries(res.headers.entries())
-    });
-    
-    // Check if response has content before parsing JSON
-    const contentType = res.headers.get('content-type');
-    const contentLength = res.headers.get('content-length');
-    
-    if (!contentType?.includes('application/json') || contentLength === '0') {
-      console.warn('Response does not contain JSON:', { contentType, contentLength });
-      return null;
-    }
-    
-    try {
-      return await res.json();
-    } catch (error) {
-      console.error('JSON parsing failed:', error, 'Response:', res);
-      throw error;
-    }
+    return await res.json();
   };
 
 export const queryClient = new QueryClient({

@@ -95,10 +95,11 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
         method: 'DELETE',
       });
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete use case');
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to delete use case');
       }
-      return response.json();
+      // DELETE returns 204 No Content, don't parse JSON
+      return;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
