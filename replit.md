@@ -24,10 +24,16 @@ The project follows strict architectural principles and coding standards documen
 - **Real-time Calculations**: Impact and Effort scores update instantly via averaging formulas
 - **Database Persistence**: All scoring data stored in PostgreSQL with automatic migrations
 
+### Enhanced Process-Activity System
+- **Contextual Activity Filtering**: Activities filtered by selected business process using processActivityMap
+- **Streamlined Explorer Workflow**: Simplified from "Value Chain → Process → Activity → LOB → Segment → Geography" to "Process → Activity → LOB → Segment → Geography"
+- **Authentic RSA Metadata**: Commercial insurance terminology with 40+ process-specific activities
+- **Smart CRUD Modal**: Activity dropdown updates contextually based on selected process
+
 ### LEGO Component Architecture
-- **MetadataLegoBlock**: Reusable CRUD interface for UI dropdown values
-- **CRUDUseCaseModal**: Complete use case management with embedded scoring sliders
-- **Admin Panel**: Streamlined metadata management for all dropdown categories
+- **MetadataLegoBlock**: Reusable CRUD interface for UI dropdown values including activities management
+- **CRUDUseCaseModal**: Complete use case management with embedded scoring sliders and contextual activity selection
+- **Admin Panel**: Streamlined metadata management for all categories including process activities
 - **Component Library**: Standardized UI blocks (FormActionButtons, DataActionCard, FilterChip, etc.)
 
 ## System Architecture

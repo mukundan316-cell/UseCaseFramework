@@ -202,20 +202,9 @@ export default function Explorer() {
             ))}
           </div>
 
-          {/* Advanced Filters */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <Select value={filters.valueChainComponent} onValueChange={(value) => setFilters({ valueChainComponent: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Value Chain" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Components</SelectItem>
-                {metadata?.valueChainComponents?.filter(component => component && component.trim()).map(component => (
-                  <SelectItem key={component} value={component}>{component}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
+          {/* Reorganized Filters: Process → Activity → LOB → Segment → Geography → Type */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {/* 1. Primary Process Filter */}
             <Select value={filters.process} onValueChange={(value) => setFilters({ process: value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Process" />
@@ -228,6 +217,20 @@ export default function Explorer() {
               </SelectContent>
             </Select>
 
+            {/* 2. Contextual Activity Filter */}
+            <Select value={filters.activity || 'all'} onValueChange={(value) => setFilters({ activity: value === 'all' ? '' : value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Activity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Activities</SelectItem>
+                {metadata?.activities?.filter(activity => activity && activity.trim()).map(activity => (
+                  <SelectItem key={activity} value={activity}>{activity}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* 3. Line of Business Filter */}
             <Select value={filters.lineOfBusiness || 'all'} onValueChange={(value) => setFilters({ lineOfBusiness: value === 'all' ? '' : value })}>
               <SelectTrigger>
                 <SelectValue placeholder="LOB" />
@@ -240,6 +243,7 @@ export default function Explorer() {
               </SelectContent>
             </Select>
 
+            {/* 4. Business Segment Filter */}
             <Select value={filters.businessSegment} onValueChange={(value) => setFilters({ businessSegment: value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Segment" />
@@ -252,6 +256,7 @@ export default function Explorer() {
               </SelectContent>
             </Select>
 
+            {/* 5. Geography Filter */}
             <Select value={filters.geography} onValueChange={(value) => setFilters({ geography: value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Geography" />
@@ -264,6 +269,7 @@ export default function Explorer() {
               </SelectContent>
             </Select>
 
+            {/* 6. Use Case Type Filter */}
             <Select value={filters.useCaseType} onValueChange={(value) => setFilters({ useCaseType: value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Type" />
@@ -272,18 +278,6 @@ export default function Explorer() {
                 <SelectItem value="all">All Types</SelectItem>
                 {metadata?.useCaseTypes?.filter(type => type && type.trim()).map(type => (
                   <SelectItem key={type} value={type}>{type}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.activity || 'all'} onValueChange={(value) => setFilters({ activity: value === 'all' ? '' : value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Activity" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Activities</SelectItem>
-                {metadata?.activities?.filter(activity => activity && activity.trim()).map(activity => (
-                  <SelectItem key={activity} value={activity}>{activity}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
