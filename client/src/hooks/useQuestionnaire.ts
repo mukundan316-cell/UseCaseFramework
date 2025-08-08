@@ -21,7 +21,7 @@ export interface SectionData {
 export interface QuestionData {
   id: string;
   questionText: string;
-  questionType: 'score' | 'multi_choice' | 'checkbox' | 'text' | 'textarea' | 'number';
+  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number';
   isRequired: string; // 'true' or 'false' from database
   questionOrder?: number;
   helpText?: string;

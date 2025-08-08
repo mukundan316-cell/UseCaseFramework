@@ -20,7 +20,7 @@ export interface QuestionOption {
 export interface QuestionData {
   id: string;
   questionText: string;
-  questionType: 'score' | 'multi_choice' | 'checkbox' | 'text' | 'textarea' | 'number';
+  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number';
   isRequired: boolean;
   questionOrder?: number;
   helpText?: string;
@@ -299,8 +299,10 @@ export default function QuestionLegoBlock({
   const renderQuestion = () => {
     switch (questionType) {
       case 'score':
+      case 'scale':
         return renderScoreField();
       case 'multi_choice':
+      case 'select':
         return renderMultiChoiceField();
       case 'checkbox':
         return renderCheckboxField();
