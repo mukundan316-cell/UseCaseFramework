@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
-import { MetadataConfig } from '../types';
+import { MetadataConfig } from '@shared/schema';
 
 export default function AdminPanel() {
   const { 
@@ -21,13 +21,27 @@ export default function AdminPanel() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Loading state while metadata is being fetched (database-first compliance)
+  if (!metadata) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle>Loading Admin Panel...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-gray-600">Loading metadata configuration from database...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   const [editingItem, setEditingItem] = useState<{
-    category: keyof MetadataConfig;
+    category: string;
     index: number;
     value: string;
   } | null>(null);
   
-  const [newItems, setNewItems] = useState<Record<keyof MetadataConfig, string>>({
+  const [newItems, setNewItems] = useState<Record<string, string>>({
     valueChainComponents: '',
     processes: '',
     linesOfBusiness: '',
@@ -36,7 +50,7 @@ export default function AdminPanel() {
     useCaseTypes: ''
   });
 
-  const categoryLabels: Record<keyof MetadataConfig, string> = {
+  const categoryLabels: Record<string, string> = {
     valueChainComponents: 'Value Chain Components',
     processes: 'Processes',
     linesOfBusiness: 'Lines of Business',
@@ -114,10 +128,10 @@ export default function AdminPanel() {
     }
   };
 
-  const handleAddItem = (category: keyof MetadataConfig) => {
-    const newItem = newItems[category].trim();
+  const handleAddItem = (category: string) => {
+    const newItem = newItems[category]?.trim();
     if (newItem) {
-      addMetadataItem(category, newItem);
+      addMetadataItem(category as keyof MetadataConfig, newItem);
       setNewItems(prev => ({ ...prev, [category]: '' }));
       toast({
         title: "Item added",
@@ -126,31 +140,34 @@ export default function AdminPanel() {
     }
   };
 
-  const handleEditItem = (category: keyof MetadataConfig, index: number, currentValue: string) => {
+  const handleEditItem = (category: string, index: number, currentValue: string) => {
     setEditingItem({ category, index, value: currentValue });
   };
 
   const handleSaveEdit = () => {
-    if (!editingItem) return;
+    if (!editingItem || !metadata) return;
     
     const newMetadata = { ...metadata };
-    newMetadata[editingItem.category][editingItem.index] = editingItem.value;
-    updateMetadata(newMetadata);
-    setEditingItem(null);
-    
-    toast({
-      title: "Item updated",
-      description: "The item has been successfully updated.",
-    });
+    const categoryData = newMetadata[editingItem.category as keyof MetadataConfig] as string[];
+    if (Array.isArray(categoryData)) {
+      categoryData[editingItem.index] = editingItem.value;
+      updateMetadata(newMetadata);
+      setEditingItem(null);
+      
+      toast({
+        title: "Item updated",
+        description: "The item has been successfully updated.",
+      });
+    }
   };
 
   const handleCancelEdit = () => {
     setEditingItem(null);
   };
 
-  const handleRemoveItem = (category: keyof MetadataConfig, item: string) => {
+  const handleRemoveItem = (category: string, item: string) => {
     if (confirm(`Are you sure you want to remove "${item}"?`)) {
-      removeMetadataItem(category, item);
+      removeMetadataItem(category as keyof MetadataConfig, item);
       toast({
         title: "Item removed",
         description: `"${item}" has been removed from ${categoryLabels[category]}.`,
@@ -162,7 +179,7 @@ export default function AdminPanel() {
     category, 
     items 
   }: { 
-    category: keyof MetadataConfig; 
+    category: string; 
     items: string[]; 
   }) => (
     <div className="space-y-4">
@@ -297,13 +314,15 @@ export default function AdminPanel() {
 
           {/* Metadata Categories Management */}
           <div className="space-y-8">
-            {Object.entries(metadata).map(([category, items]) => (
-              <MetadataSection
-                key={category}
-                category={category as keyof MetadataConfig}
-                items={items}
-              />
-            ))}
+            {Object.entries(metadata)
+              .filter(([category]) => category !== 'id' && category !== 'updatedAt')
+              .map(([category, items]) => (
+                <MetadataSection
+                  key={category}
+                  category={category}
+                  items={Array.isArray(items) ? items : []}
+                />
+              ))}
           </div>
         </CardContent>
       </Card>
