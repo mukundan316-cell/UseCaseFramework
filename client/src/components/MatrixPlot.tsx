@@ -154,49 +154,7 @@ export default function MatrixPlot() {
             </ResponsiveContainer>
           </div>
 
-        {/* RSA Framework Interpretation Guide */}
-        <div className="mt-8 bg-gray-50 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">RSA AI Framework Quadrants</h3>
-          <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-            {/* Top Row: High Business Value */}
-            <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span className="font-semibold text-green-800">Quick Win</span>
-              </div>
-              <p className="text-sm text-green-700">High Business Value, Low Complexity</p>
-              <p className="text-xs text-green-600 mt-1">Immediate implementation priority</p>
-            </div>
-            
-            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span className="font-semibold text-blue-800">Strategic Bet</span>
-              </div>
-              <p className="text-sm text-blue-700">High Business Value, High Complexity</p>
-              <p className="text-xs text-blue-600 mt-1">Long-term strategic investment</p>
-            </div>
-            
-            {/* Bottom Row: Lower Business Value */}
-            <div className="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <span className="font-semibold text-yellow-800">Experimental</span>
-              </div>
-              <p className="text-sm text-yellow-700">Lower Business Value, Low Complexity</p>
-              <p className="text-xs text-yellow-600 mt-1">Pilot programs and testing</p>
-            </div>
-            
-            <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span className="font-semibold text-red-800">Watchlist</span>
-              </div>
-              <p className="text-sm text-red-700">Lower Business Value, High Complexity</p>
-              <p className="text-xs text-red-600 mt-1">Monitor for future consideration</p>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Quadrant Summary Cards */}
