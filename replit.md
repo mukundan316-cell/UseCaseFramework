@@ -18,25 +18,27 @@ The project follows strict architectural principles and coding standards documen
 
 ## Enhanced RSA Framework Integration (January 2025)
 
-The application now implements the comprehensive RSA AI Framework with full compliance:
-- **Enhanced Scoring System**: 12 total levers across Business Value, Feasibility, and AI Governance dimensions
-- **Weighted Calculation Logic**: Impact and Effort scores use 20% weighted formula per RSA specification
-- **Complete Framework Coverage**: All levers from RSA framework now captured including Broker/Partner Experience, Model Risk, Explainability/Bias, and Regulatory Compliance
-- **Database-First Architecture**: All data operations flow through PostgreSQL database via API endpoints
-- **Automated Migration**: Enhanced framework seamlessly integrated with existing use cases
-- **LEGO-Style Components**: Comprehensive reusable component library including CRUDUseCaseModal
-- **High-Impact Use Cases**: Added 10 commercial property & casualty use cases from industry analysis grid
-- **Explorer CRUD Integration**: Embedded Add/Edit/Delete functionality within Explorer tab without duplication
+The application implements the comprehensive RSA AI Framework with full database persistence:
+- **Enhanced Scoring System**: 12 scoring levers across three dimensions with real-time calculations
+  - Business Value: Revenue Impact, Cost Savings, Risk Reduction, Broker/Partner Experience, Strategic Fit
+  - Feasibility: Data Readiness, Technical Complexity, Change Impact, Model Risk, Adoption Readiness  
+  - AI Governance: Explainability/Bias, Regulatory Compliance
+- **Database Schema**: Complete PostgreSQL schema with proper field mapping and constraints
+- **Weighted Calculations**: Impact and Effort scores use averaging formula with quadrant logic
+- **Real-time Updates**: Scoring calculations update instantly as users adjust slider values
+- **Persistent Storage**: All framework data stored in PostgreSQL with automatic migrations
+- **Visual Feedback**: Enhanced slider interface with dynamic color progression and hover effects
 
 ## Focused LEGO Block Architecture (January 2025)
 
-The application implements a focused LEGO-style component system aligned with REFERENCE.md principles:
-- **MetadataLegoBlock**: Reusable CRUD blocks for all metadata categories with database persistence
-- **CRUDUseCaseModal**: Full-featured modal with enhanced scoring interface and real-time calculations
-- **Admin Panel Focus**: Single-panel interface for managing UI list of values (dropdowns, filters, categorization)
-- **Component Library**: Core LEGO components (FormActionButtons, DataActionCard, ReusableButton, ReusableModal, ScoringLegoBlock, etc.)
-- **UI-Driven Administration**: Admin interface focuses on managing dropdown options and filter values, not internal component registry
-- **Database-First Metadata**: All UI list of values persist directly to database and drive form options throughout the application
+The application implements a focused LEGO-style component system with full database integration:
+- **MetadataLegoBlock**: Reusable CRUD components for all UI list of values with PostgreSQL persistence
+- **CRUDUseCaseModal**: Complete modal interface with 12-lever scoring system and real-time calculations
+- **Admin Panel**: Streamlined interface for managing metadata categories that drive dropdown options
+- **Database-First Metadata**: All UI configurations stored in `metadata_config` table with proper timestamp tracking
+- **Visual Slider Interface**: Enhanced range sliders with dynamic color feedback and smooth transitions
+- **Component Library**: Reusable LEGO blocks (FormActionButtons, DataActionCard, ReusableButton, etc.)
+- **Full CRUD Operations**: Create, Read, Update, Delete for all metadata categories with toast notifications
 
 ## System Architecture
 
@@ -49,20 +51,25 @@ The application uses React with TypeScript in a single-page application (SPA) ar
 - **UI Framework**: shadcn/ui component library built on Radix UI primitives with Tailwind CSS for consistent styling and RSA brand colors
 
 ### Backend Architecture
-The application currently uses a hybrid architecture designed for future scalability:
+The application uses a production-ready database-first architecture:
 
 - **Express Server**: Node.js/Express backend with TypeScript for API endpoints and static file serving
-- **Data Layer**: Currently uses in-memory storage (MemStorage) with localStorage persistence on the frontend, but includes Drizzle ORM schema definitions for PostgreSQL migration
-- **Database Schema**: Structured schema for users and use cases with proper typing through Drizzle and Zod validation
+- **Data Layer**: PostgreSQL database with Drizzle ORM for type-safe operations and automatic migrations
+- **Database Schema**: Complete three-table normalized schema (see `DATABASE_SCHEMA.md` for full documentation)
+- **RESTful API**: Comprehensive endpoints for use cases and metadata with Zod validation
 
 ### Data Storage Solutions
-The system implements a flexible storage abstraction with full database integration:
+The system implements a database-first architecture with full PostgreSQL integration:
 
-- **Current Implementation**: PostgreSQL database with Neon serverless hosting for full persistence
-- **Database Schema**: Complete use case schema implemented with Drizzle ORM, including proper relations and constraints
-- **API Layer**: RESTful API endpoints for CRUD operations on use cases with proper validation
-- **Data Models**: Comprehensive use case schema capturing business metadata (value chain, processes, LOB, geography) and scoring dimensions
-- **Seeding**: Automatic database seeding with 6 sample insurance AI use cases on startup
+- **PostgreSQL Database**: Production database with Neon serverless hosting for scalable persistence
+- **Database Schema**: Complete normalized schema with three main tables:
+  - `use_cases`: Core use case data with 12 enhanced framework scoring dimensions
+  - `metadata_config`: UI list of values for dropdown and filter options
+  - `users`: User authentication (prepared for multi-tenant future)
+- **Enhanced Framework**: 12 scoring levers across Business Value, Feasibility, and AI Governance dimensions
+- **API Layer**: RESTful endpoints for CRUD operations with Zod validation and real-time calculations
+- **Automatic Migration**: Database schema updates and data migration on startup
+- **Comprehensive Seeding**: 16+ realistic commercial insurance AI use cases from industry analysis
 
 ### Scoring and Calculation Engine
 Business logic implemented through pure functions for scoring consistency:
@@ -101,8 +108,19 @@ The system follows a strict modular design with mandatory reusability:
 - **ESBuild**: Fast bundling for production builds
 
 ### Database Integration
-- **PostgreSQL**: Production database solution with Neon serverless hosting
-- **Connection Pooling**: Configured through connect-pg-simple for session management
-- **Migration System**: Drizzle Kit for database schema management and migrations
-
-The application is architected to seamlessly transition from localStorage to full database persistence when ready, with all necessary schemas and configurations already in place.
+- **PostgreSQL with Neon**: Production-ready serverless database hosting with automatic scaling
+- **Drizzle ORM**: Type-safe database operations with automatic migrations and schema validation
+- **Database Schema**: Three-table normalized design:
+  ```sql
+  -- Use Cases: Core business data with enhanced framework scoring
+  use_cases (id, title, description, business_context, 12_scoring_dimensions, calculated_scores)
+  
+  -- Metadata Configuration: UI list of values for dropdowns and filters  
+  metadata_config (id, value_chain_components[], processes[], lines_of_business[], etc.)
+  
+  -- Users: Authentication system (prepared for multi-tenant expansion)
+  users (id, username, password)
+  ```
+- **Real-time Persistence**: All CRUD operations immediately sync to database with proper error handling
+- **Automatic Migrations**: Database schema updates and data transformations on application startup
+- **Data Integrity**: Foreign key constraints, proper field validation, and transaction management
