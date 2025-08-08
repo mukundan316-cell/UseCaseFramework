@@ -1,5 +1,5 @@
 import { QuadrantType } from '../types';
-export { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
+export { calculateImpactScore, calculateEffortScore, calculateQuadrant, calculateGovernanceScore } from '@shared/calculations';
 
 export function getQuadrantColor(quadrant: QuadrantType): string {
   switch (quadrant) {

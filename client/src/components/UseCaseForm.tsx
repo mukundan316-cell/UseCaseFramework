@@ -12,7 +12,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
-import { UseCaseFormData } from '../types';
+// Enhanced form data type supporting all RSA framework dimensions
+type UseCaseFormData = z.infer<typeof formSchema>;
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '../utils/calculations';
 
 const formSchema = z.object({
@@ -24,14 +25,21 @@ const formSchema = z.object({
   businessSegment: z.string().min(1, 'Business segment is required'),
   geography: z.string().min(1, 'Geography is required'),
   useCaseType: z.string().min(1, 'Use case type is required'),
+  // Business Value Levers
   revenueImpact: z.number().min(1).max(5),
   costSavings: z.number().min(1).max(5),
   riskReduction: z.number().min(1).max(5),
+  brokerPartnerExperience: z.number().min(1).max(5),
   strategicFit: z.number().min(1).max(5),
+  // Feasibility Levers
   dataReadiness: z.number().min(1).max(5),
   technicalComplexity: z.number().min(1).max(5),
   changeImpact: z.number().min(1).max(5),
+  modelRisk: z.number().min(1).max(5),
   adoptionReadiness: z.number().min(1).max(5),
+  // AI Governance Levers
+  explainabilityBias: z.number().min(1).max(5),
+  regulatoryCompliance: z.number().min(1).max(5),
 });
 
 export default function UseCaseForm() {
@@ -42,11 +50,15 @@ export default function UseCaseForm() {
     revenueImpact: 3,
     costSavings: 3,
     riskReduction: 3,
+    brokerPartnerExperience: 3,
     strategicFit: 3,
     dataReadiness: 3,
     technicalComplexity: 3,
     changeImpact: 3,
+    modelRisk: 3,
     adoptionReadiness: 3,
+    explainabilityBias: 3,
+    regulatoryCompliance: 3,
   });
 
   const form = useForm<UseCaseFormData>({
@@ -82,6 +94,7 @@ export default function UseCaseForm() {
     scores.revenueImpact,
     scores.costSavings,
     scores.riskReduction,
+    scores.brokerPartnerExperience,
     scores.strategicFit
   );
 
@@ -89,6 +102,7 @@ export default function UseCaseForm() {
     scores.dataReadiness,
     scores.technicalComplexity,
     scores.changeImpact,
+    scores.modelRisk,
     scores.adoptionReadiness
   );
 
@@ -112,11 +126,15 @@ export default function UseCaseForm() {
         revenueImpact: 3,
         costSavings: 3,
         riskReduction: 3,
+        brokerPartnerExperience: 3,
         strategicFit: 3,
         dataReadiness: 3,
         technicalComplexity: 3,
         changeImpact: 3,
+        modelRisk: 3,
         adoptionReadiness: 3,
+        explainabilityBias: 3,
+        regulatoryCompliance: 3,
       });
       // Switch to matrix view to see the new use case
       setActiveTab('matrix');
@@ -135,11 +153,15 @@ export default function UseCaseForm() {
       revenueImpact: 3,
       costSavings: 3,
       riskReduction: 3,
+      brokerPartnerExperience: 3,
       strategicFit: 3,
       dataReadiness: 3,
       technicalComplexity: 3,
       changeImpact: 3,
+      modelRisk: 3,
       adoptionReadiness: 3,
+      explainabilityBias: 3,
+      regulatoryCompliance: 3,
     });
   };
 
@@ -147,11 +169,15 @@ export default function UseCaseForm() {
     revenueImpact: "Potential to increase revenue through new products or improved pricing",
     costSavings: "Operational cost reduction through automation or efficiency gains",
     riskReduction: "Ability to reduce operational, regulatory, or financial risks",
-    strategicFit: "Alignment with company strategy and long-term goals",
-    dataReadiness: "Quality and availability of required data",
-    technicalComplexity: "Technical difficulty and resource requirements",
-    changeImpact: "Organizational change required for implementation",
-    adoptionReadiness: "User readiness and willingness to adopt new solution",
+    brokerPartnerExperience: "Impact on broker/partner experience - faster TAT, self-service tools, analytics access",
+    strategicFit: "Alignment with RSA's delegated, specialty, or mid-market focus",
+    dataReadiness: "Quality, structure, and sufficient volume of available data",
+    technicalComplexity: "Maturity of models needed (LLMs vs ML) and technical difficulty",
+    changeImpact: "Degree of process and role redesign required for implementation",
+    modelRisk: "Potential harm if model fails (regulatory, reputational, financial)",
+    adoptionReadiness: "Stakeholder and user buy-in, especially in underwriting/claims",
+    explainabilityBias: "Support for responsible AI principles and bias management",
+    regulatoryCompliance: "FCA, GDPR, and UK/EU AI Act readiness",
   };
 
   const SliderField = ({ 
@@ -328,11 +354,13 @@ export default function UseCaseForm() {
               </div>
             </div>
 
-            {/* Impact Scoring */}
+            {/* Enhanced RSA Framework Scoring */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Impact Assessment (1-5 Scale)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Enhanced RSA Framework Assessment (1-5 Scale)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Business Value Levers */}
                 <div className="space-y-6">
+                  <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Value Levers</h4>
                   <SliderField
                     field="revenueImpact"
                     label="Revenue Impact"
@@ -355,6 +383,13 @@ export default function UseCaseForm() {
                     rightLabel="High"
                   />
                   <SliderField
+                    field="brokerPartnerExperience"
+                    label="Broker/Partner Experience"
+                    tooltip={sliderTooltips.brokerPartnerExperience}
+                    leftLabel="Low"
+                    rightLabel="High"
+                  />
+                  <SliderField
                     field="strategicFit"
                     label="Strategic Fit"
                     tooltip={sliderTooltips.strategicFit}
@@ -362,7 +397,9 @@ export default function UseCaseForm() {
                     rightLabel="High"
                   />
                 </div>
+                {/* Feasibility Levers */}
                 <div className="space-y-6">
+                  <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Feasibility Levers</h4>
                   <SliderField
                     field="dataReadiness"
                     label="Data Readiness"
@@ -385,9 +422,35 @@ export default function UseCaseForm() {
                     rightLabel="Extensive"
                   />
                   <SliderField
+                    field="modelRisk"
+                    label="Model Risk"
+                    tooltip={sliderTooltips.modelRisk}
+                    leftLabel="Low"
+                    rightLabel="High"
+                  />
+                  <SliderField
                     field="adoptionReadiness"
                     label="Adoption Readiness"
                     tooltip={sliderTooltips.adoptionReadiness}
+                    leftLabel="Low"
+                    rightLabel="High"
+                  />
+                </div>
+                
+                {/* AI Governance Levers */}
+                <div className="space-y-6">
+                  <h4 className="font-medium text-purple-700 text-sm uppercase tracking-wide">AI Governance Levers</h4>
+                  <SliderField
+                    field="explainabilityBias"
+                    label="Explainability & Bias"
+                    tooltip={sliderTooltips.explainabilityBias}
+                    leftLabel="Low"
+                    rightLabel="High"
+                  />
+                  <SliderField
+                    field="regulatoryCompliance"
+                    label="Regulatory Compliance"
+                    tooltip={sliderTooltips.regulatoryCompliance}
                     leftLabel="Low"
                     rightLabel="High"
                   />

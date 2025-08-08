@@ -35,14 +35,21 @@ export interface UseCaseFormData {
   businessSegment: string;
   geography: string;
   useCaseType: string;
+  // Business Value Levers (Impact Score)
   revenueImpact: number;
   costSavings: number;
   riskReduction: number;
+  brokerPartnerExperience: number;
   strategicFit: number;
+  // Feasibility Levers (Effort Score)
   dataReadiness: number;
   technicalComplexity: number;
   changeImpact: number;
+  modelRisk: number;
   adoptionReadiness: number;
+  // AI Governance Levers
+  explainabilityBias: number;
+  regulatoryCompliance: number;
 }
 
 export interface FilterState {
