@@ -9,8 +9,11 @@ import {
   BarChart3,
   Award,
   FileText,
-  Lightbulb
+  Lightbulb,
+  Home,
+  ArrowLeft
 } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -134,8 +137,28 @@ export default function AssessmentResultsDashboard({
   // Generate gap analysis for detailed view
   const detailedGapAnalysis = maturityScores ? generateDetailedGapAnalysis(maturityScores.maturityLevels || {}) : [];
 
+  // Navigation
+  const [, setLocation] = useLocation();
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
+      {/* Navigation Header */}
+      <div className="flex items-center justify-between mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => setLocation('/')}
+          className="flex items-center space-x-2 text-gray-600 hover:text-[#005DAA]"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Button>
+        
+        <div className="flex items-center space-x-2 text-gray-500">
+          <Home className="h-4 w-4" />
+          <span>/</span>
+          <span>Assessment Results</span>
+        </div>
+      </div>
       {/* Header Card */}
       <Card className="border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
         <CardHeader>
