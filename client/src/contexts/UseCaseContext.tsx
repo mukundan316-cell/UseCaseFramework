@@ -23,6 +23,8 @@ interface UseCaseContextType {
   getFilteredUseCases: () => UseCase[];
   getQuadrantCounts: () => Record<string, number>;
   getAverageImpact: () => number;
+  getAverageEffort: () => number;
+  getNewThisMonthCount: () => number;
 }
 
 const UseCaseContext = createContext<UseCaseContextType | undefined>(undefined);
@@ -270,6 +272,26 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     return totalImpact / filteredUseCases.length;
   };
 
+  const getAverageEffort = (): number => {
+    const filteredUseCases = getFilteredUseCases();
+    if (filteredUseCases.length === 0) return 0;
+    const totalEffort = filteredUseCases.reduce((sum, useCase) => sum + useCase.effortScore, 0);
+    return totalEffort / filteredUseCases.length;
+  };
+
+  const getNewThisMonthCount = (): number => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    const filteredUseCases = getFilteredUseCases();
+    return filteredUseCases.filter(useCase => {
+      if (!useCase.createdAt) return false;
+      const createdDate = new Date(useCase.createdAt);
+      return createdDate.getMonth() === currentMonth && createdDate.getFullYear() === currentYear;
+    }).length;
+  };
+
   const value: UseCaseContextType = {
     useCases: Array.isArray(useCases) ? useCases : [],
     metadata: metadata,
@@ -288,7 +310,9 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     resetToDefaults,
     getFilteredUseCases,
     getQuadrantCounts,
-    getAverageImpact
+    getAverageImpact,
+    getAverageEffort,
+    getNewThisMonthCount
   };
 
   return (
