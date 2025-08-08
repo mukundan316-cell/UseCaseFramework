@@ -1,5 +1,5 @@
 import React from 'react';
-import { Brain, PlusCircle, Sparkle, Search, Settings } from 'lucide-react';
+import { Brain, PlusCircle, Sparkle, Search, Settings, ClipboardCheck } from 'lucide-react';
 import { useUseCases } from '../contexts/UseCaseContext';
 import { TabType } from '../types';
 import RSAHeader from './RSAHeader';
@@ -11,6 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const tabs = [
     { id: 'dashboard' as TabType, label: 'Dashboard View', icon: Sparkle },
     { id: 'explorer' as TabType, label: 'Explorer', icon: Search },
+    { id: 'assessment' as TabType, label: 'AI Assessment', icon: ClipboardCheck },
     { id: 'admin' as TabType, label: 'Admin', icon: Settings },
   ];
 

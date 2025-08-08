@@ -79,4 +79,4 @@ export interface FilterState {
   quadrant?: string;
 }
 
-export type TabType = "dashboard" | "explorer" | "admin";
+export type TabType = "dashboard" | "explorer" | "admin" | "assessment";
