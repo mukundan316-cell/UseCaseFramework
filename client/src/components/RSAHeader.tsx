@@ -1,36 +1,57 @@
 import React from 'react';
 
 const RSALogo = () => (
-  <svg 
-    width="120" 
-    height="40" 
-    viewBox="0 0 120 40" 
-    fill="none" 
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-8 w-auto"
-  >
-    <rect width="120" height="40" rx="4" fill="#005DAA"/>
-    <path 
-      d="M12 32V12H20.5C23.5 12 25.8 12.6 27.4 13.8C29 15 29.8 16.8 29.8 19.2C29.8 20.6 29.4 21.8 28.6 22.8C27.8 23.8 26.7 24.4 25.3 24.6V24.8C26.8 25 28.1 25.7 29.1 26.9C30.1 28.1 30.6 29.6 30.6 31.4C30.6 34.2 29.7 36.2 27.9 37.4C26.1 38.6 23.6 39.2 20.4 39.2H12V32ZM17.8 23.4H20.5C21.9 23.4 23 23 23.8 22.2C24.6 21.4 25 20.4 25 19.2C25 18 24.6 17 23.8 16.4C23 15.8 21.9 15.5 20.5 15.5H17.8V23.4ZM17.8 35.7H20.9C22.7 35.7 24.1 35.3 25.1 34.5C26.1 33.7 26.6 32.6 26.6 31.2C26.6 29.8 26.1 28.7 25.1 27.9C24.1 27.1 22.7 26.7 20.9 26.7H17.8V35.7Z" 
-      fill="white"
-    />
-    <path 
-      d="M36 39.2V12H48.5V15.5H41.8V24.2H47.8V27.7H41.8V35.7H48.5V39.2H36Z" 
-      fill="white"
-    />
-    <path 
-      d="M58 39.2L48.5 12H54.2L60.5 30.8H60.7L67 12H72.7L63.2 39.2H58Z" 
-      fill="white"
-    />
-    <path 
-      d="M78 39.2V12H90.5V15.5H83.8V23.5H89.2V27H83.8V35.7H90.5V39.2H78Z" 
-      fill="white"
-    />
-    <path 
-      d="M98 39.2V12H110.5V15.5H103.8V24.2H109.8V27.7H103.8V35.7H110.5V39.2H98Z" 
-      fill="white"
-    />
-  </svg>
+  <div className="flex items-center space-x-3">
+    {/* RSA Logo with Purple Sunburst */}
+    <div className="flex items-center space-x-2">
+      {/* RSA Text */}
+      <div className="text-2xl font-bold text-gray-600 tracking-tight">
+        RSA
+      </div>
+      
+      {/* Purple Sunburst Icon */}
+      <div className="relative w-8 h-8">
+        <svg 
+          width="32" 
+          height="32" 
+          viewBox="0 0 32 32" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-8 h-8"
+        >
+          {/* Sunburst rays */}
+          <g fill="#9F4F96">
+            <rect x="15" y="2" width="2" height="4" rx="1"/>
+            <rect x="15" y="26" width="2" height="4" rx="1"/>
+            <rect x="2" y="15" width="4" height="2" rx="1"/>
+            <rect x="26" y="15" width="4" height="2" rx="1"/>
+            <rect x="25.5" y="6.5" width="2" height="4" rx="1" transform="rotate(45 25.5 6.5)"/>
+            <rect x="4.5" y="21.5" width="2" height="4" rx="1" transform="rotate(45 4.5 21.5)"/>
+            <rect x="6.5" y="4.5" width="2" height="4" rx="1" transform="rotate(-45 6.5 4.5)"/>
+            <rect x="21.5" y="25.5" width="2" height="4" rx="1" transform="rotate(-45 21.5 25.5)"/>
+            {/* Additional shorter rays */}
+            <rect x="23" y="5" width="1.5" height="3" rx="0.75" transform="rotate(30 23 5)"/>
+            <rect x="8" y="24" width="1.5" height="3" rx="0.75" transform="rotate(30 8 24)"/>
+            <rect x="5" y="8" width="1.5" height="3" rx="0.75" transform="rotate(-30 5 8)"/>
+            <rect x="24" y="27" width="1.5" height="3" rx="0.75" transform="rotate(-30 24 27)"/>
+            <rect x="27" y="23" width="1.5" height="3" rx="0.75" transform="rotate(60 27 23)"/>
+            <rect x="12" y="4" width="1.5" height="3" rx="0.75" transform="rotate(60 12 4)"/>
+            <rect x="4" y="12" width="1.5" height="3" rx="0.75" transform="rotate(-60 4 12)"/>
+            <rect x="19" y="31" width="1.5" height="3" rx="0.75" transform="rotate(-60 19 31)"/>
+          </g>
+          
+          {/* Central circle */}
+          <circle cx="16" cy="16" r="6" fill="#9F4F96"/>
+          <circle cx="16" cy="16" r="3" fill="white"/>
+        </svg>
+      </div>
+    </div>
+    
+    {/* "an [intact] company" tagline */}
+    <div className="text-sm text-gray-600 hidden sm:block">
+      an <span className="text-red-600 font-medium border border-red-600 px-1 rounded">[intact]</span> company
+    </div>
+  </div>
 );
 
 interface RSAHeaderProps {
@@ -43,36 +64,36 @@ export default function RSAHeader({
   subtitle = "AI Strategy & Prioritization Platform" 
 }: RSAHeaderProps) {
   return (
-    <header className="rsa-header sticky top-0 z-50 bg-white border-b border-gray-200">
+    <header className="rsa-header sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* RSA Logo and Branding */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             <RSALogo />
-            <div className="hidden sm:block border-l border-gray-300 pl-4">
-              <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+            <div className="hidden sm:block border-l border-gray-300 pl-6">
+              <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
               <p className="text-sm text-gray-600">{subtitle}</p>
             </div>
           </div>
           
           {/* Navigation/Actions */}
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
-              <span>Commercial Insurance</span>
+          <div className="flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-3 text-sm text-gray-600">
+              <span className="bg-gray-100 px-3 py-1 rounded-full">Commercial Insurance</span>
               <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-              <span>AI Innovation</span>
+              <span className="bg-blue-50 text-rsa-blue px-3 py-1 rounded-full font-medium">AI Innovation</span>
             </div>
             
             {/* RSA Brand Badge */}
-            <div className="bg-rsa-light-blue text-rsa-blue px-3 py-1 rounded-full text-xs font-medium">
+            <div className="bg-gradient-to-r from-rsa-purple to-rsa-blue text-white px-4 py-2 rounded-full text-xs font-semibold shadow-md">
               Enterprise Platform
             </div>
           </div>
         </div>
         
         {/* Mobile title */}
-        <div className="sm:hidden pb-3">
-          <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+        <div className="sm:hidden pb-4">
+          <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
           <p className="text-sm text-gray-600">{subtitle}</p>
         </div>
       </div>

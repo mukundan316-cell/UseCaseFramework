@@ -19,22 +19,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* RSA Header */}
       <RSAHeader />
       
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
+      {/* Navigation Tabs - RSA Portal Style */}
+      <div className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8 py-4">
+          <nav className="flex flex-wrap gap-4 py-6">
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                className={`flex items-center space-x-3 px-6 py-4 rounded-full transition-all duration-200 min-w-[180px] justify-start shadow-sm ${
                   activeTab === id
-                    ? 'bg-rsa-blue text-white shadow-md'
-                    : 'text-gray-600 hover:text-rsa-blue hover:bg-blue-50'
+                    ? 'bg-rsa-purple text-white shadow-lg transform scale-105'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md hover:scale-102 border border-gray-200'
                 }`}
               >
-                <Icon size={16} />
-                <span>{label}</span>
+                <div className={`p-2 rounded-full ${
+                  activeTab === id 
+                    ? 'bg-white bg-opacity-20' 
+                    : 'bg-gray-100'
+                }`}>
+                  <Icon size={20} className={activeTab === id ? 'text-white' : 'text-rsa-purple'} />
+                </div>
+                <span className="font-medium text-sm">{label}</span>
               </button>
             ))}
           </nav>

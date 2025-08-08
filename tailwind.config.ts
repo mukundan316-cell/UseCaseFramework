@@ -16,7 +16,7 @@ export default {
         'rsa-blue': '#005DAA',
         'rsa-light-blue': '#E6F2FF',
         'rsa-dark-blue': '#003D73', 
-        'rsa-purple': '#5B2C87',
+        'rsa-purple': '#9F4F96',
         'rsa-light-purple': '#F0E6FF',
         'rsa-gray': '#4A5568',
         'rsa-light-gray': '#F7F9FC',
