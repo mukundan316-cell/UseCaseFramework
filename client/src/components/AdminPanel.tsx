@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
 import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagementBlock';
+import ProcessManagementBlock from './lego-blocks/ProcessManagementBlock';
 
 export default function AdminPanel() {
   const { 
@@ -160,8 +161,13 @@ export default function AdminPanel() {
               </p>
             </div>
             
-            {/* Process-Activity Relationship Management */}
-            <ProcessActivityManagementBlock />
+            {/* Business Processes and Process-Activity Relationships */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ProcessManagementBlock />
+              <div className="lg:col-span-1">
+                <ProcessActivityManagementBlock />
+              </div>
+            </div>
             
             {/* Other Metadata Categories */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
