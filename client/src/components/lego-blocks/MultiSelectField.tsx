@@ -52,7 +52,7 @@ export default function MultiSelectField({
     <div className={className}>
       <Label>{label}</Label>
       <div className="mt-1 p-3 border rounded-md max-h-32 overflow-y-auto bg-white">
-        {items.filter(item => item && item.trim()).length === 0 ? (
+        {!items || items.filter(item => item && item.trim()).length === 0 ? (
           <p className="text-sm text-gray-500 italic">{placeholder}</p>
         ) : (
           items.filter(item => item && item.trim()).map(item => {

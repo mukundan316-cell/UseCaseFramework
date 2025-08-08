@@ -16,14 +16,6 @@ export const processActivityMap: Record<string, string[]> = {
     "Exposure Management"
   ],
   
-  "Policy Administration": [
-    "Policy Issuance", 
-    "Booking & Recording", 
-    "Document Management", 
-    "Renewal Processing", 
-    "Contract Management"
-  ],
-  
   "Claims Management": [
     "Claims Processing", 
     "Expert Settlement", 
@@ -58,6 +50,30 @@ export const processActivityMap: Record<string, string[]> = {
     "Credit Control", 
     "Payment Processing", 
     "Financial Reporting"
+  ],
+  
+  "Sales & Distribution": [
+    "Lead Generation", 
+    "Broker Relations", 
+    "Channel Management", 
+    "Sales Support", 
+    "Market Development"
+  ],
+  
+  "Customer Servicing": [
+    "Customer Support", 
+    "Account Management", 
+    "Service Delivery", 
+    "Relationship Management", 
+    "Issue Resolution"
+  ],
+  
+  "Policy Servicing": [
+    "Policy Issuance", 
+    "Booking & Recording", 
+    "Document Management", 
+    "Renewal Processing", 
+    "Contract Management"
   ]
 };
 
