@@ -43,7 +43,7 @@ app.use((req, res, next) => {
   
   // Check if we need to add comprehensive use cases
   const { seedComprehensiveUseCases } = await import('./comprehensive-seed');
-  await seedComprehensiveUseCases();
+  // await seedComprehensiveUseCases(); // Temporarily disabled to fix constraint
   
   // Migrate to enhanced framework if needed
   const { migrateToEnhancedFramework } = await import('./enhanced-framework-migration');

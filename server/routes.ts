@@ -27,6 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.revenueImpact,
         validatedData.costSavings,
         validatedData.riskReduction,
+        validatedData.brokerPartnerExperience,
         validatedData.strategicFit
       );
       
@@ -34,6 +35,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.dataReadiness,
         validatedData.technicalComplexity,
         validatedData.changeImpact,
+        validatedData.modelRisk,
         validatedData.adoptionReadiness
       );
       
@@ -59,7 +61,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const validatedData = insertUseCaseSchema.partial().parse(req.body);
       
-      const updatedUseCase = await storage.updateUseCase(id, validatedData);
+      // Calculate enhanced framework scores if scoring fields are present
+      let updatesWithScores = { ...validatedData };
+      
+      if (validatedData.revenueImpact !== undefined || 
+          validatedData.costSavings !== undefined ||
+          validatedData.riskReduction !== undefined ||
+          validatedData.brokerPartnerExperience !== undefined ||
+          validatedData.strategicFit !== undefined ||
+          validatedData.dataReadiness !== undefined ||
+          validatedData.technicalComplexity !== undefined ||
+          validatedData.changeImpact !== undefined ||
+          validatedData.adoptionReadiness !== undefined) {
+        
+        // Get current use case to fill in missing values
+        const currentUseCase = await storage.getAllUseCases().then(cases => 
+          cases.find(c => c.id === id)
+        );
+        
+        if (!currentUseCase) {
+          return res.status(404).json({ error: "Use case not found" });
+        }
+        
+        // Merge current values with updates for complete scoring
+        const completeData = {
+          revenueImpact: validatedData.revenueImpact ?? currentUseCase.revenueImpact,
+          costSavings: validatedData.costSavings ?? currentUseCase.costSavings,
+          riskReduction: validatedData.riskReduction ?? currentUseCase.riskReduction,
+          brokerPartnerExperience: validatedData.brokerPartnerExperience ?? currentUseCase.brokerPartnerExperience,
+          strategicFit: validatedData.strategicFit ?? currentUseCase.strategicFit,
+          dataReadiness: validatedData.dataReadiness ?? currentUseCase.dataReadiness,
+          technicalComplexity: validatedData.technicalComplexity ?? currentUseCase.technicalComplexity,
+          changeImpact: validatedData.changeImpact ?? currentUseCase.changeImpact,
+          adoptionReadiness: validatedData.adoptionReadiness ?? currentUseCase.adoptionReadiness,
+        };
+        
+        const impactScore = calculateImpactScore(
+          completeData.revenueImpact,
+          completeData.costSavings,
+          completeData.riskReduction,
+          completeData.brokerPartnerExperience,
+          completeData.strategicFit
+        );
+        
+        const effortScore = calculateEffortScore(
+          completeData.dataReadiness,
+          completeData.technicalComplexity,
+          completeData.changeImpact,
+          currentUseCase.modelRisk, // Include modelRisk for effort calculation
+          completeData.adoptionReadiness
+        );
+        
+        const quadrant = calculateQuadrant(impactScore, effortScore);
+        
+        updatesWithScores = {
+          ...validatedData,
+          impactScore,
+          effortScore,
+          quadrant
+        } as any; // Type assertion to handle calculated fields
+      }
+      
+      const updatedUseCase = await storage.updateUseCase(id, updatesWithScores);
       if (!updatedUseCase) {
         return res.status(404).json({ error: "Use case not found" });
       }
