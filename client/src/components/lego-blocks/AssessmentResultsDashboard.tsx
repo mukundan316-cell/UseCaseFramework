@@ -169,22 +169,24 @@ export default function AssessmentResultsDashboard({
             
             <div className="flex items-center space-x-3">
               {/* Export Results */}
-              {assessmentState.responseId && (
+              {actualResponseId && (
                 <ResponseExportLegoBlock
-                  responseId={assessmentState.responseId}
+                  responseId={actualResponseId}
                   assessmentTitle="AI Maturity Assessment Results"
                   variant="outline"
                   size="default"
                 />
               )}
               
-              <ReusableButton
-                rsaStyle="secondary"
-                onClick={onRetake}
-                className="text-sm"
-              >
-                Retake Assessment
-              </ReusableButton>
+              {onRetake && (
+                <ReusableButton
+                  rsaStyle="secondary"
+                  onClick={onRetake}
+                  className="text-sm"
+                >
+                  Retake Assessment
+                </ReusableButton>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -192,7 +194,7 @@ export default function AssessmentResultsDashboard({
 
       {/* Main Scoring Dashboard */}
       <ScoringDashboardLegoBlock
-        data={scoringData ? { ...scoringData, responseId: assessmentState.responseId } : undefined}
+        data={scoringData ? { ...scoringData, responseId: actualResponseId } : undefined}
         showGapAnalysis={true}
         title="AI Maturity Assessment Results"
         description="Comprehensive evaluation across key dimensions"
