@@ -86,20 +86,20 @@ export default function MatrixPlot() {
         {/* Matrix Chart with Quadrant Backgrounds */}
         <div className="h-96 w-full matrix-grid relative">
           {/* Quadrant Background Colors */}
-          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-0 rounded-lg overflow-hidden" style={{ margin: '60px 50px' }}>
+          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-0 rounded-lg overflow-hidden" style={{ margin: '30px 50px 60px 60px' }}>
             {/* Top Left - Quick Win (Green) */}
-            <div className="bg-green-50/70 border-r border-b border-gray-200"></div>
+            <div className="bg-green-50/30"></div>
             {/* Top Right - Strategic Bet (Blue) */}
-            <div className="bg-blue-50/70 border-b border-gray-200"></div>
+            <div className="bg-blue-50/30"></div>
             {/* Bottom Left - Experimental (Yellow) */}
-            <div className="bg-yellow-50/70 border-r border-gray-200"></div>
+            <div className="bg-yellow-50/30"></div>
             {/* Bottom Right - Watchlist (Red) */}
-            <div className="bg-red-50/70"></div>
+            <div className="bg-red-50/30"></div>
           </div>
           
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 30, right: 50, bottom: 60, left: 60 }}>
-                <CartesianGrid strokeDasharray="2 2" stroke="#e2e8f0" strokeWidth={1} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" strokeWidth={1} />
                 <XAxis 
                   type="number" 
                   dataKey="x" 
@@ -120,8 +120,7 @@ export default function MatrixPlot() {
                   axisLine={{ stroke: '#94a3b8', strokeWidth: 2 }}
                   tickLine={{ stroke: '#94a3b8' }}
                 />
-                <ReferenceLine x={3} stroke="#005DAA" strokeWidth={2} strokeOpacity={0.7} />
-                <ReferenceLine y={3} stroke="#005DAA" strokeWidth={2} strokeOpacity={0.7} />
+
                 <Tooltip content={<CustomTooltip />} />
                 {chartData.map((entry, index) => (
                   <Scatter
