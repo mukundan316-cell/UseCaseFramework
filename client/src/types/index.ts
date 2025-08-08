@@ -66,6 +66,8 @@ export interface UseCaseFormData {
   explainabilityBias: number;
   regulatoryCompliance: number;
   activity?: string;
+  // Assessment recommendation tracking
+  recommendedByAssessment?: string;
 }
 
 export interface FilterState {
@@ -77,6 +79,7 @@ export interface FilterState {
   useCaseType?: string;
   activity?: string;
   quadrant?: string;
+  showRecommendations?: boolean;
 }
 
 export type TabType = "dashboard" | "explorer" | "admin" | "assessment";

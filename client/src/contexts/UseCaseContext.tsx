@@ -37,7 +37,8 @@ const initialFilters: FilterState = {
   geography: '',
   useCaseType: '',
   activity: '',
-  quadrant: ''
+  quadrant: '',
+  showRecommendations: false
 };
 
 export function UseCaseProvider({ children }: { children: ReactNode }) {
@@ -252,6 +253,9 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       
       // Quadrant filtering
       if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+      
+      // Assessment Recommendations filtering
+      if (filters.showRecommendations && !useCase.recommendedByAssessment) return false;
       
       return true;
     });

@@ -3,7 +3,9 @@ import { TrendingUp, Target, AlertTriangle, CheckCircle2, BarChart3, Activity } 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export interface MaturityScore {
   category: string;
@@ -29,7 +31,7 @@ export interface ScoringData {
 }
 
 interface ScoringDashboardLegoBlockProps {
-  data?: ScoringData;
+  data?: ScoringData & { responseId?: string };
   isLoading?: boolean;
   compact?: boolean;
   showGapAnalysis?: boolean;
@@ -52,6 +54,35 @@ export default function ScoringDashboardLegoBlock({
   title = "AI Maturity Scoring",
   description = "Current assessment results and maturity levels"
 }: ScoringDashboardLegoBlockProps) {
+  const { toast } = useToast();
+  
+  const generateRecommendations = async (responseId: string) => {
+    try {
+      toast({ title: "Generating recommendations...", description: "Analyzing your assessment results" });
+      
+      const response = await fetch(`/api/assessments/${responseId}/recommendations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) throw new Error('Failed to generate recommendations');
+      
+      const result = await response.json();
+      
+      toast({
+        title: "✅ Recommendations Generated",
+        description: `${result.recommendedUseCases.length} use cases recommended based on your maturity gaps`,
+        duration: 5000
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Failed to generate recommendations",
+        description: "Please try again or contact support",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Maturity level configuration with RSA branding
   const maturityLevels = {
@@ -189,6 +220,15 @@ export default function ScoringDashboardLegoBlock({
                 </div>
                 <Progress value={data.overallPercentage} className="h-2 mt-3" />
                 <div className="text-xs text-gray-600">Overall Maturity</div>
+                {/* Generate Recommendations Button */}
+                <Button 
+                  size="sm"
+                  onClick={() => generateRecommendations(data.responseId)}
+                  className="w-full mt-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+                  disabled={!data.responseId}
+                >
+                  ⭐ Generate Recommendations
+                </Button>
               </div>
             </div>
 

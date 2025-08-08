@@ -17,7 +17,8 @@ export default function MatrixPlot() {
     name: useCase.title,
     quadrant: useCase.quadrant,
     color: getQuadrantColor(useCase.quadrant),
-    useCase: useCase
+    useCase: useCase,
+    isRecommended: !!useCase.recommendedByAssessment // Flag for recommendation highlighting
   }));
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -140,14 +141,56 @@ export default function MatrixPlot() {
                 />
 
                 <Tooltip content={<CustomTooltip />} />
-                {chartData.map((entry, index) => (
-                  <Scatter
-                    key={index}
-                    data={[entry]}
-                    fill="#1E40AF"
-                    shape="circle"
-                  />
-                ))}
+                {chartData.map((entry, index) => {
+                  const size = entry.isRecommended ? 10 : 8;
+                  const color = entry.isRecommended ? "#FFD700" : entry.color;
+                  
+                  return (
+                    <Scatter
+                      key={index}
+                      data={[entry]}
+                      fill={color}
+                      shape={(props: any) => {
+                        const { cx, cy } = props;
+                        return (
+                          <g>
+                            {/* Glow effect for recommended use cases */}
+                            {entry.isRecommended && (
+                              <circle
+                                cx={cx}
+                                cy={cy}
+                                r={size + 3}
+                                fill="#FFD700"
+                                opacity={0.3}
+                              />
+                            )}
+                            {/* Main circle */}
+                            <circle
+                              cx={cx}
+                              cy={cy}
+                              r={size}
+                              fill={entry.color}
+                              stroke={entry.isRecommended ? "#FFD700" : "#fff"}
+                              strokeWidth={entry.isRecommended ? 3 : 2}
+                            />
+                            {/* Recommendation star */}
+                            {entry.isRecommended && (
+                              <text
+                                x={cx + size - 3}
+                                y={cy - size + 3}
+                                fontSize="10"
+                                fill="#FFD700"
+                                textAnchor="middle"
+                              >
+                                ★
+                              </text>
+                            )}
+                          </g>
+                        );
+                      }}
+                    />
+                  );
+                })}
               </ScatterChart>
             </ResponsiveContainer>
           </div>

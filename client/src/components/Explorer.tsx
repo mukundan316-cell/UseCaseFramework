@@ -283,6 +283,22 @@ export default function Explorer() {
               </SelectContent>
             </Select>
           </div>
+          
+          {/* Assessment Recommendations Toggle */}
+          <div className="mt-4 flex justify-end">
+            <Button
+              variant={filters.showRecommendations ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilters({ showRecommendations: !filters.showRecommendations })}
+              className={`transition-all duration-200 ${
+                filters.showRecommendations 
+                  ? "bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600" 
+                  : "border-yellow-300 text-yellow-700 hover:bg-yellow-50"
+              }`}
+            >
+              ⭐ Show Recommendations Only
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

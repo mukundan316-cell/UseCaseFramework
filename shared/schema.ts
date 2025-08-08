@@ -45,6 +45,7 @@ export const useCases = pgTable("use_cases", {
   impactScore: real("impact_score").notNull(),
   effortScore: real("effort_score").notNull(),
   quadrant: text("quadrant").notNull(),
+  recommendedByAssessment: text("recommended_by_assessment"), // Assessment response ID that recommended this use case
   createdAt: timestamp("created_at").defaultNow(),
 });
 
