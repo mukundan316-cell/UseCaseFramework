@@ -21,7 +21,7 @@ const formSchema = z.object({
   valueChainComponent: z.string().min(1, 'Value chain component is required'),
   process: z.string().min(1, 'Process is required'),
   lineOfBusiness: z.string().min(1, 'Line of business is required'),
-  linesOfBusiness: z.array(z.string()).min(1, 'At least one line of business is required'),
+  linesOfBusiness: z.array(z.string()).optional(),
   businessSegment: z.string().min(1, 'Business segment is required'),
   geography: z.string().min(1, 'Geography is required'),
   useCaseType: z.string().min(1, 'Use case type is required'),

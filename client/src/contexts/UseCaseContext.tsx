@@ -54,29 +54,70 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
 
   // Mutations for database operations
   const addUseCaseMutation = useMutation({
-    mutationFn: (data: UseCaseFormData) => apiRequest('/api/use-cases', { method: 'POST', body: data }),
+    mutationFn: async (data: UseCaseFormData) => {
+      const response = await fetch('/api/use-cases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create use case');
+      }
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
     }
   });
 
   const updateUseCaseMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UseCaseFormData }) => 
-      apiRequest(`/api/use-cases/${id}`, { method: 'PUT', body: data }),
+    mutationFn: async ({ id, data }: { id: string; data: UseCaseFormData }) => {
+      const response = await fetch(`/api/use-cases/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update use case');
+      }
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
     }
   });
 
   const deleteUseCaseMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/use-cases/${id}`, { method: 'DELETE' }),
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/use-cases/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete use case');
+      }
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
     }
   });
 
   const updateMetadataMutation = useMutation({
-    mutationFn: (data: MetadataConfig) => apiRequest('/api/metadata', { method: 'PUT', body: data }),
+    mutationFn: async (data: any) => {
+      const response = await fetch('/api/metadata', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update metadata');
+      }
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/metadata'] });
     }
@@ -102,13 +143,13 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     await updateMetadataMutation.mutateAsync(newMetadata);
   };
 
-  const addMetadataItem = async (category: keyof MetadataConfig, item: string): Promise<void> => {
+  const addMetadataItem = async (category: string, item: string): Promise<void> => {
     if (!metadata) throw new Error('Metadata not loaded');
     
     // Skip 'id' and 'updatedAt' fields for metadata updates
     if (category === 'id' || category === 'updatedAt') return;
     
-    const currentArray = metadata[category] as string[];
+    const currentArray = (metadata as any)[category] as string[];
     if (!Array.isArray(currentArray)) {
       throw new Error(`Invalid category: ${category} is not an array`);
     }
@@ -123,13 +164,13 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const removeMetadataItem = async (category: keyof MetadataConfig, item: string): Promise<void> => {
+  const removeMetadataItem = async (category: string, item: string): Promise<void> => {
     if (!metadata) throw new Error('Metadata not loaded');
     
     // Skip 'id' and 'updatedAt' fields for metadata updates
     if (category === 'id' || category === 'updatedAt') return;
     
-    const currentArray = metadata[category] as string[];
+    const currentArray = (metadata as any)[category] as string[];
     if (!Array.isArray(currentArray)) {
       throw new Error(`Invalid category: ${category} is not an array`);
     }
@@ -161,7 +202,8 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   };
 
   const getFilteredUseCases = (): UseCase[] => {
-    return useCases.filter(useCase => {
+    if (!useCases || !Array.isArray(useCases)) return [];
+    return useCases.filter((useCase: any) => {
       if (filters.search && !useCase.title.toLowerCase().includes(filters.search.toLowerCase()) && 
           !useCase.description.toLowerCase().includes(filters.search.toLowerCase())) {
         return false;
@@ -197,8 +239,8 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   };
 
   const value: UseCaseContextType = {
-    useCases,
-    metadata,
+    useCases: Array.isArray(useCases) ? useCases : [],
+    metadata: metadata || undefined,
     activeTab,
     filters,
     setActiveTab,
