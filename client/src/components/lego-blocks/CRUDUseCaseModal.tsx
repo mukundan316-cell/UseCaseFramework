@@ -286,9 +286,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       }
       onClose();
     } catch (error) {
+      console.error('Submit error:', error);
       toast({
         title: `Error ${mode === 'edit' ? 'updating' : 'creating'} use case`,
-        description: "Please try again.",
+        description: `Please try again. ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     }
