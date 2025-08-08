@@ -10,6 +10,10 @@ The core functionality includes use case submission with business context (value
 
 Preferred communication style: Simple, everyday language.
 
+## Project Reference Guide
+
+The project follows strict architectural principles and coding standards documented in `REFERENCE.md`. All contributors and AI agents must review this guide before making changes to ensure consistency, modularity, and maintainability. Key principles include LEGO-style modularity, metadata-driven design, built-in quadrant logic, and extensibility without regression.
+
 ## System Architecture
 
 ### Frontend Architecture
