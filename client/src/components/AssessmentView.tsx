@@ -44,10 +44,28 @@ export default function AssessmentView() {
   const { data: existingResponses } = useQuery({
     queryKey: ['user-responses'],
     queryFn: async () => {
-      // In a real app, this would check for user's previous responses
-      // For demo, we'll check localStorage
+      // First check localStorage for saved state
       const savedState = localStorage.getItem('rsa-assessment-state');
-      return savedState ? JSON.parse(savedState) : null;
+      if (savedState) {
+        const parsed = JSON.parse(savedState);
+        // If we have a responseId but no scores, fetch from API
+        if (parsed.responseId && parsed.status === 'completed' && !parsed.maturityScores) {
+          try {
+            const scoresResponse = await fetch(`/api/responses/${parsed.responseId}/scores`);
+            if (scoresResponse.ok) {
+              const scores = await scoresResponse.json();
+              parsed.maturityScores = scores;
+              parsed.totalScore = scores.totalScore;
+              // Update localStorage with fetched data
+              localStorage.setItem('rsa-assessment-state', JSON.stringify(parsed));
+            }
+          } catch (error) {
+            console.error('Failed to fetch scores:', error);
+          }
+        }
+        return parsed;
+      }
+      return null;
     },
     staleTime: 0 // Always check for fresh data
   });
