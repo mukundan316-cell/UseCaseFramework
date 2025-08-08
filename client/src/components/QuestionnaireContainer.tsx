@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation } from 'wouter';
 
-import { ChevronLeft, ChevronRight, Save, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Save, CheckCircle2, AlertCircle, Clock, Wifi, WifiOff } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import SectionLegoBlock from './lego-blocks/SectionLegoBlock';
 import ReusableButton from './lego-blocks/ReusableButton';
 import { useQuestionnaire, type ResponseSession, type QuestionData } from '@/hooks/useQuestionnaire';
+import { useProgressPersistence } from '@/hooks/useProgressPersistence';
+import ProgressStatusLegoBlock from './lego-blocks/ProgressStatusLegoBlock';
 
 interface QuestionnaireContainerProps {
   questionnaireId: string;
@@ -67,48 +70,53 @@ export default function QuestionnaireContainer({
     responseSession?.status === 'completed' ? responseSession.id : undefined
   );
 
-  // Progress persistence state
-  const [lastSaved, setLastSaved] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  // Enhanced progress persistence
+  const progressPersistence = useProgressPersistence({
+    storageKey: `questionnaire-progress-${questionnaireId}`,
+    autoSaveDelay: 1000,
+    enableToasts: true
+  });
 
-  // Debounce utility function
-  function debounce<T extends (...args: any[]) => void>(func: T, delay: number): T {
-    let timeoutId: NodeJS.Timeout;
-    return ((...args: any[]) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(null, args), delay);
-    }) as T;
-  }
+  const {
+    lastSaved,
+    isSaving,
+    hasUnsavedChanges,
+    debouncedSave,
+    saveToStorage,
+    loadFromStorage,
+    clearStorage
+  } = progressPersistence;
 
-  // Auto-save debounced function
+  // Enhanced debounced save function
   const debouncedSaveAnswers = useCallback(
-    debounce(async (responseId: string, answers: Map<string, any>) => {
+    debouncedSave(async (responseId: string, answers: Map<string, any>) => {
       if (answers.size === 0) return;
       
-      setIsSaving(true);
-      try {
-        const answersArray = Array.from(answers.entries()).map(([questionId, value]) => ({
-          questionId,
-          answerValue: String(value || ''),
-          score: typeof value === 'number' ? value : undefined
-        }));
-        
-        await saveAnswers({ responseId, answers: answersArray });
-        setLastSaved(new Date().toLocaleTimeString());
-        setHasUnsavedChanges(false);
-      } catch (error) {
-        console.error('Auto-save failed:', error);
-        toast({
-          title: "Auto-save failed",
-          description: "Your progress may not be saved. Please try again.",
-          variant: "destructive"
+      const answersArray = Array.from(answers.entries()).map(([questionId, value]) => ({
+        questionId,
+        answerValue: String(value || ''),
+        score: typeof value === 'number' ? value : undefined
+      }));
+      
+      await saveAnswers({ responseId, answers: answersArray });
+      
+      // Also save to localStorage with enhanced metadata
+      if (questionnaire) {
+        saveToStorage({
+          responseId,
+          questionnaireId,
+          answers: Object.fromEntries(answers),
+          currentSection: currentSectionIndex,
+          email: respondentEmail,
+          name: respondentName,
+          lastSaved: new Date().toLocaleString(),
+          timestamp: Date.now(),
+          totalSections: questionnaire.sections.length,
+          completionPercentage: Math.round(((currentSectionIndex + 1) / questionnaire.sections.length) * 100)
         });
-      } finally {
-        setIsSaving(false);
       }
     }, 1000),
-    [saveAnswers, toast]
+    [saveAnswers, debouncedSave, saveToStorage, questionnaireId, currentSectionIndex, respondentEmail, respondentName, questionnaire]
   );
 
   // Auto-save when responses change
@@ -119,52 +127,48 @@ export default function QuestionnaireContainer({
     }
   }, [responses, responseSession, debouncedSaveAnswers]);
 
-  // Progress recovery on component mount
+  // Enhanced progress recovery on component mount
   useEffect(() => {
-    const savedProgress = localStorage.getItem(`questionnaire-progress-${questionnaireId}`);
+    const savedProgress = loadFromStorage();
     if (savedProgress) {
-      try {
-        const progress = JSON.parse(savedProgress);
-        if (progress.responseId && progress.answers) {
-          setResponseSession({ 
-            id: progress.responseId, 
-            status: 'started',
-            questionnaireId 
-          });
-          setResponses(new Map(Object.entries(progress.answers)));
-          setCurrentSectionIndex(progress.currentSection || 0);
-          setRespondentEmail(progress.email || '');
-          setRespondentName(progress.name || '');
-          setHasStarted(true);
-          setLastSaved(progress.lastSaved);
-          
-          toast({
-            title: "Progress restored",
-            description: "Your previous answers have been recovered.",
-            duration: 3000
-          });
-        }
-      } catch (error) {
-        console.error('Failed to restore progress:', error);
-        localStorage.removeItem(`questionnaire-progress-${questionnaireId}`);
-      }
+      setResponseSession({ 
+        id: savedProgress.responseId, 
+        status: 'started',
+        questionnaireId: savedProgress.questionnaireId,
+        respondentEmail: savedProgress.email,
+        respondentName: savedProgress.name
+      } as ResponseSession);
+      setResponses(new Map(Object.entries(savedProgress.answers)));
+      setCurrentSectionIndex(savedProgress.currentSection || 0);
+      setRespondentEmail(savedProgress.email || '');
+      setRespondentName(savedProgress.name || '');
+      setHasStarted(true);
+      
+      toast({
+        title: "Progress restored",
+        description: `Resumed from ${savedProgress.completionPercentage}% completion`,
+        duration: 3000
+      });
     }
-  }, [questionnaireId, toast]);
+  }, [questionnaireId, toast, loadFromStorage]);
 
-  // Save progress to localStorage
+  // Enhanced progress save (now handled by useProgressPersistence)
   const saveProgressToStorage = useCallback(() => {
-    if (responseSession && responses.size > 0) {
-      const progress = {
+    if (responseSession && responses.size > 0 && questionnaire) {
+      saveToStorage({
         responseId: responseSession.id,
+        questionnaireId,
         answers: Object.fromEntries(responses),
         currentSection: currentSectionIndex,
         email: respondentEmail,
         name: respondentName,
-        lastSaved: new Date().toLocaleTimeString()
-      };
-      localStorage.setItem(`questionnaire-progress-${questionnaireId}`, JSON.stringify(progress));
+        lastSaved: new Date().toLocaleString(),
+        timestamp: Date.now(),
+        totalSections: questionnaire.sections.length,
+        completionPercentage: Math.round(((currentSectionIndex + 1) / questionnaire.sections.length) * 100)
+      });
     }
-  }, [responseSession, responses, currentSectionIndex, respondentEmail, respondentName, questionnaireId]);
+  }, [responseSession, responses, currentSectionIndex, respondentEmail, respondentName, questionnaireId, questionnaire, saveToStorage]);
 
   // Handle response change with validation
   const handleResponseChange = useCallback((questionId: string, value: any) => {
@@ -513,29 +517,13 @@ export default function QuestionnaireContainer({
             <Progress value={overallProgress} className="h-2" />
           </div>
           
-          {/* Progress persistence indicators */}
+          {/* Enhanced Progress Status */}
           <div className="flex items-center justify-between">
-            {/* Auto-save indicator */}
-            <div className="flex items-center space-x-4 text-sm">
-              {isSaving && (
-                <div className="flex items-center space-x-2 text-gray-500">
-                  <div className="w-3 h-3 border-2 border-[#005DAA] border-t-transparent rounded-full animate-spin"></div>
-                  <span>Auto-saving...</span>
-                </div>
-              )}
-              {!isSaving && lastSaved && (
-                <div className="flex items-center space-x-2 text-green-600">
-                  <CheckCircle2 className="h-3 w-3" />
-                  <span>Last saved: {lastSaved}</span>
-                </div>
-              )}
-              {hasUnsavedChanges && !isSaving && (
-                <div className="flex items-center space-x-2 text-amber-600">
-                  <Clock className="h-3 w-3" />
-                  <span>Saving in progress...</span>
-                </div>
-              )}
-            </div>
+            <ProgressStatusLegoBlock 
+              lastSaved={lastSaved}
+              isSaving={isSaving}
+              hasUnsavedChanges={hasUnsavedChanges}
+            />
 
             {/* Save & Exit button */}
             {responseSession && !isCompleted && (
