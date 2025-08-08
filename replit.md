@@ -38,6 +38,14 @@ The project follows strict architectural principles and coding standards documen
 - **Smart Filtering Logic**: Explorer filters check both single values and array values for comprehensive use case discovery
 - **Authentic RSA Metadata**: Commercial insurance terminology with 40+ process-specific activities
 
+### Progress Persistence System (January 2025)
+- **Auto-save Functionality**: Debounced 1-second auto-save stores answers to database on every change
+- **Progress Recovery**: Automatic restoration of previous answers on page reload using localStorage + database persistence
+- **Save & Exit Button**: Manual progress preservation with user-friendly feedback and resume capability
+- **Last Saved Indicator**: Real-time timestamp showing when progress was last saved to database
+- **Resume from Dashboard**: Smart detection of existing progress with resume/restart options in assessment entry point
+- **Database-First Storage**: All progress stored in questionnaire_responses and question_answers tables for reliability
+
 ### CRUD Operations (January 2025)
 - **Fixed Delete Operations**: Resolved JSON parsing errors in DELETE responses (204 No Content)
 - **Dual Implementation**: Both useUseCases hook and UseCaseContext support proper DELETE handling

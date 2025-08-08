@@ -64,28 +64,104 @@ export default function QuestionnaireContainer({
     responseSession?.status === 'completed' ? responseSession.id : undefined
   );
 
+  // Progress persistence state
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Debounce utility function
+  function debounce<T extends (...args: any[]) => void>(func: T, delay: number): T {
+    let timeoutId: NodeJS.Timeout;
+    return ((...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
+    }) as T;
+  }
+
   // Auto-save debounced function
   const debouncedSaveAnswers = useCallback(
-    debounce((responseId: string, answers: Map<string, any>) => {
+    debounce(async (responseId: string, answers: Map<string, any>) => {
       if (answers.size === 0) return;
       
-      const answersArray = Array.from(answers.entries()).map(([questionId, value]) => ({
-        questionId,
-        answerValue: String(value || ''),
-        score: typeof value === 'number' ? value : undefined
-      }));
-      
-      saveAnswers({ responseId, answers: answersArray });
-    }, 1500), // 1.5 second debounce
-    [saveAnswers]
+      setIsSaving(true);
+      try {
+        const answersArray = Array.from(answers.entries()).map(([questionId, value]) => ({
+          questionId,
+          answerValue: String(value || ''),
+          score: typeof value === 'number' ? value : undefined
+        }));
+        
+        await saveAnswers(responseId, answersArray);
+        setLastSaved(new Date().toLocaleTimeString());
+        setHasUnsavedChanges(false);
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+        toast({
+          title: "Auto-save failed",
+          description: "Your progress may not be saved. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    }, 1000),
+    [saveAnswers, toast]
   );
 
   // Auto-save when responses change
   useEffect(() => {
     if (responseSession && responses.size > 0) {
+      setHasUnsavedChanges(true);
       debouncedSaveAnswers(responseSession.id, responses);
     }
   }, [responses, responseSession, debouncedSaveAnswers]);
+
+  // Progress recovery on component mount
+  useEffect(() => {
+    const savedProgress = localStorage.getItem(`questionnaire-progress-${questionnaireId}`);
+    if (savedProgress) {
+      try {
+        const progress = JSON.parse(savedProgress);
+        if (progress.responseId && progress.answers) {
+          setResponseSession({ 
+            id: progress.responseId, 
+            status: 'in_progress',
+            questionnaireId 
+          });
+          setResponses(new Map(Object.entries(progress.answers)));
+          setCurrentSectionIndex(progress.currentSection || 0);
+          setRespondentEmail(progress.email || '');
+          setRespondentName(progress.name || '');
+          setHasStarted(true);
+          setLastSaved(progress.lastSaved);
+          
+          toast({
+            title: "Progress restored",
+            description: "Your previous answers have been recovered.",
+            duration: 3000
+          });
+        }
+      } catch (error) {
+        console.error('Failed to restore progress:', error);
+        localStorage.removeItem(`questionnaire-progress-${questionnaireId}`);
+      }
+    }
+  }, [questionnaireId, toast]);
+
+  // Save progress to localStorage
+  const saveProgressToStorage = useCallback(() => {
+    if (responseSession && responses.size > 0) {
+      const progress = {
+        responseId: responseSession.id,
+        answers: Object.fromEntries(responses),
+        currentSection: currentSectionIndex,
+        email: respondentEmail,
+        name: respondentName,
+        lastSaved: new Date().toLocaleTimeString()
+      };
+      localStorage.setItem(`questionnaire-progress-${questionnaireId}`, JSON.stringify(progress));
+    }
+  }, [responseSession, responses, currentSectionIndex, respondentEmail, respondentName, questionnaireId]);
 
   // Handle response change with validation
   const handleResponseChange = useCallback((questionId: string, value: any) => {
@@ -104,6 +180,37 @@ export default function QuestionnaireContainer({
       });
     }
   }, [errors]);
+
+  // Save & Exit handler
+  const handleSaveAndExit = async () => {
+    if (responseSession && responses.size > 0) {
+      setIsSaving(true);
+      try {
+        const answersArray = Array.from(responses.entries()).map(([questionId, value]) => ({
+          questionId,
+          answerValue: String(value || ''),
+          score: typeof value === 'number' ? value : undefined
+        }));
+        
+        await saveAnswers(responseSession.id, answersArray);
+        saveProgressToStorage();
+        
+        toast({
+          title: "Progress saved",
+          description: "Your answers have been saved. You can resume later.",
+          duration: 3000
+        });
+      } catch (error) {
+        toast({
+          title: "Save failed",
+          description: "Unable to save progress. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    }
+  };
 
   // Start response session
   const handleStartResponse = async () => {
@@ -362,13 +469,44 @@ export default function QuestionnaireContainer({
             <Progress value={overallProgress} className="h-2" />
           </div>
           
-          {/* Auto-save indicator */}
-          {isSavingAnswers && (
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <div className="w-3 h-3 border-2 border-[#005DAA] border-t-transparent rounded-full animate-spin"></div>
-              <span>Auto-saving...</span>
+          {/* Progress persistence indicators */}
+          <div className="flex items-center justify-between">
+            {/* Auto-save indicator */}
+            <div className="flex items-center space-x-4 text-sm">
+              {isSaving && (
+                <div className="flex items-center space-x-2 text-gray-500">
+                  <div className="w-3 h-3 border-2 border-[#005DAA] border-t-transparent rounded-full animate-spin"></div>
+                  <span>Auto-saving...</span>
+                </div>
+              )}
+              {!isSaving && lastSaved && (
+                <div className="flex items-center space-x-2 text-green-600">
+                  <CheckCircle2 className="h-3 w-3" />
+                  <span>Last saved: {lastSaved}</span>
+                </div>
+              )}
+              {hasUnsavedChanges && !isSaving && (
+                <div className="flex items-center space-x-2 text-amber-600">
+                  <Clock className="h-3 w-3" />
+                  <span>Saving in progress...</span>
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Save & Exit button */}
+            {responseSession && !isCompleted && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSaveAndExit}
+                disabled={isSaving}
+                className="text-[#005DAA] border-[#005DAA] hover:bg-[#005DAA] hover:text-white"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save & Exit
+              </Button>
+            )}
+          </div>
         </CardHeader>
       </Card>
 

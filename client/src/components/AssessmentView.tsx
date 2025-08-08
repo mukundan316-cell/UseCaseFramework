@@ -225,14 +225,42 @@ export default function AssessmentView() {
             <span>Auto-saved progress</span>
           </div>
 
-          <ReusableButton
-            rsaStyle="primary"
-            onClick={handleStartAssessment}
-            icon={Play}
-            className="px-8 py-3 text-lg"
-          >
-            Start AI Assessment
-          </ReusableButton>
+          {/* Check for existing progress */}
+          {localStorage.getItem(`questionnaire-progress-${questionnaireId}`) ? (
+            <div className="space-y-3">
+              <ReusableButton
+                rsaStyle="primary"
+                onClick={handleStartAssessment}
+                icon={Play}
+                className="px-8 py-3 text-lg"
+              >
+                Resume AI Assessment
+              </ReusableButton>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  localStorage.removeItem(`questionnaire-progress-${questionnaireId}`);
+                  handleStartAssessment();
+                }}
+                size="sm"
+                className="mx-auto"
+              >
+                Start New Assessment
+              </Button>
+              <p className="text-xs text-amber-600 font-medium">
+                Previous progress found - continue where you left off
+              </p>
+            </div>
+          ) : (
+            <ReusableButton
+              rsaStyle="primary"
+              onClick={handleStartAssessment}
+              icon={Play}
+              className="px-8 py-3 text-lg"
+            >
+              Start AI Assessment
+            </ReusableButton>
+          )}
         </div>
       </div>
     );
