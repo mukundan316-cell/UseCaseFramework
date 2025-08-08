@@ -51,12 +51,18 @@ export type User = typeof users.$inferSelect;
 export type UseCase = typeof useCases.$inferSelect;
 export type InsertUseCase = z.infer<typeof insertUseCaseSchema>;
 
-// Metadata configuration interface for filters.json
-export interface MetadataConfig {
-  valueChainComponents: string[];
-  processes: string[];
-  linesOfBusiness: string[];
-  businessSegments: string[];
-  geographies: string[];
-  useCaseTypes: string[];
-}
+// Metadata configuration schema for database persistence
+export const metadataConfig = pgTable('metadata_config', {
+  id: text('id').primaryKey().default('default'),
+  valueChainComponents: text('value_chain_components').array().notNull(),
+  processes: text('processes').array().notNull(),
+  linesOfBusiness: text('lines_of_business').array().notNull(),
+  businessSegments: text('business_segments').array().notNull(),
+  geographies: text('geographies').array().notNull(),
+  useCaseTypes: text('use_case_types').array().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+});
+
+export const insertMetadataConfigSchema = createInsertSchema(metadataConfig);
+export type MetadataConfig = typeof metadataConfig.$inferSelect;
+export type InsertMetadataConfig = z.infer<typeof insertMetadataConfigSchema>;

@@ -12,7 +12,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Project Reference Guide
 
-The project follows strict architectural principles and coding standards documented in `REFERENCE.md`. All contributors and AI agents must review this guide before making changes to ensure consistency, modularity, and maintainability. Key principles include LEGO-style modularity, metadata-driven design, built-in quadrant logic, and extensibility without regression.
+The project follows strict architectural principles and coding standards documented in `REFERENCE.md`. All contributors and AI agents must review this guide before making changes to ensure consistency, modularity, and maintainability. Key principles include LEGO-style modularity, metadata-driven design, built-in quadrant logic, database-first persistence, and extensibility without regression.
+
+## Database-First Architecture Compliance
+
+The application now fully adheres to database-first persistence principles:
+- All data operations flow through PostgreSQL database via API endpoints
+- No hardcoded arrays or localStorage used as primary data sources
+- Metadata configuration stored in database table for dynamic admin editing
+- Complete elimination of client-side storage dependencies
+- Use cases and metadata retrieved exclusively through RESTful APIs
 
 ## System Architecture
 

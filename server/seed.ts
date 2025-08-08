@@ -1,6 +1,7 @@
 import { db } from './db';
-import { useCases } from '@shared/schema';
+import { useCases, metadataConfig } from '@shared/schema';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
+import { eq } from "drizzle-orm";
 
 const sampleUseCases = [
   {
@@ -122,6 +123,9 @@ export async function seedDatabase() {
       return;
     }
 
+    // Seed metadata configuration first (database-first compliance)
+    await seedMetadataConfig();
+
     console.log('Seeding database with sample use cases...');
     
     for (const sampleUseCase of sampleUseCases) {
@@ -152,5 +156,38 @@ export async function seedDatabase() {
     console.log(`Successfully seeded ${sampleUseCases.length} use cases`);
   } catch (error) {
     console.error('Error seeding database:', error);
+  }
+}
+
+/**
+ * Seeds metadata configuration to database for REFERENCE.md compliance
+ * Ensures all filter data is database-persisted, not hardcoded
+ */
+async function seedMetadataConfig() {
+  try {
+    // Check if metadata already exists
+    const [existingConfig] = await db.select().from(metadataConfig).where(eq(metadataConfig.id, 'default'));
+    if (existingConfig) {
+      console.log("Metadata config already exists, skipping...");
+      return;
+    }
+
+    // Insert default metadata configuration
+    await db.insert(metadataConfig).values({
+      id: 'default',
+      valueChainComponents: [
+        "Claims", "Underwriting", "Policy Servicing", "Distribution", 
+        "Product Development", "IT Operations", "Fraud/Compliance", "Customer Service"
+      ],
+      processes: ["FNOL", "Quote & Bind", "Pricing", "Renewal", "Subrogation"],
+      linesOfBusiness: ["Auto", "Property", "Marine", "Life", "Cyber", "Specialty"],
+      businessSegments: ["Mid-Market", "Large Commercial", "SME", "E&S"],
+      geographies: ["UK", "Europe", "Global", "North America"],
+      useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"]
+    });
+    
+    console.log("Seeded metadata configuration successfully");
+  } catch (error) {
+    console.error('Error seeding metadata config:', error);
   }
 }

@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUseCaseSchema } from "@shared/schema";
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@shared/calculations";
-import { loadMetadata, saveMetadata } from "./metadata";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Use Case routes
@@ -85,10 +84,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Metadata routes for REFERENCE.md compliance
+  // Metadata routes for database-first compliance
   app.get("/api/metadata", async (req, res) => {
     try {
-      const metadata = loadMetadata();
+      const metadata = await storage.getMetadataConfig();
       res.json(metadata);
     } catch (error) {
       console.error("Error loading metadata:", error);
@@ -99,8 +98,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/metadata", async (req, res) => {
     try {
       const metadata = req.body;
-      saveMetadata(metadata);
-      res.json({ success: true });
+      const updated = await storage.updateMetadataConfig(metadata);
+      res.json(updated);
     } catch (error) {
       console.error("Error saving metadata:", error);
       res.status(500).json({ error: "Failed to save metadata" });

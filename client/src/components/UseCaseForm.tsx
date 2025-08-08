@@ -63,6 +63,20 @@ export default function UseCaseForm() {
       ...scores,
     },
   });
+  
+  // Loading state while metadata is being fetched (database-first compliance)
+  if (!metadata) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle>Loading Form Configuration...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-gray-600">Loading metadata from database...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const currentImpactScore = calculateImpactScore(
     scores.revenueImpact,

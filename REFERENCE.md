@@ -26,6 +26,9 @@ Every feature (e.g., Use Case Form, Matrix View, Explorer, Admin Panel) must be 
 ### Metadata-Driven Design:
 Dropdown filters and taxonomies must be driven by editable JSON or database with no hardcoded lists.
 
+### Database-First Persistence:
+**All data must be persisted to the database before being used across the application.** No hardcoded arrays, localStorage, or client-side storage should be used as primary data sources. Every data operation must follow the pattern: Database → API → Frontend. This ensures data consistency, enables multi-user scenarios, and maintains enterprise-grade reliability.
+
 ### Quadrant Logic Built-In:
 Use cases must be classified dynamically using scoring logic:
 
@@ -143,6 +146,7 @@ Before submitting any generated code, the agent must:
 4. **Implement scoring and quadrant logic explicitly**
 5. **Store all scoring, quadrant, and metadata in a central data store**
 6. **Export sample use cases with correct quadrant assignment**
+7. **Ensure all data is database-persisted before use—no localStorage or hardcoded fallbacks**
 
 ## 🔁 Contributing & Review Process
 
@@ -159,6 +163,8 @@ Before submitting any generated code, the agent must:
 - [ ] Are UI components modular and scoped?
 - [ ] Are design and UX consistent?
 - [ ] Are secrets and config files secure?
+- [ ] Is all data properly persisted to database (no hardcoding or localStorage)?
+- [ ] Do all components fetch data via API endpoints?
 
 ## 🚀 Final Note
 **Build like it will be scaled. Design like it will be demoed.**

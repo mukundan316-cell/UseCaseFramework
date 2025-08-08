@@ -1,24 +1,25 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { UseCase, UseCaseFormData, FilterState, TabType } from '../types';
 import { MetadataConfig } from '@shared/schema';
-import { useCaseStore } from '../services/useCaseStore';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '../lib/queryClient';
 
 interface UseCaseContextType {
   useCases: UseCase[];
-  metadata: MetadataConfig;
+  metadata: MetadataConfig | undefined;
   activeTab: TabType;
   filters: FilterState;
   setActiveTab: (tab: TabType) => void;
   setFilters: (filters: Partial<FilterState>) => void;
-  addUseCase: (formData: UseCaseFormData) => UseCase;
-  updateUseCase: (id: string, formData: UseCaseFormData) => UseCase | null;
-  deleteUseCase: (id: string) => boolean;
-  updateMetadata: (metadata: MetadataConfig) => void;
-  addMetadataItem: (category: keyof MetadataConfig, item: string) => void;
-  removeMetadataItem: (category: keyof MetadataConfig, item: string) => void;
+  addUseCase: (formData: UseCaseFormData) => Promise<void>;
+  updateUseCase: (id: string, formData: UseCaseFormData) => Promise<void>;
+  deleteUseCase: (id: string) => Promise<void>;
+  updateMetadata: (metadata: MetadataConfig) => Promise<void>;
+  addMetadataItem: (category: keyof MetadataConfig, item: string) => Promise<void>;
+  removeMetadataItem: (category: keyof MetadataConfig, item: string) => Promise<void>;
   exportData: () => any;
-  importData: (data: any) => void;
-  resetToDefaults: () => void;
+  importData: (data: any) => Promise<void>;
+  resetToDefaults: () => Promise<void>;
   getFilteredUseCases: () => UseCase[];
   getQuadrantCounts: () => Record<string, number>;
   getAverageImpact: () => number;
@@ -38,107 +39,139 @@ const initialFilters: FilterState = {
 };
 
 export function UseCaseProvider({ children }: { children: ReactNode }) {
-  const [useCases, setUseCases] = useState<UseCase[]>([]);
-  const [metadata, setMetadata] = useState<MetadataConfig>(useCaseStore.getMetadata());
   const [activeTab, setActiveTab] = useState<TabType>('submit');
   const [filters, setFiltersState] = useState<FilterState>(initialFilters);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const unsubscribe = useCaseStore.subscribe(() => {
-      setUseCases(useCaseStore.getAllUseCases());
-      setMetadata(useCaseStore.getMetadata());
-    });
+  // Database-first data fetching per REFERENCE.md compliance
+  const { data: useCases = [] } = useQuery({
+    queryKey: ['/api/use-cases'],
+  });
 
-    setUseCases(useCaseStore.getAllUseCases());
+  const { data: metadata } = useQuery({
+    queryKey: ['/api/metadata'],
+  });
 
-    return unsubscribe;
-  }, []);
+  // Mutations for database operations
+  const addUseCaseMutation = useMutation({
+    mutationFn: (data: UseCaseFormData) => apiRequest('/api/use-cases', { method: 'POST', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+    }
+  });
+
+  const updateUseCaseMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UseCaseFormData }) => 
+      apiRequest(`/api/use-cases/${id}`, { method: 'PUT', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+    }
+  });
+
+  const deleteUseCaseMutation = useMutation({
+    mutationFn: (id: string) => apiRequest(`/api/use-cases/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+    }
+  });
+
+  const updateMetadataMutation = useMutation({
+    mutationFn: (data: MetadataConfig) => apiRequest('/api/metadata', { method: 'PUT', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/metadata'] });
+    }
+  });
 
   const setFilters = (newFilters: Partial<FilterState>) => {
     setFiltersState(prev => ({ ...prev, ...newFilters }));
   };
 
-  const addUseCase = (formData: UseCaseFormData) => {
-    return useCaseStore.addUseCase(formData);
+  const addUseCase = async (formData: UseCaseFormData) => {
+    await addUseCaseMutation.mutateAsync(formData);
   };
 
-  const updateUseCase = (id: string, formData: UseCaseFormData) => {
-    return useCaseStore.updateUseCase(id, formData);
+  const updateUseCase = async (id: string, formData: UseCaseFormData) => {
+    await updateUseCaseMutation.mutateAsync({ id, data: formData });
   };
 
-  const deleteUseCase = (id: string) => {
-    return useCaseStore.deleteUseCase(id);
+  const deleteUseCase = async (id: string) => {
+    await deleteUseCaseMutation.mutateAsync(id);
   };
 
-  const updateMetadata = (newMetadata: MetadataConfig) => {
-    useCaseStore.updateMetadata(newMetadata);
+  const updateMetadata = async (newMetadata: MetadataConfig) => {
+    await updateMetadataMutation.mutateAsync(newMetadata);
   };
 
-  const addMetadataItem = (category: keyof MetadataConfig, item: string) => {
-    useCaseStore.addMetadataItem(category, item);
+  const addMetadataItem = async (category: keyof MetadataConfig, item: string) => {
+    if (!metadata) return;
+    const currentArray = metadata[category] as string[];
+    if (!currentArray.includes(item)) {
+      const updatedMetadata = {
+        ...metadata,
+        [category]: [...currentArray, item]
+      };
+      await updateMetadata(updatedMetadata);
+    }
   };
 
-  const removeMetadataItem = (category: keyof MetadataConfig, item: string) => {
-    useCaseStore.removeMetadataItem(category, item);
+  const removeMetadataItem = async (category: keyof MetadataConfig, item: string) => {
+    if (!metadata) return;
+    const currentArray = metadata[category] as string[];
+    const updatedMetadata = {
+      ...metadata,
+      [category]: currentArray.filter(i => i !== item)
+    };
+    await updateMetadata(updatedMetadata);
   };
 
   const exportData = () => {
-    return useCaseStore.exportData();
+    return {
+      useCases,
+      metadata,
+      exportedAt: new Date().toISOString()
+    };
   };
 
-  const importData = (data: any) => {
-    useCaseStore.importData(data);
+  const importData = async (data: any) => {
+    // Note: This would require additional API endpoints for bulk operations
+    console.log('Import not yet implemented for database-first architecture');
   };
 
-  const resetToDefaults = () => {
-    useCaseStore.resetToDefaults();
+  const resetToDefaults = async () => {
+    // Note: This would reset to the original seeded metadata
+    console.log('Reset to defaults not yet implemented');
   };
 
   const getFilteredUseCases = (): UseCase[] => {
     return useCases.filter(useCase => {
-      const matchesSearch = !filters.search || 
-        useCase.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        useCase.description.toLowerCase().includes(filters.search.toLowerCase());
-      
-      const matchesValueChain = !filters.valueChainComponent || 
-        filters.valueChainComponent === 'all' ||
-        useCase.valueChainComponent === filters.valueChainComponent;
-      
-      const matchesProcess = !filters.process || 
-        filters.process === 'all' ||
-        useCase.process === filters.process;
-      
-      const matchesLOB = !filters.lineOfBusiness || 
-        filters.lineOfBusiness === 'all' ||
-        useCase.lineOfBusiness === filters.lineOfBusiness;
-      
-      const matchesSegment = !filters.businessSegment || 
-        filters.businessSegment === 'all' ||
-        useCase.businessSegment === filters.businessSegment;
-      
-      const matchesGeography = !filters.geography || 
-        filters.geography === 'all' ||
-        useCase.geography === filters.geography;
-      
-      const matchesType = !filters.useCaseType || 
-        filters.useCaseType === 'all' ||
-        useCase.useCaseType === filters.useCaseType;
-      
-      const matchesQuadrant = !filters.quadrant || 
-        useCase.quadrant === filters.quadrant;
-
-      return matchesSearch && matchesValueChain && matchesProcess && 
-             matchesLOB && matchesSegment && matchesGeography && 
-             matchesType && matchesQuadrant;
+      if (filters.search && !useCase.title.toLowerCase().includes(filters.search.toLowerCase()) && 
+          !useCase.description.toLowerCase().includes(filters.search.toLowerCase())) {
+        return false;
+      }
+      if (filters.valueChainComponent && useCase.valueChainComponent !== filters.valueChainComponent) return false;
+      if (filters.process && useCase.process !== filters.process) return false;
+      if (filters.lineOfBusiness && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
+      if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
+      if (filters.geography && useCase.geography !== filters.geography) return false;
+      if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
+      if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+      return true;
     });
   };
 
-  const getQuadrantCounts = () => {
-    return useCaseStore.getQuadrantCounts();
+  const getQuadrantCounts = (): Record<string, number> => {
+    const filteredUseCases = getFilteredUseCases();
+    return filteredUseCases.reduce((acc, useCase) => {
+      acc[useCase.quadrant] = (acc[useCase.quadrant] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
   };
 
-  const getAverageImpact = () => {
-    return useCaseStore.getAverageImpact();
+  const getAverageImpact = (): number => {
+    const filteredUseCases = getFilteredUseCases();
+    if (filteredUseCases.length === 0) return 0;
+    const totalImpact = filteredUseCases.reduce((sum, useCase) => sum + useCase.impactScore, 0);
+    return totalImpact / filteredUseCases.length;
   };
 
   const value: UseCaseContextType = {

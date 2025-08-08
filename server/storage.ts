@@ -1,9 +1,9 @@
-import { type User, type InsertUser, type UseCase, type InsertUseCase } from "@shared/schema";
+import { users, useCases, metadataConfig, type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
+// Storage interface with metadata management for database-first compliance
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -14,68 +14,16 @@ export interface IStorage {
   createUseCase(useCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase>;
   updateUseCase(id: string, useCase: Partial<UseCase>): Promise<UseCase | undefined>;
   deleteUseCase(id: string): Promise<boolean>;
+  
+  // Metadata methods for database-first compliance
+  getMetadataConfig(): Promise<MetadataConfig | undefined>;
+  updateMetadataConfig(metadata: Partial<MetadataConfig>): Promise<MetadataConfig>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private useCases: Map<string, UseCase>;
-
-  constructor() {
-    this.users = new Map();
-    this.useCases = new Map();
-  }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
-  }
-
-  async getAllUseCases(): Promise<UseCase[]> {
-    return Array.from(this.useCases.values());
-  }
-
-  async createUseCase(insertUseCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase> {
-    const id = randomUUID();
-    const useCase: UseCase = { 
-      ...insertUseCase, 
-      id,
-      createdAt: new Date()
-    };
-    this.useCases.set(id, useCase);
-    return useCase;
-  }
-
-  async updateUseCase(id: string, updates: Partial<UseCase>): Promise<UseCase | undefined> {
-    const existingUseCase = this.useCases.get(id);
-    if (!existingUseCase) return undefined;
-    
-    const updatedUseCase = { ...existingUseCase, ...updates };
-    this.useCases.set(id, updatedUseCase);
-    return updatedUseCase;
-  }
-
-  async deleteUseCase(id: string): Promise<boolean> {
-    return this.useCases.delete(id);
-  }
-}
-
-// Database Storage Implementation
-import { db } from "./db";
-import { users, useCases } from "@shared/schema";
-import { eq } from "drizzle-orm";
-
+/**
+ * Database Storage Implementation
+ * Ensures all data is persisted to PostgreSQL database per REFERENCE.md compliance
+ */
 export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -108,21 +56,36 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUseCase(id: string, updates: Partial<UseCase>): Promise<UseCase | undefined> {
-    const [updatedUseCase] = await db
+    const [useCase] = await db
       .update(useCases)
       .set(updates)
       .where(eq(useCases.id, id))
       .returning();
-    return updatedUseCase || undefined;
+    return useCase || undefined;
   }
 
   async deleteUseCase(id: string): Promise<boolean> {
-    const result = await db
-      .delete(useCases)
-      .where(eq(useCases.id, id));
-    return (result.rowCount || 0) > 0;
+    const result = await db.delete(useCases).where(eq(useCases.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async getMetadataConfig(): Promise<MetadataConfig | undefined> {
+    const [config] = await db.select().from(metadataConfig).where(eq(metadataConfig.id, 'default'));
+    return config || undefined;
+  }
+
+  async updateMetadataConfig(metadata: Partial<MetadataConfig>): Promise<MetadataConfig> {
+    const [config] = await db
+      .insert(metadataConfig)
+      .values({ id: 'default', ...metadata } as any)
+      .onConflictDoUpdate({
+        target: metadataConfig.id,
+        set: metadata
+      })
+      .returning();
+    return config;
   }
 }
 
-// Use DatabaseStorage for production, MemStorage for development
+// Use DatabaseStorage for database-first compliance per REFERENCE.md
 export const storage = new DatabaseStorage();
