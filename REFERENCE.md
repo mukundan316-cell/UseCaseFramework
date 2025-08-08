@@ -48,18 +48,30 @@ Dropdown filters and taxonomies must be driven by editable JSON or database with
 ### Database-First Persistence:
 **All data must be persisted to the database before being used across the application.** No hardcoded arrays, localStorage, or client-side storage should be used as primary data sources. Every data operation must follow the pattern: Database → API → Frontend. This ensures data consistency, enables multi-user scenarios, and maintains enterprise-grade reliability.
 
-### Quadrant Logic Built-In:
-Use cases must be classified dynamically using scoring logic:
+### Enhanced RSA Framework Scoring Logic:
+Use cases must be classified using comprehensive weighted scoring per RSA framework:
 
 ```javascript
-impact_score = avg(revenue_impact, cost_savings, risk_reduction, strategic_fit);
-effort_score = avg(data_readiness, technical_complexity, change_impact, adoption_readiness);
+// Business Value Levers (Impact Score)
+impact_score = (revenue_impact + cost_savings + risk_reduction + broker_partner_experience + strategic_fit) * 0.2;
 
+// Feasibility Levers (Effort Score) 
+effort_score = (data_readiness + technical_complexity + change_impact + model_risk + adoption_readiness) * 0.2;
+
+// AI Governance Score
+governance_score = avg(explainability_bias, regulatory_compliance);
+
+// Quadrant Classification
 if (impact_score >= 4 && effort_score <= 2.5) quadrant = "Quick Win"
 else if (impact_score >= 4) quadrant = "Strategic Bet"
 else if (effort_score <= 2.5) quadrant = "Experimental"
 else quadrant = "Watchlist"
 ```
+
+**Enhanced Framework Levers:**
+- **Business Value**: Revenue Impact, Cost Savings, Risk Reduction, Broker/Partner Experience, Strategic Fit
+- **Feasibility**: Data Readiness, Technical Complexity, Change Impact, Model Risk, Adoption Readiness  
+- **AI Governance**: Explainability & Bias, Regulatory Compliance (FCA, GDPR, UK/EU AI Act)
 
 ### Extensibility Without Regression:
 New tabs (e.g., Maturity Scorecard, ROI Dashboard) must plug into the same store and schema without breaking current functionality.

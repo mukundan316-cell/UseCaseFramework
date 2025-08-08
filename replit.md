@@ -16,14 +16,15 @@ Preferred communication style: Simple, everyday language.
 
 The project follows strict architectural principles and coding standards documented in `REFERENCE.md`. All contributors and AI agents must review this guide before making changes to ensure consistency, modularity, and maintainability. Key principles include LEGO-style modularity, metadata-driven design, built-in quadrant logic, database-first persistence, and extensibility without regression.
 
-## Database-First Architecture Compliance
+## Enhanced RSA Framework Integration (January 2025)
 
-The application now fully adheres to database-first persistence principles:
-- All data operations flow through PostgreSQL database via API endpoints
-- No hardcoded arrays or localStorage used as primary data sources
-- Metadata configuration stored in database table for dynamic admin editing
-- Complete elimination of client-side storage dependencies
-- Use cases and metadata retrieved exclusively through RESTful APIs
+The application now implements the comprehensive RSA AI Framework with full compliance:
+- **Enhanced Scoring System**: 12 total levers across Business Value, Feasibility, and AI Governance dimensions
+- **Weighted Calculation Logic**: Impact and Effort scores use 20% weighted formula per RSA specification
+- **Complete Framework Coverage**: All levers from RSA framework now captured including Broker/Partner Experience, Model Risk, Explainability/Bias, and Regulatory Compliance
+- **Database-First Architecture**: All data operations flow through PostgreSQL database via API endpoints
+- **Automated Migration**: Enhanced framework seamlessly integrated with existing 32 use cases
+- **LEGO-Style Components**: Comprehensive reusable component library including new ScoringLegoBlock
 
 ## System Architecture
 

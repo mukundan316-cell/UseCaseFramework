@@ -45,6 +45,10 @@ app.use((req, res, next) => {
   const { seedComprehensiveUseCases } = await import('./comprehensive-seed');
   await seedComprehensiveUseCases();
   
+  // Migrate to enhanced framework if needed
+  const { migrateToEnhancedFramework } = await import('./enhanced-framework-migration');
+  await migrateToEnhancedFramework();
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

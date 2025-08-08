@@ -16,11 +16,15 @@ const comprehensiveUseCases = [
     revenueImpact: 4,
     costSavings: 4,
     riskReduction: 5,
+    brokerPartnerExperience: 3,
     strategicFit: 4,
     dataReadiness: 3,
     technicalComplexity: 3,
     changeImpact: 3,
-    adoptionReadiness: 4
+    modelRisk: 3,
+    adoptionReadiness: 4,
+    explainabilityBias: 4,
+    regulatoryCompliance: 4
   },
   {
     title: "AI-based Decisioning Engine",
@@ -506,10 +510,10 @@ export async function seedComprehensiveUseCases() {
   console.log(`Adding ${newUseCases.length} new use cases`);
   
   if (newUseCases.length > 0) {
-    // Calculate scores and quadrants for new use cases
+    // Calculate scores and quadrants for new use cases using enhanced framework
     const useCasesToInsert = newUseCases.map(uc => {
-      const impactScore = (uc.revenueImpact + uc.costSavings + uc.riskReduction + uc.strategicFit) / 4;
-      const effortScore = (uc.dataReadiness + uc.technicalComplexity + uc.changeImpact + uc.adoptionReadiness) / 4;
+      const impactScore = (uc.revenueImpact + uc.costSavings + uc.riskReduction + uc.brokerPartnerExperience + uc.strategicFit) * 0.2;
+      const effortScore = (uc.dataReadiness + uc.technicalComplexity + uc.changeImpact + uc.modelRisk + uc.adoptionReadiness) * 0.2;
       
       let quadrant: string;
       if (impactScore >= 4 && effortScore <= 2.5) {

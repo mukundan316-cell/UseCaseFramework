@@ -122,6 +122,24 @@ This document catalogs all reusable LEGO-style components in the RSA GenAI Use C
 - Header and footer slots
 - Overlay click prevention
 
+### ScoringLegoBlock
+**Purpose**: Reusable scoring sections for enhanced RSA framework
+**Location**: `client/src/components/lego-blocks/ScoringLegoBlock.tsx`
+**Features**:
+- Business Value, Feasibility, and AI Governance categories
+- 1-5 scale scoring with descriptive labels
+- Visual score indicators and tooltips
+- Form integration with validation
+
+**Usage Example**:
+```tsx
+<ScoringLegoBlock
+  form={form}
+  category="business-value"
+  fields={businessValueFields}
+/>
+```
+
 ### RSAHeader
 **Purpose**: Consistent header with authentic RSA branding
 **Location**: `client/src/components/RSAHeader.tsx`
