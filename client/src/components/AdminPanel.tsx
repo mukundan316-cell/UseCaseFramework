@@ -159,18 +159,19 @@ export default function AdminPanel() {
               </p>
             </div>
             
+            {/* Aligned with Explorer Filter Order: Process → Activity → LOB → Segment → Geography → Type */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MetadataLegoBlock
-                category="valueChainComponents"
-                title="Value Chain Components"
-                items={metadata.valueChainComponents}
-                placeholder="Add new value chain component..."
-              />
               <MetadataLegoBlock
                 category="processes"
                 title="Business Processes"
                 items={metadata.processes}
                 placeholder="Add new business process..."
+              />
+              <MetadataLegoBlock
+                category="activities"
+                title="Process Activities"
+                items={metadata.activities || []}
+                placeholder="Add new process activity..."
               />
               <MetadataLegoBlock
                 category="linesOfBusiness"
@@ -195,12 +196,6 @@ export default function AdminPanel() {
                 title="Use Case Types"
                 items={metadata.useCaseTypes}
                 placeholder="Add new use case type..."
-              />
-              <MetadataLegoBlock
-                category="activities"
-                title="Process Activities"
-                items={metadata.activities || []}
-                placeholder="Add new process activity..."
               />
             </div>
           </div>
