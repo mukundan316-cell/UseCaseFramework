@@ -98,6 +98,11 @@ export default function AssessmentResultsDashboard({
   const generateRecommendations = useGenerateRecommendations();
   const { data: existingRecommendations } = useRecommendations(actualResponseId);
 
+  // Debug logging
+  console.log('AssessmentResultsDashboard props:', { assessmentState, responseId, actualResponseId });
+  console.log('Maturity scores:', maturityScores);
+  console.log('Total score:', totalScore);
+
   // Auto-generate recommendations when assessment completes
   useEffect(() => {
     if (actualResponseId && maturityScores && useCases.length > 0 && !existingRecommendations) {
@@ -121,7 +126,25 @@ export default function AssessmentResultsDashboard({
     }
   }, [actualResponseId, maturityScores, useCases, existingRecommendations, generateRecommendations]);
 
-  // Get recommended use cases (those marked by assessment)
+  // Check if we have sufficient data to display results
+  if (!maturityScores || !actualResponseId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Assessment Data</h3>
+          <p className="text-gray-600 mb-4">Complete an AI maturity assessment to see your scores here</p>
+          {onRetake && (
+            <Button onClick={onRetake} className="bg-[#005DAA] hover:bg-[#004A8C]">
+              Start Assessment
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Get recommended use cases (those marked by assessment)  
   const recommendations: Recommendation[] = useCases
     .filter(useCase => useCase.recommendedByAssessment === actualResponseId)
     .map(useCase => ({
