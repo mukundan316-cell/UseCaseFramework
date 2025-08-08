@@ -20,6 +20,11 @@ export const useCases = pgTable("use_cases", {
   geography: text("geography").notNull(),
   useCaseType: text("use_case_type").notNull(),
   activity: text("activity"), // Optional field for granular process classification
+  // Multi-select array fields for enhanced flexibility
+  processes: text("processes").array(), // Multiple processes support
+  activities: text("activities").array(), // Multiple activities support  
+  businessSegments: text("business_segments").array(), // Multiple segments support
+  geographies: text("geographies").array(), // Multiple geographies support
   // Business Value Levers (Impact Score)
   revenueImpact: integer("revenue_impact").notNull(),
   costSavings: integer("cost_savings").notNull(),
@@ -56,6 +61,10 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   createdAt: true,
 }).extend({
   linesOfBusiness: z.array(z.string()).optional(),
+  processes: z.array(z.string()).optional(),
+  activities: z.array(z.string()).optional(),
+  businessSegments: z.array(z.string()).optional(),
+  geographies: z.array(z.string()).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
