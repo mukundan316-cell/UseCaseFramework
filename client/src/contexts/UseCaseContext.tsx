@@ -100,21 +100,27 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
         useCase.description.toLowerCase().includes(filters.search.toLowerCase());
       
       const matchesValueChain = !filters.valueChainComponent || 
+        filters.valueChainComponent === 'all' ||
         useCase.valueChainComponent === filters.valueChainComponent;
       
       const matchesProcess = !filters.process || 
+        filters.process === 'all' ||
         useCase.process === filters.process;
       
       const matchesLOB = !filters.lineOfBusiness || 
+        filters.lineOfBusiness === 'all' ||
         useCase.lineOfBusiness === filters.lineOfBusiness;
       
       const matchesSegment = !filters.businessSegment || 
+        filters.businessSegment === 'all' ||
         useCase.businessSegment === filters.businessSegment;
       
       const matchesGeography = !filters.geography || 
+        filters.geography === 'all' ||
         useCase.geography === filters.geography;
       
       const matchesType = !filters.useCaseType || 
+        filters.useCaseType === 'all' ||
         useCase.useCaseType === filters.useCaseType;
       
       const matchesQuadrant = !filters.quadrant || 
