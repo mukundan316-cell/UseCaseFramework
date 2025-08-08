@@ -147,14 +147,14 @@ export default function ProcessManagementBlock() {
             processes.map((process) => (
               <div
                 key={process}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                className="group flex items-center justify-between p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors"
               >
                 <span className="text-sm font-medium">{process}</span>
                 <Button
                   onClick={() => handleRemoveProcess(process)}
                   size="sm"
                   variant="ghost"
-                  className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50"
+                  className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
