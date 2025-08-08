@@ -59,7 +59,7 @@ The project follows strict architectural principles and coding standards documen
 
 **Scoring Engine**: Pure functions calculate Impact (Business Value average) and Effort (Feasibility average) scores, with automatic quadrant assignment using 3.0 thresholds
 
-**Database Integration**: PostgreSQL with Neon hosting, Drizzle ORM, automatic migrations, 16+ seeded commercial insurance use cases
+**Database Integration**: PostgreSQL with Neon hosting, Drizzle ORM, automatic migrations, 16+ seeded commercial insurance use cases, comprehensive questionnaire system with 6 normalized tables
 
 **Modular Design**: LEGO-style reusable components enable independent feature development without architectural disruption
 
@@ -71,8 +71,8 @@ The project follows strict architectural principles and coding standards documen
 
 **Backend**: Express, Drizzle ORM, Zod validation
 
-**Database**: PostgreSQL (Neon serverless), three-table schema with automatic migrations
+**Database**: PostgreSQL (Neon serverless), nine-table schema with automatic migrations including questionnaire system
 
 **Development**: Vite, TypeScript, ESBuild
 
-See `DATABASE_SCHEMA.md` for complete database documentation.
+See `DATABASE_SCHEMA.md` for complete database documentation including the new questionnaire system tables.

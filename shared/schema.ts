@@ -90,3 +90,129 @@ export const metadataConfig = pgTable('metadata_config', {
 export const insertMetadataConfigSchema = createInsertSchema(metadataConfig);
 export type MetadataConfig = typeof metadataConfig.$inferSelect;
 export type InsertMetadataConfig = z.infer<typeof insertMetadataConfigSchema>;
+
+// =============================================================================
+// QUESTIONNAIRE SYSTEM SCHEMA
+// Database-first questionnaire framework for RSA AI use case evaluation
+// =============================================================================
+
+export const questionnaires = pgTable("questionnaires", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  version: text("version").notNull().default('1.0'),
+  status: text("status").notNull().default('draft'), // draft, active, archived
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const questionnaireSections = pgTable("questionnaire_sections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  questionnaireId: varchar("questionnaire_id").notNull().references(() => questionnaires.id, { onDelete: 'cascade' }),
+  title: text("title").notNull(),
+  sectionOrder: integer("section_order").notNull(),
+  estimatedTime: integer("estimated_time"), // in minutes
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const questions = pgTable("questions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sectionId: varchar("section_id").notNull().references(() => questionnaireSections.id, { onDelete: 'cascade' }),
+  questionText: text("question_text").notNull(),
+  questionType: text("question_type").notNull(), // text, number, select, multiselect, scale, boolean
+  isRequired: text("is_required").notNull().default('false'), // 'true' or 'false'
+  questionOrder: integer("question_order").notNull(),
+  helpText: text("help_text"), // Optional guidance for respondents
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const questionOptions = pgTable("question_options", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  questionId: varchar("question_id").notNull().references(() => questions.id, { onDelete: 'cascade' }),
+  optionText: text("option_text").notNull(),
+  optionValue: text("option_value").notNull(),
+  scoreValue: integer("score_value"), // For scoring questions (1-5 scale, etc.)
+  optionOrder: integer("option_order").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const questionnaireResponses = pgTable("questionnaire_responses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  questionnaireId: varchar("questionnaire_id").notNull().references(() => questionnaires.id, { onDelete: 'cascade' }),
+  respondentEmail: text("respondent_email").notNull(),
+  respondentName: text("respondent_name"), // Optional
+  status: text("status").notNull().default('started'), // started, completed, abandoned
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+  totalScore: integer("total_score"), // Calculated aggregate score
+  metadata: text("metadata").$type<Record<string, any>>(), // Additional context data
+});
+
+export const questionAnswers = pgTable("question_answers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  responseId: varchar("response_id").notNull().references(() => questionnaireResponses.id, { onDelete: 'cascade' }),
+  questionId: varchar("question_id").notNull().references(() => questions.id, { onDelete: 'cascade' }),
+  answerValue: text("answer_value").notNull(), // Stored as string, parsed based on question type
+  score: integer("score"), // Individual question score
+  answeredAt: timestamp("answered_at").defaultNow().notNull(),
+});
+
+// =============================================================================
+// QUESTIONNAIRE INSERT SCHEMAS AND TYPES
+// =============================================================================
+
+export const insertQuestionnaireSchema = createInsertSchema(questionnaires).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertQuestionnaireSectionSchema = createInsertSchema(questionnaireSections).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertQuestionSchema = createInsertSchema(questions).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  isRequired: z.enum(['true', 'false']).default('false'),
+  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean']),
+});
+
+export const insertQuestionOptionSchema = createInsertSchema(questionOptions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertQuestionnaireResponseSchema = createInsertSchema(questionnaireResponses).omit({
+  id: true,
+  startedAt: true,
+});
+
+export const insertQuestionAnswerSchema = createInsertSchema(questionAnswers).omit({
+  id: true,
+  answeredAt: true,
+});
+
+// =============================================================================
+// QUESTIONNAIRE TYPES
+// =============================================================================
+
+export type Questionnaire = typeof questionnaires.$inferSelect;
+export type InsertQuestionnaire = z.infer<typeof insertQuestionnaireSchema>;
+
+export type QuestionnaireSection = typeof questionnaireSections.$inferSelect;
+export type InsertQuestionnaireSection = z.infer<typeof insertQuestionnaireSectionSchema>;
+
+export type Question = typeof questions.$inferSelect;
+export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
+
+export type QuestionOption = typeof questionOptions.$inferSelect;
+export type InsertQuestionOption = z.infer<typeof insertQuestionOptionSchema>;
+
+export type QuestionnaireResponse = typeof questionnaireResponses.$inferSelect;
+export type InsertQuestionnaireResponse = z.infer<typeof insertQuestionnaireResponseSchema>;
+
+export type QuestionAnswer = typeof questionAnswers.$inferSelect;
+export type InsertQuestionAnswer = z.infer<typeof insertQuestionAnswerSchema>;
