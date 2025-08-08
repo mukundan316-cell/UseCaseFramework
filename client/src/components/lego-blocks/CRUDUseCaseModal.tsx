@@ -92,6 +92,22 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     regulatoryCompliance: "FCA, GDPR, and UK/EU AI Act readiness",
   };
 
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      valueChainComponent: '',
+      process: '',
+      lineOfBusiness: '',
+      linesOfBusiness: [],
+      businessSegment: '',
+      geography: '',
+      useCaseType: '',
+      ...scores,
+    },
+  });
+
   const handleSliderChange = (field: keyof typeof scores, value: number) => {
     const newScores = { ...scores, [field]: value };
     setScores(newScores);
@@ -169,22 +185,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       </div>
     );
   };
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      valueChainComponent: '',
-      process: '',
-      lineOfBusiness: '',
-      linesOfBusiness: [],
-      businessSegment: '',
-      geography: '',
-      useCaseType: '',
-      ...scores,
-    },
-  });
 
   // Initialize form with existing data for edit mode
   useEffect(() => {
