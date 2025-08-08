@@ -72,7 +72,7 @@ export default function DashboardView() {
       try {
         const progressData = JSON.parse(localStorage.getItem(progressKey) || '');
         // Navigate to questionnaire with the questionnaire ID
-        setLocation('/questionnaire');
+        setLocation('/assessment');
       } catch (error) {
         console.error('Failed to resume assessment:', error);
       }
