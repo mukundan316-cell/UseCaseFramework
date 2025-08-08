@@ -1,18 +1,14 @@
-import React, { useState, useRef } from 'react';
-import { Download, Upload, RotateCcw, Plus, Edit2, Trash2, Save, X, GripVertical } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Download, Upload, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
-import { MetadataConfig } from '@shared/schema';
+import MetadataLegoBlock from './MetadataLegoBlock';
 
 export default function AdminPanel() {
   const { 
     metadata, 
-    updateMetadata, 
-    addMetadataItem, 
-    removeMetadataItem, 
     exportData, 
     importData, 
     resetToDefaults 
@@ -34,30 +30,6 @@ export default function AdminPanel() {
       </Card>
     );
   }
-  
-  const [editingItem, setEditingItem] = useState<{
-    category: string;
-    index: number;
-    value: string;
-  } | null>(null);
-  
-  const [newItems, setNewItems] = useState<Record<string, string>>({
-    valueChainComponents: '',
-    processes: '',
-    linesOfBusiness: '',
-    businessSegments: '',
-    geographies: '',
-    useCaseTypes: ''
-  });
-
-  const categoryLabels: Record<string, string> = {
-    valueChainComponents: 'Value Chain Components',
-    processes: 'Processes',
-    linesOfBusiness: 'Lines of Business',
-    businessSegments: 'Business Segments',
-    geographies: 'Geographies',
-    useCaseTypes: 'Use Case Types'
-  };
 
   const handleExport = () => {
     try {
@@ -111,157 +83,34 @@ export default function AdminPanel() {
       }
     };
     reader.readAsText(file);
-    
-    // Reset the input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    // Reset file input
+    event.target.value = '';
+  };
+
+  const handleReset = async () => {
+    if (confirm('Are you sure you want to reset all metadata to default values? This action cannot be undone.')) {
+      try {
+        await resetToDefaults();
+        toast({
+          title: "Reset successful",
+          description: "All metadata has been restored to default values.",
+        });
+      } catch (error) {
+        toast({
+          title: "Reset failed",
+          description: "There was an error resetting the data.",
+          variant: "destructive",
+        });
+      }
     }
   };
-
-  const handleReset = () => {
-    if (confirm('Are you sure you want to reset all data to defaults? This cannot be undone.')) {
-      resetToDefaults();
-      toast({
-        title: "Data reset successfully",
-        description: "All configuration and use cases have been restored to defaults.",
-      });
-    }
-  };
-
-  const handleAddItem = (category: string) => {
-    const newItem = newItems[category]?.trim();
-    if (newItem) {
-      addMetadataItem(category as keyof MetadataConfig, newItem);
-      setNewItems(prev => ({ ...prev, [category]: '' }));
-      toast({
-        title: "Item added",
-        description: `"${newItem}" has been added to ${categoryLabels[category]}.`,
-      });
-    }
-  };
-
-  const handleEditItem = (category: string, index: number, currentValue: string) => {
-    setEditingItem({ category, index, value: currentValue });
-  };
-
-  const handleSaveEdit = () => {
-    if (!editingItem || !metadata) return;
-    
-    const newMetadata = { ...metadata };
-    const categoryData = newMetadata[editingItem.category as keyof MetadataConfig] as string[];
-    if (Array.isArray(categoryData)) {
-      categoryData[editingItem.index] = editingItem.value;
-      updateMetadata(newMetadata);
-      setEditingItem(null);
-      
-      toast({
-        title: "Item updated",
-        description: "The item has been successfully updated.",
-      });
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingItem(null);
-  };
-
-  const handleRemoveItem = (category: string, item: string) => {
-    if (confirm(`Are you sure you want to remove "${item}"?`)) {
-      removeMetadataItem(category as keyof MetadataConfig, item);
-      toast({
-        title: "Item removed",
-        description: `"${item}" has been removed from ${categoryLabels[category]}.`,
-      });
-    }
-  };
-
-  const MetadataSection = ({ 
-    category, 
-    items 
-  }: { 
-    category: string; 
-    items: string[]; 
-  }) => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">{categoryLabels[category]}</h3>
-      <div className="space-y-3">
-        {items.map((item, index) => (
-          <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-            <div className="flex items-center space-x-3">
-              <GripVertical className="h-4 w-4 text-gray-400" />
-              {editingItem?.category === category && editingItem?.index === index ? (
-                <Input
-                  value={editingItem.value}
-                  onChange={(e) => setEditingItem({ ...editingItem, value: e.target.value })}
-                  className="font-medium"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveEdit();
-                    if (e.key === 'Escape') handleCancelEdit();
-                  }}
-                />
-              ) : (
-                <span className="font-medium">{item}</span>
-              )}
-            </div>
-            <div className="flex items-center space-x-2">
-              {editingItem?.category === category && editingItem?.index === index ? (
-                <>
-                  <Button size="sm" variant="outline" onClick={handleSaveEdit}>
-                    <Save className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={handleCancelEdit}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleEditItem(category, index, item)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleRemoveItem(category, item)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        ))}
-        <div className="flex space-x-2">
-          <Input
-            placeholder={`Add new ${categoryLabels[category].toLowerCase()}`}
-            value={newItems[category]}
-            onChange={(e) => setNewItems(prev => ({ ...prev, [category]: e.target.value }))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleAddItem(category);
-            }}
-          />
-          <Button
-            onClick={() => handleAddItem(category)}
-            disabled={!newItems[category].trim()}
-            className="bg-rsa-blue hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="space-y-6">
       <Card className="bg-white rounded-2xl shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-900">Admin Panel</CardTitle>
-          <CardDescription>Manage metadata categories and system configuration</CardDescription>
+          <CardDescription>Manage metadata categories and system configuration using LEGO-style reusable blocks</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Data Management Actions */}
@@ -312,17 +161,54 @@ export default function AdminPanel() {
             className="hidden"
           />
 
-          {/* Metadata Categories Management */}
-          <div className="space-y-8">
-            {Object.entries(metadata)
-              .filter(([category]) => category !== 'id' && category !== 'updatedAt')
-              .map(([category, items]) => (
-                <MetadataSection
-                  key={category}
-                  category={category}
-                  items={Array.isArray(items) ? items : []}
-                />
-              ))}
+          {/* Metadata Categories Management - LEGO-Style Reusable Blocks */}
+          <div className="space-y-6">
+            <div className="text-center py-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Metadata Management</h3>
+              <p className="text-sm text-gray-600">
+                Each block below is a reusable LEGO-style component that persists directly to the database.
+                Add, edit, or delete items with full CRUD operations.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <MetadataLegoBlock
+                category="valueChainComponents"
+                title="Value Chain Components"
+                items={metadata.valueChainComponents}
+                placeholder="Add new value chain component..."
+              />
+              <MetadataLegoBlock
+                category="processes"
+                title="Business Processes"
+                items={metadata.processes}
+                placeholder="Add new business process..."
+              />
+              <MetadataLegoBlock
+                category="linesOfBusiness"
+                title="Lines of Business"
+                items={metadata.linesOfBusiness}
+                placeholder="Add new line of business..."
+              />
+              <MetadataLegoBlock
+                category="businessSegments"
+                title="Business Segments"
+                items={metadata.businessSegments}
+                placeholder="Add new business segment..."
+              />
+              <MetadataLegoBlock
+                category="geographies"
+                title="Geographies"
+                items={metadata.geographies}
+                placeholder="Add new geography..."
+              />
+              <MetadataLegoBlock
+                category="useCaseTypes"
+                title="Use Case Types"
+                items={metadata.useCaseTypes}
+                placeholder="Add new use case type..."
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

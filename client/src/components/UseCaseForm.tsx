@@ -100,12 +100,12 @@ export default function UseCaseForm() {
     form.setValue(field, value);
   };
 
-  const onSubmit = (data: UseCaseFormData) => {
+  const onSubmit = async (data: UseCaseFormData) => {
     try {
-      const newUseCase = addUseCase(data);
+      await addUseCase(data);
       toast({
         title: "Use case saved successfully",
-        description: `"${newUseCase.title}" has been added to the ${newUseCase.quadrant} quadrant.`,
+        description: `"${data.title}" has been submitted for prioritization.`,
       });
       form.reset();
       setScores({

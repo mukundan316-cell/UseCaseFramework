@@ -86,23 +86,23 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     setFiltersState(prev => ({ ...prev, ...newFilters }));
   };
 
-  const addUseCase = async (formData: UseCaseFormData) => {
+  const addUseCase = async (formData: UseCaseFormData): Promise<void> => {
     await addUseCaseMutation.mutateAsync(formData);
   };
 
-  const updateUseCase = async (id: string, formData: UseCaseFormData) => {
+  const updateUseCase = async (id: string, formData: UseCaseFormData): Promise<void> => {
     await updateUseCaseMutation.mutateAsync({ id, data: formData });
   };
 
-  const deleteUseCase = async (id: string) => {
+  const deleteUseCase = async (id: string): Promise<void> => {
     await deleteUseCaseMutation.mutateAsync(id);
   };
 
-  const updateMetadata = async (newMetadata: MetadataConfig) => {
+  const updateMetadata = async (newMetadata: MetadataConfig): Promise<void> => {
     await updateMetadataMutation.mutateAsync(newMetadata);
   };
 
-  const addMetadataItem = async (category: keyof MetadataConfig, item: string) => {
+  const addMetadataItem = async (category: keyof MetadataConfig, item: string): Promise<void> => {
     if (!metadata) return;
     const currentArray = metadata[category] as string[];
     if (!currentArray.includes(item)) {
@@ -114,7 +114,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const removeMetadataItem = async (category: keyof MetadataConfig, item: string) => {
+  const removeMetadataItem = async (category: keyof MetadataConfig, item: string): Promise<void> => {
     if (!metadata) return;
     const currentArray = metadata[category] as string[];
     const updatedMetadata = {
