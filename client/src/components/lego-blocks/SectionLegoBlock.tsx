@@ -23,6 +23,8 @@ export interface SectionLegoBlockProps {
   showProgress?: boolean;
   errors?: Record<string, string>;
   className?: string;
+  onValidation?: (sectionId: string, isValid: boolean, requiredComplete: boolean) => void;
+  compact?: boolean;
 }
 
 /**
@@ -40,6 +42,8 @@ export default function SectionLegoBlock({
   showProgress = true,
   errors = {},
   className = "",
+  onValidation,
+  compact = false,
 }: SectionLegoBlockProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
@@ -87,6 +91,15 @@ export default function SectionLegoBlock({
   const progress = calculateProgress();
   const isCompleted = progress.percentage === 100;
   const hasRequiredIncomplete = progress.required.completed < progress.required.total;
+  
+  // Trigger validation callback when progress changes
+  React.useEffect(() => {
+    if (onValidation) {
+      const isValid = !hasRequiredIncomplete && Object.keys(errors).length === 0;
+      const requiredComplete = progress.required.completed === progress.required.total;
+      onValidation(id, isValid, requiredComplete);
+    }
+  }, [progress.required.completed, progress.required.total, Object.keys(errors).length, onValidation, id, hasRequiredIncomplete]);
 
   // Sort questions by order
   const sortedQuestions = [...questions].sort((a, b) => 
@@ -123,30 +136,46 @@ export default function SectionLegoBlock({
             </div>
             
             <div className="text-left">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              <h3 className={cn(
+                "font-semibold text-gray-900 mb-1",
+                compact ? "text-base" : "text-lg"
+              )}>
                 {title}
               </h3>
               
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                {estimatedTime && (
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-4 w-4" />
-                    <span>{estimatedTime} min</span>
-                  </div>
-                )}
-                
-                <span>
-                  {progress.completed} of {progress.total} questions
-                  {progress.required.total > 0 && (
-                    <span className={cn(
-                      "ml-1",
-                      hasRequiredIncomplete ? "text-amber-600" : "text-green-600"
-                    )}>
-                      ({progress.required.completed}/{progress.required.total} required)
+              {!compact && (
+                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  {estimatedTime && (
+                    <div className="flex items-center space-x-1">
+                      <Clock className="h-4 w-4" />
+                      <span>{estimatedTime} min</span>
+                    </div>
+                  )}
+                  
+                  <span>
+                    {progress.completed} of {progress.total} questions
+                    {progress.required.total > 0 && (
+                      <span className={cn(
+                        "ml-1",
+                        hasRequiredIncomplete ? "text-amber-600" : "text-green-600"
+                      )}>
+                        ({progress.required.completed}/{progress.required.total} required)
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )}
+              
+              {compact && (
+                <div className="text-xs text-gray-500">
+                  {progress.completed}/{progress.total} complete
+                  {hasRequiredIncomplete && (
+                    <span className="text-amber-600 ml-1">
+                      • {progress.required.total - progress.required.completed} required remaining
                     </span>
                   )}
-                </span>
-              </div>
+                </div>
+              )}
             </div>
           </div>
           
