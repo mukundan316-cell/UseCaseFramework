@@ -31,8 +31,9 @@ interface AssessmentState {
 }
 
 interface AssessmentResultsDashboardProps {
-  assessmentState: AssessmentState;
-  onRetake: () => void;
+  assessmentState?: AssessmentState;
+  responseId?: string;
+  onRetake?: () => void;
 }
 
 interface Recommendation {
@@ -61,9 +62,30 @@ interface GapAnalysisItem {
  */
 export default function AssessmentResultsDashboard({ 
   assessmentState, 
+  responseId,
   onRetake 
 }: AssessmentResultsDashboardProps) {
-  const { totalScore = 0, maturityScores, completedAt } = assessmentState;
+  // Use responseId if provided, otherwise fall back to assessmentState
+  const actualResponseId = responseId || assessmentState?.responseId;
+  
+  // Fetch response data if responseId is provided
+  const { data: responseData } = useQuery({
+    queryKey: ['response', actualResponseId],
+    queryFn: () => fetch(`/api/responses/${actualResponseId}`).then(res => res.json()),
+    enabled: !!actualResponseId && !assessmentState
+  });
+
+  // Fetch maturity scores if responseId is provided  
+  const { data: fetchedMaturityScores } = useQuery({
+    queryKey: ['scores', actualResponseId],
+    queryFn: () => fetch(`/api/responses/${actualResponseId}/scores`).then(res => res.json()),
+    enabled: !!actualResponseId && !assessmentState
+  });
+
+  // Use fetched data or fallback to assessmentState
+  const maturityScores = fetchedMaturityScores || assessmentState?.maturityScores;
+  const totalScore = responseData?.totalScore || assessmentState?.totalScore || 0;
+  const completedAt = responseData?.completedAt || assessmentState?.completedAt;
 
   // Fetch recommendations from API
   const { data: recommendations = [] } = useQuery<Recommendation[]>({

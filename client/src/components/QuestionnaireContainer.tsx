@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useLocation } from 'wouter';
 
 import { ChevronLeft, ChevronRight, Save, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,7 @@ export default function QuestionnaireContainer({
   className = "" 
 }: QuestionnaireContainerProps) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   
   // State management
   const [responses, setResponses] = useState<Map<string, any>>(new Map());
@@ -305,6 +307,22 @@ export default function QuestionnaireContainer({
       setCurrentSectionIndex(prev => prev - 1);
     }
   };
+
+  // Handle successful completion
+  useEffect(() => {
+    if (responseData && responseData.status === 'completed') {
+      toast({
+        title: "Assessment Completed!",
+        description: "Redirecting to your results...",
+        duration: 3000
+      });
+      
+      // Navigate to results page
+      setTimeout(() => {
+        setLocation(`/results/${responseSession?.id}`);
+      }, 1500);
+    }
+  }, [responseData, setLocation, responseSession, toast]);
 
   // Complete questionnaire
   const handleCompleteQuestionnaire = async () => {

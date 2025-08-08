@@ -24,6 +24,11 @@ function Router() {
       <Route path="/questionnaire" component={QuestionnaireContainerDemo} />
       <Route path="/scoring-demo" component={ScoringDashboardDemo} />
       <Route path="/export-demo" component={ResponseExportDemo} />
+      <Route path="/results/:responseId" component={({ responseId }) => 
+        <AssessmentResultsDashboard 
+          responseId={responseId}
+        />
+      } />
       <Route path="/results-demo" component={() => 
         <AssessmentResultsDashboard 
           assessmentState={{ 
