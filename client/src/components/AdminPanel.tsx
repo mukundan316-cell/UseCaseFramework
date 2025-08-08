@@ -5,7 +5,6 @@ import DataActionCard from './lego-blocks/DataActionCard';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
-import RSAMetadataSwitcher from './lego-blocks/RSAMetadataSwitcher';
 
 export default function AdminPanel() {
   const { 
@@ -150,16 +149,13 @@ export default function AdminPanel() {
             className="hidden"
           />
 
-          {/* RSA Commercial Lines Alignment - Safe Migration Tool */}
-          <RSAMetadataSwitcher />
-
           {/* UI List of Values Management - LEGO-Style Reusable Blocks */}
           <div className="space-y-6">
             <div className="text-center py-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">UI List of Values Management</h3>
               <p className="text-sm text-gray-600">
                 Manage dropdown options, filter values, and categorization lists used throughout the application.
-                Each block below now includes authentic RSA commercial insurance terminology alongside generic options.
+                Each block below controls the available options in forms and filters.
               </p>
             </div>
             

@@ -179,36 +179,10 @@ async function seedMetadataConfig() {
         "Claims", "Underwriting", "Policy Servicing", "Distribution", 
         "Product Development", "IT Operations", "Fraud/Compliance", "Customer Service"
       ],
-      processes: [
-        // Original Generic Processes
-        "FNOL", "Quote & Bind", "Pricing", "Renewal", "Subrogation",
-        // RSA Commercial Processes
-        "Submission & Quote", "Underwriting", "Policy Administration", 
-        "Claims Management", "Risk Consulting", "Reinsurance", 
-        "Regulatory & Compliance", "Financial Management"
-      ],
-      linesOfBusiness: [
-        // Original Generic Lines
-        "Auto", "Property", "Marine", "Life", "Cyber", "Specialty",
-        // RSA Commercial Lines (Authentic from RSA structure)
-        "Property & Real Estate", "Marine & Transportation", 
-        "Construction & Engineering", "Professional & Financial",
-        "Renewable Energy", "Motor & Fleet", "Liability & Risk",
-        "Accident & Health", "Rail", "Non-Profit Organizations", "All Lines"
-      ],
-      businessSegments: [
-        // Original Generic Segments
-        "Mid-Market", "Large Commercial", "SME", "E&S",
-        // RSA Commercial Segments (Authentic from RSA structure)
-        "Large Corporates", "Small Businesses", "Delegated Authority", "All Segments"
-      ],
-      geographies: [
-        // Original Generic Geographies
-        "UK", "Europe", "Global", "North America",
-        // RSA Geographic Markets (Authentic from RSA global presence)
-        "UK Domestic", "UK Regions", "London Market", 
-        "European Markets", "Global Network", "International/Multinational"
-      ],
+      processes: ["FNOL", "Quote & Bind", "Pricing", "Renewal", "Subrogation"],
+      linesOfBusiness: ["Auto", "Property", "Marine", "Life", "Cyber", "Specialty"],
+      businessSegments: ["Mid-Market", "Large Commercial", "SME", "E&S"],
+      geographies: ["UK", "Europe", "Global", "North America"],
       useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"]
     });
     
