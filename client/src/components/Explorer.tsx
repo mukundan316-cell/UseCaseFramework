@@ -112,7 +112,7 @@ export default function Explorer() {
           <div className="flex items-center space-x-3 text-sm">
             <BarChart3 className="h-4 w-4 text-gray-400" />
             <span className="text-gray-600">
-              {useCase.valueChainComponent} • {useCase.process}
+              {useCase.process} • {(useCase as any).activities?.join(', ') || useCase.activity}
             </span>
           </div>
           <div className="flex items-center space-x-3 text-sm">

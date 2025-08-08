@@ -24,17 +24,19 @@ export function useUseCases() {
           formData.revenueImpact,
           formData.costSavings, 
           formData.riskReduction,
+          formData.brokerPartnerExperience,
           formData.strategicFit
         ),
         effortScore: calculateEffortScore(
           formData.dataReadiness,
           formData.technicalComplexity,
           formData.changeImpact,
+          formData.modelRisk,
           formData.adoptionReadiness
         ),
         quadrant: calculateQuadrant(
-          calculateImpactScore(formData.revenueImpact, formData.costSavings, formData.riskReduction, formData.strategicFit),
-          calculateEffortScore(formData.dataReadiness, formData.technicalComplexity, formData.changeImpact, formData.adoptionReadiness)
+          calculateImpactScore(formData.revenueImpact, formData.costSavings, formData.riskReduction, formData.brokerPartnerExperience, formData.strategicFit),
+          calculateEffortScore(formData.dataReadiness, formData.technicalComplexity, formData.changeImpact, formData.modelRisk, formData.adoptionReadiness)
         )
       };
 
