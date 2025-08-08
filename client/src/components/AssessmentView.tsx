@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import QuestionnaireContainer from './QuestionnaireContainer';
 import ReusableButton from './lego-blocks/ReusableButton';
+import ScoringDashboardLegoBlock, { type ScoringData } from './lego-blocks/ScoringDashboardLegoBlock';
 
 interface AssessmentState {
   hasAssessment: boolean;
@@ -277,7 +278,23 @@ export default function AssessmentView() {
   // Completed State - Show Results Dashboard
   if (assessmentState.isCompleted) {
     const { totalScore = 0, maturityScores, completedAt } = assessmentState;
-    const overallPercentage = Math.round((totalScore / 100) * 100); // Assuming max score of 100
+    
+    // Transform maturity scores data for ScoringDashboardLegoBlock
+    const scoringData: ScoringData | undefined = maturityScores ? {
+      overallScore: maturityScores.overallAverage || 0,
+      overallLevel: getMaturityLevel(maturityScores.overallAverage || 0),
+      overallPercentage: Math.round((maturityScores.overallAverage || 0) * 20),
+      totalResponses: Object.values(maturityScores.averageScores || {}).reduce((sum: number, data: any) => sum + (data.count || 0), 0),
+      completedAt: completedAt || new Date().toISOString(),
+      dimensionScores: Object.entries(maturityScores.maturityLevels || {}).map(([category, data]: [string, any]) => ({
+        category,
+        score: data.average || 0,
+        level: data.level || 'Initial',
+        percentage: data.percentage || 0,
+        description: getDescriptionForCategory(category)
+      })),
+      gapAnalysis: generateGapAnalysis(maturityScores.maturityLevels || {})
+    } : undefined;
 
     return (
       <div className="max-w-6xl mx-auto p-6 space-y-6">
@@ -308,116 +325,71 @@ export default function AssessmentView() {
           </CardHeader>
         </Card>
 
-        {/* Results Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Overall Score</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center space-y-2">
-                <div className="text-4xl font-bold text-[#005DAA]">{overallPercentage}%</div>
-                <Progress value={overallPercentage} className="h-2" />
-                <p className="text-sm text-gray-600">AI Maturity Level</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Total Points</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center space-y-2">
-                <div className="text-4xl font-bold text-[#9F4F96]">{totalScore}</div>
-                <p className="text-sm text-gray-600">Out of 100 possible</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Maturity Level</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-gray-800">
-                  {overallPercentage >= 90 ? 'Optimized' :
-                   overallPercentage >= 70 ? 'Managed' :
-                   overallPercentage >= 50 ? 'Defined' :
-                   overallPercentage >= 30 ? 'Repeatable' : 'Initial'}
-                </div>
-                <p className="text-sm text-gray-600">Current maturity stage</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Detailed Results */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Detailed Assessment Results</CardTitle>
-            <CardDescription>
-              Your AI maturity breakdown across key dimensions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {maturityScores ? (
-                Object.entries(maturityScores.maturityLevels || {}).map(([category, data]: [string, any]) => (
-                  <div key={category} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold capitalize">{category.replace(/([A-Z])/g, ' $1')}</h4>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium text-[#005DAA]">{data.level}</span>
-                        <span className="text-sm text-gray-600">({data.percentage}%)</span>
-                      </div>
-                    </div>
-                    <Progress value={data.percentage} className="h-2" />
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>Detailed results will be available after completing the assessment</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Action Items */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recommended Actions</CardTitle>
-            <CardDescription>
-              Next steps to improve your AI maturity
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h4 className="font-semibold text-blue-800 mb-2">Immediate Actions</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Establish AI governance framework</li>
-                  <li>• Define data quality standards</li>
-                  <li>• Create AI ethics guidelines</li>
-                </ul>
-              </div>
-              <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                <h4 className="font-semibold text-purple-800 mb-2">Strategic Initiatives</h4>
-                <ul className="text-sm text-purple-700 space-y-1">
-                  <li>• Develop AI center of excellence</li>
-                  <li>• Invest in employee AI training</li>
-                  <li>• Build partnership ecosystem</li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Scoring Dashboard LEGO Block */}
+        <ScoringDashboardLegoBlock
+          data={scoringData}
+          showGapAnalysis={true}
+          title="AI Maturity Assessment Results"
+          description="Comprehensive evaluation across key dimensions"
+        />
       </div>
     );
   }
 
   return null;
+}
+
+// Helper functions for maturity scoring
+function getMaturityLevel(score: number): string {
+  if (score >= 4.5) return 'Optimized';
+  if (score >= 3.5) return 'Managed';
+  if (score >= 2.5) return 'Defined';
+  if (score >= 1.5) return 'Repeatable';
+  return 'Initial';
+}
+
+function getDescriptionForCategory(category: string): string {
+  const descriptions: Record<string, string> = {
+    'scale': 'Assessment of strategic alignment and maturity levels',
+    'select': 'Evaluation of implementation capabilities and readiness',
+    'multi_choice': 'Analysis of governance and operational frameworks',
+    'text': 'Qualitative insights and strategic considerations',
+    'AI Strategy': 'Strategic vision, governance, and leadership alignment',
+    'Data Management': 'Data quality, accessibility, and governance frameworks',
+    'Technology Infrastructure': 'Technical capabilities, scalability, and architecture',
+    'Talent & Skills': 'Human capital, expertise, and capability development',
+    'Risk & Ethics': 'Risk management, ethics, and compliance frameworks'
+  };
+  return descriptions[category] || 'Comprehensive evaluation of capabilities and maturity';
+}
+
+function generateGapAnalysis(maturityLevels: Record<string, any>) {
+  const levels = Object.values(maturityLevels);
+  const avgPercentage = levels.reduce((sum: number, level: any) => sum + (level.percentage || 0), 0) / levels.length;
+  
+  return {
+    strengths: [
+      'Clear assessment methodology established',
+      'Structured evaluation framework in place',
+      'Systematic scoring and tracking capabilities',
+      'Regular monitoring and review processes'
+    ],
+    improvements: [
+      'Enhance cross-functional collaboration',
+      'Improve data collection and analysis',
+      'Strengthen capability development programs',
+      'Increase stakeholder engagement'
+    ],
+    criticalGaps: avgPercentage < 60 ? [
+      'Significant capability gaps identified',
+      'Need for comprehensive improvement strategy',
+      'Require additional resource allocation',
+      'Critical skill development requirements'
+    ] : [
+      'Minor optimization opportunities',
+      'Fine-tuning of existing processes',
+      'Enhanced monitoring capabilities needed',
+      'Advanced analytics implementation'
+    ]
+  };
 }

@@ -9,6 +9,7 @@ import ProcessActivityTest from "./components/lego-blocks/ProcessActivityTest";
 import QuestionLegoBlockDemo from "./components/lego-blocks/QuestionLegoBlockDemo";
 import SectionLegoBlockDemo from "./components/lego-blocks/SectionLegoBlockDemo";
 import QuestionnaireContainerDemo from "./components/QuestionnaireContainerDemo";
+import ScoringDashboardDemo from "./components/lego-blocks/ScoringDashboardDemo";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/question-demo" component={QuestionLegoBlockDemo} />
       <Route path="/section-demo" component={SectionLegoBlockDemo} />
       <Route path="/questionnaire" component={QuestionnaireContainerDemo} />
+      <Route path="/scoring-demo" component={ScoringDashboardDemo} />
       <Route component={NotFound} />
     </Switch>
   );
