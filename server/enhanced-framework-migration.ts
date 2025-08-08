@@ -21,31 +21,31 @@ export async function migrateToEnhancedFramework() {
     
     console.log('✅ Successfully added new framework columns');
     
-    // Update existing records with reasonable default values based on use case type
+    // Update existing records with reasonable default values based on process
     await db.execute(sql`
       UPDATE use_cases SET 
         broker_partner_experience = CASE 
-          WHEN value_chain_component = 'Distribution' THEN 4
-          WHEN value_chain_component = 'Customer Service' THEN 4
-          WHEN value_chain_component = 'Policy Servicing' THEN 3
+          WHEN process = 'Distribution & Sales' THEN 4
+          WHEN process = 'Customer Onboarding' THEN 4
+          WHEN process = 'Policy Servicing' THEN 3
           ELSE 2
         END,
         model_risk = CASE
-          WHEN value_chain_component = 'Underwriting' THEN 4
-          WHEN value_chain_component = 'Claims' THEN 4
-          WHEN value_chain_component = 'Fraud/Compliance' THEN 5
+          WHEN process = 'Underwriting & Pricing' THEN 4
+          WHEN process = 'Claims Processing' THEN 4
+          WHEN process = 'Fraud Detection' THEN 5
           ELSE 3
         END,
         explainability_bias = CASE
-          WHEN value_chain_component = 'Underwriting' THEN 4
-          WHEN value_chain_component = 'Claims' THEN 4
-          WHEN value_chain_component = 'Fraud/Compliance' THEN 5
+          WHEN process = 'Underwriting & Pricing' THEN 4
+          WHEN process = 'Claims Processing' THEN 4
+          WHEN process = 'Fraud Detection' THEN 5
           ELSE 3
         END,
         regulatory_compliance = CASE
-          WHEN value_chain_component = 'Fraud/Compliance' THEN 5
-          WHEN value_chain_component = 'Underwriting' THEN 4
-          WHEN value_chain_component = 'Customer Service' THEN 4
+          WHEN process = 'Fraud Detection' THEN 5
+          WHEN process = 'Underwriting & Pricing' THEN 4
+          WHEN process = 'Customer Onboarding' THEN 4
           ELSE 3
         END
       WHERE broker_partner_experience IS NULL 

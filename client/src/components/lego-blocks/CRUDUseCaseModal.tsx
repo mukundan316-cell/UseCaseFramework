@@ -20,7 +20,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
-  valueChainComponent: z.string().min(1, 'Value chain component is required'),
   process: z.string().min(1, 'Process is required'),
   lineOfBusiness: z.string().min(1, 'Line of business is required'),
   linesOfBusiness: z.array(z.string()).optional(),
@@ -99,7 +98,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     defaultValues: {
       title: '',
       description: '',
-      valueChainComponent: '',
       process: '',
       lineOfBusiness: '',
       linesOfBusiness: [],
@@ -197,7 +195,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       const formData = {
         title: useCase.title || '',
         description: useCase.description || '',
-        valueChainComponent: useCase.valueChainComponent || '',
         process: useCase.process || '',
         lineOfBusiness: useCase.lineOfBusiness || '',
         linesOfBusiness: (useCase as any).linesOfBusiness || [useCase.lineOfBusiness].filter(Boolean),
@@ -243,7 +240,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       const defaultData = {
         title: '',
         description: '',
-        valueChainComponent: '',
         process: '',
         lineOfBusiness: '',
         linesOfBusiness: [],
@@ -345,23 +341,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
             </div>
           </div>
 
-          {/* Business Context */}
+          {/* Business Context - Aligned with Explorer: Process → Activity → LOB → Segment → Geography */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Business Context</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label>Value Chain Component</Label>
-                <Select key={`valueChainComponent-${mode}-${useCase?.id}`} value={form.watch('valueChainComponent') || ''} onValueChange={(value) => form.setValue('valueChainComponent', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select component" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata.valueChainComponents.filter(component => component && component.trim()).map(component => (
-                      <SelectItem key={component} value={component}>{component}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Process</Label>
                 <Select key={`process-${mode}-${useCase?.id}`} value={form.watch('process') || ''} onValueChange={(value) => form.setValue('process', value)}>
@@ -375,6 +358,29 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <Label>Process Activity</Label>
+                <Select 
+                  key={`activity-${mode}-${useCase?.id}`} 
+                  value={form.watch('activity') || ''} 
+                  onValueChange={(value) => form.setValue('activity', value)}
+                  disabled={!form.watch('process')}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={form.watch('process') ? "Select activity" : "Select process first"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getActivitiesForProcess(form.watch('process') || '').map(activity => (
+                      <SelectItem key={activity} value={activity}>{activity}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Activities filtered by selected process
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label>Lines of Business</Label>
                 <div className="mt-1 p-3 border rounded-md max-h-32 overflow-y-auto">
@@ -437,27 +443,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div>
-                <Label>Process Activity</Label>
-                <Select 
-                  key={`activity-${mode}-${useCase?.id}`} 
-                  value={form.watch('activity') || ''} 
-                  onValueChange={(value) => form.setValue('activity', value)}
-                  disabled={!form.watch('process')}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder={form.watch('process') ? "Select activity" : "Select process first"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getActivitiesForProcess(form.watch('process') || '').map(activity => (
-                      <SelectItem key={activity} value={activity}>{activity}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Activities filtered by selected process
-                </p>
               </div>
             </div>
           </div>

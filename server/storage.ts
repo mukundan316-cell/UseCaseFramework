@@ -44,7 +44,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUseCases(): Promise<UseCase[]> {
-    return await db.select().from(useCases);
+    return await db.select().from(useCases).orderBy(sql`created_at DESC`);
   }
 
   async createUseCase(insertUseCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase> {

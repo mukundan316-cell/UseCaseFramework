@@ -13,7 +13,6 @@ export const useCases = pgTable("use_cases", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  valueChainComponent: text("value_chain_component").notNull(),
   process: text("process").notNull(),
   lineOfBusiness: text("line_of_business").notNull(),
   linesOfBusiness: text("lines_of_business").array(),

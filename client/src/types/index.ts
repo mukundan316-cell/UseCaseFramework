@@ -2,7 +2,6 @@ export interface UseCase {
   id: string;
   title: string;
   description: string;
-  valueChainComponent: string;
   process: string;
   lineOfBusiness: string;
   linesOfBusiness?: string[];
@@ -34,7 +33,6 @@ export type QuadrantType = "Quick Win" | "Strategic Bet" | "Experimental" | "Wat
 export interface UseCaseFormData {
   title: string;
   description: string;
-  valueChainComponent: string;
   process: string;
   lineOfBusiness: string;
   linesOfBusiness?: string[];
@@ -60,7 +58,6 @@ export interface UseCaseFormData {
 
 export interface FilterState {
   search: string;
-  valueChainComponent: string;
   process: string;
   lineOfBusiness: string;
   businessSegment: string;
