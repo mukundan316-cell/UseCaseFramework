@@ -140,6 +140,56 @@ This document catalogs all reusable LEGO-style components in the RSA GenAI Use C
 />
 ```
 
+### CRUDUseCaseModal
+**Purpose**: Complete modal for creating and editing use cases with full scoring
+**Location**: `client/src/components/lego-blocks/CRUDUseCaseModal.tsx`
+**Features**:
+- Create/Edit use cases with full form validation
+- Enhanced RSA Framework scoring with 12 levers
+- Real-time score calculation and quadrant assignment
+- Business metadata management
+- Database persistence
+
+**Usage Example**:
+```tsx
+<CRUDUseCaseModal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  mode="create"
+  useCase={selectedUseCase}
+/>
+```
+
+### LegoBlockManager
+**Purpose**: Comprehensive admin interface for managing all LEGO components
+**Location**: `client/src/components/lego-blocks/LegoBlockManager.tsx`
+**Features**:
+- Registry of all LEGO components
+- Component documentation and props
+- Usage analytics and examples
+- Export/Import component definitions
+- Component creation wizard
+
+**Usage Example**:
+```tsx
+<LegoBlockManager />
+```
+
+### UseCaseTemplateManager
+**Purpose**: Reusable template system for pre-configured use cases
+**Location**: `client/src/components/lego-blocks/UseCaseTemplateManager.tsx`
+**Features**:
+- Pre-configured use case templates
+- Template creation and editing
+- Default scoring and metadata
+- Template usage tracking
+- Import/Export templates
+
+**Usage Example**:
+```tsx
+<UseCaseTemplateManager />
+```
+
 ### RSAHeader
 **Purpose**: Consistent header with authentic RSA branding
 **Location**: `client/src/components/RSAHeader.tsx`
