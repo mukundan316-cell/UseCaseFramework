@@ -197,18 +197,8 @@ export default function AssessmentView() {
     // Remove all progress keys
     progressKeys.forEach(key => localStorage.removeItem(key));
     
-    // Reset component state to initial state
-    setAssessmentState({
-      hasAssessment: false,
-      isInProgress: false,
-      isCompleted: false
-    });
-
-    toast({
-      title: "Assessment Reset",
-      description: "You can now start a fresh assessment.",
-      duration: 3000
-    });
+    // Force a page reload to ensure clean state
+    window.location.reload();
   };
 
   // Empty State - No Assessment

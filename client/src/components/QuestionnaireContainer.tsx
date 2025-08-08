@@ -134,26 +134,54 @@ export default function QuestionnaireContainer({
   useEffect(() => {
     const savedProgress = loadFromStorage();
     if (savedProgress) {
-      setResponseSession({ 
-        id: savedProgress.responseId, 
-        status: 'started',
-        questionnaireId: savedProgress.questionnaireId,
-        respondentEmail: savedProgress.email,
-        respondentName: savedProgress.name
-      } as ResponseSession);
-      setResponses(new Map(Object.entries(savedProgress.answers)));
-      setCurrentSectionIndex(savedProgress.currentSection || 0);
-      setRespondentEmail(savedProgress.email || '');
-      setRespondentName(savedProgress.name || '');
-      setHasStarted(true);
+      // Check if the saved response is completed - if so, don't restore it
+      const checkResponseStatus = async () => {
+        try {
+          const response = await fetch(`/api/responses/${savedProgress.responseId}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.status === 'completed') {
+              // Clear the saved progress for completed assessments
+              clearStorage();
+              toast({
+                title: "Starting Fresh",
+                description: "Previous assessment was completed. Ready to start new assessment.",
+                duration: 3000
+              });
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Error checking response status:', error);
+          // If we can't check the status, clear storage to be safe
+          clearStorage();
+          return;
+        }
+        
+        // Only restore if assessment is still in progress
+        setResponseSession({ 
+          id: savedProgress.responseId, 
+          status: 'started',
+          questionnaireId: savedProgress.questionnaireId,
+          respondentEmail: savedProgress.email,
+          respondentName: savedProgress.name
+        } as ResponseSession);
+        setResponses(new Map(Object.entries(savedProgress.answers)));
+        setCurrentSectionIndex(savedProgress.currentSection || 0);
+        setRespondentEmail(savedProgress.email || '');
+        setRespondentName(savedProgress.name || '');
+        setHasStarted(true);
+        
+        toast({
+          title: "Progress restored",
+          description: `Resumed from ${savedProgress.completionPercentage}% completion`,
+          duration: 3000
+        });
+      };
       
-      toast({
-        title: "Progress restored",
-        description: `Resumed from ${savedProgress.completionPercentage}% completion`,
-        duration: 3000
-      });
+      checkResponseStatus();
     }
-  }, [questionnaireId, toast, loadFromStorage]);
+  }, [questionnaireId, toast, loadFromStorage, clearStorage]);
 
   // Enhanced progress save (now handled by useProgressPersistence)
   const saveProgressToStorage = useCallback(() => {
