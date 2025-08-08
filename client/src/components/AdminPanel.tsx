@@ -5,6 +5,7 @@ import DataActionCard from './lego-blocks/DataActionCard';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
+import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagementBlock';
 
 export default function AdminPanel() {
   const { 
@@ -159,20 +160,11 @@ export default function AdminPanel() {
               </p>
             </div>
             
-            {/* Aligned with Explorer Filter Order: Process → Activity → LOB → Segment → Geography → Type */}
+            {/* Process-Activity Relationship Management */}
+            <ProcessActivityManagementBlock />
+            
+            {/* Other Metadata Categories */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MetadataLegoBlock
-                category="processes"
-                title="Business Processes"
-                items={metadata.processes}
-                placeholder="Add new business process..."
-              />
-              <MetadataLegoBlock
-                category="activities"
-                title="Process Activities"
-                items={metadata.activities || []}
-                placeholder="Add new process activity..."
-              />
               <MetadataLegoBlock
                 category="linesOfBusiness"
                 title="Lines of Business"
