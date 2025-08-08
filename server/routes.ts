@@ -43,6 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const useCaseWithScores = {
         ...validatedData,
+        linesOfBusiness: validatedData.linesOfBusiness || [validatedData.lineOfBusiness].filter(Boolean),
         impactScore,
         effortScore,
         quadrant
@@ -116,6 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         updatesWithScores = {
           ...validatedData,
+          linesOfBusiness: validatedData.linesOfBusiness || (validatedData.lineOfBusiness ? [validatedData.lineOfBusiness] : currentUseCase.linesOfBusiness),
           impactScore,
           effortScore,
           quadrant

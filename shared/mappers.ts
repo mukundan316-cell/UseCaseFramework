@@ -12,6 +12,7 @@ export interface UseCaseFrontend {
   valueChainComponent: string;
   process: string;
   lineOfBusiness: string;
+  linesOfBusiness?: string[];
   businessSegment: string;
   geography: string;
   useCaseType: string;
@@ -45,6 +46,7 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     valueChainComponent: dbUseCase.valueChainComponent,
     process: dbUseCase.process,
     lineOfBusiness: dbUseCase.lineOfBusiness,
+    linesOfBusiness: dbUseCase.linesOfBusiness || [dbUseCase.lineOfBusiness].filter(Boolean),
     businessSegment: dbUseCase.businessSegment,
     geography: dbUseCase.geography,
     useCaseType: dbUseCase.useCaseType,

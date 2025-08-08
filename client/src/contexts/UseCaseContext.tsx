@@ -168,7 +168,11 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       }
       if (filters.valueChainComponent && useCase.valueChainComponent !== filters.valueChainComponent) return false;
       if (filters.process && useCase.process !== filters.process) return false;
-      if (filters.lineOfBusiness && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
+      if (filters.lineOfBusiness && filters.lineOfBusiness !== 'all') {
+        // Support filtering for multi-LOB use cases
+        const useCaseLOBs = (useCase as any).linesOfBusiness || [useCase.lineOfBusiness];
+        if (!useCaseLOBs.includes(filters.lineOfBusiness)) return false;
+      }
       if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
       if (filters.geography && useCase.geography !== filters.geography) return false;
       if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;

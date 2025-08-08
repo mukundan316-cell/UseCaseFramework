@@ -16,6 +16,7 @@ export const useCases = pgTable("use_cases", {
   valueChainComponent: text("value_chain_component").notNull(),
   process: text("process").notNull(),
   lineOfBusiness: text("line_of_business").notNull(),
+  linesOfBusiness: text("lines_of_business").array(),
   businessSegment: text("business_segment").notNull(),
   geography: text("geography").notNull(),
   useCaseType: text("use_case_type").notNull(),
@@ -53,6 +54,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   effortScore: true,
   quadrant: true,
   createdAt: true,
+}).extend({
+  linesOfBusiness: z.array(z.string()).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

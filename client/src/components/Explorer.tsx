@@ -118,7 +118,9 @@ export default function Explorer() {
           <div className="flex items-center space-x-3 text-sm">
             <Tag className="h-4 w-4 text-gray-400" />
             <span className="text-gray-600">
-              {useCase.lineOfBusiness} • {useCase.businessSegment} • {useCase.geography}
+              {(useCase as any).linesOfBusiness?.length > 1 
+                ? `${(useCase as any).linesOfBusiness.join(', ')} (Multi-LOB)` 
+                : useCase.lineOfBusiness} • {useCase.businessSegment} • {useCase.geography}
             </span>
           </div>
           <div className="flex items-center space-x-3 text-sm">
@@ -226,7 +228,7 @@ export default function Explorer() {
               </SelectContent>
             </Select>
 
-            <Select value={filters.lineOfBusiness} onValueChange={(value) => setFilters({ lineOfBusiness: value })}>
+            <Select value={filters.lineOfBusiness || 'all'} onValueChange={(value) => setFilters({ lineOfBusiness: value === 'all' ? '' : value })}>
               <SelectTrigger>
                 <SelectValue placeholder="LOB" />
               </SelectTrigger>

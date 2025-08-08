@@ -21,6 +21,7 @@ const formSchema = z.object({
   valueChainComponent: z.string().min(1, 'Value chain component is required'),
   process: z.string().min(1, 'Process is required'),
   lineOfBusiness: z.string().min(1, 'Line of business is required'),
+  linesOfBusiness: z.array(z.string()).min(1, 'At least one line of business is required'),
   businessSegment: z.string().min(1, 'Business segment is required'),
   geography: z.string().min(1, 'Geography is required'),
   useCaseType: z.string().min(1, 'Use case type is required'),
@@ -82,6 +83,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       valueChainComponent: '',
       process: '',
       lineOfBusiness: '',
+      linesOfBusiness: [],
       businessSegment: '',
       geography: '',
       useCaseType: '',
@@ -102,6 +104,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         valueChainComponent: useCase.valueChainComponent || '',
         process: useCase.process || '',
         lineOfBusiness: useCase.lineOfBusiness || '',
+        linesOfBusiness: (useCase as any).linesOfBusiness || [useCase.lineOfBusiness].filter(Boolean),
         businessSegment: useCase.businessSegment || '',
         geography: useCase.geography || '',
         useCaseType: useCase.useCaseType || '',
@@ -139,7 +142,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       
       // Use setValue for each field to ensure proper form state
       Object.entries(formData).forEach(([key, value]) => {
-        if (typeof value === 'string' || typeof value === 'number') {
+        if (typeof value === 'string' || typeof value === 'number' || Array.isArray(value)) {
           form.setValue(key as keyof typeof formData, value);
         }
       });
@@ -286,17 +289,41 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 </Select>
               </div>
               <div>
-                <Label>Line of Business</Label>
-                <Select key={`lineOfBusiness-${mode}-${useCase?.id}`} value={form.watch('lineOfBusiness') || ''} onValueChange={(value) => form.setValue('lineOfBusiness', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select LOB" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata.linesOfBusiness.filter(lob => lob && lob.trim()).map(lob => (
-                      <SelectItem key={lob} value={lob}>{lob}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Lines of Business</Label>
+                <div className="mt-1 p-3 border rounded-md max-h-32 overflow-y-auto">
+                  {metadata.linesOfBusiness.filter(lob => lob && lob.trim()).map(lob => {
+                    const currentLOBs = form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean));
+                    const isChecked = currentLOBs.includes(lob);
+                    
+                    return (
+                      <div key={lob} className="flex items-center space-x-2 mb-2">
+                        <input
+                          type="checkbox"
+                          id={`lob-${lob}`}
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const currentLOBs = form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean));
+                            let newLOBs;
+                            if (e.target.checked) {
+                              newLOBs = [...currentLOBs, lob];
+                            } else {
+                              newLOBs = currentLOBs.filter(l => l !== lob);
+                            }
+                            form.setValue('linesOfBusiness', newLOBs);
+                            // Keep the old field for backwards compatibility
+                            if (newLOBs.length > 0) {
+                              form.setValue('lineOfBusiness', newLOBs[0]);
+                            }
+                          }}
+                          className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                        />
+                        <label htmlFor={`lob-${lob}`} className="text-sm text-gray-700">
+                          {lob}
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
               <div>
                 <Label>Business Segment</Label>
