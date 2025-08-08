@@ -1,12 +1,14 @@
 import React, { useRef } from 'react';
-import { Download, Upload, RotateCcw } from 'lucide-react';
+import { Download, Upload, RotateCcw, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DataActionCard from './lego-blocks/DataActionCard';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
 import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagementBlock';
 import ProcessManagementBlock from './lego-blocks/ProcessManagementBlock';
+import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSimple';
 
 export default function AdminPanel() {
   const { 
@@ -112,9 +114,20 @@ export default function AdminPanel() {
       <Card className="bg-white rounded-2xl shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-900">Admin Panel</CardTitle>
-          <CardDescription>Manage UI list of values and system configuration using LEGO-style reusable blocks</CardDescription>
+          <CardDescription>Manage UI list of values, scoring models, and system configuration using LEGO-style reusable blocks</CardDescription>
         </CardHeader>
         <CardContent>
+          <Tabs defaultValue="metadata" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="metadata">
+                Metadata Management
+              </TabsTrigger>
+              <TabsTrigger value="scoring">
+                Scoring Model
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="metadata" className="space-y-6">
           {/* Data Management Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <DataActionCard
@@ -197,6 +210,12 @@ export default function AdminPanel() {
               />
             </div>
           </div>
+            </TabsContent>
+
+            <TabsContent value="scoring">
+              <ScoringModelManagementBlock />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

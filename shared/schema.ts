@@ -83,6 +83,7 @@ export const metadataConfig = pgTable('metadata_config', {
   useCaseTypes: text('use_case_types').array().notNull(),
   activities: text('activities').array().notNull().default(sql`'{}'`),
   processActivities: text('process_activities', { mode: 'json' }).$type<Record<string, string[]> | string>(),
+  scoringModel: text('scoring_model', { mode: 'json' }).$type<any>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
