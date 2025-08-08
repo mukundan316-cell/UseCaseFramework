@@ -98,20 +98,23 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     form.setValue(field, value);
   };
 
+  // Get current values from form for real-time calculations
+  const formValues = form.watch();
+  
   const currentImpactScore = calculateImpactScore(
-    scores.revenueImpact,
-    scores.costSavings,
-    scores.riskReduction,
-    scores.brokerPartnerExperience,
-    scores.strategicFit
+    formValues.revenueImpact ?? scores.revenueImpact,
+    formValues.costSavings ?? scores.costSavings,
+    formValues.riskReduction ?? scores.riskReduction,
+    formValues.brokerPartnerExperience ?? scores.brokerPartnerExperience,
+    formValues.strategicFit ?? scores.strategicFit
   );
 
   const currentEffortScore = calculateEffortScore(
-    scores.dataReadiness,
-    scores.technicalComplexity,
-    scores.changeImpact,
-    scores.modelRisk,
-    scores.adoptionReadiness
+    formValues.dataReadiness ?? scores.dataReadiness,
+    formValues.technicalComplexity ?? scores.technicalComplexity,
+    formValues.changeImpact ?? scores.changeImpact,
+    formValues.modelRisk ?? scores.modelRisk,
+    formValues.adoptionReadiness ?? scores.adoptionReadiness
   );
 
   const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore);
@@ -129,38 +132,43 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     tooltip: string;
     leftLabel: string;
     rightLabel: string;
-  }) => (
-    <div>
-      <div className="flex items-center justify-between mb-3">
-        <Label className="text-sm font-medium text-gray-700">{label}</Label>
-        <div className="flex items-center space-x-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="h-4 w-4 text-gray-400 cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs">{tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <span className="font-semibold text-purple-600">{scores[field]}</span>
+  }) => {
+    // Use form.watch to get current value, fallback to scores state
+    const currentValue = form.watch(field) ?? scores[field] ?? 3;
+    
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <Label className="text-sm font-medium text-gray-700">{label}</Label>
+          <div className="flex items-center space-x-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">{tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <span className="font-semibold text-purple-600">{currentValue}</span>
+          </div>
+        </div>
+        <input
+          type="range"
+          min="1"
+          max="5"
+          value={currentValue}
+          onChange={(e) => handleSliderChange(field, parseInt(e.target.value))}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+        />
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <span>{leftLabel}</span>
+          <span>{rightLabel}</span>
         </div>
       </div>
-      <input
-        type="range"
-        min="1"
-        max="5"
-        value={scores[field]}
-        onChange={(e) => handleSliderChange(field, parseInt(e.target.value))}
-        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-      />
-      <div className="flex justify-between text-xs text-gray-500 mt-1">
-        <span>{leftLabel}</span>
-        <span>{rightLabel}</span>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -181,10 +189,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
   // Initialize form with existing data for edit mode
   useEffect(() => {
     if (mode === 'edit' && useCase) {
-      console.log('Edit mode - useCase data:', useCase); // Debug log
-      console.log('Raw useCase object keys:', Object.keys(useCase)); // Debug keys
-      console.log('ValueChainComponent:', useCase.valueChainComponent); // Debug specific field
-      
       const formData = {
         title: useCase.title || '',
         description: useCase.description || '',
@@ -210,8 +214,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         regulatoryCompliance: (useCase as any).regulatoryCompliance ?? 3,
       };
       
-      console.log('Form data mapping:', formData); // Debug log
-      
+      // Update scores state first
       setScores({
         revenueImpact: formData.revenueImpact,
         costSavings: formData.costSavings,
@@ -227,27 +230,23 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         regulatoryCompliance: formData.regulatoryCompliance,
       });
       
-      // Use setValue for each field to ensure proper form state
-      Object.entries(formData).forEach(([key, value]) => {
-        if (typeof value === 'string' || typeof value === 'number' || Array.isArray(value)) {
-          form.setValue(key as keyof typeof formData, value);
-        }
-      });
-      
+      // Reset form with all data
       form.reset(formData);
     } else {
-      // Reset for create mode
-      form.reset({
+      // Reset for create mode with default scores
+      const defaultData = {
         title: '',
         description: '',
         valueChainComponent: '',
         process: '',
         lineOfBusiness: '',
+        linesOfBusiness: [],
         businessSegment: '',
         geography: '',
         useCaseType: '',
         ...scores,
-      });
+      };
+      form.reset(defaultData);
     }
   }, [mode, useCase, form]);
 
