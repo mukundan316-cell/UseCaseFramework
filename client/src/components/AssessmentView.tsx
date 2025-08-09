@@ -171,62 +171,8 @@ export default function AssessmentView() {
     }));
   };
 
-  // Create test progress data for demonstration
-  const createTestProgressData = () => {
-    const testProgress = {
-      responseId: 'test-response-' + Date.now(),
-      questionnaireId: '91684df8-9700-4605-bc3e-2320120e5e1b',
-      answers: {
-        'q1': 'Started assessment but incomplete',
-        'q2': 'Some answers provided'
-      },
-      currentSection: 1,
-      currentQuestionIndex: 3,
-      email: 'test.user@rsa.com',
-      name: 'Test User',
-      lastSaved: new Date().toLocaleString(),
-      timestamp: Date.now(),
-      totalSections: 6,
-      completionPercentage: 25,
-      sectionProgress: {
-        1: {
-          sectionNumber: 1,
-          started: true,
-          completed: false,
-          currentQuestionIndex: 3,
-          totalQuestions: 10,
-          completionPercentage: 30,
-          lastModified: new Date().toISOString(),
-          answers: {
-            'q1': 'Started assessment but incomplete',
-            'q2': 'Some answers provided'
-          }
-        }
-      }
-    };
 
-    const storageKey = `questionnaire-progress-${testProgress.questionnaireId}`;
-    localStorage.setItem(storageKey, JSON.stringify(testProgress));
-    
-    toast({
-      title: "Test Progress Created",
-      description: "Demo assessment progress has been saved. Check the Saved Progress section below.",
-      duration: 3000
-    });
-  };
 
-  // Clear test progress data
-  const clearTestProgressData = () => {
-    const questionnaireId = '91684df8-9700-4605-bc3e-2320120e5e1b';
-    const storageKey = `questionnaire-progress-${questionnaireId}`;
-    localStorage.removeItem(storageKey);
-    
-    toast({
-      title: "Test Progress Cleared",
-      description: "Demo assessment progress has been removed.",
-      duration: 3000
-    });
-  };
 
   // Handle assessment completion (called from QuestionnaireContainer)
   const handleAssessmentComplete = (results: any) => {
@@ -282,6 +228,18 @@ export default function AssessmentView() {
   if (!assessmentState.hasAssessment) {
     return (
       <div className="max-w-4xl mx-auto p-6 space-y-6">
+        {/* Saved Progress Modal at Top */}
+        <div className="flex justify-end mb-4">
+          <SavedProgressModalLegoBlock
+            onResumeAssessment={handleResumeAssessment}
+            triggerText="View Saved Progress"
+            triggerVariant="outline"
+            className="px-4 py-2"
+            showDetailedProgress={true}
+            maxItems={10}
+          />
+        </div>
+
         <div className="text-center space-y-4">
           <div className="w-24 h-24 bg-gradient-to-r from-[#005DAA] to-[#9F4F96] rounded-full flex items-center justify-center mx-auto">
             <ClipboardCheck className="h-12 w-12 text-white" />
@@ -370,25 +328,14 @@ export default function AssessmentView() {
             <span>Auto-saved progress</span>
           </div>
 
-          <div className="flex items-center justify-center space-x-4">
-            <ReusableButton
-              rsaStyle="primary"
-              onClick={handleStartAssessment}
-              icon={Play}
-              className="px-8 py-3 text-lg"
-            >
-              Start New AI Assessment
-            </ReusableButton>
-            
-            <SavedProgressModalLegoBlock
-              onResumeAssessment={handleResumeAssessment}
-              triggerText="View Saved Progress"
-              triggerVariant="outline"
-              className="px-6 py-3 text-lg"
-              showDetailedProgress={true}
-              maxItems={10}
-            />
-          </div>
+          <ReusableButton
+            rsaStyle="primary"
+            onClick={handleStartAssessment}
+            icon={Play}
+            className="px-8 py-3 text-lg"
+          >
+            Start New AI Assessment
+          </ReusableButton>
         </div>
       </div>
     );
@@ -442,41 +389,7 @@ export default function AssessmentView() {
           onRetake={handleRetakeAssessment} 
         />
         
-        {/* Show saved progress section even when completed assessment exists */}
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="mb-4 flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                createTestProgressData();
-                // Force refresh of the component by triggering a re-render
-                window.dispatchEvent(new Event('storage'));
-              }}
-              className="text-xs"
-            >
-              Create Test Progress
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                clearTestProgressData();
-                // Force refresh of the component by triggering a re-render
-                window.dispatchEvent(new Event('storage'));
-              }}
-              className="text-xs"
-            >
-              Clear Test Progress
-            </Button>
-          </div>
-          <ResumeProgressLegoBlock
-            onResumeAssessment={handleResumeAssessment}
-            className="w-full"
-            showDetailedProgress={true}
-            maxItems={3}
-          />
-        </div>
+
       </div>
     );
   }
