@@ -1,0 +1,76 @@
+Q7: Regulatory Compliance Maturity
+
+Question: "Rate your regulatory readiness for AI."
+Type: multi_rating
+Help: "Assessment of regulatory compliance capabilities and AI-specific preparedness across key dimensions."
+questionData Configuration:
+
+json{
+  "items": [
+    {
+      "id": "reportingAutomation",
+      "label": "Current regulatory reporting automation",
+      "description": "Level of automation in regulatory reporting processes",
+      "helpText": "Consider automation tools, data quality, and manual intervention required"
+    },
+    {
+      "id": "complianceManagement", 
+      "label": "Cross-jurisdictional compliance management",
+      "description": "Capability to manage compliance across multiple jurisdictions",
+      "helpText": "Assess coordination, standardization, and consistency across regions"
+    },
+    {
+      "id": "aiRegulatory",
+      "label": "AI-related regulatory preparedness (EU AI Act, etc.)",
+      "description": "Readiness for emerging AI regulations and governance requirements",
+      "helpText": "Consider EU AI Act, algorithmic accountability, model governance"
+    }
+  ],
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "labels": {
+      "1": "Not Started",
+      "2": "Basic",
+      "3": "Developing", 
+      "4": "Advanced",
+      "5": "Leading"
+    }
+  },
+  "allowNotes": true,
+  "notesPrompt": "Compliance gaps, regulatory challenges, or AI governance insights:"
+}
+Implementation Requirements:
+
+Both questions optional (is_required: false)
+Question order: Q6 = order 6, Q7 = order 7
+Section: Business Strategy & AI Vision (section_id: existing section 1)
+Mandatory: Include "Additional Context & Notes" textbox for every question
+Use existing LEGO blocks: CompanyProfileLegoBlock (Q6) and MultiRatingLegoBlock (Q7)
+Professional help text with RSA regulatory context
+Test that both questions display properly and integrate with existing Q1-Q5
+
+Expected Result:
+Section 1 will have 7 complete questions (Q1-Q7) covering the full Business Strategy & AI Vision scope with professional stakeholder interview format.
+
+## **🎯 Why This Approach Works:**
+
+### **Q6 - Geographic Operations:**
+- ✅ **Reuses CompanyProfileLegoBlock** (same as Q1)
+- ✅ **Multiple input types** (text, percentage, select, number)
+- ✅ **Professional layout** for executive discussions
+- ✅ **Notes section** for regulatory insights
+
+### **Q7 - Regulatory Compliance Maturity:**
+- ✅ **Reuses MultiRatingLegoBlock** (same as Q5)
+- ✅ **Multi-dimensional assessment** (3 regulatory areas)
+- ✅ **1-5 scale with descriptive labels**
+- ✅ **Notes section** for compliance gaps
+
+### **Consistent Pattern:**
+- Both questions follow the established Section 1 pattern
+- Professional stakeholder interview format
+- Optional questions with rich qualitative capture
+- RSA regulatory and geographic context
+
+Once Q6-Q7 are implemented, **Section 1 will be 100% complete** with 7 questions covering the full Business Strategy & AI Vision scope! 🚀
