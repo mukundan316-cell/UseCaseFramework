@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 // Import existing LEGO blocks for question types
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import { SmartRatingLegoBlock } from './SmartRatingLegoBlock';
+import { RankingLegoBlock } from './RankingLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 
@@ -24,6 +25,7 @@ export type QuestionType =
   | 'compound'
   | 'score'
   | 'smart_rating'
+  | 'ranking'
   | 'checkbox'
   | 'textarea'
   | 'number'
@@ -85,8 +87,8 @@ export default function QuestionRegistryLegoBlock({
       scale: 'ScoreSliderLegoBlock',
       score: 'ScoreSliderLegoBlock',
       smart_rating: 'SmartRatingLegoBlock',
+      ranking: 'RankingLegoBlock',
       multiChoice: 'QuestionLegoBlock',
-      ranking: 'QuestionLegoBlock',
       allocation: 'QuestionLegoBlock',
       text: 'QuestionLegoBlock',
       boolean: 'QuestionLegoBlock',
@@ -181,6 +183,28 @@ export default function QuestionRegistryLegoBlock({
 
     // Render question component function
     const renderQuestionComponent = () => {
+      // Render RankingLegoBlock for ranking type
+      if (questionMeta.questionType === 'ranking') {
+        const rankingItems = questionMeta.questionData.items || [];
+        return (
+          <RankingLegoBlock
+            question={{
+              id: questionMeta.id,
+              questionText: questionMeta.questionText,
+              helpText: questionMeta.helpText,
+              isRequired: logic.isRequired
+            }}
+            items={rankingItems}
+            value={currentValue || null}
+            onChange={(value: string[]) => onResponseChange(questionMeta.id, value)}
+            maxRank={questionMeta.questionData.maxRank}
+            disabled={logic.isDisabled}
+            showNumbers={questionMeta.questionData.showNumbers !== false}
+            allowPartial={questionMeta.questionData.allowPartial || false}
+          />
+        );
+      }
+
       // Render SmartRatingLegoBlock for smart_rating type
       if (questionMeta.questionType === 'smart_rating') {
         return (

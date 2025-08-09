@@ -195,7 +195,7 @@ export const insertQuestionSchema = createInsertSchema(questions).omit({
   createdAt: true,
 }).extend({
   isRequired: z.enum(['true', 'false']).default('false'),
-  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean', 'smart_rating']),
+  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean', 'smart_rating', 'ranking']),
   scoringCategory: z.enum(['business_value', 'feasibility', 'ai_governance', 'general']).optional(),
 });
 
