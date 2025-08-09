@@ -353,6 +353,12 @@ export default function QuestionRegistryLegoBlock({
 
       // Render PercentageTargetLegoBlock for percentage_target type (simplified percentage inputs)
       if (questionMeta.questionType === 'percentage_target') {
+        console.log('🎯 Rendering PercentageTargetLegoBlock for:', questionMeta.id, {
+          questionType: questionMeta.questionType,
+          questionData: questionMeta.questionData,
+          currentValue: currentValue
+        });
+        
         const categoryNames = questionMeta.questionData.categories || [];
         const categories = categoryNames.map((name: string, index: number) => ({
           id: name.toLowerCase().replace(/[^a-z0-9]/g, '_'),
@@ -360,6 +366,8 @@ export default function QuestionRegistryLegoBlock({
           description: `${name} target percentage`,
           placeholder: questionMeta.questionData.placeholder || '0.0'
         }));
+        
+        console.log('📊 Categories for percentage_target:', categories);
         
         return (
           <PercentageTargetLegoBlock
