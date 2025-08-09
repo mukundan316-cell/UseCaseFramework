@@ -320,7 +320,7 @@ export default function QuestionnaireContainer({
     }
   };
 
-  // Validate current section
+  // Validate current section with enhanced field-level validation
   const validateCurrentSection = useCallback(() => {
     if (!questionnaire || !questionnaire.sections[currentSectionIndex]) {
       return true;
@@ -330,11 +330,31 @@ export default function QuestionnaireContainer({
     const newErrors: Record<string, string> = {};
     
     currentSection.questions.forEach((question: QuestionData) => {
+      // Check question-level required flag (string or boolean)
       if (question.isRequired === true || question.isRequired === 'true') {
         const value = responses.get(question.id);
         if (value === undefined || value === '' || 
             (Array.isArray(value) && value.length === 0)) {
           newErrors[question.id] = 'This field is required';
+        }
+      }
+      
+      // Check field-level required flags for complex question types
+      if (question.questionData && typeof question.questionData === 'object' && 'fields' in question.questionData) {
+        const value = responses.get(question.id);
+        const questionValue = value || {};
+        
+        const fields = (question.questionData as any).fields;
+        if (Array.isArray(fields)) {
+          fields.forEach((field: any) => {
+            if (field.required === true || field.required === 'true') {
+              const fieldValue = questionValue[field.id];
+              if (fieldValue === undefined || fieldValue === '' || 
+                  (Array.isArray(fieldValue) && fieldValue.length === 0)) {
+                newErrors[question.id] = `${field.label} is required`;
+              }
+            }
+          });
         }
       }
     });

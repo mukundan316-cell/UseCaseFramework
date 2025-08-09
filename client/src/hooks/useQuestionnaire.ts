@@ -30,6 +30,7 @@ export interface QuestionData {
   maxValue?: number;
   leftLabel?: string;
   rightLabel?: string;
+  questionData?: Record<string, any>; // For advanced question types with field configurations
 }
 
 export interface QuestionOption {
