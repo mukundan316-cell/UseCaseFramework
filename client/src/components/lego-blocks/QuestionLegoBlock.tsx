@@ -160,7 +160,7 @@ export default function QuestionLegoBlock({
                 .map((option) => (
                   <option key={option.id} value={option.optionValue}>
                     {option.optionText}
-                    {option.scoreValue ? ` (Score: ${option.scoreValue})` : ''}
+                    {option.scoreValue ? ` (Score: ${typeof option.scoreValue === 'object' ? JSON.stringify(option.scoreValue) : option.scoreValue})` : ''}
                   </option>
                 ))}
               <option value="__other__">Other (please specify)</option>
@@ -214,7 +214,7 @@ export default function QuestionLegoBlock({
                   {option.optionText}
                   {option.scoreValue && (
                     <span className="ml-2 text-xs text-gray-500">
-                      (Score: {option.scoreValue})
+                      (Score: {typeof option.scoreValue === 'object' ? JSON.stringify(option.scoreValue) : option.scoreValue})
                     </span>
                   )}
                 </Label>
@@ -329,7 +329,7 @@ export default function QuestionLegoBlock({
                     {option.optionText}
                     {option.scoreValue && (
                       <span className="ml-2 text-xs text-gray-500">
-                        (Score: {option.scoreValue})
+                        (Score: {typeof option.scoreValue === 'object' ? JSON.stringify(option.scoreValue) : option.scoreValue})
                       </span>
                     )}
                   </Label>
