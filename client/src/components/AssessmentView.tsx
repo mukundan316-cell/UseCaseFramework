@@ -12,6 +12,7 @@ import ScoringDashboardLegoBlock, { type ScoringData } from './lego-blocks/Scori
 import ResponseExportLegoBlock from './lego-blocks/ResponseExportLegoBlock';
 import AssessmentResultsDashboard from './lego-blocks/AssessmentResultsDashboard';
 import ResumeProgressLegoBlock from './lego-blocks/ResumeProgressLegoBlock';
+import { createTestProgressData, clearTestProgressData } from '../utils/createTestProgress';
 
 interface AssessmentState {
   hasAssessment: boolean;
@@ -375,11 +376,41 @@ export default function AssessmentView() {
   if (assessmentState.isCompleted) {
     console.log('Rendering AssessmentResultsDashboard with state:', assessmentState);
     return (
-      <AssessmentResultsDashboard 
-        assessmentState={assessmentState} 
-        responseId={assessmentState.responseId}
-        onRetake={handleRetakeAssessment} 
-      />
+      <div className="space-y-6">
+        <AssessmentResultsDashboard 
+          assessmentState={assessmentState} 
+          responseId={assessmentState.responseId}
+          onRetake={handleRetakeAssessment} 
+        />
+        
+        {/* Show saved progress section even when completed assessment exists */}
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="mb-4 flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={createTestProgressData}
+              className="text-xs"
+            >
+              Create Test Progress
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={clearTestProgressData}
+              className="text-xs"
+            >
+              Clear Test Progress
+            </Button>
+          </div>
+          <ResumeProgressLegoBlock
+            onResumeAssessment={handleResumeAssessment}
+            className="w-full"
+            showDetailedProgress={true}
+            maxItems={3}
+          />
+        </div>
+      </div>
     );
   }
 
