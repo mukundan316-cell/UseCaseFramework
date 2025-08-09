@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { ClipboardCheck, Play, CheckCircle2, BarChart3, AlertCircle, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import ScoringDashboardLegoBlock, { type ScoringData } from './lego-blocks/Scori
 import ResponseExportLegoBlock from './lego-blocks/ResponseExportLegoBlock';
 import AssessmentResultsDashboard from './lego-blocks/AssessmentResultsDashboard';
 import SavedProgressModalLegoBlock from './lego-blocks/SavedProgressModalLegoBlock';
+import RSAAssessmentLandingPage from './RSAAssessmentLandingPage';
 
 interface AssessmentState {
   hasAssessment: boolean;
@@ -27,10 +29,37 @@ interface AssessmentState {
 
 /**
  * Assessment View Component
- * Manages the complete AI Assessment lifecycle within the main dashboard
- * Shows different states: No Assessment, In Progress, or Completed
+ * Now redirects to the new RSA Assessment Landing Page for better UX
+ * Maintains existing functionality for dashboard integration
  */
 export default function AssessmentView() {
+  const [, setLocation] = useLocation();
+
+  // Redirect to the new landing page immediately
+  React.useEffect(() => {
+    setLocation('/assessment');
+  }, [setLocation]);
+
+  // Return loading state while redirecting
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <Card>
+        <CardContent className="flex items-center justify-center p-12">
+          <div className="text-center space-y-4">
+            <div className="w-8 h-8 border-4 border-[#005DAA] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-gray-600">Redirecting to assessment...</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+/**
+ * Legacy Assessment View Component (preserved for reference)
+ * This component managed assessment states but has been replaced by RSAAssessmentLandingPage
+ */
+function LegacyAssessmentView() {
   const { toast } = useToast();
   const [assessmentState, setAssessmentState] = useState<AssessmentState>({
     hasAssessment: false,
