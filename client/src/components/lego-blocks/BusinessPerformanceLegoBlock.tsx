@@ -113,8 +113,8 @@ export default function BusinessPerformanceLegoBlock({
                        'e.g., 0.95';
 
     return (
-      <div key={metric.id} className="space-y-2">
-        <Label htmlFor={metric.id} className="text-sm font-medium text-gray-700">
+      <div key={metric.id} className="space-y-3">
+        <Label htmlFor={metric.id} className="text-sm font-medium text-gray-700 block">
           {metric.label}
           {metric.required && <span className="text-red-500 ml-1">*</span>}
         </Label>
@@ -126,10 +126,10 @@ export default function BusinessPerformanceLegoBlock({
             onChange={(e) => handleChange(metric.id, e.target.value, metric.type)}
             placeholder={placeholder}
             disabled={disabled}
-            className={suffix ? "pr-12" : ""}
+            className={`${suffix ? "pr-16" : ""} text-center`}
           />
           {suffix && (
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 font-medium">
               {suffix}
             </span>
           )}
@@ -185,7 +185,7 @@ export default function BusinessPerformanceLegoBlock({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className={`grid grid-cols-1 ${metrics.length > 2 ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4`}>
+              <div className={`grid grid-cols-1 ${metrics.length > 2 ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'} gap-6`}>
                 {metrics.map(renderMetricField)}
               </div>
             </CardContent>
