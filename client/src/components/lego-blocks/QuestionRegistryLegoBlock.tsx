@@ -406,6 +406,12 @@ export default function QuestionRegistryLegoBlock({
       if (questionMeta.questionType === 'business_performance') {
         return (
           <BusinessPerformanceLegoBlock
+            question={{
+              id: questionMeta.id,
+              questionText: questionMeta.questionText,
+              helpText: questionMeta.helpText,
+              isRequired: logic.isRequired
+            }}
             questionData={questionMeta.questionData}
             value={currentValue || {}}
             onChange={(value) => onResponseChange(questionMeta.id, value)}

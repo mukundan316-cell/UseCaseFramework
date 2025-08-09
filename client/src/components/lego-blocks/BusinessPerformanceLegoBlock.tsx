@@ -3,9 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { TrendingUp, AlertCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TrendingUp, AlertCircle, Info } from "lucide-react";
 
 interface BusinessPerformanceLegoBlockProps {
+  /** Question data including text and help text */
+  question?: {
+    id: string;
+    questionText: string;
+    helpText?: string;
+    isRequired?: boolean;
+  };
   questionData?: {
     metrics?: Array<{
       id: string;
@@ -35,6 +43,7 @@ interface BusinessPerformanceLegoBlockProps {
 }
 
 export default function BusinessPerformanceLegoBlock({
+  question,
   questionData = {},
   value = {},
   onChange,
@@ -131,6 +140,33 @@ export default function BusinessPerformanceLegoBlock({
 
   return (
     <div className="space-y-6">
+      {/* Question Header */}
+      {question && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-lg font-semibold text-gray-900">
+              {question.questionText}
+              {question.isRequired && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            {question.helpText && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">{question.helpText}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+          {question.helpText && (
+            <p className="text-sm text-gray-600">{question.helpText}</p>
+          )}
+        </div>
+      )}
+
       {Object.entries(metricsConfig).map(([categoryName, metrics], categoryIndex) => {
         const colors = [
           { border: 'border-blue-200', bg: 'bg-blue-50/30', icon: 'text-blue-600' },
