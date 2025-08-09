@@ -50,26 +50,105 @@ export default function SectionLegoBlock({
 
   const { id, title, sectionOrder, estimatedTime, questions } = section;
 
-  // Calculate section progress
+  // Enhanced section progress calculation that handles compound questions properly
   const calculateProgress = () => {
     if (questions.length === 0) return { completed: 0, total: 0, percentage: 0, required: { completed: 0, total: 0 }, optional: { completed: 0, total: 0 } };
 
     const requiredQuestions = questions.filter(q => q.isRequired);
     const optionalQuestions = questions.filter(q => !q.isRequired);
     
-    // Count completed required questions
-    const completedRequired = requiredQuestions.filter(q => {
-      const value = responses.get(q.id);
-      return value !== undefined && value !== '' && 
-             (!Array.isArray(value) || value.length > 0);
-    }).length;
+    // Helper function to check if a question is completed based on its type
+    const isQuestionCompleted = (question: any) => {
+      const value = responses.get(question.id);
+      
+      if (value === undefined || value === null) return false;
+      
+      // Handle compound questions with specific completion logic
+      switch (question.questionType) {
+        case 'company_profile':
+          // Company profile is complete if at least company name and one other field are filled
+          if (typeof value === 'object' && value !== null) {
+            const profile = value as any;
+            const hasCompanyName = profile.companyName && profile.companyName.trim() !== '';
+            const hasGWP = profile.gwp && (profile.gwp.amount || profile.gwp.currency);
+            const hasTier = profile.companyTier && profile.companyTier !== '';
+            const hasMarkets = profile.primaryMarkets && Array.isArray(profile.primaryMarkets) && profile.primaryMarkets.length > 0;
+            const hasGeoFocus = profile.geographicFocus && profile.geographicFocus.trim() !== '';
+            
+            // At least company name plus one other meaningful field
+            return hasCompanyName && (hasGWP || hasTier || hasMarkets || hasGeoFocus);
+          }
+          return false;
+          
+        case 'business_lines_matrix':
+          // Business lines matrix is complete if at least one line has data
+          if (typeof value === 'object' && value !== null && value.businessLines) {
+            return Array.isArray(value.businessLines) && value.businessLines.length > 0 &&
+                   value.businessLines.some((line: any) => line.lineName || line.percentage > 0);
+          }
+          return false;
+          
+        case 'percentage_allocation':
+          // Percentage allocation is complete if at least one category has a value > 0
+          if (typeof value === 'object' && value !== null) {
+            return Object.values(value).some((val: any) => typeof val === 'number' && val > 0);
+          }
+          return false;
+          
+        case 'department_skills_matrix':
+          // Department skills matrix is complete if at least one department has data
+          if (typeof value === 'object' && value !== null && value.departments) {
+            return Array.isArray(value.departments) && value.departments.length > 0 &&
+                   value.departments.some((dept: any) => dept.departmentName || dept.employeeCount > 0);
+          }
+          return false;
+          
+        case 'smart_rating':
+        case 'scale':
+          // Rating questions are complete if they have a numeric value
+          return typeof value === 'number' && value > 0;
+          
+        case 'ranking':
+          // Ranking is complete if at least one item is ranked
+          return Array.isArray(value) && value.length > 0;
+          
+        case 'currency':
+          // Currency input is complete if it has both amount and currency
+          if (typeof value === 'object' && value !== null) {
+            return (value.amount && value.amount !== '' && value.amount !== '0') || 
+                   (value.currency && value.currency !== '');
+          }
+          return false;
+          
+        case 'text':
+        case 'textarea':
+          // Text questions are complete if they have meaningful content
+          return typeof value === 'string' && value.trim() !== '';
+          
+        case 'select':
+        case 'multiselect':
+          // Select questions are complete if they have a selection
+          if (Array.isArray(value)) {
+            return value.length > 0;
+          }
+          return value !== '' && value !== undefined;
+          
+        case 'boolean':
+        case 'checkbox':
+          // Boolean questions are complete if they have any value (true or false)
+          return typeof value === 'boolean' || value === 'true' || value === 'false';
+          
+        default:
+          // Default completion check for unknown question types
+          return value !== '' && (!Array.isArray(value) || value.length > 0);
+      }
+    };
+    
+    // Count completed required questions using enhanced logic
+    const completedRequired = requiredQuestions.filter(isQuestionCompleted).length;
 
-    // Count completed optional questions
-    const completedOptional = optionalQuestions.filter(q => {
-      const value = responses.get(q.id);
-      return value !== undefined && value !== '' && 
-             (!Array.isArray(value) || value.length > 0);
-    }).length;
+    // Count completed optional questions using enhanced logic
+    const completedOptional = optionalQuestions.filter(isQuestionCompleted).length;
 
     const totalCompleted = completedRequired + completedOptional;
     const percentage = questions.length > 0 ? (totalCompleted / questions.length) * 100 : 0;
