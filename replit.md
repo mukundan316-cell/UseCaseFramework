@@ -1,180 +1,44 @@
 # RSA AI Use Case Value Framework - AI Strategy & Prioritization Platform
 
 ## Overview
-
-This is a strategic AI use case prioritization platform for RSA Insurance built with a modular LEGO-style architecture. The application captures AI use cases with business metadata, scores them using the RSA AI Framework's 12-lever system, and visualizes them in a dynamic prioritization matrix with four quadrants (Quick Win, Strategic Bet, Experimental, Watchlist).
-
-Core features include real-time scoring calculations, database-first persistence with PostgreSQL, comprehensive CRUD operations for use cases and metadata, and dynamic filtering across business dimensions.
+This platform is a strategic AI use case prioritization tool for RSA Insurance, designed with a modular architecture. It enables the capture of AI use cases with associated business metadata, scores them using a proprietary 12-lever framework, and visualizes them within a dynamic prioritization matrix. The system supports real-time scoring, robust CRUD operations for use cases and metadata, and dynamic filtering across various business dimensions. The business vision is to provide a comprehensive, data-driven approach for organizations to strategically identify, assess, and prioritize AI initiatives, maximizing their impact and alignment with business objectives.
 
 ## User Preferences
-
 Preferred communication style: Simple, everyday language.
 
-**LEGO-Style Architecture Mandate (Updated January 2025)**: All buttons, modals, components and features must be implemented as reusable LEGO blocks where possible. Follow the "Build Once, Reuse Everywhere" principle to maintain consistency and reduce development overhead. Every new UI element should be evaluated for reusability potential before implementation.
-
-## Project Reference Guide
-
-The project follows strict architectural principles and coding standards documented in `REFERENCE.md`. All contributors and AI agents must review this guide before making changes to ensure consistency, modularity, and maintainability. Key principles include LEGO-style modularity, metadata-driven design, built-in quadrant logic, database-first persistence, and extensibility without regression.
-
-## Current Implementation (January 2025)
-
-### RSA AI Framework
-- **12-Lever Scoring System**: Business Value (5), Feasibility (5), AI Governance (2 levers)
-- **Quadrant Logic**: 3.0 threshold for Quick Win, Strategic Bet, Experimental, Watchlist
-- **Real-time Calculations**: Instant Impact/Effort score updates with PostgreSQL persistence
-
-### Assessment System
-- **Complete Workflow**: Email capture → maturity questions → results dashboard with export (PDF, Excel, JSON)
-- **Progress Management**: Enhanced auto-save, localStorage backup, session recovery, resume incomplete assessments
-- **Navigation**: Full integration between assessment, results, and main framework
-
-### Dashboard Consolidation (January 2025)
-- **Streamlined Portfolio Overview**: Single section displaying four quadrant cards with interactive filtering
-- **Eliminated Redundancy**: Removed duplicate summary metrics and quadrant displays from matrix component
-- **Clean Visual Hierarchy**: Top quadrant cards with colored borders, streamlined metric presentation
-- **Maintained Functionality**: All clickable filters and matrix interactions preserved
-
-### LEGO Component Architecture
-- **4-Tab Admin Panel**: Data Management, Process Configuration, Assessment Management, System Configuration
-- **Assessment Components**: QuestionnaireContainer with progress persistence, AssessmentResultsDashboard with export options
-- **Progress Management**: ResumeProgressLegoBlock for incomplete assessments, ProgressStatusLegoBlock for save status
-- **Portfolio Overview**: SummaryMetricsLegoBlock with interactive quadrant filtering
-- **Use Case Management**: CRUDUseCaseModal with embedded scoring sliders
-- **Navigation Components**: SectionTabNavigatorLegoBlock, BreadcrumbNavigationLegoBlock, SectionTransitionLegoBlock
-- **Question Management**: QuestionRegistryLegoBlock, QuestionTemplateLibraryLegoBlock with 100+ RSA questions
-- **Rating Components**: SmartRatingLegoBlock (replaces ScoreSliderLegoBlock) with 4 variants (descriptive, stars, maturity, capability), RankingLegoBlock for drag-and-drop use case prioritization
-- **UI Elements**: ReusableButton, InfoTooltipLegoBlock
+**LEGO-Style Architecture Mandate**: All buttons, modals, components and features must be implemented as reusable LEGO blocks where possible. Follow the "Build Once, Reuse Everywhere" principle to maintain consistency and reduce development overhead. Every new UI element should be evaluated for reusability potential before implementation.
 
 ## System Architecture
 
-### Architecture
+### Core Architecture
+The system employs a full-stack architecture:
+-   **Frontend**: React/TypeScript Single Page Application (SPA) utilizing modular components, TanStack Query for data fetching, shadcn/ui for UI components, and Wouter for routing.
+-   **Backend**: Node.js/Express with TypeScript, managing a PostgreSQL database via Drizzle ORM, exposed through a RESTful API with Zod validation.
+-   **Database**: PostgreSQL with a schema featuring use_cases, metadata_config, and users tables, complemented by automatic migrations and real-time persistence.
 
-**Frontend**: React/TypeScript SPA with modular components, TanStack Query for data fetching, shadcn/ui components, and Wouter routing
+### Design Principles & Features
+-   **Modular LEGO-style Architecture**: Emphasizes reusable components to facilitate independent feature development and maintain architectural integrity. This includes a comprehensive library of reusable components for various functionalities (e.g., admin panel, assessment components, navigation, rating systems, UI elements).
+-   **Metadata-Driven Design**: Captures and leverages extensive business metadata for use case categorization and analysis.
+-   **AI Framework & Scoring Engine**: Implements RSA's 12-lever scoring system (Business Value, Feasibility, AI Governance) to calculate Impact and Effort scores in real-time. Automatic quadrant assignment (Quick Win, Strategic Bet, Experimental, Watchlist) is based on a 3.0 threshold.
+-   **Assessment System**: Provides a complete workflow from email capture to results dashboard, featuring enhanced auto-save, session recovery, and integration between assessment, results, and the main framework. Includes a dynamic question registry and section progress tracking across 11 normalized tables.
+-   **Dashboard Consolidation**: Streamlined portfolio overview with interactive filtering, displaying four quadrant cards.
+-   **Database-First Persistence**: All data operations follow a clear Database → API → Frontend pattern, ensuring data integrity and real-time synchronization.
+-   **Extensibility**: Designed to allow for future feature additions without regressing existing functionality.
+-   **UI/UX Decisions**: Utilizes shadcn/ui and Tailwind CSS for a consistent and branded user experience. Components are highly configurable via props, and built-in state management handles loading, error, and empty states. Enhanced rating and ranking components provide intuitive user interaction.
 
-**Backend**: Node.js/Express with TypeScript, PostgreSQL database via Drizzle ORM, RESTful API with Zod validation
+## External Dependencies
 
-**Database**: Three-table schema (use_cases, metadata_config, users) with automatic migrations and real-time persistence
-
-### Key Features
-
-**Scoring Engine**: Pure functions calculate Impact (Business Value average) and Effort (Feasibility average) scores, with automatic quadrant assignment using 3.0 thresholds
-
-**Database Integration**: PostgreSQL with Neon hosting, Drizzle ORM, automatic migrations, 16+ seeded commercial insurance use cases, comprehensive questionnaire system with 11 normalized tables including dynamic question registry and section progress tracking
-
-**Modular Design**: LEGO-style reusable components enable independent feature development without architectural disruption
-
-**Real-time Operations**: All CRUD operations sync immediately to database with proper error handling and user feedback
-
-## Technology Stack
-
-**Frontend**: React, TypeScript, shadcn/ui, Tailwind CSS, TanStack Query, React Hook Form, Zod, Recharts, Wouter
-
-**Backend**: Express, Drizzle ORM, Zod validation
-
-**Database**: PostgreSQL (Neon serverless), eleven-table schema with automatic migrations
-
-**Development**: Vite, TypeScript, ESBuild
-
-## LEGO Architecture Audit (January 8, 2025)
-- **Comprehensive LEGO Compliance Audit Completed**: Achieved 95% compliance with REFERENCE.md principles
-- **20+ Reusable LEGO Components**: Complete library following "Build Once, Reuse Everywhere" mandate
-- **Eliminated Component Duplication**: All assessment results now use single AssessmentResultsDashboard component
-- **Database-First Architecture**: All data operations follow Database → API → Frontend pattern
-- **Consistent RSA Branding**: Unified styling across all LEGO blocks
-- **Props-Based Configuration**: All components highly configurable via props
-- **Built-in State Management**: Loading, error, and empty states handled within components
-
-## Recent Changes (January 2025)
-
-### SmartRatingLegoBlock Implementation (January 9, 2025)
-- **Enhanced Rating UX**: Created SmartRatingLegoBlock to replace ScoreSliderLegoBlock with dropdown-style selector and better mobile experience
-- **4 Rating Variants**: Implemented descriptive, stars, maturity, and capability variants with contextual icons and descriptions
-- **Database Schema Update**: Added 'smart_rating' to question_type enum in questions table schema
-- **QuestionRegistry Integration**: Updated QuestionRegistryLegoBlock mapping to support smart_rating question type
-- **Mobile-Friendly Design**: Touch-friendly dropdown interface with keyboard navigation and full accessibility support
-- **Demo Route**: Added /smart-rating-demo route showcasing all variants, sizes, and configuration options
-- **LEGO Compliance**: Follows all REFERENCE.md principles with props-based configuration and reusable design patterns
-
-### RankingLegoBlock Implementation (January 9, 2025)
-- **Drag-and-Drop Ranking**: Created RankingLegoBlock for Q54-Q56 use case prioritization with intuitive drag-and-drop interface
-- **Mobile-Friendly Design**: Touch-optimized interface with visual feedback, manual controls, and accessibility features
-- **Flexible Configuration**: Supports partial ranking, configurable limits, numbered display, and validation requirements
-- **Database Integration**: Added 'ranking' to question_type enum, integrated with QuestionRegistryLegoBlock mapping
-- **Demo Implementation**: Built comprehensive demo at /ranking-demo showcasing use case prioritization scenarios
-- **Data Storage**: Stores ranking as JSON array in question_answers.answer_value following database-first architecture
-- **LEGO Architecture**: Follows "Build Once, Reuse Everywhere" with props-based configuration and reusable design patterns
-
-### RSA Assessment Database Seeder Implementation (January 9, 2025)
-- **Modular Seeder Architecture**: Created 3 specialized seeder modules following REFERENCE.md principles
-- **Comprehensive Question Library**: Implemented 16 assessment questions across 6 domains with 70+ answer options
-- **Database Integration**: Seamless integration with existing questionnaire schema and migration system
-- **LEGO Compliance**: Modular, non-breaking implementation that extends existing functionality
-
-### Saved Progress Modal Migration (January 9, 2025)
-- **SavedProgressModalLegoBlock**: Successfully moved saved progress functionality from dashboard to AI Assessment page as modal following LEGO principles
-- **Database Integration Enhanced**: Created SavedProgressModalLegoBlock with database persistence capabilities, removing dashboard duplication  
-- **Modal Implementation**: Integrated SavedProgressModalLegoBlock into all states of AssessmentView.tsx (empty, in-progress, completed) with proper LEGO compliance
-- **Complete Dashboard Cleanup**: Removed all saved progress functionality from dashboard eliminating duplication
-- **Database View Created**: Added saved_assessment_progress view with complete CRUD API endpoints for persistence
-
-## Recent Changes (January 2025)
-
-### Admin Panel Reorganization (January 9, 2025)
-- **4-Tab LEGO Architecture**: Reorganized admin panel from 2 to 4 specialized tabs following REFERENCE.md principles
-- **Data Management Tab**: Export/import actions, metadata LEGO blocks (Lines of Business, Business Segments, Geographies, Use Case Types)
-- **Process Configuration Tab**: ProcessManagementBlock and ProcessActivityManagementBlock for business workflow management
-- **Assessment Management Tab**: Complete QuestionTemplateLibraryLegoBlock integration for RSA's 100+ question templates
-- **System Configuration Tab**: ScoringModelManagementBlock and advanced system settings
-- **Intuitive Navigation**: Icon-based tabs with Database, Workflow, ClipboardList, and Settings icons for clear visual hierarchy
-- **LEGO Compliance**: All components remain independent, reusable, and props-configurable per REFERENCE.md standards
-- **User Workflow Optimization**: Logical grouping by function (data, process, assessment, system) for different user roles
-
-### LEGO Architecture & Navigation Fixes (January 8, 2025)
-- **Enhanced LEGO Compliance**: Created NavigationHeader LEGO block for reusable navigation patterns
-- **Intuitive Naming**: Renamed "QuestionnaireContainer Demo" to "RSA AI Maturity Assessment" for better user understanding
-- **Dual Route Support**: Added both `/questionnaire` and `/assessment` routes for backward compatibility
-- **Navigation Integration**: Added "Back to Dashboard" functionality with proper breadcrumb navigation
-- **Fixed Route References**: Updated all internal navigation to use consistent route patterns
-- **Eliminated Assessment Results Duplication**: Consolidated to single AssessmentResultsDashboard component following LEGO principle - removed duplicate empty states from ScoringDashboardLegoBlock
-- **Retake Assessment Fix**: Enhanced progress recovery logic to prevent completed assessments from auto-restoring
-- **Component Reusability**: ScoringDashboardLegoBlock now properly returns null when no data, letting parent components handle empty states
-
-### Dashboard Optimization
-- Consolidated Portfolio Overview to eliminate redundant information display
-- Streamlined layout with single quadrant card section and clean visual hierarchy
-- Removed duplicate summary metrics while maintaining all interactive functionality
-
-### Assessment System Completion
-- Resolved all runtime errors in assessment completion workflow
-- Added proper navigation between results page and main framework
-- Implemented functional export and retake assessment capabilities using LEGO components
-
-### Enhanced Section Progress Persistence System (January 9, 2025)
-- **Section-Level Progress Tracking**: Independent progress tracking for each of 6 assessment sections with completion status
-- **Enhanced useProgressPersistence Hook**: Section-aware auto-save, resume at exact question within last incomplete section, API integration
-- **Database Storage Methods**: getSectionProgress, updateSectionProgress, saveQuestionAnswer for comprehensive backend persistence
-- **API Endpoints**: Dedicated REST endpoints for section progress (GET/PUT/POST) with proper error handling and validation
-- **Auto-Save Implementation**: Debounced auto-save on every answer plus section completion with real-time status indicators
-- **Resume Capability**: Smart resume logic finds first incomplete section and exact question position
-- **Progress Visualization**: Section completion grid, progress bars per section, overall completion percentage tracking
-- **Database Schema Extension**: Added section_progress table with proper foreign key relationships and completion tracking
-
-### Complete Assessment Navigation & Template System (January 9, 2025)
-- **SectionSummaryCardLegoBlock**: Interactive section overview cards with progress tracking, maturity scoring, and navigation controls
-- **BreadcrumbNavigationLegoBlock**: Context-aware navigation breadcrumbs with responsive design and hierarchical path display
-- **SectionTransitionLegoBlock**: Smooth section navigation with validation, animations, celebration effects, and auto-advance capability
-- **QuestionTemplateLibraryLegoBlock**: Comprehensive question template management with RSA's 100+ categorized questions, advanced search, bulk import, and dynamic section building
-- **Enhanced Navigation System**: Complete navigation ecosystem supporting assessment flow from dashboard through sections to individual questions
-- **Template-Driven Architecture**: Database-driven question templates enabling dynamic assessment customization and rapid deployment
-
-## Complete Documentation
-
-### Technical References
-- `PROJECT_OVERVIEW.md`: Complete architecture and feature overview
-- `FEATURE_REFERENCE.md`: Detailed feature documentation with usage guide
-- `DATABASE_SCHEMA.md`: Complete database schema and relationships
-- `LEGO-COMPONENTS.md`: Component architecture and reusability patterns
-- `REFERENCE.md`: Development principles and coding standards
-
-### Current Status
-The platform is feature-complete with comprehensive use case management, assessment workflows, progress persistence, and export capabilities. All core functionality is operational with proper error handling and user feedback systems.
+-   **Database**: PostgreSQL (specifically Neon for serverless deployment)
+-   **Frontend Framework**: React
+-   **UI Component Library**: shadcn/ui
+-   **Styling Framework**: Tailwind CSS
+-   **Data Fetching/State Management**: TanStack Query
+-   **Form Management**: React Hook Form
+-   **Schema Validation**: Zod (used in both frontend and backend)
+-   **Charting Library**: Recharts
+-   **Routing**: Wouter
+-   **Backend Framework**: Express (Node.js)
+-   **ORM**: Drizzle ORM
+-   **Module Bundler**: Vite
+-   **Transpiler**: TypeScript
+-   **JavaScript Bundler**: ESBuild
