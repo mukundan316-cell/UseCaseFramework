@@ -1,0 +1,27 @@
+Create these 10 key RSA questions using the proper JSON format to test all LEGO blocks:
+
+Section: "Business Strategy & AI Vision"
+1. Q1: "What is RSA's current Gross Written Premium (GWP)?" | Type: currency | questionData: {"defaultCurrency": "GBP", "allowedCurrencies": ["GBP", "USD", "EUR"], "min": 0, "placeholder": "Enter annual GWP in millions"}
+
+2. Q2: "How is your premium distributed across business lines?" | Type: business_lines_matrix | questionData: {"businessLines": ["Personal Auto", "Homeowners", "Commercial P&C", "Workers Comp", "Professional Liability", "Cyber Insurance", "Marine/Aviation", "Other Specialty"], "enforceTotal": true, "showGrowthTrends": true}
+
+3. Q3: "What are your primary distribution channels?" | Type: percentage_allocation | questionData: {"categories": ["Direct to Consumer", "Independent Agents", "Broker Network", "Digital/Online"], "enforceTotal": true, "allowCustomCategories": false}
+
+Section: "Use Case Discovery & Validation"  
+4. Q54: "Rank these underwriting AI use cases by priority (1-10):" | Type: ranking | questionData: {"items": ["Automated risk assessment", "Dynamic pricing models", "Submission triage automation", "Policy document analysis", "Broker/agent decision support", "Fraud detection in applications", "Competitive analysis automation", "Regulatory compliance checking", "Portfolio optimization", "Reinsurance decision support"], "maxRank": 10, "showNumbers": true}
+
+5. Q55: "Rank these claims AI use cases by priority (1-10):" | Type: ranking | questionData: {"items": ["FNOL automation", "Claims triage and routing", "Damage assessment automation", "Fraud detection/investigation", "Settlement recommendation", "Legal/litigation risk assessment", "Vendor network optimization", "Customer communication automation", "Subrogation identification", "Reserve setting automation"], "maxRank": 10, "showNumbers": true}
+
+Section: "People, Process & Change Management"
+6. Q82: "Rate AI/ML skill levels by department:" | Type: department_skills_matrix | questionData: {"departments": ["Underwriting", "Claims", "Actuarial", "IT/Technology", "Customer Service", "Sales/Marketing", "Finance/Accounting", "Legal/Compliance"], "showTotals": true, "skillScale": {"min": 1, "max": 5, "labels": ["None", "Basic", "Intermediate", "Advanced", "Expert"]}}
+
+Section: "Current AI & Data Capabilities"
+7. Q8: "What does AI success look like for RSA?" | Type: smart_rating | questionData: {"variant": "maturity", "question": "Rate your organization's AI readiness", "showScore": true, "size": "default"}
+
+8. Q16: "What investment is RSA prepared to make in AI?" | Type: currency | questionData: {"label": "Year 1 Budget", "defaultCurrency": "GBP", "min": 0, "max": 50000000, "placeholder": "Annual AI investment budget"}
+
+9. Q17: "How would you allocate AI investment across categories?" | Type: percentage_allocation | questionData: {"categories": ["Technology/Infrastructure", "Talent (hiring, training)", "Data improvement", "Process reengineering", "Change management", "External partnerships"], "enforceTotal": true, "showRemaining": true}
+
+10. Q14: "How do you compare to competitors on digital/AI?" | Type: smart_rating | questionData: {"variant": "capability", "showScore": true, "helpText": "Rate capabilities relative to competitors"}
+
+Create these questions in the questionnaire and test the complete assessment flow.
