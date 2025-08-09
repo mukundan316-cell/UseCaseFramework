@@ -53,7 +53,8 @@ app.use((req, res, next) => {
   const { migrateProcessActivities } = await import('./migrations/updateProcessActivities');
   await migrateProcessActivities();
   
-  // Seed RSA Assessment if needed
+  // Seed RSA Assessment if needed - DISABLED to preserve advanced question types
+  /* 
   try {
     const { seedRSAQuestionnaire } = await import('./seeders/rsa-questionnaire-seeder');
     const { seedRSASections } = await import('./seeders/rsa-sections-seeder');  
@@ -67,6 +68,8 @@ app.use((req, res, next) => {
   } catch (error) {
     console.log('RSA Assessment seeding skipped - already exists or error:', error instanceof Error ? error.message : 'Unknown error');
   }
+  */
+  console.log('✅ RSA Assessment seeding disabled - using advanced question types');
   
   const server = await registerRoutes(app);
 
