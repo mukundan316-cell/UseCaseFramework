@@ -71,6 +71,7 @@ router.get('/questionnaires/:id', async (req: Request, res: Response) => {
       if (question && !sectionData.questions.has(question.id)) {
         sectionData.questions.set(question.id, {
           ...question,
+          questionData: question.questionData, // Ensure questionData is included
           options: []
         });
       }

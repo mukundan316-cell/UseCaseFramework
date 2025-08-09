@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import QuestionLegoBlock, { QuestionData } from './QuestionLegoBlock';
+import QuestionRegistryLegoBlock, { QuestionMetadata, QuestionType } from './QuestionRegistryLegoBlock';
 
 export interface SectionData {
   id: string;
@@ -237,13 +238,34 @@ export default function SectionLegoBlock({
               
               {/* Question content */}
               <div className="ml-6">
-                <QuestionLegoBlock
-                  question={question}
-                  value={responses.get(question.id)}
-                  onChange={(value) => onChange(question.id, value)}
-                  error={errors[question.id]}
-                  readonly={readonly}
-                />
+                {/* Use QuestionRegistryLegoBlock for advanced question types */}
+                {['currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking'].includes(question.questionType) ? (
+                  <QuestionRegistryLegoBlock
+                    questions={[{
+                      id: question.id,
+                      sectionId: 0, // Not used in rendering
+                      questionOrder: question.questionOrder || 0,
+                      questionType: question.questionType as any,
+                      questionText: question.questionText,
+                      isRequired: question.isRequired,
+                      helpText: question.helpText,
+                      questionData: (question as any).questionData || {}
+                    }]}
+                    responses={new Map([[question.id, responses.get(question.id)]])}
+                    onResponseChange={(questionId: string, value: any) => onChange(questionId, value)}
+                    disabled={readonly}
+                    showDebug={false}
+                  />
+                ) : (
+                  /* Use standard QuestionLegoBlock for basic question types */
+                  <QuestionLegoBlock
+                    question={question}
+                    value={responses.get(question.id)}
+                    onChange={(value) => onChange(question.id, value)}
+                    error={errors[question.id]}
+                    readonly={readonly}
+                  />
+                )}
               </div>
             </div>
           ))}
