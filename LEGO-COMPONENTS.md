@@ -289,6 +289,33 @@ const {
 />
 ```
 
+### QuestionTemplateLibraryLegoBlock
+**Purpose**: Comprehensive question template management for dynamic assessment building
+**Location**: `client/src/components/lego-blocks/QuestionTemplateLibraryLegoBlock.tsx`
+**Features**:
+- Browse pre-built RSA question templates (100+) categorized by assessment section
+- Advanced search with full-text filtering across titles, descriptions, and tags
+- Multi-criteria filtering by category, question type, difficulty level, and starred status
+- Detailed template preview with question configuration and usage statistics
+- Bulk import capabilities for efficient section building with multi-select
+- Custom question creation from templates with validation
+- Full CRUD operations for template management (create, update, delete)
+- Database-driven storage with persistent question library
+- Section targeting for flexible question placement across all 6 sections
+- Usage analytics and question popularity tracking
+
+**Usage Example**:
+```tsx
+<QuestionTemplateLibraryLegoBlock
+  onAddQuestion={handleAddQuestion}
+  onBulkImport={handleBulkImport}
+  onCreateCustom={handleCreateCustom}
+  onUpdateTemplate={handleUpdateTemplate}
+  onDeleteTemplate={handleDeleteTemplate}
+  readOnly={false}
+/>
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`
