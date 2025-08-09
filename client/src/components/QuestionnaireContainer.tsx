@@ -435,7 +435,24 @@ export default function QuestionnaireContainer({
   // Pre-start form
   if (!hasStarted) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
+      <div className="max-w-2xl mx-auto p-6 space-y-6">
+        {/* Navigation Header for Email Capture */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={() => setLocation('/assessment')}
+            className="flex items-center space-x-2 border-[#005DAA] text-[#005DAA] hover:bg-[#005DAA] hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Assessment</span>
+          </Button>
+          
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Home className="h-4 w-4" />
+            <span>RSA AI Assessment</span>
+          </div>
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-gray-900">
