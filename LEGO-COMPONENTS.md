@@ -140,6 +140,27 @@ This document catalogs all reusable LEGO-style components in the RSA AI Use Case
 />
 ```
 
+### SectionConfigurationLegoBlock
+**Purpose**: Admin component for comprehensive section management with drag-and-drop, templates, and configuration
+**Location**: `client/src/components/lego-blocks/SectionConfigurationLegoBlock.tsx`
+**Features**:
+- Drag & drop question reordering with react-beautiful-dnd
+- Template library integration with RSA's 100+ questions
+- Section-level configuration (time limits, unlock conditions, scoring weights)
+- Real-time preview functionality
+- Question management (add/edit/duplicate/remove)
+- Multi-tab interface for Questions, Settings, Scoring, and Templates
+
+**Usage Example**:
+```tsx
+<SectionConfigurationLegoBlock
+  section={sectionConfig}
+  onSectionUpdate={handleSectionUpdate}
+  onPreviewSection={handlePreview}
+  availableTemplates={businessStrategyTemplates}
+/>
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`
