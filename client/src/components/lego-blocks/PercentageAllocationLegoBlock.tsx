@@ -165,6 +165,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
 }) => {
   const [localValues, setLocalValues] = useState<AllocationValues>(values);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [inputValues, setInputValues] = useState<Record<string, string>>({});
 
   // Update local values when props change
   useEffect(() => {
@@ -185,19 +186,44 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
     setValidationError(validation);
   }, [validation]);
 
-  // Handle individual category change
-  const handleCategoryChange = useCallback((categoryId: string, inputValue: string) => {
-    const parsedValue = allocationUtils.parsePercentage(inputValue);
-    const newValues = {
-      ...localValues,
-      [categoryId]: parsedValue || 0
-    };
+  // Handle input change while typing (store as string)
+  const handleInputChange = useCallback((categoryId: string, inputValue: string) => {
+    setInputValues(prev => ({ ...prev, [categoryId]: inputValue }));
+  }, []);
 
-    setLocalValues(newValues);
-    
-    if (onChange) {
-      onChange(newValues);
+  // Handle value change (on blur or enter) - convert to number and update values
+  const handleValueChange = useCallback((categoryId: string, inputValue: string) => {
+    // Allow empty input to be treated as 0
+    if (inputValue.trim() === '') {
+      const newValues = {
+        ...localValues,
+        [categoryId]: 0
+      };
+      setLocalValues(newValues);
+      if (onChange) {
+        onChange(newValues);
+      }
+    } else {
+      // Parse and validate the input
+      const parsedValue = allocationUtils.parsePercentage(inputValue);
+      if (parsedValue !== null) {
+        const newValues = {
+          ...localValues,
+          [categoryId]: parsedValue
+        };
+        setLocalValues(newValues);
+        if (onChange) {
+          onChange(newValues);
+        }
+      }
     }
+    
+    // Clear the input value to use the actual value
+    setInputValues(prev => {
+      const newInputValues = { ...prev };
+      delete newInputValues[categoryId];
+      return newInputValues;
+    });
   }, [localValues, onChange]);
 
   // Reset all allocations
@@ -360,8 +386,14 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
                   <div className="relative">
                     <Input
                       type="text"
-                      value={value === 0 ? '' : allocationUtils.formatPercentage(value, precision)}
-                      onChange={(e) => handleCategoryChange(category.id, e.target.value)}
+                      value={inputValues[category.id] !== undefined ? inputValues[category.id] : (value === 0 ? '' : allocationUtils.formatPercentage(value, precision))}
+                      onChange={(e) => handleInputChange(category.id, e.target.value)}
+                      onBlur={(e) => handleValueChange(category.id, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleValueChange(category.id, (e.target as HTMLInputElement).value);
+                        }
+                      }}
                       onFocus={(e) => e.target.select()}
                       disabled={disabled}
                       placeholder="0.0"
@@ -412,7 +444,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
                           key={preset}
                           variant="outline"
                           size="sm"
-                          onClick={() => handleCategoryChange(category.id, preset.toString())}
+                          onClick={() => handleValueChange(category.id, preset.toString())}
                           className="h-6 px-2 text-xs"
                           disabled={disabled}
                         >
@@ -425,7 +457,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleCategoryChange(category.id, '0')}
+                        onClick={() => handleValueChange(category.id, '0')}
                         className="h-6 px-2 text-xs text-gray-500 hover:text-gray-700"
                         disabled={disabled}
                       >
