@@ -686,8 +686,7 @@ router.patch('/questions/:id/config', async (req: Request, res: Response) => {
     const [updatedQuestion] = await db
       .update(questions)
       .set({ 
-        questionData: updatedQuestionData,
-        updatedAt: new Date()
+        questionData: updatedQuestionData
       })
       .where(eq(questions.id, questionId))
       .returning();
