@@ -401,5 +401,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const assessmentStatsRoutes = (await import('./routes/assessment-stats')).default;
   app.use('/api', assessmentStatsRoutes);
 
+  // Add saved progress endpoints
+  app.get('/api/saved-progress', async (req, res) => {
+    try {
+      const savedProgress = await storage.getSavedAssessmentProgress();
+      res.json(savedProgress);
+    } catch (error) {
+      console.error('Error getting saved progress:', error);
+      res.status(500).json({ error: 'Failed to get saved progress' });
+    }
+  });
+
+  app.delete('/api/saved-progress/:responseId', async (req, res) => {
+    try {
+      const { responseId } = req.params;
+      await storage.deleteSavedAssessmentProgress(responseId);
+      res.json({ success: true, message: 'Saved progress deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting saved progress:', error);
+      res.status(500).json({ error: 'Failed to delete saved progress' });
+    }
+  });
+
   return httpServer;
 }

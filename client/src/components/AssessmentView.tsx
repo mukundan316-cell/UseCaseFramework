@@ -11,7 +11,7 @@ import ReusableButton from './lego-blocks/ReusableButton';
 import ScoringDashboardLegoBlock, { type ScoringData } from './lego-blocks/ScoringDashboardLegoBlock';
 import ResponseExportLegoBlock from './lego-blocks/ResponseExportLegoBlock';
 import AssessmentResultsDashboard from './lego-blocks/AssessmentResultsDashboard';
-import ResumeProgressLegoBlock from './lego-blocks/ResumeProgressLegoBlock';
+import SavedProgressModalLegoBlock from './lego-blocks/SavedProgressModalLegoBlock';
 
 interface AssessmentState {
   hasAssessment: boolean;
@@ -370,23 +370,26 @@ export default function AssessmentView() {
             <span>Auto-saved progress</span>
           </div>
 
-          <ReusableButton
-            rsaStyle="primary"
-            onClick={handleStartAssessment}
-            icon={Play}
-            className="px-8 py-3 text-lg"
-          >
-            Start New AI Assessment
-          </ReusableButton>
+          <div className="flex items-center justify-center space-x-4">
+            <ReusableButton
+              rsaStyle="primary"
+              onClick={handleStartAssessment}
+              icon={Play}
+              className="px-8 py-3 text-lg"
+            >
+              Start New AI Assessment
+            </ReusableButton>
+            
+            <SavedProgressModalLegoBlock
+              onResumeAssessment={handleResumeAssessment}
+              triggerText="View Saved Progress"
+              triggerVariant="outline"
+              className="px-6 py-3 text-lg"
+              showDetailedProgress={true}
+              maxItems={10}
+            />
+          </div>
         </div>
-
-        {/* Saved Progress Section */}
-        <ResumeProgressLegoBlock
-          onResumeAssessment={handleResumeAssessment}
-          className="max-w-3xl mx-auto"
-          showDetailedProgress={true}
-          maxItems={3}
-        />
       </div>
     );
   }

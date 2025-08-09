@@ -296,6 +296,45 @@ export class DatabaseStorage implements IStorage {
       .from(questionAnswers)
       .where(eq(questionAnswers.responseId, responseId));
   }
+
+  async getSavedAssessmentProgress(): Promise<any[]> {
+    try {
+      const result = await db.execute(sql`
+        SELECT * FROM saved_assessment_progress
+        ORDER BY timestamp DESC
+        LIMIT 20
+      `);
+
+      const rows = Array.isArray(result) ? result : (result as any).rows || [];
+      
+      return rows.map((row: any) => ({
+        responseId: row.response_id,
+        questionnaireId: row.questionnaire_id,
+        completionPercentage: Number(row.completion_percentage),
+        currentSection: Number(row.current_section),
+        totalSections: Number(row.total_sections),
+        lastSaved: new Date(row.timestamp).toLocaleString(),
+        email: row.respondent_email,
+        name: row.respondent_name,
+        timestamp: Number(row.timestamp)
+      }));
+    } catch (error) {
+      console.error('Error getting saved assessment progress:', error);
+      throw error;
+    }
+  }
+
+  async deleteSavedAssessmentProgress(responseId: string): Promise<void> {
+    try {
+      await db.execute(sql`
+        DELETE FROM questionnaire_responses 
+        WHERE id = ${responseId} AND status != 'completed'
+      `);
+    } catch (error) {
+      console.error('Error deleting saved assessment progress:', error);
+      throw error;
+    }
+  }
 }
 
 // Use DatabaseStorage for database-first compliance per REFERENCE.md
