@@ -53,7 +53,8 @@ import {
   DollarSign,
   PieChart,
   ArrowUpDown,
-  Building2
+  Building2,
+  Users
 } from 'lucide-react';
 
 // Question template interface
@@ -61,7 +62,7 @@ export interface QuestionTemplate {
   id: string;
   title: string;
   description: string;
-  questionType: 'scale' | 'multiChoice' | 'ranking' | 'allocation' | 'text' | 'boolean' | 'matrix' | 'compound' | 'score' | 'checkbox' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'currency' | 'percentage_allocation' | 'smart_rating' | 'business_lines_matrix';
+  questionType: 'scale' | 'multiChoice' | 'ranking' | 'allocation' | 'text' | 'boolean' | 'matrix' | 'compound' | 'score' | 'checkbox' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'currency' | 'percentage_allocation' | 'smart_rating' | 'business_lines_matrix' | 'department_skills_matrix';
   category: string;
   section: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
@@ -116,7 +117,8 @@ const QUESTION_TYPE_CONFIG = {
   currency: { icon: DollarSign, label: 'Currency Input', color: 'bg-green-600' },
   percentage_allocation: { icon: PieChart, label: 'Percentage Allocation', color: 'bg-blue-600' },
   smart_rating: { icon: Star, label: 'Smart Rating', color: 'bg-amber-500' },
-  business_lines_matrix: { icon: Building2, label: 'Business Lines Matrix', color: 'bg-purple-600' }
+  business_lines_matrix: { icon: Building2, label: 'Business Lines Matrix', color: 'bg-purple-600' },
+  department_skills_matrix: { icon: Users, label: 'Department Skills Matrix', color: 'bg-indigo-600' }
 };
 
 // RSA Question Categories
@@ -346,6 +348,29 @@ export default function QuestionTemplateLibraryLegoBlock({
           usageCount: 98,
           createdAt: '2024-01-21T14:15:00Z',
           updatedAt: '2024-01-28T16:30:00Z'
+        },
+        {
+          id: '8',
+          title: 'Department AI Skills Assessment Matrix',
+          description: 'Evaluate AI skill levels across departments and identify training priorities',
+          questionType: 'department_skills_matrix',
+          category: 'Organizational Readiness',
+          section: 'people_process',
+          difficulty: 'advanced',
+          isRequired: true,
+          isStarred: true,
+          estimatedTime: 300,
+          helpText: 'Rate each department\'s AI capabilities and set training priorities based on current skills',
+          questionData: {
+            showTotals: true,
+            minDepartments: 2,
+            maxDepartments: 12,
+            defaultDepartments: ['Underwriting', 'Claims', 'Risk Assessment', 'Customer Service']
+          },
+          tags: ['skills', 'departments', 'training', 'matrix'],
+          usageCount: 67,
+          createdAt: '2024-01-22T10:20:00Z',
+          updatedAt: '2024-01-29T12:15:00Z'
         }
       ];
       
@@ -848,6 +873,15 @@ export default function QuestionTemplateLibraryLegoBlock({
                         <li>Growth trend indicators (↑↓→)</li>
                         <li>Add/remove business lines dynamically</li>
                         <li>Real-time 100% validation</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-1">
+                      <strong>Department Skills Matrix:</strong>
+                      <ul className="text-xs list-disc list-inside ml-2">
+                        <li>SmartRating integration for skills assessment</li>
+                        <li>Employee count and training priority tracking</li>
+                        <li>Calculated totals and skill averages</li>
+                        <li>Department management with add/remove</li>
                       </ul>
                     </div>
                   </div>

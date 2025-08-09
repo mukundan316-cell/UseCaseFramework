@@ -13,6 +13,7 @@ import { RankingLegoBlock } from './RankingLegoBlock';
 import { CurrencyInputLegoBlock } from './CurrencyInputLegoBlock';
 import { PercentageAllocationLegoBlock } from './PercentageAllocationLegoBlock';
 import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
+import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 
@@ -37,7 +38,8 @@ export type QuestionType =
   | 'date'
   | 'currency'
   | 'percentage_allocation'
-  | 'business_lines_matrix';
+  | 'business_lines_matrix'
+  | 'department_skills_matrix';
 
 export interface QuestionMetadata {
   id: string;
@@ -98,6 +100,7 @@ export default function QuestionRegistryLegoBlock({
       percentage_allocation: 'PercentageAllocationLegoBlock',
       allocation: 'PercentageAllocationLegoBlock',
       business_lines_matrix: 'BusinessLinesMatrixLegoBlock',
+      department_skills_matrix: 'DepartmentSkillsMatrixLegoBlock',
       multiChoice: 'QuestionLegoBlock',
       text: 'QuestionLegoBlock',
       boolean: 'QuestionLegoBlock',
@@ -330,6 +333,23 @@ export default function QuestionRegistryLegoBlock({
             enforceTotal={questionMeta.questionData.enforceTotal !== false}
             minLines={questionMeta.questionData.minLines || 1}
             maxLines={questionMeta.questionData.maxLines || 10}
+          />
+        );
+      }
+
+      // Render DepartmentSkillsMatrixLegoBlock for department_skills_matrix type
+      if (questionMeta.questionType === 'department_skills_matrix') {
+        return (
+          <DepartmentSkillsMatrixLegoBlock
+            departments={currentValue?.departments || []}
+            onChange={(departments) => onResponseChange(questionMeta.id, { departments })}
+            disabled={logic.isDisabled}
+            label={questionMeta.questionText}
+            helpText={questionMeta.helpText}
+            required={logic.isRequired}
+            showTotals={questionMeta.questionData.showTotals !== false}
+            minDepartments={questionMeta.questionData.minDepartments || 1}
+            maxDepartments={questionMeta.questionData.maxDepartments || 15}
           />
         );
       }
