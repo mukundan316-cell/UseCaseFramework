@@ -125,41 +125,80 @@ export default function QuestionLegoBlock({
   const renderMultiChoiceField = () => {
     if (questionType === 'select' && options.length > 4) {
       // Use dropdown for select questions with many options
+      // Dropdown select with "Other" option
+      const hasOtherValue = typeof value === 'object' && value !== null && 'other' in value;
+      const actualValue = hasOtherValue ? value.selected : value;
+      const otherText = hasOtherValue ? value.other : '';
+      
       return (
         <div>
           {renderQuestionLabel()}
-          <select
-            id={id}
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            disabled={readonly}
-            className={cn(
-              "w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#005DAA] focus:border-transparent",
-              error && "border-red-500 focus:ring-red-500",
-              readonly && "bg-gray-50 cursor-not-allowed"
+          <div className="space-y-2">
+            <select
+              id={id}
+              value={actualValue || ''}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                if (newValue === '__other__') {
+                  onChange({ selected: '__other__', other: otherText || '' });
+                } else if (hasOtherValue) {
+                  onChange({ selected: newValue, other: otherText });
+                } else {
+                  onChange(newValue);
+                }
+              }}
+              disabled={readonly}
+              className={cn(
+                "w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#005DAA] focus:border-transparent",
+                error && "border-red-500 focus:ring-red-500",
+                readonly && "bg-gray-50 cursor-not-allowed"
+              )}
+            >
+              <option value="">Select an option...</option>
+              {options
+                .sort((a, b) => a.optionOrder - b.optionOrder)
+                .map((option) => (
+                  <option key={option.id} value={option.optionValue}>
+                    {option.optionText}
+                    {option.scoreValue ? ` (Score: ${option.scoreValue})` : ''}
+                  </option>
+                ))}
+              <option value="__other__">Other (please specify)</option>
+            </select>
+            
+            {(actualValue === '__other__' || otherText) && (
+              <Input
+                placeholder="Please specify..."
+                value={otherText}
+                onChange={(e) => {
+                  onChange({ selected: '__other__', other: e.target.value });
+                }}
+                disabled={readonly}
+                className="text-sm"
+              />
             )}
-          >
-            <option value="">Select an option...</option>
-            {options
-              .sort((a, b) => a.optionOrder - b.optionOrder)
-              .map((option) => (
-                <option key={option.id} value={option.optionValue}>
-                  {option.optionText}
-                  {option.scoreValue ? ` (Score: ${option.scoreValue})` : ''}
-                </option>
-              ))}
-          </select>
+          </div>
         </div>
       );
     }
 
-    // Use radio buttons for multi_choice or select with few options
+    // Use radio buttons for multi_choice or select with few options, including "Other" option
+    const hasOtherValue = typeof value === 'object' && value !== null && 'other' in value;
+    const actualValue = hasOtherValue ? value.selected : value;
+    const otherText = hasOtherValue ? value.other : '';
+    
     return (
       <div>
         {renderQuestionLabel()}
         <RadioGroup
-          value={value || ''}
-          onValueChange={onChange}
+          value={actualValue || ''}
+          onValueChange={(newValue) => {
+            if (hasOtherValue) {
+              onChange({ selected: newValue, other: otherText });
+            } else {
+              onChange(newValue);
+            }
+          }}
           disabled={readonly}
           className="space-y-2"
         >
@@ -181,14 +220,43 @@ export default function QuestionLegoBlock({
                 </Label>
               </div>
             ))}
+          
+          {/* "Other" option */}
+          <div className="space-y-2 border-t pt-2 mt-3">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="__other__" id={`${id}-other`} />
+              <Label
+                htmlFor={`${id}-other`}
+                className="text-sm font-normal text-gray-700 cursor-pointer"
+              >
+                Other (please specify)
+              </Label>
+            </div>
+            {(actualValue === '__other__' || otherText) && (
+              <div className="ml-6">
+                <Input
+                  placeholder="Please specify..."
+                  value={otherText}
+                  onChange={(e) => {
+                    onChange({ selected: '__other__', other: e.target.value });
+                  }}
+                  disabled={readonly}
+                  className="text-sm"
+                />
+              </div>
+            )}
+          </div>
         </RadioGroup>
       </div>
     );
   };
 
-  // Checkbox (single or multiple)
+  // Checkbox (single or multiple) with "Other" option support
   const renderCheckboxField = () => {
     const isArray = Array.isArray(value);
+    const hasOtherValue = typeof value === 'object' && value !== null && 'other' in value;
+    const actualValue = hasOtherValue ? value.selected : value;
+    const otherText = hasOtherValue ? value.other : '';
     
     if (options.length === 0) {
       // Single checkbox (boolean)
@@ -197,7 +265,7 @@ export default function QuestionLegoBlock({
           <div className="flex items-center space-x-2">
             <Checkbox
               id={id}
-              checked={Boolean(value)}
+              checked={Boolean(actualValue)}
               onCheckedChange={onChange}
               disabled={readonly}
             />
@@ -217,7 +285,7 @@ export default function QuestionLegoBlock({
       );
     }
 
-    // Multiple checkboxes
+    // Multiple checkboxes with "Other" option
     return (
       <div>
         {renderQuestionLabel()}
@@ -226,8 +294,8 @@ export default function QuestionLegoBlock({
             .sort((a, b) => a.optionOrder - b.optionOrder)
             .map((option) => {
               const isChecked = isArray 
-                ? value.includes(option.optionValue)
-                : value === option.optionValue;
+                ? actualValue?.includes(option.optionValue)
+                : actualValue === option.optionValue;
                 
               return (
                 <div key={option.id} className="flex items-center space-x-2">
@@ -235,13 +303,21 @@ export default function QuestionLegoBlock({
                     id={option.id}
                     checked={isChecked}
                     onCheckedChange={(checked) => {
+                      let newValue;
                       if (isArray) {
-                        const newValue = checked
-                          ? [...(value || []), option.optionValue]
-                          : (value || []).filter((v: string) => v !== option.optionValue);
-                        onChange(newValue);
+                        const currentSelected = actualValue || [];
+                        newValue = checked
+                          ? [...currentSelected, option.optionValue]
+                          : currentSelected.filter((v: string) => v !== option.optionValue);
                       } else {
-                        onChange(checked ? option.optionValue : '');
+                        newValue = checked ? option.optionValue : '';
+                      }
+                      
+                      // Preserve other text if it exists
+                      if (hasOtherValue) {
+                        onChange({ selected: newValue, other: otherText });
+                      } else {
+                        onChange(newValue);
                       }
                     }}
                     disabled={readonly}
@@ -260,6 +336,46 @@ export default function QuestionLegoBlock({
                 </div>
               );
             })}
+          
+          {/* "Other" option */}
+          <div className="space-y-2 border-t pt-2 mt-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id={`${id}-other`}
+                checked={Boolean(otherText)}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    onChange({ selected: actualValue || (isArray ? [] : ''), other: '' });
+                  } else {
+                    onChange(actualValue || (isArray ? [] : ''));
+                  }
+                }}
+                disabled={readonly}
+              />
+              <Label
+                htmlFor={`${id}-other`}
+                className="text-sm font-normal text-gray-700 cursor-pointer"
+              >
+                Other (please specify)
+              </Label>
+            </div>
+            {(otherText !== undefined) && (
+              <div className="ml-6">
+                <Input
+                  placeholder="Please specify..."
+                  value={otherText}
+                  onChange={(e) => {
+                    onChange({ 
+                      selected: actualValue || (isArray ? [] : ''), 
+                      other: e.target.value 
+                    });
+                  }}
+                  disabled={readonly}
+                  className="text-sm"
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

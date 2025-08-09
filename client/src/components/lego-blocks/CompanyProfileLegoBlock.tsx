@@ -14,8 +14,8 @@ interface CompanyProfileData {
     amount?: string;
     currency?: string;
   };
-  companyTier?: string;
-  primaryMarkets?: string[];
+  companyTier?: string | { selected: string; other: string };
+  primaryMarkets?: string[] | { selected: string[]; other: string };
   geographicFocus?: string;
   notes?: string;
 }
@@ -70,11 +70,19 @@ export default function CompanyProfileLegoBlock({
   };
 
   const handleMarketToggle = (market: string, checked: boolean) => {
-    const currentMarkets = formData.primaryMarkets || [];
+    const isComplexValue = typeof formData.primaryMarkets === 'object' && formData.primaryMarkets !== null && 'selected' in formData.primaryMarkets;
+    const currentMarkets = isComplexValue ? (formData.primaryMarkets as any).selected : (formData.primaryMarkets || []);
+    const otherText = isComplexValue ? (formData.primaryMarkets as any).other : '';
+    
     const newMarkets = checked
       ? [...currentMarkets, market]
-      : currentMarkets.filter(m => m !== market);
-    handleChange('primaryMarkets', newMarkets);
+      : currentMarkets.filter((m: string) => m !== market);
+    
+    if (isComplexValue) {
+      handleChange('primaryMarkets', { selected: newMarkets, other: otherText });
+    } else {
+      handleChange('primaryMarkets', newMarkets);
+    }
   };
 
   const tierOptions = questionData.companyTier?.options || [];
@@ -140,8 +148,16 @@ export default function CompanyProfileLegoBlock({
               Company Tier
             </Label>
             <RadioGroup
-              value={formData.companyTier || ''}
-              onValueChange={(value) => handleChange('companyTier', value)}
+              value={typeof formData.companyTier === 'object' ? formData.companyTier.selected : (formData.companyTier || '')}
+              onValueChange={(value) => {
+                if (value === '__other__') {
+                  handleChange('companyTier', { selected: '__other__', other: '' });
+                } else if (typeof formData.companyTier === 'object') {
+                  handleChange('companyTier', { selected: value, other: formData.companyTier.other });
+                } else {
+                  handleChange('companyTier', value);
+                }
+              }}
               disabled={disabled}
               className="grid grid-cols-1 gap-2"
             >
@@ -156,6 +172,27 @@ export default function CompanyProfileLegoBlock({
                   </Label>
                 </div>
               ))}
+              
+              {/* Other option */}
+              <div className="space-y-2 border-t pt-2 mt-3">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="__other__" id="tier-other" />
+                  <Label htmlFor="tier-other" className="text-sm font-normal cursor-pointer">
+                    Other (please specify)
+                  </Label>
+                </div>
+                {(typeof formData.companyTier === 'object' && formData.companyTier.selected === '__other__') && (
+                  <div className="ml-6">
+                    <Input
+                      placeholder="Please specify..."
+                      value={formData.companyTier.other}
+                      onChange={(e) => handleChange('companyTier', { selected: '__other__', other: e.target.value })}
+                      disabled={disabled}
+                      className="text-sm"
+                    />
+                  </div>
+                )}
+              </div>
             </RadioGroup>
           </div>
 
@@ -166,24 +203,68 @@ export default function CompanyProfileLegoBlock({
               Primary Markets
             </Label>
             <div className="grid grid-cols-2 gap-3">
-              {marketOptions.map((option) => (
-                <div key={option.value} className="flex items-center space-x-2">
+              {marketOptions.map((option) => {
+                const isComplexValue = typeof formData.primaryMarkets === 'object' && formData.primaryMarkets !== null && 'selected' in formData.primaryMarkets;
+                const currentMarkets = isComplexValue ? (formData.primaryMarkets as any).selected : (formData.primaryMarkets || []);
+                
+                return (
+                  <div key={option.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`market-${option.value}`}
+                      checked={currentMarkets.includes(option.value)}
+                      onCheckedChange={(checked) => 
+                        handleMarketToggle(option.value, checked as boolean)
+                      }
+                      disabled={disabled}
+                    />
+                    <Label 
+                      htmlFor={`market-${option.value}`}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {option.label}
+                    </Label>
+                  </div>
+                );
+              })}
+              
+              {/* Other option for markets */}
+              <div className="col-span-2 space-y-2 border-t pt-2 mt-3">
+                <div className="flex items-center space-x-2">
                   <Checkbox
-                    id={`market-${option.value}`}
-                    checked={(formData.primaryMarkets || []).includes(option.value)}
-                    onCheckedChange={(checked) => 
-                      handleMarketToggle(option.value, checked as boolean)
-                    }
+                    id="market-other"
+                    checked={typeof formData.primaryMarkets === 'object' && formData.primaryMarkets !== null && 'other' in formData.primaryMarkets}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        const currentMarkets = Array.isArray(formData.primaryMarkets) ? formData.primaryMarkets : [];
+                        handleChange('primaryMarkets', { selected: currentMarkets, other: '' });
+                      } else {
+                        const isComplexValue = typeof formData.primaryMarkets === 'object' && formData.primaryMarkets !== null && 'selected' in formData.primaryMarkets;
+                        if (isComplexValue) {
+                          handleChange('primaryMarkets', (formData.primaryMarkets as any).selected);
+                        }
+                      }
+                    }}
                     disabled={disabled}
                   />
-                  <Label 
-                    htmlFor={`market-${option.value}`}
-                    className="text-sm font-normal cursor-pointer"
-                  >
-                    {option.label}
+                  <Label htmlFor="market-other" className="text-sm font-normal cursor-pointer">
+                    Other (please specify)
                   </Label>
                 </div>
-              ))}
+                {(typeof formData.primaryMarkets === 'object' && formData.primaryMarkets !== null && 'other' in formData.primaryMarkets) && (
+                  <div className="ml-6">
+                    <Input
+                      placeholder="Please specify other markets..."
+                      value={(formData.primaryMarkets as any).other}
+                      onChange={(e) => {
+                        const currentMarkets = (formData.primaryMarkets as any).selected || [];
+                        handleChange('primaryMarkets', { selected: currentMarkets, other: e.target.value });
+                      }}
+                      disabled={disabled}
+                      className="text-sm"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

@@ -142,21 +142,22 @@ export default function BusinessLinesMatrixLegoBlock({
     ));
   }, []);
 
-  // Add new business line
-  const addBusinessLine = useCallback(() => {
+  // Add new business line (including "Other" support)
+  const addBusinessLine = useCallback((customName?: string) => {
     if (localBusinessLines.length >= maxLines) return;
     
     // Find unused default name or create custom one
     const usedNames = localBusinessLines.map(line => line.line);
-    const availableName = DEFAULT_BUSINESS_LINES.find(name => !usedNames.includes(name)) 
-      || `Business Line ${localBusinessLines.length + 1}`;
+    const availableName = customName || 
+                         DEFAULT_BUSINESS_LINES.find(name => !usedNames.includes(name)) || 
+                         `Business Line ${localBusinessLines.length + 1}`;
     
-    setLocalBusinessLines(prev => [...prev, {
-      line: availableName,
-      premium: 0,
-      trend: 'stable'
+    setLocalBusinessLines(prev => [...prev, { 
+      line: availableName, 
+      premium: 0, 
+      trend: 'stable' 
     }]);
-  }, [localBusinessLines, maxLines]);
+  }, [localBusinessLines.length, maxLines]);
 
   // Remove business line
   const removeBusinessLine = useCallback((index: number) => {
