@@ -17,7 +17,8 @@ export const QuestionTypeEnum = z.enum([
   'smart_rating', 
   'ranking', 
   'currency', 
-  'percentage_allocation'
+  'percentage_allocation',
+  'percentage_target'
 ]);
 
 /**
@@ -41,7 +42,8 @@ export const DynamicQuestionTypeEnum = z.enum([
   'date', 
   'smart_rating', 
   'currency', 
-  'percentage_allocation'
+  'percentage_allocation',
+  'percentage_target'
 ]);
 
 // =============================================================================
@@ -202,6 +204,30 @@ export const percentageAllocationAnswerSchema = z.string().transform((val) => {
   }
 });
 
+/**
+ * Validation schema for percentage target answers
+ */
+export const percentageTargetAnswerSchema = z.string().transform((val) => {
+  try {
+    const parsed = JSON.parse(val);
+    if (typeof parsed !== 'object' || parsed === null) {
+      throw new Error('Percentage target answer must be an object');
+    }
+    
+    // Validate that all target values are numbers between 0 and 100
+    const targets = parsed.targets || {};
+    for (const [key, value] of Object.entries(targets)) {
+      if (typeof value !== 'number' || value < 0 || value > 100) {
+        throw new Error(`Target value for ${key} must be between 0 and 100`);
+      }
+    }
+    
+    return parsed;
+  } catch {
+    throw new Error('Invalid percentage target format');
+  }
+});
+
 // =============================================================================
 // DYNAMIC ANSWER VALIDATION
 // =============================================================================
@@ -247,6 +273,9 @@ export const validateAnswerByType = (answerValue: string, questionType: string) 
     case 'percentage_allocation':
     case 'allocation':
       return percentageAllocationAnswerSchema.parse(answerValue);
+    
+    case 'percentage_target':
+      return percentageTargetAnswerSchema.parse(answerValue);
     
     case 'date':
       // Date validation - ensure it's a valid ISO date string

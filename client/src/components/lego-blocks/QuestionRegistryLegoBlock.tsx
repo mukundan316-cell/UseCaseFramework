@@ -12,6 +12,7 @@ import { SmartRatingLegoBlock } from './SmartRatingLegoBlock';
 import { RankingLegoBlock } from './RankingLegoBlock';
 import { CurrencyInputLegoBlock } from './CurrencyInputLegoBlock';
 import { PercentageAllocationLegoBlock } from './PercentageAllocationLegoBlock';
+import PercentageTargetLegoBlock from './PercentageTargetLegoBlock';
 import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
 import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
 import CompanyProfileLegoBlock from './CompanyProfileLegoBlock';
@@ -45,6 +46,7 @@ export type QuestionType =
   | 'date'
   | 'currency'
   | 'percentage_allocation'
+  | 'percentage_target'
   | 'business_lines_matrix'
   | 'department_skills_matrix'
   | 'company_profile'
@@ -349,7 +351,46 @@ export default function QuestionRegistryLegoBlock({
         );
       }
 
-      // Render PercentageAllocationLegoBlock for percentage_allocation or allocation type
+      // Render PercentageTargetLegoBlock for percentage_target type (simplified percentage inputs)
+      if (questionMeta.questionType === 'percentage_target') {
+        const categoryNames = questionMeta.questionData.categories || [];
+        const categories = categoryNames.map((name: string, index: number) => ({
+          id: name.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+          label: name,
+          description: `${name} target percentage`,
+          placeholder: questionMeta.questionData.placeholder || '0.0'
+        }));
+        
+        return (
+          <PercentageTargetLegoBlock
+            label={questionMeta.questionText}
+            categories={categories}
+            values={currentValue?.targets || {}}
+            onChange={(values: Record<string, number>) => {
+              const updatedValue = { 
+                ...currentValue, 
+                targets: values 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
+            disabled={logic.isDisabled}
+            helpText={questionMeta.helpText}
+            required={logic.isRequired}
+            precision={questionMeta.questionData.precision || 1}
+            additionalContext={currentValue?.additionalContext || ''}
+            onAdditionalContextChange={(value: string) => {
+              const updatedValue = { 
+                ...currentValue, 
+                additionalContext: value 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
+            additionalContextLabel={questionMeta.questionData.additionalContextLabel || 'Additional Context'}
+          />
+        );
+      }
+
+      // Render PercentageAllocationLegoBlock for percentage_allocation or allocation type (with 100% enforcement)
       if (questionMeta.questionType === 'percentage_allocation' || questionMeta.questionType === 'allocation') {
         const categoryNames = questionMeta.questionData.categories || [];
         const categories = categoryNames.map((name: string, index: number) => ({
@@ -387,7 +428,7 @@ export default function QuestionRegistryLegoBlock({
             allowPartial={questionMeta.questionData.allowPartial || false}
             helpText={questionMeta.helpText}
             required={logic.isRequired}
-            showRemaining={questionMeta.questionData.showRemaining !== false}
+
             precision={questionMeta.questionData.precision || 1}
             additionalContext={currentValue?.additionalContext || ''}
             onAdditionalContextChange={(value: string) => {
@@ -412,7 +453,7 @@ export default function QuestionRegistryLegoBlock({
             label={questionMeta.questionText}
             helpText={questionMeta.helpText}
             required={logic.isRequired}
-            enforceTotal={questionMeta.questionData.enforceTotal !== false}
+
             minLines={questionMeta.questionData.minLines || 1}
             maxLines={questionMeta.questionData.maxLines || 10}
             additionalContext={currentValue?.additionalContext || ''}

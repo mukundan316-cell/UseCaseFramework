@@ -15,7 +15,8 @@ export type QuestionType =
   | 'smart_rating'
   | 'ranking'
   | 'currency'
-  | 'percentage_allocation';
+  | 'percentage_allocation'
+  | 'percentage_target';
 
 /**
  * Dynamic question types for the dynamic question registry
@@ -38,7 +39,8 @@ export type DynamicQuestionType =
   | 'date'
   | 'smart_rating'
   | 'currency'
-  | 'percentage_allocation';
+  | 'percentage_allocation'
+  | 'percentage_target';
 
 // =============================================================================
 // QUESTION TYPE METADATA
@@ -178,6 +180,20 @@ export const QUESTION_TYPE_METADATA: Record<string, QuestionTypeMetadata> = {
     type: 'percentage_allocation',
     label: 'Percentage Allocation',
     description: 'Allocate percentages across multiple categories',
+    requiresOptions: true,
+    allowsMultipleAnswers: false,
+    dataFormat: 'json',
+    validationRules: {
+      minValue: 0,
+      maxValue: 100
+    }
+  },
+
+  // Percentage targets without allocation constraints
+  percentage_target: {
+    type: 'percentage_target',
+    label: 'Percentage Targets',
+    description: 'Set percentage targets or goals for different categories',
     requiresOptions: true,
     allowsMultipleAnswers: false,
     dataFormat: 'json',
