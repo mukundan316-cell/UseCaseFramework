@@ -359,15 +359,12 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     <Input
-                      type="number"
+                      type="text"
                       value={value === 0 ? '' : allocationUtils.formatPercentage(value, precision)}
                       onChange={(e) => handleCategoryChange(category.id, e.target.value)}
                       onFocus={(e) => e.target.select()}
                       disabled={disabled}
-                      min={category.minValue || 0}
-                      max={category.maxValue || 100}
-                      step={1 / Math.pow(10, precision)}
-                      placeholder="0"
+                      placeholder="0.0"
                       className={cn(
                         "w-24 text-right pr-8 text-lg font-medium",
                         isActive && "border-blue-300 bg-white"
