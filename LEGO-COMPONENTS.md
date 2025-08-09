@@ -220,6 +220,42 @@ const {
 />
 ```
 
+### BreadcrumbNavigationLegoBlock
+**Purpose**: Context-aware navigation breadcrumbs for assessment progress tracking
+**Location**: `client/src/components/lego-blocks/BreadcrumbNavigationLegoBlock.tsx`
+**Features**:
+- Hierarchical navigation path display (Assessment → Section → Question)
+- Clickable breadcrumbs for quick navigation to previous levels
+- Current location highlighting with RSA blue theming
+- Question number and title display in context card
+- Section completion percentage with visual progress bar
+- Responsive design with mobile collapse to "Back to Section" button
+- Context-aware display adapting to section vs question level
+- Progress visualization with completed/total question counts
+- Interactive icons for different navigation levels
+- Touch-friendly mobile optimization
+
+**Usage Example**:
+```tsx
+<BreadcrumbNavigationLegoBlock
+  context={{
+    assessmentTitle: 'RSA AI Maturity Assessment',
+    sectionNumber: 2,
+    sectionTitle: 'AI Capabilities Assessment',
+    questionNumber: 7,
+    questionTitle: 'Data Quality Framework',
+    sectionProgress: 65,
+    totalQuestions: 15,
+    completedQuestions: 10
+  }}
+  onNavigateToHome={handleHomeNavigation}
+  onNavigateToSection={handleSectionNavigation}
+  onNavigateToQuestion={handleQuestionNavigation}
+  showProgress={true}
+  mobileCollapse={true}
+/>
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`

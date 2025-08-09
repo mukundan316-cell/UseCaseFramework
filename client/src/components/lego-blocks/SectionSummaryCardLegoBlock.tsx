@@ -329,7 +329,7 @@ export default function SectionSummaryCardLegoBlock({
                       <ReusableButton
                         rsaStyle="secondary"
                         size="sm"
-                        onClick={(e) => handleActionClick(e, section, 'review')}
+                        onClick={() => onReviewSection?.(section.sectionNumber)}
                         icon={Eye}
                         className="w-full"
                       >
@@ -339,7 +339,7 @@ export default function SectionSummaryCardLegoBlock({
                       <ReusableButton
                         rsaStyle="primary"
                         size="sm"
-                        onClick={(e) => handleActionClick(e, section, 'resume')}
+                        onClick={() => onResumeSection?.(section.sectionNumber)}
                         icon={Play}
                         className="w-full"
                       >
@@ -349,7 +349,7 @@ export default function SectionSummaryCardLegoBlock({
                       <ReusableButton
                         rsaStyle="primary"
                         size="sm"
-                        onClick={(e) => handleActionClick(e, section, 'resume')}
+                        onClick={() => onResumeSection?.(section.sectionNumber)}
                         icon={ArrowRight}
                         className="w-full"
                       >

@@ -50,6 +50,7 @@ The project follows strict architectural principles and coding standards documen
 - **QuestionRegistryLegoBlock**: Dynamic question management with conditional logic and database-driven configuration
 - **SectionConfigurationLegoBlock**: Admin section management with drag-and-drop reordering, template integration, and comprehensive configuration
 - **SectionSummaryCardLegoBlock**: Interactive section overview cards with progress tracking, maturity scoring, and navigation controls
+- **BreadcrumbNavigationLegoBlock**: Context-aware navigation breadcrumbs with responsive design and progress tracking
 - **ReusableButton**: Standardized RSA-styled button component with consistent theming
 - **ScoreSliderLegoBlock**: Reusable scoring slider component with tooltips and configurable display options
 - **InfoTooltipLegoBlock**: Standardized help text tooltip component with icon variants
