@@ -2,7 +2,13 @@
 
 ## Overview
 
-The RSA AI Use Case Value Framework uses a PostgreSQL database with 12 comprehensive tables designed for scalability, data integrity, and real-time operations. The schema supports use case management, metadata configuration, questionnaire functionality, dynamic question registry, and section progress tracking. All database operations are handled through Drizzle ORM with type-safe queries and automatic migrations.
+The RSA AI Use Case Value Framework uses a PostgreSQL database with 11 comprehensive tables designed for scalability, data integrity, and real-time operations. The schema supports use case management, metadata configuration, complete questionnaire functionality with 69 assessment questions across 6 sections, dynamic question registry, section progress tracking, and response management. All database operations are handled through Drizzle ORM with type-safe queries and automatic migrations.
+
+**Current Database Status** (January 2025):
+- **11 Active Tables**: Complete questionnaire system operational
+- **69 Assessment Questions**: RSA AI Maturity Assessment fully seeded
+- **6 Assessment Sections**: Business Strategy through Governance & Compliance
+- **29 Active Responses**: Real assessment data being collected
 
 ## Database Connection
 
@@ -106,6 +112,165 @@ CREATE TABLE users (
 - Password field (for future authentication)
 - Ready for session management
 
+### 4. `questionnaires` Table
+
+**Purpose**: Stores questionnaire definitions and metadata for the RSA AI Maturity Assessment system.
+
+```sql
+CREATE TABLE questionnaires (
+  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  version TEXT NOT NULL DEFAULT '1.0',
+  status TEXT NOT NULL DEFAULT 'draft', -- draft, active, archived
+  created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+```
+
+**Key Features**:
+- Version management for questionnaire iterations
+- Status tracking (draft/active/archived)
+- Timestamp tracking for audit purposes
+
+### 5. `questionnaire_sections` Table
+
+**Purpose**: Organizes questionnaire content into logical sections with unlock conditions.
+
+```sql
+CREATE TABLE questionnaire_sections (
+  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  questionnaire_id VARCHAR NOT NULL REFERENCES questionnaires(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  section_order INTEGER NOT NULL,
+  section_number INTEGER NOT NULL, -- 1-6 for main sections
+  is_locked TEXT NOT NULL DEFAULT 'false',
+  unlock_condition TEXT DEFAULT 'previous_complete',
+  section_type TEXT NOT NULL, -- business_strategy, ai_capabilities, etc.
+  estimated_time INTEGER, -- in minutes
+  created_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+```
+
+**Current Sections**:
+1. Business Strategy & AI Vision (5 questions)
+2. Current AI & Data Capabilities (3 questions)
+3. Use Case Discovery & Validation (2 questions)
+4. Technology & Infrastructure Readiness (2 questions)
+5. People, Process & Change Management (2 questions)
+6. Governance, Risk & Compliance (2 questions)
+
+### 6. `questions` Table
+
+**Purpose**: Stores individual assessment questions with metadata and scoring information.
+
+```sql
+CREATE TABLE questions (
+  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  section_id VARCHAR NOT NULL REFERENCES questionnaire_sections(id) ON DELETE CASCADE,
+  question_text TEXT NOT NULL,
+  question_type TEXT NOT NULL, -- text, number, select, multiselect, scale, boolean
+  is_required TEXT NOT NULL DEFAULT 'false',
+  question_order INTEGER NOT NULL,
+  help_text TEXT,
+  sub_questions TEXT, -- JSON for compound questions
+  display_condition TEXT, -- JSON for conditional logic
+  scoring_category TEXT, -- business_value, feasibility, ai_governance
+  created_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+```
+
+**Current Status**: 16 primary questions with 53 additional sub-questions (69 total)
+
+### 7. `question_options` Table
+
+**Purpose**: Stores answer options for select/multiselect questions with scoring values.
+
+```sql
+CREATE TABLE question_options (
+  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  question_id VARCHAR NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  option_text TEXT NOT NULL,
+  option_value TEXT NOT NULL,
+  score_value INTEGER, -- For scoring questions (1-5 scale)
+  option_order INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+```
+
+### 8. `questionnaire_responses` Table
+
+**Purpose**: Tracks individual assessment responses with completion status and scoring.
+
+```sql
+CREATE TABLE questionnaire_responses (
+  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  questionnaire_id VARCHAR NOT NULL REFERENCES questionnaires(id) ON DELETE CASCADE,
+  respondent_email TEXT NOT NULL,
+  respondent_name TEXT,
+  status TEXT NOT NULL DEFAULT 'started', -- started, completed, abandoned
+  started_at TIMESTAMP DEFAULT NOW() NOT NULL,
+  completed_at TIMESTAMP,
+  total_score INTEGER, -- Calculated aggregate score
+  metadata TEXT -- JSON for additional context data
+);
+```
+
+**Current Status**: 29 active assessment responses
+
+### 9. `question_answers` Table
+
+**Purpose**: Stores individual question responses with scoring and timestamps.
+
+```sql
+CREATE TABLE question_answers (
+  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  response_id VARCHAR NOT NULL REFERENCES questionnaire_responses(id) ON DELETE CASCADE,
+  question_id VARCHAR NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  answer_value TEXT NOT NULL, -- Stored as string, parsed by type
+  score INTEGER, -- Individual question score
+  answered_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+```
+
+### 10. `dynamic_questions` Table
+
+**Purpose**: Registry for dynamically generated questions and question templates.
+
+```sql
+CREATE TABLE dynamic_questions (
+  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  section_id INTEGER NOT NULL,
+  question_order INTEGER NOT NULL,
+  question_type TEXT NOT NULL, -- scale, multiChoice, ranking, etc.
+  question_text TEXT NOT NULL,
+  is_required TEXT NOT NULL DEFAULT 'false',
+  is_starred TEXT DEFAULT 'false',
+  help_text TEXT,
+  depends_on TEXT[], -- Array of question IDs
+  conditional_logic TEXT, -- JSON for conditional rules
+  question_data TEXT NOT NULL, -- JSON for question-specific data
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### 11. `section_progress` Table
+
+**Purpose**: Tracks section-level progress for assessment completion and resume functionality.
+
+```sql
+CREATE TABLE section_progress (
+  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_response_id VARCHAR NOT NULL REFERENCES questionnaire_responses(id) ON DELETE CASCADE,
+  section_number INTEGER NOT NULL, -- 1-6
+  started_at TIMESTAMP DEFAULT NOW() NOT NULL,
+  last_modified_at TIMESTAMP DEFAULT NOW() NOT NULL,
+  completion_percentage INTEGER NOT NULL DEFAULT 0, -- 0-100
+  is_complete TEXT NOT NULL DEFAULT 'false'
+);
+```
+
 ## Data Relationships
 
 ### Current Relationships
@@ -205,12 +370,26 @@ effortScore = ((6-dataReadiness) + technicalComplexity + changeImpact + modelRis
 ## API Integration
 
 ### RESTful Endpoints
+
+**Use Case Management**:
 - `GET /api/use-cases` - Retrieve all use cases
 - `POST /api/use-cases` - Create new use case
 - `PUT /api/use-cases/:id` - Update existing use case
 - `DELETE /api/use-cases/:id` - Delete use case
+
+**Metadata Configuration**:
 - `GET /api/metadata` - Retrieve metadata configuration
 - `PUT /api/metadata` - Update metadata configuration
+
+**Assessment System** (Current Active Endpoints):
+- `GET /api/questionnaires/:id` - Retrieve questionnaire with sections and questions
+- `POST /api/responses/start` - Start new assessment response
+- `PUT /api/responses/:id/answers` - Update question answers
+- `GET /api/responses/:id` - Retrieve assessment response
+- `PUT /api/section-progress/:responseId/:sectionNumber` - Update section progress
+- `POST /api/section-progress/:responseId/:sectionNumber/complete` - Mark section complete
+- `GET /api/responses/:id/resume-point` - Get resume point for incomplete assessment
+- `GET /api/assessment-stats` - Retrieve assessment statistics
 
 ### Response Format
 All API responses include proper TypeScript typing and consistent error handling with appropriate HTTP status codes.
