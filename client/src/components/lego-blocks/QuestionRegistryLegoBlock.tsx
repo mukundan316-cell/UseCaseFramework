@@ -575,6 +575,7 @@ export default function QuestionRegistryLegoBlock({
       }
 
       // For all other question types, use QuestionLegoBlock
+
       return (
         <QuestionLegoBlock
           question={{ ...questionData, isRequired: logic.isRequired }}

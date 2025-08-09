@@ -98,6 +98,13 @@ export default function SectionLegoBlock({
           }
           return false;
           
+        case 'percentage_target':
+          // Percentage target is complete if at least one target has a value > 0
+          if (typeof value === 'object' && value !== null && value.targets) {
+            return Object.values(value.targets).some((val: any) => typeof val === 'number' && val > 0);
+          }
+          return false;
+          
         case 'department_skills_matrix':
           // Department skills matrix is complete if at least one department has data
           if (typeof value === 'object' && value !== null && value.departments) {
@@ -354,7 +361,7 @@ export default function SectionLegoBlock({
                 {/* Question content */}
                 <div className={cn(isHeader ? "ml-0" : "ml-6")}>
                   {/* Use QuestionRegistryLegoBlock for advanced question types */}
-                  {['company_profile', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating', 'composite', 'risk_appetite'].includes(question.questionType) ? (
+                  {['company_profile', 'currency', 'percentage_allocation', 'percentage_target', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating', 'composite', 'risk_appetite'].includes(question.questionType) ? (
                     <QuestionRegistryLegoBlock
                       questions={[{
                         id: question.id,
