@@ -65,6 +65,27 @@ This document catalogs all reusable LEGO-style components in the RSA AI Use Case
 />
 ```
 
+### SectionTabNavigatorLegoBlock
+**Purpose**: Section-based navigation with progress tracking and sequential completion
+**Location**: `client/src/components/lego-blocks/SectionTabNavigatorLegoBlock.tsx`
+**Features**:
+- Responsive horizontal tabs with mobile scrolling
+- Visual progress indicators and completion states
+- Optional section locking for sequential completion
+- Overall progress tracking with question counts
+- RSA-styled with consistent theming
+
+**Usage Example**:
+```tsx
+<SectionTabNavigatorLegoBlock
+  currentSection={2}
+  completedSections={[1]}
+  onSectionChange={handleSectionChange}
+  sectionProgress={progressMap}
+  enforceOrder={true}
+/>
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`

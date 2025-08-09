@@ -122,6 +122,6 @@ The architecture exemplifies the "Build Once, Reuse Everywhere" principle and is
 | **Forms** | ScoreSlider, ScoringLegoBlock, QuestionLegoBlock, SectionLegoBlock, FormActionButtons, MultiSelectField | 6 |
 | **Dashboards** | AssessmentResultsDashboard, ScoringDashboard, SummaryMetrics, DataActionCard, ResumeProgress, ProgressStatus, ResponseExport | 7 |
 | **Management** | CRUDUseCaseModal, ProcessActivity*, ProcessManagement, ScoringModelManagement | 6 |
-| **Total Production** | | **25** |
+| **Total Production** | | **26** |
 | **Demo Variants** | *Demo suffix components | 4 |
-| **Grand Total** | | **29** |
+| **Grand Total** | | **31** |
