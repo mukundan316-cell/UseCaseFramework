@@ -53,43 +53,18 @@ export interface ConditionalRule {
 }
 
 export interface QuestionRegistryLegoBlockProps {
-  /** Questions to render */
   questions: QuestionMetadata[];
-  /** Current responses for conditional logic */
   responses: Map<string, any>;
-  /** Handle response changes */
   onResponseChange: (questionId: string, value: any) => void;
-  /** Handle question metadata changes (add/edit/delete) */
   onQuestionChange?: (action: 'add' | 'edit' | 'delete', question: QuestionMetadata) => void;
-  /** Edit mode for question management */
   editMode?: boolean;
-  /** Show debug information */
   showDebug?: boolean;
-  /** Custom className */
   className?: string;
-  /** Disable all interactions */
   disabled?: boolean;
 }
 
 /**
  * QuestionRegistryLegoBlock - Dynamic question management system
- * 
- * Features:
- * - Maps question types to appropriate LEGO components
- * - Supports conditional logic and dependencies
- * - Database-driven question definitions
- * - Dynamic add/edit/remove functionality
- * - Question ordering and metadata management
- * - Validation and error handling
- * 
- * @example
- * <QuestionRegistryLegoBlock
- *   questions={dynamicQuestions}
- *   responses={responseMap}
- *   onResponseChange={handleResponseChange}
- *   onQuestionChange={handleQuestionManagement}
- *   editMode={false}
- * />
  */
 export default function QuestionRegistryLegoBlock({
   questions,
@@ -105,30 +80,26 @@ export default function QuestionRegistryLegoBlock({
   // Question type component registry
   const componentRegistry = useMemo(() => {
     return {
-      scale: ScoreSliderLegoBlock,
-      score: ScoreSliderLegoBlock,
-      multiChoice: QuestionLegoBlock,
-      ranking: QuestionLegoBlock, // Can be extended with custom ranking component
-      allocation: QuestionLegoBlock, // Can be extended with custom allocation component
-      text: QuestionLegoBlock,
-      boolean: QuestionLegoBlock,
-      matrix: QuestionLegoBlock, // Can be extended with custom matrix component
-      compound: QuestionLegoBlock, // Can be extended with compound question component
-      checkbox: QuestionLegoBlock,
-      textarea: QuestionLegoBlock,
-      number: QuestionLegoBlock,
-      email: QuestionLegoBlock,
-      url: QuestionLegoBlock,
-      date: QuestionLegoBlock
+      scale: 'ScoreSliderLegoBlock',
+      score: 'ScoreSliderLegoBlock',
+      multiChoice: 'QuestionLegoBlock',
+      ranking: 'QuestionLegoBlock',
+      allocation: 'QuestionLegoBlock',
+      text: 'QuestionLegoBlock',
+      boolean: 'QuestionLegoBlock',
+      matrix: 'QuestionLegoBlock',
+      compound: 'QuestionLegoBlock',
+      checkbox: 'QuestionLegoBlock',
+      textarea: 'QuestionLegoBlock',
+      number: 'QuestionLegoBlock',
+      email: 'QuestionLegoBlock',
+      url: 'QuestionLegoBlock',
+      date: 'QuestionLegoBlock'
     } as const;
   }, []);
 
   // Evaluate conditional logic for a question
-  const evaluateConditionalLogic = useCallback((question: QuestionMetadata): {
-    isVisible: boolean;
-    isRequired: boolean;
-    isDisabled: boolean;
-  } => {
+  const evaluateConditionalLogic = useCallback((question: QuestionMetadata) => {
     let isVisible = true;
     let isRequired = question.isRequired;
     let isDisabled = disabled;
@@ -185,7 +156,7 @@ export default function QuestionRegistryLegoBlock({
 
   // Convert QuestionMetadata to QuestionData for existing components
   const convertToQuestionData = useCallback((questionMeta: QuestionMetadata): QuestionData => {
-    const baseQuestion: QuestionData = {
+    return {
       id: questionMeta.id,
       questionText: questionMeta.questionText,
       questionType: questionMeta.questionType as QuestionData['questionType'],
@@ -194,8 +165,6 @@ export default function QuestionRegistryLegoBlock({
       helpText: questionMeta.helpText,
       ...questionMeta.questionData
     };
-
-    return baseQuestion;
   }, []);
 
   // Render individual question based on type
@@ -204,46 +173,38 @@ export default function QuestionRegistryLegoBlock({
     
     if (!logic.isVisible) return null;
 
-    const Component = componentRegistry[questionMeta.questionType];
-    if (!Component) {
-      console.warn(`No component found for question type: ${questionMeta.questionType}`);
-      return (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2 text-red-700">
-              <AlertCircle className="h-4 w-4" />
-              <span className="text-sm">
-                Unknown question type: {questionMeta.questionType}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
     const questionData = convertToQuestionData(questionMeta);
     const currentValue = responses.get(questionMeta.id);
 
-    // Handle different component props based on type
-    const getComponentProps = () => {
+    // Render question component function
+    const renderQuestionComponent = () => {
+      // Render different component types
       if (questionMeta.questionType === 'scale' || questionMeta.questionType === 'score') {
-        return {
-          value: currentValue || questionMeta.questionData.minValue || 1,
-          onChange: (value: number) => onResponseChange(questionMeta.id, value),
-          minValue: questionMeta.questionData.minValue || 1,
-          maxValue: questionMeta.questionData.maxValue || 5,
-          leftLabel: questionMeta.questionData.leftLabel || 'Low',
-          rightLabel: questionMeta.questionData.rightLabel || 'High',
-          disabled: logic.isDisabled
-        };
+        return (
+          <ScoreSliderLegoBlock
+            label={questionMeta.questionText}
+            field={questionMeta.id}
+            value={currentValue || questionMeta.questionData.minValue || 1}
+            onChange={(field: string, value: number) => onResponseChange(questionMeta.id, value)}
+            minValue={questionMeta.questionData.minValue || 1}
+            maxValue={questionMeta.questionData.maxValue || 5}
+            leftLabel={questionMeta.questionData.leftLabel || 'Low'}
+            rightLabel={questionMeta.questionData.rightLabel || 'High'}
+            disabled={logic.isDisabled}
+            tooltip={questionMeta.helpText}
+          />
+        );
       }
 
-      return {
-        question: { ...questionData, isRequired: logic.isRequired },
-        value: currentValue,
-        onChange: (value: any) => onResponseChange(questionMeta.id, value),
-        readonly: logic.isDisabled
-      };
+      // For all other question types, use QuestionLegoBlock
+      return (
+        <QuestionLegoBlock
+          question={{ ...questionData, isRequired: logic.isRequired }}
+          value={currentValue}
+          onChange={(value: any) => onResponseChange(questionMeta.id, value)}
+          readonly={logic.isDisabled}
+        />
+      );
     };
 
     return (
@@ -302,7 +263,7 @@ export default function QuestionRegistryLegoBlock({
         </div>
 
         {/* Question Component */}
-        <Component {...getComponentProps()} />
+        {renderQuestionComponent()}
 
         {/* Debug Information */}
         {showDebug && (
@@ -320,7 +281,6 @@ export default function QuestionRegistryLegoBlock({
     );
   }, [
     evaluateConditionalLogic,
-    componentRegistry,
     convertToQuestionData,
     responses,
     onResponseChange,

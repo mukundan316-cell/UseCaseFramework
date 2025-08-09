@@ -2,7 +2,7 @@
 
 ## Overview
 
-The RSA AI Use Case Value Framework uses a PostgreSQL database with three main tables designed for scalability, data integrity, and real-time operations. All database operations are handled through Drizzle ORM with type-safe queries and automatic migrations.
+The RSA AI Use Case Value Framework uses a PostgreSQL database with 12 comprehensive tables designed for scalability, data integrity, and real-time operations. The schema supports use case management, metadata configuration, questionnaire functionality, dynamic question registry, and section progress tracking. All database operations are handled through Drizzle ORM with type-safe queries and automatic migrations.
 
 ## Database Connection
 

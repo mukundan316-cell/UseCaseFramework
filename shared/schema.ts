@@ -112,6 +112,10 @@ export const questionnaireSections = pgTable("questionnaire_sections", {
   questionnaireId: varchar("questionnaire_id").notNull().references(() => questionnaires.id, { onDelete: 'cascade' }),
   title: text("title").notNull(),
   sectionOrder: integer("section_order").notNull(),
+  sectionNumber: integer("section_number").notNull(), // 1-6 for the main sections
+  isLocked: text("is_locked").notNull().default('false'), // 'true' or 'false'
+  unlockCondition: text("unlock_condition").default('previous_complete'), // 'previous_complete', 'none', 'custom'
+  sectionType: text("section_type").notNull(), // 'business_strategy', 'ai_capabilities', 'use_case_discovery', etc.
   estimatedTime: integer("estimated_time"), // in minutes
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -124,6 +128,9 @@ export const questions = pgTable("questions", {
   isRequired: text("is_required").notNull().default('false'), // 'true' or 'false'
   questionOrder: integer("question_order").notNull(),
   helpText: text("help_text"), // Optional guidance for respondents
+  subQuestions: text("sub_questions"), // JSONB for compound questions
+  displayCondition: text("display_condition"), // JSONB for conditional logic
+  scoringCategory: text("scoring_category"), // For dimension mapping (business_value, feasibility, etc.)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -171,6 +178,16 @@ export const insertQuestionnaireSchema = createInsertSchema(questionnaires).omit
 export const insertQuestionnaireSectionSchema = createInsertSchema(questionnaireSections).omit({
   id: true,
   createdAt: true,
+}).extend({
+  isLocked: z.enum(['true', 'false']).default('false'),
+  sectionType: z.enum([
+    'business_strategy',
+    'ai_capabilities', 
+    'use_case_discovery',
+    'technology_infrastructure',
+    'people_process_change',
+    'regulatory_compliance'
+  ]),
 });
 
 export const insertQuestionSchema = createInsertSchema(questions).omit({
@@ -179,6 +196,7 @@ export const insertQuestionSchema = createInsertSchema(questions).omit({
 }).extend({
   isRequired: z.enum(['true', 'false']).default('false'),
   questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean']),
+  scoringCategory: z.enum(['business_value', 'feasibility', 'ai_governance', 'general']).optional(),
 });
 
 export const insertQuestionOptionSchema = createInsertSchema(questionOptions).omit({
@@ -257,3 +275,28 @@ export const insertDynamicQuestionSchema = createInsertSchema(dynamicQuestions).
 
 export type DynamicQuestion = typeof dynamicQuestions.$inferSelect;
 export type InsertDynamicQuestion = z.infer<typeof insertDynamicQuestionSchema>;
+
+// =============================================================================
+// SECTION PROGRESS TRACKING SCHEMA
+// =============================================================================
+
+export const sectionProgress = pgTable("section_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userResponseId: varchar("user_response_id").notNull().references(() => questionnaireResponses.id, { onDelete: 'cascade' }),
+  sectionNumber: integer("section_number").notNull(), // 1-6
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  lastModifiedAt: timestamp("last_modified_at").defaultNow().notNull(),
+  completionPercentage: integer("completion_percentage").notNull().default(0), // 0-100
+  isComplete: text("is_complete").notNull().default('false'), // 'true' or 'false'
+});
+
+export const insertSectionProgressSchema = createInsertSchema(sectionProgress).omit({
+  id: true,
+  startedAt: true,
+  lastModifiedAt: true,
+}).extend({
+  isComplete: z.enum(['true', 'false']).default('false'),
+});
+
+export type SectionProgress = typeof sectionProgress.$inferSelect;
+export type InsertSectionProgress = z.infer<typeof insertSectionProgressSchema>;
