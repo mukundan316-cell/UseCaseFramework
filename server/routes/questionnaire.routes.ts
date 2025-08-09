@@ -12,6 +12,7 @@ import {
   insertQuestionAnswerSchema
 } from '@shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
+import { validateAnswerByType, enhancedSaveAnswerSchema } from '../lib/validation';
 
 const router = Router();
 
@@ -159,20 +160,59 @@ router.post('/responses/start', async (req: Request, res: Response) => {
 
 /**
  * PUT /api/responses/:id/answers
- * Save individual answer(s)
+ * Save individual answer(s) with enhanced validation for new question types
  */
-const saveAnswerSchema = z.object({
+const enhancedAnswerSchema = z.object({
   answers: z.array(z.object({
     questionId: z.string().min(1, 'Question ID is required'),
-    answerValue: z.string(), // Allow empty strings for optional answers
+    questionType: z.string().optional(), // Optional for enhanced validation
+    answerValue: z.union([z.string(), z.number(), z.boolean(), z.record(z.any()), z.array(z.any())]), // Support complex data types
     score: z.number().int().optional()
   })).min(1, 'At least one answer is required')
 });
 
+// Serialization helpers for complex answer types
+const serializeAnswerValue = (value: any, questionType?: string): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  
+  // Handle complex types that need JSON serialization
+  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating'].includes(questionType)) {
+    return JSON.stringify(value);
+  }
+  
+  // Handle arrays and objects
+  if (typeof value === 'object' || Array.isArray(value)) {
+    return JSON.stringify(value);
+  }
+  
+  // Convert primitives to string
+  return String(value);
+};
+
+const deserializeAnswerValue = (value: string, questionType?: string): any => {
+  // For complex question types, parse as JSON
+  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating'].includes(questionType)) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value; // Return as string if parsing fails
+    }
+  }
+  
+  // For other types, attempt JSON parse but fallback to string
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+};
+
 router.put('/responses/:id/answers', async (req: Request, res: Response) => {
   try {
     const responseId = req.params.id;
-    const validatedData = saveAnswerSchema.parse(req.body);
+    const validatedData = enhancedAnswerSchema.parse(req.body);
 
     // Verify response exists and is not completed
     const [response] = await db
@@ -188,10 +228,43 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Cannot modify completed response' });
     }
 
-    // Process each answer
+    // Process each answer with enhanced validation
     const savedAnswers = [];
     
     for (const answerData of validatedData.answers) {
+      // Get question details for validation if questionType is provided
+      let questionDetails = null;
+      if (answerData.questionType) {
+        const [question] = await db
+          .select()
+          .from(questions)
+          .where(eq(questions.id, answerData.questionId));
+        questionDetails = question;
+      }
+
+      // Validate answer value based on question type
+      let processedAnswerValue = answerData.answerValue;
+      if (answerData.questionType && questionDetails) {
+        try {
+          // Apply type-specific validation
+          processedAnswerValue = validateAnswerByType(
+            typeof answerData.answerValue === 'string' 
+              ? answerData.answerValue 
+              : JSON.stringify(answerData.answerValue),
+            answerData.questionType
+          );
+        } catch (validationError) {
+          return res.status(400).json({
+            error: 'Answer validation failed',
+            details: validationError instanceof Error ? validationError.message : 'Invalid answer format',
+            questionId: answerData.questionId
+          });
+        }
+      }
+
+      // Serialize the answer value for database storage
+      const serializedValue = serializeAnswerValue(processedAnswerValue, answerData.questionType);
+
       // Check if answer already exists for this question
       const [existingAnswer] = await db
         .select()
@@ -206,14 +279,19 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
         const [updatedAnswer] = await db
           .update(questionAnswers)
           .set({
-            answerValue: answerData.answerValue,
+            answerValue: serializedValue,
             score: answerData.score,
             answeredAt: new Date()
           })
           .where(eq(questionAnswers.id, existingAnswer.id))
           .returning();
         
-        savedAnswers.push(updatedAnswer);
+        // Deserialize for response
+        const responseAnswer = {
+          ...updatedAnswer,
+          answerValue: deserializeAnswerValue(updatedAnswer.answerValue, answerData.questionType)
+        };
+        savedAnswers.push(responseAnswer);
       } else {
         // Create new answer
         const [newAnswer] = await db
@@ -221,12 +299,17 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
           .values({
             responseId,
             questionId: answerData.questionId,
-            answerValue: answerData.answerValue,
+            answerValue: serializedValue,
             score: answerData.score
           })
           .returning();
         
-        savedAnswers.push(newAnswer);
+        // Deserialize for response
+        const responseAnswer = {
+          ...newAnswer,
+          answerValue: deserializeAnswerValue(newAnswer.answerValue, answerData.questionType)
+        };
+        savedAnswers.push(responseAnswer);
       }
     }
 
@@ -395,7 +478,7 @@ router.get('/responses/:id/scores', async (req: Request, res: Response) => {
 
 /**
  * GET /api/responses/:id
- * Get response with all answers
+ * Get response with all answers (enhanced with deserialization)
  */
 router.get('/responses/:id', async (req: Request, res: Response) => {
   try {
@@ -411,18 +494,160 @@ router.get('/responses/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Response session not found' });
     }
 
-    // Get all answers
-    const answers = await db
-      .select()
+    // Get all answers with question details for proper deserialization
+    const answersWithQuestions = await db
+      .select({
+        answer: questionAnswers,
+        question: questions
+      })
       .from(questionAnswers)
+      .leftJoin(questions, eq(questionAnswers.questionId, questions.id))
       .where(eq(questionAnswers.responseId, responseId));
+
+    // Deserialize answers based on question type
+    const processedAnswers = answersWithQuestions.map(({ answer, question }) => ({
+      ...answer,
+      answerValue: deserializeAnswerValue(answer.answerValue, question?.questionType),
+      questionType: question?.questionType
+    }));
 
     res.json({
       ...response,
-      answers
+      answers: processedAnswers
     });
   } catch (error) {
     console.error('Error fetching response:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// =============================================================================
+// BACKWARD COMPATIBILITY & LEGACY SUPPORT
+// =============================================================================
+
+/**
+ * PUT /api/responses/:id/answers/legacy
+ * Legacy answer saving endpoint for backward compatibility
+ * Uses the original validation schema for existing integrations
+ */
+const legacySaveAnswerSchema = z.object({
+  answers: z.array(z.object({
+    questionId: z.string().min(1, 'Question ID is required'),
+    answerValue: z.string(), // Legacy string-only format
+    score: z.number().int().optional()
+  })).min(1, 'At least one answer is required')
+});
+
+router.put('/responses/:id/answers/legacy', async (req: Request, res: Response) => {
+  try {
+    const responseId = req.params.id;
+    const validatedData = legacySaveAnswerSchema.parse(req.body);
+
+    // Process using legacy logic but with backward-compatible deserialization
+    const savedAnswers = [];
+    
+    for (const answerData of validatedData.answers) {
+      // Check if answer already exists for this question
+      const [existingAnswer] = await db
+        .select()
+        .from(questionAnswers)
+        .where(and(
+          eq(questionAnswers.responseId, responseId),
+          eq(questionAnswers.questionId, answerData.questionId)
+        ));
+
+      if (existingAnswer) {
+        // Update existing answer
+        const [updatedAnswer] = await db
+          .update(questionAnswers)
+          .set({
+            answerValue: answerData.answerValue,
+            score: answerData.score,
+            answeredAt: new Date()
+          })
+          .where(eq(questionAnswers.id, existingAnswer.id))
+          .returning();
+        
+        savedAnswers.push(updatedAnswer);
+      } else {
+        // Create new answer
+        const [newAnswer] = await db
+          .insert(questionAnswers)
+          .values({
+            responseId,
+            questionId: answerData.questionId,
+            answerValue: answerData.answerValue,
+            score: answerData.score
+          })
+          .returning();
+        
+        savedAnswers.push(newAnswer);
+      }
+    }
+
+    res.json(savedAnswers);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: error.errors 
+      });
+    }
+    
+    console.error('Error saving legacy answers:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// =============================================================================
+// QUESTION TYPE VALIDATION ENDPOINTS
+// =============================================================================
+
+/**
+ * POST /api/validate/answer
+ * Validate answer value against question type
+ */
+router.post('/validate/answer', async (req: Request, res: Response) => {
+  try {
+    const validationSchema = z.object({
+      questionType: z.string().min(1, 'Question type is required'),
+      answerValue: z.union([z.string(), z.number(), z.boolean(), z.record(z.any()), z.array(z.any())]),
+      questionId: z.string().optional()
+    });
+
+    const { questionType, answerValue, questionId } = validationSchema.parse(req.body);
+
+    // Convert answer value to string for validation
+    const stringValue = typeof answerValue === 'string' 
+      ? answerValue 
+      : JSON.stringify(answerValue);
+
+    try {
+      const validatedValue = validateAnswerByType(stringValue, questionType);
+      
+      res.json({
+        valid: true,
+        validatedValue,
+        questionType,
+        questionId
+      });
+    } catch (validationError) {
+      res.status(400).json({
+        valid: false,
+        error: validationError instanceof Error ? validationError.message : 'Validation failed',
+        questionType,
+        questionId
+      });
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        error: 'Request validation error', 
+        details: error.errors 
+      });
+    }
+    
+    console.error('Error validating answer:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
