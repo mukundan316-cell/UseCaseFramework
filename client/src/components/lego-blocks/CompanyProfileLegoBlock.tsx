@@ -85,8 +85,23 @@ export default function CompanyProfileLegoBlock({
     }
   };
 
-  const tierOptions = questionData.companyTier?.options || [];
-  const marketOptions = questionData.primaryMarkets?.options || [];
+  // Default tier options if not provided in questionData
+  const defaultTierOptions = [
+    { value: 'small', label: 'Small (<£100M)' },
+    { value: 'mid', label: 'Mid (£100M-£3B)' },
+    { value: 'large', label: 'Large (>£3B)' }
+  ];
+  
+  // Default market options if not provided in questionData
+  const defaultMarketOptions = [
+    { value: 'personal_lines', label: 'Personal Lines' },
+    { value: 'commercial_lines', label: 'Commercial Lines' },
+    { value: 'specialty_lines', label: 'Specialty Lines' },
+    { value: 'reinsurance', label: 'Reinsurance' }
+  ];
+
+  const tierOptions = questionData.companyTier?.options || defaultTierOptions;
+  const marketOptions = questionData.primaryMarkets?.options || defaultMarketOptions;
   const currencies = questionData.gwp?.currencies || ['GBP', 'USD', 'EUR'];
 
   return (
