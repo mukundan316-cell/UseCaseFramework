@@ -17,6 +17,8 @@ Preferred communication style: Simple, everyday language.
 
 **LEGO Block Standardization Complete**: (January 9, 2025) Implemented comprehensive standardization across all LEGO block components ensuring consistent user experience, spacing, and functionality. Created LEGO_BLOCK_STANDARDS.md documentation capturing all patterns and best practices. Key improvements: standardized question text display, enhanced spacing/alignment (`space-y-6`, `gap-6`), consistent Additional Context sections, duplicate prevention in QuestionRegistryLegoBlock, default options fallback patterns, and comprehensive error handling. All advanced question types now follow uniform standards while maintaining individual functionality.
 
+**Percentage Target System Implementation**: (January 9, 2025) Successfully implemented simplified percentage target system to replace allocation constraints. Created PercentageTargetLegoBlock component for capturing percentage targets without 100% enforcement. Updated 6 questions (Q3, Q11, Q12, Q15, Q16) from percentage_allocation to percentage_target type. System now supports dual approach: PercentageTargetLegoBlock for goals/targets and PercentageAllocationLegoBlock for strict allocations when needed. Database schema, validation, and API routes updated to support new percentage_target question type with proper JSON serialization and persistence.
+
 ## System Architecture
 
 ### Core Architecture
