@@ -49,7 +49,10 @@ import {
   Globe,
   Zap,
   Lightbulb,
-  Star
+  Star,
+  DollarSign,
+  PieChart,
+  ArrowUpDown
 } from 'lucide-react';
 
 // Question template interface
@@ -57,7 +60,7 @@ export interface QuestionTemplate {
   id: string;
   title: string;
   description: string;
-  questionType: 'scale' | 'multiChoice' | 'ranking' | 'allocation' | 'text' | 'boolean' | 'matrix' | 'compound' | 'score' | 'checkbox' | 'textarea' | 'number' | 'email' | 'url' | 'date';
+  questionType: 'scale' | 'multiChoice' | 'ranking' | 'allocation' | 'text' | 'boolean' | 'matrix' | 'compound' | 'score' | 'checkbox' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'currency' | 'percentage_allocation' | 'smart_rating';
   category: string;
   section: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
@@ -96,7 +99,7 @@ export interface QuestionTemplateLibraryLegoBlockProps {
 const QUESTION_TYPE_CONFIG = {
   scale: { icon: Scale, label: 'Scale Rating', color: 'bg-blue-500' },
   multiChoice: { icon: CheckSquare, label: 'Multiple Choice', color: 'bg-green-500' },
-  ranking: { icon: List, label: 'Ranking', color: 'bg-purple-500' },
+  ranking: { icon: ArrowUpDown, label: 'Ranking', color: 'bg-purple-500' },
   allocation: { icon: Target, label: 'Allocation', color: 'bg-orange-500' },
   text: { icon: Type, label: 'Text Input', color: 'bg-gray-500' },
   boolean: { icon: CheckSquare, label: 'Yes/No', color: 'bg-indigo-500' },
@@ -108,7 +111,10 @@ const QUESTION_TYPE_CONFIG = {
   number: { icon: Hash, label: 'Number', color: 'bg-cyan-500' },
   email: { icon: Mail, label: 'Email', color: 'bg-violet-500' },
   url: { icon: Globe, label: 'URL', color: 'bg-emerald-500' },
-  date: { icon: Calendar, label: 'Date', color: 'bg-rose-500' }
+  date: { icon: Calendar, label: 'Date', color: 'bg-rose-500' },
+  currency: { icon: DollarSign, label: 'Currency Input', color: 'bg-green-600' },
+  percentage_allocation: { icon: PieChart, label: 'Percentage Allocation', color: 'bg-blue-600' },
+  smart_rating: { icon: Star, label: 'Smart Rating', color: 'bg-amber-500' }
 };
 
 // RSA Question Categories
@@ -242,6 +248,79 @@ export default function QuestionTemplateLibraryLegoBlock({
           usageCount: 156,
           createdAt: '2024-01-17T14:20:00Z',
           updatedAt: '2024-01-25T09:10:00Z'
+        },
+        {
+          id: '4',
+          title: 'AI Investment Budget Planning',
+          description: 'Specify your planned AI investment budget in your preferred currency',
+          questionType: 'currency',
+          category: 'Strategic Foundation',
+          section: 'business_strategy',
+          difficulty: 'beginner',
+          isRequired: true,
+          isStarred: true,
+          estimatedTime: 60,
+          helpText: 'Include all AI-related expenses: technology, training, consulting, and infrastructure',
+          questionData: {
+            defaultCurrency: 'GBP',
+            allowedCurrencies: ['GBP', 'USD', 'EUR', 'CAD'],
+            minValue: 0,
+            maxValue: 50000000,
+            placeholder: 'Enter investment amount'
+          },
+          tags: ['budget', 'investment', 'currency', 'planning'],
+          usageCount: 87,
+          createdAt: '2024-01-18T08:45:00Z',
+          updatedAt: '2024-01-24T16:20:00Z'
+        },
+        {
+          id: '5',
+          title: 'Resource Allocation Strategy',
+          description: 'Allocate your AI transformation budget across different focus areas as percentages',
+          questionType: 'percentage_allocation',
+          category: 'Technology Infrastructure',
+          section: 'technology_infrastructure',
+          difficulty: 'intermediate',
+          isRequired: false,
+          isStarred: false,
+          estimatedTime: 180,
+          helpText: 'Distribute 100% across categories based on your strategic priorities',
+          questionData: {
+            categories: ['Technology Platform', 'Data Infrastructure', 'Talent Acquisition', 'Training & Development', 'Consulting Services', 'Regulatory Compliance'],
+            minAllocation: 0,
+            maxAllocation: 100,
+            allowZero: true,
+            description: 'Drag sliders to allocate budget percentages'
+          },
+          tags: ['allocation', 'budget', 'resources', 'strategy'],
+          usageCount: 124,
+          createdAt: '2024-01-19T13:10:00Z',
+          updatedAt: '2024-01-26T10:55:00Z'
+        },
+        {
+          id: '6',
+          title: 'AI Maturity Assessment Matrix',
+          description: 'Rate your organization across multiple AI maturity dimensions using our advanced rating system',
+          questionType: 'smart_rating',
+          category: 'AI Capabilities',
+          section: 'current_capabilities',
+          difficulty: 'advanced',
+          isRequired: true,
+          isStarred: true,
+          estimatedTime: 300,
+          helpText: 'Use the maturity scale to assess your current state across each dimension',
+          questionData: {
+            variant: 'maturity',
+            dimensions: ['Data Strategy', 'AI Governance', 'Technical Capabilities', 'Organizational Readiness', 'Cultural Adoption'],
+            minValue: 1,
+            maxValue: 5,
+            showScore: true,
+            labels: ['Initial', 'Repeatable', 'Defined', 'Managed', 'Optimized']
+          },
+          tags: ['maturity', 'assessment', 'rating', 'capabilities'],
+          usageCount: 203,
+          createdAt: '2024-01-20T11:25:00Z',
+          updatedAt: '2024-01-27T09:40:00Z'
         }
       ];
       
@@ -602,6 +681,161 @@ export default function QuestionTemplateLibraryLegoBlock({
                 setPreviewTemplate(null);
               }}>
                 Add to Section {targetSection}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Create Custom Question Dialog */}
+      {showCreateDialog && (
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <Plus className="h-5 w-5 text-[#005DAA]" />
+                <span>Create Custom Question Template</span>
+              </DialogTitle>
+              <DialogDescription>
+                Design a new question template with custom configuration and validation rules.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Question Title</label>
+                  <Input placeholder="Enter question title..." />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Question Type</label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select question type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(QUESTION_TYPE_CONFIG).map(([key, config]) => {
+                        const IconComponent = config.icon;
+                        return (
+                          <SelectItem key={key} value={key}>
+                            <div className="flex items-center space-x-2">
+                              <IconComponent className={cn("h-4 w-4 text-white p-0.5 rounded", config.color)} />
+                              <span>{config.label}</span>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Description</label>
+                <Textarea 
+                  placeholder="Describe what this question measures or evaluates..."
+                  rows={3}
+                />
+              </div>
+
+              {/* Category and Configuration */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Category</label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RSA_CATEGORIES.map(cat => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Difficulty</label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select difficulty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                      <SelectItem value="expert">Expert</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Est. Time (min)</label>
+                  <Input type="number" placeholder="5" min="1" max="60" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Help Text (Optional)</label>
+                <Input placeholder="Provide guidance for answering this question..." />
+              </div>
+
+              {/* Question Type Specific Configuration */}
+              <Card className="p-4">
+                <CardTitle className="text-sm mb-3">Question Type Configuration</CardTitle>
+                <div className="text-sm text-gray-600 space-y-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <strong>Currency Input:</strong>
+                      <ul className="text-xs list-disc list-inside ml-2">
+                        <li>Multi-currency support (GBP, USD, EUR, CAD)</li>
+                        <li>Automatic formatting and validation</li>
+                        <li>Min/max value constraints</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-1">
+                      <strong>Percentage Allocation:</strong>
+                      <ul className="text-xs list-disc list-inside ml-2">
+                        <li>Category-based percentage distribution</li>
+                        <li>100% total validation</li>
+                        <li>Configurable categories and constraints</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-1">
+                      <strong>Smart Rating:</strong>
+                      <ul className="text-xs list-disc list-inside ml-2">
+                        <li>Multiple rating variants (stars, maturity, capability)</li>
+                        <li>Descriptive labels for each rating level</li>
+                        <li>Advanced scoring and analytics</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-1">
+                      <strong>Ranking:</strong>
+                      <ul className="text-xs list-disc list-inside ml-2">
+                        <li>Drag-and-drop priority ordering</li>
+                        <li>Configurable item lists</li>
+                        <li>Partial ranking support</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Tags */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tags (comma-separated)</label>
+                <Input placeholder="strategy, assessment, planning, budget..." />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => {
+                console.log('Creating custom question template...');
+                setShowCreateDialog(false);
+              }}>
+                Create Template
               </Button>
             </DialogFooter>
           </DialogContent>
