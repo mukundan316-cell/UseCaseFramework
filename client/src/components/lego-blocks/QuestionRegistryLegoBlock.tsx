@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
-import { AlertCircle, Star, HelpCircle, Plus, Trash2, Edit3 } from 'lucide-react';
+import { AlertCircle, Star, HelpCircle, Plus, Trash2, Edit3, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,8 @@ import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
 import CompanyProfileLegoBlock from './CompanyProfileLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 // Extended question types for dynamic registry
 export type QuestionType = 
@@ -443,6 +445,31 @@ export default function QuestionRegistryLegoBlock({
 
         {/* Question Component */}
         {renderQuestionComponent()}
+
+        {/* Additional Context & Notes Section */}
+        {questionMeta.questionData?.allowNotes && (
+          <div className="mt-4 space-y-2">
+            <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Additional Context & Notes
+            </Label>
+            <Textarea
+              value={currentValue?.notes || ''}
+              onChange={(e) => {
+                const newValue = typeof currentValue === 'object' && currentValue !== null
+                  ? { ...currentValue, notes: e.target.value }
+                  : { notes: e.target.value };
+                onResponseChange(questionMeta.id, newValue);
+              }}
+              placeholder={
+                questionMeta.questionData?.notesPrompt || 
+                "Additional context about RSA's market position, strategy, or business profile..."
+              }
+              className="min-h-[80px] bg-gray-50 border-gray-200 placeholder:text-gray-500"
+              disabled={logic.isDisabled}
+            />
+          </div>
+        )}
 
         {/* Debug Information */}
         {showDebug && (
