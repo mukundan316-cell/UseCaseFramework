@@ -321,15 +321,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
         </div>
       )}
 
-      {/* Error Display */}
-      {(error || validationError) && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-          <div className="flex items-center gap-2 text-red-700">
-            <AlertCircle className="h-4 w-4" />
-            <span className="text-sm">{error || validationError}</span>
-          </div>
-        </div>
-      )}
+
 
       {/* Controls */}
       <div className="flex items-center justify-between">
@@ -369,21 +361,17 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
           <div className="flex items-center space-x-2">
             <span className={cn(
               'font-medium',
-              isComplete ? 'text-green-600' : hasError ? 'text-red-600' : 'text-gray-900'
+              isComplete ? 'text-green-600' : 'text-gray-900'
             )}>
               {allocationUtils.formatPercentage(total, precision)}%
             </span>
             {isComplete && <Check className="h-4 w-4 text-green-600" />}
-            {hasError && <AlertCircle className="h-4 w-4 text-red-600" />}
           </div>
         </div>
         
         <Progress 
           value={Math.min(total, 100)} 
-          className={cn(
-            'h-3',
-            total > 100 && 'bg-red-100'
-          )}
+          className="h-3"
         />
         
         {showRemaining && remaining !== 0 && (
@@ -521,13 +509,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
         <p className="text-sm text-gray-600">{helpText}</p>
       )}
 
-      {/* Error Message */}
-      {hasError && (
-        <p className="text-sm text-red-600 flex items-center gap-1">
-          <AlertCircle className="h-3 w-3" />
-          {displayError}
-        </p>
-      )}
+
 
       {/* Additional Fields (like digital maturity score) */}
       {additionalFields && additionalFields.length > 0 && (

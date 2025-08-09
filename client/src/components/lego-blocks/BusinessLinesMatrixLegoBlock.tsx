@@ -394,27 +394,14 @@ export default function BusinessLinesMatrixLegoBlock({
               <div className="flex items-center space-x-2">
                 <span className={cn(
                   "font-medium",
-                  isValidTotal ? "text-green-600" : "text-red-600"
+                  isValidTotal ? "text-green-600" : "text-gray-900"
                 )}>
                   {currentTotal.toFixed(1)}%
                 </span>
-                {enforceTotal && !isValidTotal && (
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                )}
               </div>
             </div>
 
-            {enforceTotal && !isValidTotal && (
-              <div className="text-xs text-red-600 flex items-center space-x-1">
-                <AlertCircle className="h-3 w-3" />
-                <span>
-                  {currentTotal > 100 
-                    ? `Over by ${(currentTotal - 100).toFixed(1)}%` 
-                    : `Under by ${(100 - currentTotal).toFixed(1)}%`
-                  }
-                </span>
-              </div>
-            )}
+
           </div>
         </CardContent>
       </Card>
