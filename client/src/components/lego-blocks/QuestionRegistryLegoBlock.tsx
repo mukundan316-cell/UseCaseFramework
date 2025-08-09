@@ -14,6 +14,7 @@ import { CurrencyInputLegoBlock } from './CurrencyInputLegoBlock';
 import { PercentageAllocationLegoBlock } from './PercentageAllocationLegoBlock';
 import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
 import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
+import CompanyProfileLegoBlock from './CompanyProfileLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 
@@ -39,7 +40,8 @@ export type QuestionType =
   | 'currency'
   | 'percentage_allocation'
   | 'business_lines_matrix'
-  | 'department_skills_matrix';
+  | 'department_skills_matrix'
+  | 'company_profile';
 
 export interface QuestionMetadata {
   id: string;
@@ -350,6 +352,18 @@ export default function QuestionRegistryLegoBlock({
             showTotals={questionMeta.questionData.showTotals !== false}
             minDepartments={questionMeta.questionData.minDepartments || 1}
             maxDepartments={questionMeta.questionData.maxDepartments || 15}
+          />
+        );
+      }
+
+      // Render CompanyProfileLegoBlock for company_profile type
+      if (questionMeta.questionType === 'company_profile') {
+        return (
+          <CompanyProfileLegoBlock
+            questionData={questionMeta.questionData}
+            value={currentValue || {}}
+            onChange={(value) => onResponseChange(questionMeta.id, value)}
+            disabled={logic.isDisabled}
           />
         );
       }
