@@ -1,401 +1,311 @@
-# RSA AI Framework - Database Schema Documentation
+# Database Schema Documentation
 
 ## Overview
 
-The RSA AI Use Case Value Framework uses a PostgreSQL database with 11 comprehensive tables designed for scalability, data integrity, and real-time operations. The schema supports use case management, metadata configuration, complete questionnaire functionality with 69 assessment questions across 6 sections, dynamic question registry, section progress tracking, and response management. All database operations are handled through Drizzle ORM with type-safe queries and automatic migrations.
+The RSA AI Use Case Value Framework uses PostgreSQL with Drizzle ORM. The schema consists of 11 interconnected tables supporting use case management, metadata configuration, and comprehensive questionnaire functionality with saved progress capabilities.
 
-**Current Database Status** (January 2025):
-- **11 Active Tables**: Complete questionnaire system operational
-- **69 Assessment Questions**: RSA AI Maturity Assessment fully seeded
-- **6 Assessment Sections**: Business Strategy through Governance & Compliance
-- **29 Active Responses**: Real assessment data being collected
+## Core Tables
 
-## Database Connection
-
-- **Provider**: Neon (Serverless PostgreSQL)
-- **ORM**: Drizzle with TypeScript
-- **Connection**: Environment variable `DATABASE_URL`
-- **Connection Pool**: Configured for production workloads
-
-## Schema Tables
-
-### 1. `use_cases` Table
-
-**Purpose**: Stores all AI use case data with complete RSA framework scoring dimensions.
+### use_cases
+Primary table for AI use case data with enhanced RSA Framework scoring.
 
 ```sql
 CREATE TABLE use_cases (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  value_chain_component TEXT NOT NULL,
-  process TEXT NOT NULL,
-  line_of_business TEXT NOT NULL,
-  lines_of_business TEXT[],
-  business_segment TEXT NOT NULL,
-  geography TEXT NOT NULL,
-  use_case_type TEXT NOT NULL,
-  
-  -- Business Value Levers (Impact Score Components)
-  revenue_impact INTEGER NOT NULL,
-  cost_savings INTEGER NOT NULL,
-  risk_reduction INTEGER NOT NULL,
-  broker_partner_experience INTEGER NOT NULL,
-  strategic_fit INTEGER NOT NULL,
-  
-  -- Feasibility Levers (Effort Score Components)
-  data_readiness INTEGER NOT NULL,
-  technical_complexity INTEGER NOT NULL,
-  change_impact INTEGER NOT NULL,
-  model_risk INTEGER NOT NULL,
-  adoption_readiness INTEGER NOT NULL,
-  
-  -- AI Governance Levers
-  explainability_bias INTEGER NOT NULL,
-  regulatory_compliance INTEGER NOT NULL,
-  
+  id VARCHAR PRIMARY KEY,
+  title VARCHAR NOT NULL,
+  description TEXT,
+  -- RSA Framework Core Scoring (12 Levers)
+  business_value DECIMAL DEFAULT 0,
+  technical_feasibility DECIMAL DEFAULT 0,
+  data_readiness DECIMAL DEFAULT 0,
+  regulatory_compliance DECIMAL DEFAULT 0,
+  implementation_complexity DECIMAL DEFAULT 0,
+  strategic_alignment DECIMAL DEFAULT 0,
+  market_potential DECIMAL DEFAULT 0,
+  customer_value DECIMAL DEFAULT 0,
+  revenue_impact DECIMAL DEFAULT 0,
+  cost_reduction DECIMAL DEFAULT 0,
+  risk_mitigation DECIMAL DEFAULT 0,
+  governance_readiness DECIMAL DEFAULT 0,
   -- Calculated Scores
-  impact_score REAL NOT NULL,
-  effort_score REAL NOT NULL,
-  quadrant TEXT NOT NULL,
-  
-  created_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-**Key Features**:
-- 12 scoring dimensions (1-5 scale each)
-- Real-time calculated impact/effort scores
-- Automatic quadrant assignment
-- Support for multiple lines of business
-- UUID primary keys for distributed systems
-
-### 2. `metadata_config` Table
-
-**Purpose**: Stores UI list of values that drive all dropdown options and filters throughout the application.
-
-```sql
-CREATE TABLE metadata_config (
-  id TEXT PRIMARY KEY DEFAULT 'default',
-  value_chain_components TEXT[] NOT NULL,
-  processes TEXT[] NOT NULL,
-  lines_of_business TEXT[] NOT NULL,
-  business_segments TEXT[] NOT NULL,
-  geographies TEXT[] NOT NULL,
-  use_case_types TEXT[] NOT NULL,
-  updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-```
-
-**Key Features**:
-- Single row configuration (id='default')
-- Array fields for each metadata category
-- Timestamp tracking for audit purposes
-- Direct integration with form dropdowns
-- Admin panel CRUD operations
-
-### 3. `users` Table
-
-**Purpose**: User authentication system (prepared for future multi-tenant expansion).
-
-```sql
-CREATE TABLE users (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  username TEXT NOT NULL UNIQUE,
-  password TEXT NOT NULL
-);
-```
-
-**Key Features**:
-- UUID primary keys
-- Unique username constraints
-- Password field (for future authentication)
-- Ready for session management
-
-### 4. `questionnaires` Table
-
-**Purpose**: Stores questionnaire definitions and metadata for the RSA AI Maturity Assessment system.
-
-```sql
-CREATE TABLE questionnaires (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  version TEXT NOT NULL DEFAULT '1.0',
-  status TEXT NOT NULL DEFAULT 'draft', -- draft, active, archived
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-```
-
-**Key Features**:
-- Version management for questionnaire iterations
-- Status tracking (draft/active/archived)
-- Timestamp tracking for audit purposes
-
-### 5. `questionnaire_sections` Table
-
-**Purpose**: Organizes questionnaire content into logical sections with unlock conditions.
-
-```sql
-CREATE TABLE questionnaire_sections (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  questionnaire_id VARCHAR NOT NULL REFERENCES questionnaires(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  section_order INTEGER NOT NULL,
-  section_number INTEGER NOT NULL, -- 1-6 for main sections
-  is_locked TEXT NOT NULL DEFAULT 'false',
-  unlock_condition TEXT DEFAULT 'previous_complete',
-  section_type TEXT NOT NULL, -- business_strategy, ai_capabilities, etc.
-  estimated_time INTEGER, -- in minutes
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-```
-
-**Current Sections**:
-1. Business Strategy & AI Vision (5 questions)
-2. Current AI & Data Capabilities (3 questions)
-3. Use Case Discovery & Validation (2 questions)
-4. Technology & Infrastructure Readiness (2 questions)
-5. People, Process & Change Management (2 questions)
-6. Governance, Risk & Compliance (2 questions)
-
-### 6. `questions` Table
-
-**Purpose**: Stores individual assessment questions with metadata and scoring information.
-
-```sql
-CREATE TABLE questions (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  section_id VARCHAR NOT NULL REFERENCES questionnaire_sections(id) ON DELETE CASCADE,
-  question_text TEXT NOT NULL,
-  question_type TEXT NOT NULL, -- text, number, select, multiselect, scale, boolean
-  is_required TEXT NOT NULL DEFAULT 'false',
-  question_order INTEGER NOT NULL,
-  help_text TEXT,
-  sub_questions TEXT, -- JSON for compound questions
-  display_condition TEXT, -- JSON for conditional logic
-  scoring_category TEXT, -- business_value, feasibility, ai_governance
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-```
-
-**Current Status**: 16 primary questions with 53 additional sub-questions (69 total)
-
-### 7. `question_options` Table
-
-**Purpose**: Stores answer options for select/multiselect questions with scoring values.
-
-```sql
-CREATE TABLE question_options (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  question_id VARCHAR NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-  option_text TEXT NOT NULL,
-  option_value TEXT NOT NULL,
-  score_value INTEGER, -- For scoring questions (1-5 scale)
-  option_order INTEGER NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-```
-
-### 8. `questionnaire_responses` Table
-
-**Purpose**: Tracks individual assessment responses with completion status and scoring.
-
-```sql
-CREATE TABLE questionnaire_responses (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  questionnaire_id VARCHAR NOT NULL REFERENCES questionnaires(id) ON DELETE CASCADE,
-  respondent_email TEXT NOT NULL,
-  respondent_name TEXT,
-  status TEXT NOT NULL DEFAULT 'started', -- started, completed, abandoned
-  started_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  completed_at TIMESTAMP,
-  total_score INTEGER, -- Calculated aggregate score
-  metadata TEXT -- JSON for additional context data
-);
-```
-
-**Current Status**: 29 active assessment responses
-
-### 9. `question_answers` Table
-
-**Purpose**: Stores individual question responses with scoring and timestamps.
-
-```sql
-CREATE TABLE question_answers (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  response_id VARCHAR NOT NULL REFERENCES questionnaire_responses(id) ON DELETE CASCADE,
-  question_id VARCHAR NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-  answer_value TEXT NOT NULL, -- Stored as string, parsed by type
-  score INTEGER, -- Individual question score
-  answered_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-```
-
-### 10. `dynamic_questions` Table
-
-**Purpose**: Registry for dynamically generated questions and question templates.
-
-```sql
-CREATE TABLE dynamic_questions (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  section_id INTEGER NOT NULL,
-  question_order INTEGER NOT NULL,
-  question_type TEXT NOT NULL, -- scale, multiChoice, ranking, etc.
-  question_text TEXT NOT NULL,
-  is_required TEXT NOT NULL DEFAULT 'false',
-  is_starred TEXT DEFAULT 'false',
-  help_text TEXT,
-  depends_on TEXT[], -- Array of question IDs
-  conditional_logic TEXT, -- JSON for conditional rules
-  question_data TEXT NOT NULL, -- JSON for question-specific data
+  impact_score DECIMAL DEFAULT 0,  -- Average of Business Value levers
+  effort_score DECIMAL DEFAULT 0,  -- Average of Feasibility levers
+  quadrant VARCHAR,               -- Auto-calculated based on 3.0 threshold
+  -- Business Metadata
+  line_of_business VARCHAR,
+  business_segment VARCHAR,
+  geography VARCHAR,
+  use_case_type VARCHAR,
+  priority_level VARCHAR DEFAULT 'Medium',
+  status VARCHAR DEFAULT 'Identified',
+  owner VARCHAR,
+  estimated_effort_months INTEGER,
+  estimated_value_usd INTEGER,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
 ```
 
-### 11. `section_progress` Table
-
-**Purpose**: Tracks section-level progress for assessment completion and resume functionality.
+### metadata_config
+Business metadata and dropdown configurations.
 
 ```sql
-CREATE TABLE section_progress (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_response_id VARCHAR NOT NULL REFERENCES questionnaire_responses(id) ON DELETE CASCADE,
-  section_number INTEGER NOT NULL, -- 1-6
-  started_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  last_modified_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  completion_percentage INTEGER NOT NULL DEFAULT 0, -- 0-100
-  is_complete TEXT NOT NULL DEFAULT 'false'
+CREATE TABLE metadata_config (
+  id VARCHAR PRIMARY KEY DEFAULT 'default',
+  value_chain_components TEXT[],
+  business_segments TEXT[],
+  geographies TEXT[],
+  use_case_types TEXT[],
+  process_activities JSONB,
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 ```
 
-## Data Relationships
+## Assessment System Tables
 
-### Current Relationships
-- `use_cases.value_chain_component` → References values in `metadata_config.value_chain_components[]`
-- `use_cases.process` → References values in `metadata_config.processes[]`
-- `use_cases.line_of_business` → References values in `metadata_config.lines_of_business[]`
-- `use_cases.business_segment` → References values in `metadata_config.business_segments[]`
-- `use_cases.geography` → References values in `metadata_config.geographies[]`
-- `use_cases.use_case_type` → References values in `metadata_config.use_case_types[]`
+### questionnaires
+Main questionnaire definitions.
 
-### Future Relationships
-- `use_cases.created_by` → `users.id` (for user attribution)
-- Organization/tenant tables for multi-tenant support
-
-## Scoring Framework Implementation
-
-### Business Value Levers (Impact Score)
-1. **Revenue Impact** (1-5): Direct revenue generation potential
-2. **Cost Savings** (1-5): Operational cost reduction capability
-3. **Risk Reduction** (1-5): Risk mitigation and compliance improvement
-4. **Broker/Partner Experience** (1-5): External relationship enhancement
-5. **Strategic Fit** (1-5): Alignment with company strategic objectives
-
-### Feasibility Levers (Effort Score)
-1. **Data Readiness** (1-5): Data availability and quality (inverted for effort)
-2. **Technical Complexity** (1-5): Implementation complexity
-3. **Change Impact** (1-5): Organizational change requirements
-4. **Model Risk** (1-5): AI/ML model risks and uncertainties
-5. **Adoption Readiness** (1-5): User acceptance potential (inverted for effort)
-
-### AI Governance Levers
-1. **Explainability/Bias** (1-5): Model transparency and fairness
-2. **Regulatory Compliance** (1-5): Regulatory adherence requirements
-
-### Score Calculations
-```typescript
-// Impact Score: Average of Business Value levers
-impactScore = (revenueImpact + costSavings + riskReduction + brokerPartnerExperience + strategicFit) / 5
-
-// Effort Score: Average of Feasibility levers (with inversions)
-effortScore = ((6-dataReadiness) + technicalComplexity + changeImpact + modelRisk + (6-adoptionReadiness)) / 5
-
-// Quadrant Assignment:
-// - Quick Win: impact >= 3.5 && effort < 3.5
-// - Strategic Bet: impact >= 3.5 && effort >= 3.5
-// - Experimental: impact < 3.5 && effort < 3.5
-// - Watchlist: impact < 3.5 && effort >= 3.5
+```sql
+CREATE TABLE questionnaires (
+  id VARCHAR PRIMARY KEY,
+  title VARCHAR NOT NULL,
+  description TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
 ```
 
-## Migration and Seeding
+### sections
+Questionnaire sections (6 sections for RSA Assessment).
 
-### Automatic Migration Process
-1. **Schema Validation**: Drizzle checks current schema against defined models
-2. **Column Addition**: New framework columns added automatically
-3. **Data Migration**: Existing records updated with enhanced framework values
-4. **Score Recalculation**: All impact/effort scores recalculated using new formula
+```sql
+CREATE TABLE sections (
+  id VARCHAR PRIMARY KEY,
+  questionnaire_id VARCHAR REFERENCES questionnaires(id),
+  title VARCHAR NOT NULL,
+  description TEXT,
+  section_number INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-### Initial Data Seeding
-- **Use Cases**: 16+ realistic commercial insurance AI use cases
-- **Metadata Config**: Default values for all dropdown categories
-- **Enhanced Framework**: All use cases include complete 12-lever scoring
+### questions
+Individual questions within sections (16 total for RSA Assessment).
 
-## Performance Considerations
+```sql
+CREATE TABLE questions (
+  id VARCHAR PRIMARY KEY,
+  section_id VARCHAR REFERENCES sections(id),
+  question_text TEXT NOT NULL,
+  question_type VARCHAR CHECK (question_type IN ('scale', 'select', 'multi_choice', 'text')),
+  is_required BOOLEAN DEFAULT true,
+  question_order INTEGER NOT NULL,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-### Indexing Strategy
-- Primary keys (UUID) automatically indexed
-- Consider composite indexes on frequently filtered columns
-- Text search indexes for title/description fields
+### question_options
+Answer options for questions (70+ options total).
 
-### Query Optimization
-- Use proper TypeScript types from Drizzle inference
-- Batch operations for bulk updates
-- Connection pooling for concurrent requests
+```sql
+CREATE TABLE question_options (
+  id VARCHAR PRIMARY KEY,
+  question_id VARCHAR REFERENCES questions(id),
+  option_text VARCHAR NOT NULL,
+  option_value VARCHAR NOT NULL,
+  score_value DECIMAL DEFAULT 0,
+  option_order INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-### Scaling Considerations
-- Neon serverless automatically scales connections
-- Consider read replicas for reporting workloads
-- Implement caching for metadata configuration
+### responses
+User assessment responses with progress tracking.
 
-## Data Integrity and Validation
+```sql
+CREATE TABLE responses (
+  id VARCHAR PRIMARY KEY,
+  questionnaire_id VARCHAR REFERENCES questionnaires(id),
+  respondent_email VARCHAR,
+  respondent_name VARCHAR,
+  status VARCHAR DEFAULT 'in_progress',
+  started_at TIMESTAMP DEFAULT NOW(),
+  completed_at TIMESTAMP,
+  metadata JSONB DEFAULT '{}'
+);
+```
 
-### Database Constraints
-- NOT NULL constraints on required fields
-- Array fields for proper metadata storage
-- Timestamp fields with proper defaults
+### question_answers
+Individual question responses.
 
-### Application-Level Validation
-- Zod schemas for API request validation
-- Type-safe database operations through Drizzle
-- Real-time score calculation validation
+```sql
+CREATE TABLE question_answers (
+  id VARCHAR PRIMARY KEY,
+  response_id VARCHAR REFERENCES responses(id),
+  question_id VARCHAR REFERENCES questions(id),
+  answer_value TEXT,
+  score_value DECIMAL DEFAULT 0,
+  answered_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-### Backup and Recovery
-- Neon provides automatic backups
-- Point-in-time recovery capabilities
-- Export functionality for configuration backup
+### section_progress
+Section-level progress tracking for enhanced saved progress.
 
-## API Integration
+```sql
+CREATE TABLE section_progress (
+  id VARCHAR PRIMARY KEY,
+  response_id VARCHAR REFERENCES responses(id),
+  section_id VARCHAR REFERENCES sections(id),
+  section_number INTEGER NOT NULL,
+  started BOOLEAN DEFAULT false,
+  completed BOOLEAN DEFAULT false,
+  current_question_index INTEGER DEFAULT 0,
+  total_questions INTEGER DEFAULT 0,
+  completion_percentage DECIMAL DEFAULT 0,
+  last_modified TIMESTAMP DEFAULT NOW(),
+  answers JSONB DEFAULT '{}'
+);
+```
 
-### RESTful Endpoints
+### question_templates
+Template library for question management (100+ templates).
 
-**Use Case Management**:
-- `GET /api/use-cases` - Retrieve all use cases
-- `POST /api/use-cases` - Create new use case
-- `PUT /api/use-cases/:id` - Update existing use case
-- `DELETE /api/use-cases/:id` - Delete use case
+```sql
+CREATE TABLE question_templates (
+  id VARCHAR PRIMARY KEY,
+  category VARCHAR NOT NULL,
+  subcategory VARCHAR,
+  question_text TEXT NOT NULL,
+  question_type VARCHAR NOT NULL,
+  options JSONB DEFAULT '[]',
+  tags TEXT[],
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-**Metadata Configuration**:
-- `GET /api/metadata` - Retrieve metadata configuration
-- `PUT /api/metadata` - Update metadata configuration
+### assessment_results
+Cached assessment results and maturity scores.
 
-**Assessment System** (Current Active Endpoints):
-- `GET /api/questionnaires/:id` - Retrieve questionnaire with sections and questions
-- `POST /api/responses/start` - Start new assessment response
-- `PUT /api/responses/:id/answers` - Update question answers
-- `GET /api/responses/:id` - Retrieve assessment response
-- `PUT /api/section-progress/:responseId/:sectionNumber` - Update section progress
-- `POST /api/section-progress/:responseId/:sectionNumber/complete` - Mark section complete
-- `GET /api/responses/:id/resume-point` - Get resume point for incomplete assessment
-- `GET /api/assessment-stats` - Retrieve assessment statistics
+```sql
+CREATE TABLE assessment_results (
+  id VARCHAR PRIMARY KEY,
+  response_id VARCHAR REFERENCES responses(id),
+  section_scores JSONB DEFAULT '{}',
+  overall_score DECIMAL DEFAULT 0,
+  maturity_level VARCHAR,
+  recommendations JSONB DEFAULT '[]',
+  calculated_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-### Response Format
-All API responses include proper TypeScript typing and consistent error handling with appropriate HTTP status codes.
+### question_dependencies
+Question conditional logic.
 
----
+```sql
+CREATE TABLE question_dependencies (
+  id VARCHAR PRIMARY KEY,
+  question_id VARCHAR REFERENCES questions(id),
+  depends_on_question_id VARCHAR REFERENCES questions(id),
+  condition_type VARCHAR NOT NULL,
+  condition_value VARCHAR NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-*Last Updated: January 2025*
-*Database Version: PostgreSQL 14+ (Neon Serverless)*
-*ORM Version: Drizzle 0.x with TypeScript*
+### rsa_assessment_recommendations
+AI-generated use case recommendations.
+
+```sql
+CREATE TABLE rsa_assessment_recommendations (
+  id VARCHAR PRIMARY KEY,
+  response_id VARCHAR REFERENCES responses(id),
+  use_case_id VARCHAR REFERENCES use_cases(id),
+  recommendation_text TEXT,
+  priority_score DECIMAL DEFAULT 0,
+  reasoning TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+## Database Views
+
+### saved_assessment_progress
+Virtual view for saved progress modal functionality.
+
+```sql
+CREATE VIEW saved_assessment_progress AS
+SELECT 
+  r.id as response_id,
+  r.questionnaire_id,
+  COALESCE(AVG(sp.completion_percentage), 0) as completion_percentage,
+  COALESCE(MAX(sp.section_number), 1) as current_section,
+  COUNT(DISTINCT s.id) as total_sections,
+  r.started_at as timestamp,
+  r.respondent_email,
+  r.respondent_name
+FROM responses r
+LEFT JOIN section_progress sp ON r.id = sp.response_id
+LEFT JOIN sections s ON r.questionnaire_id = s.questionnaire_id
+WHERE r.status = 'in_progress'
+GROUP BY r.id, r.questionnaire_id, r.started_at, r.respondent_email, r.respondent_name
+ORDER BY r.started_at DESC;
+```
+
+## Current Data
+
+### Seeded Use Cases
+16 commercial insurance use cases covering:
+- Claims processing automation
+- Risk assessment analytics
+- Customer service enhancement  
+- Underwriting optimization
+- Fraud detection systems
+- Policy administration
+- Pricing optimization
+- Compliance monitoring
+
+### RSA Assessment Content
+- **6 Sections**: Business Strategy, Data Capabilities, Use Case Discovery, Technology Readiness, People & Process, Governance & Risk
+- **16 Questions**: Covering GWP, markets, AI strategy, technology stack, use case priorities
+- **70+ Answer Options**: Multiple choice and scale responses with scoring
+- **100+ Question Templates**: Categorized library for assessment customization
+
+### Metadata Configuration
+- **Business Segments**: Commercial Lines, Personal Lines, Specialty Lines, Reinsurance
+- **Geographies**: North America, Europe, Asia Pacific, Latin America, Middle East & Africa
+- **Use Case Types**: Automation, Analytics, Customer Experience, Risk Management, Operational Efficiency
+
+## API Endpoints
+
+### Core Operations
+- `GET/POST/PUT/DELETE /api/use-cases` - Use case CRUD
+- `GET /api/questionnaires/:id` - Assessment with sections/questions
+- `GET/PUT /api/responses/:id` - Assessment responses
+- `GET /api/assessment-progress` - Saved progress for modal
+- `DELETE /api/assessment-progress/:responseId` - Delete saved progress
+- `GET/PUT /api/section-progress/:responseId` - Section-level progress
+- `GET /api/recommendations/:responseId` - Assessment recommendations
+
+## Key Features
+
+### Enhanced Scoring
+- 12-lever RSA Framework with automatic quadrant assignment
+- Real-time calculations: Impact = Business Value average, Effort = Feasibility average
+- 3.0 threshold determines Quick Win/Strategic Bet/Experimental/Watchlist quadrants
+
+### Progress Management  
+- Section-level progress tracking with completion percentages
+- Auto-save functionality with localStorage + database persistence
+- Resume capability via SavedProgressModalLegoBlock
+- Progress visualization and management through modal interface
+
+### Database Integration
+- PostgreSQL with Neon serverless hosting
+- Drizzle ORM with automatic migrations via `npm run db:push`
+- Comprehensive seeding system for use cases and assessment content
+- Database-first architecture with real-time persistence

@@ -1,170 +1,122 @@
-# RSA AI Framework - Complete Feature Reference
+# Feature Reference Documentation
 
-## Navigation System
+## Core Features
 
-### Primary Tabs
-- **Dashboard View**: Portfolio overview with resumable assessments and matrix visualization
-- **Explorer**: Use case browsing with advanced filtering and CRUD operations
-- **AI Assessment**: Complete maturity questionnaire with progress persistence
-- **Admin**: Metadata management and system configuration
+### 1. RSA AI Framework Scoring
+**12-Lever Evaluation System**
+- **Business Value (5 levers)**: Strategic alignment, market potential, customer value, revenue impact, cost reduction
+- **Feasibility (5 levers)**: Data readiness, technical complexity, implementation complexity, resource availability, time to market
+- **AI Governance (2 levers)**: Risk mitigation, governance readiness
+- **Auto-Quadrant Assignment**: 3.0 threshold determines Quick Win/Strategic Bet/Experimental/Watchlist
 
-## Dashboard Features
+### 2. Use Case Management
+**Complete CRUD Operations**
+- Create, read, update, delete use cases with real-time scoring
+- Bulk operations and filtering by business dimensions
+- Export functionality for portfolio analysis
+- Database persistence with automatic score calculations
 
-### Portfolio Overview (SummaryMetricsLegoBlock)
-- **Quadrant metrics** with clickable filtering integration
-- **Real-time counts** across all four priority quadrants
-- **Average scores** for Impact and Effort calculations
-- **New use cases** tracking with monthly statistics
-- **Interactive cards** that filter the matrix view when clicked
+### 3. Assessment System
+**6-Section RSA AI Maturity Assessment**
+- Business Strategy & AI Vision (5 questions)
+- Current AI & Data Capabilities (3 questions)
+- Use Case Discovery & Validation (2 questions)
+- Technology & Infrastructure Readiness (2 questions)
+- People, Process & Change Management (2 questions)
+- Governance, Risk & Compliance (2 questions)
 
-### Resumable Assessments (ResumeProgressLegoBlock)
-- **Progress visualization** with completion percentages
-- **Section tracking** showing current position
-- **Last saved timestamps** with relative time display
-- **Resume capability** returning to exact assessment position
-- **Delete functionality** for clearing unwanted progress
-- **Auto-refresh** checking for new progress every 30 seconds
+**Progress Management**
+- Section-level progress tracking with completion percentages
+- Auto-save functionality every 30 seconds
+- Resume capability via SavedProgressModalLegoBlock
+- localStorage + database dual persistence
 
-### Matrix Visualization
-- **Interactive scatter plot** with use case positioning
-- **Hover tooltips** showing detailed use case information
-- **Quadrant boundaries** clearly marked at 3.0 threshold
-- **Color coding** by quadrant with consistent theme
-- **Recommendation highlighting** with gold star indicators
-- **Click-to-detail** functionality for use case editing
+### 4. Results Dashboard
+**Comprehensive Analysis**
+- Overall maturity score and level classification
+- Section-specific scoring and recommendations
+- Gap analysis with improvement suggestions
+- Export options: PDF, Excel, JSON
 
-## Explorer Features
+### 5. Admin Interface
+**4-Tab Management Panel**
+- **Data Management**: Use case import/export, metadata configuration
+- **Process Configuration**: Business workflow management
+- **Assessment Management**: Question template library (100+ templates)
+- **System Configuration**: Scoring model and advanced settings
 
-### Advanced Filtering System
-- **Text search** across title and description fields
-- **Quick quadrant filters** with active state indicators
-- **Process filtering** across value chain components
-- **Activity filtering** with contextual options
-- **Line of Business** multi-selection support
-- **Business Segment** categorical filtering
-- **Geography** regional filtering
-- **Use Case Type** classification filtering
-- **Recommendation toggle** showing assessment-matched cases
-- **Clear filters** functionality with single click
+### 6. LEGO Component Architecture
+**20+ Reusable Components**
+- SavedProgressModalLegoBlock for progress management
+- SummaryMetricsLegoBlock for portfolio overview
+- QuestionTemplateLibraryLegoBlock for assessment customization
+- AssessmentResultsDashboard for results display
+- All components follow REFERENCE.md principles
 
-### Use Case Management (CRUDUseCaseModal)
-- **Comprehensive form** with all required fields
-- **12-lever scoring sliders** with tooltips and descriptions
-- **Real-time calculations** showing Impact and Effort scores
-- **Quadrant preview** with automatic assignment logic
-- **Validation system** ensuring data completeness
-- **Create and Edit modes** with proper state management
-- **Database persistence** with immediate updates
+## Database Features
 
-### Card Display System
-- **Compact cards** showing essential information
-- **Score visualization** with Impact and Effort display
-- **Metadata badges** for quick identification
-- **Edit access** via click-through actions
-- **Responsive grid** adapting to screen size
-- **Recommendation indicators** for assessment matches
+### Real-Time Persistence
+- 11-table PostgreSQL schema with Drizzle ORM
+- Automatic migrations via `npm run db:push`
+- Database views for complex queries (saved_assessment_progress)
+- Full CRUD API with type-safe operations
 
-## Assessment System Features
+### Seeded Content
+- 16 commercial insurance use cases with complete scoring
+- RSA Assessment questionnaire with 70+ answer options
+- 100+ question templates across multiple categories
+- Business metadata for commercial insurance context
 
-### Questionnaire Workflow (QuestionnaireContainer)
-- **Email capture** with validation
-- **Multi-section progression** with navigation controls
-- **Question type support**: Scale, multiple choice, text, number
-- **Required field validation** with error messaging
-- **Section-by-section validation** preventing incomplete progression
-- **Progress tracking** with visual completion indicators
+## API Capabilities
 
-### Enhanced Progress Persistence (useProgressPersistence)
-- **1-second debounced auto-save** minimizing database calls
-- **LocalStorage backup** for offline capabilities
-- **Session recovery** on browser reload with validation
-- **30-day retention** with automatic cleanup of old data
-- **Progress timestamps** with precise save tracking
-- **Online/offline indicators** showing connectivity status
+### Core Endpoints
+- `/api/use-cases` - Complete use case management
+- `/api/questionnaires/:id` - Assessment content with sections/questions
+- `/api/responses/:id` - Assessment responses and scoring
+- `/api/assessment-progress` - Saved progress for modal
+- `/api/recommendations/:responseId` - AI-generated recommendations
 
-### Real-time Status (ProgressStatusLegoBlock)
-- **Save status display** with visual indicators
-- **Last saved timestamp** with precise timing
-- **Connectivity status** showing online/offline state
-- **Saving animation** during database operations
-- **Error state handling** with retry capabilities
-- **Badge indicators** for connection quality
+### Integration Features
+- RESTful API design with consistent patterns
+- Zod validation for all requests
+- Error handling with user-friendly messages
+- Database connection pooling for performance
 
-### Results Dashboard (AssessmentResultsDashboard)
-- **Maturity scoring** across 5 key domains
-- **Visual progress bars** showing domain strengths
-- **Overall average** with percentage indicators
-- **Maturity level mapping** (Initial, Defined, Managed, Optimized)
-- **Completion celebration** with success messaging
-- **Navigation to recommendations** with use case matching
+## User Experience
 
-### Export Functionality (ResponseExportLegoBlock)
-- **PDF export** with formatted results
-- **Excel download** with structured data
-- **JSON export** for technical integration
-- **Assessment summary** included in all formats
-- **Progress preservation** during export operations
+### Navigation
+- Intuitive 4-tab main navigation (Dashboard, Explorer, AI Assessment, Admin)
+- Breadcrumb navigation for assessment flow
+- Context-aware routing with state persistence
 
-## Scoring System
+### Responsive Design
+- Mobile-friendly interface with Tailwind CSS
+- Dark mode support with theme persistence
+- Consistent RSA branding across all components
 
-### 12-Lever RSA Framework
-**Business Value (Impact Score)**
-1. **Revenue Impact**: New revenue, premium growth, market expansion
-2. **Cost Savings**: Operational cost reductions and efficiency gains
-3. **Risk Reduction**: Underwriting, claims, fraud, operational risk lowering
-4. **Broker/Partner Experience**: Relationship and experience improvements
-5. **Strategic Fit**: Corporate strategy and competitive positioning alignment
+### Performance
+- TanStack Query for efficient data fetching and caching
+- Real-time updates without page refreshes
+- Optimistic updates for immediate user feedback
 
-**Feasibility (Effort Score)**
-6. **Data Readiness**: Quality, availability, usability of required datasets
-7. **Technical Complexity**: Model maturity requirements and difficulty
-8. **Change Impact**: Process and role redesign requirements
-9. **Model Risk**: Potential harm if model fails (regulatory, reputational)
-10. **Adoption Readiness**: Stakeholder buy-in and user acceptance
+## Technical Architecture
 
-**AI Governance**
-11. **Explainability/Bias**: Responsible AI principles and bias management
-12. **Regulatory Compliance**: FCA, GDPR, UK/EU AI Act readiness
+### Frontend Stack
+- React 18 with TypeScript for type safety
+- Tailwind CSS + shadcn/ui for consistent design
+- React Hook Form + Zod for form validation
+- Wouter for lightweight routing
 
-### Automatic Calculations
-- **Impact Score** = Average of Business Value levers (1-5)
-- **Effort Score** = Average of Feasibility levers (6-10)
-- **Quadrant Assignment** using 3.0 threshold logic:
-  - High Impact (≥3.0), Low Effort (<3.0) = **Quick Win**
-  - High Impact (≥3.0), High Effort (≥3.0) = **Strategic Bet**
-  - Low Impact (<3.0), Low Effort (<3.0) = **Experimental**  
-  - Low Impact (<3.0), High Effort (≥3.0) = **Watchlist**
+### Backend Infrastructure
+- Node.js + Express with TypeScript
+- PostgreSQL with Neon serverless hosting
+- Drizzle ORM for type-safe database operations
+- Comprehensive error handling and logging
 
-## Recommendation Engine
+### Development Tools
+- Vite for fast development and building
+- ESLint and TypeScript for code quality
+- Hot reload for rapid development
+- Comprehensive documentation and standards
 
-### Assessment-to-Use Case Matching
-- **Automatic analysis** of assessment completion
-- **Maturity-based recommendations** using business logic
-- **Visual highlighting** with gold star indicators
-- **Filtering integration** showing only recommended cases
-- **Score-based ranking** prioritizing best matches
-
-### Recommendation Logic
-- **High maturity domains** (≥4.0) suggest Strategic Bet use cases
-- **Medium maturity domains** (2.5-3.9) suggest Quick Win opportunities
-- **Low maturity domains** (<2.5) suggest Experimental approaches
-- **Cross-domain analysis** considering overall readiness
-- **Business segment alignment** with assessment context
-
-## Data Management
-
-### Database-First Architecture
-- **PostgreSQL** with Neon serverless hosting
-- **Automatic migrations** via Drizzle ORM
-- **Real-time persistence** with immediate consistency
-- **Data validation** at API and database levels
-- **Transaction support** ensuring data integrity
-
-### Metadata Configuration
-- **Dynamic dropdowns** configurable via Admin panel
-- **Process-Activity mapping** with contextual relationships
-- **Line of Business** hierarchical organization
-- **Geographic regions** with flexible definitions
-- **Use case types** with classification system
-
-This comprehensive feature set provides complete AI use case management capabilities while maintaining simplicity and user-friendly operation.
+This feature set positions the platform as a comprehensive solution for AI strategy development and execution in commercial insurance environments.
