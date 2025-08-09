@@ -117,7 +117,9 @@ const startResponseSchema = z.object({
 
 router.post('/responses/start', async (req: Request, res: Response) => {
   try {
+    console.log('Received start request body:', req.body);
     const validatedData = startResponseSchema.parse(req.body);
+    console.log('Validated data:', validatedData);
 
     // Verify questionnaire exists and is active
     const [questionnaire] = await db

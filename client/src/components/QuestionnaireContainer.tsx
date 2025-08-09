@@ -285,7 +285,7 @@ export default function QuestionnaireContainer({
     }
 
     try {
-      const result = await startResponseAsync({
+      const requestData = {
         questionnaireId,
         respondentEmail: respondentEmail.trim(),
         respondentName: respondentName.trim() || undefined,
@@ -293,16 +293,24 @@ export default function QuestionnaireContainer({
           startedAt: new Date().toISOString(),
           userAgent: navigator.userAgent
         }
-      });
+      };
+      
+      console.log('Starting assessment with data:', requestData);
+      const result = await startResponseAsync(requestData);
 
       if (result) {
         setResponseSession(result);
+        console.log('Assessment started successfully:', result);
       }
     } catch (error) {
       console.error('Failed to start response:', error);
+      // Show more specific error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Failed to Start Assessment",
-        description: "Unable to begin the assessment. Please try again.",
+        description: errorMessage.includes('Validation error') 
+          ? "Please check your input and try again." 
+          : "Unable to begin the assessment. Please try again.",
         variant: "destructive"
       });
     }
