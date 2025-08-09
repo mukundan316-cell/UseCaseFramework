@@ -8,6 +8,9 @@ Preferred communication style: Simple, everyday language.
 
 **LEGO-Style Architecture Mandate**: All buttons, modals, components and features must be implemented as reusable LEGO blocks where possible. Follow the "Build Once, Reuse Everywhere" principle to maintain consistency and reduce development overhead. Every new UI element should be evaluated for reusability potential before implementation.
 
+## Recent Updates (January 2025)
+**Database Integrity Resolution**: Resolved foreign key constraint violations in question_answers table (January 9, 2025). All question references verified as valid, complex answer types (currency, percentage_allocation) successfully validated and saved. System now fully supports JSON-based answers with proper serialization/deserialization.
+
 ## System Architecture
 
 ### Core Architecture
