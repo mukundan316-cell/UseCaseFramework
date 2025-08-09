@@ -524,8 +524,9 @@ export default function QuestionRegistryLegoBlock({
         {/* Question Component */}
         {renderQuestionComponent()}
 
-        {/* Additional Context & Notes Section */}
-        {questionMeta.questionData?.allowNotes && (
+        {/* Additional Context & Notes Section - Only show for non-advanced question types */}
+        {questionMeta.questionData?.allowNotes && 
+         !['business_performance', 'multi_rating', 'smart_rating', 'ranking', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'company_profile'].includes(questionMeta.questionType) && (
           <div className="mt-4 space-y-2">
             <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <FileText className="h-4 w-4" />
