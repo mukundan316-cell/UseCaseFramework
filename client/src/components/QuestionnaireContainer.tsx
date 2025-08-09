@@ -516,6 +516,19 @@ export default function QuestionnaireContainer({
   const isLastSection = currentSectionIndex === questionnaire.sections.length - 1;
   const isCompleted = responseSession?.status === 'completed';
 
+  // Add safety check for currentSection
+  if (!currentSection) {
+    return (
+      <div className={cn("max-w-4xl mx-auto p-6 space-y-6", className)}>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-gray-500">Loading section...</div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("max-w-4xl mx-auto p-6 space-y-6", className)}>
       {/* Progress Header */}
