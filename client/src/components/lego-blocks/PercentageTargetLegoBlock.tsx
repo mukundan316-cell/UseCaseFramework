@@ -59,6 +59,8 @@ export interface PercentageTargetLegoBlockProps {
   onAdditionalContextChange?: (value: string) => void;
   /** Label for additional context section */
   additionalContextLabel?: string;
+  /** Whether to show the total percentage (default: true) */
+  showTotal?: boolean;
 }
 
 // Utility functions for percentage formatting
@@ -107,7 +109,8 @@ export default function PercentageTargetLegoBlock({
   precision = 1,
   additionalContext = '',
   onAdditionalContextChange,
-  additionalContextLabel = 'Additional Context'
+  additionalContextLabel = 'Additional Context',
+  showTotal = true
 }: PercentageTargetLegoBlockProps) {
   const [localValues, setLocalValues] = useState<PercentageTargetValues>(values);
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
@@ -196,16 +199,18 @@ export default function PercentageTargetLegoBlock({
         </div>
       )}
 
-      {/* Total Display */}
-      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
-        <div className="flex items-center space-x-2">
-          <Percent className="h-5 w-5 text-gray-600" />
-          <span className="text-sm font-medium text-gray-700">Total Target</span>
+      {/* Total Display - only show if showTotal is true */}
+      {showTotal && (
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+          <div className="flex items-center space-x-2">
+            <Percent className="h-5 w-5 text-gray-600" />
+            <span className="text-sm font-medium text-gray-700">Total Target</span>
+          </div>
+          <span className="text-lg font-semibold text-gray-900">
+            {percentageTargetUtils.formatPercentage(total, precision)}%
+          </span>
         </div>
-        <span className="text-lg font-semibold text-gray-900">
-          {percentageTargetUtils.formatPercentage(total, precision)}%
-        </span>
-      </div>
+      )}
 
       {/* Category Input Cards */}
       <div className="space-y-4">

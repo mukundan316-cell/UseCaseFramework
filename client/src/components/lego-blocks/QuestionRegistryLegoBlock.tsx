@@ -387,6 +387,7 @@ export default function QuestionRegistryLegoBlock({
               onResponseChange(questionMeta.id, updatedValue);
             }}
             additionalContextLabel={questionMeta.questionData.additionalContextLabel || 'Additional Context'}
+            showTotal={questionMeta.questionData.showTotal !== false}
           />
         );
       }
