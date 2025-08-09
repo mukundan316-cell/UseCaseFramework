@@ -61,11 +61,14 @@ export default function QuestionConfigurationLegoBlock({
       data.sections?.forEach((section: any) => {
         section.questions?.forEach((question: any) => {
           if (question.questionType === 'percentage_target') {
+            // Extract question number from question ID (e.g., "q3-distribution" -> 3)
+            const questionNumber = question.id.match(/^q(\d+)-/)?.[1] || question.questionOrder;
+            
             percentageTargetQuestions.push({
               id: question.id,
               questionText: question.questionText,
               questionType: question.questionType,
-              questionOrder: question.questionOrder || 0,
+              questionOrder: parseInt(questionNumber as string) || question.questionOrder || 0,
               showTotal: question.questionData?.showTotal !== false, // Default to true
               precision: question.questionData?.precision || 1,
               additionalContextLabel: question.questionData?.additionalContextLabel || 'Additional Context',
