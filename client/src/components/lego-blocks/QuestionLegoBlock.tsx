@@ -21,7 +21,7 @@ export interface QuestionOption {
 export interface QuestionData {
   id: string;
   questionText: string;
-  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'smart_rating' | 'ranking' | 'currency' | 'percentage_allocation' | 'business_lines_matrix' | 'department_skills_matrix';
+  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'smart_rating' | 'ranking' | 'currency' | 'percentage_allocation' | 'business_lines_matrix' | 'department_skills_matrix' | 'company_profile';
   isRequired: boolean;
   questionOrder?: number;
   helpText?: string;

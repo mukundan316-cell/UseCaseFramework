@@ -11,6 +11,8 @@ Preferred communication style: Simple, everyday language.
 ## Recent Updates (January 2025)
 **Enhanced Question Type Implementation Complete**: (January 9, 2025) Successfully implemented and integrated all advanced question types including currency input, percentage allocation, smart rating, ranking, business lines matrix, and department skills matrix. All components follow LEGO-style architecture with proper JSON serialization, database persistence, and admin panel integration. System now supports comprehensive assessment workflows with complex data validation and real-time calculations.
 
+**Database Schema Enhancement Complete**: (January 9, 2025) Added missing question types ('department_skills_matrix', 'textarea') to shared schema validation. Updated QuestionLegoBlock and QuestionRegistryLegoBlock for full question type support. All 14 question types now properly validated and integrated across the entire assessment system. Database testing confirms proper storage and retrieval of all question types.
+
 ## System Architecture
 
 ### Core Architecture
