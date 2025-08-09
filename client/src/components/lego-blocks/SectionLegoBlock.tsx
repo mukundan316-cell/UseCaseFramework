@@ -52,10 +52,13 @@ export default function SectionLegoBlock({
 
   // Enhanced section progress calculation that handles compound questions properly
   const calculateProgress = () => {
-    if (questions.length === 0) return { completed: 0, total: 0, percentage: 0, required: { completed: 0, total: 0 }, optional: { completed: 0, total: 0 } };
+    // Filter out header questions from progress calculation
+    const actualQuestions = questions.filter(q => !q.questionData?.isHeader);
+    
+    if (actualQuestions.length === 0) return { completed: 0, total: 0, percentage: 0, required: { completed: 0, total: 0 }, optional: { completed: 0, total: 0 } };
 
-    const requiredQuestions = questions.filter(q => q.isRequired);
-    const optionalQuestions = questions.filter(q => !q.isRequired);
+    const requiredQuestions = actualQuestions.filter(q => q.isRequired);
+    const optionalQuestions = actualQuestions.filter(q => !q.isRequired);
     
     // Helper function to check if a question is completed based on its type
     const isQuestionCompleted = (question: any) => {
@@ -172,11 +175,11 @@ export default function SectionLegoBlock({
     const completedOptional = optionalQuestions.filter(isQuestionCompleted).length;
 
     const totalCompleted = completedRequired + completedOptional;
-    const percentage = questions.length > 0 ? (totalCompleted / questions.length) * 100 : 0;
+    const percentage = actualQuestions.length > 0 ? (totalCompleted / actualQuestions.length) * 100 : 0;
 
     return {
       completed: totalCompleted,
-      total: questions.length,
+      total: actualQuestions.length,
       required: {
         completed: completedRequired,
         total: requiredQuestions.length
@@ -318,57 +321,70 @@ export default function SectionLegoBlock({
   const renderSectionContent = () => {
     if (!isExpanded) return null;
 
+    // Calculate question numbers excluding headers
+    let questionNumber = 0;
+
     return (
       <CardContent className="pt-0">
         <div className="space-y-6">
-          {sortedQuestions.map((question, index) => (
-            <div 
-              key={question.id}
-              className={cn(
-                "relative",
-                index < sortedQuestions.length - 1 && "pb-6 border-b border-gray-100"
-              )}
-            >
-              {/* Question number indicator */}
-              <div className="absolute -left-2 top-0">
-                <div className="flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-                  {index + 1}
+          {sortedQuestions.map((question, index) => {
+            // Increment question number only for non-header questions
+            const isHeader = question.questionData?.isHeader;
+            if (!isHeader) {
+              questionNumber++;
+            }
+
+            return (
+              <div 
+                key={question.id}
+                className={cn(
+                  "relative",
+                  index < sortedQuestions.length - 1 && "pb-6 border-b border-gray-100"
+                )}
+              >
+                {/* Question number indicator - only show for non-header questions */}
+                {!isHeader && (
+                  <div className="absolute -left-2 top-0">
+                    <div className="flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                      Q{questionNumber}
+                    </div>
+                  </div>
+                )}
+              
+                {/* Question content */}
+                <div className={cn(isHeader ? "ml-0" : "ml-6")}>
+                  {/* Use QuestionRegistryLegoBlock for advanced question types */}
+                  {['company_profile', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating'].includes(question.questionType) ? (
+                    <QuestionRegistryLegoBlock
+                      questions={[{
+                        id: question.id,
+                        sectionId: 0, // Not used in rendering
+                        questionOrder: question.questionOrder || 0,
+                        questionType: question.questionType as any,
+                        questionText: question.questionText,
+                        isRequired: question.isRequired,
+                        helpText: question.helpText,
+                        questionData: (question as any).questionData || {}
+                      }]}
+                      responses={new Map([[question.id, responses.get(question.id)]])}
+                      onResponseChange={(questionId: string, value: any) => onChange(questionId, value)}
+                      disabled={readonly}
+                      showDebug={false}
+                    />
+                  ) : (
+                    /* Use standard QuestionLegoBlock for basic question types */
+                    <QuestionLegoBlock
+                      question={question}
+                      value={responses.get(question.id)}
+                      onChange={(value) => onChange(question.id, value)}
+                      error={errors[question.id]}
+                      readonly={readonly}
+                    />
+                  )}
                 </div>
               </div>
-              
-              {/* Question content */}
-              <div className="ml-6">
-                {/* Use QuestionRegistryLegoBlock for advanced question types */}
-                {['company_profile', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating'].includes(question.questionType) ? (
-                  <QuestionRegistryLegoBlock
-                    questions={[{
-                      id: question.id,
-                      sectionId: 0, // Not used in rendering
-                      questionOrder: question.questionOrder || 0,
-                      questionType: question.questionType as any,
-                      questionText: question.questionText,
-                      isRequired: question.isRequired,
-                      helpText: question.helpText,
-                      questionData: (question as any).questionData || {}
-                    }]}
-                    responses={new Map([[question.id, responses.get(question.id)]])}
-                    onResponseChange={(questionId: string, value: any) => onChange(questionId, value)}
-                    disabled={readonly}
-                    showDebug={false}
-                  />
-                ) : (
-                  /* Use standard QuestionLegoBlock for basic question types */
-                  <QuestionLegoBlock
-                    question={question}
-                    value={responses.get(question.id)}
-                    onChange={(value) => onChange(question.id, value)}
-                    error={errors[question.id]}
-                    readonly={readonly}
-                  />
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
           
           {questions.length === 0 && (
             <div className="text-center py-8 text-gray-500">
