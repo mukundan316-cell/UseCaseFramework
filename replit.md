@@ -51,6 +51,7 @@ The project follows strict architectural principles and coding standards documen
 - **SectionConfigurationLegoBlock**: Admin section management with drag-and-drop reordering, template integration, and comprehensive configuration
 - **SectionSummaryCardLegoBlock**: Interactive section overview cards with progress tracking, maturity scoring, and navigation controls
 - **BreadcrumbNavigationLegoBlock**: Context-aware navigation breadcrumbs with responsive design and progress tracking
+- **SectionTransitionLegoBlock**: Smooth section navigation with validation, animations, and celebration effects
 - **ReusableButton**: Standardized RSA-styled button component with consistent theming
 - **ScoreSliderLegoBlock**: Reusable scoring slider component with tooltips and configurable display options
 - **InfoTooltipLegoBlock**: Standardized help text tooltip component with icon variants

@@ -256,6 +256,39 @@ const {
 />
 ```
 
+### SectionTransitionLegoBlock
+**Purpose**: Smooth section navigation with validation, animations, and state management
+**Location**: `client/src/components/lego-blocks/SectionTransitionLegoBlock.tsx`
+**Features**:
+- Section completion validation before allowing navigation
+- Confirmation dialogs for unsaved changes protection
+- Loading states and transition animations (slide, fade, celebration)
+- Next section preview with key highlights
+- Save & Exit functionality with proper cleanup
+- Progress visualization with completion percentages
+- Error handling and validation feedback
+- Auto-advance capability for seamless progression
+- Celebration animations on section and assessment completion
+- Responsive design with mobile optimization
+
+**Usage Example**:
+```tsx
+<SectionTransitionLegoBlock
+  currentSection={currentSectionData}
+  nextSection={nextSectionData}
+  previousSection={previousSectionData}
+  transitionState="idle"
+  onNavigateToSection={handleSectionNavigation}
+  onSaveAndExit={handleSaveExit}
+  onCompleteSection={handleSectionCompletion}
+  onValidateSection={handleValidation}
+  hasUnsavedChanges={false}
+  isAllSectionsComplete={false}
+  showCelebration={false}
+  autoAdvance={true}
+/>
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`
