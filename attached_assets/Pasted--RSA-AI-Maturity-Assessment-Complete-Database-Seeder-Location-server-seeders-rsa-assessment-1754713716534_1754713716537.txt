@@ -1,0 +1,591 @@
+// RSA AI Maturity Assessment - Complete Database Seeder
+// Location: server/seeders/rsa-assessment-seeder.ts
+
+import { db } from '../db';
+import { questionnaires, questionnaireSections, questions, questionOptions } from '../../shared/schema';
+
+// Complete RSA Assessment Structure
+const RSA_ASSESSMENT_DATA = {
+  questionnaire: {
+    title: "RSA AI Maturity Assessment",
+    description: "Comprehensive evaluation of your organization's AI readiness and maturity across 6 key domains",
+    version: "2.0",
+    status: "active"
+  },
+  
+  sections: [
+    {
+      title: "Business Strategy & AI Vision",
+      sectionOrder: 1,
+      estimatedTime: 45,
+      description: "Evaluate strategic alignment, vision clarity, and business case development",
+      questions: [
+        {
+          questionText: "What is RSA's current Gross Written Premium (GWP)?",
+          questionType: "select",
+          isRequired: "true",
+          questionOrder: 1,
+          helpText: "This helps us understand your company scale and maturity",
+          options: [
+            { text: "Small (<£100M)", value: "small", score: 1 },
+            { text: "Mid (£100M-£3B)", value: "mid", score: 3 },
+            { text: "Large (>£3B)", value: "large", score: 5 }
+          ]
+        },
+        {
+          questionText: "Which markets does RSA primarily operate in?",
+          questionType: "multiselect",
+          isRequired: "true",
+          questionOrder: 2,
+          helpText: "Select all that apply - this influences AI use case priorities",
+          options: [
+            { text: "Personal Lines", value: "personal", score: 2 },
+            { text: "Commercial Lines", value: "commercial", score: 4 },
+            { text: "Specialty Insurance", value: "specialty", score: 5 },
+            { text: "Reinsurance", value: "reinsurance", score: 3 }
+          ]
+        },
+        {
+          questionText: "How would you rate your current AI strategy maturity?",
+          questionType: "scale",
+          isRequired: "true",
+          questionOrder: 3,
+          helpText: "1 = No formal strategy, 5 = Comprehensive AI strategy with clear roadmap",
+          options: [
+            { text: "1 - No Strategy", value: "1", score: 1 },
+            { text: "2 - Emerging", value: "2", score: 2 },
+            { text: "3 - Defined", value: "3", score: 3 },
+            { text: "4 - Advanced", value: "4", score: 4 },
+            { text: "5 - Leading", value: "5", score: 5 }
+          ]
+        },
+        {
+          questionText: "What is your target AI investment over the next 2 years?",
+          questionType: "select",
+          isRequired: "true",
+          questionOrder: 4,
+          helpText: "This helps scope appropriate recommendations",
+          options: [
+            { text: "£500K - £2M", value: "tier1", score: 2 },
+            { text: "£2M - £5M", value: "tier2", score: 3 },
+            { text: "£5M - £10M", value: "tier3", score: 4 },
+            { text: "£10M+", value: "tier4", score: 5 }
+          ]
+        },
+        {
+          questionText: "Which business outcomes are most important for AI initiatives?",
+          questionType: "ranking",
+          isRequired: "true",
+          questionOrder: 5,
+          helpText: "Rank from 1 (most important) to 5 (least important)",
+          options: [
+            { text: "Revenue Growth", value: "revenue", score: 0 },
+            { text: "Cost Reduction", value: "cost", score: 0 },
+            { text: "Risk Mitigation", value: "risk", score: 0 },
+            { text: "Customer Experience", value: "customer", score: 0 },
+            { text: "Operational Efficiency", value: "efficiency", score: 0 }
+          ]
+        },
+        {
+          questionText: "How does AI fit into your overall digital transformation strategy?",
+          questionType: "text",
+          isRequired: "false",
+          questionOrder: 6,
+          helpText: "Describe the relationship between AI and broader transformation goals"
+        },
+        {
+          questionText: "What is your risk appetite for AI experimentation in regulated areas?",
+          questionType: "scale",
+          isRequired: "true",
+          questionOrder: 7,
+          helpText: "1 = Very conservative, 5 = Willing to be an early adopter",
+          options: [
+            { text: "1 - Very Conservative", value: "1", score: 1 },
+            { text: "2 - Conservative", value: "2", score: 2 },
+            { text: "3 - Moderate", value: "3", score: 3 },
+            { text: "4 - Aggressive", value: "4", score: 4 },
+            { text: "5 - Very Aggressive", value: "5", score: 5 }
+          ]
+        }
+      ]
+    },
+    
+    {
+      title: "Current AI & Data Capabilities",
+      sectionOrder: 2,
+      estimatedTime: 60,
+      description: "Assess existing technology stack, data infrastructure, and AI capabilities",
+      questions: [
+        {
+          questionText: "What is your primary data architecture approach?",
+          questionType: "select",
+          isRequired: "true",
+          questionOrder: 1,
+          helpText: "Understanding current data foundation is critical for AI success",
+          options: [
+            { text: "Traditional Data Warehouse", value: "warehouse", score: 2 },
+            { text: "Data Lake", value: "lake", score: 3 },
+            { text: "Lakehouse Architecture", value: "lakehouse", score: 4 },
+            { text: "Modern Data Platform", value: "modern", score: 5 }
+          ]
+        },
+        {
+          questionText: "Rate your data quality across key domains (1-5 scale)",
+          questionType: "matrix",
+          isRequired: "true",
+          questionOrder: 2,
+          helpText: "Assess data quality for major insurance data domains",
+          metadata: {
+            rows: ["Policy Data", "Claims Data", "Customer Data", "Financial Data", "External Data"],
+            columns: ["Completeness", "Accuracy", "Consistency", "Timeliness"]
+          }
+        },
+        {
+          questionText: "Which AI/ML technologies are currently in use?",
+          questionType: "multiselect",
+          isRequired: "true",
+          questionOrder: 3,
+          helpText: "Select all technologies currently deployed in production",
+          options: [
+            { text: "Statistical Models", value: "statistical", score: 2 },
+            { text: "Machine Learning", value: "ml", score: 3 },
+            { text: "Deep Learning", value: "dl", score: 4 },
+            { text: "Generative AI", value: "genai", score: 5 },
+            { text: "Computer Vision", value: "cv", score: 4 },
+            { text: "Natural Language Processing", value: "nlp", score: 4 },
+            { text: "None Currently", value: "none", score: 1 }
+          ]
+        },
+        {
+          questionText: "How would you rate your cloud and infrastructure readiness?",
+          questionType: "compound",
+          isRequired: "true",
+          questionOrder: 4,
+          helpText: "Rate each capability from 1 (basic) to 5 (advanced)",
+          subQuestions: [
+            {
+              text: "Cloud Strategy Maturity",
+              type: "scale",
+              options: [
+                { text: "1 - Basic", value: "1", score: 1 },
+                { text: "2 - Developing", value: "2", score: 2 },
+                { text: "3 - Intermediate", value: "3", score: 3 },
+                { text: "4 - Advanced", value: "4", score: 4 },
+                { text: "5 - Expert", value: "5", score: 5 }
+              ]
+            },
+            {
+              text: "Container/Microservices Adoption",
+              type: "scale",
+              options: [
+                { text: "1 - None", value: "1", score: 1 },
+                { text: "2 - Pilot", value: "2", score: 2 },
+                { text: "3 - Partial", value: "3", score: 3 },
+                { text: "4 - Extensive", value: "4", score: 4 },
+                { text: "5 - Native", value: "5", score: 5 }
+              ]
+            },
+            {
+              text: "DevOps/CI-CD Maturity",
+              type: "scale",
+              options: [
+                { text: "1 - Manual", value: "1", score: 1 },
+                { text: "2 - Basic", value: "2", score: 2 },
+                { text: "3 - Automated", value: "3", score: 3 },
+                { text: "4 - Advanced", value: "4", score: 4 },
+                { text: "5 - Optimized", value: "5", score: 5 }
+              ]
+            }
+          ]
+        },
+        {
+          questionText: "Which systems are critical for AI integration?",
+          questionType: "multiselect",
+          isRequired: "true",
+          questionOrder: 5,
+          helpText: "Identify key systems that AI solutions must integrate with",
+          options: [
+            { text: "Policy Administration System", value: "pas", score: 5 },
+            { text: "Claims Management System", value: "cms", score: 5 },
+            { text: "Customer Relationship Management", value: "crm", score: 4 },
+            { text: "Financial/ERP Systems", value: "erp", score: 4 },
+            { text: "Document Management", value: "dms", score: 3 },
+            { text: "Data Warehouse", value: "dwh", score: 4 },
+            { text: "Agent/Broker Portals", value: "portals", score: 3 }
+          ]
+        }
+      ]
+    },
+    
+    {
+      title: "Use Case Discovery & Validation",
+      sectionOrder: 3,
+      estimatedTime: 30,
+      description: "Identify and prioritize high-value AI use cases for your organization",
+      questions: [
+        {
+          questionText: "Which AI use cases are you most interested in exploring?",
+          questionType: "allocation",
+          isRequired: "true",
+          questionOrder: 1,
+          helpText: "Allocate 100 points across these use cases based on priority",
+          options: [
+            { text: "Automated Underwriting", value: "underwriting", score: 0 },
+            { text: "Claims Processing Automation", value: "claims", score: 0 },
+            { text: "Fraud Detection", value: "fraud", score: 0 },
+            { text: "Customer Service Automation", value: "customer", score: 0 },
+            { text: "Risk Assessment", value: "risk", score: 0 },
+            { text: "Pricing Optimization", value: "pricing", score: 0 },
+            { text: "Document Processing", value: "documents", score: 0 }
+          ]
+        },
+        {
+          questionText: "What are the biggest pain points in your current processes?",
+          questionType: "ranking",
+          isRequired: "true",
+          questionOrder: 2,
+          helpText: "Rank these pain points from most critical (1) to least critical",
+          options: [
+            { text: "Manual Document Processing", value: "manual_docs", score: 0 },
+            { text: "Slow Claims Processing", value: "slow_claims", score: 0 },
+            { text: "Inconsistent Underwriting", value: "inconsistent_uw", score: 0 },
+            { text: "Fraud Detection Gaps", value: "fraud_gaps", score: 0 },
+            { text: "Customer Service Delays", value: "service_delays", score: 0 },
+            { text: "Pricing Inaccuracy", value: "pricing_issues", score: 0 }
+          ]
+        },
+        {
+          questionText: "Which use cases could deliver value within 3-6 months?",
+          questionType: "multiselect",
+          isRequired: "true",
+          questionOrder: 3,
+          helpText: "Select use cases suitable for quick wins",
+          options: [
+            { text: "Document Classification", value: "doc_classification", score: 4 },
+            { text: "Email Routing", value: "email_routing", score: 5 },
+            { text: "Chatbot for FAQs", value: "chatbot", score: 4 },
+            { text: "Data Quality Checks", value: "data_quality", score: 3 },
+            { text: "Report Generation", value: "reporting", score: 3 },
+            { text: "Process Mining", value: "process_mining", score: 2 }
+          ]
+        },
+        {
+          questionText: "What success metrics would you use to measure AI impact?",
+          questionType: "multiselect",
+          isRequired: "true",
+          questionOrder: 4,
+          helpText: "Select all relevant success metrics",
+          options: [
+            { text: "Processing Time Reduction", value: "time_reduction", score: 4 },
+            { text: "Cost per Transaction", value: "cost_reduction", score: 5 },
+            { text: "Accuracy Improvement", value: "accuracy", score: 4 },
+            { text: "Customer Satisfaction", value: "csat", score: 3 },
+            { text: "Employee Productivity", value: "productivity", score: 4 },
+            { text: "Revenue Growth", value: "revenue", score: 5 }
+          ]
+        }
+      ]
+    },
+    
+    {
+      title: "Technology & Infrastructure Readiness",
+      sectionOrder: 4,
+      estimatedTime: 45,
+      description: "Evaluate technical capabilities and infrastructure requirements",
+      questions: [
+        {
+          questionText: "What is your preferred AI platform strategy?",
+          questionType: "select",
+          isRequired: "true",
+          questionOrder: 1,
+          helpText: "Choose the approach that best aligns with your technology strategy",
+          options: [
+            { text: "Cloud-first (Azure, AWS, GCP)", value: "cloud_first", score: 5 },
+            { text: "Hybrid Cloud", value: "hybrid", score: 4 },
+            { text: "On-premise with Cloud Burst", value: "on_prem_burst", score: 3 },
+            { text: "Primarily On-premise", value: "on_premise", score: 2 }
+          ]
+        },
+        {
+          questionText: "Rate your integration capabilities",
+          questionType: "compound",
+          isRequired: "true",
+          questionOrder: 2,
+          helpText: "Assess your ability to integrate AI solutions with existing systems",
+          subQuestions: [
+            {
+              text: "API Management Maturity",
+              type: "scale",
+              options: [
+                { text: "1 - Basic", value: "1", score: 1 },
+                { text: "2 - Developing", value: "2", score: 2 },
+                { text: "3 - Intermediate", value: "3", score: 3 },
+                { text: "4 - Advanced", value: "4", score: 4 },
+                { text: "5 - Expert", value: "5", score: 5 }
+              ]
+            },
+            {
+              text: "Real-time Data Processing",
+              type: "scale",
+              options: [
+                { text: "1 - Batch Only", value: "1", score: 1 },
+                { text: "2 - Near Real-time", value: "2", score: 2 },
+                { text: "3 - Mixed", value: "3", score: 3 },
+                { text: "4 - Mostly Real-time", value: "4", score: 4 },
+                { text: "5 - Full Real-time", value: "5", score: 5 }
+              ]
+            },
+            {
+              text: "Security Framework Maturity",
+              type: "scale",
+              options: [
+                { text: "1 - Basic", value: "1", score: 1 },
+                { text: "2 - Developing", value: "2", score: 2 },
+                { text: "3 - Intermediate", value: "3", score: 3 },
+                { text: "4 - Advanced", value: "4", score: 4 },
+                { text: "5 - Expert", value: "5", score: 5 }
+              ]
+            }
+          ]
+        },
+        {
+          questionText: "What are your biggest technology constraints?",
+          questionType: "ranking",
+          isRequired: "true",
+          questionOrder: 3,
+          helpText: "Rank these constraints from most significant (1) to least significant",
+          options: [
+            { text: "Legacy System Limitations", value: "legacy", score: 0 },
+            { text: "Data Quality Issues", value: "data_quality", score: 0 },
+            { text: "Integration Complexity", value: "integration", score: 0 },
+            { text: "Security Requirements", value: "security", score: 0 },
+            { text: "Performance Constraints", value: "performance", score: 0 },
+            { text: "Budget Limitations", value: "budget", score: 0 }
+          ]
+        }
+      ]
+    },
+    
+    {
+      title: "People, Process & Change Management",
+      sectionOrder: 5,
+      estimatedTime: 30,
+      description: "Assess organizational readiness and change management capabilities",
+      questions: [
+        {
+          questionText: "Rate AI/ML skill levels by department",
+          questionType: "matrix",
+          isRequired: "true",
+          questionOrder: 1,
+          helpText: "Rate current AI skills from 1 (none) to 5 (expert) for each department",
+          metadata: {
+            rows: ["Underwriting", "Claims", "Actuarial", "IT/Technology", "Customer Service", "Finance"],
+            columns: ["Current AI Skills", "Training Priority"]
+          }
+        },
+        {
+          questionText: "What is your workforce's overall readiness for AI-driven change?",
+          questionType: "scale",
+          isRequired: "true",
+          questionOrder: 2,
+          helpText: "Consider change management history, digital literacy, and leadership support",
+          options: [
+            { text: "1 - Low Readiness", value: "1", score: 1 },
+            { text: "2 - Below Average", value: "2", score: 2 },
+            { text: "3 - Moderate", value: "3", score: 3 },
+            { text: "4 - Above Average", value: "4", score: 4 },
+            { text: "5 - High Readiness", value: "5", score: 5 }
+          ]
+        },
+        {
+          questionText: "Which training approaches would be most effective?",
+          questionType: "ranking",
+          isRequired: "true",
+          questionOrder: 3,
+          helpText: "Rank training methods from most effective (1) to least effective",
+          options: [
+            { text: "Hands-on Workshops", value: "workshops", score: 0 },
+            { text: "Online Learning Modules", value: "online", score: 0 },
+            { text: "Peer-to-Peer Learning", value: "peer", score: 0 },
+            { text: "External Consultants", value: "consultants", score: 0 },
+            { text: "Internal Champions Program", value: "champions", score: 0 }
+          ]
+        },
+        {
+          questionText: "How would you describe leadership support for AI initiatives?",
+          questionType: "select",
+          isRequired: "true",
+          questionOrder: 4,
+          helpText: "Assess the level of executive sponsorship and commitment",
+          options: [
+            { text: "Minimal - Some interest but no commitment", value: "minimal", score: 1 },
+            { text: "Basic - Verbal support but limited resources", value: "basic", score: 2 },
+            { text: "Moderate - Some budget and resources allocated", value: "moderate", score: 3 },
+            { text: "Strong - Clear champion with significant resources", value: "strong", score: 4 },
+            { text: "Exceptional - Board-level commitment and investment", value: "exceptional", score: 5 }
+          ]
+        }
+      ]
+    },
+    
+    {
+      title: "Regulatory, Compliance & Ethics",
+      sectionOrder: 6,
+      estimatedTime: 20,
+      description: "Evaluate governance frameworks and regulatory compliance readiness",
+      questions: [
+        {
+          questionText: "How mature is your AI governance framework?",
+          questionType: "scale",
+          isRequired: "true",
+          questionOrder: 1,
+          helpText: "Consider policies, oversight committees, and approval processes",
+          options: [
+            { text: "1 - No Framework", value: "1", score: 1 },
+            { text: "2 - Basic Policies", value: "2", score: 2 },
+            { text: "3 - Formal Framework", value: "3", score: 3 },
+            { text: "4 - Advanced Governance", value: "4", score: 4 },
+            { text: "5 - Industry Leading", value: "5", score: 5 }
+          ]
+        },
+        {
+          questionText: "Which regulatory considerations are most important?",
+          questionType: "ranking",
+          isRequired: "true",
+          questionOrder: 2,
+          helpText: "Rank these regulatory areas from most critical (1) to least critical",
+          options: [
+            { text: "Model Explainability", value: "explainability", score: 0 },
+            { text: "Data Privacy (GDPR)", value: "privacy", score: 0 },
+            { text: "Bias Prevention", value: "bias", score: 0 },
+            { text: "Audit Trail Requirements", value: "audit", score: 0 },
+            { text: "Model Validation", value: "validation", score: 0 },
+            { text: "Consumer Protection", value: "consumer", score: 0 }
+          ]
+        },
+        {
+          questionText: "Rate your current capabilities in responsible AI",
+          questionType: "compound",
+          isRequired: "true",
+          questionOrder: 3,
+          helpText: "Assess your organization's responsible AI capabilities",
+          subQuestions: [
+            {
+              text: "Bias Detection and Mitigation",
+              type: "scale",
+              options: [
+                { text: "1 - No Capability", value: "1", score: 1 },
+                { text: "2 - Basic Awareness", value: "2", score: 2 },
+                { text: "3 - Some Tools/Processes", value: "3", score: 3 },
+                { text: "4 - Systematic Approach", value: "4", score: 4 },
+                { text: "5 - Industry Leading", value: "5", score: 5 }
+              ]
+            },
+            {
+              text: "Model Explainability",
+              type: "scale",
+              options: [
+                { text: "1 - Black Box", value: "1", score: 1 },
+                { text: "2 - Basic Interpretation", value: "2", score: 2 },
+                { text: "3 - Model Insights", value: "3", score: 3 },
+                { text: "4 - Full Explainability", value: "4", score: 4 },
+                { text: "5 - Transparent AI", value: "5", score: 5 }
+              ]
+            },
+            {
+              text: "Regulatory Compliance Processes",
+              type: "scale",
+              options: [
+                { text: "1 - Ad Hoc", value: "1", score: 1 },
+                { text: "2 - Basic Documentation", value: "2", score: 2 },
+                { text: "3 - Formal Processes", value: "3", score: 3 },
+                { text: "4 - Comprehensive Framework", value: "4", score: 4 },
+                { text: "5 - Automated Compliance", value: "5", score: 5 }
+              ]
+            }
+          ]
+        },
+        {
+          questionText: "What is your biggest concern regarding AI regulation?",
+          questionType: "select",
+          isRequired: "true",
+          questionOrder: 4,
+          helpText: "Select your primary regulatory concern",
+          options: [
+            { text: "Changing Regulatory Landscape", value: "changing_regs", score: 3 },
+            { text: "Compliance Costs", value: "compliance_costs", score: 2 },
+            { text: "Technical Complexity", value: "tech_complexity", score: 4 },
+            { text: "Competitive Disadvantage", value: "competitive", score: 3 },
+            { text: "Audit and Documentation", value: "audit_docs", score: 2 }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+// Seeder function to populate the database
+export async function seedRSAAssessment() {
+  console.log('🌱 Starting RSA Assessment seeding...');
+  
+  try {
+    // Create the main questionnaire
+    const [questionnaire] = await db.insert(questionnaires).values({
+      title: RSA_ASSESSMENT_DATA.questionnaire.title,
+      description: RSA_ASSESSMENT_DATA.questionnaire.description,
+      version: RSA_ASSESSMENT_DATA.questionnaire.version,
+      status: RSA_ASSESSMENT_DATA.questionnaire.status
+    }).returning();
+    
+    console.log(`✅ Created questionnaire: ${questionnaire.title}`);
+    
+    // Create sections and questions
+    for (const sectionData of RSA_ASSESSMENT_DATA.sections) {
+      const [section] = await db.insert(questionnaireSections).values({
+        questionnaireId: questionnaire.id,
+        title: sectionData.title,
+        sectionOrder: sectionData.sectionOrder,
+        estimatedTime: sectionData.estimatedTime
+      }).returning();
+      
+      console.log(`  📁 Created section: ${section.title} (${sectionData.questions.length} questions)`);
+      
+      // Create questions for this section
+      for (const questionData of sectionData.questions) {
+        const [question] = await db.insert(questions).values({
+          sectionId: section.id,
+          questionText: questionData.questionText,
+          questionType: questionData.questionType,
+          isRequired: questionData.isRequired,
+          questionOrder: questionData.questionOrder,
+          helpText: questionData.helpText || null
+        }).returning();
+        
+        // Create options if they exist
+        if (questionData.options && questionData.options.length > 0) {
+          const optionsToInsert = questionData.options.map((option, index) => ({
+            questionId: question.id,
+            optionText: option.text,
+            optionValue: option.value,
+            scoreValue: option.score,
+            optionOrder: index + 1
+          }));
+          
+          await db.insert(questionOptions).values(optionsToInsert);
+        }
+      }
+    }
+    
+    console.log('🎉 RSA Assessment seeding completed successfully!');
+    console.log(`📊 Total: 6 sections, ${RSA_ASSESSMENT_DATA.sections.reduce((sum, s) => sum + s.questions.length, 0)} questions`);
+    
+    return questionnaire.id;
+    
+  } catch (error) {
+    console.error('❌ Error seeding RSA Assessment:', error);
+    throw error;
+  }
+}
+
+// Export for use in main seeder
+export { RSA_ASSESSMENT_DATA };
