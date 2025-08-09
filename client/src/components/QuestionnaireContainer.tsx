@@ -111,12 +111,14 @@ export default function QuestionnaireContainer({
           questionnaireId,
           answers: Object.fromEntries(answers),
           currentSection: currentSectionIndex,
+          currentQuestionIndex: 0,
           email: respondentEmail,
           name: respondentName,
           lastSaved: new Date().toLocaleString(),
           timestamp: Date.now(),
           totalSections: questionnaire.sections.length,
-          completionPercentage: Math.round(((currentSectionIndex + 1) / questionnaire.sections.length) * 100)
+          completionPercentage: Math.round(((currentSectionIndex + 1) / questionnaire.sections.length) * 100),
+          sectionProgress: []
         });
       }
     }, 1000),
@@ -196,12 +198,14 @@ export default function QuestionnaireContainer({
         questionnaireId,
         answers: Object.fromEntries(responses),
         currentSection: currentSectionIndex,
+        currentQuestionIndex: 0,
         email: respondentEmail,
         name: respondentName,
         lastSaved: new Date().toLocaleString(),
         timestamp: Date.now(),
         totalSections: questionnaire.sections.length,
-        completionPercentage: Math.round(((currentSectionIndex + 1) / questionnaire.sections.length) * 100)
+        completionPercentage: Math.round(((currentSectionIndex + 1) / questionnaire.sections.length) * 100),
+        sectionProgress: []
       });
     }
   }, [responseSession, responses, currentSectionIndex, respondentEmail, respondentName, questionnaireId, questionnaire, saveToStorage]);
