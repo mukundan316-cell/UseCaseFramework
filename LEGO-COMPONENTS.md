@@ -193,6 +193,33 @@ const {
 });
 ```
 
+### SectionSummaryCardLegoBlock
+**Purpose**: Interactive section overview cards with progress tracking and navigation
+**Location**: `client/src/components/lego-blocks/SectionSummaryCardLegoBlock.tsx`
+**Features**:
+- Progress visualization with completion percentages and question counts
+- Maturity scoring with 5-star rating system and color-coded levels
+- Time tracking display (estimated vs actual time)
+- Key insights display for completed sections (2-3 bullet points)
+- Interactive navigation with Resume/Review/Start buttons
+- Lock state management with visual overlays for locked sections
+- Completion indicators with green borders and check marks
+- Responsive grid layout (1-3 columns) with compact mode option
+- Section type categorization with color-coded themes and icons
+- API integration with section_progress table
+
+**Usage Example**:
+```tsx
+<SectionSummaryCardLegoBlock
+  sections={sectionData}
+  onSectionClick={handleSectionNavigation}
+  onResumeSection={handleResumeSection}
+  onReviewSection={handleReviewSection}
+  showInsights={true}
+  compactMode={false}
+/>
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`
