@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation } from 'wouter';
 
-import { ChevronLeft, ChevronRight, Save, CheckCircle2, AlertCircle, Clock, Wifi, WifiOff } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Save, CheckCircle2, AlertCircle, Clock, Wifi, WifiOff, ArrowLeft, Home } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -238,6 +238,12 @@ export default function QuestionnaireContainer({
           description: "Your answers have been saved. You can resume later.",
           duration: 3000
         });
+        
+        // Navigate back to assessment landing page
+        setTimeout(() => {
+          setLocation('/assessment');
+        }, 1000);
+        
       } catch (error) {
         toast({
           title: "Save failed",
@@ -531,6 +537,23 @@ export default function QuestionnaireContainer({
 
   return (
     <div className={cn("max-w-4xl mx-auto p-6 space-y-6", className)}>
+      {/* Navigation Header */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => setLocation('/assessment')}
+          className="flex items-center space-x-2 border-[#005DAA] text-[#005DAA] hover:bg-[#005DAA] hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Assessment</span>
+        </Button>
+        
+        <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <Home className="h-4 w-4" />
+          <span>RSA AI Assessment</span>
+        </div>
+      </div>
+
       {/* Progress Header */}
       <Card>
         <CardHeader>

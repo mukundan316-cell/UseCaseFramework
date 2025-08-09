@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Clock, CheckCircle2, Target, TrendingUp, Shield, Users, Play, RotateCcw, Eye } from 'lucide-react';
+import { Clock, CheckCircle2, Target, TrendingUp, Shield, Users, Play, RotateCcw, Eye, ArrowLeft, Home } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -100,6 +100,10 @@ export default function RSAAssessmentLandingPage({
   const totalEstimatedTime = "80-110 minutes";
 
   // Navigation handlers
+  const handleBackToDashboard = () => {
+    setLocation('/');
+  };
+
   const handleBeginAssessment = () => {
     setLocation('/assessment/take');
   };
@@ -125,6 +129,23 @@ export default function RSAAssessmentLandingPage({
 
   return (
     <div className={cn("max-w-6xl mx-auto p-6 space-y-8", className)}>
+      {/* Navigation Header */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={handleBackToDashboard}
+          className="flex items-center space-x-2 border-[#005DAA] text-[#005DAA] hover:bg-[#005DAA] hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Button>
+        
+        <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <Home className="h-4 w-4" />
+          <span>RSA AI Strategy Framework</span>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <div className="text-center space-y-6">
         <div className="space-y-4">
