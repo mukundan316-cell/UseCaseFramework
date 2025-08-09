@@ -321,8 +321,26 @@ export default function QuestionRegistryLegoBlock({
           <PercentageAllocationLegoBlock
             label={questionMeta.questionText}
             categories={categories}
-            values={currentValue || {}}
-            onChange={(values: Record<string, number>) => onResponseChange(questionMeta.id, values)}
+            values={currentValue?.allocations || {}}
+            onChange={(values: Record<string, number>) => {
+              const updatedValue = { 
+                ...currentValue, 
+                allocations: values 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
+            additionalFields={questionMeta.questionData.additionalFields || []}
+            additionalValues={currentValue?.additionalFields || {}}
+            onAdditionalChange={(fieldId: string, value: any) => {
+              const updatedValue = { 
+                ...currentValue, 
+                additionalFields: { 
+                  ...currentValue?.additionalFields, 
+                  [fieldId]: value 
+                } 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
             disabled={logic.isDisabled}
             allowPartial={questionMeta.questionData.allowPartial || false}
             helpText={questionMeta.helpText}

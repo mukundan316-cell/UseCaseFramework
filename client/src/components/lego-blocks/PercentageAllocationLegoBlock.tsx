@@ -21,7 +21,19 @@ export interface AllocationValues {
   [categoryId: string]: number;
 }
 
-// Component props interface
+// Additional fields for complex allocation questions
+export interface AdditionalField {
+  id: string;
+  type: 'scale' | 'text' | 'number';
+  label: string;
+  helpText?: string;
+  required?: boolean;
+  min?: number;
+  max?: number;
+  placeholder?: string;
+}
+
+// Extended props interface to support additional fields
 export interface PercentageAllocationLegoBlockProps {
   /** Array of categories to allocate percentages across */
   categories: AllocationCategory[];
@@ -29,6 +41,12 @@ export interface PercentageAllocationLegoBlockProps {
   values: AllocationValues;
   /** Change handler that receives the updated allocation values */
   onChange: (values: AllocationValues) => void;
+  /** Additional fields to render (like digital maturity score) */
+  additionalFields?: AdditionalField[];
+  /** Additional field values */
+  additionalValues?: Record<string, any>;
+  /** Handler for additional field changes */
+  onAdditionalChange?: (fieldId: string, value: any) => void;
   /** Disabled state */
   disabled?: boolean;
   /** Allow partial allocation (less than 100%) */
@@ -153,6 +171,9 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
   categories = [],
   values = {},
   onChange,
+  additionalFields = [],
+  additionalValues = {},
+  onAdditionalChange,
   disabled = false,
   allowPartial = false,
   className = '',
@@ -483,6 +504,65 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
           <AlertCircle className="h-3 w-3" />
           {displayError}
         </p>
+      )}
+
+      {/* Additional Fields (like digital maturity score) */}
+      {additionalFields && additionalFields.length > 0 && (
+        <div className="mt-6 space-y-4">
+          {additionalFields.map((field) => (
+            <div key={field.id} className="space-y-2">
+              <Label className="text-sm font-medium text-gray-900">
+                {field.label}
+                {field.required && <span className="text-red-500 ml-1">*</span>}
+              </Label>
+              
+              {field.type === 'scale' && (
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-500">{field.min || 1}</span>
+                  <div className="flex-1">
+                    <Input
+                      type="number"
+                      min={field.min || 1}
+                      max={field.max || 5}
+                      value={additionalValues[field.id] || ''}
+                      onChange={(e) => onAdditionalChange?.(field.id, parseInt(e.target.value) || '')}
+                      placeholder={field.placeholder || `Enter ${field.min || 1}-${field.max || 5}`}
+                      disabled={disabled}
+                      className="text-center"
+                    />
+                  </div>
+                  <span className="text-sm text-gray-500">{field.max || 5}</span>
+                </div>
+              )}
+              
+              {field.type === 'number' && (
+                <Input
+                  type="number"
+                  min={field.min}
+                  max={field.max}
+                  value={additionalValues[field.id] || ''}
+                  onChange={(e) => onAdditionalChange?.(field.id, parseFloat(e.target.value) || '')}
+                  placeholder={field.placeholder}
+                  disabled={disabled}
+                />
+              )}
+              
+              {field.type === 'text' && (
+                <Input
+                  type="text"
+                  value={additionalValues[field.id] || ''}
+                  onChange={(e) => onAdditionalChange?.(field.id, e.target.value)}
+                  placeholder={field.placeholder}
+                  disabled={disabled}
+                />
+              )}
+              
+              {field.helpText && (
+                <p className="text-sm text-gray-600">{field.helpText}</p>
+              )}
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Smart Allocation Summary */}
