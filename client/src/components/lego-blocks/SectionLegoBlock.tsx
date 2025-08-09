@@ -239,7 +239,7 @@ export default function SectionLegoBlock({
               {/* Question content */}
               <div className="ml-6">
                 {/* Use QuestionRegistryLegoBlock for advanced question types */}
-                {['currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking'].includes(question.questionType) ? (
+                {['company_profile', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking'].includes(question.questionType) ? (
                   <QuestionRegistryLegoBlock
                     questions={[{
                       id: question.id,

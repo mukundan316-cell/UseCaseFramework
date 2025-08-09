@@ -379,6 +379,24 @@ export default function QuestionLegoBlock({
         return renderTextareaField();
       case 'number':
         return renderNumberField();
+      case 'company_profile':
+      case 'smart_rating':
+      case 'ranking':
+      case 'currency':
+      case 'percentage_allocation':
+      case 'business_lines_matrix':
+      case 'department_skills_matrix':
+        // These advanced question types are handled by QuestionRegistryLegoBlock
+        return (
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Advanced question type: {questionType}
+            </p>
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+              This question type is handled by the enhanced question registry system.
+            </p>
+          </div>
+        );
       default:
         return (
           <div className="text-red-500 text-sm">
