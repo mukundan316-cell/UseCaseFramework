@@ -265,27 +265,30 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
         )}
         
         <div className="flex items-center space-x-2">
+          {/* Smart Actions */}
           {remaining > 0 && (
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={handleAutoDistribute}
               disabled={disabled}
-              className="text-xs"
+              className="text-xs bg-blue-600 hover:bg-blue-700"
             >
               Auto Distribute
             </Button>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            disabled={disabled}
-            className="text-xs"
-          >
-            <RotateCcw className="h-3 w-3 mr-1" />
-            Reset
-          </Button>
+          {total > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              disabled={disabled}
+              className="text-xs"
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Reset
+            </Button>
+          )}
         </div>
       </div>
 
@@ -322,55 +325,118 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
         )}
       </div>
 
-      {/* Category Inputs */}
-      <div className="space-y-3">
-        {categories.map((category) => {
+      {/* Enhanced Category Cards */}
+      <div className="grid gap-4">
+        {categories.map((category, index) => {
           const value = localValues[category.id] || 0;
-          const percentage = total > 0 ? (value / total) * 100 : 0;
+          const isActive = value > 0;
+          const colorIndex = index % 6; // Cycle through colors
+          const cardColor = `hsl(${colorIndex * 60}, 65%, 95%)`;
+          const borderColor = `hsl(${colorIndex * 60}, 65%, 75%)`;
+          const progressColor = `hsl(${colorIndex * 60}, 65%, 55%)`;
           
           return (
-            <div key={category.id} className="space-y-2">
-              <div className="flex items-center justify-between">
+            <div 
+              key={category.id} 
+              className={cn(
+                "p-4 rounded-lg border-2 transition-all duration-200",
+                isActive 
+                  ? "border-blue-200 bg-blue-50 shadow-sm" 
+                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+              )}
+              style={isActive ? { borderColor, backgroundColor: cardColor } : {}}
+            >
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex-1">
-                  <Label className="text-sm font-medium text-gray-700">
+                  <Label className="text-base font-medium text-gray-900">
                     {category.label}
                   </Label>
                   {category.description && (
-                    <p className="text-xs text-gray-500 mt-1">{category.description}</p>
+                    <p className="text-sm text-gray-600 mt-1">{category.description}</p>
                   )}
                 </div>
                 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <div className="relative">
                     <Input
                       type="number"
-                      value={allocationUtils.formatPercentage(value, precision)}
+                      value={value === 0 ? '' : allocationUtils.formatPercentage(value, precision)}
                       onChange={(e) => handleCategoryChange(category.id, e.target.value)}
+                      onFocus={(e) => e.target.select()}
                       disabled={disabled}
                       min={category.minValue || 0}
                       max={category.maxValue || 100}
                       step={1 / Math.pow(10, precision)}
-                      className="w-20 text-right pr-6"
+                      placeholder="0"
+                      className={cn(
+                        "w-24 text-right pr-8 text-lg font-medium",
+                        isActive && "border-blue-300 bg-white"
+                      )}
                     />
-                    <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-medium text-gray-500">
                       %
                     </span>
                   </div>
                 </div>
               </div>
               
-              {/* Individual category progress bar */}
-              <div className="flex items-center space-x-2">
-                <Progress 
-                  value={value} 
-                  className="flex-1 h-2"
-                  style={{
-                    '--progress-background': category.color || undefined
-                  } as React.CSSProperties}
-                />
-                <span className="text-xs text-gray-500 w-12 text-right">
-                  {value > 0 && `${percentage.toFixed(0)}%`}
-                </span>
+              {/* Enhanced progress visualization */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Allocation</span>
+                  <span className={cn(
+                    "font-medium",
+                    isActive ? "text-gray-900" : "text-gray-400"
+                  )}>
+                    {value.toFixed(precision)}% of total
+                  </span>
+                </div>
+                
+                <div className="relative">
+                  <Progress 
+                    value={value} 
+                    className="h-3 bg-gray-100"
+                  />
+                  <div 
+                    className="absolute top-0 left-0 h-3 rounded-full transition-all duration-300 ease-out"
+                    style={{ 
+                      width: `${Math.min(value, 100)}%`,
+                      backgroundColor: isActive ? progressColor : '#e5e7eb'
+                    }}
+                  />
+                </div>
+                
+                {/* Quick preset buttons for common values */}
+                {!disabled && (
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex space-x-1">
+                      {[10, 25, 50].map((preset) => (
+                        <Button
+                          key={preset}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCategoryChange(category.id, preset.toString())}
+                          className="h-6 px-2 text-xs"
+                          disabled={disabled}
+                        >
+                          {preset}%
+                        </Button>
+                      ))}
+                    </div>
+                    
+                    {value > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCategoryChange(category.id, '0')}
+                        className="h-6 px-2 text-xs text-gray-500 hover:text-gray-700"
+                        disabled={disabled}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -390,17 +456,42 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
         </p>
       )}
 
-      {/* Allocation Summary */}
-      {categories.length > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Allocation Summary</h4>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            {categories.map((category) => {
+      {/* Smart Allocation Summary */}
+      {categories.length > 0 && total > 0 && (
+        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold text-gray-900 flex items-center">
+              <Check className="h-4 w-4 text-green-600 mr-2" />
+              Allocation Overview
+            </h4>
+            <span className={cn(
+              "text-sm font-medium px-2 py-1 rounded-full",
+              isComplete 
+                ? "bg-green-100 text-green-700" 
+                : "bg-yellow-100 text-yellow-700"
+            )}>
+              {isComplete ? "Complete" : `${remaining.toFixed(precision)}% remaining`}
+            </span>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {categories.map((category, index) => {
               const value = localValues[category.id] || 0;
+              const colorIndex = index % 6;
+              const dotColor = `hsl(${colorIndex * 60}, 65%, 55%)`;
+              
               return value > 0 ? (
-                <div key={category.id} className="flex justify-between">
-                  <span className="text-gray-600 truncate">{category.label}:</span>
-                  <span className="font-medium">{allocationUtils.formatPercentage(value, precision)}%</span>
+                <div key={category.id} className="flex items-center justify-between p-2 bg-white rounded border">
+                  <div className="flex items-center space-x-2">
+                    <div 
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: dotColor }}
+                    />
+                    <span className="text-sm text-gray-700 truncate">{category.label}</span>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {allocationUtils.formatPercentage(value, precision)}%
+                  </span>
                 </div>
               ) : null;
             })}
