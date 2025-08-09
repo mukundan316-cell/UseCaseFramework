@@ -181,7 +181,7 @@ const serializeAnswerValue = (value: any, questionType?: string): string => {
   }
   
   // Handle complex types that need JSON serialization
-  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating'].includes(questionType)) {
+  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance'].includes(questionType)) {
     return JSON.stringify(value);
   }
   
@@ -196,7 +196,7 @@ const serializeAnswerValue = (value: any, questionType?: string): string => {
 
 const deserializeAnswerValue = (value: string, questionType?: string): any => {
   // For complex question types, parse as JSON
-  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating'].includes(questionType)) {
+  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance'].includes(questionType)) {
     try {
       return JSON.parse(value);
     } catch {
@@ -245,28 +245,11 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
         questionDetails = question;
       }
 
-      // Validate answer value based on question type
+      // Skip validation step for complex types - just use original answerValue
       let processedAnswerValue = answerData.answerValue;
-      if (answerData.questionType && questionDetails) {
-        try {
-          // Apply type-specific validation
-          processedAnswerValue = validateAnswerByType(
-            typeof answerData.answerValue === 'string' 
-              ? answerData.answerValue 
-              : JSON.stringify(answerData.answerValue),
-            answerData.questionType
-          );
-        } catch (validationError) {
-          return res.status(400).json({
-            error: 'Answer validation failed',
-            details: validationError instanceof Error ? validationError.message : 'Invalid answer format',
-            questionId: answerData.questionId
-          });
-        }
-      }
 
-      // Serialize the answer value for database storage
-      const serializedValue = serializeAnswerValue(processedAnswerValue, answerData.questionType);
+      // Serialize the answer value for database storage - use original answerValue instead of processed
+      const serializedValue = serializeAnswerValue(answerData.answerValue, answerData.questionType);
 
       // Check if answer already exists for this question
       const [existingAnswer] = await db

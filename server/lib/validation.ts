@@ -256,6 +256,18 @@ export const validateAnswerByType = (answerValue: string, questionType: string) 
       }
       return answerValue;
     
+    case 'company_profile':
+    case 'business_lines_matrix':
+    case 'department_skills_matrix':
+    case 'business_performance':
+      // For complex question types, validate that it's valid JSON
+      try {
+        const parsed = JSON.parse(answerValue);
+        return parsed;
+      } catch {
+        throw new Error(`Invalid JSON format for ${questionType}`);
+      }
+    
     default:
       // For unknown types, just return the string value
       return answerValue;
