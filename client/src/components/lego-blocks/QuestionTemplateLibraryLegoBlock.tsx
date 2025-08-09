@@ -52,7 +52,8 @@ import {
   Star,
   DollarSign,
   PieChart,
-  ArrowUpDown
+  ArrowUpDown,
+  Building2
 } from 'lucide-react';
 
 // Question template interface
@@ -60,7 +61,7 @@ export interface QuestionTemplate {
   id: string;
   title: string;
   description: string;
-  questionType: 'scale' | 'multiChoice' | 'ranking' | 'allocation' | 'text' | 'boolean' | 'matrix' | 'compound' | 'score' | 'checkbox' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'currency' | 'percentage_allocation' | 'smart_rating';
+  questionType: 'scale' | 'multiChoice' | 'ranking' | 'allocation' | 'text' | 'boolean' | 'matrix' | 'compound' | 'score' | 'checkbox' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'currency' | 'percentage_allocation' | 'smart_rating' | 'business_lines_matrix';
   category: string;
   section: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
@@ -114,7 +115,8 @@ const QUESTION_TYPE_CONFIG = {
   date: { icon: Calendar, label: 'Date', color: 'bg-rose-500' },
   currency: { icon: DollarSign, label: 'Currency Input', color: 'bg-green-600' },
   percentage_allocation: { icon: PieChart, label: 'Percentage Allocation', color: 'bg-blue-600' },
-  smart_rating: { icon: Star, label: 'Smart Rating', color: 'bg-amber-500' }
+  smart_rating: { icon: Star, label: 'Smart Rating', color: 'bg-amber-500' },
+  business_lines_matrix: { icon: Building2, label: 'Business Lines Matrix', color: 'bg-purple-600' }
 };
 
 // RSA Question Categories
@@ -321,6 +323,29 @@ export default function QuestionTemplateLibraryLegoBlock({
           usageCount: 203,
           createdAt: '2024-01-20T11:25:00Z',
           updatedAt: '2024-01-27T09:40:00Z'
+        },
+        {
+          id: '7',
+          title: 'Business Lines Premium Distribution Matrix',
+          description: 'Allocate premium percentages across business lines and specify growth trends',
+          questionType: 'business_lines_matrix',
+          category: 'Strategic Foundation',
+          section: 'business_strategy',
+          difficulty: 'intermediate',
+          isRequired: true,
+          isStarred: false,
+          estimatedTime: 240,
+          helpText: 'Distribute 100% of your premium across business lines and indicate growth expectations',
+          questionData: {
+            enforceTotal: true,
+            minLines: 2,
+            maxLines: 8,
+            defaultLines: ['Commercial Property & Casualty', 'Personal Lines', 'Specialty Insurance', 'International', 'Reinsurance']
+          },
+          tags: ['business lines', 'premium', 'distribution', 'matrix'],
+          usageCount: 98,
+          createdAt: '2024-01-21T14:15:00Z',
+          updatedAt: '2024-01-28T16:30:00Z'
         }
       ];
       
@@ -814,6 +839,15 @@ export default function QuestionTemplateLibraryLegoBlock({
                         <li>Drag-and-drop priority ordering</li>
                         <li>Configurable item lists</li>
                         <li>Partial ranking support</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-1">
+                      <strong>Business Lines Matrix:</strong>
+                      <ul className="text-xs list-disc list-inside ml-2">
+                        <li>Table-based premium distribution</li>
+                        <li>Growth trend indicators (↑↓→)</li>
+                        <li>Add/remove business lines dynamically</li>
+                        <li>Real-time 100% validation</li>
                       </ul>
                     </div>
                   </div>

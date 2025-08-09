@@ -12,6 +12,7 @@ import { SmartRatingLegoBlock } from './SmartRatingLegoBlock';
 import { RankingLegoBlock } from './RankingLegoBlock';
 import { CurrencyInputLegoBlock } from './CurrencyInputLegoBlock';
 import { PercentageAllocationLegoBlock } from './PercentageAllocationLegoBlock';
+import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 
@@ -35,7 +36,8 @@ export type QuestionType =
   | 'url'
   | 'date'
   | 'currency'
-  | 'percentage_allocation';
+  | 'percentage_allocation'
+  | 'business_lines_matrix';
 
 export interface QuestionMetadata {
   id: string;
@@ -95,6 +97,7 @@ export default function QuestionRegistryLegoBlock({
       currency: 'CurrencyInputLegoBlock',
       percentage_allocation: 'PercentageAllocationLegoBlock',
       allocation: 'PercentageAllocationLegoBlock',
+      business_lines_matrix: 'BusinessLinesMatrixLegoBlock',
       multiChoice: 'QuestionLegoBlock',
       text: 'QuestionLegoBlock',
       boolean: 'QuestionLegoBlock',
@@ -310,6 +313,23 @@ export default function QuestionRegistryLegoBlock({
             required={logic.isRequired}
             showRemaining={questionMeta.questionData.showRemaining !== false}
             precision={questionMeta.questionData.precision || 1}
+          />
+        );
+      }
+
+      // Render BusinessLinesMatrixLegoBlock for business_lines_matrix type
+      if (questionMeta.questionType === 'business_lines_matrix') {
+        return (
+          <BusinessLinesMatrixLegoBlock
+            businessLines={currentValue?.businessLines || []}
+            onChange={(businessLines) => onResponseChange(questionMeta.id, { businessLines })}
+            disabled={logic.isDisabled}
+            label={questionMeta.questionText}
+            helpText={questionMeta.helpText}
+            required={logic.isRequired}
+            enforceTotal={questionMeta.questionData.enforceTotal !== false}
+            minLines={questionMeta.questionData.minLines || 1}
+            maxLines={questionMeta.questionData.maxLines || 10}
           />
         );
       }
