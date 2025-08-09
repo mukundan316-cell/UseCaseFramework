@@ -6,29 +6,50 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
+export interface SectionProgress {
+  sectionNumber: number;
+  started: boolean;
+  completed: boolean;
+  currentQuestionIndex: number;
+  totalQuestions: number;
+  completionPercentage: number;
+  lastModified: string;
+  answers: Record<string, any>;
+}
+
 export interface ProgressData {
   responseId: string;
   questionnaireId: string;
   answers: Record<string, any>;
   currentSection: number;
+  currentQuestionIndex: number;
   email: string;
   name?: string;
   lastSaved: string;
   timestamp: number;
   totalSections: number;
   completionPercentage: number;
+  sectionProgress: Record<number, SectionProgress>;
 }
 
 export interface ProgressPersistenceOptions {
   storageKey: string;
   autoSaveDelay?: number;
   enableToasts?: boolean;
+  apiBaseUrl?: string;
+}
+
+export interface SectionProgressAPI {
+  getSectionProgress: (responseId: string) => Promise<Record<number, SectionProgress>>;
+  updateSectionProgress: (responseId: string, sectionNum: number, progress: Partial<SectionProgress>) => Promise<void>;
+  completeSectionProgress: (responseId: string, sectionNum: number) => Promise<void>;
 }
 
 export function useProgressPersistence({
   storageKey,
   autoSaveDelay = 1000,
-  enableToasts = true
+  enableToasts = true,
+  apiBaseUrl = '/api'
 }: ProgressPersistenceOptions) {
   const { toast } = useToast();
   const [lastSaved, setLastSaved] = useState<string>('');
@@ -153,19 +174,180 @@ export function useProgressPersistence({
     return progress !== null && progress.completionPercentage < 100;
   }, [loadFromStorage]);
 
-  // Get progress summary for display
+  // Section-specific progress management
+  const updateSectionProgress = useCallback(async (
+    responseId: string,
+    sectionNum: number, 
+    questionIndex: number,
+    answers: Record<string, any>,
+    totalQuestions: number
+  ) => {
+    try {
+      const completionPercentage = Math.round((questionIndex / totalQuestions) * 100);
+      
+      const sectionProgress: Partial<SectionProgress> = {
+        currentQuestionIndex: questionIndex,
+        totalQuestions,
+        completionPercentage,
+        lastModified: new Date().toISOString(),
+        answers
+      };
+
+      // API call to update section progress
+      const response = await fetch(`${apiBaseUrl}/responses/${responseId}/section/${sectionNum}/progress`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sectionProgress)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update section progress');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Section progress update failed:', error);
+      return false;
+    }
+  }, [apiBaseUrl]);
+
+  // Complete section progress
+  const completeSectionProgress = useCallback(async (responseId: string, sectionNum: number) => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/responses/${responseId}/section/${sectionNum}/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to complete section');
+      }
+
+      if (enableToasts) {
+        toast({
+          title: "Section completed",
+          description: `Section ${sectionNum} has been marked as complete`,
+          duration: 3000,
+        });
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Section completion failed:', error);
+      if (enableToasts) {
+        toast({
+          title: "Section completion failed",
+          description: "There was an issue marking this section as complete",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+      return false;
+    }
+  }, [apiBaseUrl, enableToasts, toast]);
+
+  // Get section progress from API
+  const getSectionProgress = useCallback(async (responseId: string): Promise<Record<number, SectionProgress> | null> => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/responses/${responseId}/section-progress`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch section progress');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to fetch section progress:', error);
+      return null;
+    }
+  }, [apiBaseUrl]);
+
+  // Enhanced save with section awareness
+  const saveProgressWithSection = useCallback((
+    progress: ProgressData,
+    sectionNum: number,
+    questionIndex: number,
+    sectionAnswers: Record<string, any>,
+    totalQuestionsInSection: number
+  ) => {
+    // Update section progress in the main progress object
+    const updatedSectionProgress = {
+      ...progress.sectionProgress,
+      [sectionNum]: {
+        sectionNumber: sectionNum,
+        started: true,
+        completed: questionIndex >= totalQuestionsInSection,
+        currentQuestionIndex: questionIndex,
+        totalQuestions: totalQuestionsInSection,
+        completionPercentage: Math.round((questionIndex / totalQuestionsInSection) * 100),
+        lastModified: new Date().toISOString(),
+        answers: sectionAnswers
+      }
+    };
+
+    const enhancedProgress = {
+      ...progress,
+      currentSection: sectionNum,
+      currentQuestionIndex: questionIndex,
+      sectionProgress: updatedSectionProgress,
+      timestamp: Date.now(),
+      lastSaved: new Date().toLocaleString(),
+      completionPercentage: Math.round(((sectionNum + (questionIndex / totalQuestionsInSection)) / progress.totalSections) * 100)
+    };
+
+    saveToStorage(enhancedProgress);
+    
+    // Also update via API
+    updateSectionProgress(progress.responseId, sectionNum, questionIndex, sectionAnswers, totalQuestionsInSection);
+    
+    return enhancedProgress;
+  }, [saveToStorage, updateSectionProgress]);
+
+  // Get progress summary for display with section details
   const getProgressSummary = useCallback(() => {
     const progress = loadFromStorage();
     if (!progress) return null;
 
+    const sectionProgressArray = Object.values(progress.sectionProgress || {});
+    const completedSections = sectionProgressArray.filter(s => s.completed).length;
+
     return {
       completionPercentage: progress.completionPercentage,
       currentSection: progress.currentSection + 1, // 1-based for display
+      currentQuestionIndex: progress.currentQuestionIndex,
       totalSections: progress.totalSections,
+      completedSections,
       lastSaved: progress.lastSaved,
       email: progress.email,
       name: progress.name,
-      responseId: progress.responseId
+      responseId: progress.responseId,
+      sectionProgress: progress.sectionProgress || {}
+    };
+  }, [loadFromStorage]);
+
+  // Resume at last incomplete question
+  const getResumePoint = useCallback(() => {
+    const progress = loadFromStorage();
+    if (!progress) return null;
+
+    // Find the first incomplete section
+    for (let sectionNum = 1; sectionNum <= progress.totalSections; sectionNum++) {
+      const sectionProgress = progress.sectionProgress?.[sectionNum];
+      
+      if (!sectionProgress || !sectionProgress.completed) {
+        return {
+          sectionNumber: sectionNum,
+          questionIndex: sectionProgress?.currentQuestionIndex || 0,
+          answers: sectionProgress?.answers || {}
+        };
+      }
+    }
+
+    // All sections complete
+    return {
+      sectionNumber: progress.totalSections,
+      questionIndex: progress.sectionProgress?.[progress.totalSections]?.totalQuestions || 0,
+      answers: progress.answers || {}
     };
   }, [loadFromStorage]);
 
@@ -206,6 +388,13 @@ export function useProgressPersistence({
     clearStorage,
     hasResumableProgress,
     getProgressSummary,
+    
+    // Section-specific functions
+    updateSectionProgress,
+    completeSectionProgress,
+    getSectionProgress,
+    saveProgressWithSection,
+    getResumePoint,
     
     // Utilities
     setLastSaved,

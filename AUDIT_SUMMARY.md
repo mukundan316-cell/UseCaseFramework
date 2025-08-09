@@ -123,5 +123,5 @@ The architecture exemplifies the "Build Once, Reuse Everywhere" principle and is
 | **Dashboards** | AssessmentResultsDashboard, ScoringDashboard, SummaryMetrics, DataActionCard, ResumeProgress, ProgressStatus, ResponseExport | 7 |
 | **Management** | CRUDUseCaseModal, ProcessActivity*, ProcessManagement, ScoringModelManagement | 6 |
 | **Total Production** | | **29** |
-| **Demo Variants** | *Demo suffix components | 7 |
-| **Grand Total** | | **36** |
+| **Demo Variants** | *Demo suffix components | 8 |
+| **Grand Total** | | **37** |

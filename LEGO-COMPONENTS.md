@@ -161,6 +161,38 @@ This document catalogs all reusable LEGO-style components in the RSA AI Use Case
 />
 ```
 
+### Enhanced Progress Persistence System
+**Purpose**: Comprehensive section-level progress tracking with auto-save and resume capabilities
+**Location**: `client/src/hooks/useProgressPersistence.ts`
+**Features**:
+- Section-level progress tracking with independent completion status
+- Auto-save functionality with debounced updates (1-second delay)
+- Resume capability at exact question within last incomplete section
+- API integration with dedicated section progress endpoints
+- Local storage backup with 30-day retention policy
+- Real-time save status indicators and progress percentages
+
+**API Endpoints**:
+- `GET /api/responses/:id/section-progress` - Get all section progress
+- `PUT /api/responses/:id/section/:sectionNum/progress` - Update section progress
+- `POST /api/responses/:id/section/:sectionNum/complete` - Complete section
+- `GET /api/responses/:id/resume-point` - Get resume point for incomplete responses
+
+**Usage Example**:
+```tsx
+const {
+  saveProgressWithSection,
+  getSectionProgress,
+  completeSectionProgress,
+  getResumePoint
+} = useProgressPersistence({
+  storageKey: 'rsa_assessment_progress',
+  autoSaveDelay: 1000,
+  enableToasts: true,
+  apiBaseUrl: '/api'
+});
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`

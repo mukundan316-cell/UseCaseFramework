@@ -1,6 +1,10 @@
-import { users, useCases, metadataConfig, type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig } from "@shared/schema";
+import { 
+  users, useCases, metadataConfig, sectionProgress, questionnaireResponses, questionAnswers,
+  type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig,
+  type SectionProgress, type InsertSectionProgress, type QuestionnaireResponse, type QuestionAnswer
+} from "@shared/schema";
 import { db } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 // Storage interface with metadata management for database-first compliance
@@ -22,6 +26,17 @@ export interface IStorage {
   // Individual metadata item CRUD operations
   addMetadataItem(category: string, item: string): Promise<MetadataConfig>;
   removeMetadataItem(category: string, item: string): Promise<MetadataConfig>;
+  
+  // Section progress management
+  getSectionProgress(responseId: string): Promise<SectionProgress[]>;
+  updateSectionProgress(responseId: string, sectionNumber: number, progress: Partial<InsertSectionProgress>): Promise<SectionProgress>;
+  
+  // Questionnaire response management
+  updateQuestionnaireResponse(responseId: string, updates: Partial<QuestionnaireResponse>): Promise<QuestionnaireResponse | undefined>;
+  
+  // Question answer management
+  saveQuestionAnswer(responseId: string, questionId: string, answerValue: any): Promise<QuestionAnswer>;
+  getQuestionAnswersByResponse(responseId: string): Promise<QuestionAnswer[]>;
 }
 
 /**
@@ -150,6 +165,136 @@ export class DatabaseStorage implements IStorage {
     };
     
     return await this.updateMetadataConfig(updatedConfig);
+  }
+
+  // ==================================================================================
+  // SECTION PROGRESS MANAGEMENT
+  // ==================================================================================
+
+  async getSectionProgress(responseId: string): Promise<SectionProgress[]> {
+    return await db
+      .select()
+      .from(sectionProgress)
+      .where(eq(sectionProgress.userResponseId, responseId))
+      .orderBy(sectionProgress.sectionNumber);
+  }
+
+  async updateSectionProgress(
+    responseId: string, 
+    sectionNumber: number, 
+    progress: Partial<InsertSectionProgress>
+  ): Promise<SectionProgress> {
+    // Check if section progress already exists
+    const existing = await db
+      .select()
+      .from(sectionProgress)
+      .where(
+        and(
+          eq(sectionProgress.userResponseId, responseId),
+          eq(sectionProgress.sectionNumber, sectionNumber)
+        )
+      );
+
+    if (existing.length > 0) {
+      // Update existing progress
+      const [updated] = await db
+        .update(sectionProgress)
+        .set({
+          ...progress,
+          lastModifiedAt: sql`NOW()`
+        })
+        .where(
+          and(
+            eq(sectionProgress.userResponseId, responseId),
+            eq(sectionProgress.sectionNumber, sectionNumber)
+          )
+        )
+        .returning();
+      return updated;
+    } else {
+      // Create new progress entry
+      const [created] = await db
+        .insert(sectionProgress)
+        .values({
+          userResponseId: responseId,
+          sectionNumber,
+          ...progress
+        })
+        .returning();
+      return created;
+    }
+  }
+
+  // ==================================================================================
+  // QUESTIONNAIRE RESPONSE MANAGEMENT
+  // ==================================================================================
+
+  async updateQuestionnaireResponse(
+    responseId: string, 
+    updates: Partial<QuestionnaireResponse>
+  ): Promise<QuestionnaireResponse | undefined> {
+    const [updated] = await db
+      .update(questionnaireResponses)
+      .set(updates)
+      .where(eq(questionnaireResponses.id, responseId))
+      .returning();
+    return updated || undefined;
+  }
+
+  // ==================================================================================
+  // QUESTION ANSWER MANAGEMENT
+  // ==================================================================================
+
+  async saveQuestionAnswer(
+    responseId: string, 
+    questionId: string, 
+    answerValue: any
+  ): Promise<QuestionAnswer> {
+    // Check if answer already exists
+    const existing = await db
+      .select()
+      .from(questionAnswers)
+      .where(
+        and(
+          eq(questionAnswers.responseId, responseId),
+          eq(questionAnswers.questionId, questionId)
+        )
+      );
+
+    const answerData = {
+      responseId,
+      questionId,
+      answerValue: typeof answerValue === 'string' ? answerValue : JSON.stringify(answerValue)
+    };
+
+    if (existing.length > 0) {
+      // Update existing answer
+      const [updated] = await db
+        .update(questionAnswers)
+        .set(answerData)
+        .where(
+          and(
+            eq(questionAnswers.responseId, responseId),
+            eq(questionAnswers.questionId, questionId)
+          )
+        )
+        .returning();
+      return updated;
+    } else {
+      // Create new answer
+      const [created] = await db
+        .insert(questionAnswers)
+        .values(answerData)
+        .returning();
+      return created;
+    }
+  }
+
+  async getQuestionAnswersByResponse(responseId: string): Promise<QuestionAnswer[]> {
+    return await db
+      .select()
+      .from(questionAnswers)
+      .where(eq(questionAnswers.responseId, responseId));
   }
 }
 
