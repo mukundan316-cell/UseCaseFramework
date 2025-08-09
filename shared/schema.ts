@@ -195,7 +195,7 @@ export const insertQuestionSchema = createInsertSchema(questions).omit({
   createdAt: true,
 }).extend({
   isRequired: z.enum(['true', 'false']).default('false'),
-  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean', 'smart_rating', 'ranking']),
+  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean', 'smart_rating', 'ranking', 'currency', 'percentage_allocation']),
   scoringCategory: z.enum(['business_value', 'feasibility', 'ai_governance', 'general']).optional(),
 });
 
@@ -266,7 +266,7 @@ export const insertDynamicQuestionSchema = createInsertSchema(dynamicQuestions).
   questionType: z.enum([
     'scale', 'multiChoice', 'ranking', 'allocation', 'text', 
     'boolean', 'matrix', 'compound', 'score', 'checkbox', 
-    'textarea', 'number', 'email', 'url', 'date'
+    'textarea', 'number', 'email', 'url', 'date', 'smart_rating', 'currency', 'percentage_allocation'
   ]),
   dependsOn: z.array(z.string()).optional(),
   conditionalLogic: z.string().optional(), // JSON string
