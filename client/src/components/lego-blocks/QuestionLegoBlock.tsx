@@ -502,6 +502,7 @@ export default function QuestionLegoBlock({
       case 'percentage_allocation':
       case 'business_lines_matrix':
       case 'department_skills_matrix':
+      case 'business_performance':
         // These advanced question types are handled by QuestionRegistryLegoBlock
         return (
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">

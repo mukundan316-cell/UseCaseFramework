@@ -120,6 +120,18 @@ export default function SectionLegoBlock({
           }
           return false;
           
+        case 'business_performance':
+          // Business performance is complete if at least one metric has data
+          if (typeof value === 'object' && value !== null) {
+            const hasFinancials = value.combinedRatio || value.expenseRatio || value.lossRatio;
+            const hasGrowth = value.premiumGrowth || value.policyRetention;
+            const hasOperational = value.processingTime || value.claimsSettlement;
+            const hasCustomer = value.customerSatisfaction;
+            const hasAreas = value.areasForImprovement && value.areasForImprovement.trim() !== '';
+            return hasFinancials || hasGrowth || hasOperational || hasCustomer || hasAreas;
+          }
+          return false;
+          
         case 'text':
         case 'textarea':
           // Text questions are complete if they have meaningful content
@@ -318,7 +330,7 @@ export default function SectionLegoBlock({
               {/* Question content */}
               <div className="ml-6">
                 {/* Use QuestionRegistryLegoBlock for advanced question types */}
-                {['company_profile', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking'].includes(question.questionType) ? (
+                {['company_profile', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance'].includes(question.questionType) ? (
                   <QuestionRegistryLegoBlock
                     questions={[{
                       id: question.id,
