@@ -329,7 +329,7 @@ export default function QuestionnaireContainer({
     const currentSection = questionnaire.sections[currentSectionIndex];
     const newErrors: Record<string, string> = {};
     
-    // Clean validation without debug logs
+    // Clean validation - interface mismatch fixed
     
     currentSection.questions.forEach((question: QuestionData) => {
       // Check question-level required flag (string or boolean)

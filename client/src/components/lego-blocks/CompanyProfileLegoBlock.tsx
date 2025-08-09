@@ -22,6 +22,20 @@ interface CompanyProfileData {
 
 interface CompanyProfileLegoBlockProps {
   questionData: {
+    // Support both old interface and new fields-based structure
+    fields?: Array<{
+      id: string;
+      type: string;
+      label: string;
+      required?: boolean;
+      defaultValue?: string;
+      placeholder?: string;
+      currency?: string;
+      options?: Array<{ label: string; value: string }>;
+    }>;
+    allowNotes?: boolean;
+    notesPrompt?: string;
+    // Legacy structure for backward compatibility
     companyName?: string;
     gwp?: {
       placeholder?: string;
@@ -58,16 +72,15 @@ export default function CompanyProfileLegoBlock({
     
     // Check if questionData has fields array (from database schema)
     if (questionData && typeof questionData === 'object' && 'fields' in questionData) {
-      const fields = (questionData as any).fields;
+      const fields = questionData.fields;
       if (Array.isArray(fields)) {
-        fields.forEach((field: any) => {
+        fields.forEach((field) => {
           if (field.defaultValue && !result[field.id as keyof CompanyProfileData]) {
             (result as any)[field.id] = field.defaultValue;
           }
         });
       }
     }
-    
     return result;
   };
 
