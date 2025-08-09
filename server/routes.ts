@@ -396,6 +396,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register recommendation routes
   app.use('/api/recommendations', recommendationRoutes);
+  
+  // Register assessment statistics routes
+  const assessmentStatsRoutes = (await import('./routes/assessment-stats')).default;
+  app.use('/api', assessmentStatsRoutes);
 
   return httpServer;
 }

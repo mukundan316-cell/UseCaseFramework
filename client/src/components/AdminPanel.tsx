@@ -10,6 +10,7 @@ import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagem
 import ProcessManagementBlock from './lego-blocks/ProcessManagementBlock';
 import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSimple';
 import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibraryLegoBlock';
+import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
 
 export default function AdminPanel() {
   const { 
@@ -245,8 +246,11 @@ export default function AdminPanel() {
                 </p>
               </div>
               
-              {/* Question Template Library */}
+              {/* Assessment Statistics */}
               <div className="space-y-6">
+                <AssessmentStatsLegoBlock />
+                
+                {/* Question Template Library */}
                 <QuestionTemplateLibraryLegoBlock
                   onAddQuestion={async (template) => console.log('Add question:', template)}
                   onBulkImport={async (templates) => console.log('Bulk import:', templates)}
