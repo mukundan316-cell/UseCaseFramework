@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   ChevronDown, 
@@ -56,6 +57,12 @@ export interface SmartRatingLegoBlockProps {
   minValue?: number;
   /** Maximum value (default: 5) */
   maxValue?: number;
+  /** Additional context value */
+  additionalContext?: string;
+  /** Handler for additional context changes */
+  onAdditionalContextChange?: (value: string) => void;
+  /** Label for additional context section */
+  additionalContextLabel?: string;
 }
 
 // Rating configuration for each variant
@@ -114,7 +121,10 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
   className = '',
   error,
   minValue = 1,
-  maxValue = 5
+  maxValue = 5,
+  additionalContext = '',
+  onAdditionalContextChange,
+  additionalContextLabel = 'Additional Context'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -362,6 +372,20 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
           {error}
         </p>
       )}
+
+      {/* Additional Context Section */}
+      <div className="mt-6 space-y-3">
+        <Label className="text-base font-medium text-gray-800">
+          {additionalContextLabel}
+        </Label>
+        <Textarea
+          value={additionalContext}
+          onChange={(e) => onAdditionalContextChange?.(e.target.value)}
+          placeholder="Provide additional context about your rating decision, specific examples, or strategic considerations..."
+          disabled={disabled}
+          className="min-h-[100px] bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
     </div>
   );
 };

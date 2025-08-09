@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -42,6 +43,12 @@ export interface BusinessLinesMatrixLegoBlockProps {
   minLines?: number;
   /** Maximum number of business lines */
   maxLines?: number;
+  /** Additional context value */
+  additionalContext?: string;
+  /** Handler for additional context changes */
+  onAdditionalContextChange?: (value: string) => void;
+  /** Label for additional context section */
+  additionalContextLabel?: string;
 }
 
 // Growth trend configurations
@@ -102,7 +109,10 @@ export default function BusinessLinesMatrixLegoBlock({
   helpText = 'Distribute premium percentages across business lines. Total must equal 100%.',
   required = false,
   minLines = 1,
-  maxLines = 10
+  maxLines = 10,
+  additionalContext = '',
+  onAdditionalContextChange,
+  additionalContextLabel = 'Additional Context'
 }: BusinessLinesMatrixLegoBlockProps) {
 
   const [localBusinessLines, setLocalBusinessLines] = useState<BusinessLineData[]>(
@@ -416,6 +426,20 @@ export default function BusinessLinesMatrixLegoBlock({
           <span>{error}</span>
         </div>
       )}
+
+      {/* Additional Context Section */}
+      <div className="mt-6 space-y-3">
+        <Label className="text-base font-medium text-gray-800">
+          {additionalContextLabel}
+        </Label>
+        <Textarea
+          value={additionalContext}
+          onChange={(e) => onAdditionalContextChange?.(e.target.value)}
+          placeholder="Provide additional context about your business lines allocation, market conditions, strategic priorities, or operational considerations..."
+          disabled={disabled}
+          className="min-h-[100px] bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
     </div>
   );
 }

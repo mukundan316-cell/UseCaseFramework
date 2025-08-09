@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   GripVertical, 
@@ -47,6 +48,12 @@ export interface RankingLegoBlockProps {
   showNumbers?: boolean;
   /** Allow partial ranking */
   allowPartial?: boolean;
+  /** Additional context value */
+  additionalContext?: string;
+  /** Handler for additional context changes */
+  onAdditionalContextChange?: (value: string) => void;
+  /** Label for additional context section */
+  additionalContextLabel?: string;
 }
 
 /**
@@ -70,7 +77,10 @@ export const RankingLegoBlock: React.FC<RankingLegoBlockProps> = ({
   error,
   className = '',
   showNumbers = true,
-  allowPartial = false
+  allowPartial = false,
+  additionalContext = '',
+  onAdditionalContextChange,
+  additionalContextLabel = 'Additional Context'
 }) => {
   const [rankedItems, setRankedItems] = useState<RankingItem[]>([]);
   const [unrankedItems, setUnrankedItems] = useState<RankingItem[]>([]);
@@ -456,6 +466,20 @@ export const RankingLegoBlock: React.FC<RankingLegoBlockProps> = ({
           Please rank {effectiveMaxRank - rankedItems.length} more item{effectiveMaxRank - rankedItems.length !== 1 ? 's' : ''} to complete this question.
         </p>
       )}
+
+      {/* Additional Context Section */}
+      <div className="mt-6 space-y-3">
+        <Label className="text-base font-medium text-gray-800">
+          {additionalContextLabel}
+        </Label>
+        <Textarea
+          value={additionalContext}
+          onChange={(e) => onAdditionalContextChange?.(e.target.value)}
+          placeholder="Provide additional context about your ranking decisions, priorities used, or strategic reasoning..."
+          disabled={disabled}
+          className="min-h-[100px] bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
     </div>
   );
 };

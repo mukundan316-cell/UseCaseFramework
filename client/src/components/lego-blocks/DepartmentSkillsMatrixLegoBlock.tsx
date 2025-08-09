@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +45,12 @@ export interface DepartmentSkillsMatrixLegoBlockProps {
   minDepartments?: number;
   /** Maximum number of departments */
   maxDepartments?: number;
+  /** Additional context value */
+  additionalContext?: string;
+  /** Handler for additional context changes */
+  onAdditionalContextChange?: (value: string) => void;
+  /** Label for additional context section */
+  additionalContextLabel?: string;
 }
 
 // Training priority configurations
@@ -102,7 +109,10 @@ export default function DepartmentSkillsMatrixLegoBlock({
   helpText = 'Assess AI skills maturity across departments and identify training priorities.',
   required = false,
   minDepartments = 1,
-  maxDepartments = 15
+  maxDepartments = 15,
+  additionalContext = '',
+  onAdditionalContextChange,
+  additionalContextLabel = 'Additional Context'
 }: DepartmentSkillsMatrixLegoBlockProps) {
 
   const [localDepartments, setLocalDepartments] = useState<DepartmentData[]>(
@@ -406,6 +416,20 @@ export default function DepartmentSkillsMatrixLegoBlock({
           <span>{error}</span>
         </div>
       )}
+
+      {/* Additional Context Section */}
+      <div className="mt-6 space-y-3">
+        <Label className="text-base font-medium text-gray-800">
+          {additionalContextLabel}
+        </Label>
+        <Textarea
+          value={additionalContext}
+          onChange={(e) => onAdditionalContextChange?.(e.target.value)}
+          placeholder="Provide additional context about department capabilities, training plans, organizational structure, or strategic AI development priorities..."
+          disabled={disabled}
+          className="min-h-[100px] bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
     </div>
   );
 }

@@ -261,6 +261,15 @@ export default function QuestionRegistryLegoBlock({
             disabled={logic.isDisabled}
             showNumbers={questionMeta.questionData.showNumbers !== false}
             allowPartial={questionMeta.questionData.allowPartial || false}
+            additionalContext={currentValue?.additionalContext || ''}
+            onAdditionalContextChange={(value: string) => {
+              const updatedValue = { 
+                ...currentValue, 
+                additionalContext: value 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
+            additionalContextLabel={questionMeta.questionData.additionalContextLabel || 'Additional Context'}
           />
         );
       }
@@ -283,6 +292,15 @@ export default function QuestionRegistryLegoBlock({
             disabled={logic.isDisabled}
             minValue={questionMeta.questionData.minValue || 1}
             maxValue={questionMeta.questionData.maxValue || 5}
+            additionalContext={currentValue?.additionalContext || ''}
+            onAdditionalContextChange={(value: string) => {
+              const updatedValue = { 
+                ...currentValue, 
+                additionalContext: value 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
+            additionalContextLabel={questionMeta.questionData.additionalContextLabel || 'Additional Context'}
           />
         );
       }
@@ -371,6 +389,15 @@ export default function QuestionRegistryLegoBlock({
             required={logic.isRequired}
             showRemaining={questionMeta.questionData.showRemaining !== false}
             precision={questionMeta.questionData.precision || 1}
+            additionalContext={currentValue?.additionalContext || ''}
+            onAdditionalContextChange={(value: string) => {
+              const updatedValue = { 
+                ...currentValue, 
+                additionalContext: value 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
+            additionalContextLabel={questionMeta.questionData.additionalContextLabel || 'Additional Context'}
           />
         );
       }
@@ -388,6 +415,15 @@ export default function QuestionRegistryLegoBlock({
             enforceTotal={questionMeta.questionData.enforceTotal !== false}
             minLines={questionMeta.questionData.minLines || 1}
             maxLines={questionMeta.questionData.maxLines || 10}
+            additionalContext={currentValue?.additionalContext || ''}
+            onAdditionalContextChange={(value: string) => {
+              const updatedValue = { 
+                ...currentValue, 
+                additionalContext: value 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
+            additionalContextLabel={questionMeta.questionData.additionalContextLabel || 'Additional Context'}
           />
         );
       }
@@ -405,6 +441,15 @@ export default function QuestionRegistryLegoBlock({
             showTotals={questionMeta.questionData.showTotals !== false}
             minDepartments={questionMeta.questionData.minDepartments || 1}
             maxDepartments={questionMeta.questionData.maxDepartments || 15}
+            additionalContext={currentValue?.additionalContext || ''}
+            onAdditionalContextChange={(value: string) => {
+              const updatedValue = { 
+                ...currentValue, 
+                additionalContext: value 
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
+            additionalContextLabel={questionMeta.questionData.additionalContextLabel || 'Additional Context'}
           />
         );
       }

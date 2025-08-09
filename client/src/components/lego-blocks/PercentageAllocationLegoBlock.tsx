@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { AlertCircle, Check, RotateCcw, Percent } from 'lucide-react';
 
 // Category definition interface
@@ -65,6 +66,12 @@ export interface PercentageAllocationLegoBlockProps {
   showRemaining?: boolean;
   /** Precision for percentage values (default: 1 decimal place) */
   precision?: number;
+  /** Additional context value */
+  additionalContext?: string;
+  /** Handler for additional context changes */
+  onAdditionalContextChange?: (value: string) => void;
+  /** Label for additional context section */
+  additionalContextLabel?: string;
 }
 
 // Validation utilities
@@ -182,7 +189,10 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
   required = false,
   error,
   showRemaining = true,
-  precision = 1
+  precision = 1,
+  additionalContext = '',
+  onAdditionalContextChange,
+  additionalContextLabel = 'Additional Context'
 }) => {
   const [localValues, setLocalValues] = useState<AllocationValues>(values);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -620,6 +630,20 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
           </div>
         </div>
       )}
+
+      {/* Additional Context Section */}
+      <div className="mt-6 space-y-3">
+        <Label className="text-base font-medium text-gray-800">
+          {additionalContextLabel}
+        </Label>
+        <Textarea
+          value={additionalContext}
+          onChange={(e) => onAdditionalContextChange?.(e.target.value)}
+          placeholder="Provide additional context about your allocation decisions, assumptions, or strategic considerations..."
+          disabled={disabled}
+          className="min-h-[100px] bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
     </div>
   );
 };
