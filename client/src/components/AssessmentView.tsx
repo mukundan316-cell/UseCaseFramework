@@ -345,6 +345,18 @@ export default function AssessmentView() {
   if (assessmentState.isInProgress) {
     return (
       <div className="space-y-4">
+        {/* Saved Progress Modal at Top */}
+        <div className="flex justify-end mb-4">
+          <SavedProgressModalLegoBlock
+            onResumeAssessment={handleResumeAssessment}
+            triggerText="View Saved Progress"
+            triggerVariant="outline"
+            className="px-4 py-2"
+            showDetailedProgress={true}
+            maxItems={10}
+          />
+        </div>
+
         {/* Progress Header */}
         <Card>
           <CardHeader>
@@ -383,13 +395,23 @@ export default function AssessmentView() {
     console.log('Rendering AssessmentResultsDashboard with state:', assessmentState);
     return (
       <div className="space-y-6">
+        {/* Saved Progress Modal at Top */}
+        <div className="flex justify-end mb-4">
+          <SavedProgressModalLegoBlock
+            onResumeAssessment={handleResumeAssessment}
+            triggerText="View Saved Progress"
+            triggerVariant="outline"
+            className="px-4 py-2"
+            showDetailedProgress={true}
+            maxItems={10}
+          />
+        </div>
+
         <AssessmentResultsDashboard 
           assessmentState={assessmentState} 
           responseId={assessmentState.responseId}
           onRetake={handleRetakeAssessment} 
         />
-        
-
       </div>
     );
   }
