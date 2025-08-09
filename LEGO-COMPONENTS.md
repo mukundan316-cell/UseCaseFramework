@@ -86,6 +86,37 @@ This document catalogs all reusable LEGO-style components in the RSA AI Use Case
 />
 ```
 
+### QuestionnaireSectionContainerLegoBlock
+**Purpose**: Complete section container with navigation, progress tracking, and mobile support
+**Location**: `client/src/components/lego-blocks/QuestionnaireSectionContainerLegoBlock.tsx`
+**Features**:
+- Consistent section layout with header and footer navigation
+- Previous/Next navigation with validation
+- Save & Exit functionality with auto-save indicators
+- Keyboard navigation support (← → arrows, ESC)
+- Touch/swipe gestures for mobile devices
+- Transition animations between sections
+- Progress indicators for section and overall completion
+
+**Usage Example**:
+```tsx
+<QuestionnaireSectionContainerLegoBlock
+  currentSection={2}
+  totalSections={6}
+  sectionTitle="Current AI & Data Capabilities"
+  sectionProgress={{ completed: 28, total: 35 }}
+  overallProgress={{ completed: 45, total: 100 }}
+  onPrevious={handlePrevious}
+  onNext={handleNext}
+  onSaveAndExit={handleSaveExit}
+  canProceed={true}
+  hasUnsavedChanges={false}
+  lastSaved="2025-01-08T15:30:00Z"
+>
+  <YourSectionContent />
+</QuestionnaireSectionContainerLegoBlock>
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`
