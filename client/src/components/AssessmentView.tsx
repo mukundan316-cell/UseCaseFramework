@@ -12,7 +12,6 @@ import ScoringDashboardLegoBlock, { type ScoringData } from './lego-blocks/Scori
 import ResponseExportLegoBlock from './lego-blocks/ResponseExportLegoBlock';
 import AssessmentResultsDashboard from './lego-blocks/AssessmentResultsDashboard';
 import ResumeProgressLegoBlock from './lego-blocks/ResumeProgressLegoBlock';
-import { createTestProgressData, clearTestProgressData } from '../utils/createTestProgress';
 
 interface AssessmentState {
   hasAssessment: boolean;
@@ -170,6 +169,63 @@ export default function AssessmentView() {
       questionnaireId,
       resumedAt: new Date().toISOString()
     }));
+  };
+
+  // Create test progress data for demonstration
+  const createTestProgressData = () => {
+    const testProgress = {
+      responseId: 'test-response-' + Date.now(),
+      questionnaireId: '91684df8-9700-4605-bc3e-2320120e5e1b',
+      answers: {
+        'q1': 'Started assessment but incomplete',
+        'q2': 'Some answers provided'
+      },
+      currentSection: 1,
+      currentQuestionIndex: 3,
+      email: 'test.user@rsa.com',
+      name: 'Test User',
+      lastSaved: new Date().toLocaleString(),
+      timestamp: Date.now(),
+      totalSections: 6,
+      completionPercentage: 25,
+      sectionProgress: {
+        1: {
+          sectionNumber: 1,
+          started: true,
+          completed: false,
+          currentQuestionIndex: 3,
+          totalQuestions: 10,
+          completionPercentage: 30,
+          lastModified: new Date().toISOString(),
+          answers: {
+            'q1': 'Started assessment but incomplete',
+            'q2': 'Some answers provided'
+          }
+        }
+      }
+    };
+
+    const storageKey = `questionnaire-progress-${testProgress.questionnaireId}`;
+    localStorage.setItem(storageKey, JSON.stringify(testProgress));
+    
+    toast({
+      title: "Test Progress Created",
+      description: "Demo assessment progress has been saved. Check the Saved Progress section below.",
+      duration: 3000
+    });
+  };
+
+  // Clear test progress data
+  const clearTestProgressData = () => {
+    const questionnaireId = '91684df8-9700-4605-bc3e-2320120e5e1b';
+    const storageKey = `questionnaire-progress-${questionnaireId}`;
+    localStorage.removeItem(storageKey);
+    
+    toast({
+      title: "Test Progress Cleared",
+      description: "Demo assessment progress has been removed.",
+      duration: 3000
+    });
   };
 
   // Handle assessment completion (called from QuestionnaireContainer)
@@ -389,7 +445,11 @@ export default function AssessmentView() {
             <Button
               size="sm"
               variant="outline"
-              onClick={createTestProgressData}
+              onClick={() => {
+                createTestProgressData();
+                // Force refresh of the component by triggering a re-render
+                window.dispatchEvent(new Event('storage'));
+              }}
               className="text-xs"
             >
               Create Test Progress
@@ -397,7 +457,11 @@ export default function AssessmentView() {
             <Button
               size="sm"
               variant="outline"
-              onClick={clearTestProgressData}
+              onClick={() => {
+                clearTestProgressData();
+                // Force refresh of the component by triggering a re-render
+                window.dispatchEvent(new Event('storage'));
+              }}
               className="text-xs"
             >
               Clear Test Progress

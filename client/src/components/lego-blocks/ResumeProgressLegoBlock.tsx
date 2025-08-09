@@ -121,7 +121,18 @@ export default function ResumeProgressLegoBlock({
     
     // Refresh every 30 seconds to catch new saves
     const interval = setInterval(loadSavedAssessments, 30000);
-    return () => clearInterval(interval);
+    
+    // Listen for storage events to refresh immediately when localStorage changes
+    const handleStorageChange = () => {
+      loadSavedAssessments();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [maxItems]);
 
   // Handle resume assessment
