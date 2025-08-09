@@ -21,7 +21,7 @@ export interface QuestionOption {
 export interface QuestionData {
   id: string;
   questionText: string;
-  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'smart_rating' | 'ranking' | 'currency' | 'percentage_allocation' | 'business_lines_matrix' | 'department_skills_matrix' | 'company_profile';
+  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'smart_rating' | 'ranking' | 'currency' | 'percentage_allocation' | 'business_lines_matrix' | 'department_skills_matrix' | 'company_profile' | 'business_performance' | 'multi_rating';
   isRequired: boolean;
   questionOrder?: number;
   helpText?: string;
@@ -77,8 +77,27 @@ export default function QuestionLegoBlock({
     minValue = 1,
     maxValue = 5,
     leftLabel = "Low",
-    rightLabel = "High"
+    rightLabel = "High",
+    questionData = {}
   } = question;
+
+  // Check if this is a header question
+  const isHeader = questionData?.isHeader === true;
+  const hideInput = questionData?.hideInput === true;
+
+  // Helper function to render section header
+  const renderSectionHeader = () => (
+    <div className="mb-6 pb-4 border-b border-gray-200">
+      <h3 className="text-lg font-semibold text-rsa-blue mb-2">
+        {questionText}
+      </h3>
+      {helpText && (
+        <p className="text-sm text-gray-600">
+          {helpText}
+        </p>
+      )}
+    </div>
+  );
 
   // Helper function to render question label with required indicator and help tooltip
   const renderQuestionLabel = () => (
@@ -477,6 +496,11 @@ export default function QuestionLegoBlock({
 
   // Main render function
   const renderQuestion = () => {
+    // If this is a header question, render the header instead of input
+    if (isHeader) {
+      return renderSectionHeader();
+    }
+
     switch (questionType) {
       case 'score':
       case 'scale':
@@ -503,6 +527,7 @@ export default function QuestionLegoBlock({
       case 'business_lines_matrix':
       case 'department_skills_matrix':
       case 'business_performance':
+      case 'multi_rating':
         // These advanced question types are handled by QuestionRegistryLegoBlock
         return (
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -527,17 +552,22 @@ export default function QuestionLegoBlock({
     <div className={cn("space-y-2", className)}>
       {renderQuestion()}
       
-      {/* Error message */}
-      {error && (
-        <p className="text-sm text-red-500 mt-1 flex items-center">
-          <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
-          {error}
-        </p>
-      )}
-      
-      {/* Readonly indicator */}
-      {readonly && (
-        <p className="text-xs text-gray-400 italic">Read-only</p>
+      {/* Don't show error messages or readonly indicators for headers */}
+      {!isHeader && (
+        <>
+          {/* Error message */}
+          {error && (
+            <p className="text-sm text-red-500 mt-1 flex items-center">
+              <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+              {error}
+            </p>
+          )}
+          
+          {/* Readonly indicator */}
+          {readonly && (
+            <p className="text-xs text-gray-400 italic">Read-only</p>
+          )}
+        </>
       )}
     </div>
   );
