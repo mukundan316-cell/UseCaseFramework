@@ -205,14 +205,37 @@ export const RankingLegoBlock: React.FC<RankingLegoBlockProps> = ({
   const completionPercentage = (rankedItems.length / effectiveMaxRank) * 100;
 
   return (
-    <div className={cn('w-full space-y-4', className)}>
-      {/* Label and Help Text */}
+    <div className={cn('w-full space-y-6', className)}>
+      {/* Question Header */}
+      {question && (
+        <div className="space-y-2">
+          <Label className="text-lg font-semibold text-gray-900">
+            {question.questionText}
+            {question.isRequired && <span className="text-red-500 ml-1">*</span>}
+          </Label>
+          {question.helpText && (
+            <p className="text-sm text-gray-600">{question.helpText}</p>
+          )}
+        </div>
+      )}
+
+      {/* Validation Error */}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <div className="flex items-center gap-2 text-red-700">
+            <AlertCircle className="h-4 w-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Ranking Controls */}
       <div className="flex items-center justify-between">
         <Label className={cn(
           "text-base font-medium text-gray-700",
           question.isRequired && "after:content-['*'] after:text-red-500 after:ml-1"
         )}>
-          {question.questionText}
+          Priority Ranking
         </Label>
         
         {question.helpText && (

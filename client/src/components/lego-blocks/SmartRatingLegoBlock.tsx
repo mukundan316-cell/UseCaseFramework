@@ -13,7 +13,8 @@ import {
   Award,
   Zap,
   CheckCircle2,
-  Circle
+  Circle,
+  AlertCircle
 } from 'lucide-react';
 
 export type SmartRatingVariant = 'descriptive' | 'stars' | 'maturity' | 'capability';
@@ -217,9 +218,32 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
   const config = sizeConfig[size];
 
   return (
-    <div className={cn('w-full', className)} ref={dropdownRef}>
-      {/* Label and Help Text */}
-      <div className="flex items-center justify-between mb-2">
+    <div className={cn('w-full space-y-6', className)} ref={dropdownRef}>
+      {/* Question Header */}
+      {question && (
+        <div className="space-y-2">
+          <Label className="text-lg font-semibold text-gray-900">
+            {question.questionText}
+            {question.isRequired && <span className="text-red-500 ml-1">*</span>}
+          </Label>
+          {question.helpText && (
+            <p className="text-sm text-gray-600">{question.helpText}</p>
+          )}
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <div className="flex items-center gap-2 text-red-700">
+            <AlertCircle className="h-4 w-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Rating Component */}
+      <div className="space-y-4">
         <Label className={cn(
           "font-medium text-gray-700",
           question.isRequired && "after:content-['*'] after:text-red-500 after:ml-1"

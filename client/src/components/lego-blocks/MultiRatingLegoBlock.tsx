@@ -68,6 +68,8 @@ export interface MultiRatingLegoBlockProps {
  * - Individual item validation
  * - Responsive design
  * - LEGO-style props-based configuration
+ * - Consistent question text display
+ * - Enhanced spacing and alignment
  */
 export const MultiRatingLegoBlock: React.FC<MultiRatingLegoBlockProps> = ({
   items = [],
@@ -277,19 +279,22 @@ export const MultiRatingLegoBlock: React.FC<MultiRatingLegoBlockProps> = ({
         </div>
       )}
 
-      {/* Additional Context */}
+      {/* Additional Context Section */}
       {allowContext && (
-        <div className="space-y-3">
-          <Label className="text-sm font-medium text-gray-900 flex items-center">
-            <AlertCircle className="h-4 w-4 mr-2" />
-            {contextPrompt}
+        <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <Label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+            <AlertCircle className="h-4 w-4" />
+            <span>Additional Context</span>
           </Label>
+          <p className="text-sm text-gray-600 mb-2">
+            {contextPrompt || "Areas needing improvement or performance insights:"}
+          </p>
           <Textarea
             value={localValue.additionalContext || ''}
             onChange={(e) => handleContextChange(e.target.value)}
-            placeholder="Provide additional context, competitive insights, or strategic notes..."
+            placeholder="Provide additional context, insights, or areas for improvement..."
             disabled={disabled}
-            className="min-h-[100px] resize-y"
+            className="min-h-[100px] bg-white"
           />
         </div>
       )}
