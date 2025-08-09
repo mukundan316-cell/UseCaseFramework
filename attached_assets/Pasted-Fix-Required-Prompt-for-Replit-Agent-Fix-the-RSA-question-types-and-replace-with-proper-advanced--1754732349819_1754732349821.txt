@@ -1,0 +1,42 @@
+Fix Required - Prompt for Replit Agent:
+Fix the RSA question types and replace with proper advanced LEGO blocks. Requirements:
+
+1. **Update Question 2** - Change from "multiselect" to "business_lines_matrix"
+   - Question: "How is your premium distributed across business lines?"
+   - Should show matrix table with premium percentages and growth trends
+
+2. **Update Question 3** - Change from "scale" to "smart_rating" 
+   - Question: "How would you rate your current AI strategy maturity?"
+   - Should use SmartRatingLegoBlock with maturity variant
+
+3. **Update Question 5** - Change from "scale" to "smart_rating"
+   - Question: "What is your risk appetite for AI experimentation?"
+   - Should use SmartRatingLegoBlock with capability variant
+
+4. **Verify Missing Advanced Questions:**
+   - Currency input questions (GWP, investment budget)
+   - Percentage allocation questions (distribution channels, investment allocation)
+   - Ranking questions (underwriting priorities, claims priorities)
+   - Department skills matrix question
+
+5. **Test QuestionRegistryLegoBlock mapping:**
+   - Ensure all new question types map to correct LEGO blocks
+   - Verify currency → CurrencyInputLegoBlock
+   - Verify business_lines_matrix → BusinessLinesMatrixLegoBlock
+   - Verify percentage_allocation → PercentageAllocationLegoBlock
+   - Verify ranking → RankingLegoBlock
+   - Verify department_skills_matrix → DepartmentSkillsMatrixLegoBlock
+   - Verify smart_rating → SmartRatingLegoBlock
+
+Update the questions in the database and refresh the assessment to show the proper advanced components.
+🎯 Expected Result:
+After the fix, you should see:
+
+✅ Currency inputs with multi-currency selectors
+✅ Business lines matrix with percentage and growth trend inputs
+✅ Smart rating dropdowns instead of sliders
+✅ Ranking components with drag-and-drop functionality
+✅ Department skills matrix with tabular data entry
+✅ Percentage allocation with 100% validation
+
+The current assessment shows the basic question types, but we need the advanced LEGO blocks to demonstrate the full RSA questionnaire capabilities! 🚀
