@@ -11,6 +11,7 @@ import SectionLegoBlockDemo from "./components/lego-blocks/SectionLegoBlockDemo"
 import SmartRatingLegoBlockDemo from "./components/lego-blocks/SmartRatingLegoBlockDemo";
 import RankingLegoBlockDemo from "./components/lego-blocks/RankingLegoBlockDemo";
 import CurrencyInputLegoBlockDemo from "./components/lego-blocks/CurrencyInputLegoBlockDemo";
+import PercentageAllocationLegoBlockDemo from "./components/lego-blocks/PercentageAllocationLegoBlockDemo";
 import QuestionnaireContainerDemo from "./components/QuestionnaireContainerDemo";
 import ScoringDashboardDemo from "./components/lego-blocks/ScoringDashboardDemo";
 import AssessmentResultsDashboard from "./components/lego-blocks/AssessmentResultsDashboard";
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/smart-rating-demo" component={SmartRatingLegoBlockDemo} />
       <Route path="/ranking-demo" component={RankingLegoBlockDemo} />
       <Route path="/currency-demo" component={CurrencyInputLegoBlockDemo} />
+      <Route path="/allocation-demo" component={PercentageAllocationLegoBlockDemo} />
       <Route path="/questionnaire" component={QuestionnaireContainerDemo} />
       <Route path="/assessment" component={QuestionnaireContainerDemo} />
       <Route path="/scoring-demo" component={ScoringDashboardDemo} />
