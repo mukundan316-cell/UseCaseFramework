@@ -15,6 +15,7 @@ import { PercentageAllocationLegoBlock } from './PercentageAllocationLegoBlock';
 import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
 import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
 import CompanyProfileLegoBlock from './CompanyProfileLegoBlock';
+import CompetitiveAwarenessLegoBlock from './CompetitiveAwarenessLegoBlock';
 import BusinessPerformanceLegoBlock from './BusinessPerformanceLegoBlock';
 import MultiRatingLegoBlock from './MultiRatingLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
@@ -47,7 +48,8 @@ export type QuestionType =
   | 'department_skills_matrix'
   | 'company_profile'
   | 'business_performance'
-  | 'multi_rating';
+  | 'multi_rating'
+  | 'composite';
 
 export interface QuestionMetadata {
   id: string;
@@ -112,6 +114,7 @@ export default function QuestionRegistryLegoBlock({
       company_profile: 'CompanyProfileLegoBlock',
       business_performance: 'BusinessPerformanceLegoBlock',
       multi_rating: 'MultiRatingLegoBlock',
+      composite: 'CompetitiveAwarenessLegoBlock',
       multiChoice: 'QuestionLegoBlock',
       text: 'QuestionLegoBlock',
       boolean: 'QuestionLegoBlock',
@@ -449,6 +452,20 @@ export default function QuestionRegistryLegoBlock({
             disabled={logic.isDisabled}
             allowContext={questionMeta.questionData.allowContext !== false}
             contextPrompt={questionMeta.questionData.contextPrompt || 'Additional context:'}
+          />
+        );
+      }
+
+      // Render CompetitiveAwarenessLegoBlock for composite type  
+      if (questionMeta.questionType === 'composite') {
+        return (
+          <CompetitiveAwarenessLegoBlock
+            label={questionMeta.questionText}
+            helpText={questionMeta.helpText}
+            value={currentValue || {}}
+            onChange={(value: any) => onResponseChange(questionMeta.id, value)}
+            disabled={logic.isDisabled}
+            required={logic.isRequired}
           />
         );
       }
