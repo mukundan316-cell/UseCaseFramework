@@ -143,24 +143,10 @@ export default function BusinessPerformanceLegoBlock({
       {/* Question Header */}
       {question && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-lg font-semibold text-gray-900">
-              {question.questionText}
-              {question.isRequired && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            {question.helpText && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-gray-400 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">{question.helpText}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
+          <Label className="text-lg font-semibold text-gray-900">
+            {question.questionText}
+            {question.isRequired && <span className="text-red-500 ml-1">*</span>}
+          </Label>
           {question.helpText && (
             <p className="text-sm text-gray-600">{question.helpText}</p>
           )}

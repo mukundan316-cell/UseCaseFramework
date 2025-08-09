@@ -193,17 +193,18 @@ export const CurrencyInputLegoBlock: React.FC<CurrencyInputLegoBlockProps> = ({
   const hasError = Boolean(displayError);
 
   return (
-    <div className={cn('space-y-2', className)}>
-      {/* Label */}
+    <div className={cn('space-y-6', className)}>
+      {/* Question Header */}
       {label && (
-        <Label 
-          className={cn(
-            'text-sm font-medium text-gray-700',
-            required && "after:content-['*'] after:text-red-500 after:ml-1"
+        <div className="space-y-2">
+          <Label className="text-lg font-semibold text-gray-900">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </Label>
+          {helpText && (
+            <p className="text-sm text-gray-600">{helpText}</p>
           )}
-        >
-          {label}
-        </Label>
+        </div>
       )}
 
       {/* Input Container */}

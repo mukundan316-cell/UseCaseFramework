@@ -194,11 +194,11 @@ export default function DepartmentSkillsMatrixLegoBlock({
   };
 
   return (
-    <div className={cn("w-full space-y-4", className)}>
-      {/* Label and Help Text */}
+    <div className={cn("w-full space-y-6", className)}>
+      {/* Question Header */}
       {label && (
-        <div className="space-y-1">
-          <Label className="text-sm font-medium">
+        <div className="space-y-2">
+          <Label className="text-lg font-semibold text-gray-900">
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </Label>

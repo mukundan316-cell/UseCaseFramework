@@ -211,10 +211,10 @@ export default function BusinessLinesMatrixLegoBlock({
 
   return (
     <div className={cn("w-full space-y-3", className)}>
-      {/* Label and Help Text */}
+      {/* Question Header */}
       {label && (
-        <div className="space-y-1">
-          <Label className="text-sm font-medium">
+        <div className="space-y-2">
+          <Label className="text-lg font-semibold text-gray-900">
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </Label>

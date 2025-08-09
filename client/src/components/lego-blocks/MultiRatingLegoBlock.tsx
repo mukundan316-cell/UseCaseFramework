@@ -164,7 +164,7 @@ export const MultiRatingLegoBlock: React.FC<MultiRatingLegoBlockProps> = ({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Header */}
+      {/* Question Header */}
       {label && (
         <div className="space-y-2">
           <Label className="text-lg font-semibold text-gray-900">

@@ -231,10 +231,7 @@ export const RankingLegoBlock: React.FC<RankingLegoBlockProps> = ({
 
       {/* Ranking Controls */}
       <div className="flex items-center justify-between">
-        <Label className={cn(
-          "text-base font-medium text-gray-700",
-          question.isRequired && "after:content-['*'] after:text-red-500 after:ml-1"
-        )}>
+        <Label className="text-sm font-medium text-gray-700">
           Priority Ranking
         </Label>
         

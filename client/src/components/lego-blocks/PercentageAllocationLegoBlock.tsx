@@ -297,19 +297,32 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
-      {/* Label and Controls */}
-      <div className="flex items-center justify-between">
-        {label && (
-          <Label 
-            className={cn(
-              'text-base font-medium text-gray-700',
-              required && "after:content-['*'] after:text-red-500 after:ml-1"
-            )}
-          >
+    <div className={cn('space-y-6', className)}>
+      {/* Question Header */}
+      {label && (
+        <div className="space-y-2">
+          <Label className="text-lg font-semibold text-gray-900">
             {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
           </Label>
-        )}
+          {helpText && (
+            <p className="text-sm text-gray-600">{helpText}</p>
+          )}
+        </div>
+      )}
+
+      {/* Error Display */}
+      {(error || validationError) && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <div className="flex items-center gap-2 text-red-700">
+            <AlertCircle className="h-4 w-4" />
+            <span className="text-sm">{error || validationError}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Controls */}
+      <div className="flex items-center justify-between">
         
         <div className="flex items-center space-x-2">
           {/* Smart Actions */}

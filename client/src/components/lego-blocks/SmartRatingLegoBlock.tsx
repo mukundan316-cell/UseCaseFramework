@@ -244,11 +244,8 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
 
       {/* Rating Component */}
       <div className="space-y-4">
-        <Label className={cn(
-          "font-medium text-gray-700",
-          question.isRequired && "after:content-['*'] after:text-red-500 after:ml-1"
-        )}>
-          {question.questionText}
+        <Label className="text-sm font-medium text-gray-700">
+          Rating Scale
         </Label>
         
         {question.helpText && (
