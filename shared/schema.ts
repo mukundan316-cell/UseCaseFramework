@@ -128,6 +128,7 @@ export const questions = pgTable("questions", {
   isRequired: text("is_required").notNull().default('false'), // 'true' or 'false'
   questionOrder: integer("question_order").notNull(),
   helpText: text("help_text"), // Optional guidance for respondents
+  questionData: text("question_data").$type<Record<string, any>>(), // JSON configuration for advanced question types
   subQuestions: text("sub_questions"), // JSONB for compound questions
   displayCondition: text("display_condition"), // JSONB for conditional logic
   scoringCategory: text("scoring_category"), // For dimension mapping (business_value, feasibility, etc.)
@@ -162,6 +163,7 @@ export const questionAnswers = pgTable("question_answers", {
   questionId: varchar("question_id").notNull().references(() => questions.id, { onDelete: 'cascade' }),
   answerValue: text("answer_value").notNull(), // Stored as string, parsed based on question type
   score: integer("score"), // Individual question score
+  notes: text("notes"), // Qualitative feedback and observations for stakeholder interviews
   answeredAt: timestamp("answered_at").defaultNow().notNull(),
 });
 
@@ -195,7 +197,7 @@ export const insertQuestionSchema = createInsertSchema(questions).omit({
   createdAt: true,
 }).extend({
   isRequired: z.enum(['true', 'false']).default('false'),
-  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean', 'smart_rating', 'ranking', 'currency', 'percentage_allocation']),
+  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean', 'smart_rating', 'ranking', 'currency', 'percentage_allocation', 'business_lines_matrix']),
   scoringCategory: z.enum(['business_value', 'feasibility', 'ai_governance', 'general']).optional(),
 });
 

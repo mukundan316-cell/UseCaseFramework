@@ -71,7 +71,7 @@ router.get('/questionnaires/:id', async (req: Request, res: Response) => {
       if (question && !sectionData.questions.has(question.id)) {
         sectionData.questions.set(question.id, {
           ...question,
-          questionData: question.questionData, // Ensure questionData is included
+          questionData: question.questionData || null, // Ensure questionData is included
           options: []
         });
       }
@@ -141,7 +141,7 @@ router.post('/responses/start', async (req: Request, res: Response) => {
         respondentEmail: validatedData.respondentEmail,
         respondentName: validatedData.respondentName || undefined,
         status: 'started',
-        metadata: validatedData.metadata ? JSON.stringify(validatedData.metadata) : undefined
+        metadata: validatedData.metadata || undefined
       })
       .returning();
 
