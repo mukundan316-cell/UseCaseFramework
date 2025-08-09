@@ -290,11 +290,10 @@ export default function BusinessLinesMatrixLegoBlock({
                     >
                       <SelectTrigger className="h-8 text-sm">
                         <SelectValue>
-                          <div className="flex items-center space-x-2">
-                            <TrendIcon className={cn("h-3 w-3", trendConfig.color)} />
+                          <span className="flex items-center space-x-2">
                             <span className="text-xs">{trendConfig.symbol}</span>
                             <span className="hidden sm:inline">{trendConfig.label}</span>
-                          </div>
+                          </span>
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
@@ -302,11 +301,10 @@ export default function BusinessLinesMatrixLegoBlock({
                           const IconComponent = config.icon;
                           return (
                             <SelectItem key={key} value={key}>
-                              <div className="flex items-center space-x-2">
-                                <IconComponent className={cn("h-3 w-3", config.color)} />
+                              <span className="flex items-center space-x-2">
                                 <span>{config.symbol}</span>
                                 <span>{config.label}</span>
-                              </div>
+                              </span>
                             </SelectItem>
                           );
                         })}
