@@ -40,6 +40,7 @@ export default function QuestionnaireContainer({
   const [responseSession, setResponseSession] = useState<ResponseSession | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hasStarted, setHasStarted] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   
   // User information for response session
   const [respondentEmail, setRespondentEmail] = useState('');
@@ -130,13 +131,15 @@ export default function QuestionnaireContainer({
     }
   }, [responses, responseSession, debouncedSaveAnswers]);
 
-  // Enhanced progress recovery on component mount
+  // Enhanced progress recovery on component mount with session restoration
   useEffect(() => {
-    const savedProgress = loadFromStorage();
-    if (savedProgress) {
-      // Check if the saved response is completed - if so, don't restore it
-      const checkResponseStatus = async () => {
+    const checkExistingSession = async () => {
+      setIsCheckingSession(true);
+      const savedProgress = loadFromStorage();
+      
+      if (savedProgress) {
         try {
+          // Check if the saved response is completed - if so, don't restore it
           const response = await fetch(`/api/responses/${savedProgress.responseId}`);
           if (response.ok) {
             const data = await response.json();
@@ -148,39 +151,41 @@ export default function QuestionnaireContainer({
                 description: "Previous assessment was completed. Ready to start new assessment.",
                 duration: 3000
               });
+              setIsCheckingSession(false);
               return;
             }
           }
+          
+          // Only restore if assessment is still in progress
+          setResponseSession({ 
+            id: savedProgress.responseId, 
+            status: 'started',
+            questionnaireId: savedProgress.questionnaireId,
+            respondentEmail: savedProgress.email,
+            respondentName: savedProgress.name
+          } as ResponseSession);
+          setResponses(new Map(Object.entries(savedProgress.answers || {})));
+          setCurrentSectionIndex(savedProgress.currentSection || 0);
+          setRespondentEmail(savedProgress.email || '');
+          setRespondentName(savedProgress.name || '');
+          setHasStarted(true);
+          
+          toast({
+            title: "Session Resumed",
+            description: `Continuing from ${savedProgress.completionPercentage || 0}% completion`,
+            duration: 3000
+          });
         } catch (error) {
           console.error('Error checking response status:', error);
           // If we can't check the status, clear storage to be safe
           clearStorage();
-          return;
         }
-        
-        // Only restore if assessment is still in progress
-        setResponseSession({ 
-          id: savedProgress.responseId, 
-          status: 'started',
-          questionnaireId: savedProgress.questionnaireId,
-          respondentEmail: savedProgress.email,
-          respondentName: savedProgress.name
-        } as ResponseSession);
-        setResponses(new Map(Object.entries(savedProgress.answers)));
-        setCurrentSectionIndex(savedProgress.currentSection || 0);
-        setRespondentEmail(savedProgress.email || '');
-        setRespondentName(savedProgress.name || '');
-        setHasStarted(true);
-        
-        toast({
-          title: "Progress restored",
-          description: `Resumed from ${savedProgress.completionPercentage}% completion`,
-          duration: 3000
-        });
-      };
+      }
       
-      checkResponseStatus();
-    }
+      setIsCheckingSession(false);
+    };
+    
+    checkExistingSession();
   }, [questionnaireId, toast, loadFromStorage, clearStorage]);
 
   // Enhanced progress save (now handled by useProgressPersistence)
@@ -403,14 +408,16 @@ export default function QuestionnaireContainer({
   }, [questionnaire, responses]);
 
   // Loading state
-  if (isLoadingQuestionnaire) {
+  if (isLoadingQuestionnaire || isCheckingSession) {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <Card>
           <CardContent className="flex items-center justify-center p-12">
             <div className="text-center space-y-4">
               <div className="w-8 h-8 border-4 border-[#005DAA] border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-gray-600">Loading questionnaire...</p>
+              <p className="text-gray-600">
+                {isCheckingSession ? 'Checking for existing session...' : 'Loading questionnaire...'}
+              </p>
             </div>
           </CardContent>
         </Card>
