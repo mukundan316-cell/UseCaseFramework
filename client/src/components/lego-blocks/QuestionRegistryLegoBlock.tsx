@@ -16,6 +16,7 @@ import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
 import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
 import CompanyProfileLegoBlock from './CompanyProfileLegoBlock';
 import CompetitiveAwarenessLegoBlock from './CompetitiveAwarenessLegoBlock';
+import RiskAppetiteLegoBlock from './RiskAppetiteLegoBlock';
 import BusinessPerformanceLegoBlock from './BusinessPerformanceLegoBlock';
 import MultiRatingLegoBlock from './MultiRatingLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
@@ -49,7 +50,8 @@ export type QuestionType =
   | 'company_profile'
   | 'business_performance'
   | 'multi_rating'
-  | 'composite';
+  | 'composite'
+  | 'risk_appetite';
 
 export interface QuestionMetadata {
   id: string;
@@ -115,6 +117,7 @@ export default function QuestionRegistryLegoBlock({
       business_performance: 'BusinessPerformanceLegoBlock',
       multi_rating: 'MultiRatingLegoBlock',
       composite: 'CompetitiveAwarenessLegoBlock',
+      risk_appetite: 'RiskAppetiteLegoBlock',
       multiChoice: 'QuestionLegoBlock',
       text: 'QuestionLegoBlock',
       boolean: 'QuestionLegoBlock',
@@ -460,6 +463,20 @@ export default function QuestionRegistryLegoBlock({
       if (questionMeta.questionType === 'composite') {
         return (
           <CompetitiveAwarenessLegoBlock
+            label={questionMeta.questionText}
+            helpText={questionMeta.helpText}
+            value={currentValue || {}}
+            onChange={(value: any) => onResponseChange(questionMeta.id, value)}
+            disabled={logic.isDisabled}
+            required={logic.isRequired}
+          />
+        );
+      }
+
+      // Render RiskAppetiteLegoBlock for risk_appetite type  
+      if (questionMeta.questionType === 'risk_appetite') {
+        return (
+          <RiskAppetiteLegoBlock
             label={questionMeta.questionText}
             helpText={questionMeta.helpText}
             value={currentValue || {}}
