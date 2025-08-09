@@ -329,6 +329,8 @@ export default function QuestionnaireContainer({
     const currentSection = questionnaire.sections[currentSectionIndex];
     const newErrors: Record<string, string> = {};
     
+    // Clean validation without debug logs
+    
     currentSection.questions.forEach((question: QuestionData) => {
       // Check question-level required flag (string or boolean)
       if (question.isRequired === true || question.isRequired === 'true') {
@@ -349,6 +351,7 @@ export default function QuestionnaireContainer({
           fields.forEach((field: any) => {
             if (field.required === true || field.required === 'true') {
               const fieldValue = questionValue[field.id];
+              
               if (fieldValue === undefined || fieldValue === '' || 
                   (Array.isArray(fieldValue) && fieldValue.length === 0)) {
                 newErrors[question.id] = `${field.label} is required`;
@@ -358,7 +361,6 @@ export default function QuestionnaireContainer({
         }
       }
     });
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [questionnaire, currentSectionIndex, responses]);

@@ -52,11 +52,36 @@ export default function CompanyProfileLegoBlock({
   onChange,
   disabled = false
 }: CompanyProfileLegoBlockProps) {
-  const [formData, setFormData] = useState<CompanyProfileData>(value);
+  // Initialize formData with default values from field configuration
+  const initializeWithDefaults = (initialValue: CompanyProfileData): CompanyProfileData => {
+    const result = { ...initialValue };
+    
+    // Check if questionData has fields array (from database schema)
+    if (questionData && typeof questionData === 'object' && 'fields' in questionData) {
+      const fields = (questionData as any).fields;
+      if (Array.isArray(fields)) {
+        fields.forEach((field: any) => {
+          if (field.defaultValue && !result[field.id as keyof CompanyProfileData]) {
+            (result as any)[field.id] = field.defaultValue;
+          }
+        });
+      }
+    }
+    
+    return result;
+  };
+
+  const [formData, setFormData] = useState<CompanyProfileData>(() => initializeWithDefaults(value));
 
   useEffect(() => {
-    setFormData(value);
-  }, [value]);
+    const initializedValue = initializeWithDefaults(value);
+    setFormData(initializedValue);
+    
+    // If we added default values, notify parent immediately
+    if (JSON.stringify(initializedValue) !== JSON.stringify(value)) {
+      onChange(initializedValue);
+    }
+  }, [value, questionData]);
 
   const handleChange = (field: keyof CompanyProfileData, fieldValue: any) => {
     const newData = { ...formData, [field]: fieldValue };
