@@ -345,7 +345,7 @@ export default function SectionLegoBlock({
                 {/* Question number indicator - only show for non-header questions */}
                 {!isHeader && (
                   <div className="absolute -left-2 top-0">
-                    <div className="flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                    <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
                       Q{questionNumber}
                     </div>
                   </div>

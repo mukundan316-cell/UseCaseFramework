@@ -447,15 +447,16 @@ export default function QuestionRegistryLegoBlock({
 
     return (
       <div key={questionMeta.id} className="relative">
-        {/* Question Header with Metadata */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-xs">
-              {questionMeta.questionOrder}
-            </Badge>
-            {questionMeta.isStarred && (
-              <Star className="h-4 w-4 text-yellow-500 fill-current" />
-            )}
+        {/* Question Header with Metadata - removed duplicate numbering */}
+        {showDebug && (
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="text-xs">
+                {questionMeta.questionOrder}
+              </Badge>
+              {questionMeta.isStarred && (
+                <Star className="h-4 w-4 text-yellow-500 fill-current" />
+              )}
             {logic.isRequired && (
               <Badge variant="destructive" className="text-xs">
                 Required
@@ -499,6 +500,7 @@ export default function QuestionRegistryLegoBlock({
             </div>
           )}
         </div>
+        )}
 
         {/* Question Component */}
         {renderQuestionComponent()}
