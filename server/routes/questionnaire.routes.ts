@@ -638,4 +638,81 @@ router.post('/validate/answer', async (req: Request, res: Response) => {
   }
 });
 
+// =============================================================================
+// QUESTION CONFIGURATION
+// =============================================================================
+
+/**
+ * PATCH /api/questions/:id/config
+ * Update question configuration (like showTotal for percentage_target questions)
+ */
+router.patch('/questions/:id/config', async (req: Request, res: Response) => {
+  try {
+    const questionId = req.params.id;
+    
+    // Validate request body
+    const configSchema = z.object({
+      questionData: z.object({
+        showTotal: z.boolean().optional(),
+        precision: z.number().min(0).max(3).optional(),
+        additionalContextLabel: z.string().optional(),
+        placeholder: z.string().optional()
+      }).optional()
+    });
+    
+    const { questionData } = configSchema.parse(req.body);
+    
+    if (!questionData) {
+      return res.status(400).json({ error: 'questionData is required' });
+    }
+    
+    // Get current question
+    const [currentQuestion] = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.id, questionId));
+      
+    if (!currentQuestion) {
+      return res.status(404).json({ error: 'Question not found' });
+    }
+    
+    // Merge with existing questionData
+    const updatedQuestionData = {
+      ...(currentQuestion.questionData || {}),
+      ...questionData
+    };
+    
+    // Update question
+    const [updatedQuestion] = await db
+      .update(questions)
+      .set({ 
+        questionData: updatedQuestionData,
+        updatedAt: new Date()
+      })
+      .where(eq(questions.id, questionId))
+      .returning();
+    
+    res.json({
+      success: true,
+      question: updatedQuestion,
+      message: 'Question configuration updated successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error updating question configuration:', error);
+    
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        error: 'Invalid request data',
+        details: error.errors 
+      });
+    }
+    
+    res.status(500).json({ 
+      error: 'Failed to update question configuration',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;

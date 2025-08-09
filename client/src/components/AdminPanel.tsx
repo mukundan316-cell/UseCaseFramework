@@ -10,6 +10,7 @@ import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagem
 import ProcessManagementBlock from './lego-blocks/ProcessManagementBlock';
 import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSimple';
 import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibraryLegoBlock';
+import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationLegoBlock';
 import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
 
 export default function AdminPanel() {
@@ -249,6 +250,9 @@ export default function AdminPanel() {
               {/* Assessment Statistics */}
               <div className="space-y-6">
                 <AssessmentStatsLegoBlock />
+                
+                {/* Question Configuration */}
+                <QuestionConfigurationLegoBlock className="w-full" />
                 
                 {/* Question Template Library */}
                 <QuestionTemplateLibraryLegoBlock
