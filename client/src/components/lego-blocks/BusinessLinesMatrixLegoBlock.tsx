@@ -69,13 +69,16 @@ const GROWTH_TREND_CONFIG = {
   }
 };
 
-// Default business lines for insurance companies
-const DEFAULT_BUSINESS_LINES = [
-  'Commercial Property & Casualty',
-  'Personal Lines',
-  'Specialty Insurance',
-  'Reinsurance',
-  'Life & Health'
+// RSA-specific business line categories
+const RSA_BUSINESS_LINES = [
+  'Personal Auto',
+  'Homeowners',
+  'Commercial P&C',
+  'Workers Comp',
+  'Professional Liability',
+  'Cyber Insurance',
+  'Marine/Aviation',
+  'Other Specialty'
 ];
 
 /**
@@ -103,9 +106,11 @@ export default function BusinessLinesMatrixLegoBlock({
 }: BusinessLinesMatrixLegoBlockProps) {
 
   const [localBusinessLines, setLocalBusinessLines] = useState<BusinessLineData[]>(
-    businessLines.length > 0 ? businessLines : [
-      { line: 'Commercial Property & Casualty', premium: 0, trend: 'stable' }
-    ]
+    businessLines.length > 0 ? businessLines : RSA_BUSINESS_LINES.map(line => ({
+      line,
+      premium: 0,
+      trend: 'stable' as GrowthTrend
+    }))
   );
   const [isEditing, setIsEditing] = useState<number | null>(null);
 
@@ -146,10 +151,10 @@ export default function BusinessLinesMatrixLegoBlock({
   const addBusinessLine = useCallback((customName?: string) => {
     if (localBusinessLines.length >= maxLines) return;
     
-    // Find unused default name or create custom one
+    // Find unused RSA business line name or create custom one
     const usedNames = localBusinessLines.map(line => line.line);
     const availableName = customName || 
-                         DEFAULT_BUSINESS_LINES.find(name => !usedNames.includes(name)) || 
+                         RSA_BUSINESS_LINES.find(name => !usedNames.includes(name)) || 
                          `Business Line ${localBusinessLines.length + 1}`;
     
     setLocalBusinessLines(prev => [...prev, { 
@@ -429,7 +434,7 @@ export const businessLinesMatrixUtils = {
   /**
    * Create default business lines data
    */
-  createDefault: (lines: string[] = DEFAULT_BUSINESS_LINES.slice(0, 3)): BusinessLineData[] => {
+  createDefault: (lines: string[] = RSA_BUSINESS_LINES.slice(0, 3)): BusinessLineData[] => {
     const premiumPerLine = Math.round((100 / lines.length) * 10) / 10;
     return lines.map((line, index) => ({
       line,

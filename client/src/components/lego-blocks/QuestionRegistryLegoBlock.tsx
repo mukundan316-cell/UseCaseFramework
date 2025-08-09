@@ -305,7 +305,14 @@ export default function QuestionRegistryLegoBlock({
 
       // Render PercentageAllocationLegoBlock for percentage_allocation or allocation type
       if (questionMeta.questionType === 'percentage_allocation' || questionMeta.questionType === 'allocation') {
-        const categories = questionMeta.questionData.categories || [];
+        const categoryNames = questionMeta.questionData.categories || [];
+        const categories = categoryNames.map((name: string, index: number) => ({
+          id: name.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+          label: name,
+          description: `${name} distribution percentage`,
+          color: `hsl(${(index * 60) % 360}, 60%, 50%)`
+        }));
+        
         return (
           <PercentageAllocationLegoBlock
             label={questionMeta.questionText}
