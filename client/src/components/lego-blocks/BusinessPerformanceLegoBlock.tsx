@@ -126,10 +126,10 @@ export default function BusinessPerformanceLegoBlock({
             onChange={(e) => handleChange(metric.id, e.target.value, metric.type)}
             placeholder={placeholder}
             disabled={disabled}
-            className={`${suffix ? "pr-16" : ""} text-center`}
+            className={`${suffix ? "pr-16" : "pr-4"} ${metric.type === 'percentage' || metric.type === 'scale' ? 'text-right' : 'text-left'}`}
           />
           {suffix && (
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 font-medium">
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 font-medium pointer-events-none">
               {suffix}
             </span>
           )}
