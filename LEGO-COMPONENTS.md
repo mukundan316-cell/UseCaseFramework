@@ -5,6 +5,16 @@ This document catalogs all reusable LEGO-style components in the RSA AI Use Case
 
 ## Available LEGO Components
 
+### ResumeProgressLegoBlock
+**Purpose**: Display and manage incomplete saved assessments
+**Location**: `client/src/components/lego-blocks/ResumeProgressLegoBlock.tsx`
+**Features**: 
+- Shows saved assessments with progress visualization, user details, timestamps
+- One-click resume functionality from AI Assessment page
+- Delete saved progress with confirmation
+- Auto-refresh every 30 seconds, instant refresh on localStorage changes
+**Props**: `onResumeAssessment`, `className`, `showDetailedProgress`, `maxItems`
+
 ### MetadataLegoBlock
 **Purpose**: Reusable CRUD block for managing any type of metadata
 **Location**: `client/src/components/MetadataLegoBlock.tsx`
