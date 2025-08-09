@@ -204,7 +204,7 @@ export default function PercentageTargetLegoBlock({
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
           <div className="flex items-center space-x-2">
             <Percent className="h-5 w-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-700">Total Target</span>
+            <span className="text-sm font-medium text-gray-700">% Total Target</span>
           </div>
           <span className="text-lg font-semibold text-gray-900">
             {percentageTargetUtils.formatPercentage(total, precision)}%
