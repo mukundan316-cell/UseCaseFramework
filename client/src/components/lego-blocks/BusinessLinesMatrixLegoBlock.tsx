@@ -140,12 +140,21 @@ export default function BusinessLinesMatrixLegoBlock({
 
   // Handle premium percentage change (on blur or enter)
   const handlePremiumChange = useCallback((index: number, inputValue: string) => {
-    const newPremium = parseFloat(inputValue) || 0;
-    const validPremium = Math.max(0, Math.min(100, newPremium));
-    
-    setLocalBusinessLines(prev => prev.map((line, i) => 
-      i === index ? { ...line, premium: validPremium } : line
-    ));
+    // Allow empty input to be treated as 0
+    if (inputValue.trim() === '') {
+      setLocalBusinessLines(prev => prev.map((line, i) => 
+        i === index ? { ...line, premium: 0 } : line
+      ));
+    } else {
+      // Parse and validate the input
+      const numericValue = parseFloat(inputValue);
+      if (!isNaN(numericValue)) {
+        const validPremium = Math.max(0, Math.min(100, numericValue));
+        setLocalBusinessLines(prev => prev.map((line, i) => 
+          i === index ? { ...line, premium: validPremium } : line
+        ));
+      }
+    }
     
     // Clear the input value to use the actual value
     setInputValues(prev => {
@@ -288,8 +297,8 @@ export default function BusinessLinesMatrixLegoBlock({
                   <div className="col-span-3">
                     <div className="relative">
                       <Input
-                        type="number"
-                        value={inputValues[index] !== undefined ? inputValues[index] : businessLine.premium.toString()}
+                        type="text"
+                        value={inputValues[index] !== undefined ? inputValues[index] : (businessLine.premium === 0 ? '' : businessLine.premium.toString())}
                         onChange={(e) => handlePremiumInputChange(index, e.target.value)}
                         onBlur={(e) => handlePremiumChange(index, e.target.value)}
                         onKeyDown={(e) => {
@@ -298,9 +307,6 @@ export default function BusinessLinesMatrixLegoBlock({
                           }
                         }}
                         onFocus={(e) => e.target.select()}
-                        min="0"
-                        max="100"
-                        step="0.1"
                         placeholder="0.0"
                         className="h-8 text-sm pr-8"
                         disabled={disabled}
