@@ -11,6 +11,7 @@ import ReusableButton from './lego-blocks/ReusableButton';
 import ScoringDashboardLegoBlock, { type ScoringData } from './lego-blocks/ScoringDashboardLegoBlock';
 import ResponseExportLegoBlock from './lego-blocks/ResponseExportLegoBlock';
 import AssessmentResultsDashboard from './lego-blocks/AssessmentResultsDashboard';
+import ResumeProgressLegoBlock from './lego-blocks/ResumeProgressLegoBlock';
 
 interface AssessmentState {
   hasAssessment: boolean;
@@ -149,6 +150,25 @@ export default function AssessmentView() {
       title: "Assessment Started",
       description: "Complete your AI maturity assessment to get personalized insights."
     });
+  };
+
+  // Handle resuming assessment from ResumeProgressLegoBlock
+  const handleResumeAssessment = (responseId: string, questionnaireId: string) => {
+    setAssessmentState({
+      hasAssessment: true,
+      isInProgress: true,
+      isCompleted: false,
+      responseId,
+      questionnaireId
+    });
+
+    // Update localStorage state
+    localStorage.setItem('rsa-assessment-state', JSON.stringify({
+      status: 'started',
+      responseId,
+      questionnaireId,
+      resumedAt: new Date().toISOString()
+    }));
   };
 
   // Handle assessment completion (called from QuestionnaireContainer)
@@ -293,43 +313,23 @@ export default function AssessmentView() {
             <span>Auto-saved progress</span>
           </div>
 
-          {/* Check for existing progress */}
-          {localStorage.getItem(`questionnaire-progress-${questionnaireId}`) ? (
-            <div className="space-y-3">
-              <ReusableButton
-                rsaStyle="primary"
-                onClick={handleStartAssessment}
-                icon={Play}
-                className="px-8 py-3 text-lg"
-              >
-                Resume AI Assessment
-              </ReusableButton>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  localStorage.removeItem(`questionnaire-progress-${questionnaireId}`);
-                  handleStartAssessment();
-                }}
-                size="sm"
-                className="mx-auto"
-              >
-                Start New Assessment
-              </Button>
-              <p className="text-xs text-amber-600 font-medium">
-                Previous progress found - continue where you left off
-              </p>
-            </div>
-          ) : (
-            <ReusableButton
-              rsaStyle="primary"
-              onClick={handleStartAssessment}
-              icon={Play}
-              className="px-8 py-3 text-lg"
-            >
-              Start AI Assessment
-            </ReusableButton>
-          )}
+          <ReusableButton
+            rsaStyle="primary"
+            onClick={handleStartAssessment}
+            icon={Play}
+            className="px-8 py-3 text-lg"
+          >
+            Start New AI Assessment
+          </ReusableButton>
         </div>
+
+        {/* Saved Progress Section */}
+        <ResumeProgressLegoBlock
+          onResumeAssessment={handleResumeAssessment}
+          className="max-w-3xl mx-auto"
+          showDetailedProgress={true}
+          maxItems={3}
+        />
       </div>
     );
   }

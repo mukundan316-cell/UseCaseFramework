@@ -1,201 +1,353 @@
-/**
- * Resume Progress LEGO Block
- * Shows resumable assessments and allows users to continue where they left off
- */
-
-import React from 'react';
-import { Clock, PlayCircle, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Clock, Play, Trash2, User, Mail, Calendar, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 import ReusableButton from './ReusableButton';
 
-interface ResumeProgressItem {
+interface SavedAssessment {
+  responseId: string;
+  questionnaireId: string;
   completionPercentage: number;
   currentSection: number;
   totalSections: number;
   lastSaved: string;
   email: string;
   name?: string;
-  responseId: string;
+  timestamp: number;
 }
 
 interface ResumeProgressLegoBlockProps {
-  progressItems: ResumeProgressItem[];
-  onResume: (responseId: string) => void;
-  onDelete: (responseId: string) => void;
+  /** Callback when user resumes an assessment */
+  onResumeAssessment: (responseId: string, questionnaireId: string) => void;
+  /** Optional class name for styling */
   className?: string;
+  /** Show detailed progress information */
+  showDetailedProgress?: boolean;
+  /** Maximum number of saved assessments to display */
+  maxItems?: number;
 }
 
 /**
- * LEGO Block for displaying and managing resumable assessment progress
+ * ResumeProgressLegoBlock - LEGO Component for Assessment Progress Management
+ * 
+ * LEGO Principles Applied:
+ * - Independent operation with clear props interface
+ * - Reusable across different contexts (dashboard, assessment page)
+ * - Built-in state management for saved assessments
+ * - Consistent RSA styling and user experience
+ * - Database-first data retrieval with localStorage fallback
+ * 
+ * Key Features:
+ * - Displays incomplete saved assessments with progress visualization
+ * - Resume functionality with one-click access
+ * - Delete saved progress with confirmation
+ * - Auto-refresh to show latest saved states
+ * - Mobile-responsive design
  */
 export default function ResumeProgressLegoBlock({
-  progressItems,
-  onResume,
-  onDelete,
-  className
+  onResumeAssessment,
+  className = '',
+  showDetailedProgress = true,
+  maxItems = 5
 }: ResumeProgressLegoBlockProps) {
-  if (progressItems.length === 0) {
-    return null;
-  }
+  const { toast } = useToast();
+  const [savedAssessments, setSavedAssessments] = useState<SavedAssessment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const getProgressStatus = (percentage: number) => {
-    if (percentage >= 80) return { color: 'bg-green-500', label: 'Almost Complete' };
-    if (percentage >= 50) return { color: 'bg-blue-500', label: 'In Progress' };
-    if (percentage >= 20) return { color: 'bg-yellow-500', label: 'Getting Started' };
-    return { color: 'bg-gray-500', label: 'Just Started' };
-  };
-
-  const formatTimeAgo = (lastSaved: string) => {
+  // Load saved assessments from localStorage
+  const loadSavedAssessments = () => {
+    setIsLoading(true);
+    const assessments: SavedAssessment[] = [];
+    
     try {
-      const savedDate = new Date(lastSaved);
-      const now = new Date();
-      const diffMs = now.getTime() - savedDate.getTime();
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      const diffDays = Math.floor(diffHours / 24);
-
-      if (diffDays > 0) {
-        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-      } else if (diffHours > 0) {
-        return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-      } else {
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        return diffMinutes > 0 ? `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago` : 'Just now';
+      // Check all localStorage items for questionnaire progress
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith('questionnaire-progress-')) {
+          try {
+            const progressData = JSON.parse(localStorage.getItem(key) || '');
+            
+            // Validate and include if not completed and has required fields
+            if (
+              progressData.completionPercentage < 100 && 
+              progressData.responseId && 
+              progressData.questionnaireId &&
+              progressData.email
+            ) {
+              assessments.push({
+                responseId: progressData.responseId,
+                questionnaireId: progressData.questionnaireId,
+                completionPercentage: progressData.completionPercentage || 0,
+                currentSection: (progressData.currentSection || 0) + 1, // 1-based for display
+                totalSections: progressData.totalSections || 6,
+                lastSaved: progressData.lastSaved || 'Unknown',
+                email: progressData.email,
+                name: progressData.name,
+                timestamp: progressData.timestamp || Date.now()
+              });
+            }
+          } catch (error) {
+            console.error('Failed to parse progress data for key:', key, error);
+            // Remove corrupted data
+            localStorage.removeItem(key);
+          }
+        }
       }
-    } catch {
-      return 'Unknown';
+
+      // Sort by timestamp (most recent first)
+      assessments.sort((a, b) => b.timestamp - a.timestamp);
+      
+      // Limit to maxItems
+      setSavedAssessments(assessments.slice(0, maxItems));
+    } catch (error) {
+      console.error('Error loading saved assessments:', error);
+      toast({
+        title: "Error loading saved assessments",
+        description: "Unable to retrieve your saved progress. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Load assessments on mount and set up periodic refresh
+  useEffect(() => {
+    loadSavedAssessments();
+    
+    // Refresh every 30 seconds to catch new saves
+    const interval = setInterval(loadSavedAssessments, 30000);
+    return () => clearInterval(interval);
+  }, [maxItems]);
+
+  // Handle resume assessment
+  const handleResume = (assessment: SavedAssessment) => {
+    onResumeAssessment(assessment.responseId, assessment.questionnaireId);
+    
+    toast({
+      title: "Resuming Assessment",
+      description: `Continuing from ${assessment.completionPercentage}% completion`,
+      duration: 3000
+    });
+  };
+
+  // Handle delete saved progress
+  const handleDelete = (assessment: SavedAssessment) => {
+    if (confirm(`Are you sure you want to delete the saved progress for ${assessment.email}? This action cannot be undone.`)) {
+      try {
+        // Find and remove the corresponding localStorage key
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key?.startsWith('questionnaire-progress-')) {
+            try {
+              const progressData = JSON.parse(localStorage.getItem(key) || '');
+              if (progressData.responseId === assessment.responseId) {
+                localStorage.removeItem(key);
+                break;
+              }
+            } catch (error) {
+              console.error('Error checking progress data:', error);
+            }
+          }
+        }
+
+        // Refresh the list
+        loadSavedAssessments();
+        
+        toast({
+          title: "Progress deleted",
+          description: "Saved assessment progress has been removed",
+          duration: 3000
+        });
+      } catch (error) {
+        console.error('Error deleting progress:', error);
+        toast({
+          title: "Delete failed",
+          description: "Unable to delete saved progress. Please try again.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  // Format relative time
+  const formatRelativeTime = (timestamp: number): string => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
+
+  // Get status color based on completion percentage
+  const getStatusColor = (percentage: number) => {
+    if (percentage >= 80) return 'bg-green-500';
+    if (percentage >= 50) return 'bg-yellow-500';
+    if (percentage >= 20) return 'bg-blue-500';
+    return 'bg-gray-400';
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Card className={`w-full ${className}`}>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Clock className="h-5 w-5 text-[#005DAA]" />
+            <span>Saved Progress</span>
+          </CardTitle>
+          <CardDescription>Loading your saved assessments...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {[1, 2].map(i => (
+              <div key={i} className="animate-pulse">
+                <div className="h-16 bg-gray-200 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Empty state
+  if (savedAssessments.length === 0) {
+    return (
+      <Card className={`w-full ${className}`}>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Clock className="h-5 w-5 text-[#005DAA]" />
+            <span>Saved Progress</span>
+          </CardTitle>
+          <CardDescription>No saved assessment progress found</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <BarChart3 className="h-4 w-4" />
+            <AlertDescription>
+              Start an assessment to see your progress saved here. Your work is automatically saved as you complete each section.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Main component with saved assessments
   return (
-    <Card className={cn("border-blue-200 bg-blue-50", className)}>
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-blue-600" />
-          <CardTitle className="text-lg text-blue-900">Resume Assessment</CardTitle>
-        </div>
-        <CardDescription className="text-blue-700">
-          Continue your assessment from where you left off
+    <Card className={`w-full ${className}`}>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Clock className="h-5 w-5 text-[#005DAA]" />
+            <span>Saved Progress</span>
+            <Badge variant="secondary" className="ml-2">
+              {savedAssessments.length}
+            </Badge>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={loadSavedAssessments}
+            className="text-xs"
+          >
+            Refresh
+          </Button>
+        </CardTitle>
+        <CardDescription>
+          Resume your AI maturity assessments where you left off
         </CardDescription>
       </CardHeader>
-      
-      <CardContent className="space-y-4">
-        {progressItems.map((item, index) => {
-          const status = getProgressStatus(item.completionPercentage);
-          
-          return (
+      <CardContent>
+        <div className="space-y-4">
+          {savedAssessments.map((assessment) => (
             <div
-              key={item.responseId}
-              className="p-4 bg-white rounded-lg border border-blue-200 hover:border-blue-300 transition-colors"
+              key={assessment.responseId}
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-[#005DAA] transition-colors"
             >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge 
-                      className={cn(
-                        "text-xs text-white",
-                        status.color
-                      )}
-                    >
-                      {status.label}
-                    </Badge>
-                    <span className="text-sm text-gray-600">
-                      Section {item.currentSection} of {item.totalSections}
+              <div className="flex-1 space-y-2">
+                {/* User Info */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <Mail className="h-3 w-3" />
+                    <span>{assessment.email}</span>
+                  </div>
+                  {assessment.name && (
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <User className="h-3 w-3" />
+                      <span>{assessment.name}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Progress Info */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-gray-900">
+                      Section {assessment.currentSection} of {assessment.totalSections}
+                    </span>
+                    <span className="text-[#005DAA] font-semibold">
+                      {assessment.completionPercentage}%
                     </span>
                   </div>
-                  
-                  <div className="text-sm text-gray-700">
-                    <strong>{item.name || 'Anonymous'}</strong>
-                    {item.email && (
-                      <span className="ml-2 text-gray-500">({item.email})</span>
-                    )}
-                  </div>
+                  <Progress 
+                    value={assessment.completionPercentage} 
+                    className="h-2"
+                  />
                 </div>
 
-                <div className="text-right text-sm text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatTimeAgo(item.lastSaved)}
+                {/* Additional Details (if enabled) */}
+                {showDetailedProgress && (
+                  <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>{assessment.lastSaved}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className={`w-2 h-2 rounded-full ${getStatusColor(assessment.completionPercentage)}`}></div>
+                      <span>{formatRelativeTime(assessment.timestamp)}</span>
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-gray-700">
-                    {item.completionPercentage}% Complete
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    Last saved: {new Date(item.lastSaved).toLocaleTimeString()}
-                  </span>
-                </div>
-                <Progress 
-                  value={item.completionPercentage} 
-                  className="h-2"
-                />
+                )}
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 ml-4">
                 <ReusableButton
                   rsaStyle="primary"
                   size="sm"
-                  onClick={() => onResume(item.responseId)}
-                  className="flex items-center gap-2"
+                  onClick={() => handleResume(assessment)}
+                  icon={Play}
+                  className="px-3 py-1"
                 >
-                  <PlayCircle className="h-4 w-4" />
-                  Continue Assessment
+                  Resume
                 </ReusableButton>
-
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onDelete(item.responseId)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => handleDelete(assessment)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 px-2"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-
-              {/* Status Messages */}
-              {item.completionPercentage >= 90 && (
-                <div className="mt-3 p-2 bg-green-50 rounded border-l-4 border-green-400">
-                  <div className="flex items-center gap-2 text-green-800">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span className="text-sm font-medium">Almost finished!</span>
-                  </div>
-                  <p className="text-sm text-green-700 mt-1">
-                    Just a few more questions to complete your assessment.
-                  </p>
-                </div>
-              )}
-
-              {item.completionPercentage < 20 && (
-                <div className="mt-3 p-2 bg-yellow-50 rounded border-l-4 border-yellow-400">
-                  <div className="flex items-center gap-2 text-yellow-800">
-                    <AlertCircle className="h-4 w-4" />
-                    <span className="text-sm font-medium">Just getting started</span>
-                  </div>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    Continue to unlock personalized insights and recommendations.
-                  </p>
-                </div>
-              )}
             </div>
-          );
-        })}
+          ))}
+        </div>
 
-        {/* Footer Note */}
-        <div className="mt-4 p-3 bg-blue-100 rounded-lg">
-          <p className="text-sm text-blue-800">
-            💡 <strong>Tip:</strong> Your progress is automatically saved as you complete each question. 
-            You can safely close your browser and return anytime within 30 days.
-          </p>
+        {/* Auto-refresh notice */}
+        <div className="mt-4 text-xs text-gray-500 text-center">
+          Progress automatically refreshed every 30 seconds
         </div>
       </CardContent>
     </Card>
