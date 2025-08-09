@@ -75,7 +75,8 @@ export default function CompanyProfileLegoBlock({
       const fields = questionData.fields;
       if (Array.isArray(fields)) {
         fields.forEach((field) => {
-          if (field.defaultValue && !result[field.id as keyof CompanyProfileData]) {
+          // Set default value if field is empty OR if it's undefined
+          if (field.defaultValue && (!result[field.id as keyof CompanyProfileData] || result[field.id as keyof CompanyProfileData] === '')) {
             (result as any)[field.id] = field.defaultValue;
           }
         });
@@ -153,12 +154,16 @@ export default function CompanyProfileLegoBlock({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Company Name Display */}
+          {/* Company Name Input */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Company Name</Label>
-            <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800 border rounded-md text-sm">
-              {questionData.companyName || "RSA Insurance"}
-            </div>
+            <Input
+              value={formData.companyName || ''}
+              onChange={(e) => handleChange('companyName', e.target.value)}
+              disabled={disabled}
+              placeholder="Enter company name"
+              className="w-full"
+            />
           </div>
 
           {/* Gross Written Premium */}
