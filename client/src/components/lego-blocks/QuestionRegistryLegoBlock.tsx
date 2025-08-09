@@ -10,6 +10,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import { SmartRatingLegoBlock } from './SmartRatingLegoBlock';
 import { RankingLegoBlock } from './RankingLegoBlock';
+import { CurrencyInputLegoBlock } from './CurrencyInputLegoBlock';
+import { PercentageAllocationLegoBlock } from './PercentageAllocationLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 
@@ -31,7 +33,9 @@ export type QuestionType =
   | 'number'
   | 'email'
   | 'url'
-  | 'date';
+  | 'date'
+  | 'currency'
+  | 'percentage_allocation';
 
 export interface QuestionMetadata {
   id: string;
@@ -88,8 +92,10 @@ export default function QuestionRegistryLegoBlock({
       score: 'ScoreSliderLegoBlock',
       smart_rating: 'SmartRatingLegoBlock',
       ranking: 'RankingLegoBlock',
+      currency: 'CurrencyInputLegoBlock',
+      percentage_allocation: 'PercentageAllocationLegoBlock',
+      allocation: 'PercentageAllocationLegoBlock',
       multiChoice: 'QuestionLegoBlock',
-      allocation: 'QuestionLegoBlock',
       text: 'QuestionLegoBlock',
       boolean: 'QuestionLegoBlock',
       matrix: 'QuestionLegoBlock',
@@ -161,10 +167,28 @@ export default function QuestionRegistryLegoBlock({
 
   // Convert QuestionMetadata to QuestionData for existing components
   const convertToQuestionData = useCallback((questionMeta: QuestionMetadata): QuestionData => {
+    // Map dynamic question types to standard QuestionData types
+    const questionTypeMapping: Record<string, QuestionData['questionType']> = {
+      'scale': 'scale',
+      'multiChoice': 'multi_choice',
+      'text': 'text',
+      'boolean': 'checkbox',
+      'checkbox': 'checkbox',
+      'textarea': 'textarea',
+      'number': 'number',
+      'email': 'email',
+      'url': 'url',
+      'date': 'date',
+      'smart_rating': 'smart_rating',
+      'ranking': 'ranking',
+      'currency': 'text', // Fallback to text for QuestionLegoBlock compatibility
+      'percentage_allocation': 'text' // Fallback to text for QuestionLegoBlock compatibility
+    };
+
     return {
       id: questionMeta.id,
       questionText: questionMeta.questionText,
-      questionType: questionMeta.questionType as QuestionData['questionType'],
+      questionType: questionTypeMapping[questionMeta.questionType] || 'text',
       isRequired: questionMeta.isRequired,
       questionOrder: questionMeta.questionOrder,
       helpText: questionMeta.helpText,
@@ -241,6 +265,51 @@ export default function QuestionRegistryLegoBlock({
             rightLabel={questionMeta.questionData.rightLabel || 'High'}
             disabled={logic.isDisabled}
             tooltip={questionMeta.helpText}
+          />
+        );
+      }
+
+      // Render CurrencyInputLegoBlock for currency type
+      if (questionMeta.questionType === 'currency') {
+        return (
+          <CurrencyInputLegoBlock
+            label={questionMeta.questionText}
+            value={currentValue?.value || null}
+            onChange={(value: number | null) => onResponseChange(questionMeta.id, {
+              value,
+              currency: currentValue?.currency || questionMeta.questionData.defaultCurrency || 'GBP'
+            })}
+            currency={currentValue?.currency || questionMeta.questionData.defaultCurrency || 'GBP'}
+            onCurrencyChange={(currency: string) => onResponseChange(questionMeta.id, {
+              ...currentValue,
+              currency
+            })}
+            disabled={logic.isDisabled}
+            placeholder={questionMeta.questionData.placeholder}
+            min={questionMeta.questionData.min}
+            max={questionMeta.questionData.max}
+            showCurrencySelector={questionMeta.questionData.showCurrencySelector !== false}
+            helpText={questionMeta.helpText}
+            required={logic.isRequired}
+          />
+        );
+      }
+
+      // Render PercentageAllocationLegoBlock for percentage_allocation or allocation type
+      if (questionMeta.questionType === 'percentage_allocation' || questionMeta.questionType === 'allocation') {
+        const categories = questionMeta.questionData.categories || [];
+        return (
+          <PercentageAllocationLegoBlock
+            label={questionMeta.questionText}
+            categories={categories}
+            values={currentValue || {}}
+            onChange={(values: Record<string, number>) => onResponseChange(questionMeta.id, values)}
+            disabled={logic.isDisabled}
+            allowPartial={questionMeta.questionData.allowPartial || false}
+            helpText={questionMeta.helpText}
+            required={logic.isRequired}
+            showRemaining={questionMeta.questionData.showRemaining !== false}
+            precision={questionMeta.questionData.precision || 1}
           />
         );
       }
