@@ -584,30 +584,6 @@ export default function QuestionRegistryLegoBlock({
 
   return (
     <div className={cn("w-full space-y-6", className)}>
-      {/* Statistics Header */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Question Registry</CardTitle>
-          <div className="flex flex-wrap gap-2 text-sm">
-            <Badge variant="outline">
-              {stats.answeredQuestions}/{stats.totalQuestions} Answered
-            </Badge>
-            <Badge variant="outline">
-              {stats.requiredAnswered}/{stats.requiredQuestions} Required
-            </Badge>
-            <Badge variant="outline">
-              {stats.conditionalQuestions} Conditional
-            </Badge>
-            <Badge 
-              variant={stats.requiredCompletionRate === 100 ? "default" : "secondary"}
-              className={stats.requiredCompletionRate === 100 ? "bg-green-500" : ""}
-            >
-              {stats.completionRate}% Complete
-            </Badge>
-          </div>
-        </CardHeader>
-      </Card>
-
       {/* Add Question Button (Edit Mode) */}
       {editMode && onQuestionChange && (
         <div className="flex justify-end">
