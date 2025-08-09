@@ -17,6 +17,7 @@ import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
 import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
 import CompanyProfileLegoBlock from './CompanyProfileLegoBlock';
 import CompetitiveAwarenessLegoBlock from './CompetitiveAwarenessLegoBlock';
+import CompositeQuestionLegoBlock from './CompositeQuestionLegoBlock';
 import RiskAppetiteLegoBlock from './RiskAppetiteLegoBlock';
 import BusinessPerformanceLegoBlock from './BusinessPerformanceLegoBlock';
 import MultiRatingLegoBlock from './MultiRatingLegoBlock';
@@ -547,12 +548,13 @@ export default function QuestionRegistryLegoBlock({
         );
       }
 
-      // Render CompetitiveAwarenessLegoBlock for composite type  
+      // Render CompositeQuestionLegoBlock for composite type  
       if (questionMeta.questionType === 'composite') {
         return (
-          <CompetitiveAwarenessLegoBlock
+          <CompositeQuestionLegoBlock
             label={questionMeta.questionText}
             helpText={questionMeta.helpText}
+            questionData={questionMeta.questionData || { fields: [] }}
             value={currentValue || {}}
             onChange={(value: any) => onResponseChange(questionMeta.id, value)}
             disabled={logic.isDisabled}
