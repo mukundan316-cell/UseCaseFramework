@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 // Import existing LEGO blocks for question types
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
+import { SmartRatingLegoBlock } from './SmartRatingLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 
@@ -22,6 +23,7 @@ export type QuestionType =
   | 'matrix' 
   | 'compound'
   | 'score'
+  | 'smart_rating'
   | 'checkbox'
   | 'textarea'
   | 'number'
@@ -82,6 +84,7 @@ export default function QuestionRegistryLegoBlock({
     return {
       scale: 'ScoreSliderLegoBlock',
       score: 'ScoreSliderLegoBlock',
+      smart_rating: 'SmartRatingLegoBlock',
       multiChoice: 'QuestionLegoBlock',
       ranking: 'QuestionLegoBlock',
       allocation: 'QuestionLegoBlock',
@@ -178,7 +181,29 @@ export default function QuestionRegistryLegoBlock({
 
     // Render question component function
     const renderQuestionComponent = () => {
-      // Render different component types
+      // Render SmartRatingLegoBlock for smart_rating type
+      if (questionMeta.questionType === 'smart_rating') {
+        return (
+          <SmartRatingLegoBlock
+            question={{
+              id: questionMeta.id,
+              questionText: questionMeta.questionText,
+              helpText: questionMeta.helpText,
+              isRequired: logic.isRequired
+            }}
+            value={currentValue || null}
+            onChange={(value: number) => onResponseChange(questionMeta.id, value)}
+            variant={questionMeta.questionData.variant || 'descriptive'}
+            size={questionMeta.questionData.size || 'md'}
+            showScore={questionMeta.questionData.showScore !== false}
+            disabled={logic.isDisabled}
+            minValue={questionMeta.questionData.minValue || 1}
+            maxValue={questionMeta.questionData.maxValue || 5}
+          />
+        );
+      }
+
+      // Render ScoreSliderLegoBlock for scale/score types
       if (questionMeta.questionType === 'scale' || questionMeta.questionType === 'score') {
         return (
           <ScoreSliderLegoBlock

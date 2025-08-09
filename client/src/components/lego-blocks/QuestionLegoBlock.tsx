@@ -21,7 +21,7 @@ export interface QuestionOption {
 export interface QuestionData {
   id: string;
   questionText: string;
-  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number' | 'email' | 'url' | 'date';
+  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'smart_rating';
   isRequired: boolean;
   questionOrder?: number;
   helpText?: string;
@@ -31,6 +31,10 @@ export interface QuestionData {
   maxValue?: number;
   leftLabel?: string;
   rightLabel?: string;
+  // Smart rating properties
+  variant?: 'descriptive' | 'stars' | 'maturity' | 'capability';
+  size?: 'sm' | 'md' | 'lg';
+  showScore?: boolean;
   // Validation properties
   minLength?: number;
   maxLength?: number;

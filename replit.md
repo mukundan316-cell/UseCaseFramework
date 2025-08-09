@@ -42,7 +42,8 @@ The project follows strict architectural principles and coding standards documen
 - **Use Case Management**: CRUDUseCaseModal with embedded scoring sliders
 - **Navigation Components**: SectionTabNavigatorLegoBlock, BreadcrumbNavigationLegoBlock, SectionTransitionLegoBlock
 - **Question Management**: QuestionRegistryLegoBlock, QuestionTemplateLibraryLegoBlock with 100+ RSA questions
-- **UI Elements**: ReusableButton, ScoreSliderLegoBlock, InfoTooltipLegoBlock
+- **Rating Components**: SmartRatingLegoBlock (replaces ScoreSliderLegoBlock) with 4 variants (descriptive, stars, maturity, capability)
+- **UI Elements**: ReusableButton, InfoTooltipLegoBlock
 
 ## System Architecture
 
@@ -84,6 +85,15 @@ The project follows strict architectural principles and coding standards documen
 - **Built-in State Management**: Loading, error, and empty states handled within components
 
 ## Recent Changes (January 2025)
+
+### SmartRatingLegoBlock Implementation (January 9, 2025)
+- **Enhanced Rating UX**: Created SmartRatingLegoBlock to replace ScoreSliderLegoBlock with dropdown-style selector and better mobile experience
+- **4 Rating Variants**: Implemented descriptive, stars, maturity, and capability variants with contextual icons and descriptions
+- **Database Schema Update**: Added 'smart_rating' to question_type enum in questions table schema
+- **QuestionRegistry Integration**: Updated QuestionRegistryLegoBlock mapping to support smart_rating question type
+- **Mobile-Friendly Design**: Touch-friendly dropdown interface with keyboard navigation and full accessibility support
+- **Demo Route**: Added /smart-rating-demo route showcasing all variants, sizes, and configuration options
+- **LEGO Compliance**: Follows all REFERENCE.md principles with props-based configuration and reusable design patterns
 
 ### RSA Assessment Database Seeder Implementation (January 9, 2025)
 - **Modular Seeder Architecture**: Created 3 specialized seeder modules following REFERENCE.md principles
