@@ -113,6 +113,7 @@ export default function BusinessLinesMatrixLegoBlock({
     }))
   );
   const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [inputValues, setInputValues] = useState<{[key: number]: string}>({});
 
   // Calculate current total
   const currentTotal = localBusinessLines.reduce((sum, line) => sum + line.premium, 0);
@@ -132,12 +133,26 @@ export default function BusinessLinesMatrixLegoBlock({
     ));
   }, []);
 
-  // Handle premium percentage change
-  const handlePremiumChange = useCallback((index: number, newPremium: number) => {
+  // Handle premium percentage input change (while typing)
+  const handlePremiumInputChange = useCallback((index: number, inputValue: string) => {
+    setInputValues(prev => ({ ...prev, [index]: inputValue }));
+  }, []);
+
+  // Handle premium percentage change (on blur or enter)
+  const handlePremiumChange = useCallback((index: number, inputValue: string) => {
+    const newPremium = parseFloat(inputValue) || 0;
     const validPremium = Math.max(0, Math.min(100, newPremium));
+    
     setLocalBusinessLines(prev => prev.map((line, i) => 
       i === index ? { ...line, premium: validPremium } : line
     ));
+    
+    // Clear the input value to use the actual value
+    setInputValues(prev => {
+      const newInputValues = { ...prev };
+      delete newInputValues[index];
+      return newInputValues;
+    });
   }, []);
 
   // Handle growth trend change
@@ -274,11 +289,19 @@ export default function BusinessLinesMatrixLegoBlock({
                     <div className="relative">
                       <Input
                         type="number"
-                        value={businessLine.premium}
-                        onChange={(e) => handlePremiumChange(index, parseFloat(e.target.value) || 0)}
+                        value={inputValues[index] !== undefined ? inputValues[index] : businessLine.premium.toString()}
+                        onChange={(e) => handlePremiumInputChange(index, e.target.value)}
+                        onBlur={(e) => handlePremiumChange(index, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handlePremiumChange(index, (e.target as HTMLInputElement).value);
+                          }
+                        }}
+                        onFocus={(e) => e.target.select()}
                         min="0"
                         max="100"
                         step="0.1"
+                        placeholder="0.0"
                         className="h-8 text-sm pr-8"
                         disabled={disabled}
                       />
