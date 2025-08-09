@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import ReusableButton from './lego-blocks/ReusableButton';
 import { useProgressPersistence } from '@/hooks/useProgressPersistence';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
+import { useUseCases } from '@/contexts/UseCaseContext';
 
 interface RSAAssessmentLandingPageProps {
   className?: string;
@@ -99,8 +100,13 @@ export default function RSAAssessmentLandingPage({
 
   const totalEstimatedTime = "80-110 minutes";
 
+  // Get context for tab management
+  const { setActiveTab } = useUseCases();
+
   // Navigation handlers
   const handleBackToDashboard = () => {
+    // Set the active tab to dashboard and navigate
+    setActiveTab('dashboard');
     setLocation('/');
   };
 
