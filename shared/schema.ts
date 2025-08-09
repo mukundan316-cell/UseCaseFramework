@@ -217,3 +217,43 @@ export type InsertQuestionnaireResponse = z.infer<typeof insertQuestionnaireResp
 
 export type QuestionAnswer = typeof questionAnswers.$inferSelect;
 export type InsertQuestionAnswer = z.infer<typeof insertQuestionAnswerSchema>;
+
+// =============================================================================
+// DYNAMIC QUESTION REGISTRY SCHEMA
+// =============================================================================
+
+export const dynamicQuestions = pgTable("dynamic_questions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sectionId: integer("section_id").notNull(),
+  questionOrder: integer("question_order").notNull(),
+  questionType: text("question_type").notNull(), // scale, multiChoice, ranking, etc.
+  questionText: text("question_text").notNull(),
+  isRequired: text("is_required").notNull().default('false'), // 'true' or 'false'
+  isStarred: text("is_starred").default('false'), // 'true' or 'false'
+  helpText: text("help_text"),
+  dependsOn: text("depends_on").array(), // Array of question IDs this depends on
+  conditionalLogic: text("conditional_logic"), // JSON string for conditional rules
+  questionData: text("question_data").notNull(), // JSON string for question-specific data
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertDynamicQuestionSchema = createInsertSchema(dynamicQuestions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  isRequired: z.enum(['true', 'false']).default('false'),
+  isStarred: z.enum(['true', 'false']).default('false'),
+  questionType: z.enum([
+    'scale', 'multiChoice', 'ranking', 'allocation', 'text', 
+    'boolean', 'matrix', 'compound', 'score', 'checkbox', 
+    'textarea', 'number', 'email', 'url', 'date'
+  ]),
+  dependsOn: z.array(z.string()).optional(),
+  conditionalLogic: z.string().optional(), // JSON string
+  questionData: z.string(), // JSON string
+});
+
+export type DynamicQuestion = typeof dynamicQuestions.$inferSelect;
+export type InsertDynamicQuestion = z.infer<typeof insertDynamicQuestionSchema>;

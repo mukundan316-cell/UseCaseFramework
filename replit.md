@@ -47,6 +47,7 @@ The project follows strict architectural principles and coding standards documen
 - **CRUDUseCaseModal**: Complete use case management with embedded scoring sliders
 - **SectionTabNavigatorLegoBlock**: Section navigation with progress tracking, completion states, and sequential locking
 - **QuestionnaireSectionContainerLegoBlock**: Complete section container with navigation, auto-save, keyboard/mobile support
+- **QuestionRegistryLegoBlock**: Dynamic question management with conditional logic and database-driven configuration
 - **ReusableButton**: Standardized RSA-styled button component with consistent theming
 - **ScoreSliderLegoBlock**: Reusable scoring slider component with tooltips and configurable display options
 - **InfoTooltipLegoBlock**: Standardized help text tooltip component with icon variants

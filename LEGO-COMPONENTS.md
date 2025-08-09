@@ -117,6 +117,29 @@ This document catalogs all reusable LEGO-style components in the RSA AI Use Case
 </QuestionnaireSectionContainerLegoBlock>
 ```
 
+### QuestionRegistryLegoBlock
+**Purpose**: Dynamic question management system with conditional logic and database-driven configuration
+**Location**: `client/src/components/lego-blocks/QuestionRegistryLegoBlock.tsx`
+**Features**:
+- Maps question types to appropriate LEGO components
+- Supports conditional logic and dependencies between questions
+- Database-driven question definitions with JSON metadata
+- Dynamic add/edit/remove functionality in edit mode
+- Question ordering and validation management
+- 15+ supported question types with extensible registry
+
+**Usage Example**:
+```tsx
+<QuestionRegistryLegoBlock
+  questions={dynamicQuestions}
+  responses={responseMap}
+  onResponseChange={handleResponseChange}
+  onQuestionChange={handleQuestionManagement}
+  editMode={false}
+  showDebug={false}
+/>
+```
+
 ### FilterChip
 **Purpose**: Interactive filter chips for quick filtering
 **Location**: `client/src/components/lego-blocks/FilterChip.tsx`
