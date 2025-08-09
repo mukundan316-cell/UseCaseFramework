@@ -226,7 +226,20 @@ export default function QuestionRegistryLegoBlock({
     const renderQuestionComponent = () => {
       // Render RankingLegoBlock for ranking type
       if (questionMeta.questionType === 'ranking') {
-        const rankingItems = questionMeta.questionData.items || [];
+        const rawItems = questionMeta.questionData.items || [];
+        // Convert string items to RankingItem objects if needed
+        const rankingItems = rawItems.map((item: any, index: number) => {
+          if (typeof item === 'string') {
+            return {
+              id: item.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+              label: item,
+              description: `${item} objective`,
+              category: 'strategic'
+            };
+          }
+          return item;
+        });
+        
         return (
           <RankingLegoBlock
             question={{
