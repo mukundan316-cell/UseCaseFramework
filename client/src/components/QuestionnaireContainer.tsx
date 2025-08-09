@@ -320,7 +320,7 @@ export default function QuestionnaireContainer({
     }
   };
 
-  // Validate current section with enhanced field-level validation
+  // Simplified validation - allowing progress while maintaining LEGO framework
   const validateCurrentSection = useCallback(() => {
     if (!questionnaire || !questionnaire.sections[currentSectionIndex]) {
       return true;
@@ -329,53 +329,32 @@ export default function QuestionnaireContainer({
     const currentSection = questionnaire.sections[currentSectionIndex];
     const newErrors: Record<string, string> = {};
     
-    // Clean validation - interface mismatch fixed
-    
+    // Only validate truly critical question-level requirements
     currentSection.questions.forEach((question: QuestionData) => {
-      // Check question-level required flag (string or boolean)
+      // Only block on explicit question-level requirements that are absolutely critical
       if (question.isRequired === true || question.isRequired === 'true') {
         const value = responses.get(question.id);
-        if (value === undefined || value === '' || 
-            (Array.isArray(value) && value.length === 0)) {
-          newErrors[question.id] = 'This field is required';
+        // More lenient validation - allow progression with any data present
+        if (value === undefined || value === null) {
+          // Only show error if completely empty, not if partial data exists
+          if (!value || (typeof value === 'object' && Object.keys(value).length === 0)) {
+            newErrors[question.id] = 'This field is required';
+          }
         }
       }
       
-      // Check field-level required flags for complex question types
-      if (question.questionData && typeof question.questionData === 'object' && 'fields' in question.questionData) {
-        const value = responses.get(question.id);
-        const questionValue = value || {};
-        
-        const fields = (question.questionData as any).fields;
-        if (Array.isArray(fields)) {
-          fields.forEach((field: any) => {
-            if (field.required === true || field.required === 'true') {
-              const fieldValue = questionValue[field.id];
-              
-              if (fieldValue === undefined || fieldValue === '' || 
-                  (Array.isArray(fieldValue) && fieldValue.length === 0)) {
-                newErrors[question.id] = `${field.label} is required`;
-              }
-            }
-          });
-        }
-      }
+      // Remove field-level validation that was causing blocking issues
+      // Allow users to progress through assessment without strict field requirements
     });
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [questionnaire, currentSectionIndex, responses]);
 
-  // Navigate to next section
+  // Navigate to next section with relaxed validation
   const handleNextSection = () => {
-    if (!validateCurrentSection()) {
-      toast({
-        title: "Required Fields Missing",
-        description: "Please complete all required fields before continuing.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+    // Allow progression even with validation warnings
+    // Users can return to complete fields later if needed
     if (questionnaire && currentSectionIndex < questionnaire.sections.length - 1) {
       setCurrentSectionIndex(prev => prev + 1);
     }
