@@ -197,7 +197,7 @@ export const insertQuestionSchema = createInsertSchema(questions).omit({
   createdAt: true,
 }).extend({
   isRequired: z.enum(['true', 'false']).default('false'),
-  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean', 'smart_rating', 'ranking', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'textarea']),
+  questionType: z.enum(['text', 'number', 'select', 'multiselect', 'scale', 'boolean', 'smart_rating', 'ranking', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'textarea']),
   scoringCategory: z.enum(['business_value', 'feasibility', 'ai_governance', 'general']).optional(),
 });
 
@@ -268,7 +268,7 @@ export const insertDynamicQuestionSchema = createInsertSchema(dynamicQuestions).
   questionType: z.enum([
     'scale', 'multiChoice', 'ranking', 'allocation', 'text', 
     'boolean', 'matrix', 'compound', 'score', 'checkbox', 
-    'textarea', 'number', 'email', 'url', 'date', 'smart_rating', 'currency', 'percentage_allocation'
+    'textarea', 'number', 'email', 'url', 'date', 'smart_rating', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance'
   ]),
   dependsOn: z.array(z.string()).optional(),
   conditionalLogic: z.string().optional(), // JSON string

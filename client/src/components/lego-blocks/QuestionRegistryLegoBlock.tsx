@@ -15,6 +15,7 @@ import { PercentageAllocationLegoBlock } from './PercentageAllocationLegoBlock';
 import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
 import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
 import CompanyProfileLegoBlock from './CompanyProfileLegoBlock';
+import BusinessPerformanceLegoBlock from './BusinessPerformanceLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 import { Textarea } from '@/components/ui/textarea';
@@ -43,7 +44,8 @@ export type QuestionType =
   | 'percentage_allocation'
   | 'business_lines_matrix'
   | 'department_skills_matrix'
-  | 'company_profile';
+  | 'company_profile'
+  | 'business_performance';
 
 export interface QuestionMetadata {
   id: string;
@@ -369,6 +371,18 @@ export default function QuestionRegistryLegoBlock({
       if (questionMeta.questionType === 'company_profile') {
         return (
           <CompanyProfileLegoBlock
+            questionData={questionMeta.questionData}
+            value={currentValue || {}}
+            onChange={(value) => onResponseChange(questionMeta.id, value)}
+            disabled={logic.isDisabled}
+          />
+        );
+      }
+
+      // Render BusinessPerformanceLegoBlock for business_performance type
+      if (questionMeta.questionType === 'business_performance') {
+        return (
+          <BusinessPerformanceLegoBlock
             questionData={questionMeta.questionData}
             value={currentValue || {}}
             onChange={(value) => onResponseChange(questionMeta.id, value)}

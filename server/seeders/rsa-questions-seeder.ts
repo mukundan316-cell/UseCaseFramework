@@ -187,6 +187,14 @@ const SECTION_4_QUESTIONS = [
       { text: "4 - Advanced", value: "4", score: 4, order: 4 },
       { text: "5 - Expert", value: "5", score: 5, order: 5 }
     ]
+  },
+  {
+    questionText: "Current Business Performance",
+    questionType: "business_performance" as const,
+    isRequired: "true" as const,
+    questionOrder: 3,
+    helpText: "Let's review key performance metrics to understand the baseline.",
+    options: [] // No options needed for business_performance type
   }
 ];
 

@@ -1,0 +1,14 @@
+{
+  "id": "business-performance-001",
+  "sectionId": 4,
+  "questionOrder": 1,
+  "questionType": "business_performance",
+  "questionText": "Current Business Performance",
+  "helpText": "Let's review key performance metrics to understand the baseline.",
+  "isRequired": "true",
+  "isStarred": "false",
+  "questionData": {
+    "placeholder": "Enter your business performance metrics",
+    "helpText": "Provide current financial and operational metrics to establish a performance baseline"
+  }
+}
