@@ -25,8 +25,7 @@ export interface BusinessLinesMatrixLegoBlockProps {
   businessLines?: BusinessLineData[];
   /** Change handler that receives the updated business lines array */
   onChange?: (businessLines: BusinessLineData[]) => void;
-  /** Enforce 100% total validation */
-  enforceTotal?: boolean;
+
   /** Disabled state */
   disabled?: boolean;
   /** Additional CSS classes */
@@ -101,7 +100,6 @@ const RSA_BUSINESS_LINES = [
 export default function BusinessLinesMatrixLegoBlock({
   businessLines = [],
   onChange,
-  enforceTotal = true,
   disabled = false,
   className = '',
   label = 'Business Lines Premium Distribution',
@@ -127,7 +125,6 @@ export default function BusinessLinesMatrixLegoBlock({
 
   // Calculate current total
   const currentTotal = localBusinessLines.reduce((sum, line) => sum + line.premium, 0);
-  const isValidTotal = !enforceTotal || Math.abs(currentTotal - 100) < 0.01;
 
   // Update parent when local state changes
   useEffect(() => {
@@ -204,17 +201,7 @@ export default function BusinessLinesMatrixLegoBlock({
     setLocalBusinessLines(prev => prev.filter((_, i) => i !== index));
   }, [localBusinessLines.length, minLines]);
 
-  // Auto-distribute remaining percentage
-  const autoDistribute = useCallback(() => {
-    const remainingPercentage = 100 - currentTotal;
-    const linesCount = localBusinessLines.length;
-    const distributionPerLine = remainingPercentage / linesCount;
 
-    setLocalBusinessLines(prev => prev.map(line => ({
-      ...line,
-      premium: Math.round((line.premium + distributionPerLine) * 100) / 100
-    })));
-  }, [currentTotal, localBusinessLines.length]);
 
   // Get trend configuration
   const getTrendConfig = (trend: GrowthTrend) => GROWTH_TREND_CONFIG[trend];
@@ -243,20 +230,9 @@ export default function BusinessLinesMatrixLegoBlock({
               <span>Business Lines Matrix</span>
             </CardTitle>
             <div className="flex items-center space-x-2">
-              <Badge variant={isValidTotal ? "default" : "destructive"}>
+              <Badge variant="default">
                 Total: {currentTotal.toFixed(1)}%
               </Badge>
-              {!isValidTotal && enforceTotal && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={autoDistribute}
-                  disabled={disabled}
-                  className="text-xs h-7"
-                >
-                  Auto-Distribute
-                </Button>
-              )}
             </div>
           </div>
         </CardHeader>
@@ -392,10 +368,7 @@ export default function BusinessLinesMatrixLegoBlock({
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Total Allocation:</span>
               <div className="flex items-center space-x-2">
-                <span className={cn(
-                  "font-medium",
-                  isValidTotal ? "text-green-600" : "text-gray-900"
-                )}>
+                <span className="font-medium text-gray-900">
                   {currentTotal.toFixed(1)}%
                 </span>
               </div>
@@ -446,9 +419,7 @@ export const businessLinesMatrixUtils = {
 
     const total = businessLines.reduce((sum, line) => sum + line.premium, 0);
     
-    if (enforceTotal && Math.abs(total - 100) > 0.01) {
-      errors.push(`Total must equal 100% (current: ${total.toFixed(1)}%)`);
-    }
+    // Removed 100% enforcement validation
 
     businessLines.forEach((line, index) => {
       if (!line.line.trim()) {

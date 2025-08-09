@@ -62,8 +62,7 @@ export interface PercentageAllocationLegoBlockProps {
   required?: boolean;
   /** Error message */
   error?: string;
-  /** Show remaining percentage */
-  showRemaining?: boolean;
+
   /** Precision for percentage values (default: 1 decimal place) */
   precision?: number;
   /** Additional context value */
@@ -83,34 +82,17 @@ export const allocationUtils = {
     return Object.values(values).reduce((sum, value) => sum + (value || 0), 0);
   },
 
-  /**
-   * Calculate remaining percentage
-   */
-  calculateRemaining: (values: AllocationValues): number => {
-    return 100 - allocationUtils.calculateTotal(values);
-  },
+
 
   /**
-   * Validate allocation values
+   * Validate allocation values (simplified - no 100% requirement)
    */
   validateAllocation: (
     values: AllocationValues, 
     categories: AllocationCategory[], 
     allowPartial: boolean = false
   ): string | null => {
-    const total = allocationUtils.calculateTotal(values);
-
-    // Check if total exceeds 100%
-    if (total > 100) {
-      return `Total allocation cannot exceed 100% (currently ${total.toFixed(1)}%)`;
-    }
-
-    // Check if total is less than 100% when not allowing partial
-    if (!allowPartial && total < 100) {
-      return `Total allocation must equal 100% (currently ${total.toFixed(1)}%)`;
-    }
-
-    // Validate individual category constraints
+    // Validate individual category constraints only
     for (const category of categories) {
       const value = values[category.id] || 0;
       
@@ -126,22 +108,7 @@ export const allocationUtils = {
     return null;
   },
 
-  /**
-   * Normalize allocation to ensure it doesn't exceed 100%
-   */
-  normalizeAllocation: (values: AllocationValues): AllocationValues => {
-    const total = allocationUtils.calculateTotal(values);
-    if (total <= 100) return values;
 
-    const normalized: AllocationValues = {};
-    const factor = 100 / total;
-    
-    Object.keys(values).forEach(categoryId => {
-      normalized[categoryId] = Math.round((values[categoryId] || 0) * factor * 10) / 10;
-    });
-
-    return normalized;
-  },
 
   /**
    * Format percentage value for display
@@ -188,14 +155,12 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
   helpText,
   required = false,
   error,
-  showRemaining = true,
   precision = 1,
   additionalContext = '',
   onAdditionalContextChange,
   additionalContextLabel = 'Additional Context'
 }) => {
   const [localValues, setLocalValues] = useState<AllocationValues>(values);
-  const [validationError, setValidationError] = useState<string | null>(null);
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
 
   // Update local values when props change
@@ -203,19 +168,8 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
     setLocalValues(values);
   }, [values]);
 
-  // Calculate totals and validation
+  // Calculate totals
   const total = useMemo(() => allocationUtils.calculateTotal(localValues), [localValues]);
-  const remaining = useMemo(() => allocationUtils.calculateRemaining(localValues), [localValues]);
-  
-  const validation = useMemo(() => 
-    allocationUtils.validateAllocation(localValues, categories, allowPartial),
-    [localValues, categories, allowPartial]
-  );
-
-  // Update validation error
-  useEffect(() => {
-    setValidationError(validation);
-  }, [validation]);
 
   // Handle input change while typing (store as string)
   const handleInputChange = useCallback((categoryId: string, inputValue: string) => {
@@ -270,29 +224,9 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
     }
   }, [categories, onChange]);
 
-  // Auto-distribute remaining percentage equally
-  const handleAutoDistribute = useCallback(() => {
-    if (remaining <= 0) return;
-    
-    const unallocatedCategories = categories.filter(cat => (localValues[cat.id] || 0) === 0);
-    if (unallocatedCategories.length === 0) return;
-    
-    const perCategory = Math.floor((remaining / unallocatedCategories.length) * Math.pow(10, precision)) / Math.pow(10, precision);
-    const newValues = { ...localValues };
-    
-    unallocatedCategories.forEach(category => {
-      newValues[category.id] = perCategory;
-    });
-    
-    setLocalValues(newValues);
-    if (onChange) {
-      onChange(newValues);
-    }
-  }, [remaining, categories, localValues, onChange, precision]);
 
-  const displayError = error || validationError;
-  const hasError = Boolean(displayError);
-  const isComplete = total === 100;
+
+  const hasError = Boolean(error);
   const hasCategories = categories.length > 0;
 
   // Return placeholder if no categories provided
@@ -327,18 +261,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
       <div className="flex items-center justify-between">
         
         <div className="flex items-center space-x-2">
-          {/* Smart Actions */}
-          {remaining > 0 && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={handleAutoDistribute}
-              disabled={disabled}
-              className="text-xs bg-blue-600 hover:bg-blue-700"
-            >
-              Auto Distribute
-            </Button>
-          )}
+
           {total > 0 && (
             <Button
               variant="outline"
@@ -359,13 +282,9 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">Total Allocation</span>
           <div className="flex items-center space-x-2">
-            <span className={cn(
-              'font-medium',
-              isComplete ? 'text-green-600' : 'text-gray-900'
-            )}>
+            <span className="font-medium text-gray-900">
               {allocationUtils.formatPercentage(total, precision)}%
             </span>
-            {isComplete && <Check className="h-4 w-4 text-green-600" />}
           </div>
         </div>
         
@@ -374,13 +293,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
           className="h-3"
         />
         
-        {showRemaining && remaining !== 0 && (
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>
-              {remaining > 0 ? 'Remaining' : 'Over limit'}: {Math.abs(remaining).toFixed(precision)}%
-            </span>
-          </div>
-        )}
+
       </div>
 
       {/* Enhanced Category Cards */}
@@ -505,7 +418,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
       </div>
 
       {/* Help Text */}
-      {helpText && !hasError && (
+      {helpText && (
         <p className="text-sm text-gray-600">{helpText}</p>
       )}
 
@@ -578,13 +491,8 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
               <Check className="h-4 w-4 text-green-600 mr-2" />
               Allocation Overview
             </h4>
-            <span className={cn(
-              "text-sm font-medium px-2 py-1 rounded-full",
-              isComplete 
-                ? "bg-green-100 text-green-700" 
-                : "bg-yellow-100 text-yellow-700"
-            )}>
-              {isComplete ? "Complete" : `${remaining.toFixed(precision)}% remaining`}
+            <span className="text-sm font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+              Total: {allocationUtils.formatPercentage(total, precision)}%
             </span>
           </div>
           
