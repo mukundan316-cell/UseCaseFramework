@@ -181,7 +181,7 @@ const serializeAnswerValue = (value: any, questionType?: string): string => {
   }
   
   // Handle complex types that need JSON serialization
-  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance'].includes(questionType)) {
+  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating'].includes(questionType)) {
     return JSON.stringify(value);
   }
   
@@ -196,7 +196,7 @@ const serializeAnswerValue = (value: any, questionType?: string): string => {
 
 const deserializeAnswerValue = (value: string, questionType?: string): any => {
   // For complex question types, parse as JSON
-  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance'].includes(questionType)) {
+  if (questionType && ['currency', 'percentage_allocation', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating'].includes(questionType)) {
     try {
       return JSON.parse(value);
     } catch {

@@ -132,6 +132,15 @@ export default function SectionLegoBlock({
           }
           return false;
           
+        case 'multi_rating':
+          // Multi rating is complete if at least one rating has been provided
+          if (typeof value === 'object' && value !== null && value.ratings) {
+            const ratings = value.ratings;
+            return Object.keys(ratings).length > 0 && 
+                   Object.values(ratings).some((rating: any) => typeof rating === 'number' && rating > 0);
+          }
+          return false;
+          
         case 'text':
         case 'textarea':
           // Text questions are complete if they have meaningful content
@@ -330,7 +339,7 @@ export default function SectionLegoBlock({
               {/* Question content */}
               <div className="ml-6">
                 {/* Use QuestionRegistryLegoBlock for advanced question types */}
-                {['company_profile', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance'].includes(question.questionType) ? (
+                {['company_profile', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating'].includes(question.questionType) ? (
                   <QuestionRegistryLegoBlock
                     questions={[{
                       id: question.id,

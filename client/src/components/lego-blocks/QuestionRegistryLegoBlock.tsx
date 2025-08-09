@@ -16,6 +16,7 @@ import BusinessLinesMatrixLegoBlock from './BusinessLinesMatrixLegoBlock';
 import DepartmentSkillsMatrixLegoBlock from './DepartmentSkillsMatrixLegoBlock';
 import CompanyProfileLegoBlock from './CompanyProfileLegoBlock';
 import BusinessPerformanceLegoBlock from './BusinessPerformanceLegoBlock';
+import MultiRatingLegoBlock from './MultiRatingLegoBlock';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 import { Textarea } from '@/components/ui/textarea';
@@ -45,7 +46,8 @@ export type QuestionType =
   | 'business_lines_matrix'
   | 'department_skills_matrix'
   | 'company_profile'
-  | 'business_performance';
+  | 'business_performance'
+  | 'multi_rating';
 
 export interface QuestionMetadata {
   id: string;
@@ -405,6 +407,26 @@ export default function QuestionRegistryLegoBlock({
             value={currentValue || {}}
             onChange={(value) => onResponseChange(questionMeta.id, value)}
             disabled={logic.isDisabled}
+          />
+        );
+      }
+
+      // Render MultiRatingLegoBlock for multi_rating type
+      if (questionMeta.questionType === 'multi_rating') {
+        return (
+          <MultiRatingLegoBlock
+            label={questionMeta.questionText}
+            items={questionMeta.questionData.items || []}
+            value={currentValue || { ratings: {}, additionalContext: '' }}
+            onChange={(value) => onResponseChange(questionMeta.id, value)}
+            minRating={questionMeta.questionData.minRating || 1}
+            maxRating={questionMeta.questionData.maxRating || 5}
+            scaleLabels={questionMeta.questionData.scaleLabels || ['Poor', 'Excellent']}
+            helpText={questionMeta.helpText}
+            required={logic.isRequired}
+            disabled={logic.isDisabled}
+            allowContext={questionMeta.questionData.allowContext !== false}
+            contextPrompt={questionMeta.questionData.contextPrompt || 'Additional context:'}
           />
         );
       }

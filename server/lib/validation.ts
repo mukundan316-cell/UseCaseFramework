@@ -260,6 +260,7 @@ export const validateAnswerByType = (answerValue: string, questionType: string) 
     case 'business_lines_matrix':
     case 'department_skills_matrix':
     case 'business_performance':
+    case 'multi_rating':
       // For complex question types, validate that it's valid JSON
       try {
         const parsed = JSON.parse(answerValue);
