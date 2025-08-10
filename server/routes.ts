@@ -73,15 +73,15 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Use Case routes
+  // Use Case routes - RSA Active Portfolio (only RSA-active use cases)
   app.get("/api/use-cases", async (req, res) => {
     try {
-      const useCases = await storage.getAllUseCases();
+      const useCases = await storage.getActiveUseCases();
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
       res.json(mappedUseCases);
     } catch (error) {
-      console.error("Error fetching use cases:", error);
-      res.status(500).json({ error: "Failed to fetch use cases" });
+      console.error("Error fetching active use cases:", error);
+      res.status(500).json({ error: "Failed to fetch active use cases" });
     }
   });
 
@@ -229,6 +229,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         activities: validatedData.activities || (validatedData.activity ? [validatedData.activity] : undefined),
         businessSegments: validatedData.businessSegments || (validatedData.businessSegment ? [validatedData.businessSegment] : undefined),
         geographies: validatedData.geographies || (validatedData.geography ? [validatedData.geography] : undefined),
+        // Ensure new use cases go to reference library by default
+        isActiveForRsa: validatedData.isActiveForRsa || 'false',
+        isDashboardVisible: validatedData.isDashboardVisible || 'false',
+        libraryTier: validatedData.libraryTier || 'reference',
         impactScore,
         effortScore,
         quadrant
