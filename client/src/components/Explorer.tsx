@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUseCases } from '../contexts/UseCaseContext';
-import UseCaseExplorerLegoBlock from './lego-blocks/UseCaseExplorerLegoBlock';
+import ImprovedUseCaseExplorer from './lego-blocks/ImprovedUseCaseExplorer';
 
 export default function ExplorerEnhanced() {
   const { 
@@ -35,7 +35,7 @@ export default function ExplorerEnhanced() {
           </TabsList>
 
           <TabsContent value="active" className="space-y-6">
-            <UseCaseExplorerLegoBlock
+            <ImprovedUseCaseExplorer
               useCases={useCases || []}
               title="RSA Active Portfolio"
               description="Use cases selected for RSA implementation with completed scoring and prioritization"
@@ -50,7 +50,7 @@ export default function ExplorerEnhanced() {
           </TabsContent>
 
           <TabsContent value="reference" className="space-y-6">
-            <UseCaseExplorerLegoBlock
+            <ImprovedUseCaseExplorer
               useCases={referenceUseCases || []}
               title="Reference Library"
               description="Complete library of all available use cases for browsing and selection"
