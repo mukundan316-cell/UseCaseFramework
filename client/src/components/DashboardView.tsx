@@ -24,7 +24,7 @@ export default function DashboardView() {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="matrix" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
-            Portfolio Matrix
+            RSA AI Value Matrix
           </TabsTrigger>
           <TabsTrigger value="reports" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
