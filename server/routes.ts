@@ -245,7 +245,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/use-cases/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const validatedData = insertUseCaseSchema.partial().parse(req.body);
+      // Create a partial schema for updates by making all fields optional
+      const updateSchema = insertUseCaseSchema.deepPartial();
+      const validatedData = updateSchema.parse(req.body);
       
       // Handle multi-select arrays for updates
       if (validatedData.linesOfBusiness) {
@@ -522,7 +524,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update overall response status if all sections complete
       if (isFullyComplete) {
         await storage.updateQuestionnaireResponse(id, {
-          completedAt: new Date().toISOString()
+          completedAt: new Date()
         });
       }
 

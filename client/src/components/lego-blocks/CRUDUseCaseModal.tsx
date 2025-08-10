@@ -8,14 +8,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Edit } from 'lucide-react';
+import { Plus, Edit, AlertCircle } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
+import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
 import { UseCase, UseCaseFormData } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
 import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import MultiSelectField from './MultiSelectField';
 
 const formSchema = z.object({
@@ -33,21 +35,50 @@ const formSchema = z.object({
   geography: z.string().min(1, 'Geography is required'),
   useCaseType: z.string().min(1, 'Use case type is required'),
   activity: z.string().optional(),
-  // Enhanced RSA Framework - Business Value Levers
-  revenueImpact: z.number().min(1).max(5),
-  costSavings: z.number().min(1).max(5),
-  riskReduction: z.number().min(1).max(5),
-  brokerPartnerExperience: z.number().min(1).max(5),
-  strategicFit: z.number().min(1).max(5),
-  // Feasibility Levers
-  dataReadiness: z.number().min(1).max(5),
-  technicalComplexity: z.number().min(1).max(5),
-  changeImpact: z.number().min(1).max(5),
-  modelRisk: z.number().min(1).max(5),
-  adoptionReadiness: z.number().min(1).max(5),
-  // AI Governance Levers
-  explainabilityBias: z.number().min(1).max(5),
-  regulatoryCompliance: z.number().min(1).max(5),
+  // RSA Portfolio Management
+  isActiveForRsa: z.enum(['true', 'false']).default('false'),
+  isDashboardVisible: z.enum(['true', 'false']).default('false'),
+  libraryTier: z.enum(['active', 'reference']).default('reference'),
+  activationReason: z.string().optional(),
+  // Enhanced RSA Framework - Business Value Levers (conditional on RSA active)
+  revenueImpact: z.number().min(1).max(5).optional(),
+  costSavings: z.number().min(1).max(5).optional(),
+  riskReduction: z.number().min(1).max(5).optional(),
+  brokerPartnerExperience: z.number().min(1).max(5).optional(),
+  strategicFit: z.number().min(1).max(5).optional(),
+  // Feasibility Levers (conditional on RSA active)
+  dataReadiness: z.number().min(1).max(5).optional(),
+  technicalComplexity: z.number().min(1).max(5).optional(),
+  changeImpact: z.number().min(1).max(5).optional(),
+  modelRisk: z.number().min(1).max(5).optional(),
+  adoptionReadiness: z.number().min(1).max(5).optional(),
+  // AI Governance Levers (conditional on RSA active)
+  explainabilityBias: z.number().min(1).max(5).optional(),
+  regulatoryCompliance: z.number().min(1).max(5).optional(),
+}).refine((data) => {
+  // Conditional validation: if RSA active, scoring fields are required
+  if (data.isActiveForRsa === 'true') {
+    const requiredFields = [
+      'revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
+      'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness',
+      'explainabilityBias', 'regulatoryCompliance'
+    ];
+    
+    for (const field of requiredFields) {
+      if (!data[field as keyof typeof data] || data[field as keyof typeof data] === undefined) {
+        return false;
+      }
+    }
+    
+    // Activation reason required
+    if (!data.activationReason || data.activationReason.trim().length < 10) {
+      return false;
+    }
+  }
+  return true;
+}, {
+  message: "All scoring fields and activation reason (minimum 10 characters) are required when including in RSA portfolio",
+  path: ["isActiveForRsa"]
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -67,6 +98,14 @@ interface CRUDUseCaseModalProps {
 export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRUDUseCaseModalProps) {
   const { addUseCase, updateUseCase, metadata } = useUseCases();
   const { toast } = useToast();
+
+  // RSA Portfolio state management
+  const [rsaSelection, setRsaSelection] = useState({
+    isActiveForRsa: false,
+    isDashboardVisible: false,
+    libraryTier: 'reference' as 'active' | 'reference',
+    activationReason: '',
+  });
 
   const [scores, setScores] = useState({
     revenueImpact: 3,
@@ -110,6 +149,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       businessSegment: '',
       geography: '',
       useCaseType: '',
+      isActiveForRsa: 'false',
+      isDashboardVisible: 'false',
+      libraryTier: 'reference',
+      activationReason: '',
       ...scores,
     },
   });
@@ -118,6 +161,33 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     const newScores = { ...scores, [field]: value };
     setScores(newScores);
     form.setValue(field, value);
+  };
+
+  // RSA Selection handlers
+  const handleRSAToggle = (active: boolean) => {
+    setRsaSelection(prev => ({
+      ...prev,
+      isActiveForRsa: active,
+      libraryTier: active ? 'active' : 'reference'
+    }));
+    form.setValue('isActiveForRsa', active ? 'true' : 'false');
+    form.setValue('libraryTier', active ? 'active' : 'reference');
+    
+    // If deactivating, also disable dashboard visibility
+    if (!active) {
+      setRsaSelection(prev => ({ ...prev, isDashboardVisible: false }));
+      form.setValue('isDashboardVisible', 'false');
+    }
+  };
+
+  const handleDashboardToggle = (visible: boolean) => {
+    setRsaSelection(prev => ({ ...prev, isDashboardVisible: visible }));
+    form.setValue('isDashboardVisible', visible ? 'true' : 'false');
+  };
+
+  const handleActivationReasonChange = (reason: string) => {
+    setRsaSelection(prev => ({ ...prev, activationReason: reason }));
+    form.setValue('activationReason', reason);
   };
 
   // Get current values from form for real-time calculations
@@ -200,6 +270,17 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
   // Initialize form with existing data for edit mode
   useEffect(() => {
     if (mode === 'edit' && useCase) {
+      // RSA selection state initialization
+      const rsaActive = (useCase as any).isActiveForRsa === 'true' || (useCase as any).isActiveForRsa === true;
+      const dashboardVisible = (useCase as any).isDashboardVisible === 'true' || (useCase as any).isDashboardVisible === true;
+      
+      setRsaSelection({
+        isActiveForRsa: rsaActive,
+        isDashboardVisible: dashboardVisible,
+        libraryTier: (useCase as any).libraryTier || (rsaActive ? 'active' : 'reference'),
+        activationReason: (useCase as any).activationReason || '',
+      });
+
       const formData = {
         title: useCase.title || '',
         description: useCase.description || '',
@@ -215,6 +296,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         activities: (useCase as any).activities || [(useCase as any).activity].filter(Boolean),
         businessSegments: (useCase as any).businessSegments || [useCase.businessSegment].filter(Boolean),
         geographies: (useCase as any).geographies || [useCase.geography].filter(Boolean),
+        // RSA Portfolio fields
+        isActiveForRsa: rsaActive ? 'true' : 'false',
+        isDashboardVisible: dashboardVisible ? 'true' : 'false',
+        libraryTier: (useCase as any).libraryTier || (rsaActive ? 'active' : 'reference'),
+        activationReason: (useCase as any).activationReason || '',
         // Map all enhanced framework dimensions - now properly mapped from API
         revenueImpact: (useCase as any).revenueImpact ?? 3,
         costSavings: (useCase as any).costSavings ?? 3,
@@ -249,7 +335,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       // Reset form with all data
       form.reset(formData);
     } else {
-      // Reset for create mode with default scores
+      // Reset for create mode with default scores and RSA selection
+      setRsaSelection({
+        isActiveForRsa: false,
+        isDashboardVisible: false,
+        libraryTier: 'reference',
+        activationReason: '',
+      });
+
       const defaultData = {
         title: '',
         description: '',
@@ -265,6 +358,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         activities: [],
         businessSegments: [],
         geographies: [],
+        // RSA Portfolio defaults
+        isActiveForRsa: 'false',
+        isDashboardVisible: 'false',
+        libraryTier: 'reference',
+        activationReason: '',
         ...scores,
       };
       form.reset(defaultData);
@@ -501,9 +599,22 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
             </div>
           </div>
 
-          {/* Enhanced RSA Framework Scoring */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Enhanced RSA Framework Assessment (1-5 Scale)</h3>
+          {/* RSA Portfolio Selection LEGO Block */}
+          <RSASelectionToggleLegoBlock
+            isActiveForRsa={rsaSelection.isActiveForRsa}
+            isDashboardVisible={rsaSelection.isDashboardVisible}
+            activationReason={rsaSelection.activationReason}
+            libraryTier={rsaSelection.libraryTier}
+            onRSAToggle={handleRSAToggle}
+            onDashboardToggle={handleDashboardToggle}
+            onActivationReasonChange={handleActivationReasonChange}
+            className="mb-6"
+          />
+
+          {/* Enhanced RSA Framework Scoring - Conditional on RSA Active */}
+          {rsaSelection.isActiveForRsa ? (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Enhanced RSA Framework Assessment (1-5 Scale)</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Business Value Levers */}
               <div className="space-y-6">
@@ -632,7 +743,28 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 </div>
               </CardContent>
             </Card>
-          </div>
+            </div>
+          ) : (
+            <Card className="bg-gray-50 border-dashed border-2">
+              <CardContent className="p-8 text-center">
+                <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  Scoring Available After RSA Portfolio Selection
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Use cases in the reference library can be browsed and selected. 
+                  Complete scoring and categorization becomes available once included in the RSA active portfolio.
+                </p>
+                <Alert className="border-blue-200 bg-blue-50 text-left">
+                  <AlertCircle className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    <strong>Library-First Workflow:</strong> All use cases start in the reference library. 
+                    Toggle "Include in RSA Active Portfolio" above to enable detailed assessment and scoring.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

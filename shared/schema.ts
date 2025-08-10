@@ -48,10 +48,11 @@ export const useCases = pgTable("use_cases", {
   recommendedByAssessment: text("recommended_by_assessment"), // Assessment response ID that recommended this use case
   
   // Two-tier library system
-  isActiveForRsa: text("is_active_for_rsa").notNull().default('true'), // 'true' or 'false'
-  isDashboardVisible: text("is_dashboard_visible").notNull().default('true'), // 'true' or 'false'
-  libraryTier: text("library_tier").notNull().default('active'), // 'active' or 'reference'
+  isActiveForRsa: text("is_active_for_rsa").notNull().default('false'), // 'true' or 'false'
+  isDashboardVisible: text("is_dashboard_visible").notNull().default('false'), // 'true' or 'false'
+  libraryTier: text("library_tier").notNull().default('reference'), // 'active' or 'reference'
   activationDate: timestamp("activation_date").defaultNow(),
+  activationReason: text("activation_reason"), // Required when isActiveForRsa = 'true'
   deactivationReason: text("deactivation_reason"),
   librarySource: text("library_source").notNull().default('rsa_internal'), // 'rsa_internal', 'industry_standard', 'imported'
   
@@ -76,11 +77,21 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
   geographies: z.array(z.string()).optional(),
-  isActiveForRsa: z.enum(['true', 'false']).default('true'),
-  isDashboardVisible: z.enum(['true', 'false']).default('true'),
-  libraryTier: z.enum(['active', 'reference']).default('active'),
-  librarySource: z.enum(['rsa_internal', 'industry_standard', 'imported']).default('rsa_internal'),
+  isActiveForRsa: z.enum(['true', 'false']).default('false'),
+  isDashboardVisible: z.enum(['true', 'false']).default('false'),
+  libraryTier: z.enum(['active', 'reference']).default('reference'),
+  librarySource: z.enum(['rsa_internal', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
+  activationReason: z.string().optional(),
   deactivationReason: z.string().optional(),
+}).refine((data) => {
+  // Conditional validation: if RSA active, activation reason is required
+  if (data.isActiveForRsa === 'true' && (!data.activationReason || data.activationReason.trim().length < 10)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Activation reason (minimum 10 characters) is required when including in RSA portfolio",
+  path: ["activationReason"]
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
