@@ -381,11 +381,11 @@ export default function UseCaseExplorerLegoBlock({
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredUseCases.map((useCase) => (
-              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border border-gray-200 bg-white border-l-4 border-l-blue-600">
-
+              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border border-gray-200 bg-white" 
+                    style={{ borderLeft: '4px solid #3b82f6' }}>
                 <CardContent className="p-5">
                   {/* Title and Description */}
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <h3 className="font-semibold text-gray-900 text-lg mb-2">
                       {useCase.title}
                     </h3>
@@ -413,14 +413,14 @@ export default function UseCaseExplorerLegoBlock({
                   {/* Scores Display - Only for RSA Active Portfolio */}
                   {showQuadrantFilters && useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center bg-green-50 rounded-lg p-4">
-                        <div className="text-2xl font-bold text-green-700 mb-1">
+                      <div className="text-center bg-green-50 rounded-lg p-3">
+                        <div className="text-2xl font-bold text-green-700">
                           {useCase.impactScore.toFixed(1)}
                         </div>
                         <div className="text-sm text-green-600">Impact</div>
                       </div>
-                      <div className="text-center bg-blue-50 rounded-lg p-4">
-                        <div className="text-2xl font-bold text-blue-700 mb-1">
+                      <div className="text-center bg-blue-50 rounded-lg p-3">
+                        <div className="text-2xl font-bold text-blue-700">
                           {useCase.effortScore.toFixed(1)}
                         </div>
                         <div className="text-sm text-blue-600">Effort</div>
@@ -429,7 +429,7 @@ export default function UseCaseExplorerLegoBlock({
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex justify-between items-center gap-2 pt-4 border-t border-gray-100">
+                  <div className="flex justify-between items-center gap-2 pt-3 border-t border-gray-100">
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
@@ -464,7 +464,7 @@ export default function UseCaseExplorerLegoBlock({
                             className="h-8 px-3 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                           >
                             <BarChart3 className="h-3 w-3 mr-1" />
-                            Move to Library
+                            Move to RSA
                           </Button>
                         ) : (
                           <Button
