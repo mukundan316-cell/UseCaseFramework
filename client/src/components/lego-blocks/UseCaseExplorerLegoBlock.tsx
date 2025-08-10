@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus, Edit, Trash2, Library, Package, Tag, CheckCircle, Circle } from 'lucide-react';
+import { Search, Filter, Plus, Edit, Trash2, Library, Package, Tag, CheckCircle, Circle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 import CRUDUseCaseModal from './CRUDUseCaseModal';
+import MultiSelectField from './MultiSelectField';
 import { UseCase } from '../../types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -43,7 +44,7 @@ export default function UseCaseExplorerLegoBlock({
   showCreateButton = false,
   emptyStateMessage = "No use cases found"
 }: UseCaseExplorerLegoBlockProps) {
-  const { metadata, filters, setFilters } = useUseCases();
+  const { metadata } = useUseCases();
   const { toast } = useToast();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +53,19 @@ export default function UseCaseExplorerLegoBlock({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUseCases, setSelectedUseCases] = useState<Set<string>>(new Set());
 
-  // Local filtering with search
+  // Advanced filtering state - matching CRUD LEGO design
+  const [advancedFilters, setAdvancedFilters] = useState({
+    processes: [] as string[],
+    linesOfBusiness: [] as string[],
+    businessSegments: [] as string[],
+    geographies: [] as string[],
+    useCaseTypes: [] as string[],
+    quadrants: [] as string[]
+  });
+
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  // Advanced filtering with multi-select support
   const filteredUseCases = useCases.filter((useCase) => {
     // Text search
     if (searchTerm) {
@@ -67,11 +80,13 @@ export default function UseCaseExplorerLegoBlock({
       if (!matchesSearch) return false;
     }
 
-    // Global filters
-    if (filters.process && useCase.process !== filters.process) return false;
-    if (filters.lineOfBusiness && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
-    if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
-    if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+    // Advanced multi-select filters
+    if (advancedFilters.processes.length > 0 && !advancedFilters.processes.includes(useCase.process)) return false;
+    if (advancedFilters.linesOfBusiness.length > 0 && !advancedFilters.linesOfBusiness.includes(useCase.lineOfBusiness)) return false;
+    if (advancedFilters.businessSegments.length > 0 && !advancedFilters.businessSegments.includes(useCase.businessSegment || '')) return false;
+    if (advancedFilters.geographies.length > 0 && !advancedFilters.geographies.includes(useCase.geography || '')) return false;
+    if (advancedFilters.useCaseTypes.length > 0 && !advancedFilters.useCaseTypes.includes(useCase.useCaseType)) return false;
+    if (advancedFilters.quadrants.length > 0 && !advancedFilters.quadrants.includes(useCase.quadrant || '')) return false;
 
     return true;
   });
@@ -183,132 +198,162 @@ export default function UseCaseExplorerLegoBlock({
           />
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 lg:flex-nowrap">
-          <Select
-            value={filters.process || "all"}
-            onValueChange={(value) => setFilters({ process: value === 'all' ? '' : value })}
+        {/* Advanced Filters Toggle */}
+        <div className="flex justify-end">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="flex items-center gap-2"
           >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Processes" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Processes</SelectItem>
-              {metadata?.processes?.map((process) => (
-                <SelectItem key={process} value={process}>
-                  {process}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={filters.lineOfBusiness || "all"}
-            onValueChange={(value) => setFilters({ lineOfBusiness: value === 'all' ? '' : value })}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All LOBs" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All LOBs</SelectItem>
-              {metadata?.linesOfBusiness?.map((lob) => (
-                <SelectItem key={lob} value={lob}>
-                  {lob}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={filters.useCaseType || "all"}
-            onValueChange={(value) => setFilters({ useCaseType: value === 'all' ? '' : value })}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {metadata?.useCaseTypes?.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {showQuadrantFilters && (
-            <Select
-              value={filters.quadrant || "all"}
-              onValueChange={(value) => setFilters({ quadrant: value === 'all' ? '' : value })}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All Quadrants" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Quadrants</SelectItem>
-                <SelectItem value="Quick Win">Quick Win</SelectItem>
-                <SelectItem value="Strategic Bet">Strategic Bet</SelectItem>
-                <SelectItem value="Experimental">Experimental</SelectItem>
-                <SelectItem value="Watchlist">Watchlist</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
-            Filters
+            Advanced Filters
+            {showAdvancedFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </div>
       </div>
 
-      {/* Active Filters */}
-      {(filters.process || filters.lineOfBusiness || filters.useCaseType || filters.quadrant || searchTerm) && (
-        <div className="flex flex-wrap gap-2">
-          {searchTerm && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setSearchTerm('')}>
-              Search: "{searchTerm}" ×
+      {/* Advanced Filters Panel - CRUD LEGO Style */}
+      {showAdvancedFilters && (
+        <Card className="border-2 border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
+          <CardHeader>
+            <CardTitle className="text-lg">Business Context Filters</CardTitle>
+            <CardDescription>Multi-select filters to refine your use case view</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Process Filter */}
+              <MultiSelectField
+                label="Process"
+                items={metadata?.processes || []}
+                selectedItems={advancedFilters.processes}
+                onSelectionChange={(items) => setAdvancedFilters(prev => ({ ...prev, processes: items }))}
+                helpText="Multi-select Process Activities available"
+              />
+
+              {/* Lines of Business Filter */}
+              <MultiSelectField
+                label="Lines of Business"
+                items={metadata?.linesOfBusiness || []}
+                selectedItems={advancedFilters.linesOfBusiness}
+                onSelectionChange={(items) => setAdvancedFilters(prev => ({ ...prev, linesOfBusiness: items }))}
+                helpText="Select one or more lines of business"
+              />
+
+              {/* Business Segments Filter */}
+              <MultiSelectField
+                label="Business Segments"
+                items={metadata?.businessSegments || []}
+                selectedItems={advancedFilters.businessSegments}
+                onSelectionChange={(items) => setAdvancedFilters(prev => ({ ...prev, businessSegments: items }))}
+                helpText="Select one or more business segments"
+              />
+
+              {/* Geographies Filter */}
+              <MultiSelectField
+                label="Geographies"
+                items={metadata?.geographies || []}
+                selectedItems={advancedFilters.geographies}
+                onSelectionChange={(items) => setAdvancedFilters(prev => ({ ...prev, geographies: items }))}
+                helpText="Select one or more geographic markets"
+              />
+
+              {/* Use Case Types Filter */}
+              <MultiSelectField
+                label="Use Case Types"
+                items={metadata?.useCaseTypes || []}
+                selectedItems={advancedFilters.useCaseTypes}
+                onSelectionChange={(items) => setAdvancedFilters(prev => ({ ...prev, useCaseTypes: items }))}
+                helpText="Select one or more use case types"
+              />
+
+              {/* Quadrants Filter - Only show if enabled */}
+              {showQuadrantFilters && (
+                <MultiSelectField
+                  label="Quadrants"
+                  items={['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']}
+                  selectedItems={advancedFilters.quadrants}
+                  onSelectionChange={(items) => setAdvancedFilters(prev => ({ ...prev, quadrants: items }))}
+                  helpText="Select one or more priority quadrants"
+                />
+              )}
+            </div>
+            
+            {/* Clear Filters */}
+            <div className="flex justify-end mt-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setAdvancedFilters({
+                  processes: [],
+                  linesOfBusiness: [],
+                  businessSegments: [],
+                  geographies: [],
+                  useCaseTypes: [],
+                  quadrants: []
+                })}
+              >
+                Clear All Filters
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Filter Summary */}
+      {(advancedFilters.processes.length > 0 || 
+        advancedFilters.linesOfBusiness.length > 0 || 
+        advancedFilters.businessSegments.length > 0 || 
+        advancedFilters.geographies.length > 0 || 
+        advancedFilters.useCaseTypes.length > 0 || 
+        advancedFilters.quadrants.length > 0) && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="text-sm font-medium text-gray-700">Active Filters:</span>
+          {advancedFilters.processes.map(item => (
+            <Badge key={`process-${item}`} variant="secondary" className="text-xs">
+              Process: {item}
             </Badge>
-          )}
-          {filters.process && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters({ process: '' })}>
-              Process: {filters.process} ×
+          ))}
+          {advancedFilters.linesOfBusiness.map(item => (
+            <Badge key={`lob-${item}`} variant="secondary" className="text-xs">
+              LOB: {item}
             </Badge>
-          )}
-          {filters.lineOfBusiness && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters({ lineOfBusiness: '' })}>
-              LOB: {filters.lineOfBusiness} ×
+          ))}
+          {advancedFilters.businessSegments.map(item => (
+            <Badge key={`segment-${item}`} variant="secondary" className="text-xs">
+              Segment: {item}
             </Badge>
-          )}
-          {filters.useCaseType && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters({ useCaseType: '' })}>
-              Type: {filters.useCaseType} ×
+          ))}
+          {advancedFilters.geographies.map(item => (
+            <Badge key={`geo-${item}`} variant="secondary" className="text-xs">
+              Geography: {item}
             </Badge>
-          )}
-          {filters.quadrant && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters({ quadrant: '' })}>
-              Quadrant: {filters.quadrant} ×
+          ))}
+          {advancedFilters.useCaseTypes.map(item => (
+            <Badge key={`type-${item}`} variant="secondary" className="text-xs">
+              Type: {item}
             </Badge>
-          )}
+          ))}
+          {advancedFilters.quadrants.map(item => (
+            <Badge key={`quadrant-${item}`} variant="secondary" className="text-xs">
+              Quadrant: {item}
+            </Badge>
+          ))}
         </div>
       )}
 
       {/* Use Cases Grid */}
       {filteredUseCases.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Package className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">{emptyStateMessage}</h3>
-            {useCases.length === 0 ? (
-              <p className="text-muted-foreground text-center mb-4">
-                Get started by adding your first use case.
-              </p>
-            ) : (
-              <p className="text-muted-foreground text-center mb-4">
-                Try adjusting your search terms or filters.
-              </p>
-            )}
-            {showCreateButton && useCases.length === 0 && (
-              <Button onClick={handleCreate}>Add Your First Use Case</Button>
+        <Card className="text-center py-12">
+          <CardContent>
+            <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Use Cases Found</h3>
+            <p className="text-gray-500 mb-4">{emptyStateMessage}</p>
+            {showCreateButton && (
+              <Button onClick={handleCreate} className="mt-4">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Use Case
+              </Button>
             )}
           </CardContent>
         </Card>
@@ -327,19 +372,19 @@ export default function UseCaseExplorerLegoBlock({
                 </div>
               )}
 
-              {/* Selection Checkbox */}
-              <div className="absolute left-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Multi-selection checkbox */}
+              {selectedUseCases.size > 0 && (
                 <button
                   onClick={() => toggleSelection(useCase.id)}
-                  className="p-1 rounded-full bg-white shadow-md hover:bg-gray-50"
+                  className="absolute left-2 top-2 z-10"
                 >
                   {selectedUseCases.has(useCase.id) ? (
-                    <CheckCircle className="h-4 w-4 text-blue-600" />
+                    <CheckCircle className="h-5 w-5 text-blue-600" />
                   ) : (
-                    <Circle className="h-4 w-4 text-gray-400" />
+                    <Circle className="h-5 w-5 text-gray-400" />
                   )}
                 </button>
-              </div>
+              )}
 
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
