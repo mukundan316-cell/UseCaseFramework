@@ -177,14 +177,12 @@ export default function DynamicUseCaseSelector({
       });
   }, [filteredUseCases]);
 
-  // Get primary categories (top 4-5 most relevant)
-  const primaryCategories = categoryGroups
-    .filter(group => group.type === 'process')
-    .slice(0, 4);
+  // All categories start collapsed - no primary/secondary distinction
+  const visibleCategories = showAllCategories 
+    ? categoryGroups 
+    : categoryGroups.slice(0, 4); // Show first 4 categories
   
-  const secondaryCategories = showAllCategories 
-    ? categoryGroups.filter(group => !primaryCategories.includes(group))
-    : [];
+  const remainingCategories = categoryGroups.length > 4 ? categoryGroups.length - 4 : 0;
 
   const handleUseCaseToggle = (useCaseId: string) => {
     const selectedUseCases = value.selectedUseCases || [];
@@ -230,8 +228,8 @@ export default function DynamicUseCaseSelector({
     );
   }
 
-  const renderCategoryGroup = (group: CategoryGroup, isPrimary: boolean = true) => {
-    const isExpanded = expandedCategories.includes(group.key) || isPrimary;
+  const renderCategoryGroup = (group: CategoryGroup) => {
+    const isExpanded = expandedCategories.includes(group.key);
     const selectedInCategory = group.useCases.filter(uc => 
       value.selectedUseCases?.includes(uc.id)
     ).length;
@@ -255,7 +253,7 @@ export default function DynamicUseCaseSelector({
             <div className="text-left">
               <h4 className="font-semibold text-gray-900">{group.label}</h4>
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span>{group.count} applications</span>
+                <span>{group.count} use cases</span>
                 {selectedInCategory > 0 && (
                   <Badge variant="secondary" className="h-5 px-2">
                     {selectedInCategory} selected
@@ -343,7 +341,7 @@ export default function DynamicUseCaseSelector({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search AI applications..."
+              placeholder="Search AI use cases..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -355,7 +353,7 @@ export default function DynamicUseCaseSelector({
           <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
             <div className="text-sm">
               <span className="font-medium text-blue-900">
-                {filteredUseCases.length} applications available
+                {filteredUseCases.length} use cases available
               </span>
               {(value.selectedUseCases?.length || 0) > 0 && (
                 <span className="text-blue-700 ml-2">
@@ -370,13 +368,13 @@ export default function DynamicUseCaseSelector({
             )}
           </div>
 
-          {/* Primary Categories */}
+          {/* Use Case Categories */}
           <div className="space-y-3">
-            {primaryCategories.map(group => renderCategoryGroup(group, true))}
+            {visibleCategories.map(group => renderCategoryGroup(group))}
           </div>
 
           {/* Show More/Less Toggle */}
-          {categoryGroups.length > primaryCategories.length && (
+          {categoryGroups.length > 4 && (
             <Button
               type="button"
               variant="outline"
@@ -392,17 +390,10 @@ export default function DynamicUseCaseSelector({
               ) : (
                 <>
                   <ChevronDown className="h-4 w-4 mr-2" />
-                  Show {categoryGroups.length - primaryCategories.length} More Categories
+                  Show {remainingCategories} More Categories
                 </>
               )}
             </Button>
-          )}
-
-          {/* Secondary Categories */}
-          {secondaryCategories.length > 0 && (
-            <div className="space-y-3">
-              {secondaryCategories.map(group => renderCategoryGroup(group, false))}
-            </div>
           )}
 
           {/* Success Stories */}
@@ -428,7 +419,7 @@ export default function DynamicUseCaseSelector({
               <Textarea
                 value={value.notes || ''}
                 onChange={(e) => handleFieldChange('notes', e.target.value)}
-                placeholder="Add any additional context about your AI applications..."
+                placeholder="Add any additional context about your AI use cases..."
                 disabled={disabled}
                 className="min-h-[80px]"
               />
