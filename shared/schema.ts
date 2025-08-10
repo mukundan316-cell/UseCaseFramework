@@ -83,15 +83,6 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   librarySource: z.enum(['rsa_internal', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
   activationReason: z.string().optional(),
   deactivationReason: z.string().optional(),
-}).refine((data) => {
-  // Conditional validation: if RSA active, activation reason is required
-  if (data.isActiveForRsa === 'true' && (!data.activationReason || data.activationReason.trim().length < 10)) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Activation reason (minimum 10 characters) is required when including in RSA portfolio",
-  path: ["activationReason"]
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
