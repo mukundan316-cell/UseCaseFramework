@@ -395,6 +395,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
           adoptionReadiness: (useCase as any).adoptionReadiness,
           explainabilityBias: (useCase as any).explainabilityBias,
           regulatoryCompliance: (useCase as any).regulatoryCompliance,
+          // Manual override fields
+          manualImpactScore: (useCase as any).manualImpactScore,
+          manualEffortScore: (useCase as any).manualEffortScore,
+          manualQuadrant: (useCase as any).manualQuadrant,
+          overrideReason: (useCase as any).overrideReason,
         };
         
         // Only include fields that have actually changed
@@ -411,6 +416,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         if (data.activities) changedData.activities = data.activities;
         if (data.businessSegments) changedData.businessSegments = data.businessSegments;
         if (data.geographies) changedData.geographies = data.geographies;
+        
+        // Always include manual override fields when present
+        if (data.manualImpactScore !== undefined) changedData.manualImpactScore = data.manualImpactScore;
+        if (data.manualEffortScore !== undefined) changedData.manualEffortScore = data.manualEffortScore;
+        if (data.manualQuadrant !== undefined) changedData.manualQuadrant = data.manualQuadrant;
+        if (data.overrideReason !== undefined) changedData.overrideReason = data.overrideReason;
         
         console.log('Sending only changed data:', changedData);
         const result = await updateUseCase(useCase.id, changedData);

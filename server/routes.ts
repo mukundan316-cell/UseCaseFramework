@@ -332,6 +332,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as any; // Type assertion to handle calculated fields
       }
       
+      // Handle manual override fields - always preserve them if provided
+      if (validatedData.manualImpactScore !== undefined || 
+          validatedData.manualEffortScore !== undefined ||
+          validatedData.manualQuadrant !== undefined ||
+          validatedData.overrideReason !== undefined) {
+        updatesWithScores = {
+          ...updatesWithScores,
+          manualImpactScore: validatedData.manualImpactScore,
+          manualEffortScore: validatedData.manualEffortScore,
+          manualQuadrant: validatedData.manualQuadrant,
+          overrideReason: validatedData.overrideReason
+        } as any;
+      }
+      
       const updatedUseCase = await storage.updateUseCase(id, updatesWithScores);
       if (!updatedUseCase) {
         return res.status(404).json({ error: "Use case not found" });

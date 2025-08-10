@@ -4,21 +4,40 @@ import { UseCase } from '../schema';
  * Gets the effective impact score (manual override or calculated)
  */
 export function getEffectiveImpactScore(useCase: UseCase): number {
-  return useCase.manualImpactScore ?? useCase.impactScore;
+  return useCase.manualImpactScore ?? useCase.impactScore ?? 0;
 }
 
 /**
  * Gets the effective effort score (manual override or calculated)
  */
 export function getEffectiveEffortScore(useCase: UseCase): number {
-  return useCase.manualEffortScore ?? useCase.effortScore;
+  return useCase.manualEffortScore ?? useCase.effortScore ?? 0;
 }
 
 /**
  * Gets the effective quadrant (manual override or calculated)
  */
 export function getEffectiveQuadrant(useCase: UseCase): string {
-  return useCase.manualQuadrant ?? useCase.quadrant;
+  // First check if there's a manual quadrant override
+  if (useCase.manualQuadrant) {
+    return useCase.manualQuadrant;
+  }
+  
+  // If there are manual impact/effort scores, calculate quadrant from those
+  if (useCase.manualImpactScore !== undefined || useCase.manualEffortScore !== undefined) {
+    const effectiveImpact = getEffectiveImpactScore(useCase);
+    const effectiveEffort = getEffectiveEffortScore(useCase);
+    
+    // Use standard 3.0 threshold for quadrant calculation
+    if (effectiveImpact >= 3.0 && effectiveEffort < 3.0) return 'Quick Win';
+    if (effectiveImpact >= 3.0 && effectiveEffort >= 3.0) return 'Strategic Bet';
+    if (effectiveImpact < 3.0 && effectiveEffort < 3.0) return 'Experimental';
+    if (effectiveImpact < 3.0 && effectiveEffort >= 3.0) return 'Watchlist';
+    return 'Watchlist';
+  }
+  
+  // Otherwise return the calculated quadrant
+  return useCase.quadrant || 'Unassigned';
 }
 
 /**
