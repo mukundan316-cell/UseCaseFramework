@@ -30,6 +30,9 @@ export default function RSAAssessmentLandingPage({
   // Use the same questionnaire ID as the main assessment
   const questionnaireId = '91684df8-9700-4605-bc3e-2320120e5e1b';
   
+  // Fetch questionnaire data for dynamic sections
+  const { questionnaire } = useQuestionnaire(questionnaireId);
+  
   // Check for saved progress
   const progressPersistence = useProgressPersistence({
     storageKey: `questionnaire-progress-${questionnaireId}`,
@@ -88,17 +91,27 @@ export default function RSAAssessmentLandingPage({
     }
   ];
 
-  // Assessment sections overview
-  const assessmentSections = [
-    { title: "Business Strategy", time: "15-20 min", questions: 5 },
-    { title: "Current AI Capabilities", time: "10-15 min", questions: 2 },
-    { title: "Use Case Discovery", time: "20-25 min", questions: 2 },
-    { title: "Technology Infrastructure", time: "10-15 min", questions: 1 },
-    { title: "People & Skills", time: "15-20 min", questions: 1 },
-    { title: "Governance & Ethics", time: "10-15 min", questions: 1 }
+  // Dynamic assessment sections from database
+  const assessmentSections = questionnaire?.sections?.map(section => {
+    const questionCount = section.questions?.length || 0;
+    // Calculate estimated time based on question count and complexity
+    const baseTime = Math.max(5, Math.min(25, questionCount * 3)); // 3 minutes per question, 5-25 min range
+    const timeRange = `${baseTime}-${baseTime + 5} min`;
+    
+    return {
+      title: section.title,
+      time: timeRange,
+      questions: questionCount,
+      description: section.description
+    };
+  }) || [
+    // Fallback only if database fails to load
+    { title: "Business Strategy", time: "15-20 min", questions: 16, description: "Strategic AI vision and business alignment" },
+    { title: "Technology Infrastructure", time: "10-15 min", questions: 4, description: "Current systems and technical readiness" }
   ];
 
-  const totalEstimatedTime = "80-110 minutes";
+  const totalQuestions = assessmentSections.reduce((sum, section) => sum + section.questions, 0);
+  const totalEstimatedTime = `${Math.floor(totalQuestions * 2.5)}-${Math.ceil(totalQuestions * 4)} minutes`;
 
   // Get context for tab management
   const { setActiveTab } = useUseCases();

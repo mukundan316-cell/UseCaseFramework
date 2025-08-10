@@ -23,6 +23,8 @@ Preferred communication style: Simple, everyday language.
 
 **Field-Level Validation Fix**: (January 9, 2025) Fixed critical validation bug where "Required Fields Missing" error appeared even when no questions were marked as required. Enhanced QuestionnaireContainer validation logic to check both question-level and field-level required flags. Now properly validates Company Name field in Q1 Company Profile question, which was marked as required at the field level but not being validated. System now correctly handles complex question types with nested field requirements.
 
+**Assessment Landing Page Database Integration**: (January 10, 2025) Fixed hardcoded Assessment Sections overview to use dynamic database values. RSAAssessmentLandingPage now fetches questionnaire data via useQuestionnaire hook and calculates section counts, question totals, and time estimates from actual database content. Replaced static "5 questions" displays with real counts (Section 1: 20 questions, Section 2: 4 questions). Time estimates now dynamically calculated based on question complexity. Includes graceful fallback protection while ensuring data accuracy matches actual questionnaire structure.
+
 ## System Architecture
 
 ### Core Architecture
