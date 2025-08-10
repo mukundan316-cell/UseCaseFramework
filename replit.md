@@ -8,7 +8,20 @@ Preferred communication style: Simple, everyday language.
 
 **LEGO-Style Architecture Mandate**: All buttons, modals, components and features must be implemented as reusable LEGO blocks where possible. Follow the "Build Once, Reuse Everywhere" principle to maintain consistency and reduce development overhead. Every new UI element should be evaluated for reusability potential before implementation.
 
-**Use Case Card Design Standard**: All use case cards must maintain exact visual consistency across RSA Active Portfolio and Reference Library views. Required styling: clean white cards with 4px blue left border, rounded pill-style tags with color-coded backgrounds (blue for process, purple for LOB, orange for type), side-by-side score display with green/blue backgrounds when applicable, and ghost-style action buttons with proper spacing.
+**LEGO CRUD Card Design Standard**: All use case cards across the entire application must follow this exact design specification:
+- **Card Structure**: Clean white cards with 4px blue left border (#3b82f6), subtle gray border, hover shadow
+- **Content Padding**: p-5 for comfortable spacing
+- **Title**: text-lg font-semibold text-gray-900 with mb-2 spacing
+- **Description**: text-sm text-gray-600 with line-clamp-2
+- **Tags**: Rounded pill-style tags with color-coded backgrounds:
+  - Process: bg-blue-100 text-blue-800 with blue dot
+  - Line of Business: bg-purple-100 text-purple-800 with purple dot  
+  - Use Case Type: bg-orange-100 text-orange-800 with orange dot
+- **Score Display**: Side-by-side grid with green (Impact) and blue (Effort) backgrounds, only for RSA Active Portfolio
+- **Action Buttons**: Ghost-style buttons with proper icons, border-top separator
+- **Contextual Actions**: Show appropriate buttons based on view (Edit/Delete for all, Move to Library/RSA as applicable)
+
+This design must be used consistently for all CRUD cards throughout the application to maintain visual unity.
 
 ## Recent Updates (January 2025)
 **Section 1 Complete Implementation**: (January 9, 2025) Successfully implemented Section 1: Business Strategy & AI Vision with 16 questions (Q1-Q16) organized into four sub-sections following proper numbering distinction. Sub-section structure: "1.1 Company Profile & Business Context" (Q1-Q6), "1.2 AI Vision & Success Definition" (Q7-Q12), "1.3 Competitive & Market Position" (Q13-Q14), and "1.4 Investment Strategy" (Q15-Q16). Implemented comprehensive 45-minute business leader interview format covering company profile, business performance, competitive positioning, AI vision alignment, risk appetite, success metrics, market positioning, and investment strategy. All advanced question types properly integrated including company_profile, business_lines_matrix, percentage_allocation, multi_rating, smart_rating, ranking, and business_performance LEGO blocks with proper database persistence.
@@ -29,7 +42,7 @@ Preferred communication style: Simple, everyday language.
 
 **Authentic RSA Logo Implementation**: (January 10, 2025) Replaced stylized sunburst logo with authentic RSA corporate branding using direct image embedding of official RSA logo (image_1754800977193.png). RSAHeader component now displays the exact RSA corporate logo with perfect accuracy, including authentic sunburst pattern, official color scheme, proper typography, and "[intact] company" tagline. Implementation verified against RSA UK website standards (https://www.rsainsurance.co.uk/) and accounts for announced rebrand to Intact Insurance scheduled by end of 2025. Direct image embedding ensures 100% brand compliance versus SVG recreation.
 
-**Use Case Card Design Standardization**: (January 10, 2025) Implemented consistent visual design across all use case explorer views. Fixed data mapping issues in backend transformation and restored exact original card styling: clean white cards with 4px blue left borders, proper rounded pill tags with color-coded backgrounds, side-by-side score displays, and ghost-style action buttons. Applied uniform styling to both RSA Active Portfolio and Reference Library views while maintaining distinct functionality (scoring only for active portfolio items). Ensured complete visual consistency across all use case browsing interfaces.
+**LEGO CRUD Card Design Standardization**: (January 10, 2025) Established definitive card design standard for all use case displays across the application. Implemented exact visual specification: clean white cards with 4px blue left borders, p-5 padding, proper rounded pill tags with color-coded backgrounds (blue/purple/orange), side-by-side score displays for active portfolio, and ghost-style action buttons with border-top separator. Applied consistent styling to RSA Active Portfolio, Reference Library, and all future CRUD card implementations. This design serves as the official LEGO card template for maintaining visual unity throughout the platform.
 
 ## System Architecture
 
