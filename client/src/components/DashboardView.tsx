@@ -1,6 +1,9 @@
 import React from 'react';
 import MatrixPlot from './MatrixPlot';
 import SummaryMetricsLegoBlock from './lego-blocks/SummaryMetricsLegoBlock';
+import ReportsTabLegoBlock from './lego-blocks/ReportsTabLegoBlock';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BarChart3, Target } from 'lucide-react';
 
 
 /**
@@ -13,14 +16,30 @@ export default function DashboardView() {
 
   return (
     <div className="space-y-6">
-      {/* Resume Progress Section */}
-
-
-      {/* Summary Metrics - placed between resume section and matrix */}
+      {/* Summary Metrics */}
       <SummaryMetricsLegoBlock />
       
-      {/* Matrix Plot */}
-      <MatrixPlot />
+      {/* Dashboard Tabs */}
+      <Tabs defaultValue="matrix" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="matrix" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Portfolio Matrix
+          </TabsTrigger>
+          <TabsTrigger value="reports" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Analytics & Reports
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="matrix">
+          <MatrixPlot />
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <ReportsTabLegoBlock />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
