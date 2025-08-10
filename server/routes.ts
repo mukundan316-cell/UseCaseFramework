@@ -246,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       // Create a partial schema for updates by making all fields optional
-      const updateSchema = insertUseCaseSchema.deepPartial();
+      const updateSchema = insertUseCaseSchema.partial();
       const validatedData = updateSchema.parse(req.body);
       
       // Handle multi-select arrays for updates
