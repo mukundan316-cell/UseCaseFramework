@@ -10,7 +10,18 @@ import recommendationRoutes from "./routes/recommendations";
 async function recalculateAllUseCaseScores(scoringModel: any) {
   const useCases = await storage.getAllUseCases();
   
-  const businessValueWeights = scoringModel.businessValue || {
+  // Parse scoring model if it's a string
+  let parsedScoringModel = scoringModel;
+  if (typeof scoringModel === 'string') {
+    try {
+      parsedScoringModel = JSON.parse(scoringModel);
+    } catch (e) {
+      console.error('Error parsing scoring model:', e);
+      parsedScoringModel = scoringModel;
+    }
+  }
+  
+  const businessValueWeights = parsedScoringModel?.businessValue || {
     revenueImpact: 20,
     costSavings: 20,
     riskReduction: 20,
@@ -18,7 +29,7 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
     strategicFit: 20
   };
   
-  const feasibilityWeights = scoringModel.feasibility || {
+  const feasibilityWeights = parsedScoringModel?.feasibility || {
     dataReadiness: 20,
     technicalComplexity: 20,
     changeImpact: 20,
@@ -26,7 +37,9 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
     adoptionReadiness: 20
   };
   
-  const threshold = scoringModel.quadrantThreshold || 3.0;
+  const threshold = parsedScoringModel?.quadrantThreshold || 3.0;
+  
+  console.log('Recalculation using weights:', { businessValueWeights, feasibilityWeights, threshold });
   
   for (const useCase of useCases) {
     const impactScore = calculateImpactScore(
@@ -48,6 +61,8 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
     );
     
     const quadrant = calculateQuadrant(impactScore, effortScore, threshold);
+    
+    console.log(`${useCase.title}: impact=${impactScore.toFixed(1)}, effort=${effortScore.toFixed(1)}, quadrant=${quadrant}`);
     
     await storage.updateUseCase(useCase.id, {
       impactScore,
@@ -261,21 +276,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const metadata = req.body;
       const updated = await storage.updateMetadataConfig(metadata);
       
-      // If scoring model weights changed, recalculate all use case scores
-      if (metadata.scoringModel) {
-        try {
-          await recalculateAllUseCaseScores(metadata.scoringModel);
-          console.log('✅ Recalculated all use case scores after weight update');
-        } catch (recalcError) {
-          console.error('⚠️ Error recalculating scores after weight update:', recalcError);
-          // Continue - don't fail the metadata update if recalculation fails
-        }
+      // Always recalculate all use case scores when metadata is updated
+      try {
+        const currentMetadata = await storage.getMetadataConfig();
+        await recalculateAllUseCaseScores(currentMetadata?.scoringModel || metadata.scoringModel);
+        console.log('✅ Recalculated all use case scores after metadata update');
+      } catch (recalcError) {
+        console.error('⚠️ Error recalculating scores after metadata update:', recalcError);
+        // Continue - don't fail the metadata update if recalculation fails
       }
       
       res.json(updated);
     } catch (error) {
       console.error("Error saving metadata:", error);
       res.status(500).json({ error: "Failed to save metadata" });
+    }
+  });
+
+  // Manual recalculation endpoint for testing
+  app.post("/api/recalculate-scores", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      await recalculateAllUseCaseScores(metadata?.scoringModel);
+      console.log('✅ Manual recalculation completed');
+      res.json({ success: true, message: "All use case scores recalculated successfully" });
+    } catch (error) {
+      console.error("Error during manual recalculation:", error);
+      res.status(500).json({ error: "Failed to recalculate scores" });
     }
   });
 
