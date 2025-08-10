@@ -39,9 +39,9 @@ const formSchema = z.object({
   useCaseType: z.string().optional(),
   activity: z.string().optional(),
   // RSA Portfolio Management
-  isActiveForRsa: z.enum(['true', 'false']).default('false'),
-  isDashboardVisible: z.enum(['true', 'false']).default('false'),
-  libraryTier: z.enum(['active', 'reference']).default('reference'),
+  isActiveForRsa: z.union([z.literal('true'), z.literal('false'), z.string()]).default('false'),
+  isDashboardVisible: z.union([z.literal('true'), z.literal('false'), z.string()]).default('false'),
+  libraryTier: z.union([z.literal('active'), z.literal('reference'), z.string()]).default('reference'),
   activationReason: z.string().optional(),
   // Enhanced RSA Framework - Business Value Levers (all optional - no validation restrictions)
   revenueImpact: z.number().min(1).max(5).optional(),
@@ -432,7 +432,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         });
       } else {
         console.log('Calling addUseCase...');
-        const result = await addUseCase(data);
+        const result = await addUseCase(data as any);
         console.log('Add successful:', result);
         toast({
           title: "Use case created successfully",
