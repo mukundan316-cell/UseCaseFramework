@@ -282,8 +282,20 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       // Use Case Type filtering
       if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
       
-      // Quadrant filtering
-      if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+      // Quadrant filtering - use effective quadrant for accurate filtering
+      if (filters.quadrant) {
+        const effectiveQuadrant = (useCase as any).manualQuadrant || 
+          (((useCase as any).manualImpactScore !== undefined || (useCase as any).manualEffortScore !== undefined) ?
+            (() => {
+              const impact = (useCase as any).manualImpactScore ?? useCase.impactScore ?? 0;
+              const effort = (useCase as any).manualEffortScore ?? useCase.effortScore ?? 0;
+              if (impact >= 3.0 && effort < 3.0) return 'Quick Win';
+              if (impact >= 3.0 && effort >= 3.0) return 'Strategic Bet';
+              if (impact < 3.0 && effort < 3.0) return 'Experimental';
+              return 'Watchlist';
+            })() : useCase.quadrant) || 'Unassigned';
+        if (effectiveQuadrant !== filters.quadrant) return false;
+      }
       
       // Assessment Recommendations filtering
       if (filters.showRecommendations && !useCase.recommendedByAssessment) return false;
@@ -295,7 +307,18 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   const getQuadrantCounts = (): Record<string, number> => {
     const filteredUseCases = getFilteredUseCases();
     return filteredUseCases.reduce((acc, useCase) => {
-      acc[useCase.quadrant] = (acc[useCase.quadrant] || 0) + 1;
+      // Calculate effective quadrant for accurate counts
+      const effectiveQuadrant = (useCase as any).manualQuadrant || 
+        (((useCase as any).manualImpactScore !== undefined || (useCase as any).manualEffortScore !== undefined) ?
+          (() => {
+            const impact = (useCase as any).manualImpactScore ?? useCase.impactScore ?? 0;
+            const effort = (useCase as any).manualEffortScore ?? useCase.effortScore ?? 0;
+            if (impact >= 3.0 && effort < 3.0) return 'Quick Win';
+            if (impact >= 3.0 && effort >= 3.0) return 'Strategic Bet';
+            if (impact < 3.0 && effort < 3.0) return 'Experimental';
+            return 'Watchlist';
+          })() : useCase.quadrant) || 'Unassigned';
+      acc[effectiveQuadrant] = (acc[effectiveQuadrant] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
   };
