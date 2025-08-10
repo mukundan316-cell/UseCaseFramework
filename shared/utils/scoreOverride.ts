@@ -36,7 +36,16 @@ export function getEffectiveQuadrant(useCase: UseCase): string {
     return 'Watchlist';
   }
   
-  // Otherwise return the calculated quadrant
+  // Calculate quadrant from current scores (don't rely on potentially stale stored quadrant)
+  const effectiveImpact = getEffectiveImpactScore(useCase);
+  const effectiveEffort = getEffectiveEffortScore(useCase);
+  
+  if (effectiveImpact >= 3.0 && effectiveEffort < 3.0) return 'Quick Win';
+  if (effectiveImpact >= 3.0 && effectiveEffort >= 3.0) return 'Strategic Bet';
+  if (effectiveImpact < 3.0 && effectiveEffort < 3.0) return 'Experimental';
+  if (effectiveImpact < 3.0 && effectiveEffort >= 3.0) return 'Watchlist';
+  
+  // Fallback to stored quadrant only if scores are invalid
   return useCase.quadrant || 'Unassigned';
 }
 
