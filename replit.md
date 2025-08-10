@@ -1,7 +1,7 @@
 # RSA AI Use Case Value Framework - AI Strategy & Prioritization Platform
 
 ## Overview
-This platform is a strategic AI use case prioritization tool for RSA Insurance. It enables the capture of AI use cases with associated business metadata, scores them using a proprietary 12-lever framework, and visualizes them within a dynamic prioritization matrix. The system supports real-time scoring, robust CRUD operations for use cases and metadata, and dynamic filtering. The business vision is to provide a comprehensive, data-driven approach for organizations to strategically identify, assess, and prioritize AI initiatives, maximizing their impact and alignment with business objectives.
+This platform is a strategic AI use case prioritization tool for RSA Insurance. It enables the capture of AI use cases with associated business metadata, scores them using a proprietary 12-lever framework, and visualizes them within a dynamic prioritization matrix with comprehensive analytics. The system supports real-time scoring, robust CRUD operations for use cases and metadata, dynamic filtering, and executive-level reporting dashboards. The business vision is to provide a comprehensive, data-driven approach for organizations to strategically identify, assess, and prioritize AI initiatives, maximizing their impact and alignment with business objectives.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -37,10 +37,11 @@ The system employs a full-stack architecture:
 -   **Metadata-Driven Design**: Captures and leverages extensive business metadata for use case categorization and analysis.
 -   **AI Framework & Scoring Engine**: Implements RSA's 12-lever scoring system (Business Value, Feasibility, AI Governance) to calculate Impact and Effort scores in real-time. Automatic quadrant assignment is based on a 3.0 threshold.
 -   **Assessment System**: Provides a complete workflow from email capture to results dashboard, featuring enhanced auto-save, session recovery, and integration. Includes a dynamic question registry and section progress tracking across 11 normalized tables with 14 advanced question types.
+-   **Analytics & Reporting Dashboard**: Comprehensive reporting system with RSA AI Value Matrix and Analytics & Reports tabs. Features interactive charts including Impact vs Effort scatter plots, business segment distributions, quadrant summaries, and portfolio statistics using authentic database data only.
 -   **Dashboard Consolidation**: Streamlined portfolio overview with interactive filtering, displaying four quadrant cards with authentic RSA branding.
 -   **Database-First Persistence**: All data operations follow a clear Database → API → Frontend pattern, ensuring data integrity and real-time synchronization.
 -   **Extensibility**: Designed to allow for future feature additions without regressing existing functionality.
--   **UI/UX Decisions**: Utilizes shadcn/ui and Tailwind CSS for a consistent and branded user experience. Components are highly configurable, and built-in state management handles loading, error, and empty states. Enhanced rating and ranking components provide intuitive user interaction with standardized LEGO CRUD card design. Implementation uses authentic RSA corporate branding.
+-   **UI/UX Decisions**: Utilizes shadcn/ui and Tailwind CSS for a consistent and branded user experience. Components are highly configurable, and built-in state management handles loading, error, and empty states. Enhanced rating and ranking components provide intuitive user interaction with standardized LEGO CRUD card design. Implementation uses authentic RSA corporate branding with RSA AI Value Matrix terminology.
 
 ## External Dependencies
 
