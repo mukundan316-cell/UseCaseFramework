@@ -32,6 +32,14 @@ export interface UseCaseFrontend {
   impactScore: number;
   effortScore: number;
   quadrant: string;
+  // RSA Portfolio Selection fields
+  isActiveForRsa?: boolean;
+  isDashboardVisible?: boolean;
+  libraryTier?: string;
+  librarySource?: string;
+  activationReason?: string;
+  deactivationReason?: string;
+  activationDate?: Date;
   createdAt?: Date;
 }
 
@@ -66,6 +74,14 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     impactScore: dbUseCase.impactScore,
     effortScore: dbUseCase.effortScore,
     quadrant: dbUseCase.quadrant,
+    // RSA Portfolio Selection fields
+    isActiveForRsa: dbUseCase.isActiveForRsa,
+    isDashboardVisible: dbUseCase.isDashboardVisible,
+    libraryTier: dbUseCase.libraryTier,
+    librarySource: dbUseCase.librarySource,
+    activationReason: dbUseCase.activationReason,
+    deactivationReason: dbUseCase.deactivationReason,
+    activationDate: dbUseCase.activationDate,
     createdAt: dbUseCase.createdAt ?? undefined
   };
 }
