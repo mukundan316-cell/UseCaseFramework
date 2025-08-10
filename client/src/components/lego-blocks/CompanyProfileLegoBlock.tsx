@@ -21,6 +21,7 @@ interface CompanyProfileData {
 }
 
 interface CompanyProfileLegoBlockProps {
+  questionText?: string; // Add support for question text
   questionData: {
     // Support both old interface and new fields-based structure
     fields?: Array<{
@@ -61,6 +62,7 @@ interface CompanyProfileLegoBlockProps {
 }
 
 export default function CompanyProfileLegoBlock({
+  questionText,
   questionData,
   value = {},
   onChange,
@@ -150,7 +152,7 @@ export default function CompanyProfileLegoBlock({
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Building2 className="h-5 w-5" />
-            Company Profile
+            {questionText || "Company Profile"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">

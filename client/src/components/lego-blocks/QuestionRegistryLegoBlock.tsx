@@ -502,6 +502,7 @@ export default function QuestionRegistryLegoBlock({
       if (questionMeta.questionType === 'company_profile') {
         return (
           <CompanyProfileLegoBlock
+            questionText={questionMeta.questionText}
             questionData={questionMeta.questionData}
             value={currentValue || {}}
             onChange={(value) => onResponseChange(questionMeta.id, value)}
