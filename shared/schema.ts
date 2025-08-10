@@ -89,11 +89,11 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   librarySource: z.enum(['rsa_internal', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
   activationReason: z.string().optional(),
   deactivationReason: z.string().optional(),
-  // Manual override fields
-  manualImpactScore: z.number().min(1).max(5).optional(),
-  manualEffortScore: z.number().min(1).max(5).optional(),
-  manualQuadrant: z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']).optional(),
-  overrideReason: z.string().optional(),
+  // Manual override fields (accept null values for optional operation)
+  manualImpactScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  manualEffortScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  manualQuadrant: z.union([z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']), z.null()]).optional(),
+  overrideReason: z.union([z.string(), z.null()]).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
