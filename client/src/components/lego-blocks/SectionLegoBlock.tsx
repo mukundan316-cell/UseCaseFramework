@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, Clock, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import QuestionLegoBlock, { QuestionData } from './QuestionLegoBlock';
 import QuestionRegistryLegoBlock, { QuestionMetadata, QuestionType } from './QuestionRegistryLegoBlock';
@@ -324,76 +325,170 @@ export default function SectionLegoBlock({
     </CardHeader>
   );
 
-  // Section content with questions
+  // Group questions into subsections based on question ranges
+  const groupQuestionsIntoSubsections = () => {
+    const subsections = [];
+    
+    // Define subsection boundaries based on section
+    if (sectionOrder === 1) {
+      // Section 1: Business Strategy & AI Vision
+      subsections.push({
+        id: "1.1-executive-vision",
+        title: "1.1 Executive Vision & Strategic Alignment",
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 1 && q.questionOrder <= 5)
+      });
+      subsections.push({
+        id: "1.2-business-context",
+        title: "1.2 Business Context & Market Position", 
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 6 && q.questionOrder <= 10)
+      });
+      subsections.push({
+        id: "1.3-operational-readiness",
+        title: "1.3 Operational Readiness & Change Management",
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 11 && q.questionOrder <= 16)
+      });
+      subsections.push({
+        id: "1.4-stakeholder-engagement", 
+        title: "1.4 Stakeholder Engagement & Communication",
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 17 && q.questionOrder <= 20)
+      });
+    } else if (sectionOrder === 2) {
+      // Section 2: Current AI & Data Capabilities
+      subsections.push({
+        id: "2.1-technology-infrastructure",
+        title: "2.1 Technology Infrastructure",
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 17 && q.questionOrder <= 20)
+      });
+      subsections.push({
+        id: "2.2-business-function-systems",
+        title: "2.2 Business Function Systems", 
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 21 && q.questionOrder <= 25)
+      });
+    } else {
+      // For other sections, show all questions in one group
+      subsections.push({
+        id: `${sectionOrder}.1-all-questions`,
+        title: `${sectionOrder}.1 Questions`,
+        questions: sortedQuestions
+      });
+    }
+    
+    return subsections.filter(subsection => subsection.questions.length > 0);
+  };
+
+  // Render individual question
+  const renderQuestion = (question: any, index: number, totalInSubsection: number) => {
+    const isHeader = question.questionData?.isHeader;
+    const actualQuestionNumber = question.questionOrder;
+
+    return (
+      <div 
+        key={question.id}
+        className={cn(
+          "relative",
+          index < totalInSubsection - 1 && "pb-6 border-b border-gray-100"
+        )}
+      >
+        {/* Question number indicator - only show for non-header questions */}
+        {!isHeader && actualQuestionNumber && (
+          <div className="absolute -left-2 top-0">
+            <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
+              Q{actualQuestionNumber}
+            </div>
+          </div>
+        )}
+      
+        {/* Question content */}
+        <div className={cn(isHeader ? "ml-0" : "ml-6")}>
+          {/* Use QuestionRegistryLegoBlock for advanced question types */}
+          {['company_profile', 'currency', 'percentage_allocation', 'percentage_target', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating', 'composite', 'risk_appetite'].includes(question.questionType) ? (
+            <QuestionRegistryLegoBlock
+              questions={[{
+                id: question.id,
+                sectionId: 0, // Not used in rendering
+                questionOrder: question.questionOrder || 0,
+                questionType: question.questionType as any,
+                questionText: question.questionText,
+                isRequired: question.isRequired,
+                helpText: question.helpText,
+                questionData: (question as any).questionData || {}
+              }]}
+              responses={new Map([[question.id, responses.get(question.id)]])}
+              onResponseChange={(questionId: string, value: any) => onChange(questionId, value)}
+              disabled={readonly}
+              showDebug={false}
+            />
+          ) : (
+            /* Use standard QuestionLegoBlock for basic question types */
+            <QuestionLegoBlock
+              question={question}
+              value={responses.get(question.id)}
+              onChange={(value) => onChange(question.id, value)}
+              error={errors[question.id]}
+              readonly={readonly}
+            />
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Section content with collapsible subsections
   const renderSectionContent = () => {
     if (!isExpanded) return null;
 
+    const subsections = groupQuestionsIntoSubsections();
+
+    if (subsections.length === 0) {
+      return (
+        <CardContent className="pt-0">
+          <div className="text-center py-8 text-gray-500">
+            <p className="text-sm">No questions available in this section</p>
+          </div>
+        </CardContent>
+      );
+    }
+
+    // If only one subsection, render without accordion
+    if (subsections.length === 1) {
+      return (
+        <CardContent className="pt-0">
+          <div className="space-y-6">
+            {subsections[0].questions.map((question, index) => 
+              renderQuestion(question, index, subsections[0].questions.length)
+            )}
+          </div>
+        </CardContent>
+      );
+    }
+
+    // Multiple subsections - use accordion
     return (
       <CardContent className="pt-0">
-        <div className="space-y-6">
-          {sortedQuestions.map((question, index) => {
-            // Use actual question order from database instead of local counter
-            const isHeader = question.questionData?.isHeader;
-            const actualQuestionNumber = question.questionOrder;
-
-            return (
-              <div 
-                key={question.id}
-                className={cn(
-                  "relative",
-                  index < sortedQuestions.length - 1 && "pb-6 border-b border-gray-100"
-                )}
-              >
-                {/* Question number indicator - only show for non-header questions */}
-                {!isHeader && actualQuestionNumber && (
-                  <div className="absolute -left-2 top-0">
-                    <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-                      Q{actualQuestionNumber}
-                    </div>
+        <Accordion type="multiple" defaultValue={subsections.map(s => s.id)} className="space-y-4">
+          {subsections.map((subsection) => (
+            <AccordionItem key={subsection.id} value={subsection.id} className="border border-gray-200 rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 [&[data-state=open]>div]:bg-blue-50">
+                <div className="flex items-center gap-3 text-left">
+                  <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 text-sm font-medium rounded-full border border-blue-200">
+                    {subsection.id.split('-')[0]}
                   </div>
-                )}
-              
-                {/* Question content */}
-                <div className={cn(isHeader ? "ml-0" : "ml-6")}>
-                  {/* Use QuestionRegistryLegoBlock for advanced question types */}
-                  {['company_profile', 'currency', 'percentage_allocation', 'percentage_target', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating', 'composite', 'risk_appetite'].includes(question.questionType) ? (
-                    <QuestionRegistryLegoBlock
-                      questions={[{
-                        id: question.id,
-                        sectionId: 0, // Not used in rendering
-                        questionOrder: question.questionOrder || 0,
-                        questionType: question.questionType as any,
-                        questionText: question.questionText,
-                        isRequired: question.isRequired,
-                        helpText: question.helpText,
-                        questionData: (question as any).questionData || {}
-                      }]}
-                      responses={new Map([[question.id, responses.get(question.id)]])}
-                      onResponseChange={(questionId: string, value: any) => onChange(questionId, value)}
-                      disabled={readonly}
-                      showDebug={false}
-                    />
-                  ) : (
-                    /* Use standard QuestionLegoBlock for basic question types */
-                    <QuestionLegoBlock
-                      question={question}
-                      value={responses.get(question.id)}
-                      onChange={(value) => onChange(question.id, value)}
-                      error={errors[question.id]}
-                      readonly={readonly}
-                    />
+                  <div>
+                    <h4 className="text-base font-semibold text-gray-900">{subsection.title}</h4>
+                    <p className="text-sm text-gray-600">{subsection.questions.length} questions</p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <div className="space-y-6 pt-2">
+                  {subsection.questions.map((question, index) => 
+                    renderQuestion(question, index, subsection.questions.length)
                   )}
                 </div>
-              </div>
-            );
-          })}
-          
-          {questions.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <p className="text-sm">No questions available in this section</p>
-            </div>
-          )}
-        </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </CardContent>
     );
   };
