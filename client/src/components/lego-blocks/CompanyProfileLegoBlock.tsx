@@ -156,7 +156,7 @@ export default function CompanyProfileLegoBlock({
         <CardContent className="space-y-6">
           {/* Company Name Input */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Company Name</Label>
+            <Label className="text-base font-semibold text-gray-900">Company Name</Label>
             <Input
               value={formData.companyName || ''}
               onChange={(e) => handleChange('companyName', e.target.value)}
@@ -168,7 +168,7 @@ export default function CompanyProfileLegoBlock({
 
           {/* Gross Written Premium */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-medium">
+            <Label className="flex items-center gap-2 text-base font-semibold text-gray-900">
               <DollarSign className="h-4 w-4" />
               Gross Written Premium (GWP)
             </Label>
@@ -201,7 +201,7 @@ export default function CompanyProfileLegoBlock({
 
           {/* Company Tier */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-medium">
+            <Label className="flex items-center gap-2 text-base font-semibold text-gray-900">
               <Target className="h-4 w-4" />
               Company Tier
             </Label>
@@ -256,7 +256,7 @@ export default function CompanyProfileLegoBlock({
 
           {/* Primary Markets */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-medium">
+            <Label className="flex items-center gap-2 text-base font-semibold text-gray-900">
               <Target className="h-4 w-4" />
               Primary Markets
             </Label>
@@ -328,7 +328,7 @@ export default function CompanyProfileLegoBlock({
 
           {/* Geographic Focus */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-medium">
+            <Label className="flex items-center gap-2 text-base font-semibold text-gray-900">
               <Globe className="h-4 w-4" />
               Geographic Focus
             </Label>
@@ -342,7 +342,7 @@ export default function CompanyProfileLegoBlock({
 
           {/* Notes */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-medium">
+            <Label className="flex items-center gap-2 text-base font-semibold text-gray-900">
               <FileText className="h-4 w-4" />
               Additional Context & Notes
             </Label>

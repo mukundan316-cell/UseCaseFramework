@@ -102,7 +102,7 @@ export default function QuestionLegoBlock({
   // Helper function to render question label with required indicator and help tooltip
   const renderQuestionLabel = () => (
     <div className="flex items-center justify-between mb-3">
-      <Label className="text-sm font-medium text-gray-700 flex items-center">
+      <Label className="text-base font-semibold text-gray-900 flex items-center">
         {questionText}
         {isRequired && <span className="text-red-500 ml-1">*</span>}
       </Label>

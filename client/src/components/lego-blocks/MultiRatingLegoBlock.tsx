@@ -218,7 +218,7 @@ export const MultiRatingLegoBlock: React.FC<MultiRatingLegoBlockProps> = ({
                       <Badge variant="outline" className="text-xs">
                         {index + 1}
                       </Badge>
-                      <Label className="text-base font-medium text-gray-900">
+                      <Label className="text-base font-semibold text-gray-900">
                         {item.label}
                         {item.required && <span className="text-red-500 ml-1">*</span>}
                       </Label>

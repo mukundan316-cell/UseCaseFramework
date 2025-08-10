@@ -296,7 +296,7 @@ export const insertDynamicQuestionSchema = createInsertSchema(dynamicQuestions).
   questionType: z.enum([
     'scale', 'multiChoice', 'ranking', 'allocation', 'text', 
     'boolean', 'matrix', 'compound', 'score', 'checkbox', 
-    'textarea', 'number', 'email', 'url', 'date', 'smart_rating', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating'
+    'textarea', 'number', 'email', 'url', 'date', 'smart_rating', 'currency', 'percentage_allocation', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating', 'composite', 'risk_appetite'
   ]),
   dependsOn: z.array(z.string()).optional(),
   conditionalLogic: z.string().optional(), // JSON string

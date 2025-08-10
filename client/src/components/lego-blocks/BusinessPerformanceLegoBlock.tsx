@@ -114,7 +114,7 @@ export default function BusinessPerformanceLegoBlock({
 
     return (
       <div key={metric.id} className="space-y-3">
-        <Label htmlFor={metric.id} className="text-sm font-medium text-gray-700 block">
+        <Label htmlFor={metric.id} className="text-base font-semibold text-gray-900 block">
           {metric.label}
           {metric.required && <span className="text-red-500 ml-1">*</span>}
         </Label>
@@ -190,7 +190,7 @@ export default function BusinessPerformanceLegoBlock({
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">
+              <Label className="text-base font-semibold text-gray-900">
                 {questionData.notesPrompt || 'Additional notes:'}
               </Label>
               <Textarea
