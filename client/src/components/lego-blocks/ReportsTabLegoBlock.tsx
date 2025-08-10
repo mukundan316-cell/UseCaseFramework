@@ -42,11 +42,12 @@ export default function ReportsTabLegoBlock() {
     );
   }
 
-  // Filter use cases with complete scoring data
+  // Filter use cases with complete scoring data AND active for RSA
   const scoredUseCases = useCases.filter((uc: UseCase) => 
     uc.impactScore !== null && 
     uc.effortScore !== null && 
-    uc.quadrant
+    uc.quadrant &&
+    uc.isActiveForRsa === 'true'
   );
 
   // Quadrant summary data
@@ -185,7 +186,7 @@ export default function ReportsTabLegoBlock() {
             <CardHeader>
               <CardTitle>Impact vs Effort Analysis</CardTitle>
               <CardDescription>
-                Scatter plot showing all {totalScored} scored use cases positioned by their impact and effort scores. 
+                Scatter plot showing {totalScored} RSA active use cases positioned by their impact and effort scores. 
                 Each point is colored by its quadrant classification.
               </CardDescription>
             </CardHeader>
@@ -249,7 +250,7 @@ export default function ReportsTabLegoBlock() {
             <CardHeader>
               <CardTitle>Distribution by Lines of Business</CardTitle>
               <CardDescription>
-                Use case count across different lines of business in the scored portfolio.
+                RSA active use case count across different lines of business.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -292,7 +293,7 @@ export default function ReportsTabLegoBlock() {
             <CardHeader>
               <CardTitle>Use Case Types Distribution</CardTitle>
               <CardDescription>
-                Breakdown of AI use case types in the current portfolio.
+                Breakdown of AI use case types in the RSA active portfolio.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -331,7 +332,7 @@ export default function ReportsTabLegoBlock() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold text-blue-600">{totalScored}</p>
-              <p className="text-sm text-gray-600">Scored Use Cases</p>
+              <p className="text-sm text-gray-600">RSA Active Use Cases</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-green-600">
