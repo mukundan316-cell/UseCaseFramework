@@ -41,6 +41,11 @@ export interface UseCaseFrontend {
   deactivationReason?: string;
   activationDate?: Date;
   createdAt?: Date;
+  // Manual Override fields
+  manualImpactScore?: number;
+  manualEffortScore?: number;
+  manualQuadrant?: string;
+  overrideReason?: string;
 }
 
 /**
@@ -82,7 +87,12 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     activationReason: dbUseCase.activationReason,
     deactivationReason: dbUseCase.deactivationReason,
     activationDate: dbUseCase.activationDate,
-    createdAt: dbUseCase.createdAt ?? undefined
+    createdAt: dbUseCase.createdAt ?? undefined,
+    // Manual Override field mappings
+    manualImpactScore: dbUseCase.manualImpactScore,
+    manualEffortScore: dbUseCase.manualEffortScore,
+    manualQuadrant: dbUseCase.manualQuadrant,
+    overrideReason: dbUseCase.overrideReason
   };
 }
 
