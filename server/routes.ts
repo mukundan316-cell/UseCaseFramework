@@ -85,6 +85,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Two-tier library system routes
+  app.get("/api/use-cases/dashboard", async (req, res) => {
+    try {
+      const useCases = await storage.getDashboardUseCases();
+      const mappedUseCases = useCases.map(mapUseCaseToFrontend);
+      res.json(mappedUseCases);
+    } catch (error) {
+      console.error("Error fetching dashboard use cases:", error);
+      res.status(500).json({ error: "Failed to fetch dashboard use cases" });
+    }
+  });
+
+  app.get("/api/use-cases/active", async (req, res) => {
+    try {
+      const useCases = await storage.getActiveUseCases();
+      const mappedUseCases = useCases.map(mapUseCaseToFrontend);
+      res.json(mappedUseCases);
+    } catch (error) {
+      console.error("Error fetching active use cases:", error);
+      res.status(500).json({ error: "Failed to fetch active use cases" });
+    }
+  });
+
+  app.get("/api/use-cases/reference", async (req, res) => {
+    try {
+      const useCases = await storage.getReferenceLibraryUseCases();
+      const mappedUseCases = useCases.map(mapUseCaseToFrontend);
+      res.json(mappedUseCases);
+    } catch (error) {
+      console.error("Error fetching reference library use cases:", error);
+      res.status(500).json({ error: "Failed to fetch reference library use cases" });
+    }
+  });
+
+  app.patch("/api/use-cases/:id/activate", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { reason } = req.body;
+      const useCase = await storage.activateUseCase(id, reason);
+      if (!useCase) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      res.json(mapUseCaseToFrontend(useCase));
+    } catch (error) {
+      console.error("Error activating use case:", error);
+      res.status(500).json({ error: "Failed to activate use case" });
+    }
+  });
+
+  app.patch("/api/use-cases/:id/deactivate", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { reason } = req.body;
+      const useCase = await storage.deactivateUseCase(id, reason);
+      if (!useCase) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      res.json(mapUseCaseToFrontend(useCase));
+    } catch (error) {
+      console.error("Error deactivating use case:", error);
+      res.status(500).json({ error: "Failed to deactivate use case" });
+    }
+  });
+
+  app.patch("/api/use-cases/:id/toggle-dashboard", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const useCase = await storage.toggleDashboardVisibility(id);
+      if (!useCase) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      res.json(mapUseCaseToFrontend(useCase));
+    } catch (error) {
+      console.error("Error toggling dashboard visibility:", error);
+      res.status(500).json({ error: "Failed to toggle dashboard visibility" });
+    }
+  });
+
+  app.patch("/api/use-cases/bulk-tier", async (req, res) => {
+    try {
+      const { ids, tier } = req.body;
+      if (!Array.isArray(ids) || !tier || !['active', 'reference'].includes(tier)) {
+        return res.status(400).json({ error: "Invalid request body. Expected { ids: string[], tier: 'active' | 'reference' }" });
+      }
+      const useCases = await storage.bulkUpdateUseCaseTier(ids, tier);
+      const mappedUseCases = useCases.map(mapUseCaseToFrontend);
+      res.json(mappedUseCases);
+    } catch (error) {
+      console.error("Error bulk updating use case tier:", error);
+      res.status(500).json({ error: "Failed to bulk update use case tier" });
+    }
+  });
+
   app.post("/api/use-cases", async (req, res) => {
     try {
       const validatedData = insertUseCaseSchema.parse(req.body);

@@ -46,6 +46,15 @@ export const useCases = pgTable("use_cases", {
   effortScore: real("effort_score").notNull(),
   quadrant: text("quadrant").notNull(),
   recommendedByAssessment: text("recommended_by_assessment"), // Assessment response ID that recommended this use case
+  
+  // Two-tier library system
+  isActiveForRsa: text("is_active_for_rsa").notNull().default('true'), // 'true' or 'false'
+  isDashboardVisible: text("is_dashboard_visible").notNull().default('true'), // 'true' or 'false'
+  libraryTier: text("library_tier").notNull().default('active'), // 'active' or 'reference'
+  activationDate: timestamp("activation_date").defaultNow(),
+  deactivationReason: text("deactivation_reason"),
+  librarySource: text("library_source").notNull().default('rsa_internal'), // 'rsa_internal', 'industry_standard', 'imported'
+  
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -60,12 +69,18 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   effortScore: true,
   quadrant: true,
   createdAt: true,
+  activationDate: true,
 }).extend({
   linesOfBusiness: z.array(z.string()).optional(),
   processes: z.array(z.string()).optional(),
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
   geographies: z.array(z.string()).optional(),
+  isActiveForRsa: z.enum(['true', 'false']).default('true'),
+  isDashboardVisible: z.enum(['true', 'false']).default('true'),
+  libraryTier: z.enum(['active', 'reference']).default('active'),
+  librarySource: z.enum(['rsa_internal', 'industry_standard', 'imported']).default('rsa_internal'),
+  deactivationReason: z.string().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

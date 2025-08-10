@@ -15,9 +15,18 @@ export interface IStorage {
   
   // Use Case methods
   getAllUseCases(): Promise<UseCase[]>;
+  getActiveUseCases(): Promise<UseCase[]>; // Only active tier use cases
+  getDashboardUseCases(): Promise<UseCase[]>; // Only dashboard-visible use cases
+  getReferenceLibraryUseCases(): Promise<UseCase[]>; // Only reference tier use cases
   createUseCase(useCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase>;
   updateUseCase(id: string, useCase: Partial<UseCase>): Promise<UseCase | undefined>;
   deleteUseCase(id: string): Promise<boolean>;
+  
+  // Two-tier library management
+  activateUseCase(id: string, reason?: string): Promise<UseCase | undefined>;
+  deactivateUseCase(id: string, reason?: string): Promise<UseCase | undefined>;
+  toggleDashboardVisibility(id: string): Promise<UseCase | undefined>;
+  bulkUpdateUseCaseTier(ids: string[], tier: 'active' | 'reference'): Promise<UseCase[]>;
   
   // Metadata methods for database-first compliance
   getMetadataConfig(): Promise<MetadataConfig | undefined>;
@@ -66,6 +75,31 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(useCases).orderBy(sql`created_at DESC`);
   }
 
+  async getActiveUseCases(): Promise<UseCase[]> {
+    return await db.select().from(useCases)
+      .where(and(
+        eq(useCases.isActiveForRsa, 'true'),
+        eq(useCases.libraryTier, 'active')
+      ))
+      .orderBy(sql`created_at DESC`);
+  }
+
+  async getDashboardUseCases(): Promise<UseCase[]> {
+    return await db.select().from(useCases)
+      .where(and(
+        eq(useCases.isActiveForRsa, 'true'),
+        eq(useCases.isDashboardVisible, 'true'),
+        eq(useCases.libraryTier, 'active')
+      ))
+      .orderBy(sql`created_at DESC`);
+  }
+
+  async getReferenceLibraryUseCases(): Promise<UseCase[]> {
+    return await db.select().from(useCases)
+      .where(eq(useCases.libraryTier, 'reference'))
+      .orderBy(sql`created_at DESC`);
+  }
+
   async createUseCase(insertUseCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase> {
     const [useCase] = await db
       .insert(useCases)
@@ -86,6 +120,76 @@ export class DatabaseStorage implements IStorage {
   async deleteUseCase(id: string): Promise<boolean> {
     const result = await db.delete(useCases).where(eq(useCases.id, id));
     return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Two-tier library management methods
+  async activateUseCase(id: string, reason?: string): Promise<UseCase | undefined> {
+    const [useCase] = await db
+      .update(useCases)
+      .set({
+        isActiveForRsa: 'true',
+        libraryTier: 'active',
+        isDashboardVisible: 'true',
+        activationDate: new Date(),
+        deactivationReason: null
+      })
+      .where(eq(useCases.id, id))
+      .returning();
+    return useCase || undefined;
+  }
+
+  async deactivateUseCase(id: string, reason?: string): Promise<UseCase | undefined> {
+    const [useCase] = await db
+      .update(useCases)
+      .set({
+        isActiveForRsa: 'false',
+        libraryTier: 'reference',
+        isDashboardVisible: 'false',
+        deactivationReason: reason || 'Moved to reference library'
+      })
+      .where(eq(useCases.id, id))
+      .returning();
+    return useCase || undefined;
+  }
+
+  async toggleDashboardVisibility(id: string): Promise<UseCase | undefined> {
+    // Get current state
+    const [currentUseCase] = await db.select().from(useCases).where(eq(useCases.id, id));
+    if (!currentUseCase) return undefined;
+    
+    const newVisibility = currentUseCase.isDashboardVisible === 'true' ? 'false' : 'true';
+    
+    const [useCase] = await db
+      .update(useCases)
+      .set({ isDashboardVisible: newVisibility })
+      .where(eq(useCases.id, id))
+      .returning();
+    return useCase || undefined;
+  }
+
+  async bulkUpdateUseCaseTier(ids: string[], tier: 'active' | 'reference'): Promise<UseCase[]> {
+    const updates = tier === 'active' 
+      ? {
+          isActiveForRsa: 'true',
+          libraryTier: 'active',
+          isDashboardVisible: 'true',
+          activationDate: new Date(),
+          deactivationReason: null
+        }
+      : {
+          isActiveForRsa: 'false',
+          libraryTier: 'reference',
+          isDashboardVisible: 'false',
+          deactivationReason: 'Bulk moved to reference library'
+        };
+
+    const result = await db
+      .update(useCases)
+      .set(updates)
+      .where(sql`id = ANY(${ids})`)
+      .returning();
+    
+    return result;
   }
 
   async getMetadataConfig(): Promise<MetadataConfig | undefined> {

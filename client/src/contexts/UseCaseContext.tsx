@@ -6,6 +6,8 @@ import { apiRequest } from '../lib/queryClient';
 
 interface UseCaseContextType {
   useCases: UseCase[];
+  dashboardUseCases: UseCase[];
+  referenceUseCases: UseCase[];
   metadata: MetadataConfig | undefined;
   activeTab: TabType;
   filters: FilterState;
@@ -25,6 +27,12 @@ interface UseCaseContextType {
   getAverageImpact: () => number;
   getAverageEffort: () => number;
   getNewThisMonthCount: () => number;
+  
+  // Two-tier library management
+  activateUseCase: (id: string, reason?: string) => Promise<void>;
+  deactivateUseCase: (id: string, reason?: string) => Promise<void>;
+  toggleDashboardVisibility: (id: string) => Promise<void>;
+  bulkUpdateTier: (ids: string[], tier: 'active' | 'reference') => Promise<void>;
 }
 
 const UseCaseContext = createContext<UseCaseContextType | undefined>(undefined);
@@ -49,6 +57,25 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   // Database-first data fetching per REFERENCE.md compliance
   const { data: useCases = [] } = useQuery({
     queryKey: ['/api/use-cases'],
+  });
+
+  // Two-tier system queries
+  const { data: dashboardUseCases = [] } = useQuery({
+    queryKey: ['/api/use-cases', 'dashboard'],
+    queryFn: async () => {
+      const response = await fetch('/api/use-cases/dashboard');
+      if (!response.ok) throw new Error('Failed to fetch dashboard use cases');
+      return response.json() as Promise<UseCase[]>;
+    }
+  });
+
+  const { data: referenceUseCases = [] } = useQuery({
+    queryKey: ['/api/use-cases', 'reference'],
+    queryFn: async () => {
+      const response = await fetch('/api/use-cases/reference');
+      if (!response.ok) throw new Error('Failed to fetch reference use cases');
+      return response.json() as Promise<UseCase[]>;
+    }
   });
 
   const { data: metadata } = useQuery<MetadataConfig>({
@@ -206,8 +233,10 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   };
 
   const getFilteredUseCases = (): UseCase[] => {
-    if (!useCases || !Array.isArray(useCases)) return [];
-    return useCases.filter((useCase: any) => {
+    // Use dashboard use cases for main view, all use cases for admin/explorer views
+    const targetUseCases = activeTab === 'dashboard' ? dashboardUseCases : useCases;
+    if (!targetUseCases || !Array.isArray(targetUseCases)) return [];
+    return targetUseCases.filter((useCase: any) => {
       // Search filter
       if (filters.search && !useCase.title.toLowerCase().includes(filters.search.toLowerCase()) && 
           !useCase.description.toLowerCase().includes(filters.search.toLowerCase())) {
@@ -296,8 +325,105 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     }).length;
   };
 
+  // Library management mutations
+  const activateUseCaseMutation = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
+      const response = await fetch(`/api/use-cases/${id}/activate`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to activate use case');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+    }
+  });
+
+  const deactivateUseCaseMutation = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
+      const response = await fetch(`/api/use-cases/${id}/deactivate`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to deactivate use case');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+    }
+  });
+
+  const toggleDashboardMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/use-cases/${id}/toggle-dashboard`, {
+        method: 'PATCH',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to toggle dashboard visibility');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
+    }
+  });
+
+  const bulkUpdateTierMutation = useMutation({
+    mutationFn: async ({ ids, tier }: { ids: string[]; tier: 'active' | 'reference' }) => {
+      const response = await fetch('/api/use-cases/bulk-tier', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, tier }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to bulk update tier');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+    }
+  });
+
+  // Library management functions
+  const activateUseCase = async (id: string, reason?: string): Promise<void> => {
+    await activateUseCaseMutation.mutateAsync({ id, reason });
+  };
+
+  const deactivateUseCase = async (id: string, reason?: string): Promise<void> => {
+    await deactivateUseCaseMutation.mutateAsync({ id, reason });
+  };
+
+  const toggleDashboardVisibility = async (id: string): Promise<void> => {
+    await toggleDashboardMutation.mutateAsync(id);
+  };
+
+  const bulkUpdateTier = async (ids: string[], tier: 'active' | 'reference'): Promise<void> => {
+    await bulkUpdateTierMutation.mutateAsync({ ids, tier });
+  };
+
   const value: UseCaseContextType = {
     useCases: Array.isArray(useCases) ? useCases : [],
+    dashboardUseCases: Array.isArray(dashboardUseCases) ? dashboardUseCases : [],
+    referenceUseCases: Array.isArray(referenceUseCases) ? referenceUseCases : [],
     metadata: metadata,
     activeTab,
     filters,
@@ -316,7 +442,11 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     getQuadrantCounts,
     getAverageImpact,
     getAverageEffort,
-    getNewThisMonthCount
+    getNewThisMonthCount,
+    activateUseCase,
+    deactivateUseCase,
+    toggleDashboardVisibility,
+    bulkUpdateTier
   };
 
   return (

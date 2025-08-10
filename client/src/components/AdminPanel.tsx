@@ -12,6 +12,7 @@ import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSim
 import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibraryLegoBlock';
 import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationLegoBlock';
 import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
+import LibraryManagementLegoBlock from './lego-blocks/LibraryManagementLegoBlock';
 
 export default function AdminPanel() {
   const { 
@@ -117,14 +118,18 @@ export default function AdminPanel() {
       <Card className="bg-white rounded-2xl shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-900">Admin Panel</CardTitle>
-          <CardDescription>Comprehensive admin interface with 4 specialized management areas using LEGO-style reusable blocks</CardDescription>
+          <CardDescription>Comprehensive admin interface with 5 specialized management areas using LEGO-style reusable blocks</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="data" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="data" className="flex items-center gap-2">
                 <Database className="h-4 w-4" />
                 Data Management
+              </TabsTrigger>
+              <TabsTrigger value="library" className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                Library Management
               </TabsTrigger>
               <TabsTrigger value="process" className="flex items-center gap-2">
                 <Workflow className="h-4 w-4" />
@@ -215,6 +220,22 @@ export default function AdminPanel() {
                     placeholder="Add new use case type..."
                   />
                 </div>
+              </div>
+            </TabsContent>
+
+            {/* Library Management Tab */}
+            <TabsContent value="library" className="space-y-6">
+              <div className="text-center py-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Two-Tier Library Management</h3>
+                <p className="text-sm text-gray-600">
+                  Manage active portfolio and reference library use cases with tier-based organization.
+                  Control dashboard visibility and organize use cases for strategic decision-making.
+                </p>
+              </div>
+              
+              {/* Library Management LEGO Block */}
+              <div className="space-y-6">
+                <LibraryManagementLegoBlock />
               </div>
             </TabsContent>
 

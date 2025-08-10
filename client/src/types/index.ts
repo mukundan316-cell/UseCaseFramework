@@ -32,6 +32,13 @@ export interface UseCase {
   recommendedByAssessment?: string | null;
   valueChainComponent?: string; // Compatibility alias for process
   createdAt?: Date;
+  // Two-tier library management fields
+  isActiveForRsa?: string;
+  isDashboardVisible?: string;
+  libraryTier?: string;
+  activationDate?: Date;
+  deactivationReason?: string;
+  librarySource?: string;
 }
 
 export type QuadrantType = "Quick Win" | "Strategic Bet" | "Experimental" | "Watchlist";
