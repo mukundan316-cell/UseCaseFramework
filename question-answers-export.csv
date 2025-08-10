@@ -1,8 +1,0 @@
-response_id,question_id,answer_value,answered_at
-60689603-0f36-494a-8d08-717b5b8a0fbe,q1-company-profile,"{""companyName"":""RSA Insurance"",""industry"":""Financial Services"",""employeeCount"":""10000+"",""revenue"":""$5B+"",""headquarters"":""London UK"",""businessModel"":""B2B""}",2025-08-10 04:31:15.282
-60689603-0f36-494a-8d08-717b5b8a0fbe,q2-business-lines,"{""personalLines"":40,""commercialLines"":35,""specialty"":15,""life"":10}",2025-08-10 04:31:15.329
-60689603-0f36-494a-8d08-717b5b8a0fbe,q19-underwriting-risk,"{""riskModels"":4,""dataQuality"":4,""automation"":3,""decision"":4}",2025-08-10 04:31:15.379
-60689603-0f36-494a-8d08-717b5b8a0fbe,q17-policy-admin-systems,"{""systemAge"":3,""integration"":4,""capabilities"":4,""performance"":3}",2025-08-10 04:31:15.425
-60689603-0f36-494a-8d08-717b5b8a0fbe,q18-claims-management,"{""automation"":3,""integration"":4,""analytics"":4,""workflow"":4}",2025-08-10 04:31:15.471
-5135d5cc-5dea-468a-a961-885f2c7dec25,q1-company-profile,"{""companyName"":""RSA Insurance Group"",""industry"":""Insurance"",""employeeCount"":""5000-10000"",""revenue"":""$1B-5B"",""headquarters"":""London"",""businessModel"":""B2B2C""}",2025-08-10 09:46:20.36153
-5135d5cc-5dea-468a-a961-885f2c7dec25,q2-business-lines,"{""personalLines"":45,""commercialLines"":40,""specialty"":10,""life"":5}",2025-08-10 09:46:20.414366

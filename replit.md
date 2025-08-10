@@ -1,7 +1,7 @@
-# RSA AI Use Case Value Framework - AI Strategy & Prioritization Platform
+# RSA AI Use Case Value Framework
 
 ## Overview
-This platform is a strategic AI use case prioritization tool for RSA Insurance. It enables the capture of AI use cases with associated business metadata, scores them using a proprietary 12-lever framework, and visualizes them within a dynamic prioritization matrix with comprehensive analytics. The system supports real-time scoring, robust CRUD operations for use cases and metadata, dynamic filtering, and executive-level reporting dashboards. The business vision is to provide a comprehensive, data-driven approach for organizations to strategically identify, assess, and prioritize AI initiatives, maximizing their impact and alignment with business objectives.
+Strategic AI use case prioritization platform for RSA Insurance featuring comprehensive assessment system, 12-lever scoring framework, and executive analytics dashboard. Enables organizations to strategically identify, assess, and prioritize AI initiatives for maximum business impact.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -23,39 +23,23 @@ Preferred communication style: Simple, everyday language.
 
 This design must be used consistently for all CRUD cards throughout the application to maintain visual unity.
 
-## System Architecture
+## Architecture
 
-### Core Architecture
-The system employs a full-stack architecture:
--   **Frontend**: React/TypeScript Single Page Application (SPA) utilizing modular components, TanStack Query for data fetching, shadcn/ui for UI components, and Wouter for routing.
--   **Backend**: Node.js/Express with TypeScript, managing a PostgreSQL database via Drizzle ORM, exposed through a RESTful API with Zod validation.
--   **Database**: PostgreSQL with a schema featuring use_cases, metadata_config, and users tables, complemented by automatic migrations and real-time persistence.
+### Stack
+- **Frontend**: React + TypeScript + shadcn/ui + TailwindCSS + Wouter routing
+- **Backend**: Node.js + Express + Drizzle ORM + Zod validation  
+- **Database**: PostgreSQL (11 tables, 113 records)
 
-### Design Principles & Features
--   **Modular LEGO-style Architecture**: Emphasizes reusable components to facilitate independent feature development and maintain architectural integrity, including comprehensive toggle functionality with consistent state synchronization.
--   **Manual Override System**: Complete manual score override functionality with toggle-based activation. Manual scores (Impact, Effort, Quadrant) take precedence over calculated scores. Real-time calculation engine displays current scoring weights while maintaining database persistence of both manual and calculated values.
--   **Metadata-Driven Design**: Captures and leverages extensive business metadata for use case categorization and analysis.
--   **AI Framework & Scoring Engine**: Implements RSA's 12-lever scoring system (Business Value, Feasibility, AI Governance) to calculate Impact and Effort scores in real-time. Automatic quadrant assignment is based on a 3.0 threshold.
--   **Assessment System**: Provides a complete workflow from email capture to results dashboard, featuring enhanced auto-save, session recovery, and integration. Includes a dynamic question registry and section progress tracking across 11 normalized tables with 14 advanced question types.
--   **Analytics & Reporting Dashboard**: Comprehensive reporting system with RSA AI Value Matrix and Analytics & Reports tabs. Features interactive charts including Impact vs Effort scatter plots, business segment distributions, quadrant summaries, and portfolio statistics using authentic database data only.
--   **Dashboard Consolidation**: Streamlined portfolio overview with interactive filtering, displaying four quadrant cards with authentic RSA branding.
--   **Database-First Persistence**: All data operations follow a clear Database → API → Frontend pattern, ensuring data integrity and real-time synchronization.
--   **Extensibility**: Designed to allow for future feature additions without regressing existing functionality.
--   **UI/UX Decisions**: Utilizes shadcn/ui and Tailwind CSS for a consistent and branded user experience. Components are highly configurable, and built-in state management handles loading, error, and empty states. Enhanced rating and ranking components provide intuitive user interaction with standardized LEGO CRUD card design. Implementation uses authentic RSA corporate branding with RSA AI Value Matrix terminology.
+### Key Features
+- **LEGO Architecture**: Reusable components with consistent CRUD card design
+- **Manual Override System**: Toggle-based score customization with database persistence
+- **RSA Scoring Framework**: 12-lever system (Business Value, Feasibility, AI Governance)
+- **Assessment System**: 6-section questionnaire with 14 advanced question types
+- **Analytics Dashboard**: RSA AI Value Matrix with interactive charts and authentic data
+- **Real-time Persistence**: Database → API → Frontend pattern with live synchronization
 
-## External Dependencies
-
--   **Database**: PostgreSQL (Neon for serverless deployment)
--   **Frontend Framework**: React
--   **UI Component Library**: shadcn/ui
--   **Styling Framework**: Tailwind CSS
--   **Data Fetching/State Management**: TanStack Query
--   **Form Management**: React Hook Form
--   **Schema Validation**: Zod
--   **Charting Library**: Recharts
--   **Routing**: Wouter
--   **Backend Framework**: Express (Node.js)
--   **ORM**: Drizzle ORM
--   **Module Bundler**: Vite
--   **Transpiler**: TypeScript
--   **JavaScript Bundler**: ESBuild
+## Dependencies
+- **Core**: React, TypeScript, Node.js, Express, PostgreSQL
+- **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter
+- **Data**: Drizzle ORM, TanStack Query, Zod, React Hook Form
+- **Build**: Vite, ESBuild
