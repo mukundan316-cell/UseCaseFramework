@@ -387,8 +387,8 @@ export default function UseCaseExplorerLegoBlock({
                 <CardContent className="p-4">
                   {/* Title and Description */}
                   <div className="mb-3">
-                    <h3 className="font-semibold text-red-600 text-base mb-1">
-                      [TESTING] {useCase.title}
+                    <h3 className="font-semibold text-gray-900 text-base mb-1">
+                      {useCase.title}
                     </h3>
                     <p className="text-sm text-gray-600 line-clamp-2">
                       {useCase.description}
@@ -396,16 +396,16 @@ export default function UseCaseExplorerLegoBlock({
                   </div>
 
                   {/* Business Context Tags */}
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    <span className="inline-flex items-center text-xs text-blue-800">
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <span className="inline-flex items-center text-xs text-blue-800" style={{ backgroundColor: 'transparent' }}>
                       <div className="w-2 h-2 bg-blue-600 rounded-full mr-1"></div>
                       {useCase.process}
                     </span>
-                    <span className="inline-flex items-center text-xs text-purple-800 ml-2">
+                    <span className="inline-flex items-center text-xs text-purple-800" style={{ backgroundColor: 'transparent' }}>
                       <div className="w-2 h-2 bg-purple-600 rounded-full mr-1"></div>
                       {useCase.lineOfBusiness}
                     </span>
-                    <span className="inline-flex items-center text-xs text-orange-800 ml-2">
+                    <span className="inline-flex items-center text-xs text-orange-800" style={{ backgroundColor: 'transparent' }}>
                       <div className="w-2 h-2 bg-orange-600 rounded-full mr-1"></div>
                       {useCase.useCaseType}
                     </span>
