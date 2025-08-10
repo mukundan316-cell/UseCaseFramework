@@ -66,87 +66,151 @@ export default function Explorer() {
     { label: 'Watchlist', value: 'Watchlist', active: filters.quadrant === 'Watchlist' },
   ];
 
+  const getQuadrantGradient = (quadrant: string) => {
+    switch (quadrant) {
+      case 'Quick Win':
+        return 'bg-gradient-to-br from-green-50 to-emerald-100';
+      case 'Strategic Bet':
+        return 'bg-gradient-to-br from-blue-50 to-indigo-100';
+      case 'Experimental':
+        return 'bg-gradient-to-br from-yellow-50 to-amber-100';
+      case 'Watchlist':
+        return 'bg-gradient-to-br from-red-50 to-rose-100';
+      default:
+        return 'bg-gradient-to-br from-gray-50 to-slate-100';
+    }
+  };
+
+  const getQuadrantBorder = (quadrant: string) => {
+    switch (quadrant) {
+      case 'Quick Win':
+        return 'border-l-4 border-l-green-500';
+      case 'Strategic Bet':
+        return 'border-l-4 border-l-blue-500';
+      case 'Experimental':
+        return 'border-l-4 border-l-yellow-500';
+      case 'Watchlist':
+        return 'border-l-4 border-l-red-500';
+      default:
+        return 'border-l-4 border-l-gray-400';
+    }
+  };
+
+  const getQuadrantIcon = (quadrant: string) => {
+    switch (quadrant) {
+      case 'Quick Win':
+        return '⚡';
+      case 'Strategic Bet':
+        return '🎯';
+      case 'Experimental':
+        return '🧪';
+      case 'Watchlist':
+        return '👁️';
+      default:
+        return '📊';
+    }
+  };
+
   const UseCaseCard = ({ useCase }: { useCase: UseCase }) => (
-    <Card className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+    <Card className={`${getQuadrantGradient(useCase.quadrant)} ${getQuadrantBorder(useCase.quadrant)} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-0`}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-gray-900 mb-2">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-lg">{getQuadrantIcon(useCase.quadrant)}</span>
+              <span 
+                className="text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm"
+                style={{ 
+                  backgroundColor: getQuadrantBackgroundColor(useCase.quadrant),
+                  color: getQuadrantColor(useCase.quadrant)
+                }}
+              >
+                {useCase.quadrant}
+              </span>
+            </div>
+            <CardTitle className="text-lg font-bold text-gray-900 mb-2 leading-tight">
               {useCase.title}
             </CardTitle>
-            <CardDescription className="text-sm text-gray-600">
+            <CardDescription className="text-sm text-gray-700 leading-relaxed">
               {useCase.description}
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2">
-            <span 
-              className="text-xs font-medium px-2 py-1 rounded-lg whitespace-nowrap"
-              style={{ 
-                backgroundColor: getQuadrantBackgroundColor(useCase.quadrant),
-                color: getQuadrantColor(useCase.quadrant)
-              }}
+          <div className="flex items-center gap-1 ml-4">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleEdit(useCase)}
+              className="h-8 w-8 p-0 hover:bg-white/50 rounded-full"
             >
-              {useCase.quadrant}
-            </span>
-            <div className="flex items-center gap-1">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleEdit(useCase)}
-                className="h-8 w-8 p-0"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleDelete(useCase)}
-                className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleDelete(useCase)}
+              className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        
+        <div className="space-y-3 bg-white/40 rounded-lg p-3 backdrop-blur-sm">
+          <div className="flex items-center space-x-3 text-sm">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-100">
+              <BarChart3 className="h-4 w-4 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-medium text-gray-800">{useCase.process}</div>
+              <div className="text-xs text-gray-600">{(useCase as any).activities?.join(', ') || useCase.activity}</div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3 text-sm">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-100">
+              <Tag className="h-4 w-4 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-medium text-gray-800">
+                {(useCase as any).linesOfBusiness?.length > 1 
+                  ? `${(useCase as any).linesOfBusiness.join(', ')} (Multi-LOB)` 
+                  : useCase.lineOfBusiness}
+              </div>
+              <div className="text-xs text-gray-600">{useCase.businessSegment} • {useCase.geography}</div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3 text-sm">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-orange-100">
+              <Package className="h-4 w-4 text-orange-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-medium text-gray-800">{useCase.useCaseType}</div>
             </div>
           </div>
         </div>
         
-        <div className="space-y-3">
-          <div className="flex items-center space-x-3 text-sm">
-            <BarChart3 className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-600">
-              {useCase.process} • {(useCase as any).activities?.join(', ') || useCase.activity}
-            </span>
-          </div>
-          <div className="flex items-center space-x-3 text-sm">
-            <Tag className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-600">
-              {(useCase as any).linesOfBusiness?.length > 1 
-                ? `${(useCase as any).linesOfBusiness.join(', ')} (Multi-LOB)` 
-                : useCase.lineOfBusiness} • {useCase.businessSegment} • {useCase.geography}
-            </span>
-          </div>
-          <div className="flex items-center space-x-3 text-sm">
-            <Package className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-600">{useCase.useCaseType}</span>
-          </div>
-        </div>
-        
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="flex justify-between text-sm">
-            <div className="text-center">
-              <div className="font-semibold text-green-600">
-                {useCase.impactScore.toFixed(1)}
+        <div className="mt-4 pt-4 border-t border-white/50">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100">
+                  <span className="font-bold text-green-700 text-sm">
+                    {useCase.impactScore.toFixed(1)}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-600 mt-1 font-medium">Impact</div>
               </div>
-              <div className="text-gray-500">Impact</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-orange-600">
-                {useCase.effortScore.toFixed(1)}
+              <div className="text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100">
+                  <span className="font-bold text-orange-700 text-sm">
+                    {useCase.effortScore.toFixed(1)}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-600 mt-1 font-medium">Effort</div>
               </div>
-              <div className="text-gray-500">Effort</div>
             </div>
             <button 
               onClick={() => handleEdit(useCase)}
-              className="text-rsa-blue hover:text-blue-700"
+              className="text-rsa-blue hover:text-blue-700 p-2 rounded-full hover:bg-white/50 transition-colors"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
