@@ -94,11 +94,11 @@ export function calculateGovernanceScore(
  * Y-axis = Business Value (Impact) - Higher is better
  * X-axis = Implementation Complexity (Effort) - Lower is better (left = easy, right = hard)
  * 
- * Quadrant Mapping:
- * - Quick Win: impact >= threshold && effort < threshold (Top Left - Green)
- * - Strategic Bet: impact >= threshold && effort >= threshold (Top Right - Blue)  
- * - Experimental: impact < threshold && effort < threshold (Bottom Left - Yellow)
- * - Watchlist: impact < threshold && effort >= threshold (Bottom Right - Red)
+ * Quadrant Mapping (RSA Framework):
+ * - Strategic Bet: impact >= threshold && effort < threshold (Top Left - High Value, Low Complexity)
+ * - Quick Win: impact >= threshold && effort >= threshold (Top Right - High Value, High Complexity)  
+ * - Watchlist: impact < threshold && effort < threshold (Bottom Left - Low Value, Low Complexity)
+ * - Experimental: impact < threshold && effort >= threshold (Bottom Right - Low Value, High Complexity)
  */
 export function calculateQuadrant(
   impactScore: number, 
@@ -106,12 +106,12 @@ export function calculateQuadrant(
   threshold: number = 3.0
 ): string {
   if (impactScore >= threshold && effortScore < threshold) {
-    return "Quick Win";
-  } else if (impactScore >= threshold && effortScore >= threshold) {
     return "Strategic Bet";
+  } else if (impactScore >= threshold && effortScore >= threshold) {
+    return "Quick Win";
   } else if (impactScore < threshold && effortScore < threshold) {
-    return "Experimental";
-  } else {
     return "Watchlist";
+  } else {
+    return "Experimental";
   }
 }

@@ -89,16 +89,16 @@ export default function MatrixPlot() {
         <div className="bg-white border-2 border-gray-800 relative mx-auto" style={{ width: '700px', height: '500px' }}>
           {/* Quadrant Labels - RSA Framework Style */}
           <div className="absolute top-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            QUICK WIN
-          </div>
-          <div className="absolute top-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
             STRATEGIC BET
           </div>
+          <div className="absolute top-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
+            QUICK WIN
+          </div>
           <div className="absolute bottom-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            EXPERIMENTAL
+            WATCHLIST
           </div>
           <div className="absolute bottom-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            WATCHLIST
+            EXPERIMENTAL
           </div>
 
           {/* Axis Labels */}
