@@ -220,74 +220,7 @@ export default function MatrixPlot() {
           )}
       </div>
 
-      {/* Quadrant Legend */}
-      <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Quadrant Guide</h3>
-        
-        {/* Complexity Scale */}
-        <div className="mb-6 text-center">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span className="font-medium">LOW Complexity/Effort</span>
-            <span className="mx-4">←→</span>
-            <span className="font-medium">HIGH Complexity/Effort</span>
-          </div>
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>(Easy to do)</span>
-            <span>(Hard to do)</span>
-          </div>
-        </div>
 
-        {/* Quadrant Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Quick Win (Top Left) */}
-          <QuadrantLegendItem
-            color="#22C55E"
-            title="QUICK WIN"
-            subtitle="Easy + Valuable"
-            description="High-value opportunities with lower complexity. Ideal for immediate implementation."
-            count={quadrantCounts['Quick Win'] || 0}
-          />
-          
-          {/* Strategic Bet (Top Right) */}
-          <QuadrantLegendItem
-            color="#3B82F6"
-            title="STRATEGIC BET"
-            subtitle="Hard + Valuable"
-            description="High impact initiatives requiring significant investment. Prime candidates for strategic focus."
-            count={quadrantCounts['Strategic Bet'] || 0}
-          />
-          
-          {/* Experimental (Bottom Left) */}
-          <QuadrantLegendItem
-            color="#EAB308"
-            title="EXPERIMENTAL"
-            subtitle="Easy + Low Value"
-            description="Low-complexity but limited value. Consider for innovation labs or R&D."
-            count={quadrantCounts['Experimental'] || 0}
-          />
-          
-          {/* Watchlist (Bottom Right) */}
-          <QuadrantLegendItem
-            color="#EF4444"
-            title="WATCHLIST/AVOID"
-            subtitle="Hard + Low Value"
-            description="High-complexity with uncertain returns. Monitor for future potential or avoid."
-            count={quadrantCounts['Watchlist'] || 0}
-          />
-        </div>
-
-        {/* Impact Scale */}
-        <div className="mt-6 text-center">
-          <div className="flex items-center justify-center text-sm text-gray-600 mb-1">
-            <span className="font-medium mr-2">HIGH Impact</span>
-            <span className="mx-2">↑</span>
-          </div>
-          <div className="flex items-center justify-center text-sm text-gray-600">
-            <span className="mx-2">↓</span>
-            <span className="font-medium ml-2">LOW Impact</span>
-          </div>
-        </div>
-      </div>
 
     </div>
   );
