@@ -381,8 +381,7 @@ export default function UseCaseExplorerLegoBlock({
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredUseCases.map((useCase) => (
-              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border border-gray-200 bg-white" 
-                    style={{ borderLeft: '4px solid #3b82f6' }}>
+              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border border-gray-200 bg-white border-l-4 border-l-blue-600">
 
                 <CardContent className="p-5">
                   {/* Title and Description */}
