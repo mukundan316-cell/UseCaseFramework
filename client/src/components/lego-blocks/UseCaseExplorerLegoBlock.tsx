@@ -203,7 +203,10 @@ export default function UseCaseExplorerLegoBlock({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            onClick={() => {
+              console.log('Toggle clicked, current state:', showAdvancedFilters);
+              setShowAdvancedFilters(!showAdvancedFilters);
+            }}
             className="flex items-center gap-2"
           >
             <Filter className="h-4 w-4" />
@@ -214,6 +217,7 @@ export default function UseCaseExplorerLegoBlock({
       </div>
 
       {/* Advanced Filters Panel - CRUD LEGO Style */}
+      {console.log('Render check - showAdvancedFilters:', showAdvancedFilters)}
       {showAdvancedFilters && (
         <Card className="border-2 border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
           <CardHeader>
