@@ -53,6 +53,14 @@ app.use((req, res, next) => {
   const { migrateProcessActivities } = await import('./migrations/updateProcessActivities');
   await migrateProcessActivities();
   
+  // Load consolidated use cases to reference library
+  try {
+    const { seedConsolidatedUseCases } = await import('./seeders/consolidated-use-cases');
+    await seedConsolidatedUseCases();
+  } catch (error) {
+    console.log('Consolidated use cases seeding skipped - already exists or error:', error instanceof Error ? error.message : 'Unknown error');
+  }
+  
   // Seed RSA Assessment if needed - DISABLED to preserve advanced question types
   /* 
   try {
