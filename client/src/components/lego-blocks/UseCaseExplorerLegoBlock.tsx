@@ -186,7 +186,7 @@ export default function UseCaseExplorerLegoBlock({
         {/* Filters */}
         <div className="flex flex-wrap gap-2 lg:flex-nowrap">
           <Select
-            value={filters.process}
+            value={filters.process || "all"}
             onValueChange={(value) => setFilters({ process: value === 'all' ? '' : value })}
           >
             <SelectTrigger className="w-[180px]">
@@ -203,7 +203,7 @@ export default function UseCaseExplorerLegoBlock({
           </Select>
 
           <Select
-            value={filters.lineOfBusiness}
+            value={filters.lineOfBusiness || "all"}
             onValueChange={(value) => setFilters({ lineOfBusiness: value === 'all' ? '' : value })}
           >
             <SelectTrigger className="w-[180px]">
@@ -220,7 +220,7 @@ export default function UseCaseExplorerLegoBlock({
           </Select>
 
           <Select
-            value={filters.useCaseType}
+            value={filters.useCaseType || "all"}
             onValueChange={(value) => setFilters({ useCaseType: value === 'all' ? '' : value })}
           >
             <SelectTrigger className="w-[180px]">
@@ -238,7 +238,7 @@ export default function UseCaseExplorerLegoBlock({
 
           {showQuadrantFilters && (
             <Select
-              value={filters.quadrant}
+              value={filters.quadrant || "all"}
               onValueChange={(value) => setFilters({ quadrant: value === 'all' ? '' : value })}
             >
               <SelectTrigger className="w-[180px]">
@@ -253,6 +253,11 @@ export default function UseCaseExplorerLegoBlock({
               </SelectContent>
             </Select>
           )}
+
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            Filters
+          </Button>
         </div>
       </div>
 
@@ -310,16 +315,15 @@ export default function UseCaseExplorerLegoBlock({
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredUseCases.map((useCase) => (
-            <Card key={useCase.id} className="group relative overflow-hidden transition-shadow hover:shadow-lg">
-              {/* Quadrant Indicator */}
+            <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg hover:scale-[1.02] border-l-4" 
+                  style={{ borderLeftColor: useCase.quadrant ? getQuadrantColor(useCase.quadrant) : '#e5e7eb' }}>
+              {/* Quadrant Badge */}
               {useCase.quadrant && (
-                <div className={`absolute right-0 top-0 h-0 w-0 border-l-[40px] border-t-[40px] border-l-transparent ${getQuadrantBackgroundColor(useCase.quadrant)}`}>
-                  <div className="absolute -top-8 -right-1 text-xs font-bold text-white transform rotate-45">
-                    {useCase.quadrant === 'Quick Win' && 'QW'}
-                    {useCase.quadrant === 'Strategic Bet' && 'SB'}
-                    {useCase.quadrant === 'Experimental' && 'EX'}
-                    {useCase.quadrant === 'Watchlist' && 'WL'}
-                  </div>
+                <div className={`absolute right-2 top-2 px-2 py-1 rounded text-xs font-bold text-white ${getQuadrantBackgroundColor(useCase.quadrant)}`}>
+                  {useCase.quadrant === 'Quick Win' && 'Quick Win'}
+                  {useCase.quadrant === 'Strategic Bet' && 'Strategic'}
+                  {useCase.quadrant === 'Experimental' && 'Experimental'}
+                  {useCase.quadrant === 'Watchlist' && 'Watchlist'}
                 </div>
               )}
 
@@ -339,19 +343,19 @@ export default function UseCaseExplorerLegoBlock({
 
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0 mr-3">
-                    <CardTitle className="text-lg leading-tight line-clamp-2">
+                  <div className="flex-1 min-w-0 mr-8">
+                    <CardTitle className="text-lg leading-tight line-clamp-2 mb-2">
                       {useCase.title}
                     </CardTitle>
-                    <CardDescription className="mt-2 line-clamp-3">
+                    <CardDescription className="line-clamp-3 text-sm">
                       {useCase.description}
                     </CardDescription>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-1 mt-3">
-                  <Badge variant="secondary" className="text-xs">
-                    <Tag className="h-3 w-3 mr-1" />
+                <div className="flex flex-wrap gap-1 mt-4">
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                    <Tag className="h-3 w-3" />
                     {useCase.process}
                   </Badge>
                   <Badge variant="outline" className="text-xs">
@@ -363,67 +367,69 @@ export default function UseCaseExplorerLegoBlock({
                 </div>
               </CardHeader>
 
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 space-y-4">
                 {/* Scores Display */}
-                {useCase.impactScore && useCase.effortScore && (
-                  <div className="flex justify-between mb-4">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-green-600">
+                {useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
+                  <div className="flex justify-between items-center">
+                    <div className="text-center bg-green-50 dark:bg-green-900/20 rounded-lg p-2 flex-1 mr-2">
+                      <div className="text-xl font-bold text-green-700 dark:text-green-400">
                         {useCase.impactScore.toFixed(1)}
                       </div>
-                      <div className="text-xs text-muted-foreground">Impact</div>
+                      <div className="text-xs text-green-600 dark:text-green-500 font-medium">Impact</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-600">
+                    <div className="text-center bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 flex-1 ml-2">
+                      <div className="text-xl font-bold text-blue-700 dark:text-blue-400">
                         {useCase.effortScore.toFixed(1)}
                       </div>
-                      <div className="text-xs text-muted-foreground">Effort</div>
+                      <div className="text-xs text-blue-600 dark:text-blue-500 font-medium">Effort</div>
                     </div>
                   </div>
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex justify-between items-center gap-2">
-                  <div className="flex gap-1">
+                <div className="flex justify-between items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(useCase)}
-                      className="h-8 w-8 p-0"
+                      className="h-8 px-3 text-xs"
                     >
-                      <Edit className="h-3 w-3" />
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
                     </Button>
                     {onDelete && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(useCase)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                        className="h-8 px-3 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Delete
                       </Button>
                     )}
                   </div>
 
                   {/* RSA Selection Buttons */}
                   {showRSASelection && (
-                    <div className="flex gap-1">
-                      {useCase.isActiveForRsa === 'false' ? (
+                    <div className="flex gap-2">
+                      {useCase.isActiveForRsa === 'false' || useCase.isActiveForRsa === false ? (
                         <Button
-                          variant="outline"
+                          variant="default"
                           size="sm"
                           onClick={() => handleActivate(useCase)}
-                          className="text-green-600 hover:text-green-700"
+                          className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700 text-white"
                         >
                           <Plus className="h-3 w-3 mr-1" />
-                          Add to RSA
+                          Move to RSA
                         </Button>
                       ) : (
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleDeactivate(useCase)}
-                          className="text-red-600 hover:text-red-700"
+                          className="h-8 px-3 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                         >
                           <Library className="h-3 w-3 mr-1" />
                           Move to Library
