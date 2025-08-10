@@ -165,44 +165,96 @@ export default function UseCaseExplorerLegoBlock({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-          <p className="text-muted-foreground">{description}</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Showing {filteredUseCases.length} use case{filteredUseCases.length !== 1 ? 's' : ''}
-          </p>
+    <div className="bg-white rounded-lg shadow-sm border">
+      {/* Header Section */}
+      <div className="p-6 border-b">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+            <p className="text-gray-600 mt-1">{description}</p>
+            <p className="text-sm text-gray-500 mt-2">
+              Showing {filteredUseCases.length} use case{filteredUseCases.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          
+          {/* Search and Actions */}
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                placeholder="Search use cases..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-72"
+              />
+            </div>
+            
+            {showCreateButton && (
+              <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Use Case
+              </Button>
+            )}
+            
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
+            </Button>
+          </div>
         </div>
-        {showCreateButton && (
-          <Button onClick={handleCreate} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add Use Case
-          </Button>
-        )}
       </div>
 
-      {/* Search and Filters - Original Design */}
-      <div className="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search use cases..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+      {/* Quadrant Tabs - Only show for Active Portfolio */}
+      {showQuadrantFilters && (
+        <div className="px-6 py-4 border-b bg-gray-50">
+          <div className="flex space-x-1">
+            <Button 
+              variant={!filters.quadrant ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ ...prev, quadrant: '' }))}
+              className={!filters.quadrant ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-200"}
+            >
+              All
+            </Button>
+            <Button 
+              variant={filters.quadrant === "Quick Win" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ ...prev, quadrant: 'Quick Win' }))}
+              className={filters.quadrant === "Quick Win" ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-200"}
+            >
+              Quick Win
+            </Button>
+            <Button 
+              variant={filters.quadrant === "Strategic Bet" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ ...prev, quadrant: 'Strategic Bet' }))}
+              className={filters.quadrant === "Strategic Bet" ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-200"}
+            >
+              Strategic Bet
+            </Button>
+            <Button 
+              variant={filters.quadrant === "Experimental" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ ...prev, quadrant: 'Experimental' }))}
+              className={filters.quadrant === "Experimental" ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-200"}
+            >
+              Experimental
+            </Button>
+            <Button 
+              variant={filters.quadrant === "Watchlist" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilters(prev => ({ ...prev, quadrant: 'Watchlist' }))}
+              className={filters.quadrant === "Watchlist" ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-200"}
+            >
+              Watchlist
+            </Button>
+          </div>
         </div>
+      )}
 
-        <Button variant="outline" size="sm" className="flex items-center gap-2">
-          <Filter className="h-4 w-4" />
-          Filters
-        </Button>
-      </div>
-
-      {/* Filter Dropdowns - Original Style */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* Filter Dropdowns */}
+      <div className="p-6 border-b">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* All Processes */}
         <Select
           value={filters.process || "all"}
@@ -293,213 +345,158 @@ export default function UseCaseExplorerLegoBlock({
           </SelectContent>
         </Select>
 
-        {/* Quadrants - Only show if enabled */}
-        {showQuadrantFilters && (
-          <Select
-            value={filters.quadrant || "all"}
-            onValueChange={(value) => setFilters(prev => ({ ...prev, quadrant: value === 'all' ? '' : value }))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All Quadrants" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Quadrants</SelectItem>
-              <SelectItem value="Quick Win">Quick Win</SelectItem>
-              <SelectItem value="Strategic Bet">Strategic Bet</SelectItem>
-              <SelectItem value="Experimental">Experimental</SelectItem>
-              <SelectItem value="Watchlist">Watchlist</SelectItem>
-            </SelectContent>
-          </Select>
+        </div>
+        
+        {/* Show Recommendations Only Toggle - For Reference Library */}
+        {!showQuadrantFilters && (
+          <div className="mt-4 flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="showRecommendationsOnly"
+              className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+            />
+            <label htmlFor="showRecommendationsOnly" className="text-sm text-gray-700 flex items-center">
+              <span className="text-yellow-500 mr-1">★</span>
+              Show Recommendations Only
+            </label>
+          </div>
         )}
       </div>
 
-      {/* Active Filters - Simple Badge Display */}
-      {(filters.process || filters.lineOfBusiness || filters.businessSegment || filters.geography || filters.useCaseType || filters.quadrant || searchTerm) && (
-        <div className="flex flex-wrap gap-2">
-          {searchTerm && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setSearchTerm('')}>
-              Search: "{searchTerm}" ×
-            </Badge>
-          )}
-          {filters.process && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters(prev => ({ ...prev, process: '' }))}>
-              Process: {filters.process} ×
-            </Badge>
-          )}
-          {filters.lineOfBusiness && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters(prev => ({ ...prev, lineOfBusiness: '' }))}>
-              LOB: {filters.lineOfBusiness} ×
-            </Badge>
-          )}
-          {filters.businessSegment && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters(prev => ({ ...prev, businessSegment: '' }))}>
-              Segment: {filters.businessSegment} ×
-            </Badge>
-          )}
-          {filters.geography && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters(prev => ({ ...prev, geography: '' }))}>
-              Geography: {filters.geography} ×
-            </Badge>
-          )}
-          {filters.useCaseType && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters(prev => ({ ...prev, useCaseType: '' }))}>
-              Type: {filters.useCaseType} ×
-            </Badge>
-          )}
-          {filters.quadrant && (
-            <Badge variant="secondary" className="cursor-pointer" onClick={() => setFilters(prev => ({ ...prev, quadrant: '' }))}>
-              Quadrant: {filters.quadrant} ×
-            </Badge>
-          )}
-        </div>
-      )}
-
-      {/* Use Cases Grid */}
-      {filteredUseCases.length === 0 ? (
-        <Card className="text-center py-12">
-          <CardContent>
+      {/* Content Area */}
+      <div className="p-6">
+        {/* Use Cases Grid */}
+        {filteredUseCases.length === 0 ? (
+          <div className="text-center py-16">
             <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No Use Cases Found</h3>
             <p className="text-gray-500 mb-4">{emptyStateMessage}</p>
             {showCreateButton && (
-              <Button onClick={handleCreate} className="mt-4">
+              <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Use Case
               </Button>
             )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredUseCases.map((useCase) => (
-            <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg hover:scale-[1.02] border-l-4" 
-                  style={{ borderLeftColor: useCase.quadrant ? getQuadrantColor(useCase.quadrant) : '#e5e7eb' }}>
-              {/* Quadrant Badge */}
-              {useCase.quadrant && (
-                <div className={`absolute right-2 top-2 px-2 py-1 rounded text-xs font-bold text-white ${getQuadrantBackgroundColor(useCase.quadrant)}`}>
-                  {useCase.quadrant === 'Quick Win' && 'Quick Win'}
-                  {useCase.quadrant === 'Strategic Bet' && 'Strategic'}
-                  {useCase.quadrant === 'Experimental' && 'Experimental'}
-                  {useCase.quadrant === 'Watchlist' && 'Watchlist'}
-                </div>
-              )}
-
-              {/* Multi-selection checkbox */}
-              {selectedUseCases.size > 0 && (
-                <button
-                  onClick={() => toggleSelection(useCase.id)}
-                  className="absolute left-2 top-2 z-10"
-                >
-                  {selectedUseCases.has(useCase.id) ? (
-                    <CheckCircle className="h-5 w-5 text-blue-600" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              )}
-
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0 mr-8">
-                    <CardTitle className="text-lg leading-tight line-clamp-2 mb-2">
-                      {useCase.title}
-                    </CardTitle>
-                    <CardDescription className="line-clamp-3 text-sm">
-                      {useCase.description}
-                    </CardDescription>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-1 mt-4">
-                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                    <Tag className="h-3 w-3" />
-                    {useCase.process}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {useCase.lineOfBusiness}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {useCase.useCaseType}
-                  </Badge>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-0 space-y-4">
-                {/* Scores Display */}
-                {useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
-                  <div className="flex justify-between items-center">
-                    <div className="text-center bg-green-50 dark:bg-green-900/20 rounded-lg p-2 flex-1 mr-2">
-                      <div className="text-xl font-bold text-green-700 dark:text-green-400">
-                        {useCase.impactScore.toFixed(1)}
-                      </div>
-                      <div className="text-xs text-green-600 dark:text-green-500 font-medium">Impact</div>
-                    </div>
-                    <div className="text-center bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 flex-1 ml-2">
-                      <div className="text-xl font-bold text-blue-700 dark:text-blue-400">
-                        {useCase.effortScore.toFixed(1)}
-                      </div>
-                      <div className="text-xs text-blue-600 dark:text-blue-500 font-medium">Effort</div>
-                    </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredUseCases.map((useCase) => (
+              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border" 
+                    style={{ borderLeftWidth: '4px', borderLeftColor: useCase.quadrant ? getQuadrantColor(useCase.quadrant) : '#e5e7eb' }}>
+                {/* Quadrant Badge */}
+                {useCase.quadrant && (
+                  <div className={`absolute right-3 top-3 px-2 py-1 rounded text-xs font-semibold text-white ${getQuadrantBackgroundColor(useCase.quadrant)}`}>
+                    {useCase.quadrant === 'Quick Win' && 'Quick Win'}
+                    {useCase.quadrant === 'Strategic Bet' && 'Strategic Bet'}
+                    {useCase.quadrant === 'Experimental' && 'Experimental'}
+                    {useCase.quadrant === 'Watchlist' && 'Watchlist'}
                   </div>
                 )}
 
-                {/* Action Buttons */}
-                <div className="flex justify-between items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(useCase)}
-                      className="h-8 px-3 text-xs"
-                    >
-                      <Edit className="h-3 w-3 mr-1" />
-                      Edit
-                    </Button>
-                    {onDelete && (
+                <CardHeader className="pb-4">
+                  <div className="pr-16">
+                    <CardTitle className="text-lg font-semibold leading-tight mb-2">
+                      {useCase.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-gray-600 line-clamp-2">
+                      {useCase.description}
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="pt-0 space-y-4">
+                  {/* Business Context Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    <div className="flex items-center text-xs text-gray-600">
+                      <div className="w-3 h-3 bg-blue-600 rounded mr-2"></div>
+                      {useCase.process}
+                    </div>
+                    <div className="flex items-center text-xs text-gray-600">
+                      <div className="w-3 h-3 bg-purple-600 rounded mr-2"></div>
+                      {useCase.lineOfBusiness}
+                    </div>
+                    <div className="flex items-center text-xs text-gray-600">
+                      <div className="w-3 h-3 bg-orange-600 rounded mr-2"></div>
+                      {useCase.useCaseType}
+                    </div>
+                  </div>
+
+                  {/* Scores Display */}
+                  {useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
+                    <div className="flex justify-between items-center">
+                      <div className="text-center bg-green-50 rounded-lg p-3 flex-1 mr-2">
+                        <div className="text-2xl font-bold text-green-700">
+                          {useCase.impactScore.toFixed(1)}
+                        </div>
+                        <div className="text-xs text-green-600 font-medium">Impact</div>
+                      </div>
+                      <div className="text-center bg-blue-50 rounded-lg p-3 flex-1 ml-2">
+                        <div className="text-2xl font-bold text-blue-700">
+                          {useCase.effortScore.toFixed(1)}
+                        </div>
+                        <div className="text-xs text-blue-600 font-medium">Effort</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-between items-center gap-2 pt-2 border-t">
+                    <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDelete(useCase)}
-                        className="h-8 px-3 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleEdit(useCase)}
+                        className="h-8 px-3 text-xs"
                       >
-                        <Trash2 className="h-3 w-3 mr-1" />
-                        Delete
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
                       </Button>
-                    )}
-                  </div>
-
-                  {/* RSA Selection Buttons */}
-                  {showRSASelection && (
-                    <div className="flex gap-2">
-                      {(useCase.isActiveForRsa === 'false' || useCase.isActiveForRsa === false || !useCase.isActiveForRsa) ? (
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => handleActivate(useCase)}
-                          className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Move to RSA
-                        </Button>
-                      ) : (
+                      {onDelete && (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDeactivate(useCase)}
-                          className="h-8 px-3 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                          onClick={() => handleDelete(useCase)}
+                          className="h-8 px-3 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
-                          <Library className="h-3 w-3 mr-1" />
-                          Move to Library
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Delete
                         </Button>
                       )}
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+
+                    {/* RSA Selection Buttons */}
+                    {showRSASelection && (
+                      <div className="flex gap-2">
+                        {(useCase.isActiveForRsa === 'false' || useCase.isActiveForRsa === false || !useCase.isActiveForRsa) ? (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleActivate(useCase)}
+                            className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            <Plus className="h-3 w-3 mr-1" />
+                            Move to RSA
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeactivate(useCase)}
+                            className="h-8 px-3 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                          >
+                            <Library className="h-3 w-3 mr-1" />
+                            Move to Library
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* CRUD Modal */}
       <CRUDUseCaseModal
