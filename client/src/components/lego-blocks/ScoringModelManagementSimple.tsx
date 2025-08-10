@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Calculator, RotateCcw, Save } from 'lucide-react';
+import { Calculator, RotateCcw, Save, RefreshCw } from 'lucide-react';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -116,6 +116,30 @@ export default function ScoringModelManagementBlock() {
     });
   };
 
+  const recalculateScores = async () => {
+    try {
+      const response = await fetch('/api/recalculate-scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Scores Recalculated",
+          description: "All use case scores have been recalculated using current weights.",
+        });
+      } else {
+        throw new Error('Recalculation failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Recalculation Failed",
+        description: "Failed to recalculate use case scores.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const businessTotal = revenueWeight + costWeight + riskWeight + experienceWeight + strategicWeight;
   const feasibilityTotal = dataWeight + technicalWeight + changeWeight + modelWeight + adoptionWeight;
   const governanceTotal = explainabilityWeight + complianceWeight;
@@ -138,6 +162,10 @@ export default function ScoringModelManagementBlock() {
             <Button onClick={saveModel} className="flex items-center gap-2">
               <Save className="h-4 w-4" />
               Save Configuration
+            </Button>
+            <Button onClick={recalculateScores} variant="outline" className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Recalculate Scores
             </Button>
             <Button onClick={resetToDefaults} variant="outline" className="flex items-center gap-2">
               <RotateCcw className="h-4 w-4" />
