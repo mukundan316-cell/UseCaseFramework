@@ -282,7 +282,7 @@ export const MultiRatingLegoBlock: React.FC<MultiRatingLegoBlockProps> = ({
       {/* Additional Context Section */}
       {allowContext && (
         <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <Label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+          <Label className="flex items-center space-x-2 text-base font-semibold text-gray-900">
             <AlertCircle className="h-4 w-4" />
             <span>Additional Context</span>
           </Label>

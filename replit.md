@@ -9,6 +9,8 @@ Preferred communication style: Simple, everyday language.
 **LEGO-Style Architecture Mandate**: All buttons, modals, components and features must be implemented as reusable LEGO blocks where possible. Follow the "Build Once, Reuse Everywhere" principle to maintain consistency and reduce development overhead. Every new UI element should be evaluated for reusability potential before implementation.
 
 **LEGO CRUD Card Design Standard**: All use case cards across the entire application must follow this exact design specification:
+
+**LEGO Field Label Prominence Standard**: All field labels in questionnaire LEGO blocks must use `text-base font-semibold text-gray-900` styling for maximum visibility and consistent user experience across all question types.
 - **Card Structure**: Clean white cards with 4px blue left border (#3b82f6), subtle gray border, hover shadow
 - **Content Padding**: p-5 for comfortable spacing
 - **Title**: text-lg font-semibold text-gray-900 with mb-2 spacing

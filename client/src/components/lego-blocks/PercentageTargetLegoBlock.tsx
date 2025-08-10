@@ -225,7 +225,7 @@ export default function PercentageTargetLegoBlock({
               <CardContent className="p-4">
                 <div className="flex items-center justify-between space-x-4">
                   <div className="flex-1 min-w-0">
-                    <Label className="text-sm font-medium text-gray-900">
+                    <Label className="text-base font-semibold text-gray-900">
                       {category.label}
                     </Label>
                     {category.description && (

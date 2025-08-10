@@ -319,7 +319,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex-1">
-                  <Label className="text-base font-medium text-gray-900">
+                  <Label className="text-base font-semibold text-gray-900">
                     {category.label}
                   </Label>
                   {category.description && (

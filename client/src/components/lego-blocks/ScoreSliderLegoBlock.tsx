@@ -59,7 +59,7 @@ export const ScoreSliderLegoBlock: React.FC<ScoreSliderLegoBlockProps> = ({
   return (
     <div className={className}>
       <div className="flex items-center justify-between mb-3">
-        <Label className="text-sm font-medium text-gray-700">{label}</Label>
+        <Label className="text-base font-semibold text-gray-900">{label}</Label>
         <div className="flex items-center space-x-2">
           {showTooltip && tooltip && (
             <TooltipProvider>

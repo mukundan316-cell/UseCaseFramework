@@ -79,7 +79,7 @@ export default function CompositeQuestionLegoBlock({
       case 'number':
         return (
           <div key={field.id} className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label className="text-base font-semibold text-gray-900">
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
@@ -97,7 +97,7 @@ export default function CompositeQuestionLegoBlock({
       case 'textarea':
         return (
           <div key={field.id} className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label className="text-base font-semibold text-gray-900">
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
@@ -114,7 +114,7 @@ export default function CompositeQuestionLegoBlock({
       case 'select':
         return (
           <div key={field.id} className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label className="text-base font-semibold text-gray-900">
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>

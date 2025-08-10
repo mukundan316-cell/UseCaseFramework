@@ -221,7 +221,7 @@ export const RiskAppetiteLegoBlock: React.FC<RiskAppetiteLegoBlockProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {SPECIFIC_AREAS.map((area) => (
                 <div key={area.key} className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
+                  <Label className="text-base font-semibold text-gray-900">
                     {area.label}
                   </Label>
                   <Input
@@ -247,7 +247,7 @@ export const RiskAppetiteLegoBlock: React.FC<RiskAppetiteLegoBlockProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">
+              <Label className="text-base font-semibold text-gray-900">
                 What are your absolute boundaries or red lines for AI implementation?
               </Label>
               <Textarea
@@ -271,7 +271,7 @@ export const RiskAppetiteLegoBlock: React.FC<RiskAppetiteLegoBlockProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">
+              <Label className="text-base font-semibold text-gray-900">
                 Additional risk considerations or strategic context
               </Label>
               <Textarea
