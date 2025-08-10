@@ -381,13 +381,13 @@ export default function UseCaseExplorerLegoBlock({
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredUseCases.map((useCase) => (
-              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border-l-4" 
-                    style={{ borderLeftColor: '#3b82f6' }}>
+              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border border-gray-200 bg-white" 
+                    style={{ borderLeft: '4px solid #3b82f6' }}>
 
-                <CardContent className="p-6">
+                <CardContent className="p-4">
                   {/* Title and Description */}
-                  <div className="mb-4">
-                    <h3 className="font-semibold text-gray-900 text-lg mb-2">
+                  <div className="mb-3">
+                    <h3 className="font-semibold text-gray-900 text-base mb-1">
                       {useCase.title}
                     </h3>
                     <p className="text-sm text-gray-600 line-clamp-2">
@@ -396,16 +396,16 @@ export default function UseCaseExplorerLegoBlock({
                   </div>
 
                   {/* Business Context Tags */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    <span className="inline-flex items-center text-xs text-blue-800">
                       <div className="w-2 h-2 bg-blue-600 rounded-full mr-1"></div>
                       {useCase.process}
                     </span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <span className="inline-flex items-center text-xs text-purple-800 ml-2">
                       <div className="w-2 h-2 bg-purple-600 rounded-full mr-1"></div>
                       {useCase.lineOfBusiness}
                     </span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    <span className="inline-flex items-center text-xs text-orange-800 ml-2">
                       <div className="w-2 h-2 bg-orange-600 rounded-full mr-1"></div>
                       {useCase.useCaseType}
                     </span>
@@ -413,40 +413,40 @@ export default function UseCaseExplorerLegoBlock({
 
                   {/* Scores Display - Only for RSA Active Portfolio */}
                   {showQuadrantFilters && useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center bg-green-50 rounded-lg p-4">
-                        <div className="text-2xl font-bold text-green-700 mb-1">
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="text-center bg-green-50 rounded-lg p-3">
+                        <div className="text-2xl font-bold text-green-700">
                           {useCase.impactScore.toFixed(1)}
                         </div>
-                        <div className="text-sm text-green-600">Impact</div>
+                        <div className="text-xs text-green-600">Impact</div>
                       </div>
-                      <div className="text-center bg-blue-50 rounded-lg p-4">
-                        <div className="text-2xl font-bold text-blue-700 mb-1">
+                      <div className="text-center bg-blue-50 rounded-lg p-3">
+                        <div className="text-2xl font-bold text-blue-700">
                           {useCase.effortScore.toFixed(1)}
                         </div>
-                        <div className="text-sm text-blue-600">Effort</div>
+                        <div className="text-xs text-blue-600">Effort</div>
                       </div>
                     </div>
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex justify-between items-center gap-2 pt-4 border-t border-gray-100">
-                    <div className="flex gap-2">
+                  <div className="flex justify-between items-center gap-2 pt-3 border-t border-gray-100">
+                    <div className="flex gap-1">
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleEdit(useCase)}
-                        className="h-8 px-3 text-xs hover:bg-gray-100"
+                        className="h-7 px-2 text-xs border-none text-gray-600 hover:bg-gray-100"
                       >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
                       </Button>
                       {onDelete && (
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => handleDelete(useCase)}
-                          className="h-8 px-3 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-7 px-2 text-xs border-none text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="h-3 w-3 mr-1" />
                           Delete
@@ -456,23 +456,23 @@ export default function UseCaseExplorerLegoBlock({
 
                     {/* RSA Selection Buttons */}
                     {showRSASelection && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-1">
                         {(useCase.isActiveForRsa === 'false' || useCase.isActiveForRsa === false || !useCase.isActiveForRsa) ? (
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={() => handleActivate(useCase)}
-                            className="h-8 px-3 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                            className="h-7 px-2 text-xs border-none text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                           >
                             <BarChart3 className="h-3 w-3 mr-1" />
-                            Move to RSA
+                            Move to Library
                           </Button>
                         ) : (
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={() => handleDeactivate(useCase)}
-                            className="h-8 px-3 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                            className="h-7 px-2 text-xs border-none text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                           >
                             <Library className="h-3 w-3 mr-1" />
                             Move to Library
