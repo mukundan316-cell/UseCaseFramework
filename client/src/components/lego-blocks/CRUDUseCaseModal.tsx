@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Form } from '@/components/ui/form';
 import { Plus, Edit, AlertCircle } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
@@ -457,7 +458,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
@@ -781,6 +783,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
             </Button>
           </DialogFooter>
         </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
