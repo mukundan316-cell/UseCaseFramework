@@ -263,7 +263,7 @@ export default function PercentageTargetLegoBlock({
       {/* Additional Context Section */}
       {onAdditionalContextChange && (
         <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <Label className="text-sm font-medium text-blue-900">
+          <Label className="text-base font-semibold text-gray-900">
             {additionalContextLabel}
           </Label>
           <Textarea

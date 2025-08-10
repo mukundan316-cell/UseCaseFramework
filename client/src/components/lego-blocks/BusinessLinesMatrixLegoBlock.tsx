@@ -389,7 +389,7 @@ export default function BusinessLinesMatrixLegoBlock({
 
       {/* Additional Context Section */}
       <div className="mt-6 space-y-3">
-        <Label className="text-base font-medium text-gray-800">
+        <Label className="text-base font-semibold text-gray-900">
           {additionalContextLabel}
         </Label>
         <Textarea

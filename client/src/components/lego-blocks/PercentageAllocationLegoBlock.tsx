@@ -429,7 +429,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
         <div className="mt-6 space-y-4">
           {additionalFields.map((field) => (
             <div key={field.id} className="space-y-2">
-              <Label className="text-sm font-medium text-gray-900">
+              <Label className="text-base font-semibold text-gray-900">
                 {field.label}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </Label>
@@ -523,7 +523,7 @@ export const PercentageAllocationLegoBlock: React.FC<PercentageAllocationLegoBlo
 
       {/* Additional Context Section */}
       <div className="mt-6 space-y-3">
-        <Label className="text-base font-medium text-gray-800">
+        <Label className="text-base font-semibold text-gray-900">
           {additionalContextLabel}
         </Label>
         <Textarea
