@@ -6,6 +6,57 @@ import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@
 import { mapUseCaseToFrontend } from "@shared/mappers";
 import recommendationRoutes from "./routes/recommendations";
 
+// Helper function to recalculate all use case scores with new weights
+async function recalculateAllUseCaseScores(scoringModel: any) {
+  const useCases = await storage.getAllUseCases();
+  
+  const businessValueWeights = scoringModel.businessValue || {
+    revenueImpact: 20,
+    costSavings: 20,
+    riskReduction: 20,
+    brokerPartnerExperience: 20,
+    strategicFit: 20
+  };
+  
+  const feasibilityWeights = scoringModel.feasibility || {
+    dataReadiness: 20,
+    technicalComplexity: 20,
+    changeImpact: 20,
+    modelRisk: 20,
+    adoptionReadiness: 20
+  };
+  
+  const threshold = scoringModel.quadrantThreshold || 3.0;
+  
+  for (const useCase of useCases) {
+    const impactScore = calculateImpactScore(
+      useCase.revenueImpact,
+      useCase.costSavings,
+      useCase.riskReduction,
+      useCase.brokerPartnerExperience,
+      useCase.strategicFit,
+      businessValueWeights
+    );
+    
+    const effortScore = calculateEffortScore(
+      useCase.dataReadiness,
+      useCase.technicalComplexity,
+      useCase.changeImpact,
+      useCase.modelRisk,
+      useCase.adoptionReadiness,
+      feasibilityWeights
+    );
+    
+    const quadrant = calculateQuadrant(impactScore, effortScore, threshold);
+    
+    await storage.updateUseCase(useCase.id, {
+      impactScore,
+      effortScore,
+      quadrant
+    });
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Use Case routes
   app.get("/api/use-cases", async (req, res) => {
@@ -23,13 +74,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertUseCaseSchema.parse(req.body);
       
-      // Calculate scores
+      // Get current metadata for weights
+      const metadata = await storage.getMetadataConfig();
+      const businessValueWeights = metadata?.scoringModel?.businessValue || {
+        revenueImpact: 20,
+        costSavings: 20,
+        riskReduction: 20,
+        brokerPartnerExperience: 20,
+        strategicFit: 20
+      };
+      const feasibilityWeights = metadata?.scoringModel?.feasibility || {
+        dataReadiness: 20,
+        technicalComplexity: 20,
+        changeImpact: 20,
+        modelRisk: 20,
+        adoptionReadiness: 20
+      };
+      const threshold = metadata?.scoringModel?.quadrantThreshold || 3.0;
+      
+      // Calculate scores with weights
       const impactScore = calculateImpactScore(
         validatedData.revenueImpact,
         validatedData.costSavings,
         validatedData.riskReduction,
         validatedData.brokerPartnerExperience,
-        validatedData.strategicFit
+        validatedData.strategicFit,
+        businessValueWeights
       );
       
       const effortScore = calculateEffortScore(
@@ -37,10 +107,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.technicalComplexity,
         validatedData.changeImpact,
         validatedData.modelRisk,
-        validatedData.adoptionReadiness
+        validatedData.adoptionReadiness,
+        feasibilityWeights
       );
       
-      const quadrant = calculateQuadrant(impactScore, effortScore);
+      const quadrant = calculateQuadrant(impactScore, effortScore, threshold);
       
       const useCaseWithScores = {
         ...validatedData,
@@ -189,6 +260,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const metadata = req.body;
       const updated = await storage.updateMetadataConfig(metadata);
+      
+      // If scoring model weights changed, recalculate all use case scores
+      if (metadata.scoringModel) {
+        try {
+          await recalculateAllUseCaseScores(metadata.scoringModel);
+          console.log('✅ Recalculated all use case scores after weight update');
+        } catch (recalcError) {
+          console.error('⚠️ Error recalculating scores after weight update:', recalcError);
+          // Continue - don't fail the metadata update if recalculation fails
+        }
+      }
+      
       res.json(updated);
     } catch (error) {
       console.error("Error saving metadata:", error);

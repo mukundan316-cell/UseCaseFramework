@@ -1,6 +1,6 @@
 /**
- * Calculates impact score using comprehensive RSA framework
- * Implements weighted scoring: (Revenue + Cost Savings + Risk + Broker Experience + Strategic Fit) × 20%
+ * Calculates impact score using comprehensive RSA framework with weighted scoring
+ * Applies configurable weights from database configuration
  * Per RSA AI Framework specification
  */
 export function calculateImpactScore(
@@ -8,14 +8,39 @@ export function calculateImpactScore(
   costSavings: number,
   riskReduction: number,
   brokerPartnerExperience: number,
-  strategicFit: number
+  strategicFit: number,
+  weights?: {
+    revenueImpact: number;
+    costSavings: number;
+    riskReduction: number;
+    brokerPartnerExperience: number;
+    strategicFit: number;
+  }
 ): number {
-  return (revenueImpact + costSavings + riskReduction + brokerPartnerExperience + strategicFit) * 0.2;
+  // Use provided weights or default to equal weighting (20% each)
+  const w = weights || {
+    revenueImpact: 20,
+    costSavings: 20,
+    riskReduction: 20,
+    brokerPartnerExperience: 20,
+    strategicFit: 20
+  };
+  
+  // Apply weighted calculation: (lever × weight) / 100, then sum
+  const weightedScore = (
+    (revenueImpact * w.revenueImpact / 100) +
+    (costSavings * w.costSavings / 100) +
+    (riskReduction * w.riskReduction / 100) +
+    (brokerPartnerExperience * w.brokerPartnerExperience / 100) +
+    (strategicFit * w.strategicFit / 100)
+  );
+  
+  return weightedScore;
 }
 
 /**
- * Calculates effort score using comprehensive RSA framework
- * Implements weighted scoring: (Data + Technical + Change + Model Risk + Adoption) × 20%
+ * Calculates effort score using comprehensive RSA framework with weighted scoring
+ * Applies configurable weights from database configuration
  * Per RSA AI Framework specification
  */
 export function calculateEffortScore(
@@ -23,9 +48,34 @@ export function calculateEffortScore(
   technicalComplexity: number,
   changeImpact: number,
   modelRisk: number,
-  adoptionReadiness: number
+  adoptionReadiness: number,
+  weights?: {
+    dataReadiness: number;
+    technicalComplexity: number;
+    changeImpact: number;
+    modelRisk: number;
+    adoptionReadiness: number;
+  }
 ): number {
-  return (dataReadiness + technicalComplexity + changeImpact + modelRisk + adoptionReadiness) * 0.2;
+  // Use provided weights or default to equal weighting (20% each)
+  const w = weights || {
+    dataReadiness: 20,
+    technicalComplexity: 20,
+    changeImpact: 20,
+    modelRisk: 20,
+    adoptionReadiness: 20
+  };
+  
+  // Apply weighted calculation: (lever × weight) / 100, then sum
+  const weightedScore = (
+    (dataReadiness * w.dataReadiness / 100) +
+    (technicalComplexity * w.technicalComplexity / 100) +
+    (changeImpact * w.changeImpact / 100) +
+    (modelRisk * w.modelRisk / 100) +
+    (adoptionReadiness * w.adoptionReadiness / 100)
+  );
+  
+  return weightedScore;
 }
 
 /**
@@ -40,19 +90,26 @@ export function calculateGovernanceScore(
 }
 
 /**
- * Determines quadrant based on impact and effort scores
- * Updated to match visual matrix with 3.0 threshold:
- * - Quick Win: impact >= 3 && effort < 3 (Top Left - Green)
- * - Strategic Bet: impact >= 3 && effort >= 3 (Top Right - Blue)  
- * - Experimental: impact < 3 && effort < 3 (Bottom Left - Yellow)
- * - Watchlist: impact < 3 && effort >= 3 (Bottom Right - Red)
+ * Determines quadrant based on impact and effort scores with configurable threshold
+ * Y-axis = Business Value (Impact) - Higher is better
+ * X-axis = Implementation Complexity (Effort) - Lower is better (left = easy, right = hard)
+ * 
+ * Quadrant Mapping:
+ * - Quick Win: impact >= threshold && effort < threshold (Top Left - Green)
+ * - Strategic Bet: impact >= threshold && effort >= threshold (Top Right - Blue)  
+ * - Experimental: impact < threshold && effort < threshold (Bottom Left - Yellow)
+ * - Watchlist: impact < threshold && effort >= threshold (Bottom Right - Red)
  */
-export function calculateQuadrant(impactScore: number, effortScore: number): string {
-  if (impactScore >= 3.0 && effortScore < 3.0) {
+export function calculateQuadrant(
+  impactScore: number, 
+  effortScore: number, 
+  threshold: number = 3.0
+): string {
+  if (impactScore >= threshold && effortScore < threshold) {
     return "Quick Win";
-  } else if (impactScore >= 3.0 && effortScore >= 3.0) {
+  } else if (impactScore >= threshold && effortScore >= threshold) {
     return "Strategic Bet";
-  } else if (impactScore < 3.0 && effortScore < 3.0) {
+  } else if (impactScore < threshold && effortScore < threshold) {
     return "Experimental";
   } else {
     return "Watchlist";

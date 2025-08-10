@@ -123,12 +123,32 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
   // Get current values from form for real-time calculations
   const formValues = form.watch();
   
+  // Extract weights from metadata or use defaults for real-time calculations
+  const businessValueWeights = metadata?.scoringModel?.businessValue || {
+    revenueImpact: 20,
+    costSavings: 20,
+    riskReduction: 20,
+    brokerPartnerExperience: 20,
+    strategicFit: 20
+  };
+  
+  const feasibilityWeights = metadata?.scoringModel?.feasibility || {
+    dataReadiness: 20,
+    technicalComplexity: 20,
+    changeImpact: 20,
+    modelRisk: 20,
+    adoptionReadiness: 20
+  };
+  
+  const threshold = metadata?.scoringModel?.quadrantThreshold || 3.0;
+  
   const currentImpactScore = calculateImpactScore(
     formValues.revenueImpact ?? scores.revenueImpact,
     formValues.costSavings ?? scores.costSavings,
     formValues.riskReduction ?? scores.riskReduction,
     formValues.brokerPartnerExperience ?? scores.brokerPartnerExperience,
-    formValues.strategicFit ?? scores.strategicFit
+    formValues.strategicFit ?? scores.strategicFit,
+    businessValueWeights
   );
 
   const currentEffortScore = calculateEffortScore(
@@ -136,10 +156,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     formValues.technicalComplexity ?? scores.technicalComplexity,
     formValues.changeImpact ?? scores.changeImpact,
     formValues.modelRisk ?? scores.modelRisk,
-    formValues.adoptionReadiness ?? scores.adoptionReadiness
+    formValues.adoptionReadiness ?? scores.adoptionReadiness,
+    feasibilityWeights
   );
 
-  const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore);
+  const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore, threshold);
 
   // SliderField component for scoring interface - now using LEGO component
   const SliderField = ({ 
