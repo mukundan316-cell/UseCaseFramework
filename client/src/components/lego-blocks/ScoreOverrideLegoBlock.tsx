@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,13 +15,15 @@ interface ScoreOverrideLegoBlockProps {
   calculatedImpact?: number;
   calculatedEffort?: number;
   calculatedQuadrant?: string;
+  onToggleChange?: (enabled: boolean) => void;
 }
 
 export default function ScoreOverrideLegoBlock({
   form,
   calculatedImpact,
   calculatedEffort,
-  calculatedQuadrant
+  calculatedQuadrant,
+  onToggleChange
 }: ScoreOverrideLegoBlockProps) {
   const manualImpact = form.watch('manualImpactScore');
   const manualEffort = form.watch('manualEffortScore');
@@ -30,6 +32,12 @@ export default function ScoreOverrideLegoBlock({
   // Check if manual overrides are already active (for edit mode)
   const hasExistingOverrides = manualImpact || manualEffort || manualQuadrant;
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(hasExistingOverrides);
+  
+  // Sync toggle state when manual override values change externally
+  useEffect(() => {
+    const hasOverrides = !!(manualImpact || manualEffort || manualQuadrant);
+    setIsOverrideEnabled(hasOverrides);
+  }, [manualImpact, manualEffort, manualQuadrant]);
   
   const handleToggleOverride = (enabled: boolean) => {
     setIsOverrideEnabled(enabled);
@@ -41,6 +49,9 @@ export default function ScoreOverrideLegoBlock({
       form.setValue('manualQuadrant', undefined);
       form.setValue('overrideReason', '');
     }
+    
+    // Notify parent component of toggle state change
+    onToggleChange?.(enabled);
   };
 
   return (

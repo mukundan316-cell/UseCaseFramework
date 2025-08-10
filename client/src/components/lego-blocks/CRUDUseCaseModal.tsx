@@ -106,6 +106,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     regulatoryCompliance: 3,
   });
 
+  // Manual override toggle state
+  const [isOverrideEnabled, setIsOverrideEnabled] = useState(false);
+
   // Tooltip definitions
   const sliderTooltips = {
     revenueImpact: "Potential for new revenue, premium growth, or market expansion",
@@ -258,6 +261,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       const rsaActive = (useCase as any).isActiveForRsa === 'true' || (useCase as any).isActiveForRsa === true;
       const dashboardVisible = (useCase as any).isDashboardVisible === 'true' || (useCase as any).isDashboardVisible === true;
       
+      // Initialize override toggle state based on existing manual overrides
+      const hasManualOverrides = !!(
+        (useCase as any).manualImpactScore || 
+        (useCase as any).manualEffortScore || 
+        (useCase as any).manualQuadrant
+      );
+      setIsOverrideEnabled(hasManualOverrides);
+      
       setRsaSelection({
         isActiveForRsa: rsaActive,
         isDashboardVisible: dashboardVisible,
@@ -325,6 +336,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       form.reset(formData);
     } else {
       // Reset for create mode with default scores and RSA selection
+      setIsOverrideEnabled(false);
       setRsaSelection({
         isActiveForRsa: false,
         isDashboardVisible: false,
@@ -759,6 +771,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               calculatedImpact={currentImpactScore}
               calculatedEffort={currentEffortScore}
               calculatedQuadrant={currentQuadrant}
+              onToggleChange={setIsOverrideEnabled}
             />
             </div>
           ) : (
