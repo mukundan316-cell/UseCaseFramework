@@ -3,12 +3,12 @@ import rsaLogoImage from "@assets/image_1754800977193.png";
 
 const RSALogo = () => (
   <div className="flex items-center">
-    {/* Authentic RSA Logo - Direct Image - Balanced Sizing */}
+    {/* Authentic RSA Logo - Direct Image - Prominent Sizing */}
     <img 
       src={rsaLogoImage} 
       alt="RSA - an [intact] company" 
-      className="h-10 w-auto object-contain"
-      style={{ maxHeight: '40px', maxWidth: '200px' }}
+      className="h-16 w-auto object-contain"
+      style={{ maxHeight: '64px', maxWidth: '300px' }}
     />
   </div>
 );
@@ -25,7 +25,7 @@ export default function RSAHeader({
   return (
     <header className="rsa-header sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24">
           {/* RSA Logo and Branding */}
           <div className="flex items-center space-x-6">
             <RSALogo />
