@@ -335,22 +335,22 @@ export default function SectionLegoBlock({
       subsections.push({
         id: "1.1-executive-vision",
         title: "1.1 Executive Vision & Strategic Alignment",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 1 && q.questionOrder <= 5)
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 1 && q.questionOrder <= 7)
       });
       subsections.push({
         id: "1.2-business-context",
         title: "1.2 Business Context & Market Position", 
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 6 && q.questionOrder <= 10)
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 8 && q.questionOrder <= 14)
       });
       subsections.push({
         id: "1.3-operational-readiness",
         title: "1.3 Operational Readiness & Change Management",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 11 && q.questionOrder <= 16)
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 15 && q.questionOrder <= 17)
       });
       subsections.push({
         id: "1.4-stakeholder-engagement", 
         title: "1.4 Stakeholder Engagement & Communication",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 17 && q.questionOrder <= 20)
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 18 && q.questionOrder <= 20)
       });
     } else if (sectionOrder === 2) {
       // Section 2: Current AI & Data Capabilities
@@ -393,7 +393,7 @@ export default function SectionLegoBlock({
         {!isHeader && actualQuestionNumber && (
           <div className="absolute -left-2 top-0">
             <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-              Q{actualQuestionNumber}
+              Q{actualQuestionNumber - 1}
             </div>
           </div>
         )}
