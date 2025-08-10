@@ -1,0 +1,449 @@
+rocess (by Value Chain)
+
+Use Case Title
+
+Description
+
+Value Chain
+
+LOB
+
+Segment
+
+Geography
+
+Type
+
+Quadrant
+
+Underwriting
+
+Agentic AI for Underwriting
+
+A multi-agent system to automate the entire underwriting workflow, from data intake and risk profiling to pricing, compliance checks, and decision orchestration.
+
+Underwriting
+
+All Commercial
+
+All Segments
+
+Global
+
+Agentic AI
+
+Strategic Bet
+
+Underwriting
+
+Underwriting Digital Assistant
+
+Provides underwriters with a summarized view of submission data, highlighting information outside of guidelines, assessing appetite capacity, and suggesting next best actions.
+
+Underwriting
+
+P&C, Commercial
+
+All Segments
+
+UK, Global
+
+GenAI
+
+Strategic Bet
+
+Underwriting
+
+Predictive Risk Scoring Engine
+
+A machine learning model that analyzes historical and real-time data to predict policy risk levels, improving pricing accuracy and loss ratios.
+
+Underwriting
+
+All Lines
+
+All Segments
+
+Europe, Global
+
+Predictive ML
+
+Strategic Bet
+
+Underwriting
+
+AI-led Policy Comparison
+
+An AI system to compare complex commercial insurance policies (including competitor products), highlighting key differences in coverage, exclusions, and wording.
+
+Underwriting
+
+Commercial
+
+Large Commercial
+
+UK
+
+GenAI
+
+Strategic Bet
+
+Underwriting
+
+Automated Prefilled Forms
+
+An AI system that pre-populates application forms by extracting information from historical client data, public records, and previous submissions to speed up the process.
+
+Underwriting
+
+All Lines
+
+All Segments
+
+UK
+
+Process Automation
+
+Watchlist
+
+Pricing
+
+Dynamic Pricing Engine
+
+An AI-driven engine that optimizes and adjusts premium rates in real-time based on market conditions, competitor pricing, and incoming risk data.
+
+Underwriting
+
+Commercial
+
+Mid-Market
+
+Global
+
+Predictive ML
+
+Strategic Bet
+
+Pricing
+
+Advanced Cyber Risk Assessment
+
+An advanced AI system that evaluates cyber risk exposure for commercial clients by integrating external threat intelligence, dark web monitoring, and internal data.
+
+Underwriting
+
+Cyber
+
+Large Commercial
+
+Global
+
+GenAI
+
+Strategic Bet
+
+Claims (FNOL)
+
+Automated FNOL Ingestion & Triage
+
+An automated system for First Notice of Loss that uses NLP to extract data from various channels and AI to classify, prioritize, and route claims based on complexity and severity.
+
+Claims
+
+All P&C
+
+All Segments
+
+UK, Global
+
+GenAI / RPA
+
+Strategic Bet
+
+Claims (FNOL)
+
+Real-time FNOL Fraud Detection
+
+A machine learning system that analyzes incoming claims at FNOL to identify potential fraud indicators, using historical data, behavioral analytics, and network analysis.
+
+Fraud/Compliance
+
+All P&C
+
+All Segments
+
+UK, Global
+
+Predictive ML
+
+Strategic Bet
+
+Claims
+
+Claims Review & Adjudication Copilot
+
+An AI assistant for claims adjusters that provides decision support, summarizes complex documents (medical reports, legal files), verifies coverage, and suggests next steps.
+
+Claims
+
+All Lines
+
+All Segments
+
+UK, Global
+
+GenAI
+
+Strategic Bet
+
+Claims
+
+Claims Demand Package Analyzer
+
+A GenAI tool that ingests, reads, and summarizes plaintiff demand packages, comparing them to policy coverage and identifying litigation potential and settlement recommendations.
+
+Claims
+
+All Lines
+
+All Segments
+
+Global
+
+GenAI
+
+Strategic Bet
+
+Claims
+
+Subrogation Opportunity Identification
+
+An AI system that analyzes claims data, accident reports, and third-party involvement to automatically identify and prioritize subrogation opportunities, and auto-generates packages.
+
+Claims
+
+Auto, Property
+
+All Segments
+
+Global
+
+GenAI
+
+Watchlist
+
+Claims
+
+Voice-to-Claim Narrative NLP Tool
+
+A natural language processing tool that accurately converts voice recordings of claim narratives from customers and witnesses into structured text for the claims file.
+
+Claims
+
+Personal, SME
+
+SME
+
+UK
+
+NLP
+
+Experimental
+
+Claims
+
+Accident Scene Reconstruction AI
+
+Utilizes computer vision and AI to reconstruct accident scenes from photos and videos, providing objective analysis for liability assessment.
+
+Claims
+
+Auto
+
+SME
+
+North America
+
+Computer Vision
+
+Watchlist
+
+Distribution
+
+Broker/Agent Engagement Bot
+
+An internal AI assistant (GPT) to help RSA staff and external brokers get instant, accurate answers on products, policy wordings, and underwriting appetite.
+
+Distribution
+
+All Lines
+
+All Segments
+
+UK
+
+GenAI
+
+Strategic Bet
+
+Distribution
+
+Smart Cross-sell & Up-sell Platform
+
+An intelligent system that analyzes the entire customer portfolio to identify optimal timing and products for cross-selling and up-selling, providing brokers with actionable leads.
+
+Distribution
+
+All Lines
+
+SME, Mid-Market
+
+Global
+
+Predictive ML
+
+Watchlist
+
+Distribution
+
+Hyper-personalized Customer Outreach
+
+An AI-driven engine for customer segmentation and personalized marketing campaigns, tailored for specific commercial lines and broker channels.
+
+Distribution
+
+Commercial
+
+SME, Mid-Market
+
+UK
+
+GenAI
+
+Watchlist
+
+Customer Service
+
+Virtual Customer & Broker Assistant
+
+An advanced AI chatbot, available 24/7, capable of handling complex customer and broker inquiries, processing service requests, and providing policy information.
+
+Customer Service
+
+All Lines
+
+All Segments
+
+Global
+
+GenAI
+
+Strategic Bet
+
+Customer Service
+
+Customer Sentiment & Churn Analysis
+
+An NLP tool that analyzes customer communications (emails, calls, surveys) and social media to identify satisfaction trends, emerging issues, and potential churn risks.
+
+Customer Service
+
+All Lines
+
+All Segments
+
+North America
+
+NLP
+
+Experimental
+
+Product
+
+Hyper-personalized Product Design
+
+An AI system to create highly personalized insurance products and coverage bundles based on individual customer data, behavior, and specific risk profiles.
+
+Product Dev.
+
+Personal, SME
+
+Affluent, SME
+
+Global
+
+GenAI
+
+Watchlist
+
+Product
+
+Parametric Insurance Platform
+
+An AI-driven platform for developing and managing parametric insurance products, using real-time data triggers (e.g., weather, seismic) for automated payouts.
+
+Product Dev.
+
+Specialty
+
+Large Commercial
+
+Global
+
+Predictive ML
+
+Watchlist
+
+IT/Operations
+
+Legacy Code Modernization Assistant
+
+An AI tool that analyzes, documents, and automatically converts legacy code (e.g., mainframe) to modern languages, and generates test harnesses to ensure quality.
+
+IT Operations
+
+N/A
+
+N/A
+
+Global
+
+GenAI
+
+Strategic Bet
+
+Compliance
+
+AI Audit Assistant for Delegated Authority
+
+An AI tool to automatically audit and validate management information (MI) submitted by delegated authority partners, flagging anomalies and ensuring compliance.
+
+Fraud/Compliance
+
+All Lines
+
+All Segments
+
+UK
+
+Process Automation
+
+Watchlist
+
+Compliance
+
+Regulatory Compliance Monitoring
+
+An AI-powered system that analyzes policy wordings, contracts, and marketing communications to ensure adherence to evolving regulatory standards (e.g., FCA).
+
+Compliance
+
+All Lines
+
+All Segments
+
+UK, Global
+
+NLP / GenAI
+
+Watchlist
