@@ -1,6 +1,7 @@
 import React from 'react';
 import { Edit, Trash2, Library, Plus } from 'lucide-react';
 import { UseCase } from '../../types';
+import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 
 interface CleanUseCaseCardProps {
   useCase: UseCase;
@@ -20,10 +21,27 @@ export default function CleanUseCaseCard({
   showRSAActions = false
 }: CleanUseCaseCardProps) {
   
+  // Get quadrant-based styling for RSA cases with scores
+  const hasScores = showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined;
+  const quadrantBorder = hasScores ? getQuadrantColor(useCase.quadrant || '') : '#3b82f6';
+  
+  // Map quadrant to Tailwind background classes
+  const getQuadrantBgClass = (quadrant: string) => {
+    switch (quadrant) {
+      case "Quick Win": return 'bg-green-50';
+      case "Strategic Bet": return 'bg-blue-50';
+      case "Experimental": return 'bg-yellow-50';
+      case "Watchlist": return 'bg-red-50';
+      default: return 'bg-white';
+    }
+  };
+  
+  const bgClass = hasScores ? getQuadrantBgClass(useCase.quadrant || '') : 'bg-white';
+  
   return (
     <div 
-      className="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200"
-      style={{ borderLeft: '4px solid #3b82f6' }}
+      className={`border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200 ${bgClass}`}
+      style={{ borderLeft: `4px solid ${quadrantBorder}` }}
     >
       <div className="p-5">
         {/* Title and Description */}
@@ -52,20 +70,36 @@ export default function CleanUseCaseCard({
           </span>
         </div>
 
-        {/* Scores Display - Only for RSA Active Portfolio */}
-        {showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="text-center bg-green-50 rounded-lg p-3">
-              <div className="text-2xl font-bold text-green-700">
-                {useCase.impactScore.toFixed(1)}
-              </div>
-              <div className="text-xs text-green-600">Impact</div>
+        {/* Scores Display - Only for RSA Active Portfolio with enhanced quadrant styling */}
+        {hasScores && (
+          <div className="mb-4">
+            {/* Quadrant Badge */}
+            <div className="mb-3 text-center">
+              <span 
+                className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                style={{ 
+                  backgroundColor: quadrantBorder, 
+                  color: 'white' 
+                }}
+              >
+                {useCase.quadrant || 'Unassigned'}
+              </span>
             </div>
-            <div className="text-center bg-blue-50 rounded-lg p-3">
-              <div className="text-2xl font-bold text-blue-700">
-                {useCase.effortScore.toFixed(1)}
+            
+            {/* Score Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center bg-green-50 rounded-lg p-3 border border-green-200">
+                <div className="text-2xl font-bold text-green-700">
+                  {useCase.impactScore.toFixed(1)}
+                </div>
+                <div className="text-xs text-green-600">Impact</div>
               </div>
-              <div className="text-xs text-blue-600">Effort</div>
+              <div className="text-center bg-blue-50 rounded-lg p-3 border border-blue-200">
+                <div className="text-2xl font-bold text-blue-700">
+                  {useCase.effortScore.toFixed(1)}
+                </div>
+                <div className="text-xs text-blue-600">Effort</div>
+              </div>
             </div>
           </div>
         )}
