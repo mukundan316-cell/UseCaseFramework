@@ -47,6 +47,12 @@ export const useCases = pgTable("use_cases", {
   quadrant: text("quadrant").notNull(),
   recommendedByAssessment: text("recommended_by_assessment"), // Assessment response ID that recommended this use case
   
+  // Manual Score Override System
+  manualImpactScore: real("manual_impact_score"), // Optional manual override for impact score
+  manualEffortScore: real("manual_effort_score"), // Optional manual override for effort score
+  manualQuadrant: text("manual_quadrant"), // Optional manual override for quadrant
+  overrideReason: text("override_reason"), // Reason for manual override
+  
   // Two-tier library system
   isActiveForRsa: text("is_active_for_rsa").notNull().default('false'), // 'true' or 'false'
   isDashboardVisible: text("is_dashboard_visible").notNull().default('false'), // 'true' or 'false'
@@ -83,6 +89,11 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   librarySource: z.enum(['rsa_internal', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
   activationReason: z.string().optional(),
   deactivationReason: z.string().optional(),
+  // Manual override fields
+  manualImpactScore: z.number().min(1).max(5).optional(),
+  manualEffortScore: z.number().min(1).max(5).optional(),
+  manualQuadrant: z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']).optional(),
+  overrideReason: z.string().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

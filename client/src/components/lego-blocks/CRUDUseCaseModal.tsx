@@ -11,7 +11,8 @@ import { z } from 'zod';
 import { Plus, Edit, AlertCircle } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
-import { UseCase, UseCaseFormData } from '../../types';
+import ScoreOverrideLegoBlock from './ScoreOverrideLegoBlock';
+import { UseCase } from '@shared/schema';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
@@ -56,6 +57,21 @@ const formSchema = z.object({
   // AI Governance Levers (all optional)
   explainabilityBias: z.number().min(1).max(5).optional(),
   regulatoryCompliance: z.number().min(1).max(5).optional(),
+  // Manual Score Override fields
+  manualImpactScore: z.number().min(1).max(5).optional(),
+  manualEffortScore: z.number().min(1).max(5).optional(),
+  manualQuadrant: z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']).optional(),
+  overrideReason: z.string().optional(),
+}).refine((data) => {
+  // Require override reason if any manual overrides are set
+  const hasOverrides = data.manualImpactScore || data.manualEffortScore || data.manualQuadrant;
+  if (hasOverrides && !data.overrideReason?.trim()) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Override reason is required when manual scores are set",
+  path: ["overrideReason"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -291,6 +307,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         adoptionReadiness: (useCase as any).adoptionReadiness ?? 3,
         explainabilityBias: (useCase as any).explainabilityBias ?? 3,
         regulatoryCompliance: (useCase as any).regulatoryCompliance ?? 3,
+        // Manual override fields
+        manualImpactScore: (useCase as any).manualImpactScore,
+        manualEffortScore: (useCase as any).manualEffortScore,
+        manualQuadrant: (useCase as any).manualQuadrant,
+        overrideReason: (useCase as any).overrideReason || '',
       };
       
       // Update scores state first
@@ -720,6 +741,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 </div>
               </CardContent>
             </Card>
+            
+            {/* Manual Score Override Section */}
+            <ScoreOverrideLegoBlock
+              form={form}
+              calculatedImpact={currentImpactScore}
+              calculatedEffort={currentEffortScore}
+              calculatedQuadrant={currentQuadrant}
+            />
             </div>
           ) : (
             <Card className="bg-gray-50 border-dashed border-2">

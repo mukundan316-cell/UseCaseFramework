@@ -1,7 +1,8 @@
 import React from 'react';
-import { Edit, Trash2, Library, Plus, Settings, Building2, Tag } from 'lucide-react';
-import { UseCase } from '../../types';
+import { Edit, Trash2, Library, Plus, Settings, Building2, Tag, AlertTriangle } from 'lucide-react';
+import { UseCase } from '@shared/schema';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
+import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
 
 interface CleanUseCaseCardProps {
   useCase: UseCase;
@@ -23,7 +24,13 @@ export default function CleanUseCaseCard({
   
   // Get quadrant-based styling for RSA cases with scores
   const hasScores = showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined;
-  const quadrantBorder = hasScores ? getQuadrantColor(useCase.quadrant || '') : '#3b82f6';
+  
+  // Get effective scores (manual overrides take precedence)
+  const effectiveImpact = hasScores ? getEffectiveImpactScore(useCase) : undefined;
+  const effectiveEffort = hasScores ? getEffectiveEffortScore(useCase) : undefined;
+  const effectiveQuadrant = hasScores ? getEffectiveQuadrant(useCase) : '';
+  const hasOverrides = hasManualOverrides(useCase);
+  const quadrantBorder = hasScores ? getQuadrantColor(effectiveQuadrant) : '#3b82f6';
   
   // Map quadrant to Tailwind background classes
   const getQuadrantBgClass = (quadrant: string) => {
@@ -36,7 +43,7 @@ export default function CleanUseCaseCard({
     }
   };
   
-  const bgClass = hasScores ? getQuadrantBgClass(useCase.quadrant || '') : 'bg-white';
+  const bgClass = hasScores ? getQuadrantBgClass(effectiveQuadrant) : 'bg-white';
   
   return (
     <div 
@@ -71,36 +78,53 @@ export default function CleanUseCaseCard({
         </div>
 
         {/* Scores Display - Only for RSA Active Portfolio with enhanced quadrant styling */}
-        {hasScores && (
+        {hasScores && effectiveImpact !== undefined && effectiveEffort !== undefined && (
           <div className="mb-4">
-            {/* Quadrant Badge */}
+            {/* Quadrant Badge with Override Indicator */}
             <div className="mb-3 text-center">
-              <span 
-                className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                style={{ 
-                  backgroundColor: quadrantBorder, 
-                  color: 'white' 
-                }}
-              >
-                {useCase.quadrant || 'Unassigned'}
-              </span>
+              <div className="flex items-center justify-center gap-1">
+                <span 
+                  className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{ 
+                    backgroundColor: quadrantBorder, 
+                    color: 'white' 
+                  }}
+                >
+                  {effectiveQuadrant || 'Unassigned'}
+                </span>
+                {hasOverrides && (
+                  <AlertTriangle className="w-3 h-3 text-orange-500" title="Manual override active" />
+                )}
+              </div>
             </div>
             
             {/* Score Grid */}
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center bg-green-50 rounded-lg p-3 border border-green-200">
                 <div className="text-2xl font-bold text-green-700">
-                  {useCase.impactScore.toFixed(1)}
+                  {effectiveImpact.toFixed(1)}
                 </div>
-                <div className="text-xs text-green-600">Impact</div>
+                <div className="text-xs text-green-600">
+                  Impact {hasOverrides && useCase.manualImpactScore && '(Manual)'}
+                </div>
               </div>
               <div className="text-center bg-blue-50 rounded-lg p-3 border border-blue-200">
                 <div className="text-2xl font-bold text-blue-700">
-                  {useCase.effortScore.toFixed(1)}
+                  {effectiveEffort.toFixed(1)}
                 </div>
-                <div className="text-xs text-blue-600">Effort</div>
+                <div className="text-xs text-blue-600">
+                  Effort {hasOverrides && useCase.manualEffortScore && '(Manual)'}
+                </div>
               </div>
             </div>
+            
+            {/* Override Reason Display */}
+            {hasOverrides && useCase.overrideReason && (
+              <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs">
+                <div className="font-medium text-orange-800">Override Reason:</div>
+                <div className="text-orange-700">{useCase.overrideReason}</div>
+              </div>
+            )}
           </div>
         )}
 
