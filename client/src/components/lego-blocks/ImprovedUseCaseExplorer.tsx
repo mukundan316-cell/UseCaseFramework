@@ -67,8 +67,8 @@ export default function ImprovedUseCaseExplorer({
     }
 
     // Dropdown filters
-    if (filters.process && useCase.process !== filters.process) return false;
-    if (filters.lineOfBusiness && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
+    if (filters.process && filters.process !== 'all' && useCase.process !== filters.process) return false;
+    if (filters.lineOfBusiness && filters.lineOfBusiness !== 'all' && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
     if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
@@ -160,24 +160,24 @@ export default function ImprovedUseCaseExplorer({
         </div>
         
         <div className="flex gap-2">
-          <Select value={filters.process} onValueChange={(value) => setFilters(prev => ({ ...prev, process: value }))}>
+          <Select value={filters.process} onValueChange={(value) => setFilters(prev => ({ ...prev, process: value || '' }))}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="All Processes" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Processes</SelectItem>
+              <SelectItem value="all">All Processes</SelectItem>
               {metadata?.valueChainComponents?.map((process) => (
                 <SelectItem key={process} value={process}>{process}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={filters.lineOfBusiness} onValueChange={(value) => setFilters(prev => ({ ...prev, lineOfBusiness: value }))}>
+          <Select value={filters.lineOfBusiness} onValueChange={(value) => setFilters(prev => ({ ...prev, lineOfBusiness: value || '' }))}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="All LOBs" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All LOBs</SelectItem>
+              <SelectItem value="all">All LOBs</SelectItem>
               {metadata?.linesOfBusiness?.map((lob) => (
                 <SelectItem key={lob} value={lob}>{lob}</SelectItem>
               ))}
