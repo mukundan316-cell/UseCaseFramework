@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus, Edit, Trash2, Library, Package, Tag, CheckCircle, Circle } from 'lucide-react';
+import { Search, Filter, Plus, Edit, Trash2, Library, Package, Tag, CheckCircle, Circle, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -381,79 +381,69 @@ export default function UseCaseExplorerLegoBlock({
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredUseCases.map((useCase) => (
-              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border" 
-                    style={{ borderLeftWidth: '4px', borderLeftColor: useCase.quadrant ? getQuadrantColor(useCase.quadrant) : '#e5e7eb' }}>
-                {/* Quadrant Badge - Only for RSA Active Portfolio */}
-                {showQuadrantFilters && useCase.quadrant && (
-                  <div className={`absolute right-3 top-3 px-2 py-1 rounded text-xs font-semibold text-white ${getQuadrantBackgroundColor(useCase.quadrant)}`}>
-                    {useCase.quadrant === 'Quick Win' && 'Quick Win'}
-                    {useCase.quadrant === 'Strategic Bet' && 'Strategic Bet'}
-                    {useCase.quadrant === 'Experimental' && 'Experimental'}
-                    {useCase.quadrant === 'Watchlist' && 'Watchlist'}
-                  </div>
-                )}
+              <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border-l-4" 
+                    style={{ borderLeftColor: '#3b82f6' }}>
 
-                <CardHeader className="pb-4">
-                  <div className="pr-16">
-                    <CardTitle className="text-lg font-semibold leading-tight mb-2">
+                <CardContent className="p-6">
+                  {/* Title and Description */}
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-gray-900 text-lg mb-2">
                       {useCase.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm text-gray-600 line-clamp-2">
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">
                       {useCase.description}
-                    </CardDescription>
+                    </p>
                   </div>
-                </CardHeader>
 
-                <CardContent className="pt-0 space-y-4">
                   {/* Business Context Tags */}
-                  <div className="flex flex-wrap gap-2">
-                    <div className="flex items-center text-xs text-gray-600">
-                      <div className="w-3 h-3 bg-blue-600 rounded mr-2"></div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full mr-1"></div>
                       {useCase.process}
-                    </div>
-                    <div className="flex items-center text-xs text-gray-600">
-                      <div className="w-3 h-3 bg-purple-600 rounded mr-2"></div>
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      <div className="w-2 h-2 bg-purple-600 rounded-full mr-1"></div>
                       {useCase.lineOfBusiness}
-                    </div>
-                    <div className="flex items-center text-xs text-gray-600">
-                      <div className="w-3 h-3 bg-orange-600 rounded mr-2"></div>
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                      <div className="w-2 h-2 bg-orange-600 rounded-full mr-1"></div>
                       {useCase.useCaseType}
-                    </div>
+                    </span>
                   </div>
 
                   {/* Scores Display - Only for RSA Active Portfolio */}
                   {showQuadrantFilters && useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
-                    <div className="flex justify-between items-center">
-                      <div className="text-center bg-green-50 rounded-lg p-3 flex-1 mr-2">
-                        <div className="text-2xl font-bold text-green-700">
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="text-center bg-green-50 rounded-lg p-4">
+                        <div className="text-2xl font-bold text-green-700 mb-1">
                           {useCase.impactScore.toFixed(1)}
                         </div>
-                        <div className="text-xs text-green-600 font-medium">Impact</div>
+                        <div className="text-sm text-green-600">Impact</div>
                       </div>
-                      <div className="text-center bg-blue-50 rounded-lg p-3 flex-1 ml-2">
-                        <div className="text-2xl font-bold text-blue-700">
+                      <div className="text-center bg-blue-50 rounded-lg p-4">
+                        <div className="text-2xl font-bold text-blue-700 mb-1">
                           {useCase.effortScore.toFixed(1)}
                         </div>
-                        <div className="text-xs text-blue-600 font-medium">Effort</div>
+                        <div className="text-sm text-blue-600">Effort</div>
                       </div>
                     </div>
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex justify-between items-center gap-2 pt-2 border-t">
+                  <div className="flex justify-between items-center gap-2 pt-4 border-t border-gray-100">
                     <div className="flex gap-2">
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleEdit(useCase)}
-                        className="h-8 px-3 text-xs"
+                        className="h-8 px-3 text-xs hover:bg-gray-100"
                       >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
                       </Button>
                       {onDelete && (
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(useCase)}
                           className="h-8 px-3 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -469,17 +459,17 @@ export default function UseCaseExplorerLegoBlock({
                       <div className="flex gap-2">
                         {(useCase.isActiveForRsa === 'false' || useCase.isActiveForRsa === false || !useCase.isActiveForRsa) ? (
                           <Button
-                            variant="default"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleActivate(useCase)}
-                            className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700 text-white"
+                            className="h-8 px-3 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                           >
-                            <Plus className="h-3 w-3 mr-1" />
+                            <BarChart3 className="h-3 w-3 mr-1" />
                             Move to RSA
                           </Button>
                         ) : (
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleDeactivate(useCase)}
                             className="h-8 px-3 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50"
