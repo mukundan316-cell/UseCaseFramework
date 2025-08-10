@@ -58,7 +58,7 @@ const RSALogo = () => (
       </div>
     </div>
     
-    {/* "an [intact] company" tagline - authentic styling */}
+    {/* "an [intact] company" tagline - authentic RSA styling with transition note */}
     <div className="text-sm text-[#666666] hidden sm:block font-normal">
       an <span className="text-[#E61E7A] font-medium border border-[#E61E7A] px-1.5 py-0.5 text-xs">[intact]</span> company
     </div>
