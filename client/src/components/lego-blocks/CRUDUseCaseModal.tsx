@@ -58,21 +58,11 @@ const formSchema = z.object({
   // AI Governance Levers (all optional)
   explainabilityBias: z.number().min(1).max(5).optional(),
   regulatoryCompliance: z.number().min(1).max(5).optional(),
-  // Manual Score Override fields
-  manualImpactScore: z.number().min(1).max(5).optional(),
-  manualEffortScore: z.number().min(1).max(5).optional(),
-  manualQuadrant: z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']).optional(),
-  overrideReason: z.string().optional(),
-}).refine((data) => {
-  // Require override reason if any manual overrides are set
-  const hasOverrides = data.manualImpactScore || data.manualEffortScore || data.manualQuadrant;
-  if (hasOverrides && !data.overrideReason?.trim()) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Override reason is required when manual scores are set",
-  path: ["overrideReason"],
+  // Manual Score Override fields (completely optional, no validation when empty)
+  manualImpactScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
+  manualEffortScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
+  manualQuadrant: z.union([z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']), z.string(), z.null()]).optional(),
+  overrideReason: z.union([z.string(), z.null()]).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -417,11 +407,19 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         if (data.businessSegments) changedData.businessSegments = data.businessSegments;
         if (data.geographies) changedData.geographies = data.geographies;
         
-        // Always include manual override fields when present
-        if (data.manualImpactScore !== undefined) changedData.manualImpactScore = data.manualImpactScore;
-        if (data.manualEffortScore !== undefined) changedData.manualEffortScore = data.manualEffortScore;
-        if (data.manualQuadrant !== undefined) changedData.manualQuadrant = data.manualQuadrant;
-        if (data.overrideReason !== undefined) changedData.overrideReason = data.overrideReason;
+        // Handle manual override fields - convert empty strings to null
+        if (data.manualImpactScore !== undefined) {
+          changedData.manualImpactScore = (data.manualImpactScore === '' || data.manualImpactScore === null) ? null : Number(data.manualImpactScore);
+        }
+        if (data.manualEffortScore !== undefined) {
+          changedData.manualEffortScore = (data.manualEffortScore === '' || data.manualEffortScore === null) ? null : Number(data.manualEffortScore);
+        }
+        if (data.manualQuadrant !== undefined) {
+          changedData.manualQuadrant = (data.manualQuadrant === '' || data.manualQuadrant === null) ? null : data.manualQuadrant;
+        }
+        if (data.overrideReason !== undefined) {
+          changedData.overrideReason = (data.overrideReason === '' || data.overrideReason === null) ? null : data.overrideReason;
+        }
         
         console.log('Sending only changed data:', changedData);
         const result = await updateUseCase(useCase.id, changedData);
