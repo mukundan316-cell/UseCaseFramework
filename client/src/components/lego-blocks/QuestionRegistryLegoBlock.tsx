@@ -21,6 +21,7 @@ import CompositeQuestionLegoBlock from './CompositeQuestionLegoBlock';
 import RiskAppetiteLegoBlock from './RiskAppetiteLegoBlock';
 import BusinessPerformanceLegoBlock from './BusinessPerformanceLegoBlock';
 import MultiRatingLegoBlock from './MultiRatingLegoBlock';
+import DynamicUseCaseSelector from './DynamicUseCaseSelector';
 import QuestionLegoBlock, { QuestionData, QuestionOption } from './QuestionLegoBlock';
 import ReusableButton from './ReusableButton';
 import { Textarea } from '@/components/ui/textarea';
@@ -54,7 +55,8 @@ export type QuestionType =
   | 'business_performance'
   | 'multi_rating'
   | 'composite'
-  | 'risk_appetite';
+  | 'risk_appetite'
+  | 'dynamic_use_case_selector';
 
 export interface QuestionMetadata {
   id: string;
@@ -122,6 +124,7 @@ export default function QuestionRegistryLegoBlock({
       multi_rating: 'MultiRatingLegoBlock',
       composite: 'CompetitiveAwarenessLegoBlock',
       risk_appetite: 'RiskAppetiteLegoBlock',
+      dynamic_use_case_selector: 'DynamicUseCaseSelector',
       multiChoice: 'QuestionLegoBlock',
       text: 'QuestionLegoBlock',
       boolean: 'QuestionLegoBlock',
@@ -574,6 +577,31 @@ export default function QuestionRegistryLegoBlock({
             onChange={(value: any) => onResponseChange(questionMeta.id, value)}
             disabled={logic.isDisabled}
             required={logic.isRequired}
+          />
+        );
+      }
+
+      // Render DynamicUseCaseSelector for dynamic_use_case_selector type
+      if (questionMeta.questionType === 'dynamic_use_case_selector') {
+        // Build user profile from existing responses
+        const userProfile = {
+          businessLines: responses.get('q2-business-lines')?.businessLines || [],
+          currentSystems: responses.get('q18-primary-systems')?.selectedSystems || [],
+          processes: responses.get('q19-business-processes')?.selectedProcesses || [],
+          aiMaturity: responses.get('q27-premium-calculation')?.rating || 1
+        };
+
+        return (
+          <DynamicUseCaseSelector
+            label={questionMeta.questionText}
+            helpText={questionMeta.helpText}
+            userProfile={userProfile}
+            value={currentValue || {}}
+            onChange={(value: any) => onResponseChange(questionMeta.id, value)}
+            disabled={logic.isDisabled}
+            required={logic.isRequired}
+            allowNotes={questionMeta.questionData?.allowNotes !== false}
+            notesPrompt={questionMeta.questionData?.notesPrompt || 'Additional context about your AI applications'}
           />
         );
       }
