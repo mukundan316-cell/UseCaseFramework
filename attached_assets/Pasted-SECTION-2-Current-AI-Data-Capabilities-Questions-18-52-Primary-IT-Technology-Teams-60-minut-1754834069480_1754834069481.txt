@@ -1,0 +1,229 @@
+SECTION 2: Current AI & Data Capabilities
+Questions 18-52 | Primary: IT/Technology Teams | 60 minutes
+2.1 Core Applications Assessment
+Q18. Policy Administration Systems (PAS) "Describe your core policy administration platform."
+•	Primary vendor: [ ] Duck Creek [ ] Guidewire [ ] Majesco [ ] Sapiens [ ] Custom [ ] Other: _____
+•	Last major upgrade: _____ year
+•	PAS flexibility (1-5): _____
+•	API availability (1-5): _____
+•	Real-time rating: Yes/No/Partial
+•	Integration challenges: _________________
+Q19. Claims Management Systems (CMS) "Assess your claims platform capabilities."
+•	Primary vendor: [ ] Guidewire ClaimCenter [ ] Duck Creek [ ] Custom [ ] Other: _____
+•	Workflow automation (1-5): _____
+•	Straight-through processing: Yes/No/Partial
+•	External data integration (1-5): _____
+•	FNOL digital capabilities (1-5): _____
+•	Automation opportunities: _________________
+Q20. Underwriting & Risk Management "Evaluate underwriting system sophistication."
+•	Primary platform: _________________
+•	Decision automation (1-5): _____
+•	Auto-quoted submissions: ____%
+•	Manual review required: ____%
+•	Workbench available: Yes/No
+•	Enhancement priorities: _________________
+Q21. Reinsurance Management "How automated is reinsurance management?"
+•	Platform: [ ] Integrated [ ] Stand-alone [ ] Manual
+•	Treaty management automation (1-5): _____
+•	Accounting automation (1-5): _____
+•	Recoveries tracking (1-5): _____
+2.2 Business Function Systems
+Q22. Product Management & Development "How agile is product configuration?"
+•	Configuration system: [ ] Built-in PAS [ ] Separate [ ] Manual
+•	Development cycle time (1-5): _____
+•	Pricing sophistication (1-5): _____
+•	New product timeline: _____ months
+Q23. Marketing & Distribution "Assess customer engagement platforms."
+•	CRM platform: [ ] Salesforce [ ] Dynamics [ ] Other: _____
+•	Agent portal capabilities (1-5): _____
+•	Customer self-service (1-5): _____
+•	Digital marketing (1-5): _____
+Q24. Sales & Distribution Management "Rate distribution management capabilities."
+•	Commission management: [ ] Integrated [ ] Stand-alone [ ] Manual
+•	Producer onboarding (1-5): _____
+•	Territory management (1-5): _____
+•	Delegated authority: Yes/No
+Q25. Finance & Accounting "Evaluate financial system integration."
+•	ERP system: [ ] SAP [ ] Oracle [ ] Dynamics [ ] Other: _____
+•	Reporting automation (1-5): _____
+•	GL integration (1-5): _____
+•	Statutory reporting (1-5): _____
+Q26. Billing & Collections "Assess billing flexibility and automation."
+•	Billing system: [ ] Integrated [ ] Stand-alone [ ] Third-party
+•	Automation level (1-5): _____
+•	Collections automation (1-5): _____
+•	Payment processing (1-5): _____
+2.3 Intelligent Workflows & Automation
+Q27. Premium Calculation & Rating "How sophisticated is your rating engine?"
+•	Engine type: [ ] Rules-based [ ] Table-based [ ] ML-enhanced [ ] Hybrid
+•	Real-time capabilities (1-5): _____
+•	Accuracy/consistency (1-5): _____
+•	Micro-rating capability: Yes/No/Limited
+Q28. Underwriting Workflow Automation "Rate workflow automation maturity."
+•	Workflow engine: [ ] Built-in [ ] Separate BPM [ ] Manual
+•	Submission triage (1-5): _____
+•	Referral management (1-5): _____
+•	Rule application (1-5): _____
+Q29. Policy Issuance & Renewal "What's the automation rate for policy lifecycle?"
+•	Issuance automation: ____%
+•	Renewal automation: ____%
+•	Document generation (1-5): _____
+•	Mid-term adjustments (1-5): _____
+Q30. Claims Processing Workflows "Evaluate claims automation maturity."
+•	Intake automation: [ ] Full [ ] Partial [ ] Manual
+•	Triage effectiveness (1-5): _____
+•	Loss control integration (1-5): _____
+•	Fraud detection (1-5): _____
+Q31. Risk Assessment Automation "How automated is risk scoring?"
+•	Risk scoring: [ ] Fully automated [ ] Semi [ ] Manual
+•	External data integration (1-5): _____
+•	CAT modeling (1-5): _____
+•	Telematics/IoT utilization (1-5): _____
+2.4 Data Analytics & AI/ML Capabilities
+Q32. Data Analytics & BI "Describe your analytics infrastructure."
+•	BI platform: [ ] Tableau [ ] PowerBI [ ] SAS [ ] Qlik [ ] Other: _____
+•	Data warehouse maturity (1-5): _____
+•	Data lake: Yes/No/In Progress
+•	Self-service adoption (1-5): _____
+Q33. Statistical Analysis & Modeling "What modeling capabilities exist?"
+•	Statistical software: [ ] SAS [ ] R [ ] Python [ ] SPSS [ ] Other: _____
+•	Predictive modeling (1-5): _____
+•	ML model deployment (1-5): _____
+•	A/B testing platform (1-5): _____
+Q34. Actuarial Systems "Rate actuarial automation."
+•	Actuarial software: [ ] Prophet [ ] AXIS [ ] ResQ [ ] MoSes [ ] Other: _____
+•	Model automation (1-5): _____
+•	Pricing update frequency: [ ] Real-time [ ] Monthly [ ] Quarterly [ ] Annually
+•	Reserving automation (1-5): _____
+Q35-37. Data Management "Assess data quality and governance."
+Q35. Data Cleansing & Orchestration:
+•	Quality management platform: _____
+•	Cleansing automation (1-5): _____
+•	Lineage tracking (1-5): _____
+•	Governance workflows (1-5): _____
+Q36. Data Exploration & Visualization:
+•	Self-service adoption: ____%
+•	Visualization capabilities (1-5): _____
+•	Exploration tools (1-5): _____
+•	Dashboard automation (1-5): _____
+Q37. Data Provenance & Audit:
+•	Lineage documentation (1-5): _____
+•	Audit trail automation (1-5): _____
+•	Quality monitoring (1-5): _____
+•	Regulatory accuracy (1-5): _____
+2.5 Data Infrastructure & Storage
+Q38. Enterprise Data Warehouse "Describe your data warehouse."
+•	Platform: [ ] Snowflake [ ] Teradata [ ] Azure Synapse [ ] Redshift [ ] Other: _____
+•	Performance (1-5): _____
+•	Scalability (1-5): _____
+•	Historical retention: _____ years
+Q39. Data Lakes "Evaluate big data capabilities."
+•	Platform: [ ] Azure Data Lake [ ] AWS S3 [ ] Google Cloud [ ] Hadoop [ ] None
+•	Maturity (1-5): _____
+•	Structured/unstructured ratio: /%
+•	Real-time ingestion (1-5): _____
+Q40. Operational Data Stores "Rate operational database performance."
+•	Primary database: [ ] SQL Server [ ] Oracle [ ] MySQL [ ] PostgreSQL [ ] NoSQL
+•	Analytics performance (1-5): _____
+•	Archival processes (1-5): _____
+Q41. Infrastructure Environment "Assess cloud and on-premise capabilities."
+Cloud Environment:
+•	Provider: [ ] Azure [ ] AWS [ ] Google [ ] Multi-cloud
+•	Compute utilization: ____%
+•	Network optimization (1-5): _____
+•	Storage effectiveness (1-5): _____
+On-Premise:
+•	Compute capacity: ____%
+•	Network performance (1-5): _____
+•	Storage management (1-5): _____
+Disaster Recovery:
+•	DR readiness (1-5): _____
+•	Failover testing: [ ] Monthly [ ] Quarterly [ ] Annually
+•	Recovery automation (1-5): _____
+2.6 Current AI Applications & Tools
+Q42. Current AI Applications "Where is AI currently in use?"
+Using AI in production: Yes/No
+If yes, which areas:
+•	Fraud detection
+•	Pricing/rating
+•	Claims automation
+•	Customer service
+•	Risk assessment
+•	Document processing
+•	Success stories: _________________
+Q43. AI Infrastructure Readiness "Rate AI platform maturity."
+Score 1-5:
+•	Cloud computing capabilities: _____
+•	Infrastructure scalability: _____
+•	Security framework: _____
+•	Model deployment capabilities: _____
+Q44. Current AI/ML Tools "What tools are in your AI stack?"
+ML Platforms:
+•	Azure ML [ ] AWS SageMaker [ ] Google Cloud AI [ ] Databricks
+Analytics Tools:
+•	SAS [ ] R [ ] Python [ ] SPSS
+Data Science Tools:
+•	Jupyter [ ] RStudio [ ] Apache Spark [ ] Hadoop
+Q45. Large Language Models & Generative AI ⭐ "Are you experimenting with LLMs?"
+Currently using LLMs: Yes/No
+If yes:
+•	OpenAI GPT
+•	Microsoft Copilot
+•	Google Bard/Gemini
+•	Anthropic Claude
+•	Custom models
+Use cases explored: _________________ LLM governance readiness (1-5): _____ Primary concerns: _________________
+2.7 Data Quality & Governance
+Q46. Data Quality Assessment "Rate data quality by domain."
+Score 1-5:
+•	Customer data completeness: _____
+•	Policy data accuracy: _____
+•	Claims data consistency: _____
+•	Financial data timeliness: _____
+•	Historical data accessibility: _____
+•	External data integration: _____
+Q47. Data Governance Framework "Evaluate governance maturity."
+Score 1-5:
+•	GDPR/privacy compliance: _____
+•	Lineage documentation: _____
+•	Retention policy enforcement: _____
+•	Access controls: _____
+•	Master data management: _____
+•	Stewardship program: _____
+Q48. External Data Integration "Which external data sources do you use?"
+Currently using:
+•	Weather data
+•	Economic indicators
+•	Social media
+•	IoT/Telematics
+•	Credit scores
+•	Property data
+•	Satellite imagery
+•	Fraud databases
+•	Motor vehicle records
+•	Court records
+•	Integration challenges: _________________
+Q49. Data Integration & Real-time Processing "Rate integration capabilities."
+•	Real-time integration (1-5): _____
+•	MDM in place: Yes/No/Partial
+•	ETL/ELT automation (1-5): _____
+•	Pipeline monitoring (1-5): _____
+Q50. API & Integration Architecture "How API-ready are core systems?"
+•	Systems with APIs: ____%
+•	API design consistency (1-5): _____
+•	API security (1-5): _____
+•	API performance monitoring (1-5): _____
+Q51. Ecosystem Partners & Integration "Rate partner integration effectiveness."
+Score 1-5:
+•	Agent portal sophistication: _____
+•	Customer self-service: _____
+•	Broker integration: _____
+•	Third-party channels: _____
+Q52. Technology Dependencies & Constraints ⭐ "What dependencies could impact AI implementation?"
+Active dependencies:
+•	Major system implementations: _________________
+•	Vendor contract renewals: _________________
+•	Infrastructure upgrades: _________________
+•	Compliance projects: _________________
+•	Timeline conflicts: _________________
+________________________________________

@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { SmartRatingLegoBlock } from './SmartRatingLegoBlock';
 import PercentageTargetLegoBlock from './PercentageTargetLegoBlock';
 import { Settings, HelpCircle } from 'lucide-react';
@@ -19,6 +20,10 @@ interface CompositeField {
   scale?: number;
   labels?: string[];
   showTotal?: boolean;
+  minValue?: number;
+  maxValue?: number;
+  leftLabel?: string;
+  rightLabel?: string;
   conditionalDisplay?: {
     field: string;
     value: string;
@@ -134,6 +139,78 @@ export default function CompositeQuestionLegoBlock({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        );
+
+      case 'rating':
+        return (
+          <div key={field.id} className="space-y-3">
+            <Label className="text-base font-semibold text-gray-900">
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex space-x-1">
+                  {Array.from({ length: field.maxValue || 5 }, (_, i) => i + (field.minValue || 1)).map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => handleFieldChange(field.id, value)}
+                      disabled={disabled}
+                      className={`w-10 h-10 rounded-full border-2 font-semibold transition-all ${
+                        fieldValue === value
+                          ? 'bg-blue-500 text-white border-blue-500'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50'
+                      } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {(field.leftLabel || field.rightLabel) && (
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>{field.leftLabel || ''}</span>
+                  <span>{field.rightLabel || ''}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case 'checkbox':
+        return (
+          <div key={field.id} className="space-y-3">
+            <Label className="text-base font-semibold text-gray-900">
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <div className="space-y-2">
+              {field.options?.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`${field.id}-${option.value}`}
+                    checked={Array.isArray(fieldValue) ? fieldValue.includes(option.value) : false}
+                    onCheckedChange={(checked) => {
+                      const currentValues = Array.isArray(fieldValue) ? fieldValue : [];
+                      if (checked) {
+                        handleFieldChange(field.id, [...currentValues, option.value]);
+                      } else {
+                        handleFieldChange(field.id, currentValues.filter(v => v !== option.value));
+                      }
+                    }}
+                    disabled={disabled}
+                  />
+                  <Label 
+                    htmlFor={`${field.id}-${option.value}`}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
         );
 
