@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+// Badge import removed - using simple text spans instead
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 import CRUDUseCaseModal from './CRUDUseCaseModal';
