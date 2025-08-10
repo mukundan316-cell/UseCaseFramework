@@ -44,6 +44,7 @@ export default function ImprovedUseCaseExplorer({
   // Filters
   const [filters, setFilters] = useState({
     process: '',
+    activity: '',
     lineOfBusiness: '',
     businessSegment: '',
     geography: '',
@@ -67,8 +68,9 @@ export default function ImprovedUseCaseExplorer({
     }
 
     // Dropdown filters
-    if (filters.process && filters.process !== 'all' && useCase.process !== filters.process) return false;
-    if (filters.lineOfBusiness && filters.lineOfBusiness !== 'all' && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
+    if (filters.process && useCase.process !== filters.process) return false;
+    if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
+    if (filters.lineOfBusiness && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
     if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
@@ -145,7 +147,7 @@ export default function ImprovedUseCaseExplorer({
         </div>
       )}
 
-      {/* Search and Filters */}
+      {/* Search and Filters - Exact match to screenshot */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1">
           <div className="relative">
@@ -159,36 +161,99 @@ export default function ImprovedUseCaseExplorer({
           </div>
         </div>
         
-        <div className="flex gap-2">
-          <Select value={filters.process} onValueChange={(value) => setFilters(prev => ({ ...prev, process: value || '' }))}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Processes" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Processes</SelectItem>
-              {metadata?.valueChainComponents?.map((process) => (
-                <SelectItem key={process} value={process}>{process}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={filters.lineOfBusiness} onValueChange={(value) => setFilters(prev => ({ ...prev, lineOfBusiness: value || '' }))}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All LOBs" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All LOBs</SelectItem>
-              {metadata?.linesOfBusiness?.map((lob) => (
-                <SelectItem key={lob} value={lob}>{lob}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
+        {showCreateButton && (
+          <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Use Case
           </Button>
-        </div>
+        )}
+        
+        <Button variant="outline" size="sm">
+          <Filter className="h-4 w-4 mr-2" />
+          Filters
+        </Button>
+      </div>
+
+      {/* Filter Dropdowns Row - Exact match to screenshot */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <Select value={filters.process} onValueChange={(value) => setFilters(prev => ({ ...prev, process: value === 'all' ? '' : value }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Processes" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Processes</SelectItem>
+            {metadata?.processes?.map((process) => (
+              <SelectItem key={process} value={process}>{process}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filters.activity || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, activity: value === 'all' ? '' : value }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Activities" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Activities</SelectItem>
+            {metadata?.activities?.map((activity) => (
+              <SelectItem key={activity} value={activity}>{activity}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filters.lineOfBusiness} onValueChange={(value) => setFilters(prev => ({ ...prev, lineOfBusiness: value === 'all' ? '' : value }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="All LOBs" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All LOBs</SelectItem>
+            {metadata?.linesOfBusiness?.map((lob) => (
+              <SelectItem key={lob} value={lob}>{lob}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filters.businessSegment} onValueChange={(value) => setFilters(prev => ({ ...prev, businessSegment: value === 'all' ? '' : value }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Segments" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Segments</SelectItem>
+            {metadata?.businessSegments?.map((segment) => (
+              <SelectItem key={segment} value={segment}>{segment}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filters.geography} onValueChange={(value) => setFilters(prev => ({ ...prev, geography: value === 'all' ? '' : value }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Geographies" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Geographies</SelectItem>
+            {metadata?.geographies?.map((geo) => (
+              <SelectItem key={geo} value={geo}>{geo}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filters.useCaseType} onValueChange={(value) => setFilters(prev => ({ ...prev, useCaseType: value === 'all' ? '' : value }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            {metadata?.useCaseTypes?.map((type) => (
+              <SelectItem key={type} value={type}>{type}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Show Recommendations Only Toggle - Exact match to screenshot */}
+      <div className="flex justify-end">
+        <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50">
+          ⭐ Show Recommendations Only
+        </Button>
       </div>
 
       {/* Use Case Grid */}
