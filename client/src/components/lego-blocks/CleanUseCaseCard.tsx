@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2, Library, Plus } from 'lucide-react';
+import { Edit, Trash2, Library, Plus, Settings, Building2, Tag } from 'lucide-react';
 import { UseCase } from '../../types';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 
@@ -54,20 +54,20 @@ export default function CleanUseCaseCard({
           </p>
         </div>
 
-        {/* Business Context Tags - Simple colored text with dots */}
-        <div className="flex flex-wrap gap-3 mb-3">
-          <span className="text-xs text-blue-800 flex items-center">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mr-1"></span>
-            {useCase.process}
-          </span>
-          <span className="text-xs text-purple-800 flex items-center">
-            <span className="w-2 h-2 bg-purple-600 rounded-full mr-1"></span>
-            {useCase.lineOfBusiness}
-          </span>
-          <span className="text-xs text-orange-800 flex items-center">
-            <span className="w-2 h-2 bg-orange-600 rounded-full mr-1"></span>
-            {useCase.useCaseType}
-          </span>
+        {/* Business Context Tags - Compact icon-based layout */}
+        <div className="space-y-1.5 mb-3">
+          <div className="flex items-center text-xs text-blue-700">
+            <Settings className="w-3 h-3 mr-1.5 text-blue-600" />
+            <span className="font-medium">{useCase.process}</span>
+          </div>
+          <div className="flex items-center text-xs text-purple-700">
+            <Building2 className="w-3 h-3 mr-1.5 text-purple-600" />
+            <span className="font-medium">{useCase.lineOfBusiness}</span>
+          </div>
+          <div className="flex items-center text-xs text-orange-700">
+            <Tag className="w-3 h-3 mr-1.5 text-orange-600" />
+            <span className="font-medium">{useCase.useCaseType}</span>
+          </div>
         </div>
 
         {/* Scores Display - Only for RSA Active Portfolio with enhanced quadrant styling */}
