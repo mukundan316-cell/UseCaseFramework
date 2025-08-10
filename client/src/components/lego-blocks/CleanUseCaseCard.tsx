@@ -26,11 +26,11 @@ export default function CleanUseCaseCard({
   const hasScores = showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined;
   
   // Get effective scores (manual overrides take precedence)
-  const effectiveImpact = hasScores ? getEffectiveImpactScore(useCase) : undefined;
-  const effectiveEffort = hasScores ? getEffectiveEffortScore(useCase) : undefined;
-  const effectiveQuadrant = hasScores ? getEffectiveQuadrant(useCase) : '';
-  const hasOverrides = hasManualOverrides(useCase);
-  const quadrantBorder = hasScores ? getQuadrantColor(effectiveQuadrant) : '#3b82f6';
+  const effectiveImpact = hasScores ? getEffectiveImpactScore(useCase as any) : undefined;
+  const effectiveEffort = hasScores ? getEffectiveEffortScore(useCase as any) : undefined;
+  const effectiveQuadrant = hasScores ? getEffectiveQuadrant(useCase as any) : '';
+  const hasOverrides = hasManualOverrides(useCase as any);
+  const quadrantBorder = hasScores ? getQuadrantColor(effectiveQuadrant as any) : '#3b82f6';
   
   // Map quadrant to Tailwind background classes
   const getQuadrantBgClass = (quadrant: string) => {
@@ -93,7 +93,7 @@ export default function CleanUseCaseCard({
                   {effectiveQuadrant || 'Unassigned'}
                 </span>
                 {hasOverrides && (
-                  <AlertTriangle className="w-3 h-3 text-orange-500" title="Manual override active" />
+                  <AlertTriangle className="w-3 h-3 text-orange-500" />
                 )}
               </div>
             </div>
