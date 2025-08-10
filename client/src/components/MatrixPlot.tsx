@@ -94,16 +94,16 @@ export default function MatrixPlot() {
         <div className="bg-white border-2 border-gray-800 relative mx-auto" style={{ width: '700px', height: '500px' }}>
           {/* Quadrant Labels - RSA Framework Style */}
           <div className="absolute top-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            STRATEGIC BET
-          </div>
-          <div className="absolute top-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
             QUICK WIN
           </div>
+          <div className="absolute top-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
+            STRATEGIC BET
+          </div>
           <div className="absolute bottom-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            WATCHLIST
+            EXPERIMENTAL
           </div>
           <div className="absolute bottom-2 right-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
-            EXPERIMENTAL
+            WATCHLIST
           </div>
 
           {/* Axis Labels */}
@@ -239,16 +239,7 @@ export default function MatrixPlot() {
 
         {/* Quadrant Grid */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Strategic Bet (Top Left) */}
-          <QuadrantLegendItem
-            color="#3B82F6"
-            title="STRATEGIC BET"
-            subtitle="Hard + Valuable"
-            description="High impact initiatives requiring significant investment. Prime candidates for strategic focus."
-            count={quadrantCounts['Strategic Bet'] || 0}
-          />
-          
-          {/* Quick Win (Top Right) */}
+          {/* Quick Win (Top Left) */}
           <QuadrantLegendItem
             color="#22C55E"
             title="QUICK WIN"
@@ -257,22 +248,31 @@ export default function MatrixPlot() {
             count={quadrantCounts['Quick Win'] || 0}
           />
           
-          {/* Watchlist (Bottom Left) */}
+          {/* Strategic Bet (Top Right) */}
           <QuadrantLegendItem
-            color="#EF4444"
-            title="WATCHLIST"
-            subtitle="Easy + Low Value"
-            description="Low-complexity but limited value. Monitor for future potential or avoid."
-            count={quadrantCounts['Watchlist'] || 0}
+            color="#3B82F6"
+            title="STRATEGIC BET"
+            subtitle="Hard + Valuable"
+            description="High impact initiatives requiring significant investment. Prime candidates for strategic focus."
+            count={quadrantCounts['Strategic Bet'] || 0}
           />
           
-          {/* Experimental (Bottom Right) */}
+          {/* Experimental (Bottom Left) */}
           <QuadrantLegendItem
             color="#EAB308"
             title="EXPERIMENTAL"
-            subtitle="Hard + Low Value"
-            description="High-complexity with uncertain returns. Consider for innovation labs or R&D."
+            subtitle="Easy + Low Value"
+            description="Low-complexity but limited value. Consider for innovation labs or R&D."
             count={quadrantCounts['Experimental'] || 0}
+          />
+          
+          {/* Watchlist (Bottom Right) */}
+          <QuadrantLegendItem
+            color="#EF4444"
+            title="WATCHLIST/AVOID"
+            subtitle="Hard + Low Value"
+            description="High-complexity with uncertain returns. Monitor for future potential or avoid."
+            count={quadrantCounts['Watchlist'] || 0}
           />
         </div>
 
