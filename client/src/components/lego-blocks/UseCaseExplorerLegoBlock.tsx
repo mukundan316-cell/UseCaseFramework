@@ -396,17 +396,44 @@ export default function UseCaseExplorerLegoBlock({
                   </div>
 
                   {/* Business Context Tags */}
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="inline-flex items-center text-xs text-blue-800" style={{ backgroundColor: 'transparent' }}>
-                      <div className="w-2 h-2 bg-blue-600 rounded-full mr-1"></div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      fontSize: '0.75rem', 
+                      color: '#1e40af',
+                      backgroundColor: 'transparent',
+                      padding: '0',
+                      border: 'none',
+                      borderRadius: '0'
+                    }}>
+                      <div style={{ width: '8px', height: '8px', backgroundColor: '#2563eb', borderRadius: '50%', marginRight: '4px' }}></div>
                       {useCase.process}
                     </span>
-                    <span className="inline-flex items-center text-xs text-purple-800" style={{ backgroundColor: 'transparent' }}>
-                      <div className="w-2 h-2 bg-purple-600 rounded-full mr-1"></div>
+                    <span style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      fontSize: '0.75rem', 
+                      color: '#7c3aed',
+                      backgroundColor: 'transparent',
+                      padding: '0',
+                      border: 'none',
+                      borderRadius: '0'
+                    }}>
+                      <div style={{ width: '8px', height: '8px', backgroundColor: '#9333ea', borderRadius: '50%', marginRight: '4px' }}></div>
                       {useCase.lineOfBusiness}
                     </span>
-                    <span className="inline-flex items-center text-xs text-orange-800" style={{ backgroundColor: 'transparent' }}>
-                      <div className="w-2 h-2 bg-orange-600 rounded-full mr-1"></div>
+                    <span style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      fontSize: '0.75rem', 
+                      color: '#ea580c',
+                      backgroundColor: 'transparent',
+                      padding: '0',
+                      border: 'none',
+                      borderRadius: '0'
+                    }}>
+                      <div style={{ width: '8px', height: '8px', backgroundColor: '#ea580c', borderRadius: '50%', marginRight: '4px' }}></div>
                       {useCase.useCaseType}
                     </span>
                   </div>
