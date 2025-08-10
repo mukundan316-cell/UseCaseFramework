@@ -372,22 +372,22 @@ export default function SectionLegoBlock({
       subsections.push({
         id: "2.4-data-analytics-ai",
         title: "2.4 Data Analytics & AI/ML Capabilities",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 32 && q.questionOrder <= 37)
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 31 && q.questionOrder <= 36)
       });
       subsections.push({
         id: "2.5-data-infrastructure",
         title: "2.5 Data Infrastructure & Storage",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 38 && q.questionOrder <= 41)
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 37 && q.questionOrder <= 40)
       });
       subsections.push({
         id: "2.6-current-ai-applications",
         title: "2.6 Current AI Applications & Tools",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 42 && q.questionOrder <= 45)
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 41 && q.questionOrder <= 44)
       });
       subsections.push({
         id: "2.7-data-quality-governance",
         title: "2.7 Data Quality & Governance",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 46 && q.questionOrder <= 52)
+        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 45 && q.questionOrder <= 51)
       });
     } else {
       // For other sections, show all questions in one group
