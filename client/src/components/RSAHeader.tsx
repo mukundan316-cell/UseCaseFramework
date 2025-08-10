@@ -3,12 +3,12 @@ import rsaLogoImage from "@assets/image_1754800977193.png";
 
 const RSALogo = () => (
   <div className="flex items-center">
-    {/* Authentic RSA Logo - Direct Image - Properly Sized */}
+    {/* Authentic RSA Logo - Direct Image - Balanced Sizing */}
     <img 
       src={rsaLogoImage} 
       alt="RSA - an [intact] company" 
-      className="h-8 w-auto object-contain"
-      style={{ maxHeight: '32px', maxWidth: '160px' }}
+      className="h-10 w-auto object-contain"
+      style={{ maxHeight: '40px', maxWidth: '200px' }}
     />
   </div>
 );
