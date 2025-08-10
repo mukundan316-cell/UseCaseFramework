@@ -3,7 +3,7 @@ import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Responsive
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUseCases } from '../contexts/UseCaseContext';
 import { getQuadrantColor } from '../utils/calculations';
-import { getEffectiveQuadrant } from '@shared/utils/scoreOverride';
+import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 
 export default function MatrixPlot() {
   const { useCases, getQuadrantCounts, getAverageImpact, filters, setFilters } = useUseCases();
@@ -14,9 +14,11 @@ export default function MatrixPlot() {
   // Transform data for scatter plot - properly balanced coordinates
   const chartData = useCases.map(useCase => {
     const effectiveQuadrant = getEffectiveQuadrant(useCase as any);
+    const effectiveImpact = getEffectiveImpactScore(useCase as any);
+    const effectiveEffort = getEffectiveEffortScore(useCase as any);
     return {
-      x: useCase.effortScore, // Use effort score directly (low = left, high = right)
-      y: useCase.impactScore, // Use impact score directly (low = bottom, high = top)
+      x: effectiveEffort, // Use effective effort score (manual override or calculated)
+      y: effectiveImpact, // Use effective impact score (manual override or calculated)
       name: useCase.title,
       quadrant: effectiveQuadrant,
       color: getQuadrantColor(effectiveQuadrant),
@@ -34,8 +36,8 @@ export default function MatrixPlot() {
           <h4 className="font-semibold text-gray-900 mb-2">{useCase.title}</h4>
           <div className="space-y-1 text-sm">
             <p><span className="font-medium">Quadrant:</span> {getEffectiveQuadrant(useCase as any)}</p>
-            <p><span className="font-medium">Impact:</span> {useCase.impactScore.toFixed(1)}</p>
-            <p><span className="font-medium">Effort:</span> {useCase.effortScore.toFixed(1)}</p>
+            <p><span className="font-medium">Impact:</span> {getEffectiveImpactScore(useCase as any).toFixed(1)}</p>
+            <p><span className="font-medium">Effort:</span> {getEffectiveEffortScore(useCase as any).toFixed(1)}</p>
             <p><span className="font-medium">Component:</span> {useCase.valueChainComponent}</p>
             <p><span className="font-medium">LOB:</span> {useCase.lineOfBusiness}</p>
           </div>
