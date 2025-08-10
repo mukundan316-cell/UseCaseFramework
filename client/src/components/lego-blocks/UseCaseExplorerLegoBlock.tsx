@@ -387,8 +387,8 @@ export default function UseCaseExplorerLegoBlock({
                 <CardContent className="p-4">
                   {/* Title and Description */}
                   <div className="mb-3">
-                    <h3 className="font-semibold text-gray-900 text-base mb-1">
-                      {useCase.title}
+                    <h3 className="font-semibold text-red-600 text-base mb-1">
+                      [TESTING] {useCase.title}
                     </h3>
                     <p className="text-sm text-gray-600 line-clamp-2">
                       {useCase.description}
