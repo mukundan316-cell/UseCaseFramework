@@ -1,6 +1,6 @@
 import React from 'react';
 import { Edit, Trash2, Library, Plus, Settings, Building2, Tag, AlertTriangle } from 'lucide-react';
-import { UseCase } from '@shared/schema';
+import { UseCase } from '../../types';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
 

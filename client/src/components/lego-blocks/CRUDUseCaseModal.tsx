@@ -12,7 +12,7 @@ import { Plus, Edit, AlertCircle } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
 import ScoreOverrideLegoBlock from './ScoreOverrideLegoBlock';
-import { UseCase } from '@shared/schema';
+import { UseCase } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';

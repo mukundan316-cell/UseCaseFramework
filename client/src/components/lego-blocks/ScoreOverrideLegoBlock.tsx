@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Calculator } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
-import { UseCase } from '../../types';
+// No need to import UseCase type since we're only using form props
 
 interface ScoreOverrideLegoBlockProps {
   form: UseFormReturn<any>;

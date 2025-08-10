@@ -39,6 +39,11 @@ export interface UseCase {
   activationDate?: Date;
   deactivationReason?: string;
   librarySource?: string;
+  // Manual score override fields
+  manualImpactScore?: number;
+  manualEffortScore?: number;
+  manualQuadrant?: QuadrantType;
+  overrideReason?: string;
 }
 
 export type QuadrantType = "Quick Win" | "Strategic Bet" | "Experimental" | "Watchlist";
