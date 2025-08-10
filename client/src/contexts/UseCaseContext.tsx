@@ -116,6 +116,8 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
     }
   });
 
