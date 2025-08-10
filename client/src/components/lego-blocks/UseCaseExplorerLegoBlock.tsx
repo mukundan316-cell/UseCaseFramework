@@ -457,7 +457,7 @@ export default function UseCaseExplorerLegoBlock({
                     {/* RSA Selection Buttons */}
                     {showRSASelection && (
                       <div className="flex gap-1">
-                        {(useCase.isActiveForRsa === 'false' || useCase.isActiveForRsa === false || !useCase.isActiveForRsa) ? (
+                        {(useCase.isActiveForRsa !== 'true') ? (
                           <Button
                             variant="outline"
                             size="sm"
