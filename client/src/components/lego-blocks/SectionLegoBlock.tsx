@@ -328,18 +328,13 @@ export default function SectionLegoBlock({
   const renderSectionContent = () => {
     if (!isExpanded) return null;
 
-    // Calculate question numbers excluding headers
-    let questionNumber = 0;
-
     return (
       <CardContent className="pt-0">
         <div className="space-y-6">
           {sortedQuestions.map((question, index) => {
-            // Increment question number only for non-header questions
+            // Use actual question order from database instead of local counter
             const isHeader = question.questionData?.isHeader;
-            if (!isHeader) {
-              questionNumber++;
-            }
+            const actualQuestionNumber = question.questionOrder;
 
             return (
               <div 
@@ -350,10 +345,10 @@ export default function SectionLegoBlock({
                 )}
               >
                 {/* Question number indicator - only show for non-header questions */}
-                {!isHeader && (
+                {!isHeader && actualQuestionNumber && (
                   <div className="absolute -left-2 top-0">
                     <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-                      Q{questionNumber}
+                      Q{actualQuestionNumber}
                     </div>
                   </div>
                 )}
