@@ -2,13 +2,13 @@ import React from 'react';
 import rsaLogoImage from "@assets/image_1754800977193.png";
 
 const RSALogo = () => (
-  <div className="flex items-center space-x-3">
-    {/* Authentic RSA Logo - Direct Image */}
+  <div className="flex items-center">
+    {/* Authentic RSA Logo - Direct Image - Properly Sized */}
     <img 
       src={rsaLogoImage} 
       alt="RSA - an [intact] company" 
-      className="h-12 w-auto object-contain"
-      style={{ maxHeight: '48px' }}
+      className="h-8 w-auto object-contain"
+      style={{ maxHeight: '32px', maxWidth: '160px' }}
     />
   </div>
 );
