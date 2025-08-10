@@ -558,7 +558,7 @@ export default function QuestionRegistryLegoBlock({
           <CompositeQuestionLegoBlock
             label={questionMeta.questionText}
             helpText={questionMeta.helpText}
-            questionData={questionMeta.questionData || { fields: [] }}
+            questionData={{ fields: [], ...(questionMeta.questionData || {}) }}
             value={currentValue || {}}
             onChange={(value: any) => onResponseChange(questionMeta.id, value)}
             disabled={logic.isDisabled}
@@ -680,7 +680,7 @@ export default function QuestionRegistryLegoBlock({
 
         {/* Additional Context & Notes Section - Only show for non-advanced question types */}
         {questionMeta.questionData?.allowNotes && 
-         !['business_performance', 'multi_rating', 'smart_rating', 'ranking', 'percentage_allocation', 'percentage_target', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'composite', 'risk_appetite'].includes(questionMeta.questionType) && (
+         !['business_performance', 'multi_rating', 'smart_rating', 'ranking', 'percentage_allocation', 'percentage_target', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'composite', 'risk_appetite', 'dynamic_use_case_selector'].includes(questionMeta.questionType) && (
           <div className="mt-4 space-y-2">
             <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <FileText className="h-4 w-4" />

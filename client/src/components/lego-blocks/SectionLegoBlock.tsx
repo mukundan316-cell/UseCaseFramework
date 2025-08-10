@@ -152,6 +152,13 @@ export default function SectionLegoBlock({
           }
           return false;
           
+        case 'dynamic_use_case_selector':
+          // Dynamic use case selector is complete if at least one use case is selected
+          if (typeof value === 'object' && value !== null && value.selectedUseCases) {
+            return Array.isArray(value.selectedUseCases) && value.selectedUseCases.length > 0;
+          }
+          return false;
+          
         case 'text':
         case 'textarea':
           // Text questions are complete if they have meaningful content
@@ -426,7 +433,7 @@ export default function SectionLegoBlock({
         {/* Question content */}
         <div className={cn(isHeader ? "ml-0" : "ml-6")}>
           {/* Use QuestionRegistryLegoBlock for advanced question types */}
-          {['company_profile', 'currency', 'percentage_allocation', 'percentage_target', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating', 'composite', 'risk_appetite'].includes(question.questionType) ? (
+          {['company_profile', 'currency', 'percentage_allocation', 'percentage_target', 'business_lines_matrix', 'department_skills_matrix', 'smart_rating', 'ranking', 'business_performance', 'multi_rating', 'composite', 'risk_appetite', 'dynamic_use_case_selector'].includes(question.questionType) ? (
             <QuestionRegistryLegoBlock
               questions={[{
                 id: question.id,
