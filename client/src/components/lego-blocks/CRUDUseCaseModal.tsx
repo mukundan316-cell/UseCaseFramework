@@ -21,64 +21,41 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import MultiSelectField from './MultiSelectField';
 
 const formSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
-  process: z.string().min(1, 'Process is required'),
-  lineOfBusiness: z.string().min(1, 'Line of business is required'),
+  // All fields optional for maximum flexibility - user can override anything
+  title: z.string().optional(),
+  description: z.string().optional(),
+  process: z.string().optional(),
+  lineOfBusiness: z.string().optional(),
   // Multi-select arrays (optional)
   processes: z.array(z.string()).optional(),
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
   geographies: z.array(z.string()).optional(),
   linesOfBusiness: z.array(z.string()).optional(),
-  businessSegment: z.string().min(1, 'Business segment is required'),
-  geography: z.string().min(1, 'Geography is required'),
-  useCaseType: z.string().min(1, 'Use case type is required'),
+  businessSegment: z.string().optional(),
+  geography: z.string().optional(),
+  useCaseType: z.string().optional(),
   activity: z.string().optional(),
   // RSA Portfolio Management
   isActiveForRsa: z.enum(['true', 'false']).default('false'),
   isDashboardVisible: z.enum(['true', 'false']).default('false'),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
   activationReason: z.string().optional(),
-  // Enhanced RSA Framework - Business Value Levers (conditional on RSA active)
+  // Enhanced RSA Framework - Business Value Levers (all optional - no validation restrictions)
   revenueImpact: z.number().min(1).max(5).optional(),
   costSavings: z.number().min(1).max(5).optional(),
   riskReduction: z.number().min(1).max(5).optional(),
   brokerPartnerExperience: z.number().min(1).max(5).optional(),
   strategicFit: z.number().min(1).max(5).optional(),
-  // Feasibility Levers (conditional on RSA active)
+  // Feasibility Levers (all optional)
   dataReadiness: z.number().min(1).max(5).optional(),
   technicalComplexity: z.number().min(1).max(5).optional(),
   changeImpact: z.number().min(1).max(5).optional(),
   modelRisk: z.number().min(1).max(5).optional(),
   adoptionReadiness: z.number().min(1).max(5).optional(),
-  // AI Governance Levers (conditional on RSA active)
+  // AI Governance Levers (all optional)
   explainabilityBias: z.number().min(1).max(5).optional(),
   regulatoryCompliance: z.number().min(1).max(5).optional(),
-}).refine((data) => {
-  // Conditional validation: if RSA active, scoring fields are required
-  if (data.isActiveForRsa === 'true') {
-    const requiredFields = [
-      'revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
-      'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness',
-      'explainabilityBias', 'regulatoryCompliance'
-    ];
-    
-    for (const field of requiredFields) {
-      if (!data[field as keyof typeof data] || data[field as keyof typeof data] === undefined) {
-        return false;
-      }
-    }
-    
-    // Activation reason required
-    if (!data.activationReason || data.activationReason.trim().length < 10) {
-      return false;
-    }
-  }
-  return true;
-}, {
-  message: "All scoring fields and activation reason (minimum 10 characters) are required when including in RSA portfolio",
-  path: ["isActiveForRsa"]
 });
 
 type FormData = z.infer<typeof formSchema>;

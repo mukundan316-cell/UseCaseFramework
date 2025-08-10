@@ -383,8 +383,8 @@ export default function UseCaseExplorerLegoBlock({
             {filteredUseCases.map((useCase) => (
               <Card key={useCase.id} className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg border" 
                     style={{ borderLeftWidth: '4px', borderLeftColor: useCase.quadrant ? getQuadrantColor(useCase.quadrant) : '#e5e7eb' }}>
-                {/* Quadrant Badge */}
-                {useCase.quadrant && (
+                {/* Quadrant Badge - Only for RSA Active Portfolio */}
+                {showQuadrantFilters && useCase.quadrant && (
                   <div className={`absolute right-3 top-3 px-2 py-1 rounded text-xs font-semibold text-white ${getQuadrantBackgroundColor(useCase.quadrant)}`}>
                     {useCase.quadrant === 'Quick Win' && 'Quick Win'}
                     {useCase.quadrant === 'Strategic Bet' && 'Strategic Bet'}
@@ -421,8 +421,8 @@ export default function UseCaseExplorerLegoBlock({
                     </div>
                   </div>
 
-                  {/* Scores Display */}
-                  {useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
+                  {/* Scores Display - Only for RSA Active Portfolio */}
+                  {showQuadrantFilters && useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
                     <div className="flex justify-between items-center">
                       <div className="text-center bg-green-50 rounded-lg p-3 flex-1 mr-2">
                         <div className="text-2xl font-bold text-green-700">
