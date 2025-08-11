@@ -130,14 +130,17 @@ export class QuestionnairePdfService {
    * Add main section header
    */
   private static addSectionHeader(doc: any, title: string, sectionNumber?: string): void {
-    // Add page if close to bottom
-    if (doc.y > 720) {
+    // Add page if close to bottom with better space calculation
+    if (doc.y > 680) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
     }
     
-    doc.moveDown(1);
+    // More generous spacing before section
+    if (doc.y > 80) {
+      doc.moveDown(1.5);
+    }
     
     // Section background box
     const boxY = doc.y;
@@ -153,21 +156,24 @@ export class QuestionnairePdfService {
        .text(headerText, 80, boxY + 12);
     
     doc.y = boxY + 45;
-    doc.moveDown(0.5);
+    doc.moveDown(0.8);
   }
 
   /**
    * Add subsection header
    */
   private static addSubsectionHeader(doc: any, title: string): void {
-    // Add page if close to bottom
-    if (doc.y > 740) {
+    // Add page if close to bottom with better space calculation
+    if (doc.y > 700) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
     }
     
-    doc.moveDown(0.8);
+    // Better spacing before subsection
+    if (doc.y > 80) {
+      doc.moveDown(1.0);
+    }
     
     doc.fontSize(11)
        .fillColor('#005DAA')
@@ -180,7 +186,7 @@ export class QuestionnairePdfService {
        .lineTo(doc.x + textWidth, doc.y + 2)
        .stroke('#005DAA');
     
-    doc.moveDown(0.5);
+    doc.moveDown(0.7);
   }
 
   /**
@@ -336,14 +342,21 @@ export class QuestionnairePdfService {
    * Enhanced question rendering with form structure
    */
   private static addEnhancedQuestion(doc: any, question: any, response?: any, questionNumber?: number): void {
-    // Check if we have enough space for question + response (approx 150px)
-    if (doc.y > 650) {
+    // Calculate minimum space needed for question + response
+    const estimatedQuestionHeight = Math.max(60, doc.heightOfString(question.questionText, { width: 480 }) + 40);
+    const minSpaceNeeded = estimatedQuestionHeight + 100; // Additional buffer for response
+    
+    // Check if we need a new page with better space calculation
+    if (doc.y + minSpaceNeeded > 750) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
     }
     
-    doc.moveDown(0.8);
+    // Consistent spacing before each question
+    if (doc.y > 80) {
+      doc.moveDown(1.2);
+    }
     
     // Question number and text with better formatting
     const questionText = questionNumber ? `Q${questionNumber}: ${question.questionText}` : question.questionText;
@@ -353,7 +366,7 @@ export class QuestionnairePdfService {
        .font('Helvetica-Bold')
        .text(questionText, { width: 480, lineGap: 5 });
     
-    doc.moveDown(0.3);
+    doc.moveDown(0.4);
     
     // Question description if available
     if (question.helpText) {
@@ -362,7 +375,7 @@ export class QuestionnairePdfService {
          .font('Helvetica-Oblique')
          .text(question.helpText, { width: 480, lineGap: 3 });
       
-      doc.moveDown(0.5);
+      doc.moveDown(0.6);
     }
     
     // Parse question data for form structure
@@ -434,7 +447,7 @@ export class QuestionnairePdfService {
       responseHeight = this.renderQuestionFormElements(doc, question, questionData, responseY);
     }
     
-    doc.y = responseY + responseHeight + 10;
+    doc.y = responseY + responseHeight + 15;
   }
 
   /**
@@ -939,20 +952,22 @@ export class QuestionnairePdfService {
       switch (questionType) {
         case 'company_profile':
           if (data.companyName || data.gwp || data.employees || data.businessType) {
-            // Create a clean info box
-            const boxHeight = 80;
+            // Create a clean info box with dynamic height
+            const fieldCount = [data.companyName, data.businessType, data.gwp, data.employees].filter(Boolean).length;
+            const boxHeight = Math.max(60, 20 + (fieldCount * 18) + 10);
+            
             doc.rect(70, currentY, 460, boxHeight)
                .fill('#F0F8FF')
                .stroke('#005DAA');
             
-            currentY += 10;
+            currentY += 12;
             
             if (data.companyName) {
               doc.fontSize(10)
                  .fillColor('#333333')
                  .font('Helvetica-Bold')
                  .text(`Company: ${data.companyName}`, 80, currentY);
-              currentY += 15;
+              currentY += 18;
             }
             
             if (data.businessType) {
@@ -960,7 +975,7 @@ export class QuestionnairePdfService {
                  .fillColor('#333333')
                  .font('Helvetica')
                  .text(`Business Type: ${data.businessType}`, 80, currentY);
-              currentY += 15;
+              currentY += 18;
             }
             
             if (data.gwp) {
@@ -968,7 +983,7 @@ export class QuestionnairePdfService {
                  .fillColor('#333333')
                  .font('Helvetica')
                  .text(`GWP: ${new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(data.gwp)}`, 80, currentY);
-              currentY += 15;
+              currentY += 18;
             }
             
             if (data.employees) {
@@ -976,27 +991,27 @@ export class QuestionnairePdfService {
                  .fillColor('#333333')
                  .font('Helvetica')
                  .text(`Employees: ${data.employees.toLocaleString()}`, 80, currentY);
-              currentY += 15;
+              currentY += 18;
             }
             
-            totalHeight = boxHeight + 15;
+            totalHeight = boxHeight + 20;
           }
           break;
           
         case 'business_lines_matrix':
           if (data.businessLines && Array.isArray(data.businessLines)) {
-            const boxHeight = 20 + (data.businessLines.length * 20) + 15;
+            const boxHeight = 25 + (data.businessLines.length * 18) + 15;
             doc.rect(70, currentY, 460, boxHeight)
                .fill('#F0F8FF')
                .stroke('#005DAA');
             
-            currentY += 10;
+            currentY += 12;
             
             doc.fontSize(10)
                .fillColor('#333333')
                .font('Helvetica-Bold')
                .text('Business Line Distribution:', 80, currentY);
-            currentY += 20;
+            currentY += 22;
             
             data.businessLines.forEach((line: any) => {
               const lineText = `• ${line.line || line.name || 'Unknown'}: ${line.premium || 0}%`;
@@ -1006,76 +1021,76 @@ export class QuestionnairePdfService {
                  .fillColor('#333333')
                  .font('Helvetica')
                  .text(lineText + trend, 80, currentY);
-              currentY += 15;
+              currentY += 18;
             });
             
-            totalHeight = boxHeight + 15;
+            totalHeight = boxHeight + 20;
           }
           break;
           
         case 'percentage_target':
           if (typeof data === 'object') {
             const entries = Object.entries(data);
-            const boxHeight = 20 + (entries.length * 15) + 10;
+            const boxHeight = 25 + (entries.length * 18) + 10;
             doc.rect(70, currentY, 460, boxHeight)
                .fill('#F0F8FF')
                .stroke('#005DAA');
             
-            currentY += 10;
+            currentY += 12;
             
             doc.fontSize(10)
                .fillColor('#333333')
                .font('Helvetica-Bold')
                .text('Distribution:', 80, currentY);
-            currentY += 20;
+            currentY += 22;
             
             entries.forEach(([key, value]) => {
               doc.fontSize(9)
                  .fillColor('#333333')
                  .font('Helvetica')
                  .text(`• ${key}: ${value}%`, 80, currentY);
-              currentY += 15;
+              currentY += 18;
             });
             
-            totalHeight = boxHeight + 15;
+            totalHeight = boxHeight + 20;
           }
           break;
           
         case 'ranking':
           if (Array.isArray(data)) {
-            const boxHeight = 20 + (data.length * 15) + 10;
+            const boxHeight = 25 + (data.length * 18) + 10;
             doc.rect(70, currentY, 460, boxHeight)
                .fill('#F0F8FF')
                .stroke('#005DAA');
             
-            currentY += 10;
+            currentY += 12;
             
             doc.fontSize(10)
                .fillColor('#333333')
                .font('Helvetica-Bold')
                .text('Ranking:', 80, currentY);
-            currentY += 20;
+            currentY += 22;
             
             data.sort((a, b) => (a.rank || 0) - (b.rank || 0)).forEach((item: any) => {
               doc.fontSize(9)
                  .fillColor('#333333')
                  .font('Helvetica')
                  .text(`${item.rank}. ${item.label || item.id}`, 80, currentY);
-              currentY += 15;
+              currentY += 18;
             });
             
-            totalHeight = boxHeight + 15;
+            totalHeight = boxHeight + 20;
           }
           break;
           
         case 'smart_rating':
           if (data.value !== undefined) {
-            const boxHeight = 40;
+            const boxHeight = 45;
             doc.rect(70, currentY, 460, boxHeight)
                .fill('#F0F8FF')
                .stroke('#005DAA');
             
-            currentY += 10;
+            currentY += 12;
             
             const ratingText = `Rating: ${data.value}/5`;
             const labelText = data.label ? ` (${data.label})` : '';
@@ -1085,7 +1100,7 @@ export class QuestionnairePdfService {
                .font('Helvetica-Bold')
                .text(ratingText + labelText, 80, currentY);
             
-            totalHeight = boxHeight + 15;
+            totalHeight = boxHeight + 20;
           }
           break;
           
