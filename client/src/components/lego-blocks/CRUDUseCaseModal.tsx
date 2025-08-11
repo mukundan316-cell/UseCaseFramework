@@ -26,6 +26,7 @@ const formSchema = z.object({
   // All fields optional for maximum flexibility - user can override anything
   title: z.string().optional(),
   description: z.string().optional(),
+  problemStatement: z.string().optional(),
   process: z.string().optional(),
   lineOfBusiness: z.string().optional(),
   // Multi-select arrays (optional)
@@ -279,6 +280,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       const formData = {
         title: useCase.title || '',
         description: useCase.description || '',
+        problemStatement: (useCase as any).problemStatement || '',
         process: useCase.process || '',
         lineOfBusiness: useCase.lineOfBusiness || '',
         linesOfBusiness: (useCase as any).linesOfBusiness || [useCase.lineOfBusiness].filter(Boolean),
@@ -347,6 +349,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       const defaultData = {
         title: '',
         description: '',
+        problemStatement: '',
         process: '',
         lineOfBusiness: '',
         linesOfBusiness: [],
@@ -379,6 +382,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         const originalData = {
           title: useCase.title,
           description: useCase.description,
+          problemStatement: (useCase as any).problemStatement,
           process: useCase.process,
           lineOfBusiness: useCase.lineOfBusiness,
           businessSegment: useCase.businessSegment,
@@ -522,6 +526,19 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               />
               {form.formState.errors.description && (
                 <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="problemStatement">Problem Statement / Business Need</Label>
+              <Textarea
+                id="problemStatement"
+                rows={3}
+                placeholder="Describe the specific business problem or need this use case addresses (e.g., 'Our current claims processing time is 25% higher than industry average, leading to poor customer satisfaction and increased operational costs.')"
+                className="mt-1"
+                {...form.register('problemStatement')}
+              />
+              {form.formState.errors.problemStatement && (
+                <p className="text-sm text-red-600 mt-1">{form.formState.errors.problemStatement.message}</p>
               )}
             </div>
           </div>

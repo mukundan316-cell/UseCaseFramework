@@ -2,6 +2,7 @@ export interface UseCase {
   id: string;
   title: string;
   description: string;
+  problemStatement?: string;
   process: string;
   lineOfBusiness: string;
   linesOfBusiness?: string[];
@@ -53,6 +54,7 @@ export type QuadrantType = "Quick Win" | "Strategic Bet" | "Experimental" | "Wat
 export interface UseCaseFormData {
   title: string;
   description: string;
+  problemStatement?: string;
   process: string;
   lineOfBusiness: string;
   linesOfBusiness?: string[];
