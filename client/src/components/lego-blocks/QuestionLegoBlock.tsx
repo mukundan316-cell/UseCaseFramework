@@ -21,7 +21,7 @@ export interface QuestionOption {
 export interface QuestionData {
   id: string;
   questionText: string;
-  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'smart_rating' | 'ranking' | 'currency' | 'percentage_allocation' | 'percentage_target' | 'business_lines_matrix' | 'department_skills_matrix' | 'company_profile' | 'business_performance' | 'multi_rating';
+  questionType: 'score' | 'scale' | 'multi_choice' | 'select' | 'checkbox' | 'text' | 'textarea' | 'number' | 'email' | 'url' | 'date' | 'smart_rating' | 'ranking' | 'currency' | 'percentage_allocation' | 'percentage_target' | 'business_lines_matrix' | 'department_skills_matrix' | 'company_profile' | 'business_performance' | 'multi_rating' | 'dynamic_use_case_selector';
   isRequired: boolean;
   questionOrder?: number;
   helpText?: string;
@@ -531,6 +531,7 @@ export default function QuestionLegoBlock({
       case 'multi_rating':
       case 'composite':
       case 'risk_appetite':
+      case 'dynamic_use_case_selector':
         // These advanced question types are handled by QuestionRegistryLegoBlock
         return (
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
