@@ -203,13 +203,13 @@ export default function RSAAssessmentLandingPage({
           {/* Tab Navigation */}
           <div className="flex justify-center">
             <TabsList className="grid w-auto grid-cols-2 bg-white/80 backdrop-blur-sm border shadow-lg">
-              <TabsTrigger value="assessment" className="flex items-center gap-2 px-6 py-3">
-                <ClipboardCheck className="w-4 h-4" />
-                AI Assessment
-              </TabsTrigger>
               <TabsTrigger value="roadmap" className="flex items-center gap-2 px-6 py-3">
                 <MapIcon className="w-4 h-4" />
                 AI Roadmap
+              </TabsTrigger>
+              <TabsTrigger value="assessment" className="flex items-center gap-2 px-6 py-3">
+                <ClipboardCheck className="w-4 h-4" />
+                AI Assessment
               </TabsTrigger>
             </TabsList>
           </div>
