@@ -393,7 +393,8 @@ export default function QuestionRegistryLegoBlock({
             onChange={(values: Record<string, number>) => {
               const updatedValue = { 
                 ...currentValue, 
-                targets: values 
+                targets: values,
+                additionalContext: currentValue?.additionalContext || ''
               };
               onResponseChange(questionMeta.id, updatedValue);
             }}
@@ -405,6 +406,7 @@ export default function QuestionRegistryLegoBlock({
             onAdditionalContextChange={(value: string) => {
               const updatedValue = { 
                 ...currentValue, 
+                targets: currentValue?.targets || {},
                 additionalContext: value 
               };
               onResponseChange(questionMeta.id, updatedValue);
@@ -433,7 +435,8 @@ export default function QuestionRegistryLegoBlock({
             onChange={(values: Record<string, number>) => {
               const updatedValue = { 
                 ...currentValue, 
-                allocations: values 
+                allocations: values,
+                additionalContext: currentValue?.additionalContext || ''
               };
               onResponseChange(questionMeta.id, updatedValue);
             }}
@@ -459,6 +462,7 @@ export default function QuestionRegistryLegoBlock({
             onAdditionalContextChange={(value: string) => {
               const updatedValue = { 
                 ...currentValue, 
+                allocations: currentValue?.allocations || {},
                 additionalContext: value 
               };
               onResponseChange(questionMeta.id, updatedValue);
@@ -473,18 +477,25 @@ export default function QuestionRegistryLegoBlock({
         return (
           <BusinessLinesMatrixLegoBlock
             businessLines={currentValue?.businessLines || []}
-            onChange={(businessLines) => onResponseChange(questionMeta.id, { businessLines })}
+            onChange={(businessLines) => {
+              const updatedValue = { 
+                ...currentValue, 
+                businessLines,
+                additionalContext: currentValue?.additionalContext || ''
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
             disabled={logic.isDisabled}
             label={questionMeta.questionText}
             helpText={questionMeta.helpText}
             required={logic.isRequired}
-
             minLines={questionMeta.questionData.minLines || 1}
             maxLines={questionMeta.questionData.maxLines || 10}
             additionalContext={currentValue?.additionalContext || ''}
             onAdditionalContextChange={(value: string) => {
               const updatedValue = { 
                 ...currentValue, 
+                businessLines: currentValue?.businessLines || [],
                 additionalContext: value 
               };
               onResponseChange(questionMeta.id, updatedValue);
@@ -499,7 +510,14 @@ export default function QuestionRegistryLegoBlock({
         return (
           <DepartmentSkillsMatrixLegoBlock
             departments={currentValue?.departments || []}
-            onChange={(departments) => onResponseChange(questionMeta.id, { departments })}
+            onChange={(departments) => {
+              const updatedValue = { 
+                ...currentValue, 
+                departments,
+                additionalContext: currentValue?.additionalContext || ''
+              };
+              onResponseChange(questionMeta.id, updatedValue);
+            }}
             disabled={logic.isDisabled}
             label={questionMeta.questionText}
             helpText={questionMeta.helpText}
@@ -511,6 +529,7 @@ export default function QuestionRegistryLegoBlock({
             onAdditionalContextChange={(value: string) => {
               const updatedValue = { 
                 ...currentValue, 
+                departments: currentValue?.departments || [],
                 additionalContext: value 
               };
               onResponseChange(questionMeta.id, updatedValue);
