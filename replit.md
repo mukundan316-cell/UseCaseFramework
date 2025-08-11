@@ -38,8 +38,12 @@ This design must be used consistently for all CRUD cards throughout the applicat
 - **Manual Override System**: Toggle-based score customization with database persistence
 - **RSA Scoring Framework**: 12-lever system (Business Value, Feasibility, AI Governance)
 - **Assessment System**: 6-section questionnaire with 14 advanced question types
-- **Professional PDF Exports**: McKinsey/Bain/BCG consulting-grade reports with executive summaries, cover pages, and RSA branding
-- **Comprehensive Export System**: Assessment reports, questionnaire templates, populated responses, use case portfolios, and library catalogs
+- **Professional PDF Exports**: Enhanced McKinsey/Bain/BCG consulting-grade reports with:
+  - Executive cover pages with RSA blue branding and confidential classification
+  - Professional tabular formats for all use case details (process, business unit, scores, implementation details)
+  - Context-specific templates optimized for each export type (library catalog, portfolio report, assessment results)
+  - Proper typography, alignment, and visual hierarchy matching consulting standards
+  - Enhanced questionnaire exports supporting both blank templates and populated responses
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts and authentic data
 - **Real-time Persistence**: Database → API → Frontend pattern with live synchronization
 - **Subsection Architecture**: Proper organizational containers with sequential question numbering (Q1-Q52) and collapsible UI

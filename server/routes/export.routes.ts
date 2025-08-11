@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { AssessmentPdfService } from '../services/assessmentPdfService';
+import { EnhancedAssessmentPdfService } from '../services/enhancedAssessmentPdfService';
 import { UseCasePdfService } from '../services/useCasePdfService';
+import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
 import { QuestionnairePdfService } from '../services/questionnairePdfService';
 
 const router = Router();
 
 /**
- * Export assessment report as PDF
+ * Export assessment report as PDF (Enhanced Professional Version)
  * GET /api/export/assessment/:responseId
  */
 router.get('/assessment/:responseId', async (req, res) => {
@@ -17,8 +19,8 @@ router.get('/assessment/:responseId', async (req, res) => {
       return res.status(400).json({ error: 'Response ID is required' });
     }
 
-    console.log('Generating PDF for assessment:', responseId);
-    await AssessmentPdfService.generateAssessmentReport(responseId, res);
+    console.log('Generating enhanced PDF for assessment:', responseId);
+    await EnhancedAssessmentPdfService.generateAssessmentReport(responseId, res);
   } catch (error) {
     console.error('Assessment PDF export error:', error);
     if (!res.headersSent) {
@@ -28,14 +30,14 @@ router.get('/assessment/:responseId', async (req, res) => {
 });
 
 /**
- * Export use case library as PDF
+ * Export use case library as PDF (Enhanced Professional Version)
  * GET /api/export/library?category=all&status=active
  */
 router.get('/library', async (req, res) => {
   try {
     const { category = 'all', status = 'all' } = req.query;
     
-    await UseCasePdfService.generateLibraryCatalog(res, {
+    await EnhancedUseCasePdfService.generateLibraryCatalog(res, {
       category: category as string,
       status: status as string,
     });
@@ -46,12 +48,12 @@ router.get('/library', async (req, res) => {
 });
 
 /**
- * Export RSA active portfolio as PDF
+ * Export RSA active portfolio as PDF (Enhanced Professional Version)
  * GET /api/export/portfolio
  */
 router.get('/portfolio', async (req, res) => {
   try {
-    await UseCasePdfService.generatePortfolioReport(res);
+    await EnhancedUseCasePdfService.generatePortfolioReport(res);
   } catch (error) {
     console.error('Portfolio PDF export error:', error);
     res.status(500).json({ error: 'Failed to export portfolio report' });
