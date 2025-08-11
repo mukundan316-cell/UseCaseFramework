@@ -40,7 +40,12 @@ This design must be used consistently for all CRUD cards throughout the applicat
   - Business Context (lines of business, segments, geographies, processes, activities)
   - Implementation & Governance (owner, status, timeline, metrics, technologies, stakeholders)
   - RSA Framework Assessment (all 12 scoring dimensions with visual indicators, manual overrides)
-- **Enhanced Questionnaire PDFs**: Added proper section/subsection hierarchy, question types, help text, and tailored response areas
+- **Enhanced Questionnaire PDFs**: Complete overhaul to show actual form components and interactive elements from UI:
+  - Company Profile forms with input fields, currency inputs, dropdowns, and multi-select checkboxes
+  - Business Lines Matrix with visual table structures and percentage input boxes
+  - Percentage Target sliders with visual track and handle representations
+  - Proper form field rendering matching UI components (text inputs, dropdowns, checkboxes)
+  - Visual indicators for scales, scores, and rating systems
 - **Professional PDF Formatting**: Comprehensive layouts with RSA branding, proper spacing, section headers, and visual score indicators
 - **Database Schema Consistency**: Fixed camelCase field naming across all PDF export services
 

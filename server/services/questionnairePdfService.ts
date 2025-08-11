@@ -333,6 +333,333 @@ export class QuestionnairePdfService {
   }
 
   /**
+   * Enhanced question rendering with form structure
+   */
+  private static addEnhancedQuestion(doc: any, question: any, response?: any, questionNumber?: number): void {
+    // Check if we have enough space for question + response (approx 150px)
+    if (doc.y > 650) {
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
+      doc.y = 80;
+    }
+    
+    doc.moveDown(0.8);
+    
+    // Question number and text with better formatting
+    const questionText = questionNumber ? `Q${questionNumber}: ${question.questionText}` : question.questionText;
+    
+    doc.fontSize(11)
+       .fillColor('#333333')
+       .font('Helvetica-Bold')
+       .text(questionText, { width: 480, lineGap: 5 });
+    
+    doc.moveDown(0.3);
+    
+    // Question description if available
+    if (question.helpText) {
+      doc.fontSize(9)
+         .fillColor('#666666')
+         .font('Helvetica-Oblique')
+         .text(question.helpText, { width: 480, lineGap: 3 });
+      
+      doc.moveDown(0.5);
+    }
+    
+    // Parse question data for form structure
+    let questionData = null;
+    if (question.questionData) {
+      try {
+        questionData = typeof question.questionData === 'string' ? 
+          JSON.parse(question.questionData) : question.questionData;
+      } catch (e) {
+        console.warn('Failed to parse question data:', e);
+      }
+    }
+    
+    const responseY = doc.y;
+    let responseHeight = 50;
+    
+    if (response?.answerValue) {
+      // Show actual response with better formatting
+      doc.fontSize(10)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Response:', 70, responseY);
+      
+      // Response background box
+      const answerBoxY = responseY + 15;
+      const answerText = response.answerValue;
+      const answerHeight = Math.max(25, doc.heightOfString(answerText, { width: 450 }) + 10);
+      
+      doc.rect(70, answerBoxY, 460, answerHeight)
+         .fill('#F0F8FF')
+         .stroke('#005DAA');
+      
+      doc.fontSize(10)
+         .fillColor('#333333')
+         .font('Helvetica')
+         .text(answerText, 80, answerBoxY + 8, { width: 440, lineGap: 3 });
+         
+      responseHeight = answerHeight + 25;
+    } else {
+      // Render based on specific question type and data structure
+      responseHeight = this.renderQuestionFormElements(doc, question, questionData, responseY);
+    }
+    
+    doc.y = responseY + responseHeight + 10;
+  }
+
+  /**
+   * Render form elements based on question type and data
+   */
+  private static renderQuestionFormElements(doc: any, question: any, questionData: any, startY: number): number {
+    const questionType = question.questionType;
+    let currentY = startY;
+    let totalHeight = 0;
+    
+    // Company Profile - special structured form
+    if (questionType === 'company_profile' && questionData?.fields) {
+      doc.fontSize(10)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Please complete the following company information:', 70, currentY);
+      
+      currentY += 20;
+      
+      questionData.fields.forEach((field: any) => {
+        this.renderFormField(doc, field, currentY);
+        currentY += this.getFieldHeight(field);
+      });
+      
+      totalHeight = currentY - startY + 10;
+      
+    // Business Lines Matrix - structured form
+    } else if (questionType === 'business_lines_matrix' && questionData?.businessLines) {
+      doc.fontSize(10)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Premium Distribution by Business Line:', 70, currentY);
+      
+      currentY += 20;
+      
+      // Table header
+      doc.fontSize(9)
+         .fillColor('#333333')
+         .font('Helvetica-Bold')
+         .text('Business Line', 80, currentY)
+         .text('Percentage (%)', 350, currentY);
+      
+      currentY += 15;
+      
+      // Draw header underline
+      doc.moveTo(80, currentY)
+         .lineTo(480, currentY)
+         .stroke('#CCCCCC');
+      
+      currentY += 10;
+      
+      // Business line rows
+      if (questionData.businessLines) {
+        questionData.businessLines.forEach((line: any) => {
+          doc.fontSize(9)
+             .fillColor('#333333')
+             .font('Helvetica')
+             .text(line.label || line, 80, currentY);
+          
+          // Draw input box for percentage
+          doc.rect(350, currentY - 3, 80, 15)
+             .stroke('#CCCCCC');
+          
+          doc.fontSize(8)
+             .fillColor('#999999')
+             .text('___%', 355, currentY + 1);
+          
+          currentY += 20;
+        });
+      }
+      
+      totalHeight = currentY - startY + 10;
+      
+    // Percentage Target - slider-like display
+    } else if (questionType === 'percentage_target' && questionData?.targets) {
+      doc.fontSize(10)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Target Allocation Distribution:', 70, currentY);
+      
+      currentY += 20;
+      
+      questionData.targets.forEach((target: any) => {
+        doc.fontSize(9)
+           .fillColor('#333333')
+           .font('Helvetica')
+           .text(`${target.label}:`, 80, currentY);
+        
+        // Visual slider representation
+        const sliderY = currentY + 3;
+        const sliderWidth = 200;
+        
+        // Slider track
+        doc.rect(250, sliderY, sliderWidth, 8)
+           .fill('#F0F0F0')
+           .stroke('#CCCCCC');
+        
+        // Slider handle (placeholder position)
+        doc.circle(250 + (sliderWidth * 0.3), sliderY + 4, 6)
+           .fill('#005DAA')
+           .stroke('#003D75');
+        
+        // Percentage display
+        doc.fontSize(8)
+           .fillColor('#666666')
+           .text('___%', 460, currentY);
+        
+        currentY += 25;
+      });
+      
+      totalHeight = currentY - startY + 10;
+      
+    // Default form elements
+    } else {
+      doc.fontSize(10)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Response Area:', 70, currentY);
+      
+      currentY += 20;
+      
+      // Render based on question type
+      if (questionType === 'textarea') {
+        doc.fontSize(9)
+           .fillColor('#666666')
+           .font('Helvetica-Oblique')
+           .text('Please provide your detailed response:', 80, currentY);
+        
+        currentY += 15;
+        
+        // Text area representation
+        doc.rect(80, currentY, 400, 60)
+           .stroke('#CCCCCC');
+        
+        // Lined writing area
+        for (let i = 1; i < 4; i++) {
+          doc.moveTo(85, currentY + (i * 15))
+             .lineTo(475, currentY + (i * 15))
+             .stroke('#E0E0E0');
+        }
+        
+        totalHeight = 100;
+        
+      } else {
+        // Default text input
+        doc.fontSize(9)
+           .fillColor('#666666')
+           .font('Helvetica-Oblique')
+           .text('Please provide your answer:', 80, currentY);
+        
+        currentY += 15;
+        
+        // Input field representation
+        doc.rect(80, currentY, 300, 20)
+           .stroke('#CCCCCC');
+        
+        totalHeight = 50;
+      }
+    }
+    
+    return totalHeight;
+  }
+
+  /**
+   * Render individual form field
+   */
+  private static renderFormField(doc: any, field: any, startY: number): void {
+    doc.fontSize(9)
+       .fillColor('#333333')
+       .font('Helvetica-Bold')
+       .text(`${field.label}${field.required ? ' *' : ''}:`, 80, startY);
+    
+    const fieldY = startY + 15;
+    
+    switch (field.type) {
+      case 'text':
+        // Text input box
+        doc.rect(80, fieldY, 250, 20)
+           .stroke('#CCCCCC');
+        
+        if (field.placeholder) {
+          doc.fontSize(8)
+             .fillColor('#999999')
+             .text(field.placeholder, 85, fieldY + 6);
+        }
+        break;
+        
+      case 'currency':
+        // Currency input with symbol
+        doc.fontSize(8)
+           .fillColor('#666666')
+           .text(field.currency || 'GBP', 80, fieldY + 6);
+        
+        doc.rect(110, fieldY, 150, 20)
+           .stroke('#CCCCCC');
+        
+        if (field.placeholder) {
+          doc.fontSize(8)
+             .fillColor('#999999')
+             .text(field.placeholder, 115, fieldY + 6);
+        }
+        break;
+        
+      case 'select':
+        // Dropdown representation
+        doc.rect(80, fieldY, 200, 20)
+           .stroke('#CCCCCC');
+        
+        doc.fontSize(8)
+           .fillColor('#999999')
+           .text('▼ Select...', 85, fieldY + 6);
+        
+        // Show options if available
+        if (field.options && field.options.length > 0) {
+          doc.fontSize(7)
+             .fillColor('#888888')
+             .text(`Options: ${field.options.map((opt: any) => opt.label).join(', ')}`, 285, fieldY + 6);
+        }
+        break;
+        
+      case 'multiselect':
+        // Multi-select checkboxes
+        if (field.options) {
+          field.options.forEach((option: any, index: number) => {
+            const checkY = fieldY + (index * 15);
+            
+            // Checkbox
+            doc.rect(80, checkY, 10, 10)
+               .stroke('#CCCCCC');
+            
+            // Option label
+            doc.fontSize(8)
+               .fillColor('#333333')
+               .text(option.label, 95, checkY + 2);
+          });
+        }
+        break;
+    }
+  }
+
+  /**
+   * Calculate height needed for form field
+   */
+  private static getFieldHeight(field: any): number {
+    switch (field.type) {
+      case 'multiselect':
+        return 30 + (field.options ? field.options.length * 15 : 0);
+      default:
+        return 45;
+    }
+  }
+
+  /**
    * Add professional footer
    */
   private static addPageFooter(doc: any): void {
@@ -434,7 +761,7 @@ export class QuestionnairePdfService {
         }
         
         // Add question
-        this.addQuestion(doc, question, null, questionCounter);
+        this.addEnhancedQuestion(doc, question, null, questionCounter);
         questionCounter++;
       });
 
@@ -554,7 +881,7 @@ export class QuestionnairePdfService {
         }
         
         // Add question with response
-        this.addQuestion(doc, question, response, questionCounter);
+        this.addEnhancedQuestion(doc, question, response, questionCounter);
         questionCounter++;
       });
 
