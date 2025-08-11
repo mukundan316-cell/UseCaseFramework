@@ -105,7 +105,8 @@ export default function SubsectionLegoBlock({
             const isAdvancedQuestion = [
               'smart_rating', 'ranking', 'currency', 'percentage_allocation', 
               'percentage_target', 'business_lines_matrix', 'department_skills_matrix',
-              'company_profile', 'business_performance', 'multi_rating', 'composite', 'risk_appetite'
+              'company_profile', 'business_performance', 'multi_rating', 'composite', 'risk_appetite',
+              'dynamic_use_case_selector'
             ].includes(question.questionType);
 
             if (isAdvancedQuestion) {
