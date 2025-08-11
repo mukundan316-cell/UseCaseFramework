@@ -278,7 +278,7 @@ export default function RankingLegoBlockDemo() {
                 <div className="space-y-2 text-sm">
                   <div>Input: Array of <code className="bg-gray-100 px-2 py-1 rounded">RankingItem</code> objects</div>
                   <div>Output: Array of item IDs in ranked order</div>
-                  <div>Storage: JSON array in <code className="bg-gray-100 px-2 py-1 rounded">question_answers.answer_value</code></div>
+                  <div>Storage: JSON array in <code className="bg-gray-100 px-2 py-1 rounded">question_answers.answerValue</code></div>
                   <div>Validation: Configurable completion requirements</div>
                 </div>
               </div>

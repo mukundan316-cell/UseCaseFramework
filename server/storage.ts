@@ -412,14 +412,14 @@ export class DatabaseStorage implements IStorage {
       const rows = Array.isArray(result) ? result : (result as any).rows || [];
       
       return rows.map((row: any) => ({
-        responseId: row.response_id,
-        questionnaireId: row.questionnaire_id,
-        completionPercentage: Number(row.completion_percentage),
-        currentSection: Number(row.current_section),
-        totalSections: Number(row.total_sections),
+        responseId: row.responseId,
+        questionnaireId: row.questionnaireId,
+        completionPercentage: Number(row.completionPercentage),
+        currentSection: Number(row.currentSection),
+        totalSections: Number(row.totalSections),
         lastSaved: new Date(row.timestamp).toLocaleString(),
-        email: row.respondent_email,
-        name: row.respondent_name,
+        email: row.respondentEmail,
+        name: row.respondentName,
         timestamp: Number(row.timestamp)
       }));
     } catch (error) {
