@@ -432,31 +432,69 @@ router.get('/responses/:id/scores', async (req: Request, res: Response) => {
       .innerJoin(questions, eq(questions.id, questionAnswers.questionId))
       .where(eq(questionAnswers.responseId, responseId));
 
-    // Group answers by question type for scoring
-    const scoresByType = answersWithQuestions.reduce((acc, { answer, question }) => {
-      const questionType = question.questionType;
+    // Group answers by scoring category for meaningful assessment scoring
+    const scoresByCategory = answersWithQuestions.reduce((acc, { answer, question }) => {
+      // Use scoring category for grouping, fallback to question type
+      const category = question.scoringCategory || 'general';
       
-      if (!acc[questionType]) {
-        acc[questionType] = [];
+      if (!acc[category]) {
+        acc[category] = [];
       }
       
-      // Convert answer value to numeric score if possible
+      // Convert answer value to numeric score
       let score = answer.score;
-      if (!score && question.questionType === 'score') {
-        score = parseInt(answer.answerValue) || 0;
+      
+      // If no explicit score, calculate based on question type and answer
+      if (!score) {
+        const questionType = question.questionType;
+        const answerValue = answer.answerValue;
+        
+        console.log(`Processing question: ${question.id}, type: ${questionType}, answer: ${answerValue}`);
+        
+        switch (questionType) {
+          case 'score':
+          case 'scale':
+          case 'number':
+            score = parseInt(answerValue) || 0;
+            break;
+          case 'boolean':
+            // Convert boolean to score (yes=5, no=1)
+            const boolValue = answerValue?.toLowerCase();
+            score = (boolValue === 'true' || boolValue === 'yes') ? 5 : 1;
+            break;
+          case 'select':
+            // Try to extract numeric value from select options
+            if (answerValue && !isNaN(Number(answerValue))) {
+              score = Number(answerValue);
+            } else {
+              // Default scoring for text selections
+              score = 3; // Neutral score for participation
+            }
+            break;
+          default:
+            // For all other question types including text, risk_appetite, etc.
+            // Give participation score if answered meaningfully
+            if (answerValue && answerValue.toString().trim().length > 0) {
+              score = 3; // Participation score
+            } else {
+              score = 0; // No answer
+            }
+        }
       }
       
-      if (score) {
-        acc[questionType].push(score);
+      console.log(`Calculated score: ${score} for category: ${category}`);
+      
+      if (score && score > 0) {
+        acc[category].push(score);
       }
       
       return acc;
     }, {} as Record<string, number[]>);
 
-    // Calculate average scores by type
-    const averageScores = Object.entries(scoresByType).reduce((acc, [type, scores]) => {
+    // Calculate average scores by category
+    const averageScores = Object.entries(scoresByCategory).reduce((acc, [category, scores]) => {
       if (scores.length > 0) {
-        acc[type] = {
+        acc[category] = {
           average: scores.reduce((sum, score) => sum + score, 0) / scores.length,
           count: scores.length,
           total: scores.reduce((sum, score) => sum + score, 0)
@@ -466,7 +504,7 @@ router.get('/responses/:id/scores', async (req: Request, res: Response) => {
     }, {} as Record<string, { average: number; count: number; total: number }>);
 
     // Calculate maturity levels based on averages
-    const maturityLevels = Object.entries(averageScores).reduce((acc, [type, data]) => {
+    const maturityLevels = Object.entries(averageScores).reduce((acc, [category, data]) => {
       const { average } = data;
       
       let level = 'Initial';
@@ -475,7 +513,7 @@ router.get('/responses/:id/scores', async (req: Request, res: Response) => {
       else if (average >= 2.5) level = 'Defined';
       else if (average >= 1.5) level = 'Repeatable';
       
-      acc[type] = {
+      acc[category] = {
         ...data,
         level,
         percentage: Math.round((average / 5) * 100)

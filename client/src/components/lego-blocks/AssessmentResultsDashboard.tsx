@@ -129,8 +129,8 @@ export default function AssessmentResultsDashboard({
     }
   }, [actualResponseId, maturityScores, useCases, existingRecommendations, generateRecommendations]);
 
-  // Early return AFTER all hooks are called
-  if (!maturityScores || !actualResponseId) {
+  // Early return AFTER all hooks are called - check for meaningful maturity data
+  if (!maturityScores || !actualResponseId || Object.keys(maturityScores.maturityLevels || {}).length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="text-center">
