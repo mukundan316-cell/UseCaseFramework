@@ -152,21 +152,19 @@ export default function RSAAssessmentLandingPage({
     <div className={cn("min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50", className)}>
       {/* Enhanced Header */}
       <div className="bg-gradient-to-r from-[#005DAA] via-[#0066BB] to-[#9F4F96] text-white">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="text-center space-y-6">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-              <CheckCircle2 className="w-5 h-5 text-white" />
+              <CheckCircle2 className="w-4 h-4 text-white" />
               <span className="text-sm font-medium">Strategic AI Framework</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+            <h1 className="text-3xl md:text-4xl font-bold leading-tight">
               RSA AI Strategy Assessment Framework
             </h1>
             
-
-            
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-4xl mx-auto">
-              <p className="text-lg text-blue-50 leading-relaxed">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 max-w-4xl mx-auto">
+              <p className="text-base text-blue-50 leading-relaxed">
                 This comprehensive assessment enables RSA to develop a tailored AI strategy that moves beyond current data 
                 management focus to unlock £10-50M in annual value through targeted AI initiatives across Commercial and Specialty 
                 insurance operations.
