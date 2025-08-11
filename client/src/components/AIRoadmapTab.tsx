@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+
 import { Target, Users, Shield, Database, Cog, TrendingUp, Building } from "lucide-react";
 
 const AIRoadmapTab = () => {
@@ -25,7 +25,6 @@ const AIRoadmapTab = () => {
         'Launch first AI product',
         'Establish AI product portfolio and value monitoring'
       ],
-      progress: 65
     },
     {
       id: 'value',
@@ -46,8 +45,7 @@ const AIRoadmapTab = () => {
         'Establish AI operating target & architecture',
         'Clarify roles & handoffs across functions',
         'Pilot governance tooling'
-      ],
-      progress: 45
+      ]
     },
     {
       id: 'organization',
@@ -69,7 +67,6 @@ const AIRoadmapTab = () => {
         'Clarify roles & handoffs across functions',
         'Pilot governance tooling'
       ],
-      progress: 55
     },
     {
       id: 'people',
@@ -89,8 +86,7 @@ const AIRoadmapTab = () => {
         'Define decision rights & RACI for AI',
         'Set cross-functional governance board',
         'Pilot governance tooling for AI'
-      ],
-      progress: 40
+      ]
     },
     {
       id: 'risk',
@@ -111,7 +107,6 @@ const AIRoadmapTab = () => {
         'Set cross-functional governance board',
         'Pilot governance tooling for AI'
       ],
-      progress: 70
     },
     {
       id: 'engineering',
@@ -131,8 +126,7 @@ const AIRoadmapTab = () => {
         'Build an enterprise AI data platform',
         'Implement data observability for AI',
         'Deliver domain data products for AI'
-      ],
-      progress: 50
+      ]
     },
     {
       id: 'data',
@@ -153,31 +147,12 @@ const AIRoadmapTab = () => {
         'Implement data observability for AI',
         'Deliver domain data products for AI'
       ],
-      progress: 35
+
     }
   ];
 
-  const overallProgress = Math.round(
-    roadmapPillars.reduce((acc, pillar) => acc + pillar.progress, 0) / roadmapPillars.length
-  );
-
   return (
     <div className="space-y-8">
-      {/* Overall Progress */}
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Overall AI Readiness Progress</h2>
-            <Badge variant="secondary" className="text-lg px-3 py-1">
-              {overallProgress}% Complete
-            </Badge>
-          </div>
-          <Progress value={overallProgress} className="h-3" />
-          <p className="text-gray-600">
-            Strategic roadmap progress across seven foundational pillars
-          </p>
-        </div>
-      </Card>
 
       {/* CIO AI Roadmap */}
       <div className="space-y-6">
@@ -219,21 +194,14 @@ const AIRoadmapTab = () => {
             </Card>
             {roadmapPillars.map((pillar) => (
               <Card key={`${pillar.id}-foundations`} className={`p-4 ${pillar.lightColor}`}>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between mb-3">
-                    <Badge variant="outline" className={pillar.textColor}>
-                      {pillar.progress}% Complete
-                    </Badge>
-                  </div>
-                  <ul className="space-y-1 text-sm">
-                    {pillar.foundations.map((item, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-gray-500 mt-1">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <ul className="space-y-1 text-sm">
+                  {pillar.foundations.map((item, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-gray-500 mt-1">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </Card>
             ))}
           </div>
