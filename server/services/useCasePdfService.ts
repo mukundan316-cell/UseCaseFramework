@@ -3,8 +3,102 @@ import { db } from '../db';
 import { useCases } from '@shared/schema';
 import { eq, and, or } from 'drizzle-orm';
 import { Response } from 'express';
+import { format } from 'date-fns';
 
 export class UseCasePdfService {
+  /**
+   * Add RSA branded header with logo and professional styling
+   */
+  private static addRSAHeader(doc: any, title: string): void {
+    const pageWidth = doc.page.width;
+    
+    // RSA Blue gradient header background
+    doc.rect(0, 0, pageWidth, 80)
+       .fill('#005DAA');
+    
+    // Add subtle sunburst pattern
+    doc.save();
+    doc.translate(60, 40);
+    
+    // Create sunburst rays
+    for (let i = 0; i < 12; i++) {
+      doc.save();
+      doc.rotate((i * 30) * Math.PI / 180);
+      doc.rect(-1, -25, 2, 15)
+         .fill('#0066CC');
+      doc.restore();
+    }
+    doc.restore();
+
+    // RSA Logo area
+    doc.rect(20, 15, 50, 50)
+       .fill('#FFFFFF');
+    
+    doc.fontSize(16)
+       .fillColor('#005DAA')
+       .font('Helvetica-Bold')
+       .text('RSA', 35, 32);
+    
+    doc.fontSize(8)
+       .fillColor('#005DAA')
+       .font('Helvetica')
+       .text('INSURANCE', 25, 48);
+
+    // Title
+    doc.fontSize(18)
+       .fillColor('#FFFFFF')
+       .font('Helvetica-Bold')
+       .text(title, 90, 25);
+    
+    // Subtitle
+    doc.fontSize(12)
+       .fillColor('#CCE5FF')
+       .font('Helvetica')
+       .text('AI Innovation Portfolio', 90, 45);
+
+    // Date and reference
+    doc.fontSize(10)
+       .fillColor('#FFFFFF')
+       .text(`Generated: ${format(new Date(), 'PPP')}`, pageWidth - 200, 25);
+    
+    doc.fontSize(8)
+       .fillColor('#CCE5FF')
+       .text('Confidential & Proprietary', pageWidth - 200, 40);
+  }
+
+  /**
+   * Add RSA branded footer
+   */
+  private static addRSAFooter(doc: any, reportType: string): void {
+    const pageHeight = doc.page.height;
+    const pageWidth = doc.page.width;
+    
+    // Footer line
+    doc.moveTo(60, pageHeight - 60)
+       .lineTo(pageWidth - 60, pageHeight - 60)
+       .stroke('#005DAA');
+    
+    // Footer content
+    doc.fontSize(10)
+       .fillColor('#005DAA')
+       .font('Helvetica-Bold')
+       .text('RSA Insurance', 60, pageHeight - 45);
+    
+    doc.fontSize(8)
+       .fillColor('#666666')
+       .font('Helvetica')
+       .text(`AI Use Case Value Framework | ${reportType}`, 60, pageHeight - 30);
+    
+    // Contact information
+    doc.fontSize(8)
+       .fillColor('#666666')
+       .text('For more information, contact your RSA Digital Innovation team', pageWidth - 300, pageHeight - 45, { align: 'right' });
+    
+    // Page number and timestamp
+    doc.fontSize(8)
+       .fillColor('#999999')
+       .text(`Page 1 | ${format(new Date(), 'PPpp')}`, pageWidth - 150, pageHeight - 30, { align: 'right' });
+  }
   /**
    * Generate use case library catalog
    */
@@ -31,15 +125,10 @@ export class UseCasePdfService {
       
       doc.pipe(res);
 
-      // Header
-      doc.rect(0, 0, doc.page.width, 60)
-         .fill('#005DAA');
-      
-      doc.fontSize(20)
-         .fillColor('#FFFFFF')
-         .text('RSA AI Use Case Library', 60, 20);
+      // Add RSA branded header
+      this.addRSAHeader(doc, 'Use Case Library Catalog');
 
-      doc.y = 100;
+      doc.y = 110;
 
       // Title
       doc.fontSize(24)
@@ -77,6 +166,9 @@ export class UseCasePdfService {
 
         doc.moveDown(1);
       });
+
+      // Add RSA footer
+      this.addRSAFooter(doc, 'Library Catalog');
 
       doc.end();
       console.log('Library catalog generated successfully');
@@ -116,15 +208,10 @@ export class UseCasePdfService {
       
       doc.pipe(res);
 
-      // Header
-      doc.rect(0, 0, doc.page.width, 60)
-         .fill('#005DAA');
-      
-      doc.fontSize(20)
-         .fillColor('#FFFFFF')
-         .text('RSA Active AI Portfolio', 60, 20);
+      // Add RSA branded header
+      this.addRSAHeader(doc, 'Active AI Portfolio Report');
 
-      doc.y = 100;
+      doc.y = 110;
 
       // Title
       doc.fontSize(24)
@@ -174,6 +261,9 @@ export class UseCasePdfService {
            .fillColor('#666666')
            .text('No active use cases found in the portfolio.');
       }
+
+      // Add RSA footer
+      this.addRSAFooter(doc, 'Portfolio Report');
 
       doc.end();
       console.log('Portfolio report generated successfully');
