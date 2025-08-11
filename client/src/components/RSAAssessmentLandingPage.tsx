@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Clock, CheckCircle2, Target, TrendingUp, Shield, Users, Play, RotateCcw, Eye, ArrowLeft, Home } from 'lucide-react';
+import { Clock, CheckCircle2, Target, TrendingUp, Shield, Users, Play, RotateCcw, Eye, ArrowLeft, Home, ClipboardCheck, MapIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import ReusableButton from './lego-blocks/ReusableButton';
 import { useProgressPersistence } from '@/hooks/useProgressPersistence';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 import { useUseCases } from '@/contexts/UseCaseContext';
+import AIRoadmapTab from './AIRoadmapTab';
 
 interface RSAAssessmentLandingPageProps {
   className?: string;
@@ -147,57 +149,99 @@ export default function RSAAssessmentLandingPage({
   };
 
   return (
-    <div className={cn("max-w-6xl mx-auto p-6 space-y-8", className)}>
-      {/* Navigation Header */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
-          onClick={handleBackToDashboard}
-          className="flex items-center space-x-2 border-[#005DAA] text-[#005DAA] hover:bg-[#005DAA] hover:text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Dashboard</span>
-        </Button>
-        
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
-          <Home className="h-4 w-4" />
-          <span>RSA AI Strategy Framework</span>
-        </div>
-      </div>
-
-      {/* Hero Section */}
-      <div className="text-center space-y-6">
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-            RSA AI Strategy Assessment Framework
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600">
-            Comprehensive evaluation to unlock £10-50M in annual value
-          </p>
-        </div>
-        
-        <div className="bg-gradient-to-r from-[#005DAA]/10 to-[#9F4F96]/10 p-6 rounded-lg border border-[#005DAA]/20">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-lg text-gray-700 leading-relaxed">
-              This comprehensive assessment enables RSA to develop a tailored AI strategy that moves beyond current data management focus to unlock £10-50M in annual value through targeted AI initiatives across Commercial and Specialty insurance operations.
+    <div className={cn("min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50", className)}>
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-[#005DAA] via-[#0066BB] to-[#9F4F96] text-white">
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="text-center space-y-6">
+            <div className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+              <CheckCircle2 className="w-5 h-5 text-white" />
+              <span className="text-sm font-medium">Strategic AI Framework</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+              RSA AI Strategy Assessment Framework
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+              Comprehensive evaluation to unlock £10-50M in annual value
             </p>
+            
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-4xl mx-auto">
+              <p className="text-lg text-blue-50 leading-relaxed">
+                This comprehensive assessment enables RSA to develop a tailored AI strategy that moves beyond current data 
+                management focus to unlock £10-50M in annual value through targeted AI initiatives across Commercial and Specialty 
+                insurance operations.
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Assessment State Alert */}
-      {assessmentState !== 'none' && (
-        <Alert className="border-[#005DAA]/20 bg-[#005DAA]/5">
-          <CheckCircle2 className="h-4 w-4 text-[#005DAA]" />
-          <AlertDescription className="text-[#005DAA]">
-            {assessmentState === 'completed' ? (
-              <>Assessment completed! You can view your results or retake the assessment.</>
-            ) : (
-              <>Assessment in progress ({progressData?.completionPercentage || 0}% complete). You can resume where you left off.</>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Navigation */}
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={handleBackToDashboard}
+            className="flex items-center space-x-2 border-[#005DAA] text-[#005DAA] hover:bg-[#005DAA] hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Dashboard</span>
+          </Button>
+          
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Home className="h-4 w-4" />
+            <span>RSA AI Strategy Framework</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content with Tabs */}
+      <div className="max-w-7xl mx-auto px-6 pb-12">
+        <Tabs defaultValue="assessment" className="space-y-8">
+          {/* Tab Navigation */}
+          <div className="flex justify-center">
+            <TabsList className="grid w-auto grid-cols-2 bg-white/80 backdrop-blur-sm border shadow-lg">
+              <TabsTrigger value="assessment" className="flex items-center gap-2 px-6 py-3">
+                <ClipboardCheck className="w-4 h-4" />
+                AI Assessment
+              </TabsTrigger>
+              <TabsTrigger value="roadmap" className="flex items-center gap-2 px-6 py-3">
+                <MapIcon className="w-4 h-4" />
+                AI Roadmap
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* Assessment Tab Content */}
+          <TabsContent value="assessment" className="space-y-8">{renderAssessmentContent()}</TabsContent>
+
+          {/* Roadmap Tab Content */}
+          <TabsContent value="roadmap" className="space-y-8">
+            <AIRoadmapTab />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+
+  function renderAssessmentContent() {
+    return (
+      <div className="space-y-8">
+        {/* Assessment State Alert */}
+        {assessmentState !== 'none' && (
+          <Alert className="border-[#005DAA]/20 bg-[#005DAA]/5">
+            <CheckCircle2 className="h-4 w-4 text-[#005DAA]" />
+            <AlertDescription className="text-[#005DAA]">
+              {assessmentState === 'completed' ? (
+                <>Assessment completed! You can view your results or retake the assessment.</>
+              ) : (
+                <>Assessment in progress ({progressData?.completionPercentage || 0}% complete). You can resume where you left off.</>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
       {/* Value Proposition Cards */}
       <div className="space-y-6">
@@ -401,6 +445,7 @@ export default function RSAAssessmentLandingPage({
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+      </div>
+    );
+  }
 }
