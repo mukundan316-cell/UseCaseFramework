@@ -272,7 +272,7 @@ export default function QuestionRegistryLegoBlock({
           return item;
         });
         
-        return (
+        return withQuestionNumber(
           <RankingLegoBlock
             question={{
               id: questionMeta.id,
@@ -302,7 +302,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render SmartRatingLegoBlock for smart_rating type
       if (questionMeta.questionType === 'smart_rating') {
-        return (
+        return withQuestionNumber(
           <SmartRatingLegoBlock
             question={{
               id: questionMeta.id,
@@ -333,7 +333,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render ScoreSliderLegoBlock for scale/score types
       if (questionMeta.questionType === 'scale' || questionMeta.questionType === 'score') {
-        return (
+        return withQuestionNumber(
           <ScoreSliderLegoBlock
             label={questionMeta.questionText}
             field={questionMeta.id}
@@ -351,7 +351,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render CurrencyInputLegoBlock for currency type
       if (questionMeta.questionType === 'currency') {
-        return (
+        return withQuestionNumber(
           <CurrencyInputLegoBlock
             label={questionMeta.questionText}
             value={currentValue?.value || null}
@@ -385,7 +385,7 @@ export default function QuestionRegistryLegoBlock({
           placeholder: questionMeta.questionData.placeholder || '0.0'
         }));
         
-        return (
+        return withQuestionNumber(
           <PercentageTargetLegoBlock
             label={questionMeta.questionText}
             categories={categories}
@@ -427,7 +427,7 @@ export default function QuestionRegistryLegoBlock({
           color: `hsl(${(index * 60) % 360}, 60%, 50%)`
         }));
         
-        return (
+        return withQuestionNumber(
           <PercentageAllocationLegoBlock
             label={questionMeta.questionText}
             categories={categories}
@@ -474,7 +474,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render BusinessLinesMatrixLegoBlock for business_lines_matrix type
       if (questionMeta.questionType === 'business_lines_matrix') {
-        return (
+        return withQuestionNumber(
           <BusinessLinesMatrixLegoBlock
             businessLines={currentValue?.businessLines || []}
             onChange={(businessLines) => {
@@ -507,7 +507,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render DepartmentSkillsMatrixLegoBlock for department_skills_matrix type
       if (questionMeta.questionType === 'department_skills_matrix') {
-        return (
+        return withQuestionNumber(
           <DepartmentSkillsMatrixLegoBlock
             departments={currentValue?.departments || []}
             onChange={(departments) => {
@@ -554,7 +554,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render BusinessPerformanceLegoBlock for business_performance type
       if (questionMeta.questionType === 'business_performance') {
-        return (
+        return withQuestionNumber(
           <BusinessPerformanceLegoBlock
             question={{
               id: questionMeta.id,
@@ -572,7 +572,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render MultiRatingLegoBlock for multi_rating type
       if (questionMeta.questionType === 'multi_rating') {
-        return (
+        return withQuestionNumber(
           <MultiRatingLegoBlock
             label={questionMeta.questionText}
             items={questionMeta.questionData.items || []}
@@ -592,7 +592,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render CompositeQuestionLegoBlock for composite type  
       if (questionMeta.questionType === 'composite') {
-        return (
+        return withQuestionNumber(
           <CompositeQuestionLegoBlock
             label={questionMeta.questionText}
             helpText={questionMeta.helpText}
@@ -607,7 +607,7 @@ export default function QuestionRegistryLegoBlock({
 
       // Render RiskAppetiteLegoBlock for risk_appetite type  
       if (questionMeta.questionType === 'risk_appetite') {
-        return (
+        return withQuestionNumber(
           <RiskAppetiteLegoBlock
             label={questionMeta.questionText}
             helpText={questionMeta.helpText}
