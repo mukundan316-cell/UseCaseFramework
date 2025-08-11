@@ -167,18 +167,18 @@ const AIRoadmapTab = () => {
         <div className="space-y-3">
           {/* Headers Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="p-4 bg-gray-100">
-              <h3 className="text-xl font-bold text-gray-900 text-center">
+            <Card className="p-5 bg-gray-100">
+              <h3 className="text-2xl font-bold text-gray-900 text-center">
                 Strategic Pillars
               </h3>
             </Card>
-            <Card className="p-4 bg-gray-100">
-              <h3 className="text-xl font-bold text-gray-900 text-center">
+            <Card className="p-5 bg-gray-100">
+              <h3 className="text-2xl font-bold text-gray-900 text-center">
                 Start here
               </h3>
             </Card>
-            <Card className="p-4 bg-gray-600 text-white">
-              <h3 className="text-xl font-bold text-center">
+            <Card className="p-5 bg-gray-600 text-white">
+              <h3 className="text-2xl font-bold text-center">
                 Scale & optimize (advanced)
               </h3>
             </Card>
@@ -190,32 +190,32 @@ const AIRoadmapTab = () => {
             return (
               <div key={pillar.id} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
                 {/* Pillar Card */}
-                <Card className={`p-4 ${pillar.color} text-white flex items-center`}>
-                  <div className="flex items-center gap-3 w-full">
-                    <IconComponent className="w-6 h-6 flex-shrink-0" />
-                    <span className="font-semibold text-lg">{pillar.title}</span>
+                <Card className={`p-5 ${pillar.color} text-white flex items-center`}>
+                  <div className="flex items-center gap-4 w-full">
+                    <IconComponent className="w-7 h-7 flex-shrink-0" />
+                    <span className="font-bold text-xl">{pillar.title}</span>
                   </div>
                 </Card>
 
                 {/* Foundations Card */}
-                <Card className={`p-4 ${pillar.lightColor}`}>
-                  <ul className="space-y-2 text-sm">
+                <Card className={`p-5 ${pillar.lightColor}`}>
+                  <ul className="space-y-3 text-base">
                     {pillar.foundations.map((item, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-gray-500 mt-1 flex-shrink-0">•</span>
-                        <span className="leading-relaxed">{item}</span>
+                      <li key={index} className="flex items-start gap-3">
+                        <span className="text-gray-600 mt-1 flex-shrink-0 font-medium">•</span>
+                        <span className="leading-relaxed font-medium text-gray-800">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </Card>
 
                 {/* Scale & Optimize Card */}
-                <Card className={`p-4 ${pillar.lightColor}`}>
-                  <ul className="space-y-2 text-sm">
+                <Card className={`p-5 ${pillar.lightColor}`}>
+                  <ul className="space-y-3 text-base">
                     {pillar.scaleOptimize.map((item, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-gray-500 mt-1 flex-shrink-0">•</span>
-                        <span className="leading-relaxed">{item}</span>
+                      <li key={index} className="flex items-start gap-3">
+                        <span className="text-gray-600 mt-1 flex-shrink-0 font-medium">•</span>
+                        <span className="leading-relaxed font-medium text-gray-800">{item}</span>
                       </li>
                     ))}
                   </ul>
