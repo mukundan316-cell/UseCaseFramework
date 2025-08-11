@@ -130,13 +130,14 @@ export class QuestionnairePdfService {
    * Add section header
    */
   private static addSectionHeader(doc: any, title: string, questionNumber?: number): void {
-    if (doc.y > 720) {
+    // Only add page if we're really close to bottom (optimize spacing)
+    if (doc.y > 750) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
     }
     
-    doc.moveDown(1);
+    doc.moveDown(0.5);
     
     const headerText = questionNumber ? `${questionNumber}. ${title}` : title;
     
@@ -158,13 +159,14 @@ export class QuestionnairePdfService {
    * Add question with response area
    */
   private static addQuestion(doc: any, question: any, response?: any, questionNumber?: number): void {
-    if (doc.y > 680) {
+    // Check if we have enough space for question + response (approx 100px)
+    if (doc.y > 700) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
     }
     
-    doc.moveDown(1);
+    doc.moveDown(0.5);
     
     // Question number and text
     const questionText = questionNumber ? `Q${questionNumber}: ${question.questionText}` : question.questionText;
@@ -255,7 +257,8 @@ export class QuestionnairePdfService {
         .where(eq(questionnaires.id, questionnaireId));
 
       if (!questionnaireData) {
-        return res.status(404).json({ error: 'Questionnaire not found' });
+        res.status(404).json({ error: 'Questionnaire not found' });
+        return;
       }
 
       // Fetch all questions and subsections through sections
@@ -338,7 +341,8 @@ export class QuestionnairePdfService {
         .where(eq(questionnaireResponses.id, responseId));
 
       if (!responseData) {
-        return res.status(404).json({ error: 'Assessment response not found' });
+        res.status(404).json({ error: 'Assessment response not found' });
+        return;
       }
 
       // Fetch all questions with responses through sections
