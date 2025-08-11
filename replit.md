@@ -34,7 +34,7 @@ This design must be used consistently for all CRUD cards throughout the applicat
 
 ### Key Features
 - **LEGO Architecture**: Reusable components with consistent CRUD card design
-- **Enhanced Use Case CRUD**: Problem Statement field added below Description for business case building
+- **Enhanced Use Case CRUD**: Problem Statement field added below Description; RSA Portfolio Selection moved to bottom for improved workflow
 - **Manual Override System**: Toggle-based score customization with database persistence
 - **RSA Scoring Framework**: 12-lever system (Business Value, Feasibility, AI Governance)
 - **Assessment System**: 6-section questionnaire with 14 advanced question types

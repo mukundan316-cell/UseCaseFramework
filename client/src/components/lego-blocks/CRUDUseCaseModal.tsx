@@ -637,17 +637,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
             </div>
           </div>
 
-          {/* RSA Portfolio Selection LEGO Block */}
-          <RSASelectionToggleLegoBlock
-            isActiveForRsa={rsaSelection.isActiveForRsa}
-            isDashboardVisible={rsaSelection.isDashboardVisible}
-            activationReason={rsaSelection.activationReason}
-            libraryTier={rsaSelection.libraryTier}
-            onRSAToggle={handleRSAToggle}
-            onDashboardToggle={handleDashboardToggle}
-            onActivationReasonChange={handleActivationReasonChange}
-            className="mb-6"
-          />
+
 
           {/* Enhanced RSA Framework Scoring - Conditional on RSA Active */}
           {rsaSelection.isActiveForRsa ? (
@@ -812,6 +802,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </CardContent>
             </Card>
           )}
+
+          {/* RSA Portfolio Selection LEGO Block - Moved to bottom */}
+          <RSASelectionToggleLegoBlock
+            isActiveForRsa={rsaSelection.isActiveForRsa}
+            isDashboardVisible={rsaSelection.isDashboardVisible}
+            activationReason={rsaSelection.activationReason}
+            libraryTier={rsaSelection.libraryTier}
+            onRSAToggle={handleRSAToggle}
+            onDashboardToggle={handleDashboardToggle}
+            onActivationReasonChange={handleActivationReasonChange}
+            className="mb-6"
+          />
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
