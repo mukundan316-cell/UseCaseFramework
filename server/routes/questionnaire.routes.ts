@@ -323,7 +323,7 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
         const [newAnswer] = await db
           .insert(questionAnswers)
           .values({
-            responseId,
+            responseId: responseId,
             questionId: answerData.questionId,
             answerValue: serializedValue,
             score: answerData.score

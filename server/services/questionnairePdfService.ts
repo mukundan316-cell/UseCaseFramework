@@ -1,6 +1,6 @@
 import PDFDocument from 'pdfkit';
 import { db } from '../db';
-import { questionnaires, questions, questionnaireResponses, questionAnswers, questionnaireSubsections } from '@shared/schema';
+import { questionnaires, questions, questionnaireResponses, questionAnswers, questionnaireSubsections, questionnaireSections } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import { Response } from 'express';
 import { format } from 'date-fns';
@@ -258,12 +258,13 @@ export class QuestionnairePdfService {
         return res.status(404).json({ error: 'Questionnaire not found' });
       }
 
-      // Fetch all questions and subsections
+      // Fetch all questions and subsections through sections
       const questionsData = await db
         .select()
         .from(questions)
         .leftJoin(questionnaireSubsections, eq(questions.subsectionId, questionnaireSubsections.id))
-        .where(eq(questions.questionnaireId, questionnaireId))
+        .leftJoin(questionnaireSections, eq(questions.sectionId, questionnaireSections.id))
+        .where(eq(questionnaireSections.questionnaireId, questionnaireId))
         .orderBy(questions.questionOrder);
 
       console.log('Found questions:', questionsData.length);
@@ -333,23 +334,24 @@ export class QuestionnairePdfService {
       const [responseData] = await db
         .select()
         .from(questionnaireResponses)
-        .leftJoin(questionnaires, eq(questionnaireResponses.questionnaireId, questionnaires.id))
+        .leftJoin(questionnaires, eq(questionnaireResponses.questionnaire_id, questionnaires.id))
         .where(eq(questionnaireResponses.id, responseId));
 
       if (!responseData) {
         return res.status(404).json({ error: 'Assessment response not found' });
       }
 
-      // Fetch all questions with responses
+      // Fetch all questions with responses through sections
       const questionsData = await db
         .select()
         .from(questions)
         .leftJoin(questionnaireSubsections, eq(questions.subsectionId, questionnaireSubsections.id))
+        .leftJoin(questionnaireSections, eq(questions.sectionId, questionnaireSections.id))
         .leftJoin(questionAnswers, and(
           eq(questionAnswers.questionId, questions.id),
           eq(questionAnswers.responseId, responseId)
         ))
-        .where(eq(questions.questionnaireId, responseData.questionnaire_responses.questionnaireId))
+        .where(eq(questionnaireSections.questionnaireId, responseData.questionnaire_responses.questionnaire_id))
         .orderBy(questions.questionOrder);
 
       console.log('Found questions with responses:', questionsData.length);
@@ -391,9 +393,9 @@ export class QuestionnairePdfService {
       doc.fontSize(10)
          .fillColor('#333333')
          .font('Helvetica')
-         .text(`Respondent: ${responseData.questionnaire_responses.respondentName || 'Anonymous'}`, 80, infoY + 15)
-         .text(`Email: ${responseData.questionnaire_responses.respondentEmail || 'Not provided'}`, 80, infoY + 30)
-         .text(`Completed: ${format(new Date(responseData.questionnaire_responses.createdAt), 'MMMM d, yyyy')}`, 80, infoY + 45);
+         .text(`Respondent: ${responseData.questionnaire_responses.respondent_name || 'Anonymous'}`, 80, infoY + 15)
+         .text(`Email: ${responseData.questionnaire_responses.respondent_email || 'Not provided'}`, 80, infoY + 30)
+         .text(`Completed: ${responseData.questionnaire_responses.completed_at ? format(new Date(responseData.questionnaire_responses.completed_at), 'MMMM d, yyyy') : 'Recently'}`, 80, infoY + 45);
       
       doc.y = infoY + 80;
       

@@ -252,7 +252,7 @@ export default function AssessmentResultsDashboard({
               
               {/* Export Questionnaire */}
               <QuestionnaireExportLegoBlock
-                questionnaireId={assessmentState?.questionnaireId || 'default'}
+                questionnaireId={responseData?.questionnaire_id || assessmentState?.questionnaireId || '91684df8-9700-4605-bc3e-2320120e5e1b'}
                 responseId={actualResponseId}
                 assessmentTitle="AI Maturity Assessment"
                 variant="outline"
