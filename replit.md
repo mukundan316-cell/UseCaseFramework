@@ -8,6 +8,8 @@ Preferred communication style: Simple, everyday language.
 
 **LEGO-Style Architecture Mandate**: All buttons, modals, components and features must be implemented as reusable LEGO blocks where possible. Follow the "Build Once, Reuse Everywhere" principle to maintain consistency and reduce development overhead. Every new UI element should be evaluated for reusability potential before implementation.
 
+**Database Schema Consistency Principle**: Always use consistent casing between Drizzle schema definitions and database column references to prevent Schema Mismatch errors. The Drizzle schema uses camelCase field names (e.g., `questionId`, `answerValue`) which must match exactly in all database queries. Never mix camelCase and snake_case within the same operation. This prevents critical issues like answer persistence failures and export errors.
+
 **LEGO CRUD Card Design Standard**: All use case cards across the entire application must follow this exact design specification:
 
 **LEGO Field Label Prominence Standard**: All field labels in questionnaire LEGO blocks must use `text-base font-semibold text-gray-900` styling for maximum visibility and consistent user experience across all question types.
@@ -32,6 +34,11 @@ This design must be used consistently for all CRUD cards throughout the applicat
 - **Backend**: Node.js + Express + Drizzle ORM + Zod validation  
 - **Database**: PostgreSQL (12 tables, 130+ records with subsections table)
 
+### Recent Fixes (August 2025)
+- **Answer Persistence Bug**: Fixed critical schema mismatch causing completed assessments to have zero saved answers
+- **Export System**: Resolved questionnaire export failures by correcting database column naming consistency
+- **Database Schema**: Aligned all Drizzle queries to use consistent camelCase field names
+
 ### Key Features
 - **LEGO Architecture**: Reusable components with consistent CRUD card design
 - **Enhanced Use Case CRUD**: Problem Statement field added below Description; RSA Portfolio Selection moved to bottom for improved workflow
@@ -53,3 +60,13 @@ This design must be used consistently for all CRUD cards throughout the applicat
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter
 - **Data**: Drizzle ORM, TanStack Query, Zod, React Hook Form
 - **Build**: Vite, ESBuild
+
+## Critical Development Guidelines
+
+### Database Schema Consistency
+- **Schema-Database Alignment**: Drizzle schema field names (camelCase) must match exactly in all database operations
+- **Common Errors to Avoid**: 
+  - Using `question_id` instead of `questionId` in queries
+  - Mixing `answer_value` and `answerValue` in the same operation
+  - Inconsistent casing in join conditions
+- **Validation**: Always test answer persistence and export functionality after schema changes
