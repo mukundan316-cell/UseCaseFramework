@@ -30,7 +30,7 @@ This design must be used consistently for all CRUD cards throughout the applicat
 ### Stack
 - **Frontend**: React + TypeScript + shadcn/ui + TailwindCSS + Wouter routing
 - **Backend**: Node.js + Express + Drizzle ORM + Zod validation  
-- **Database**: PostgreSQL (11 tables, 113 records)
+- **Database**: PostgreSQL (12 tables, 130+ records with subsections table)
 
 ### Key Features
 - **LEGO Architecture**: Reusable components with consistent CRUD card design
@@ -40,6 +40,7 @@ This design must be used consistently for all CRUD cards throughout the applicat
 - **Assessment System**: 6-section questionnaire with 14 advanced question types
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts and authentic data
 - **Real-time Persistence**: Database → API → Frontend pattern with live synchronization
+- **Subsection Architecture**: Proper organizational containers with sequential question numbering (Q1-Q52) and collapsible UI
 
 ## Dependencies
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL
