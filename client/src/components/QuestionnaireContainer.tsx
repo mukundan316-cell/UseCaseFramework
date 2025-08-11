@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation } from 'wouter';
 
-import { ChevronLeft, ChevronRight, Save, CheckCircle2, AlertCircle, Clock, Wifi, WifiOff, ArrowLeft, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Save, CheckCircle2, AlertCircle, Clock, Wifi, WifiOff, ArrowLeft, Home, Download } from 'lucide-react';
+import ExportButton from './lego-blocks/ExportButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -743,6 +744,20 @@ export default function QuestionnaireContainer({
                 </div>
                 <div className="text-sm text-gray-600">Categories</div>
               </div>
+            </div>
+            
+            {/* Export Assessment Report Button */}
+            <div className="mt-6 flex justify-center">
+              <ExportButton 
+                exportType="assessment"
+                exportId={responseSession?.id}
+                variant="default"
+                size="lg"
+                className="bg-[#005DAA] hover:bg-[#004A8C] text-white px-8 py-3"
+              >
+                <Download className="h-5 w-5 mr-2" />
+                Download Full Report
+              </ExportButton>
             </div>
           </CardContent>
         </Card>

@@ -2,8 +2,9 @@ import React from 'react';
 import MatrixPlot from './MatrixPlot';
 import SummaryMetricsLegoBlock from './lego-blocks/SummaryMetricsLegoBlock';
 import ReportsTabLegoBlock from './lego-blocks/ReportsTabLegoBlock';
+import ExportButton from './lego-blocks/ExportButton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Target } from 'lucide-react';
+import { BarChart3, Target, Download } from 'lucide-react';
 
 
 /**
@@ -16,8 +17,20 @@ export default function DashboardView() {
 
   return (
     <div className="space-y-6">
-      {/* Summary Metrics */}
-      <SummaryMetricsLegoBlock />
+      {/* Summary Metrics with Export */}
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <SummaryMetricsLegoBlock />
+        </div>
+        <div className="ml-4 pt-2">
+          <ExportButton 
+            exportType="portfolio"
+            variant="outline"
+            size="sm"
+            className="bg-white border-blue-200"
+          />
+        </div>
+      </div>
       
       {/* Dashboard Tabs */}
       <Tabs defaultValue="matrix" className="space-y-4">

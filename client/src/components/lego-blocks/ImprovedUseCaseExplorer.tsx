@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus } from 'lucide-react';
+import { Search, Filter, Plus, Download } from 'lucide-react';
+import ExportButton from './ExportButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -167,6 +168,18 @@ export default function ImprovedUseCaseExplorer({
             Add Use Case
           </Button>
         )}
+
+        {/* Export Button */}
+        <ExportButton 
+          exportType={title.includes('Active') ? 'portfolio' : 'library'}
+          filters={{
+            category: filters.useCaseType || 'all',
+            status: title.includes('Active') ? 'active' : 'all'
+          }}
+          variant="outline"
+          size="sm"
+          className="border-blue-200 text-blue-600 hover:bg-blue-50"
+        />
         
         <Button variant="outline" size="sm">
           <Filter className="h-4 w-4 mr-2" />

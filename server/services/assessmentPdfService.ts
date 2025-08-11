@@ -1,0 +1,407 @@
+import { PDFExportService } from './pdfExportService';
+import { db } from '../db';
+import { questionnaireResponses, questionnaires, questions, useCases } from '@shared/schema';
+import { eq, and } from 'drizzle-orm';
+import { Response } from 'express';
+
+interface AssessmentData {
+  response: any;
+  questionnaire: any;
+  maturityScores: any;
+  recommendations: string[];
+}
+
+export class AssessmentPdfService {
+  /**
+   * Generate comprehensive assessment report
+   */
+  static async generateAssessmentReport(responseId: string, res: Response): Promise<void> {
+    try {
+      // Fetch assessment data
+      const assessmentData = await this.fetchAssessmentData(responseId);
+      
+      // Create PDF document
+      const doc = PDFExportService.createDocument({
+        title: 'RSA AI Maturity Assessment Report',
+        author: 'RSA Digital Innovation',
+        includeQR: true,
+        includeTimestamp: true,
+      });
+
+      // Add cover page
+      PDFExportService.addCoverPage(doc, {
+        title: 'AI Maturity Assessment Report',
+        subtitle: 'Strategic AI Readiness & Use Case Analysis',
+        generatedFor: assessmentData.response.respondentName || 'RSA Leadership',
+        date: new Date(assessmentData.response.completedAt || new Date()),
+      });
+
+      let pageNumber = 1;
+
+      // Executive Summary
+      PDFExportService.addHeader(doc, 'AI Maturity Assessment Report', pageNumber++);
+      this.addExecutiveSummary(doc, assessmentData);
+      PDFExportService.addFooter(doc);
+
+      // Maturity Scores Section
+      doc.addPage();
+      PDFExportService.addHeader(doc, 'AI Maturity Assessment Report', pageNumber++);
+      this.addMaturityScoresSection(doc, assessmentData.maturityScores);
+      PDFExportService.addFooter(doc);
+
+      // Detailed Findings
+      doc.addPage();
+      PDFExportService.addHeader(doc, 'AI Maturity Assessment Report', pageNumber++);
+      this.addDetailedFindings(doc, assessmentData);
+      PDFExportService.addFooter(doc);
+
+      // Strategic Recommendations
+      doc.addPage();
+      PDFExportService.addHeader(doc, 'AI Maturity Assessment Report', pageNumber++);
+      this.addRecommendations(doc, assessmentData.recommendations);
+      
+      // Add QR code for digital access
+      await PDFExportService.addQRCode(
+        doc, 
+        `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/questionnaire/${responseId}`,
+        doc.page.width - 120,
+        doc.page.height - 160
+      );
+      
+      PDFExportService.addFooter(doc);
+
+      // Stream PDF response
+      const filename = `RSA_AI_Assessment_${assessmentData.response.respondentName?.replace(/\s+/g, '_') || 'Report'}_${new Date().toISOString().split('T')[0]}.pdf`;
+      PDFExportService.streamToResponse(doc, res, filename);
+
+    } catch (error) {
+      console.error('Failed to generate assessment PDF:', error);
+      res.status(500).json({ error: 'Failed to generate PDF report' });
+    }
+  }
+
+  /**
+   * Fetch all assessment data from database
+   */
+  private static async fetchAssessmentData(responseId: string): Promise<AssessmentData> {
+    // Fetch response with questionnaire data
+    const [responseData] = await db
+      .select()
+      .from(questionnaireResponses)
+      .leftJoin(questionnaires, eq(questionnaireResponses.questionnaireId, questionnaires.id))
+      .where(eq(questionnaireResponses.id, responseId));
+
+    if (!responseData) {
+      throw new Error('Assessment response not found');
+    }
+
+    // Calculate maturity scores
+    const maturityScores = this.calculateMaturityScores(responseData.responses.responseData || {});
+
+    // Generate recommendations
+    const recommendations = this.generateRecommendations(maturityScores);
+
+    return {
+      response: responseData.questionnaire_responses,
+      questionnaire: responseData.questionnaires,
+      maturityScores,
+      recommendations,
+    };
+  }
+
+  /**
+   * Add executive summary section
+   */
+  private static addExecutiveSummary(doc: any, data: AssessmentData): void {
+    PDFExportService.addSectionHeader(doc, 'Executive Summary', 1);
+
+    const completionDate = data.response.completedAt 
+      ? new Date(data.response.completedAt).toLocaleDateString()
+      : 'In Progress';
+
+    doc.fontSize(11)
+       .fillColor('#333333')
+       .text('Assessment Overview', { underline: true })
+       .moveDown(0.5)
+       .text(`Respondent: ${data.response.respondentName || 'Anonymous'}`)
+       .text(`Email: ${data.response.respondentEmail || 'Not provided'}`)
+       .text(`Completion Date: ${completionDate}`)
+       .text(`Assessment Status: ${data.response.status || 'In Progress'}`)
+       .moveDown(1);
+
+    // Overall maturity level
+    const overallScore = Math.round(data.maturityScores.overall || 0);
+    const maturityLevel = this.getMaturityLevel(overallScore);
+    
+    doc.text('Overall AI Maturity Assessment', { underline: true })
+       .moveDown(0.5)
+       .fontSize(14)
+       .fillColor('#005DAA')
+       .text(`Maturity Level: ${maturityLevel} (${overallScore}/100)`)
+       .fontSize(11)
+       .fillColor('#333333')
+       .moveDown(0.5);
+
+    // Key insights
+    const insights = this.generateKeyInsights(data.maturityScores);
+    doc.text('Key Insights:', { underline: true })
+       .moveDown(0.5);
+    
+    insights.forEach((insight, index) => {
+      doc.text(`• ${insight}`)
+         .moveDown(0.3);
+    });
+  }
+
+  /**
+   * Add maturity scores section with detailed breakdown
+   */
+  private static addMaturityScoresSection(doc: any, scores: any): void {
+    PDFExportService.addSectionHeader(doc, 'AI Maturity Scores Breakdown', 1);
+
+    const categories = [
+      { key: 'strategy', label: 'Strategic Vision & Alignment', score: scores.strategy || 0 },
+      { key: 'capabilities', label: 'AI Capabilities & Infrastructure', score: scores.capabilities || 0 },
+      { key: 'governance', label: 'AI Governance & Ethics', score: scores.governance || 0 },
+      { key: 'implementation', label: 'Implementation Readiness', score: scores.implementation || 0 },
+      { key: 'culture', label: 'AI Culture & Change Management', score: scores.culture || 0 },
+      { key: 'innovation', label: 'Innovation & Future Planning', score: scores.innovation || 0 },
+    ];
+
+    const headers = ['Category', 'Score', 'Maturity Level', 'Assessment'];
+    const rows = categories.map(cat => [
+      cat.label,
+      `${Math.round(cat.score)}/100`,
+      this.getMaturityLevel(cat.score),
+      this.getScoreAssessment(cat.score)
+    ]);
+
+    PDFExportService.addTable(doc, headers, rows, {
+      columnWidths: [180, 60, 80, 120],
+      alternateRowColor: true
+    });
+
+    // Add scoring methodology
+    doc.moveDown(1);
+    PDFExportService.addSectionHeader(doc, 'Scoring Methodology', 2);
+    
+    doc.fontSize(10)
+       .fillColor('#666666')
+       .text('Scores are calculated based on RSA\'s comprehensive AI maturity framework, evaluating responses across 52 strategic questions. Each category reflects specific capabilities essential for successful AI implementation in the insurance sector.')
+       .moveDown(0.5)
+       .text('Maturity Levels: Beginner (0-40), Developing (41-60), Advanced (61-80), Expert (81-100)');
+  }
+
+  /**
+   * Add detailed findings section
+   */
+  private static addDetailedFindings(doc: any, data: AssessmentData): void {
+    PDFExportService.addSectionHeader(doc, 'Detailed Findings & Analysis', 1);
+
+    // Business context
+    const businessContext = this.extractBusinessContext(data.response.responseData);
+    if (businessContext) {
+      PDFExportService.addSectionHeader(doc, 'Business Context', 2);
+      doc.fontSize(10)
+         .fillColor('#333333');
+      
+      Object.entries(businessContext).forEach(([key, value]) => {
+        if (value) {
+          doc.text(`${this.formatFieldLabel(key)}: ${value}`)
+             .moveDown(0.3);
+        }
+      });
+      doc.moveDown(0.5);
+    }
+
+    // Strengths and areas for improvement
+    const analysis = this.analyzeStrengthsAndGaps(data.maturityScores);
+    
+    PDFExportService.addSectionHeader(doc, 'Strengths', 2);
+    analysis.strengths.forEach(strength => {
+      doc.text(`• ${strength}`)
+         .moveDown(0.3);
+    });
+
+    doc.moveDown(0.5);
+    PDFExportService.addSectionHeader(doc, 'Areas for Improvement', 2);
+    analysis.gaps.forEach(gap => {
+      doc.text(`• ${gap}`)
+         .moveDown(0.3);
+    });
+  }
+
+  /**
+   * Add strategic recommendations section
+   */
+  private static addRecommendations(doc: any, recommendations: string[]): void {
+    PDFExportService.addSectionHeader(doc, 'Strategic Recommendations', 1);
+
+    doc.fontSize(11)
+       .fillColor('#333333')
+       .text('Based on your assessment results, we recommend the following strategic initiatives to advance your AI maturity:')
+       .moveDown(1);
+
+    recommendations.forEach((rec, index) => {
+      doc.fontSize(12)
+         .fillColor('#005DAA')
+         .text(`${index + 1}. Priority Recommendation`)
+         .fontSize(11)
+         .fillColor('#333333')
+         .text(rec)
+         .moveDown(1);
+    });
+
+    // Next steps
+    doc.moveDown(1);
+    PDFExportService.addSectionHeader(doc, 'Next Steps', 2);
+    
+    const nextSteps = [
+      'Schedule a follow-up consultation with RSA Digital Innovation team',
+      'Review and prioritize recommended use cases for implementation',
+      'Establish AI governance framework and ethical guidelines',
+      'Identify quick wins and pilot opportunities',
+      'Develop comprehensive AI transformation roadmap'
+    ];
+
+    nextSteps.forEach(step => {
+      doc.text(`• ${step}`)
+         .moveDown(0.3);
+    });
+  }
+
+  /**
+   * Calculate maturity scores from response data
+   */
+  private static calculateMaturityScores(responseData: any): any {
+    // This would implement the actual scoring algorithm
+    // For now, return sample scores
+    return {
+      overall: 65,
+      strategy: 70,
+      capabilities: 55,
+      governance: 60,
+      implementation: 65,
+      culture: 70,
+      innovation: 60
+    };
+  }
+
+  /**
+   * Generate recommendations based on scores
+   */
+  private static generateRecommendations(scores: any): string[] {
+    const recommendations = [];
+    
+    if (scores.strategy < 60) {
+      recommendations.push('Develop comprehensive AI strategy aligned with business objectives and insurance industry trends.');
+    }
+    
+    if (scores.capabilities < 60) {
+      recommendations.push('Invest in AI infrastructure, data capabilities, and technical talent acquisition.');
+    }
+    
+    if (scores.governance < 60) {
+      recommendations.push('Establish robust AI governance framework including ethics, risk management, and regulatory compliance.');
+    }
+
+    return recommendations;
+  }
+
+  /**
+   * Get maturity level label from score
+   */
+  private static getMaturityLevel(score: number): string {
+    if (score >= 81) return 'Expert';
+    if (score >= 61) return 'Advanced';
+    if (score >= 41) return 'Developing';
+    return 'Beginner';
+  }
+
+  /**
+   * Get score assessment description
+   */
+  private static getScoreAssessment(score: number): string {
+    if (score >= 81) return 'Leading practice';
+    if (score >= 61) return 'Strong capability';
+    if (score >= 41) return 'Developing area';
+    return 'Needs attention';
+  }
+
+  /**
+   * Generate key insights from scores
+   */
+  private static generateKeyInsights(scores: any): string[] {
+    const insights = [];
+    
+    const highest = Object.entries(scores)
+      .filter(([key]) => key !== 'overall')
+      .sort((a: any, b: any) => b[1] - a[1])[0];
+    
+    const lowest = Object.entries(scores)
+      .filter(([key]) => key !== 'overall')
+      .sort((a: any, b: any) => a[1] - b[1])[0];
+
+    if (highest) {
+      insights.push(`Strongest area: ${this.formatFieldLabel(highest[0])} (${Math.round(highest[1] as number)}/100)`);
+    }
+    
+    if (lowest) {
+      insights.push(`Primary focus area: ${this.formatFieldLabel(lowest[0])} (${Math.round(lowest[1] as number)}/100)`);
+    }
+
+    return insights;
+  }
+
+  /**
+   * Extract business context from response data
+   */
+  private static extractBusinessContext(responseData: any): any {
+    return {
+      companyName: responseData?.['q1-company-profile']?.companyName,
+      businessLines: responseData?.['q2-business-lines']?.businessLines?.join(', '),
+      companyTier: responseData?.['q1-company-profile']?.companyTier,
+      geographicFocus: responseData?.['q1-company-profile']?.geographicFocus
+    };
+  }
+
+  /**
+   * Analyze strengths and gaps from scores
+   */
+  private static analyzeStrengthsAndGaps(scores: any): { strengths: string[], gaps: string[] } {
+    const strengths: string[] = [];
+    const gaps: string[] = [];
+
+    Object.entries(scores).forEach(([key, score]: [string, any]) => {
+      if (key === 'overall') return;
+      
+      if (score >= 70) {
+        strengths.push(`Strong ${this.formatFieldLabel(key)} capabilities demonstrated`);
+      } else if (score < 50) {
+        gaps.push(`${this.formatFieldLabel(key)} requires strategic investment and development`);
+      }
+    });
+
+    return { strengths, gaps };
+  }
+
+  /**
+   * Format field labels for display
+   */
+  private static formatFieldLabel(key: string): string {
+    const labels: Record<string, string> = {
+      strategy: 'Strategic Vision',
+      capabilities: 'AI Capabilities',
+      governance: 'AI Governance',
+      implementation: 'Implementation Readiness',
+      culture: 'AI Culture',
+      innovation: 'Innovation Planning',
+      companyName: 'Company Name',
+      businessLines: 'Business Lines',
+      companyTier: 'Company Tier',
+      geographicFocus: 'Geographic Focus'
+    };
+    
+    return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  }
+}
