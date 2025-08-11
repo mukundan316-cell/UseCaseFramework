@@ -395,7 +395,11 @@ export default function SectionLegoBlock({
   // Render individual question
   const renderQuestion = (question: any, index: number, totalInSubsection: number) => {
     const isHeader = question.questionData?.isHeader;
-    const actualQuestionNumber = question.questionOrder;
+    
+    // Calculate section-relative question number (not global)
+    const actualQuestionsInSection = questions.filter(q => !q.questionData?.isHeader);
+    const questionIndexInSection = actualQuestionsInSection.findIndex(q => q.id === question.id);
+    const sectionRelativeNumber = questionIndexInSection >= 0 ? questionIndexInSection + 1 : null;
 
     return (
       <div 
@@ -406,10 +410,10 @@ export default function SectionLegoBlock({
         )}
       >
         {/* Question number indicator - only show for non-header questions */}
-        {!isHeader && actualQuestionNumber && (
+        {!isHeader && sectionRelativeNumber && (
           <div className="absolute -left-2 top-0">
             <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-              Q{actualQuestionNumber}
+              Q{sectionRelativeNumber}
             </div>
           </div>
         )}
