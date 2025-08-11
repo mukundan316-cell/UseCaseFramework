@@ -8,15 +8,30 @@ Strategic AI use case prioritization platform for RSA Insurance featuring compre
 - **Architecture**: LEGO-style reusable components following "Build Once, Reuse Everywhere" principle
 - **Database**: Consistent camelCase field naming between Drizzle schema and queries
 
-## Design Standards
-### CRUD Card Design
-- Clean white cards with 4px blue left border, hover shadows
-- Color-coded tags: Process (blue), Line of Business (purple), Use Case Type (orange)  
-- Score displays with green (Impact) and blue (Effort) backgrounds for active portfolio
-- Context-sensitive action buttons (Edit/Delete, Move to Library/RSA)
+## LEGO Design System
 
-### Form Labels
-- Questionnaire field labels: `text-base font-semibold text-gray-900` for visibility
+### Core LEGO Principles
+**"Build Once, Reuse Everywhere"** - Every component must be designed as a reusable LEGO block with consistent design patterns across the entire application.
+
+### LEGO CRUD Card Design Standard
+All use case cards across the entire application must follow this exact specification:
+
+- **Card Structure**: Clean white cards with 4px blue left border (#3b82f6), subtle gray border, hover shadow
+- **Content Padding**: p-5 for comfortable spacing
+- **Title**: text-lg font-semibold text-gray-900 with mb-2 spacing
+- **Description**: text-sm text-gray-600 with line-clamp-2
+- **Tags**: Rounded pill-style tags with color-coded backgrounds:
+  - Process: bg-blue-100 text-blue-800 with blue dot
+  - Line of Business: bg-purple-100 text-purple-800 with purple dot  
+  - Use Case Type: bg-orange-100 text-orange-800 with orange dot
+- **Score Display**: Side-by-side grid with green (Impact) and blue (Effort) backgrounds, only for RSA Active Portfolio
+- **Action Buttons**: Ghost-style buttons with proper icons, border-top separator
+- **Contextual Actions**: Show appropriate buttons based on view (Edit/Delete for all, Move to Library/RSA as applicable)
+
+### LEGO Form Standards
+- **Field Labels**: All questionnaire field labels must use `text-base font-semibold text-gray-900` for maximum visibility
+- **Input Consistency**: Consistent styling across all form inputs using shadcn/ui components
+- **Validation States**: Standardized error and success states across all forms
 
 ## Architecture
 
@@ -45,6 +60,28 @@ Strategic AI use case prioritization platform for RSA Insurance featuring compre
 - **PDF**: PDFKit for professional report generation
 
 ## Development Guidelines
-- **Database**: Use consistent camelCase field naming between Drizzle schema and queries
-- **Architecture**: Follow LEGO-style reusable component design
-- **Testing**: Verify answer persistence and PDF export functionality after changes
+
+### Database Schema Consistency Principle
+**Critical**: Always maintain consistent casing between Drizzle schema definitions and database operations.
+
+- **Schema-Database Alignment**: Drizzle schema field names (camelCase) must match exactly in all database operations
+- **Common Errors to Avoid**: 
+  - Using `question_id` instead of `questionId` in queries
+  - Mixing `answer_value` and `answerValue` in the same operation
+  - Inconsistent casing in join conditions
+- **Impact of Schema Mismatches**:
+  - Answer persistence failures (users complete assessments but answers aren't saved)
+  - Export errors (PDF generation fails with "Invalid time value" or "Questionnaire not found")
+  - Foreign key violations during answer saving
+
+### LEGO Architecture Standards
+- **Component Reusability**: Every new UI element should be evaluated for reusability potential before implementation
+- **Consistent Design**: All CRUD cards follow the exact same visual specification
+- **Modular Components**: Components should be self-contained and reusable across different contexts
+
+### Quality Assurance
+Always verify these critical flows after any changes:
+1. **Answer Persistence**: Complete a questionnaire section and verify answers save to database
+2. **Assessment Completion**: Mark response as completed and check status updates
+3. **PDF Exports**: Test both template and populated questionnaire exports
+4. **Data Integrity**: Verify foreign key relationships remain intact
