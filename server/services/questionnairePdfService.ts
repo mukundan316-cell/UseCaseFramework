@@ -127,97 +127,209 @@ export class QuestionnairePdfService {
   }
 
   /**
-   * Add section header
+   * Add main section header
    */
-  private static addSectionHeader(doc: any, title: string, questionNumber?: number): void {
-    // Only add page if we're really close to bottom (optimize spacing)
-    if (doc.y > 750) {
+  private static addSectionHeader(doc: any, title: string, sectionNumber?: string): void {
+    // Add page if close to bottom
+    if (doc.y > 720) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
     }
     
+    doc.moveDown(1);
+    
+    // Section background box
+    const boxY = doc.y;
+    doc.rect(60, boxY, 480, 35)
+       .fill('#005DAA')
+       .stroke('#005DAA');
+    
+    const headerText = sectionNumber ? `SECTION ${sectionNumber}: ${title.toUpperCase()}` : title.toUpperCase();
+    
+    doc.fontSize(12)
+       .fillColor('#FFFFFF')
+       .font('Helvetica-Bold')
+       .text(headerText, 80, boxY + 12);
+    
+    doc.y = boxY + 45;
     doc.moveDown(0.5);
+  }
+
+  /**
+   * Add subsection header
+   */
+  private static addSubsectionHeader(doc: any, title: string): void {
+    // Add page if close to bottom
+    if (doc.y > 740) {
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
+      doc.y = 80;
+    }
     
-    const headerText = questionNumber ? `${questionNumber}. ${title}` : title;
+    doc.moveDown(0.8);
     
-    doc.fontSize(14)
+    doc.fontSize(11)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text(headerText);
-    
-    doc.moveDown(0.5);
+       .text(title);
     
     // Add underline
-    const textWidth = doc.widthOfString(headerText);
-    doc.moveTo(doc.x, doc.y - 5)
-       .lineTo(doc.x + textWidth, doc.y - 5)
+    const textWidth = doc.widthOfString(title);
+    doc.moveTo(doc.x, doc.y + 2)
+       .lineTo(doc.x + textWidth, doc.y + 2)
        .stroke('#005DAA');
+    
+    doc.moveDown(0.5);
   }
 
   /**
    * Add question with response area
    */
   private static addQuestion(doc: any, question: any, response?: any, questionNumber?: number): void {
-    // Check if we have enough space for question + response (approx 100px)
-    if (doc.y > 700) {
+    // Check if we have enough space for question + response (approx 120px)
+    if (doc.y > 680) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
     }
     
-    doc.moveDown(0.5);
+    doc.moveDown(0.8);
     
-    // Question number and text
+    // Question number and text with better formatting
     const questionText = questionNumber ? `Q${questionNumber}: ${question.questionText}` : question.questionText;
     
-    doc.fontSize(12)
+    doc.fontSize(11)
        .fillColor('#333333')
        .font('Helvetica-Bold')
-       .text(questionText, { width: 480, lineGap: 4 });
+       .text(questionText, { width: 480, lineGap: 5 });
     
-    doc.moveDown(0.5);
+    doc.moveDown(0.3);
     
     // Question description if available
     if (question.helpText) {
-      doc.fontSize(10)
+      doc.fontSize(9)
          .fillColor('#666666')
-         .font('Helvetica')
+         .font('Helvetica-Oblique')
          .text(question.helpText, { width: 480, lineGap: 3 });
       
       doc.moveDown(0.5);
     }
     
-    // Response area
+    // Question type indicator
+    if (question.questionType) {
+      doc.fontSize(8)
+         .fillColor('#999999')
+         .font('Helvetica')
+         .text(`Type: ${question.questionType}`, { width: 480 });
+      
+      doc.moveDown(0.3);
+    }
+    
+    // Enhanced response area based on question type
     const responseY = doc.y;
-    const responseHeight = 60;
+    let responseHeight = 50;
     
-    // Response box
-    doc.rect(60, responseY, 480, responseHeight)
-       .stroke('#E5E5E5');
-    
-    if (response && response.answerValue) {
-      // Show populated response
+    if (response?.answerValue) {
+      // Show actual response with better formatting
+      doc.fontSize(10)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Response:', 70, responseY);
+      
+      // Response background box
+      const answerBoxY = responseY + 15;
+      const answerText = response.answerValue;
+      const answerHeight = Math.max(25, doc.heightOfString(answerText, { width: 450 }) + 10);
+      
+      doc.rect(70, answerBoxY, 460, answerHeight)
+         .fill('#F0F8FF')
+         .stroke('#005DAA');
+      
       doc.fontSize(10)
          .fillColor('#333333')
          .font('Helvetica')
-         .text(response.answerValue, 70, responseY + 10, { width: 460, height: 40, ellipsis: true });
+         .text(answerText, 80, answerBoxY + 8, { width: 440, lineGap: 3 });
+         
+      responseHeight = answerHeight + 25;
     } else {
-      // Show blank response area
+      // Enhanced template response area based on question type
       doc.fontSize(9)
-         .fillColor('#999999')
-         .font('Helvetica-Oblique')
-         .text('Response area - Please provide your answer here', 70, responseY + 10);
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Response Area:', 70, responseY);
       
-      // Add lines for writing
-      for (let i = 0; i < 3; i++) {
-        doc.moveTo(70, responseY + 25 + (i * 12))
-           .lineTo(530, responseY + 25 + (i * 12))
-           .stroke('#F0F0F0');
+      if (question.questionType === 'select' || question.questionType === 'radio') {
+        // Show options for selection questions
+        doc.fontSize(9)
+           .fillColor('#666666')
+           .font('Helvetica-Oblique')
+           .text('Please select one of the following options:', 70, responseY + 15);
+        
+        if (question.options) {
+          try {
+            const options = typeof question.options === 'string' ? JSON.parse(question.options) : question.options;
+            let optionY = responseY + 30;
+            
+            options.slice(0, 5).forEach((option: any, index: number) => { // Limit to 5 options for space
+              doc.fontSize(9)
+                 .fillColor('#333333')
+                 .font('Helvetica')
+                 .text(`☐ ${option.label || option}`, 80, optionY);
+              optionY += 12;
+            });
+            
+            if (options.length > 5) {
+              doc.fontSize(8)
+                 .fillColor('#999999')
+                 .text(`... and ${options.length - 5} more options`, 80, optionY);
+            }
+            
+            responseHeight = Math.max(60, (Math.min(options.length, 5) * 12) + 50);
+          } catch (e) {
+            // Fallback for malformed options
+            responseHeight = 40;
+          }
+        }
+      } else if (question.questionType === 'checkbox') {
+        // Show checkbox options
+        doc.fontSize(9)
+           .fillColor('#666666')
+           .font('Helvetica-Oblique')
+           .text('Please select all that apply:', 70, responseY + 15);
+        responseHeight = 60;
+      } else if (question.questionType === 'textarea' || question.questionType === 'text') {
+        // Show text input area
+        doc.fontSize(9)
+           .fillColor('#666666')
+           .font('Helvetica-Oblique')
+           .text('Please provide your detailed response below:', 70, responseY + 15);
+        
+        // Add lined writing area
+        for (let i = 0; i < 4; i++) {
+          doc.moveTo(70, responseY + 35 + (i * 15))
+             .lineTo(530, responseY + 35 + (i * 15))
+             .stroke('#E0E0E0');
+        }
+        responseHeight = 85;
+      } else {
+        // Default response area
+        doc.fontSize(9)
+           .fillColor('#666666')
+           .font('Helvetica-Oblique')
+           .text('Please provide your answer here:', 70, responseY + 15);
+        
+        // Add lines for writing
+        for (let i = 0; i < 3; i++) {
+          doc.moveTo(70, responseY + 30 + (i * 12))
+             .lineTo(530, responseY + 30 + (i * 12))
+             .stroke('#F0F0F0');
+        }
+        responseHeight = 60;
       }
     }
     
-    doc.y = responseY + responseHeight + 10;
+    doc.y = responseY + responseHeight + 12;
   }
 
   /**
@@ -261,14 +373,20 @@ export class QuestionnairePdfService {
         return;
       }
 
-      // Fetch all questions and subsections through sections
+      // Fetch sections, subsections and questions with proper hierarchy
+      const sectionsData = await db
+        .select()
+        .from(questionnaireSections)
+        .where(eq(questionnaireSections.questionnaireId, questionnaireId))
+        .orderBy(questionnaireSections.sectionOrder);
+
       const questionsData = await db
         .select()
         .from(questions)
         .leftJoin(questionnaireSubsections, eq(questions.subsectionId, questionnaireSubsections.id))
         .leftJoin(questionnaireSections, eq(questions.sectionId, questionnaireSections.id))
         .where(eq(questionnaireSections.questionnaireId, questionnaireId))
-        .orderBy(questions.questionOrder);
+        .orderBy(questionnaireSections.sectionOrder, questionnaireSubsections.subsectionOrder, questions.questionOrder);
 
       console.log('Found questions:', questionsData.length);
       
@@ -293,16 +411,25 @@ export class QuestionnairePdfService {
       this.addPageHeader(doc, 'AI Maturity Assessment Template', 2);
       doc.y = 80;
       
+      let currentSection = '';
       let currentSubsection = '';
       let questionCounter = 1;
       
       questionsData.forEach((item) => {
         const question = item.questions;
         const subsection = item.questionnaire_subsections;
+        const section = item.questionnaire_sections;
+        
+        // Add section header if changed
+        if (section && section.title !== currentSection) {
+          this.addSectionHeader(doc, section.title, section.sectionOrder?.toString());
+          currentSection = section.title;
+          currentSubsection = ''; // Reset subsection when section changes
+        }
         
         // Add subsection header if changed
         if (subsection && subsection.title !== currentSubsection) {
-          this.addSectionHeader(doc, subsection.title);
+          this.addSubsectionHeader(doc, subsection.title);
           currentSubsection = subsection.title;
         }
         
@@ -356,7 +483,7 @@ export class QuestionnairePdfService {
           eq(questionAnswers.responseId, responseId)
         ))
         .where(eq(questionnaireSections.questionnaireId, responseData.questionnaire_responses.questionnaireId))
-        .orderBy(questions.questionOrder);
+        .orderBy(questionnaireSections.sectionOrder, questionnaireSubsections.subsectionOrder, questions.questionOrder);
 
       console.log('Found questions with responses:', questionsData.length);
       
@@ -403,17 +530,26 @@ export class QuestionnairePdfService {
       
       doc.y = infoY + 80;
       
+      let currentSection = '';
       let currentSubsection = '';
       let questionCounter = 1;
       
       questionsData.forEach((item) => {
         const question = item.questions;
         const subsection = item.questionnaire_subsections;
+        const section = item.questionnaire_sections;
         const response = item.question_answers;
+        
+        // Add section header if changed
+        if (section && section.title !== currentSection) {
+          this.addSectionHeader(doc, section.title, section.sectionOrder?.toString());
+          currentSection = section.title;
+          currentSubsection = ''; // Reset subsection when section changes
+        }
         
         // Add subsection header if changed
         if (subsection && subsection.title !== currentSubsection) {
-          this.addSectionHeader(doc, subsection.title);
+          this.addSubsectionHeader(doc, subsection.title);
           currentSubsection = subsection.title;
         }
         
