@@ -36,6 +36,12 @@ function Router() {
       <Route path="/assessment/take" component={() => 
         <QuestionnaireContainer questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
       } />
+      <Route path="/questionnaire/:responseId" component={({ params: { responseId } }) => 
+        <QuestionnaireContainer 
+          questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" 
+          responseId={responseId}
+        />
+      } />
       <Route path="/scoring-demo" component={ScoringDashboardDemo} />
       <Route path="/export-demo" component={ResponseExportDemo} />
       <Route path="/results/:responseId" component={({ params: { responseId } }) => 
