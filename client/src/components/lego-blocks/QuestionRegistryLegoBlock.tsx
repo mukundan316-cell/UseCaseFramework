@@ -235,6 +235,25 @@ export default function QuestionRegistryLegoBlock({
     const questionData = convertToQuestionData(questionMeta);
     const currentValue = responses.get(questionMeta.id);
 
+    // Helper function to wrap advanced components with question numbering
+    const withQuestionNumber = (component: React.ReactNode) => {
+      if (questionMeta.questionOrder) {
+        return (
+          <div>
+            <div className="flex items-center mb-3">
+              <span className="inline-flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-600 text-sm font-medium rounded mr-3 flex-shrink-0">
+                Q{questionMeta.questionOrder}
+              </span>
+              <span className="text-base font-semibold text-gray-900">{questionMeta.questionText}</span>
+              {logic.isRequired && <span className="text-red-500 ml-1">*</span>}
+            </div>
+            {component}
+          </div>
+        );
+      }
+      return component;
+    };
+
     // Render question component function
     const renderQuestionComponent = () => {
       // Render RankingLegoBlock for ranking type
@@ -503,9 +522,9 @@ export default function QuestionRegistryLegoBlock({
 
       // Render CompanyProfileLegoBlock for company_profile type
       if (questionMeta.questionType === 'company_profile') {
-        return (
+        return withQuestionNumber(
           <CompanyProfileLegoBlock
-            questionText={questionMeta.questionText}
+            questionText=""
             questionData={questionMeta.questionData}
             value={currentValue || {}}
             onChange={(value) => onResponseChange(questionMeta.id, value)}
@@ -591,9 +610,9 @@ export default function QuestionRegistryLegoBlock({
           aiMaturity: responses.get('q27-premium-calculation')?.rating || 1
         };
 
-        return (
+        return withQuestionNumber(
           <DynamicUseCaseSelector
-            label={questionMeta.questionText}
+            label=""
             helpText={questionMeta.helpText}
             userProfile={userProfile}
             value={currentValue || {}}
@@ -610,7 +629,7 @@ export default function QuestionRegistryLegoBlock({
 
       return (
         <QuestionLegoBlock
-          question={{ ...questionData, isRequired: logic.isRequired }}
+          question={{ ...questionData, isRequired: logic.isRequired, questionOrder: questionMeta.questionOrder }}
           value={currentValue}
           onChange={(value: any) => onResponseChange(questionMeta.id, value)}
           readonly={logic.isDisabled}

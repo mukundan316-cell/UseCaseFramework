@@ -99,10 +99,15 @@ export default function QuestionLegoBlock({
     </div>
   );
 
-  // Helper function to render question label with required indicator and help tooltip
+  // Helper function to render question label with question number, required indicator and help tooltip
   const renderQuestionLabel = () => (
     <div className="flex items-center justify-between mb-3">
       <Label className="text-base font-semibold text-gray-900 flex items-center">
+        {question.questionOrder && (
+          <span className="inline-flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-600 text-sm font-medium rounded mr-3 flex-shrink-0">
+            Q{question.questionOrder}
+          </span>
+        )}
         {questionText}
         {isRequired && <span className="text-red-500 ml-1">*</span>}
       </Label>
