@@ -131,7 +131,7 @@ export class QuestionnairePdfService {
    */
   private static addSectionHeader(doc: any, title: string, sectionNumber?: string): void {
     // Add page if close to bottom with better space calculation
-    if (doc.y > 680) {
+    if (doc.y > 720) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
@@ -164,7 +164,7 @@ export class QuestionnairePdfService {
    */
   private static addSubsectionHeader(doc: any, title: string): void {
     // Add page if close to bottom with better space calculation
-    if (doc.y > 700) {
+    if (doc.y > 720) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
@@ -194,7 +194,7 @@ export class QuestionnairePdfService {
    */
   private static addQuestion(doc: any, question: any, response?: any, questionNumber?: number): void {
     // Check if we have enough space for question + response (approx 120px)
-    if (doc.y > 680) {
+    if (doc.y > 720) {
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
@@ -344,10 +344,12 @@ export class QuestionnairePdfService {
   private static addEnhancedQuestion(doc: any, question: any, response?: any, questionNumber?: number): void {
     // Calculate minimum space needed for question + response
     const estimatedQuestionHeight = Math.max(60, doc.heightOfString(question.questionText, { width: 480 }) + 40);
-    const minSpaceNeeded = estimatedQuestionHeight + 100; // Additional buffer for response
+    // Composite questions need more space
+    const baseBuffer = question.questionType === 'composite' ? 200 : 100;
+    const minSpaceNeeded = estimatedQuestionHeight + baseBuffer;
     
     // Check if we need a new page with better space calculation
-    if (doc.y + minSpaceNeeded > 750) {
+    if (doc.y + minSpaceNeeded > 720) { // Standardized page break threshold
       doc.addPage();
       this.addPageHeader(doc, 'AI Maturity Assessment', Math.floor(doc.pageNumber));
       doc.y = 80;
@@ -560,6 +562,71 @@ export class QuestionnairePdfService {
       
       totalHeight = currentY - startY + 10;
       
+    // Composite question type - structured form
+    } else if (questionType === 'composite' && questionData) {
+      doc.fontSize(10)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Please provide detailed responses to the following:', 70, currentY);
+      
+      currentY += 20;
+      
+      // Render composite question structure
+      if (questionData.rating) {
+        // Rating section
+        doc.fontSize(9)
+           .fillColor('#333333')
+           .font('Helvetica-Bold')
+           .text('Rating Scale:', 80, currentY);
+        
+        currentY += 15;
+        
+        // Rating options
+        if (questionData.rating.options) {
+          questionData.rating.options.forEach((option: any, index: number) => {
+            doc.fontSize(8)
+               .fillColor('#666666')
+               .text(`${option.value}: ${option.label}`, 90, currentY);
+            currentY += 12;
+          });
+        }
+        
+        // Rating input area
+        doc.rect(80, currentY, 300, 25)
+           .stroke('#CCCCCC');
+        
+        doc.fontSize(8)
+           .fillColor('#999999')
+           .text('Selected rating: _____', 85, currentY + 8);
+        
+        currentY += 35;
+      }
+      
+      if (questionData.additionalContext) {
+        // Additional context section
+        doc.fontSize(9)
+           .fillColor('#333333')
+           .font('Helvetica-Bold')
+           .text('Additional Context:', 80, currentY);
+        
+        currentY += 15;
+        
+        // Text area for additional context
+        doc.rect(80, currentY, 400, 80)
+           .stroke('#CCCCCC');
+        
+        // Lined writing area
+        for (let i = 1; i < 5; i++) {
+          doc.moveTo(85, currentY + (i * 16))
+             .lineTo(475, currentY + (i * 16))
+             .stroke('#E0E0E0');
+        }
+        
+        currentY += 90;
+      }
+      
+      totalHeight = currentY - startY + 10;
+      
     // Default form elements
     } else {
       doc.fontSize(10)
@@ -757,6 +824,12 @@ export class QuestionnairePdfService {
         .orderBy(questionnaireSections.sectionOrder, questionnaireSubsections.subsectionOrder, questions.questionOrder);
 
       console.log('Found questions:', questionsData.length);
+      console.log('First few questions:', questionsData.slice(0, 3).map(q => ({
+        id: q.questions?.id,
+        text: q.questions?.questionText?.substring(0, 50),
+        type: q.questions?.questionType,
+        order: q.questions?.questionOrder
+      })));
       
       // Create professional PDF document
       const doc = new PDFDocument({
@@ -783,10 +856,12 @@ export class QuestionnairePdfService {
       let currentSubsection = '';
       let questionCounter = 1;
       
-      questionsData.forEach((item) => {
+      questionsData.forEach((item, index) => {
         const question = item.questions;
         const subsection = item.questionnaire_subsections;
         const section = item.questionnaire_sections;
+        
+        console.log(`Processing question ${questionCounter}: ${question?.questionText?.substring(0, 50)}... (Type: ${question?.questionType})`);
         
         // Add section header if changed
         if (section && section.title !== currentSection) {
@@ -805,6 +880,8 @@ export class QuestionnairePdfService {
         this.addEnhancedQuestion(doc, question, null, questionCounter);
         questionCounter++;
       });
+      
+      console.log(`Total questions processed: ${questionCounter - 1}`);
 
       // Add footer to final page
       this.addPageFooter(doc);
