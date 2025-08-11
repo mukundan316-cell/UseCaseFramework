@@ -143,7 +143,7 @@ export default function QuestionRegistryLegoBlock({
   const evaluateConditionalLogic = useCallback((question: QuestionMetadata) => {
     let isVisible = true;
     let isRequired = question.isRequired;
-    let isDisabled = disabled;
+    let isDisabled = false; // Start with false - only disable if explicit rule says so
 
     if (!question.conditionalLogic || question.conditionalLogic.length === 0) {
       return { isVisible, isRequired, isDisabled };
