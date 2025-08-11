@@ -615,7 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register export routes
   const exportRoutes = (await import('./routes/export.routes')).default;
-  app.use('/api', exportRoutes);
+  app.use('/api/export', exportRoutes);
   
   // Register recommendation routes
   app.use('/api/recommendations', recommendationRoutes);

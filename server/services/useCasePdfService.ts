@@ -1,4 +1,4 @@
-import { PDFExportService } from './pdfExportService';
+import PDFDocument from 'pdfkit';
 import { db } from '../db';
 import { useCases } from '@shared/schema';
 import { eq, and, or } from 'drizzle-orm';
@@ -13,64 +13,79 @@ export class UseCasePdfService {
     status?: string;
   }): Promise<void> {
     try {
+      console.log('Generating library catalog with filters:', filters);
+      
       // Fetch filtered use cases
       const useCaseData = await this.fetchUseCases(filters);
+      console.log('Found use cases:', useCaseData.length);
       
-      // Create PDF document
-      const doc = PDFExportService.createDocument({
-        title: 'RSA AI Use Case Library Catalog',
-        author: 'RSA Digital Innovation',
-        includeQR: true,
+      // Create simplified PDF
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: { top: 60, bottom: 60, left: 60, right: 60 }
       });
 
-      // Add cover page
-      PDFExportService.addCoverPage(doc, {
-        title: 'AI Use Case Library',
-        subtitle: 'Comprehensive Catalog of AI Applications for Insurance',
-        generatedFor: 'RSA Insurance',
-        date: new Date(),
-      });
-
-      let pageNumber = 1;
-
-      // Overview section
-      PDFExportService.addHeader(doc, 'AI Use Case Library Catalog', pageNumber++);
-      this.addLibraryOverview(doc, useCaseData);
-      PDFExportService.addFooter(doc);
-
-      // Use cases by category
-      const categories = this.groupByCategory(useCaseData);
+      // Set headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="RSA_Library_Catalog_${new Date().toISOString().split('T')[0]}.pdf"`);
       
-      Object.entries(categories).forEach(([category, cases], index) => {
-        if (index > 0 || doc.y > 600) {
+      doc.pipe(res);
+
+      // Header
+      doc.rect(0, 0, doc.page.width, 60)
+         .fill('#005DAA');
+      
+      doc.fontSize(20)
+         .fillColor('#FFFFFF')
+         .text('RSA AI Use Case Library', 60, 20);
+
+      doc.y = 100;
+
+      // Title
+      doc.fontSize(24)
+         .fillColor('#005DAA')
+         .text('Use Case Library Catalog', { align: 'center' });
+
+      doc.moveDown(2);
+
+      // Summary
+      doc.fontSize(14)
+         .fillColor('#333333')
+         .text(`Total Use Cases: ${useCaseData.length}`)
+         .text(`Generated: ${new Date().toLocaleDateString()}`);
+
+      doc.moveDown(2);
+
+      // Use cases list
+      useCaseData.forEach((useCase, index) => {
+        if (doc.y > 700) {
           doc.addPage();
-          PDFExportService.addHeader(doc, 'AI Use Case Library Catalog', pageNumber++);
+          doc.y = 60;
         }
+
+        doc.fontSize(14)
+           .fillColor('#005DAA')
+           .text(`${index + 1}. ${useCase.title}`);
         
-        this.addCategorySection(doc, category, cases as any[]);
+        doc.fontSize(11)
+           .fillColor('#666666')
+           .text(useCase.description || 'No description available');
         
-        if (index < Object.entries(categories).length - 1) {
-          PDFExportService.addFooter(doc);
-        }
+        doc.fontSize(10)
+           .fillColor('#999999')
+           .text(`Process: ${useCase.process || 'N/A'} | Business: ${useCase.lineOfBusiness || 'N/A'}`);
+
+        doc.moveDown(1);
       });
 
-      // Add QR code for digital access
-      await PDFExportService.addQRCode(
-        doc, 
-        `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/library`,
-        doc.page.width - 120,
-        doc.page.height - 160
-      );
-      
-      PDFExportService.addFooter(doc);
-
-      // Stream PDF response
-      const filename = `RSA_Use_Case_Library_${new Date().toISOString().split('T')[0]}.pdf`;
-      PDFExportService.streamToResponse(doc, res, filename);
+      doc.end();
+      console.log('Library catalog generated successfully');
 
     } catch (error) {
       console.error('Failed to generate library catalog PDF:', error);
-      res.status(500).json({ error: 'Failed to generate library catalog' });
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to generate library catalog' });
+      }
     }
   }
 
@@ -79,62 +94,95 @@ export class UseCasePdfService {
    */
   static async generatePortfolioReport(res: Response): Promise<void> {
     try {
+      console.log('Generating portfolio report');
+      
       // Fetch RSA active use cases
       const activeUseCases = await db
         .select()
         .from(useCases)
         .where(eq(useCases.isActiveForRsa, 'true'));
 
-      // Create PDF document
-      const doc = PDFExportService.createDocument({
-        title: 'RSA Active AI Portfolio Report',
-        author: 'RSA Digital Innovation',
-        includeQR: true,
+      console.log('Found active use cases:', activeUseCases.length);
+
+      // Create simplified PDF
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: { top: 60, bottom: 60, left: 60, right: 60 }
       });
 
-      // Add cover page
-      PDFExportService.addCoverPage(doc, {
-        title: 'RSA Active AI Portfolio',
-        subtitle: 'Strategic AI Initiatives & Implementation Status',
-        generatedFor: 'RSA Leadership Team',
-        date: new Date(),
-      });
-
-      let pageNumber = 1;
-
-      // Executive summary
-      PDFExportService.addHeader(doc, 'RSA Active AI Portfolio Report', pageNumber++);
-      this.addPortfolioSummary(doc, activeUseCases);
-      PDFExportService.addFooter(doc);
-
-      // Detailed use case analysis
-      doc.addPage();
-      PDFExportService.addHeader(doc, 'RSA Active AI Portfolio Report', pageNumber++);
-      this.addDetailedUseCaseAnalysis(doc, activeUseCases);
-      PDFExportService.addFooter(doc);
-
-      // Performance metrics and ROI
-      doc.addPage();
-      PDFExportService.addHeader(doc, 'RSA Active AI Portfolio Report', pageNumber++);
-      this.addPerformanceMetrics(doc, activeUseCases);
+      // Set headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="RSA_Active_Portfolio_${new Date().toISOString().split('T')[0]}.pdf"`);
       
-      // Add QR code for digital access
-      await PDFExportService.addQRCode(
-        doc, 
-        `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/dashboard`,
-        doc.page.width - 120,
-        doc.page.height - 160
-      );
-      
-      PDFExportService.addFooter(doc);
+      doc.pipe(res);
 
-      // Stream PDF response
-      const filename = `RSA_Active_Portfolio_${new Date().toISOString().split('T')[0]}.pdf`;
-      PDFExportService.streamToResponse(doc, res, filename);
+      // Header
+      doc.rect(0, 0, doc.page.width, 60)
+         .fill('#005DAA');
+      
+      doc.fontSize(20)
+         .fillColor('#FFFFFF')
+         .text('RSA Active AI Portfolio', 60, 20);
+
+      doc.y = 100;
+
+      // Title
+      doc.fontSize(24)
+         .fillColor('#005DAA')
+         .text('Active AI Portfolio Report', { align: 'center' });
+
+      doc.moveDown(2);
+
+      // Summary
+      doc.fontSize(14)
+         .fillColor('#333333')
+         .text(`Active Use Cases: ${activeUseCases.length}`)
+         .text(`Report Generated: ${new Date().toLocaleDateString()}`);
+
+      doc.moveDown(2);
+
+      // Active use cases
+      if (activeUseCases.length > 0) {
+        doc.fontSize(16)
+           .fillColor('#005DAA')
+           .text('Active Use Cases');
+
+        doc.moveDown(1);
+
+        activeUseCases.forEach((useCase, index) => {
+          if (doc.y > 700) {
+            doc.addPage();
+            doc.y = 60;
+          }
+
+          doc.fontSize(14)
+             .fillColor('#005DAA')
+             .text(`${index + 1}. ${useCase.title}`);
+          
+          doc.fontSize(11)
+             .fillColor('#666666')
+             .text(useCase.description || 'No description available');
+          
+          doc.fontSize(10)
+             .fillColor('#999999')
+             .text(`Impact: ${useCase.impactScore || 'N/A'} | Effort: ${useCase.effortScore || 'N/A'}`);
+
+          doc.moveDown(1);
+        });
+      } else {
+        doc.fontSize(14)
+           .fillColor('#666666')
+           .text('No active use cases found in the portfolio.');
+      }
+
+      doc.end();
+      console.log('Portfolio report generated successfully');
 
     } catch (error) {
       console.error('Failed to generate portfolio PDF:', error);
-      res.status(500).json({ error: 'Failed to generate portfolio report' });
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to generate portfolio report' });
+      }
     }
   }
 

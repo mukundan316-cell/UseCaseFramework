@@ -36,7 +36,7 @@ export class PDFExportService {
   /**
    * Create a new PDF document with RSA branding
    */
-  static createDocument(options: ExportOptions): typeof PDFDocument {
+  static createDocument(options: ExportOptions): any {
     const doc = new PDFDocument({
       size: 'A4',
       margins: this.PAGE_MARGINS,

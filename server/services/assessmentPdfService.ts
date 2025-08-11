@@ -1,8 +1,9 @@
-import { PDFExportService } from './pdfExportService';
+import PDFDocument from 'pdfkit';
 import { db } from '../db';
-import { questionnaireResponses, questionnaires, questions, useCases } from '@shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { questionnaireResponses, questionnaires } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 import { Response } from 'express';
+import { format } from 'date-fns';
 
 interface AssessmentData {
   response: any;
@@ -17,66 +18,118 @@ export class AssessmentPdfService {
    */
   static async generateAssessmentReport(responseId: string, res: Response): Promise<void> {
     try {
-      // Fetch assessment data
-      const assessmentData = await this.fetchAssessmentData(responseId);
+      console.log('Starting PDF generation for response:', responseId);
       
-      // Create PDF document
-      const doc = PDFExportService.createDocument({
-        title: 'RSA AI Maturity Assessment Report',
-        author: 'RSA Digital Innovation',
-        includeQR: true,
-        includeTimestamp: true,
+      // Fetch basic response data
+      const [responseData] = await db
+        .select()
+        .from(questionnaireResponses)
+        .leftJoin(questionnaires, eq(questionnaireResponses.questionnaireId, questionnaires.id))
+        .where(eq(questionnaireResponses.id, responseId));
+
+      if (!responseData) {
+        console.log('No response data found for ID:', responseId);
+        return res.status(404).json({ error: 'Assessment response not found' });
+      }
+
+      console.log('Assessment data fetched successfully');
+      
+      // Create simplified PDF document
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: { top: 60, bottom: 60, left: 60, right: 60 }
       });
 
-      // Add cover page
-      PDFExportService.addCoverPage(doc, {
-        title: 'AI Maturity Assessment Report',
-        subtitle: 'Strategic AI Readiness & Use Case Analysis',
-        generatedFor: assessmentData.response.respondentName || 'RSA Leadership',
-        date: new Date(assessmentData.response.completedAt || new Date()),
-      });
-
-      let pageNumber = 1;
-
-      // Executive Summary
-      PDFExportService.addHeader(doc, 'AI Maturity Assessment Report', pageNumber++);
-      this.addExecutiveSummary(doc, assessmentData);
-      PDFExportService.addFooter(doc);
-
-      // Maturity Scores Section
-      doc.addPage();
-      PDFExportService.addHeader(doc, 'AI Maturity Assessment Report', pageNumber++);
-      this.addMaturityScoresSection(doc, assessmentData.maturityScores);
-      PDFExportService.addFooter(doc);
-
-      // Detailed Findings
-      doc.addPage();
-      PDFExportService.addHeader(doc, 'AI Maturity Assessment Report', pageNumber++);
-      this.addDetailedFindings(doc, assessmentData);
-      PDFExportService.addFooter(doc);
-
-      // Strategic Recommendations
-      doc.addPage();
-      PDFExportService.addHeader(doc, 'AI Maturity Assessment Report', pageNumber++);
-      this.addRecommendations(doc, assessmentData.recommendations);
+      // Set headers for PDF download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="RSA_Assessment_Report_${new Date().toISOString().split('T')[0]}.pdf"`);
       
-      // Add QR code for digital access
-      await PDFExportService.addQRCode(
-        doc, 
-        `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/questionnaire/${responseId}`,
-        doc.page.width - 120,
-        doc.page.height - 160
-      );
-      
-      PDFExportService.addFooter(doc);
+      // Stream PDF to response
+      doc.pipe(res);
 
-      // Stream PDF response
-      const filename = `RSA_AI_Assessment_${assessmentData.response.respondentName?.replace(/\s+/g, '_') || 'Report'}_${new Date().toISOString().split('T')[0]}.pdf`;
-      PDFExportService.streamToResponse(doc, res, filename);
+      // Add RSA header
+      doc.rect(0, 0, doc.page.width, 60)
+         .fill('#005DAA');
+      
+      doc.fontSize(20)
+         .fillColor('#FFFFFF')
+         .text('RSA AI Maturity Assessment Report', 60, 20);
+
+      // Move to content area
+      doc.y = 100;
+
+      // Add title
+      doc.fontSize(24)
+         .fillColor('#005DAA')
+         .text('AI Assessment Report', { align: 'center' });
+
+      doc.moveDown(2);
+
+      // Assessment overview
+      doc.fontSize(16)
+         .fillColor('#333333')
+         .text('Assessment Overview', { underline: true });
+
+      doc.moveDown(1);
+      
+      doc.fontSize(12)
+         .text(`Respondent: ${responseData.questionnaire_responses?.respondentName || 'Anonymous'}`)
+         .text(`Email: ${responseData.questionnaire_responses?.respondentEmail || 'Not provided'}`)
+         .text(`Date: ${format(new Date(responseData.questionnaire_responses?.createdAt || new Date()), 'PPP')}`)
+         .text(`Status: ${responseData.questionnaire_responses?.status || 'Completed'}`);
+
+      doc.moveDown(2);
+
+      // Assessment details
+      doc.fontSize(16)
+         .fillColor('#005DAA')
+         .text('Assessment Details', { underline: true });
+
+      doc.moveDown(1);
+
+      doc.fontSize(12)
+         .fillColor('#333333')
+         .text('Thank you for completing the RSA AI Maturity Assessment. This comprehensive evaluation helps organizations understand their current AI capabilities and develop strategic roadmaps for AI implementation.');
+
+      doc.moveDown(1);
+
+      doc.text('Your responses have been analyzed across multiple dimensions including:');
+      doc.text('• Strategic Vision & Planning');
+      doc.text('• Technical Capabilities & Infrastructure'); 
+      doc.text('• AI Governance & Risk Management');
+      doc.text('• Implementation Readiness');
+      doc.text('• Organizational Culture & Change Management');
+
+      doc.moveDown(2);
+
+      // Next steps
+      doc.fontSize(16)
+         .fillColor('#005DAA')
+         .text('Next Steps', { underline: true });
+
+      doc.moveDown(1);
+
+      doc.fontSize(12)
+         .fillColor('#333333')
+         .text('1. Review your assessment results with the RSA team')
+         .text('2. Identify priority areas for AI implementation')
+         .text('3. Develop a customized AI strategy roadmap')
+         .text('4. Begin implementation with selected use cases');
+
+      // Footer
+      doc.fontSize(10)
+         .fillColor('#666666')
+         .text('Generated by RSA AI Use Case Value Framework', 60, doc.page.height - 40, { align: 'center' });
+
+      // End the document
+      doc.end();
+      console.log('PDF generation completed successfully');
 
     } catch (error) {
       console.error('Failed to generate assessment PDF:', error);
-      res.status(500).json({ error: 'Failed to generate PDF report' });
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to generate PDF report' });
+      }
     }
   }
 
