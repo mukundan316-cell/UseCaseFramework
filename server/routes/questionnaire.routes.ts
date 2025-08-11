@@ -225,15 +225,15 @@ const prepareAnswerData = (value: any, questionType?: string): { answerValue: st
   if (typeof value === 'string') {
     // Simple text answer
     answerData = { value, type: 'text' };
-  } else if (questionType && ['currency', 'percentage_allocation', 'percentage_target', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating'].includes(questionType)) {
-    // Complex structured answer
+  } else if (questionType && ['currency', 'percentage_allocation', 'percentage_target', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating', 'composite'].includes(questionType)) {
+    // Complex structured answer - store the actual object, not the string
     answerData = { 
       value, 
       type: questionType,
       timestamp: new Date().toISOString()
     };
   } else {
-    // Generic object/array
+    // Generic object/array - store the actual object, not the string
     answerData = { 
       value, 
       type: 'object',
