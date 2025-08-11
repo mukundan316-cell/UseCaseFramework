@@ -38,8 +38,6 @@ This design must be used consistently for all CRUD cards throughout the applicat
 - **Manual Override System**: Toggle-based score customization with database persistence
 - **RSA Scoring Framework**: 12-lever system (Business Value, Feasibility, AI Governance)
 - **Assessment System**: 6-section questionnaire with 14 advanced question types
-- **Database-Driven Questionnaire**: Dynamic subsection grouping based on database structure (no hardcoded ranges)
-- **Sequential Question Numbering**: Questions numbered 1-56 sequentially across all sections
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts and authentic data
 - **Real-time Persistence**: Database → API → Frontend pattern with live synchronization
 
