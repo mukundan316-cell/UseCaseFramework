@@ -359,8 +359,8 @@ export default function SectionLegoBlock({
       const subsectionTitle = headerMatch[2];
       
       // Calculate question range: from current header to next header (or end)
-      const startOrder = currentHeader.questionOrder;
-      const endOrder = nextHeader ? nextHeader.questionOrder - 1 : sortedQuestions[sortedQuestions.length - 1]?.questionOrder || startOrder;
+      const startOrder = currentHeader.questionOrder || 0;
+      const endOrder = nextHeader ? (nextHeader.questionOrder || 0) - 1 : sortedQuestions[sortedQuestions.length - 1]?.questionOrder || startOrder;
       
       // Filter questions in this range, excluding the header itself
       const subsectionQuestions = filterActualQuestions(
