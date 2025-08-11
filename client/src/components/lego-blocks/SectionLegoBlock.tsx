@@ -7,13 +7,27 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { cn } from '@/lib/utils';
 import QuestionLegoBlock, { QuestionData } from './QuestionLegoBlock';
 import QuestionRegistryLegoBlock, { QuestionMetadata, QuestionType } from './QuestionRegistryLegoBlock';
+import SubsectionLegoBlock, { SubsectionData } from './SubsectionLegoBlock';
+
+export interface SubsectionData {
+  id: string;
+  title: string;
+  subsectionNumber: string;
+  subsectionOrder: number;
+  estimatedTime?: number;
+  description?: string;
+  isCollapsible: boolean;
+  defaultExpanded: boolean;
+  questions: QuestionData[];
+}
 
 export interface SectionData {
   id: string;
   title: string;
   sectionOrder: number;
   estimatedTime?: number;
-  questions: QuestionData[];
+  questions: QuestionData[]; // Questions directly in section (if any)
+  subsections?: SubsectionData[]; // Subsections containing grouped questions
 }
 
 export interface SectionLegoBlockProps {
@@ -49,12 +63,21 @@ export default function SectionLegoBlock({
 }: SectionLegoBlockProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
-  const { id, title, sectionOrder, estimatedTime, questions } = section;
+  const { id, title, sectionOrder, estimatedTime, questions, subsections } = section;
 
-  // Enhanced section progress calculation that handles compound questions properly
+  // Enhanced section progress calculation that handles subsections and compound questions properly
   const calculateProgress = () => {
-    // Filter out header questions from progress calculation
-    const actualQuestions = questions.filter(q => !q.questionData?.isHeader);
+    // Collect all questions from both section-level questions and subsection questions
+    let allQuestions = [...questions];
+    
+    if (subsections) {
+      subsections.forEach(subsection => {
+        allQuestions = [...allQuestions, ...subsection.questions];
+      });
+    }
+    
+    // Filter out header questions from progress calculation (legacy support)
+    const actualQuestions = allQuestions.filter(q => !q.questionData?.isHeader);
     
     if (actualQuestions.length === 0) return { completed: 0, total: 0, percentage: 0, required: { completed: 0, total: 0 }, optional: { completed: 0, total: 0 } };
 
@@ -332,80 +355,9 @@ export default function SectionLegoBlock({
     </CardHeader>
   );
 
-  // Group questions into subsections based on question ranges
+  // Legacy function for backward compatibility - now unused
   const groupQuestionsIntoSubsections = () => {
-    const subsections = [];
-    
-    // Define subsection boundaries based on section
-    if (sectionOrder === 1) {
-      // Section 1: Business Strategy & AI Vision
-      subsections.push({
-        id: "1.1-executive-vision",
-        title: "1.1 Executive Vision & Strategic Alignment",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 1 && q.questionOrder <= 7)
-      });
-      subsections.push({
-        id: "1.2-business-context",
-        title: "1.2 Business Context & Market Position", 
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 8 && q.questionOrder <= 14)
-      });
-      subsections.push({
-        id: "1.3-operational-readiness",
-        title: "1.3 Operational Readiness & Change Management",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 15 && q.questionOrder <= 17)
-      });
-      subsections.push({
-        id: "1.4-stakeholder-engagement", 
-        title: "1.4 Stakeholder Engagement & Communication",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 18 && q.questionOrder <= 20)
-      });
-    } else if (sectionOrder === 2) {
-      // Section 2: Current AI & Data Capabilities
-      subsections.push({
-        id: "2.1-technology-infrastructure",
-        title: "2.1 Technology Infrastructure",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 17 && q.questionOrder <= 20)
-      });
-      subsections.push({
-        id: "2.2-business-function-systems",
-        title: "2.2 Business Function Systems", 
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 21 && q.questionOrder <= 25)
-      });
-      subsections.push({
-        id: "2.3-intelligent-workflows",
-        title: "2.3 Intelligent Workflows & Automation",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 26 && q.questionOrder <= 30)
-      });
-      subsections.push({
-        id: "2.4-data-analytics-ai",
-        title: "2.4 Data Analytics & AI/ML Capabilities",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 31 && q.questionOrder <= 36)
-      });
-      subsections.push({
-        id: "2.5-data-infrastructure",
-        title: "2.5 Data Infrastructure & Storage",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 37 && q.questionOrder <= 40)
-      });
-      subsections.push({
-        id: "2.6-current-ai-applications",
-        title: "2.6 Current AI Applications & Tools",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 41 && q.questionOrder <= 44)
-      });
-      subsections.push({
-        id: "2.7-data-quality-governance",
-        title: "2.7 Data Quality & Governance",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 45 && q.questionOrder <= 51)
-      });
-    } else {
-      // For other sections, show all questions in one group
-      subsections.push({
-        id: `${sectionOrder}.1-all-questions`,
-        title: `${sectionOrder}.1 Questions`,
-        questions: sortedQuestions
-      });
-    }
-    
-    return subsections.filter(subsection => subsection.questions.length > 0);
+    return [];
   };
 
   // Render individual question
@@ -465,62 +417,49 @@ export default function SectionLegoBlock({
     );
   };
 
-  // Section content with collapsible subsections
+  // Section content with proper subsection rendering
   const renderSectionContent = () => {
     if (!isExpanded) return null;
 
-    const subsections = groupQuestionsIntoSubsections();
-
-    if (subsections.length === 0) {
-      return (
-        <CardContent className="pt-0">
-          <div className="text-center py-8 text-gray-500">
-            <p className="text-sm">No questions available in this section</p>
-          </div>
-        </CardContent>
-      );
-    }
-
-    // If only one subsection, render without accordion
-    if (subsections.length === 1) {
-      return (
-        <CardContent className="pt-0">
-          <div className="space-y-6">
-            {subsections[0].questions.map((question, index) => 
-              renderQuestion(question, index, subsections[0].questions.length)
-            )}
-          </div>
-        </CardContent>
-      );
-    }
-
-    // Multiple subsections - use accordion
     return (
       <CardContent className="pt-0">
-        <Accordion type="multiple" defaultValue={subsections.map(s => s.id)} className="space-y-4">
-          {subsections.map((subsection) => (
-            <AccordionItem key={subsection.id} value={subsection.id} className="border border-gray-200 rounded-lg">
-              <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 [&[data-state=open]>div]:bg-blue-50">
-                <div className="flex items-center gap-3 text-left">
-                  <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 text-sm font-medium rounded-full border border-blue-200">
-                    {subsection.id.split('-')[0]}
-                  </div>
-                  <div>
-                    <h4 className="text-base font-semibold text-gray-900">{subsection.title}</h4>
-                    <p className="text-sm text-gray-600">{subsection.questions.length} questions</p>
-                  </div>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
-                <div className="space-y-6 pt-2">
-                  {subsection.questions.map((question, index) => 
-                    renderQuestion(question, index, subsection.questions.length)
-                  )}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        <div className="space-y-4">
+          {/* Render subsections if they exist */}
+          {subsections && subsections.length > 0 && (
+            <>
+              {subsections
+                .sort((a, b) => a.subsectionOrder - b.subsectionOrder)
+                .map((subsection) => (
+                  <SubsectionLegoBlock
+                    key={subsection.id}
+                    subsection={subsection}
+                    responses={responses}
+                    onChange={onChange}
+                    readonly={readonly}
+                    errors={errors}
+                    compact={compact}
+                  />
+                ))
+              }
+            </>
+          )}
+          
+          {/* Render direct section questions if they exist */}
+          {questions && questions.length > 0 && (
+            <div className="space-y-6">
+              {sortedQuestions.map((question, index) => 
+                renderQuestion(question, index, sortedQuestions.length)
+              )}
+            </div>
+          )}
+          
+          {/* Empty state */}
+          {(!subsections || subsections.length === 0) && (!questions || questions.length === 0) && (
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-sm">No questions available in this section</p>
+            </div>
+          )}
+        </div>
       </CardContent>
     );
   };

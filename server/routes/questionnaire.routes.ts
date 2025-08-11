@@ -4,6 +4,7 @@ import { db } from '../db';
 import { 
   questionnaires, 
   questionnaireSections, 
+  questionnaireSubsections,
   questions, 
   questionOptions, 
   questionnaireResponses, 
@@ -38,53 +39,92 @@ router.get('/questionnaires/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Questionnaire not found' });
     }
 
-    // Get sections with questions and options
-    const sectionsWithQuestions = await db
+    // Get sections with subsections, questions and options
+    const sectionsWithData = await db
       .select({
         section: questionnaireSections,
+        subsection: questionnaireSubsections,
         question: questions,
         option: questionOptions
       })
       .from(questionnaireSections)
+      .leftJoin(questionnaireSubsections, eq(questionnaireSubsections.sectionId, questionnaireSections.id))
       .leftJoin(questions, eq(questions.sectionId, questionnaireSections.id))
       .leftJoin(questionOptions, eq(questionOptions.questionId, questions.id))
       .where(eq(questionnaireSections.questionnaireId, questionnaireId))
-      .orderBy(questionnaireSections.sectionOrder, questions.questionOrder, questionOptions.optionOrder);
+      .orderBy(
+        questionnaireSections.sectionOrder, 
+        questionnaireSubsections.subsectionOrder, 
+        questions.questionOrder, 
+        questionOptions.optionOrder
+      );
 
-    // Organize data hierarchically
+    // Organize data hierarchically with subsections
     const sectionsMap = new Map();
     
-    for (const row of sectionsWithQuestions) {
-      const { section, question, option } = row;
+    for (const row of sectionsWithData) {
+      const { section, subsection, question, option } = row;
       
       // Initialize section if not exists
       if (!sectionsMap.has(section.id)) {
         sectionsMap.set(section.id, {
           ...section,
-          questions: new Map()
+          subsections: new Map(),
+          questions: new Map() // Direct section questions
         });
       }
       
       const sectionData = sectionsMap.get(section.id);
       
-      // Add question if exists and not already added
-      if (question && !sectionData.questions.has(question.id)) {
-        sectionData.questions.set(question.id, {
-          ...question,
-          questionData: question.questionData || null, // Ensure questionData is included
-          options: []
+      // Add subsection if exists and not already added
+      if (subsection && !sectionData.subsections.has(subsection.id)) {
+        sectionData.subsections.set(subsection.id, {
+          ...subsection,
+          isCollapsible: subsection.isCollapsible === 'true',
+          defaultExpanded: subsection.defaultExpanded === 'true',
+          questions: new Map()
         });
       }
       
+      // Add question to the appropriate container
+      if (question && !sectionData.questions.has(question.id)) {
+        const questionData = {
+          ...question,
+          questionData: question.questionData || null,
+          options: []
+        };
+        
+        if (question.subsectionId && sectionData.subsections.has(question.subsectionId)) {
+          // Question belongs to a subsection
+          sectionData.subsections.get(question.subsectionId).questions.set(question.id, questionData);
+        } else {
+          // Question belongs directly to the section
+          sectionData.questions.set(question.id, questionData);
+        }
+      }
+      
       // Add option if exists
-      if (question && option && sectionData.questions.has(question.id)) {
-        sectionData.questions.get(question.id).options.push(option);
+      if (question && option) {
+        let targetQuestion = sectionData.questions.get(question.id);
+        if (!targetQuestion && question.subsectionId) {
+          const subsectionData = sectionData.subsections.get(question.subsectionId);
+          if (subsectionData) {
+            targetQuestion = subsectionData.questions.get(question.id);
+          }
+        }
+        if (targetQuestion) {
+          targetQuestion.options.push(option);
+        }
       }
     }
 
     // Convert to final structure
     const sections = Array.from(sectionsMap.values()).map(section => ({
       ...section,
+      subsections: Array.from(section.subsections.values()).map(subsection => ({
+        ...subsection,
+        questions: Array.from(subsection.questions.values())
+      })),
       questions: Array.from(section.questions.values())
     }));
 

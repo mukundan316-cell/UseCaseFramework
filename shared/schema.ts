@@ -174,13 +174,28 @@ export const questionnaireSections = pgTable("questionnaire_sections", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// New subsections table - organizational containers for questions
+export const questionnaireSubsections = pgTable("questionnaire_subsections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sectionId: varchar("section_id").notNull().references(() => questionnaireSections.id, { onDelete: 'cascade' }),
+  title: text("title").notNull(), // "Executive Vision & Strategic Alignment"
+  subsectionNumber: text("subsection_number").notNull(), // "1.1", "1.2", "2.1", etc.
+  subsectionOrder: integer("subsection_order").notNull(), // Order within the section
+  estimatedTime: integer("estimated_time"), // in minutes
+  description: text("description"), // Optional description
+  isCollapsible: text("is_collapsible").notNull().default('true'), // 'true' or 'false'
+  defaultExpanded: text("default_expanded").notNull().default('false'), // 'true' or 'false'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const questions = pgTable("questions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   sectionId: varchar("section_id").notNull().references(() => questionnaireSections.id, { onDelete: 'cascade' }),
+  subsectionId: varchar("subsection_id").references(() => questionnaireSubsections.id, { onDelete: 'cascade' }), // Optional - questions can be directly in section or in subsection
   questionText: text("question_text").notNull(),
   questionType: text("question_type").notNull(), // text, number, select, multiselect, scale, boolean
   isRequired: text("is_required").notNull().default('false'), // 'true' or 'false'
-  questionOrder: integer("question_order").notNull(),
+  questionOrder: integer("question_order").notNull(), // Order within subsection or section
   helpText: text("help_text"), // Optional guidance for respondents
   questionData: text("question_data").$type<Record<string, any>>(), // JSON configuration for advanced question types
   subQuestions: text("sub_questions"), // JSONB for compound questions
@@ -246,6 +261,14 @@ export const insertQuestionnaireSectionSchema = createInsertSchema(questionnaire
   ]),
 });
 
+export const insertQuestionnaireSubsectionSchema = createInsertSchema(questionnaireSubsections).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  isCollapsible: z.enum(['true', 'false']).default('true'),
+  defaultExpanded: z.enum(['true', 'false']).default('false'),
+});
+
 export const insertQuestionSchema = createInsertSchema(questions).omit({
   id: true,
   createdAt: true,
@@ -279,6 +302,9 @@ export type InsertQuestionnaire = z.infer<typeof insertQuestionnaireSchema>;
 
 export type QuestionnaireSection = typeof questionnaireSections.$inferSelect;
 export type InsertQuestionnaireSection = z.infer<typeof insertQuestionnaireSectionSchema>;
+
+export type QuestionnaireSubsection = typeof questionnaireSubsections.$inferSelect;
+export type InsertQuestionnaireSubsection = z.infer<typeof insertQuestionnaireSubsectionSchema>;
 
 export type Question = typeof questions.$inferSelect;
 export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
