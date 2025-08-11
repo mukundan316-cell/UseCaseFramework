@@ -665,6 +665,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                     <p className="text-sm text-red-600 mt-1">{form.formState.errors.problemStatement.message}</p>
                   )}
                 </div>
+
+                {/* RSA Portfolio Selection - Only on Tab 1 */}
+                <RSASelectionToggleLegoBlock
+                  isActiveForRsa={rsaSelection.isActiveForRsa}
+                  isDashboardVisible={rsaSelection.isDashboardVisible}
+                  activationReason={rsaSelection.activationReason}
+                  libraryTier={rsaSelection.libraryTier}
+                  onRSAToggle={handleRSAToggle}
+                  onDashboardToggle={handleDashboardToggle}
+                  onActivationReasonChange={handleActivationReasonChange}
+                  className="mb-6"
+                />
               </TabsContent>
 
               {/* Tab 2: Business Context */}
@@ -1054,18 +1066,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 )}
               </TabsContent>
             </Tabs>
-
-            {/* RSA Portfolio Selection LEGO Block - Moved to bottom */}
-            <RSASelectionToggleLegoBlock
-              isActiveForRsa={rsaSelection.isActiveForRsa}
-              isDashboardVisible={rsaSelection.isDashboardVisible}
-              activationReason={rsaSelection.activationReason}
-              libraryTier={rsaSelection.libraryTier}
-              onRSAToggle={handleRSAToggle}
-              onDashboardToggle={handleDashboardToggle}
-              onActivationReasonChange={handleActivationReasonChange}
-              className="mb-6"
-            />
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
