@@ -97,11 +97,23 @@ export default function QuestionnaireContainer({
     debouncedSave(async (responseId: string, answers: Map<string, any>) => {
       if (answers.size === 0) return;
       
-      const answersArray = Array.from(answers.entries()).map(([questionId, value]) => ({
-        questionId,
-        answerValue: String(value || ''),
-        score: typeof value === 'number' ? value : undefined
-      }));
+      const answersArray = Array.from(answers.entries()).map(([questionId, value]) => {
+        // Find question type from questionnaire data
+        const questionType = questionnaire?.sections
+          ?.flatMap(section => section.questions)
+          ?.find(q => q.id === questionId)?.questionType;
+          
+        return {
+          questionId,
+          questionType,
+          // Enhanced serialization: complex objects are JSON stringified, primitives stay as strings
+          // Server-side will parse JSON strings back to objects for proper JSONB storage
+          answerValue: typeof value === 'object' && value !== null 
+            ? JSON.stringify(value) 
+            : String(value || ''),
+          score: typeof value === 'number' ? value : undefined
+        };
+      });
       
       await saveAnswers({ responseId, answers: answersArray });
       
@@ -234,11 +246,23 @@ export default function QuestionnaireContainer({
     if (responseSession && responses.size > 0) {
       setIsSaving(true);
       try {
-        const answersArray = Array.from(responses.entries()).map(([questionId, value]) => ({
-          questionId,
-          answerValue: String(value || ''),
-          score: typeof value === 'number' ? value : undefined
-        }));
+        const answersArray = Array.from(responses.entries()).map(([questionId, value]) => {
+          // Find question type from questionnaire data
+          const questionType = questionnaire?.sections
+            ?.flatMap(section => section.questions)
+            ?.find(q => q.id === questionId)?.questionType;
+            
+          return {
+            questionId,
+            questionType,
+            // Enhanced serialization: complex objects are JSON stringified, primitives stay as strings
+            // Server-side will parse JSON strings back to objects for proper JSONB storage
+            answerValue: typeof value === 'object' && value !== null 
+              ? JSON.stringify(value) 
+              : String(value || ''),
+            score: typeof value === 'number' ? value : undefined
+          };
+        });
         
         await saveAnswers({ responseId: responseSession.id, answers: answersArray });
         saveProgressToStorage();

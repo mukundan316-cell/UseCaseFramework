@@ -301,11 +301,24 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
         questionDetails = question;
       }
 
-      // Skip validation step for complex types - just use original answerValue
+      // Parse JSON strings back to objects for complex question types before storage
       let processedAnswerValue = answerData.answerValue;
+      
+      // If answerValue is a JSON string for complex types, parse it back to object
+      if (typeof answerData.answerValue === 'string' && answerData.questionType && 
+          ['currency', 'percentage_allocation', 'percentage_target', 'ranking', 'smart_rating', 
+           'business_lines_matrix', 'department_skills_matrix', 'company_profile', 
+           'business_performance', 'multi_rating', 'composite'].includes(answerData.questionType)) {
+        try {
+          processedAnswerValue = JSON.parse(answerData.answerValue);
+        } catch (e) {
+          // If parsing fails, keep as string
+          processedAnswerValue = answerData.answerValue;
+        }
+      }
 
       // Prepare answer data for JSONB storage
-      const preparedData = prepareAnswerData(answerData.answerValue, answerData.questionType);
+      const preparedData = prepareAnswerData(processedAnswerValue, answerData.questionType);
 
       // Check if answer already exists for this question
       const [existingAnswer] = await db
