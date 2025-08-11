@@ -1,5 +1,5 @@
 import React from 'react';
-import { Brain, PlusCircle, Sparkle, Search, Settings, ClipboardCheck } from 'lucide-react';
+import { Brain, PlusCircle, Sparkle, Search, Settings, ClipboardCheck, MapIcon } from 'lucide-react';
 import { useUseCases } from '../contexts/UseCaseContext';
 import { TabType } from '../types';
 import RSAHeader from './RSAHeader';
@@ -12,6 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { id: 'dashboard' as TabType, label: 'Dashboard View', icon: Sparkle },
     { id: 'explorer' as TabType, label: 'Explorer', icon: Search },
     { id: 'assessment' as TabType, label: 'AI Assessment', icon: ClipboardCheck },
+    { id: 'roadmap' as TabType, label: 'AI Roadmap', icon: MapIcon },
     { id: 'admin' as TabType, label: 'Admin', icon: Settings },
   ];
 

@@ -18,6 +18,7 @@ import AssessmentResultsDashboard from "./components/lego-blocks/AssessmentResul
 import ResponseExportDemo from "./components/lego-blocks/ResponseExportDemo";
 import RSAAssessmentLandingPage from "./components/RSAAssessmentLandingPage";
 import QuestionnaireContainer from "./components/QuestionnaireContainer";
+import AIRoadmapPage from "./pages/AIRoadmapPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/currency-demo" component={CurrencyInputLegoBlockDemo} />
       <Route path="/allocation-demo" component={PercentageAllocationLegoBlockDemo} />
       <Route path="/questionnaire" component={QuestionnaireContainerDemo} />
+      <Route path="/roadmap" component={AIRoadmapPage} />
       <Route path="/assessment" component={() => <RSAAssessmentLandingPage />} />
       <Route path="/assessment/take" component={() => 
         <QuestionnaireContainer questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
