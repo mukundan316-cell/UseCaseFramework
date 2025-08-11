@@ -167,15 +167,17 @@ const AIRoadmapTab = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Pillars Column */}
           <div className="space-y-3">
-            <h3 className="text-xl font-bold text-gray-900 text-center p-4">
-              Strategic Pillars
-            </h3>
+            <Card className="p-4 bg-gray-100">
+              <h3 className="text-xl font-bold text-gray-900 text-center">
+                Strategic Pillars
+              </h3>
+            </Card>
             {roadmapPillars.map((pillar) => {
               const IconComponent = pillar.icon;
               return (
-                <Card key={pillar.id} className={`p-4 ${pillar.color} text-white`}>
-                  <div className="flex items-center gap-3">
-                    <IconComponent className="w-6 h-6" />
+                <Card key={pillar.id} className={`p-4 ${pillar.color} text-white min-h-[120px] flex items-center`}>
+                  <div className="flex items-center gap-3 w-full">
+                    <IconComponent className="w-6 h-6 flex-shrink-0" />
                     <span className="font-semibold text-lg">{pillar.title}</span>
                   </div>
                 </Card>
@@ -191,12 +193,12 @@ const AIRoadmapTab = () => {
               </h3>
             </Card>
             {roadmapPillars.map((pillar) => (
-              <Card key={`${pillar.id}-foundations`} className={`p-4 ${pillar.lightColor}`}>
-                <ul className="space-y-1 text-sm">
+              <Card key={`${pillar.id}-foundations`} className={`p-4 ${pillar.lightColor} min-h-[120px]`}>
+                <ul className="space-y-2 text-sm">
                   {pillar.foundations.map((item, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <span className="text-gray-500 mt-1">•</span>
-                      <span>{item}</span>
+                      <span className="text-gray-500 mt-1 flex-shrink-0">•</span>
+                      <span className="leading-relaxed">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -212,12 +214,12 @@ const AIRoadmapTab = () => {
               </h3>
             </Card>
             {roadmapPillars.map((pillar) => (
-              <Card key={`${pillar.id}-scale`} className={`p-4 ${pillar.lightColor}`}>
-                <ul className="space-y-1 text-sm">
+              <Card key={`${pillar.id}-scale`} className={`p-4 ${pillar.lightColor} min-h-[120px]`}>
+                <ul className="space-y-2 text-sm">
                   {pillar.scaleOptimize.map((item, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <span className="text-gray-500 mt-1">•</span>
-                      <span>{item}</span>
+                      <span className="text-gray-500 mt-1 flex-shrink-0">•</span>
+                      <span className="leading-relaxed">{item}</span>
                     </li>
                   ))}
                 </ul>
