@@ -98,4 +98,4 @@ export interface FilterState {
   showRecommendations?: boolean;
 }
 
-export type TabType = "dashboard" | "explorer" | "admin" | "assessment" | "roadmap";
+export type TabType = "dashboard" | "explorer" | "admin" | "assessment";
