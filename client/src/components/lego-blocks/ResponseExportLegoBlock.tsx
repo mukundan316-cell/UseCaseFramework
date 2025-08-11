@@ -98,7 +98,7 @@ export default function ResponseExportLegoBlock({
         duration: 3000
       });
 
-      const response = await fetch(`/api/responses/${responseId}/export?format=${format}`, {
+      const response = await fetch(`/api/export/assessment/${responseId}?format=${format}`, {
         method: 'GET',
         headers: {
           'Accept': option.mimeType
