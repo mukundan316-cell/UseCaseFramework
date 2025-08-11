@@ -886,7 +886,7 @@ export class QuestionnairePdfService {
             questionType: question.questionType,
             answerValue: undefined, // Blank template
             answerData: undefined,
-            options: question.options,
+            options: question.questionData as any,
             sectionTitle: section?.title,
             subsectionTitle: subsection?.title
           }, section?.sectionOrder || 1, questionCounter);
@@ -1020,7 +1020,7 @@ export class QuestionnairePdfService {
             questionType: question.questionType,
             answerValue: response?.answerValue,
             answerData: response?.answerData,
-            options: question.options,
+            options: question.questionData as any,
             sectionTitle: section?.title,
             subsectionTitle: subsection?.title
           }, section?.sectionOrder || 1, questionCounter);
