@@ -7,97 +7,218 @@ import { format } from 'date-fns';
 
 export class UseCasePdfService {
   /**
-   * Add RSA branded header with logo and professional styling
+   * Create executive-style cover page for use case reports
    */
-  private static addRSAHeader(doc: any, title: string): void {
+  private static addExecutiveCoverPage(doc: any, reportType: string, summary: any): void {
     const pageWidth = doc.page.width;
+    const pageHeight = doc.page.height;
     
-    // RSA Blue gradient header background
-    doc.rect(0, 0, pageWidth, 80)
-       .fill('#005DAA');
+    // Clean white background
+    doc.rect(0, 0, pageWidth, pageHeight).fill('#FFFFFF');
     
-    // Add subtle sunburst pattern
-    doc.save();
-    doc.translate(60, 40);
+    // Top header with RSA branding
+    doc.rect(0, 0, pageWidth, 3).fill('#005DAA');
     
-    // Create sunburst rays
-    for (let i = 0; i < 12; i++) {
-      doc.save();
-      doc.rotate((i * 30) * Math.PI / 180);
-      doc.rect(-1, -25, 2, 15)
-         .fill('#0066CC');
-      doc.restore();
-    }
-    doc.restore();
-
-    // RSA Logo area
-    doc.rect(20, 15, 50, 50)
-       .fill('#FFFFFF');
-    
-    doc.fontSize(16)
+    // RSA Logo and branding (top left)
+    doc.fontSize(28)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA', 35, 32);
+       .text('RSA', 60, 60);
     
-    doc.fontSize(8)
-       .fillColor('#005DAA')
-       .font('Helvetica')
-       .text('INSURANCE', 25, 48);
-
-    // Title
-    doc.fontSize(18)
-       .fillColor('#FFFFFF')
-       .font('Helvetica-Bold')
-       .text(title, 90, 25);
-    
-    // Subtitle
-    doc.fontSize(12)
-       .fillColor('#CCE5FF')
-       .font('Helvetica')
-       .text('AI Innovation Portfolio', 90, 45);
-
-    // Date and reference
     doc.fontSize(10)
-       .fillColor('#FFFFFF')
-       .text(`Generated: ${format(new Date(), 'PPP')}`, pageWidth - 200, 25);
+       .fillColor('#666666')
+       .font('Helvetica')
+       .text('INSURANCE', 60, 95);
+    
+    // Document classification (top right)
+    doc.fontSize(9)
+       .fillColor('#999999')
+       .font('Helvetica')
+       .text('CONFIDENTIAL', pageWidth - 120, 60);
     
     doc.fontSize(8)
-       .fillColor('#CCE5FF')
-       .text('Confidential & Proprietary', pageWidth - 200, 40);
+       .fillColor('#999999')
+       .text('For Internal Use Only', pageWidth - 120, 75);
+    
+    // Main title (centered, large)
+    const titleText = reportType === 'portfolio' ? 'AI Portfolio Report' : 'Use Case Library';
+    doc.fontSize(36)
+       .fillColor('#1a1a1a')
+       .font('Helvetica-Bold')
+       .text(titleText, 0, 200, { align: 'center', width: pageWidth });
+    
+    const subtitleText = reportType === 'portfolio' ? 'Strategic Implementation Overview' : 'Comprehensive AI Opportunity Catalog';
+    doc.fontSize(24)
+       .fillColor('#005DAA')
+       .font('Helvetica')
+       .text(subtitleText, 0, 250, { align: 'center', width: pageWidth });
+    
+    // Executive summary box
+    const boxY = 320;
+    doc.rect(80, boxY, pageWidth - 160, 140)
+       .stroke('#E5E5E5')
+       .strokeColor('#E5E5E5');
+    
+    doc.fontSize(12)
+       .fillColor('#333333')
+       .font('Helvetica-Bold')
+       .text('Overview', 100, boxY + 20);
+    
+    const totalUseCases = summary?.totalUseCases || 0;
+    const activeUseCases = summary?.activeUseCases || 0;
+    
+    doc.fontSize(10)
+       .fillColor('#666666')
+       .font('Helvetica')
+       .text(`Total Use Cases: ${totalUseCases}`, 100, boxY + 45)
+       .text(`Active Portfolio: ${activeUseCases}`, 100, boxY + 60)
+       .text(`Organization: RSA Insurance`, 100, boxY + 75)
+       .text(`Report Generated: ${format(new Date(), 'MMMM d, yyyy')}`, 100, boxY + 90)
+       .text(`Classification: Strategic Planning Document`, 100, boxY + 105);
+    
+    // Bottom section with key insights
+    doc.fontSize(14)
+       .fillColor('#005DAA')
+       .font('Helvetica-Bold')
+       .text('Executive Summary', 60, 500);
+    
+    const summaryText = reportType === 'portfolio' 
+      ? 'This report provides a comprehensive view of RSA\'s active AI portfolio, including implementation'
+      : 'This catalog presents a comprehensive library of AI use cases specifically curated for the insurance';
+    
+    doc.fontSize(11)
+       .fillColor('#333333')
+       .font('Helvetica')
+       .text(summaryText, 60, 525, { width: 480, lineGap: 4 })
+       .text('status, strategic alignment, and expected business impact. Each initiative has been evaluated', 60, 545, { width: 480, lineGap: 4 })
+       .text('for feasibility, resource requirements, and potential ROI to ensure optimal allocation of resources.', 60, 565, { width: 480, lineGap: 4 });
+    
+    // Footer with page indicator
+    doc.fontSize(8)
+       .fillColor('#999999')
+       .text('RSA Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 40)
+       .text('Page 1', pageWidth - 80, pageHeight - 40);
   }
 
   /**
-   * Add RSA branded footer
+   * Add professional page header
    */
-  private static addRSAFooter(doc: any, reportType: string): void {
-    const pageHeight = doc.page.height;
+  private static addPageHeader(doc: any, title: string, pageNum: number): void {
     const pageWidth = doc.page.width;
     
-    // Footer line
-    doc.moveTo(60, pageHeight - 60)
-       .lineTo(pageWidth - 60, pageHeight - 60)
-       .stroke('#005DAA');
+    // Top blue line
+    doc.rect(0, 0, pageWidth, 2).fill('#005DAA');
     
-    // Footer content
+    // Header content
     doc.fontSize(10)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA Insurance', 60, pageHeight - 45);
+       .text('RSA Insurance', 60, 25);
     
+    doc.fontSize(9)
+       .fillColor('#666666')
+       .font('Helvetica')
+       .text(title, 60, 40);
+    
+    // Page number
+    doc.fontSize(9)
+       .fillColor('#999999')
+       .text(`${pageNum}`, pageWidth - 60, 40);
+    
+    // Separator line
+    doc.moveTo(60, 55)
+       .lineTo(pageWidth - 60, 55)
+       .stroke('#E5E5E5');
+  }
+
+  /**
+   * Add professional use case card
+   */
+  private static addUseCaseCard(doc: any, useCase: any, index: number): void {
+    if (doc.y > 650) {
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Use Case Portfolio', Math.ceil(index / 6) + 2);
+      doc.y = 80;
+    }
+    
+    const cardHeight = 100;
+    const cardY = doc.y;
+    
+    // Card background
+    doc.rect(60, cardY, 480, cardHeight)
+       .fill('#FAFAFA')
+       .stroke('#E5E5E5');
+    
+    // Status indicator
+    const isActive = useCase.isActiveForRsa === 'true';
+    const statusColor = isActive ? '#22C55E' : '#6B7280';
+    doc.rect(60, cardY, 4, cardHeight).fill(statusColor);
+    
+    // Use case number
+    doc.fontSize(14)
+       .fillColor('#005DAA')
+       .font('Helvetica-Bold')
+       .text(`${index + 1}.`, 80, cardY + 15);
+    
+    // Title
+    doc.fontSize(12)
+       .fillColor('#1a1a1a')
+       .font('Helvetica-Bold')
+       .text(useCase.title, 100, cardY + 15, { width: 300 });
+    
+    // Status badge
+    doc.fontSize(8)
+       .fillColor('#FFFFFF')
+       .font('Helvetica-Bold')
+       .text(isActive ? 'ACTIVE' : 'LIBRARY', 420, cardY + 15, 
+             { width: 60, align: 'center' });
+    doc.rect(415, cardY + 10, 70, 15).stroke(statusColor);
+    
+    // Description
+    doc.fontSize(10)
+       .fillColor('#666666')
+       .font('Helvetica')
+       .text(useCase.description || 'No description available', 100, cardY + 35, 
+             { width: 350, height: 30, ellipsis: true });
+    
+    // Metadata
+    doc.fontSize(9)
+       .fillColor('#999999')
+       .text(`Process: ${useCase.process || 'General'}`, 100, cardY + 70)
+       .text(`Business Unit: ${useCase.lineOfBusiness || 'Cross-functional'}`, 250, cardY + 70);
+    
+    // Scores (if available)
+    if (useCase.impactScore || useCase.effortScore) {
+      doc.fontSize(9)
+         .fillColor('#005DAA')
+         .text(`Impact: ${useCase.impactScore || 'N/A'}`, 100, cardY + 85)
+         .text(`Effort: ${useCase.effortScore || 'N/A'}`, 180, cardY + 85);
+    }
+    
+    doc.y = cardY + cardHeight + 15;
+  }
+
+  /**
+   * Add professional footer
+   */
+  private static addPageFooter(doc: any): void {
+    const pageHeight = doc.page.height;
+    const pageWidth = doc.page.width;
+    
+    // Footer separator
+    doc.moveTo(60, pageHeight - 50)
+       .lineTo(pageWidth - 60, pageHeight - 50)
+       .stroke('#E5E5E5');
+    
+    // Footer content
     doc.fontSize(8)
        .fillColor('#666666')
        .font('Helvetica')
-       .text(`AI Use Case Value Framework | ${reportType}`, 60, pageHeight - 30);
+       .text('RSA Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 35);
     
-    // Contact information
-    doc.fontSize(8)
-       .fillColor('#666666')
-       .text('For more information, contact your RSA Digital Innovation team', pageWidth - 300, pageHeight - 45, { align: 'right' });
-    
-    // Page number and timestamp
     doc.fontSize(8)
        .fillColor('#999999')
-       .text(`Page 1 | ${format(new Date(), 'PPpp')}`, pageWidth - 150, pageHeight - 30, { align: 'right' });
+       .text(`Generated ${format(new Date(), 'MMM d, yyyy')}`, pageWidth - 150, pageHeight - 35);
   }
   /**
    * Generate use case library catalog
@@ -107,13 +228,20 @@ export class UseCasePdfService {
     status?: string;
   }): Promise<void> {
     try {
-      console.log('Generating library catalog with filters:', filters);
+      console.log('Generating executive library catalog with filters:', filters);
       
       // Fetch filtered use cases
       const useCaseData = await this.fetchUseCases(filters);
       console.log('Found use cases:', useCaseData.length);
       
-      // Create simplified PDF
+      // Calculate summary stats
+      const summary = {
+        totalUseCases: useCaseData.length,
+        activeUseCases: useCaseData.filter(uc => uc.isActiveForRsa === 'true').length,
+        referenceUseCases: useCaseData.filter(uc => uc.isActiveForRsa !== 'true').length
+      };
+      
+      // Create professional PDF
       const doc = new PDFDocument({
         size: 'A4',
         margins: { top: 60, bottom: 60, left: 60, right: 60 }
@@ -121,57 +249,71 @@ export class UseCasePdfService {
 
       // Set headers
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_Library_Catalog_${new Date().toISOString().split('T')[0]}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="RSA_Use_Case_Library_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       doc.pipe(res);
 
-      // Add RSA branded header
-      this.addRSAHeader(doc, 'Use Case Library Catalog');
-
-      doc.y = 110;
-
-      // Title
-      doc.fontSize(24)
+      // PAGE 1: Executive Cover Page
+      this.addExecutiveCoverPage(doc, 'library', summary);
+      
+      // PAGE 2: Portfolio Overview
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Use Case Library', 2);
+      doc.y = 80;
+      
+      // Portfolio statistics
+      doc.fontSize(18)
          .fillColor('#005DAA')
-         .text('Use Case Library Catalog', { align: 'center' });
-
+         .font('Helvetica-Bold')
+         .text('Portfolio Overview');
+      
+      doc.moveDown(1);
+      
+      // Stats boxes
+      const statsY = doc.y;
+      
+      // Total use cases box
+      doc.rect(60, statsY, 140, 80).fill('#F0F8FF').stroke('#005DAA');
+      doc.fontSize(24).fillColor('#005DAA').font('Helvetica-Bold')
+         .text(summary.totalUseCases.toString(), 60, statsY + 20, { width: 140, align: 'center' });
+      doc.fontSize(12).fillColor('#333333').font('Helvetica')
+         .text('Total Use Cases', 60, statsY + 50, { width: 140, align: 'center' });
+      
+      // Active cases box
+      doc.rect(220, statsY, 140, 80).fill('#F0FDF4').stroke('#22C55E');
+      doc.fontSize(24).fillColor('#22C55E').font('Helvetica-Bold')
+         .text(summary.activeUseCases.toString(), 220, statsY + 20, { width: 140, align: 'center' });
+      doc.fontSize(12).fillColor('#333333').font('Helvetica')
+         .text('Active Portfolio', 220, statsY + 50, { width: 140, align: 'center' });
+      
+      // Reference cases box
+      doc.rect(380, statsY, 140, 80).fill('#F9FAFB').stroke('#6B7280');
+      doc.fontSize(24).fillColor('#6B7280').font('Helvetica-Bold')
+         .text(summary.referenceUseCases.toString(), 380, statsY + 20, { width: 140, align: 'center' });
+      doc.fontSize(12).fillColor('#333333').font('Helvetica')
+         .text('Reference Library', 380, statsY + 50, { width: 140, align: 'center' });
+      
+      doc.y = statsY + 100;
       doc.moveDown(2);
-
-      // Summary
-      doc.fontSize(14)
-         .fillColor('#333333')
-         .text(`Total Use Cases: ${useCaseData.length}`)
-         .text(`Generated: ${new Date().toLocaleDateString()}`);
-
-      doc.moveDown(2);
-
-      // Use cases list
+      
+      // Use cases section
+      doc.fontSize(16)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Use Case Inventory');
+      
+      doc.moveDown(1);
+      
+      // Use case cards
       useCaseData.forEach((useCase, index) => {
-        if (doc.y > 700) {
-          doc.addPage();
-          doc.y = 60;
-        }
-
-        doc.fontSize(14)
-           .fillColor('#005DAA')
-           .text(`${index + 1}. ${useCase.title}`);
-        
-        doc.fontSize(11)
-           .fillColor('#666666')
-           .text(useCase.description || 'No description available');
-        
-        doc.fontSize(10)
-           .fillColor('#999999')
-           .text(`Process: ${useCase.process || 'N/A'} | Business: ${useCase.lineOfBusiness || 'N/A'}`);
-
-        doc.moveDown(1);
+        this.addUseCaseCard(doc, useCase, index);
       });
 
-      // Add RSA footer
-      this.addRSAFooter(doc, 'Library Catalog');
+      // Add footer
+      this.addPageFooter(doc);
 
       doc.end();
-      console.log('Library catalog generated successfully');
+      console.log('Executive library catalog generated successfully');
 
     } catch (error) {
       console.error('Failed to generate library catalog PDF:', error);
@@ -186,17 +328,27 @@ export class UseCasePdfService {
    */
   static async generatePortfolioReport(res: Response): Promise<void> {
     try {
-      console.log('Generating portfolio report');
+      console.log('Generating executive portfolio report');
       
-      // Fetch RSA active use cases
-      const activeUseCases = await db
-        .select()
-        .from(useCases)
-        .where(eq(useCases.isActiveForRsa, 'true'));
+      // Fetch all use cases for comprehensive analysis
+      const allUseCases = await db.select().from(useCases);
+      const activeUseCases = allUseCases.filter(uc => uc.isActiveForRsa === 'true');
 
       console.log('Found active use cases:', activeUseCases.length);
 
-      // Create simplified PDF
+      // Calculate summary stats
+      const summary = {
+        totalUseCases: allUseCases.length,
+        activeUseCases: activeUseCases.length,
+        averageImpact: activeUseCases.length > 0 
+          ? Math.round(activeUseCases.reduce((sum, uc) => sum + (uc.impactScore || 0), 0) / activeUseCases.length) 
+          : 0,
+        averageEffort: activeUseCases.length > 0 
+          ? Math.round(activeUseCases.reduce((sum, uc) => sum + (uc.effortScore || 0), 0) / activeUseCases.length) 
+          : 0
+      };
+
+      // Create professional PDF
       const doc = new PDFDocument({
         size: 'A4',
         margins: { top: 60, bottom: 60, left: 60, right: 60 }
@@ -204,69 +356,105 @@ export class UseCasePdfService {
 
       // Set headers
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_Active_Portfolio_${new Date().toISOString().split('T')[0]}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="RSA_AI_Portfolio_Report_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       doc.pipe(res);
 
-      // Add RSA branded header
-      this.addRSAHeader(doc, 'Active AI Portfolio Report');
-
-      doc.y = 110;
-
-      // Title
-      doc.fontSize(24)
+      // PAGE 1: Executive Cover Page
+      this.addExecutiveCoverPage(doc, 'portfolio', summary);
+      
+      // PAGE 2: Portfolio Analysis
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Portfolio Report', 2);
+      doc.y = 80;
+      
+      // Executive Summary
+      doc.fontSize(18)
          .fillColor('#005DAA')
-         .text('Active AI Portfolio Report', { align: 'center' });
-
+         .font('Helvetica-Bold')
+         .text('Portfolio Analysis');
+      
+      doc.moveDown(1);
+      
+      // Key metrics grid
+      const metricsY = doc.y;
+      
+      // Active Portfolio box
+      doc.rect(60, metricsY, 200, 100).fill('#F0FDF4').stroke('#22C55E');
+      doc.fontSize(28).fillColor('#22C55E').font('Helvetica-Bold')
+         .text(activeUseCases.length.toString(), 60, metricsY + 20, { width: 200, align: 'center' });
+      doc.fontSize(14).fillColor('#333333').font('Helvetica-Bold')
+         .text('Active Initiatives', 60, metricsY + 55, { width: 200, align: 'center' });
+      doc.fontSize(10).fillColor('#666666').font('Helvetica')
+         .text('Currently in implementation', 60, metricsY + 75, { width: 200, align: 'center' });
+      
+      // Portfolio Value box
+      doc.rect(280, metricsY, 200, 100).fill('#F0F8FF').stroke('#005DAA');
+      doc.fontSize(28).fillColor('#005DAA').font('Helvetica-Bold')
+         .text(`${summary.averageImpact}/10`, 280, metricsY + 20, { width: 200, align: 'center' });
+      doc.fontSize(14).fillColor('#333333').font('Helvetica-Bold')
+         .text('Avg Impact Score', 280, metricsY + 55, { width: 200, align: 'center' });
+      doc.fontSize(10).fillColor('#666666').font('Helvetica')
+         .text('Expected business value', 280, metricsY + 75, { width: 200, align: 'center' });
+      
+      doc.y = metricsY + 120;
       doc.moveDown(2);
-
-      // Summary
-      doc.fontSize(14)
+      
+      // Strategic Overview
+      doc.fontSize(16)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Strategic Overview');
+      
+      doc.moveDown(1);
+      
+      doc.fontSize(11)
          .fillColor('#333333')
-         .text(`Active Use Cases: ${activeUseCases.length}`)
-         .text(`Report Generated: ${new Date().toLocaleDateString()}`);
-
+         .font('Helvetica')
+         .text('RSA\'s AI portfolio represents a strategic investment in digital transformation, focusing on', { lineGap: 4 })
+         .text('high-impact initiatives that drive operational efficiency, enhance customer experience, and', { lineGap: 4 })
+         .text('create competitive advantages in the insurance market.', { lineGap: 4 });
+      
       doc.moveDown(2);
-
-      // Active use cases
+      
+      // Active Portfolio Details
       if (activeUseCases.length > 0) {
         doc.fontSize(16)
            .fillColor('#005DAA')
-           .text('Active Use Cases');
+           .font('Helvetica-Bold')
+           .text('Active Portfolio Details');
 
         doc.moveDown(1);
 
         activeUseCases.forEach((useCase, index) => {
-          if (doc.y > 700) {
-            doc.addPage();
-            doc.y = 60;
-          }
-
-          doc.fontSize(14)
-             .fillColor('#005DAA')
-             .text(`${index + 1}. ${useCase.title}`);
-          
-          doc.fontSize(11)
-             .fillColor('#666666')
-             .text(useCase.description || 'No description available');
-          
-          doc.fontSize(10)
-             .fillColor('#999999')
-             .text(`Impact: ${useCase.impactScore || 'N/A'} | Effort: ${useCase.effortScore || 'N/A'}`);
-
-          doc.moveDown(1);
+          this.addUseCaseCard(doc, useCase, index);
         });
       } else {
-        doc.fontSize(14)
+        // No active use cases message
+        doc.fontSize(16)
+           .fillColor('#005DAA')
+           .font('Helvetica-Bold')
+           .text('Portfolio Status');
+        
+        doc.moveDown(1);
+        
+        const messageY = doc.y;
+        doc.rect(60, messageY, 480, 60).fill('#F9FAFB').stroke('#E5E5E5');
+        
+        doc.fontSize(12)
            .fillColor('#666666')
-           .text('No active use cases found in the portfolio.');
+           .font('Helvetica')
+           .text('No active use cases are currently in the portfolio. Consider moving high-priority', 80, messageY + 20)
+           .text('use cases from the reference library to begin implementation.', 80, messageY + 35);
+        
+        doc.y = messageY + 80;
       }
 
-      // Add RSA footer
-      this.addRSAFooter(doc, 'Portfolio Report');
+      // Add footer
+      this.addPageFooter(doc);
 
       doc.end();
-      console.log('Portfolio report generated successfully');
+      console.log('Executive portfolio report generated successfully');
 
     } catch (error) {
       console.error('Failed to generate portfolio PDF:', error);

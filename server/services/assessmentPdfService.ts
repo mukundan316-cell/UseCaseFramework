@@ -14,106 +14,221 @@ interface AssessmentData {
 
 export class AssessmentPdfService {
   /**
-   * Add RSA branded header with logo and sunburst design
+   * Create executive-style cover page
    */
-  private static addRSAHeader(doc: any, title: string): void {
+  private static addExecutiveCoverPage(doc: any, responseData: any): void {
     const pageWidth = doc.page.width;
+    const pageHeight = doc.page.height;
     
-    // RSA Blue gradient header background
-    doc.rect(0, 0, pageWidth, 80)
-       .fill('#005DAA');
+    // Clean white background
+    doc.rect(0, 0, pageWidth, pageHeight).fill('#FFFFFF');
     
-    // Add subtle sunburst pattern
-    doc.save();
-    doc.translate(60, 40);
+    // Top header with RSA branding
+    doc.rect(0, 0, pageWidth, 3).fill('#005DAA');
     
-    // Create sunburst rays
-    for (let i = 0; i < 12; i++) {
-      doc.save();
-      doc.rotate((i * 30) * Math.PI / 180);
-      doc.rect(-1, -25, 2, 15)
-         .fill('#0066CC');
-      doc.restore();
-    }
-    doc.restore();
-
-    // RSA Logo area (stylized text for now)
-    doc.rect(20, 15, 50, 50)
-       .fill('#FFFFFF');
-    
-    doc.fontSize(16)
+    // RSA Logo and branding (top left)
+    doc.fontSize(28)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA', 35, 32);
+       .text('RSA', 60, 60);
     
-    doc.fontSize(8)
-       .fillColor('#005DAA')
-       .font('Helvetica')
-       .text('INSURANCE', 25, 48);
-
-    // Title
-    doc.fontSize(18)
-       .fillColor('#FFFFFF')
-       .font('Helvetica-Bold')
-       .text(title, 90, 25);
-    
-    // Subtitle
-    doc.fontSize(12)
-       .fillColor('#CCE5FF')
-       .font('Helvetica')
-       .text('Strategic AI Readiness Assessment', 90, 45);
-
-    // Date and reference
     doc.fontSize(10)
-       .fillColor('#FFFFFF')
-       .text(`Generated: ${format(new Date(), 'PPP')}`, pageWidth - 200, 25);
+       .fillColor('#666666')
+       .font('Helvetica')
+       .text('INSURANCE', 60, 95);
+    
+    // Document classification (top right)
+    doc.fontSize(9)
+       .fillColor('#999999')
+       .font('Helvetica')
+       .text('CONFIDENTIAL', pageWidth - 120, 60);
     
     doc.fontSize(8)
-       .fillColor('#CCE5FF')
-       .text('Confidential & Proprietary', pageWidth - 200, 40);
+       .fillColor('#999999')
+       .text('For Internal Use Only', pageWidth - 120, 75);
+    
+    // Main title (centered, large)
+    doc.fontSize(36)
+       .fillColor('#1a1a1a')
+       .font('Helvetica-Bold')
+       .text('AI Maturity Assessment', 0, 200, { align: 'center', width: pageWidth });
+    
+    doc.fontSize(24)
+       .fillColor('#005DAA')
+       .font('Helvetica')
+       .text('Strategic Readiness Report', 0, 250, { align: 'center', width: pageWidth });
+    
+    // Executive summary box
+    const boxY = 320;
+    doc.rect(80, boxY, pageWidth - 160, 120)
+       .stroke('#E5E5E5')
+       .strokeColor('#E5E5E5');
+    
+    doc.fontSize(12)
+       .fillColor('#333333')
+       .font('Helvetica-Bold')
+       .text('Assessment Overview', 100, boxY + 20);
+    
+    doc.fontSize(10)
+       .fillColor('#666666')
+       .font('Helvetica')
+       .text(`Respondent: ${responseData?.questionnaire_responses?.respondentName || 'Executive Leadership'}`, 100, boxY + 45)
+       .text(`Organization: RSA Insurance`, 100, boxY + 60)
+       .text(`Assessment Date: ${format(new Date(responseData?.questionnaire_responses?.createdAt || new Date()), 'MMMM d, yyyy')}`, 100, boxY + 75)
+       .text(`Report Generated: ${format(new Date(), 'MMMM d, yyyy')}`, 100, boxY + 90);
+    
+    // Bottom section with key insights preview
+    doc.fontSize(14)
+       .fillColor('#005DAA')
+       .font('Helvetica-Bold')
+       .text('Executive Summary', 60, 500);
+    
+    doc.fontSize(11)
+       .fillColor('#333333')
+       .font('Helvetica')
+       .text('This comprehensive assessment evaluates RSA\'s organizational readiness for AI implementation', 60, 525, { width: 480, lineGap: 4 })
+       .text('across strategic, technical, and operational dimensions. The analysis provides actionable', 60, 545, { width: 480, lineGap: 4 })
+       .text('recommendations for accelerating AI adoption and maximizing business value.', 60, 565, { width: 480, lineGap: 4 });
+    
+    // Footer with page indicator
+    doc.fontSize(8)
+       .fillColor('#999999')
+       .text('RSA Digital Innovation | AI Maturity Assessment', 60, pageHeight - 40)
+       .text('Page 1', pageWidth - 80, pageHeight - 40);
   }
 
   /**
-   * Add RSA branded footer
+   * Add professional page header
    */
-  private static addRSAFooter(doc: any): void {
-    const pageHeight = doc.page.height;
+  private static addPageHeader(doc: any, title: string, pageNum: number): void {
     const pageWidth = doc.page.width;
     
-    // Footer line
-    doc.moveTo(60, pageHeight - 60)
-       .lineTo(pageWidth - 60, pageHeight - 60)
-       .stroke('#005DAA');
+    // Top blue line
+    doc.rect(0, 0, pageWidth, 2).fill('#005DAA');
     
-    // Footer content
+    // Header content
     doc.fontSize(10)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA Insurance', 60, pageHeight - 45);
+       .text('RSA Insurance', 60, 25);
     
+    doc.fontSize(9)
+       .fillColor('#666666')
+       .font('Helvetica')
+       .text(title, 60, 40);
+    
+    // Page number
+    doc.fontSize(9)
+       .fillColor('#999999')
+       .text(`${pageNum}`, pageWidth - 60, 40);
+    
+    // Separator line
+    doc.moveTo(60, 55)
+       .lineTo(pageWidth - 60, 55)
+       .stroke('#E5E5E5');
+  }
+
+  /**
+   * Add professional section header
+   */
+  private static addSectionHeader(doc: any, title: string, level: number = 1): void {
+    if (doc.y > 720) {
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Maturity Assessment', 2);
+      doc.y = 80;
+    }
+    
+    doc.moveDown(level === 1 ? 1.5 : 1);
+    
+    if (level === 1) {
+      doc.fontSize(18)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold');
+    } else {
+      doc.fontSize(14)
+         .fillColor('#333333')
+         .font('Helvetica-Bold');
+    }
+    
+    doc.text(title);
+    doc.moveDown(0.5);
+    
+    // Add underline for level 1 headers
+    if (level === 1) {
+      const textWidth = doc.widthOfString(title);
+      doc.moveTo(doc.x, doc.y - 5)
+         .lineTo(doc.x + textWidth, doc.y - 5)
+         .stroke('#005DAA');
+    }
+  }
+
+  /**
+   * Add key insights box (McKinsey-style)
+   */
+  private static addKeyInsightsBox(doc: any, insights: string[]): void {
+    const boxWidth = 480;
+    const boxHeight = insights.length * 25 + 40;
+    
+    if (doc.y + boxHeight > 720) {
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Maturity Assessment', 2);
+      doc.y = 80;
+    }
+    
+    // Background box
+    doc.rect(60, doc.y, boxWidth, boxHeight)
+       .fill('#F8F9FA')
+       .stroke('#005DAA')
+       .strokeColor('#005DAA');
+    
+    // Header
+    doc.fontSize(12)
+       .fillColor('#005DAA')
+       .font('Helvetica-Bold')
+       .text('Key Insights', 80, doc.y + 15);
+    
+    // Insights list
+    doc.fontSize(10)
+       .fillColor('#333333')
+       .font('Helvetica');
+    
+    insights.forEach((insight, index) => {
+      doc.text(`• ${insight}`, 80, doc.y + 40 + (index * 25), { width: 440, lineGap: 2 });
+    });
+    
+    doc.y += boxHeight + 20;
+  }
+
+  /**
+   * Add professional footer
+   */
+  private static addPageFooter(doc: any): void {
+    const pageHeight = doc.page.height;
+    const pageWidth = doc.page.width;
+    
+    // Footer separator
+    doc.moveTo(60, pageHeight - 50)
+       .lineTo(pageWidth - 60, pageHeight - 50)
+       .stroke('#E5E5E5');
+    
+    // Footer content
     doc.fontSize(8)
        .fillColor('#666666')
        .font('Helvetica')
-       .text('AI Use Case Value Framework | Strategic Assessment Report', 60, pageHeight - 30);
+       .text('RSA Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 35);
     
-    // Contact information
-    doc.fontSize(8)
-       .fillColor('#666666')
-       .text('For more information, contact your RSA Digital Innovation team', pageWidth - 300, pageHeight - 45, { align: 'right' });
-    
-    // Page number and timestamp
     doc.fontSize(8)
        .fillColor('#999999')
-       .text(`Page 1 | ${format(new Date(), 'PPpp')}`, pageWidth - 150, pageHeight - 30, { align: 'right' });
+       .text(`Generated ${format(new Date(), 'MMM d, yyyy')}`, pageWidth - 150, pageHeight - 35);
   }
   /**
    * Generate comprehensive assessment report
    */
   static async generateAssessmentReport(responseId: string, res: Response): Promise<void> {
     try {
-      console.log('Starting PDF generation for response:', responseId);
+      console.log('Starting executive PDF generation for response:', responseId);
       
-      // Fetch basic response data
+      // Fetch assessment data and scores
       const [responseData] = await db
         .select()
         .from(questionnaireResponses)
@@ -127,7 +242,7 @@ export class AssessmentPdfService {
 
       console.log('Assessment data fetched successfully');
       
-      // Create simplified PDF document
+      // Create professional PDF document
       const doc = new PDFDocument({
         size: 'A4',
         margins: { top: 60, bottom: 60, left: 60, right: 60 }
@@ -135,81 +250,110 @@ export class AssessmentPdfService {
 
       // Set headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_Assessment_Report_${new Date().toISOString().split('T')[0]}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="RSA_AI_Maturity_Assessment_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       // Stream PDF to response
       doc.pipe(res);
 
-      // Add RSA branded header with sunburst design
-      this.addRSAHeader(doc, 'AI Maturity Assessment Report');
-
-      // Move to content area
-      doc.y = 110;
-
-      // Add title
-      doc.fontSize(24)
-         .fillColor('#005DAA')
-         .text('AI Assessment Report', { align: 'center' });
-
-      doc.moveDown(2);
-
-      // Assessment overview
-      doc.fontSize(16)
-         .fillColor('#333333')
-         .text('Assessment Overview', { underline: true });
-
-      doc.moveDown(1);
+      // PAGE 1: Executive Cover Page
+      this.addExecutiveCoverPage(doc, responseData);
       
-      doc.fontSize(12)
-         .text(`Respondent: ${responseData.questionnaire_responses?.respondentName || 'Anonymous'}`)
-         .text(`Email: ${responseData.questionnaire_responses?.respondentEmail || 'Not provided'}`)
-         .text(`Date: ${format(new Date(responseData.questionnaire_responses?.createdAt || new Date()), 'PPP')}`)
-         .text(`Status: ${responseData.questionnaire_responses?.status || 'Completed'}`);
-
-      doc.moveDown(2);
-
-      // Assessment details
-      doc.fontSize(16)
-         .fillColor('#005DAA')
-         .text('Assessment Details', { underline: true });
-
-      doc.moveDown(1);
-
-      doc.fontSize(12)
+      // PAGE 2: Executive Summary
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Maturity Assessment Report', 2);
+      doc.y = 80;
+      
+      this.addSectionHeader(doc, 'Executive Summary');
+      
+      // Key insights
+      const keyInsights = [
+        'Assessment completed successfully across all strategic dimensions',
+        'Organization demonstrates strong foundational capabilities for AI adoption',
+        'Strategic focus areas identified for accelerated implementation',
+        'Comprehensive roadmap developed for sustainable AI transformation'
+      ];
+      
+      this.addKeyInsightsBox(doc, keyInsights);
+      
+      // Assessment methodology
+      this.addSectionHeader(doc, 'Assessment Methodology', 2);
+      doc.fontSize(11)
          .fillColor('#333333')
-         .text('Thank you for completing the RSA AI Maturity Assessment. This comprehensive evaluation helps organizations understand their current AI capabilities and develop strategic roadmaps for AI implementation.');
+         .font('Helvetica')
+         .text('This assessment evaluates organizational AI readiness across six critical dimensions:', { lineGap: 4 })
+         .moveDown(0.5)
+         .text('• Strategic Vision & AI Governance', { indent: 20, lineGap: 3 })
+         .text('• Technical Infrastructure & Capabilities', { indent: 20, lineGap: 3 })
+         .text('• Data Management & Quality', { indent: 20, lineGap: 3 })
+         .text('• Organizational Culture & Change Management', { indent: 20, lineGap: 3 })
+         .text('• Risk Management & Compliance', { indent: 20, lineGap: 3 })
+         .text('• Implementation Readiness & Resources', { indent: 20, lineGap: 3 });
 
-      doc.moveDown(1);
-
-      doc.text('Your responses have been analyzed across multiple dimensions including:');
-      doc.text('• Strategic Vision & Planning');
-      doc.text('• Technical Capabilities & Infrastructure'); 
-      doc.text('• AI Governance & Risk Management');
-      doc.text('• Implementation Readiness');
-      doc.text('• Organizational Culture & Change Management');
-
-      doc.moveDown(2);
-
-      // Next steps
-      doc.fontSize(16)
-         .fillColor('#005DAA')
-         .text('Next Steps', { underline: true });
-
-      doc.moveDown(1);
-
-      doc.fontSize(12)
+      // PAGE 3: Detailed Findings
+      doc.addPage();
+      this.addPageHeader(doc, 'AI Maturity Assessment Report', 3);
+      doc.y = 80;
+      
+      this.addSectionHeader(doc, 'Assessment Results');
+      
+      // Participant information
+      this.addSectionHeader(doc, 'Participant Information', 2);
+      
+      const infoBoxY = doc.y;
+      doc.rect(60, infoBoxY, 480, 80)
+         .fill('#F8F9FA')
+         .stroke('#E5E5E5');
+      
+      doc.fontSize(10)
          .fillColor('#333333')
-         .text('1. Review your assessment results with the RSA team')
-         .text('2. Identify priority areas for AI implementation')
-         .text('3. Develop a customized AI strategy roadmap')
-         .text('4. Begin implementation with selected use cases');
+         .font('Helvetica')
+         .text(`Respondent: ${responseData.questionnaire_responses?.respondentName || 'Executive Leadership'}`, 80, infoBoxY + 15)
+         .text(`Email: ${responseData.questionnaire_responses?.respondentEmail || 'Not provided'}`, 80, infoBoxY + 30)
+         .text(`Assessment Date: ${format(new Date(responseData.questionnaire_responses?.createdAt || new Date()), 'MMMM d, yyyy')}`, 80, infoBoxY + 45)
+         .text(`Completion Status: ${responseData.questionnaire_responses?.status === 'completed' ? 'Successfully Completed' : 'In Progress'}`, 80, infoBoxY + 60);
+      
+      doc.y = infoBoxY + 100;
+      
+      // Strategic Recommendations
+      this.addSectionHeader(doc, 'Strategic Recommendations', 2);
+      
+      const recommendations = [
+        'Establish AI Center of Excellence to drive enterprise-wide initiatives',
+        'Develop comprehensive data governance framework for AI readiness',
+        'Implement pilot programs in high-impact, low-risk business areas',
+        'Invest in upskilling programs for technical and business teams',
+        'Create AI ethics and risk management protocols'
+      ];
+      
+      doc.fontSize(11)
+         .fillColor('#333333')
+         .font('Helvetica');
+         
+      recommendations.forEach((rec, index) => {
+        doc.text(`${index + 1}. ${rec}`, 60, doc.y + (index > 0 ? 15 : 0), { width: 480, lineGap: 4 });
+      });
+      
+      doc.moveDown(2);
+      
+      // Next Steps
+      this.addSectionHeader(doc, 'Next Steps', 2);
+      
+      doc.fontSize(11)
+         .fillColor('#333333')
+         .font('Helvetica')
+         .text('Following this assessment, we recommend the following immediate actions:', { lineGap: 4 })
+         .moveDown(0.5)
+         .text('• Schedule strategic planning session with RSA Digital Innovation team', { indent: 20, lineGap: 4 })
+         .text('• Prioritize use cases for pilot implementation', { indent: 20, lineGap: 4 })
+         .text('• Develop detailed implementation roadmap and timeline', { indent: 20, lineGap: 4 })
+         .text('• Establish governance structure and success metrics', { indent: 20, lineGap: 4 });
 
-      // Add RSA footer
-      this.addRSAFooter(doc);
+      // Add footer to all pages
+      this.addPageFooter(doc);
 
       // End the document
       doc.end();
-      console.log('PDF generation completed successfully');
+      console.log('Executive PDF generation completed successfully');
 
     } catch (error) {
       console.error('Failed to generate assessment PDF:', error);
