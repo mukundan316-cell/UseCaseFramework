@@ -348,7 +348,7 @@ export default function AssessmentResultsDashboard({
           </CardContent>
         </Card>
 
-        {/* Gap Analysis */}
+        {/* Gap Analysis Placeholder */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -356,52 +356,15 @@ export default function AssessmentResultsDashboard({
               <span>Gap Analysis</span>
             </CardTitle>
             <CardDescription>
-              Areas for improvement to reach target maturity levels
+              Detailed analysis will be available after scoring implementation
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {detailedGapAnalysis.length > 0 ? (
-              detailedGapAnalysis.slice(0, 4).map((gap, index) => (
-                <div key={index} className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm text-gray-800">{gap.category}</span>
-                    <Badge 
-                      className={cn(
-                        "text-xs",
-                        gap.priority === 'High' && "bg-red-100 text-red-800",
-                        gap.priority === 'Medium' && "bg-yellow-100 text-yellow-800",
-                        gap.priority === 'Low' && "bg-green-100 text-green-800"
-                      )}
-                    >
-                      {gap.gap}% Gap
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-gray-600">
-                      <span>Current: {gap.currentScore}%</span>
-                      <span>Target: {gap.targetScore}%</span>
-                    </div>
-                    <Progress 
-                      value={gap.currentScore} 
-                      className="h-2"
-                    />
-                  </div>
-                  
-                  {gap.recommendations.length > 0 && (
-                    <div className="bg-blue-50 p-3 rounded border-l-4 border-blue-400">
-                      <p className="text-xs text-blue-800 font-medium mb-1">Key Recommendation:</p>
-                      <p className="text-xs text-blue-700">{gap.recommendations[0]}</p>
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Target className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Gap analysis will be available after assessment completion.</p>
-              </div>
-            )}
+            <div className="text-center py-8 text-gray-500">
+              <Target className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>Gap analysis coming soon</p>
+              <p className="text-sm">Will be implemented with scoring system</p>
+            </div>
           </CardContent>
         </Card>
       </div>
