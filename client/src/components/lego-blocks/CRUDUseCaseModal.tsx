@@ -912,7 +912,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               <TabsContent value="assessment" className="space-y-4 mt-6">
                 {rsaSelection.isActiveForRsa ? (
                   <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Business Value Levers */}
               <div className="space-y-6">
                 <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Value Levers</h4>
@@ -987,25 +987,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                   field="adoptionReadiness"
                   label="Adoption Readiness"
                   tooltip={sliderTooltips.adoptionReadiness}
-                  leftLabel="Low"
-                  rightLabel="High"
-                />
-              </div>
-              
-              {/* AI Governance Levers */}
-              <div className="space-y-6">
-                <h4 className="font-medium text-purple-700 text-sm uppercase tracking-wide">AI Governance Levers</h4>
-                <SliderField
-                  field="explainabilityBias"
-                  label="Explainability & Bias"
-                  tooltip={sliderTooltips.explainabilityBias}
-                  leftLabel="Low"
-                  rightLabel="High"
-                />
-                <SliderField
-                  field="regulatoryCompliance"
-                  label="Regulatory Compliance"
-                  tooltip={sliderTooltips.regulatoryCompliance}
                   leftLabel="Low"
                   rightLabel="High"
                 />
