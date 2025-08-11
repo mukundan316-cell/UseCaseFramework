@@ -1,82 +1,50 @@
 # RSA AI Use Case Value Framework
 
 ## Overview
-Strategic AI use case prioritization platform for RSA Insurance featuring comprehensive assessment system, 12-lever scoring framework, and executive analytics dashboard. Enables organizations to strategically identify, assess, and prioritize AI initiatives for maximum business impact.
+Strategic AI use case prioritization platform for RSA Insurance featuring comprehensive assessment system, 12-lever scoring framework, and executive analytics dashboard.
 
 ## User Preferences
-Preferred communication style: Simple, everyday language.
+- **Communication**: Simple, everyday language
+- **Architecture**: LEGO-style reusable components following "Build Once, Reuse Everywhere" principle
+- **Database**: Consistent camelCase field naming between Drizzle schema and queries
 
-**LEGO-Style Architecture Mandate**: All buttons, modals, components and features must be implemented as reusable LEGO blocks where possible. Follow the "Build Once, Reuse Everywhere" principle to maintain consistency and reduce development overhead. Every new UI element should be evaluated for reusability potential before implementation.
+## Design Standards
+### CRUD Card Design
+- Clean white cards with 4px blue left border, hover shadows
+- Color-coded tags: Process (blue), Line of Business (purple), Use Case Type (orange)  
+- Score displays with green (Impact) and blue (Effort) backgrounds for active portfolio
+- Context-sensitive action buttons (Edit/Delete, Move to Library/RSA)
 
-**Database Schema Consistency Principle**: Always use consistent casing between Drizzle schema definitions and database column references to prevent Schema Mismatch errors. The Drizzle schema uses camelCase field names (e.g., `questionId`, `answerValue`) which must match exactly in all database queries. Never mix camelCase and snake_case within the same operation. This prevents critical issues like answer persistence failures and export errors.
-
-**LEGO CRUD Card Design Standard**: All use case cards across the entire application must follow this exact design specification:
-
-**LEGO Field Label Prominence Standard**: All field labels in questionnaire LEGO blocks must use `text-base font-semibold text-gray-900` styling for maximum visibility and consistent user experience across all question types.
-- **Card Structure**: Clean white cards with 4px blue left border (#3b82f6), subtle gray border, hover shadow
-- **Content Padding**: p-5 for comfortable spacing
-- **Title**: text-lg font-semibold text-gray-900 with mb-2 spacing
-- **Description**: text-sm text-gray-600 with line-clamp-2
-- **Tags**: Rounded pill-style tags with color-coded backgrounds:
-  - Process: bg-blue-100 text-blue-800 with blue dot
-  - Line of Business: bg-purple-100 text-purple-800 with purple dot  
-  - Use Case Type: bg-orange-100 text-orange-800 with orange dot
-- **Score Display**: Side-by-side grid with green (Impact) and blue (Effort) backgrounds, only for RSA Active Portfolio
-- **Action Buttons**: Ghost-style buttons with proper icons, border-top separator
-- **Contextual Actions**: Show appropriate buttons based on view (Edit/Delete for all, Move to Library/RSA as applicable)
-
-This design must be used consistently for all CRUD cards throughout the application to maintain visual unity.
+### Form Labels
+- Questionnaire field labels: `text-base font-semibold text-gray-900` for visibility
 
 ## Architecture
 
-### Stack
-- **Frontend**: React + TypeScript + shadcn/ui + TailwindCSS + Wouter routing
+### Tech Stack
+- **Frontend**: React + TypeScript + shadcn/ui + TailwindCSS + Wouter
 - **Backend**: Node.js + Express + Drizzle ORM + Zod validation  
-- **Database**: PostgreSQL (12 tables, 130+ records with subsections table)
+- **Database**: PostgreSQL with JSONB support
 
-### Recent Changes (August 2025)
-- **Complete PDF Export Overhaul**: Fixed critical limitation where use case PDFs only showed basic information. Now includes comprehensive data from all 4 CRUD modal tabs:
-  - Basic Information (title, description, problem statement, process, business details)
-  - Business Context (lines of business, segments, geographies, processes, activities)
-  - Implementation & Governance (owner, status, timeline, metrics, technologies, stakeholders)
-  - RSA Framework Assessment (all 12 scoring dimensions with visual indicators, manual overrides)
-- **Enhanced Questionnaire PDFs**: Complete overhaul to show actual form components and interactive elements from UI:
-  - Company Profile forms with input fields, currency inputs, dropdowns, and multi-select checkboxes
-  - Business Lines Matrix with visual table structures and percentage input boxes
-  - Percentage Target sliders with visual track and handle representations
-  - Proper form field rendering matching UI components (text inputs, dropdowns, checkboxes)
-  - Visual indicators for scales, scores, and rating systems
-- **Professional PDF Formatting**: Comprehensive layouts with RSA branding, proper spacing, section headers, and visual score indicators
-- **Database Schema Consistency**: Fixed camelCase field naming across all PDF export services
-
-### Key Features
-- **LEGO Architecture**: Reusable components with consistent CRUD card design
-- **Enhanced Use Case CRUD**: Problem Statement field added below Description; RSA Portfolio Selection moved to bottom for improved workflow
+### Core Features
+- **Use Case Management**: Complete CRUD with RSA 12-lever scoring framework
+- **Assessment System**: 6-section questionnaire with 14 advanced question types (company_profile, business_lines_matrix, smart_rating, ranking, etc.)
 - **Manual Override System**: Toggle-based score customization with database persistence
-- **RSA Scoring Framework**: 12-lever system (Business Value, Feasibility, AI Governance)
-- **Assessment System**: 6-section questionnaire with 14 advanced question types
-- **Professional PDF Exports**: Enhanced McKinsey/Bain/BCG consulting-grade reports with:
-  - Executive cover pages with RSA blue branding and confidential classification
-  - Professional tabular formats for all use case details (process, business unit, scores, implementation details)
-  - Context-specific templates optimized for each export type (library catalog, portfolio report, assessment results)
-  - Proper typography, alignment, and visual hierarchy matching consulting standards
-  - Enhanced questionnaire exports supporting both blank templates and populated responses
-- **Analytics Dashboard**: RSA AI Value Matrix with interactive charts and authentic data
-- **Real-time Persistence**: Database → API → Frontend pattern with live synchronization
-- **Subsection Architecture**: Proper organizational containers with sequential question numbering (Q1-Q52) and collapsible UI
+- **Analytics Dashboard**: RSA AI Value Matrix with interactive charts
+- **Professional PDF Exports**: Executive-grade reports for use cases, library catalogs, active portfolios, and assessment responses
+- **Real-time Persistence**: Live database synchronization
+
+### Recent Enhancements (August 2025)
+- **PDF Export System**: Enhanced to handle complex nested JSON data with proper rendering for structured question types
+- **Spacing Improvements**: Professional PDF formatting with consistent spacing, page breaks, and visual hierarchy
+- **Data Integrity**: Fixed complex JSON serialization issues in questionnaire responses
 
 ## Dependencies
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter
 - **Data**: Drizzle ORM, TanStack Query, Zod, React Hook Form
-- **Build**: Vite, ESBuild
+- **PDF**: PDFKit for professional report generation
 
-## Critical Development Guidelines
-
-### Database Schema Consistency
-- **Schema-Database Alignment**: Drizzle schema field names (camelCase) must match exactly in all database operations
-- **Common Errors to Avoid**: 
-  - Using `question_id` instead of `questionId` in queries
-  - Mixing `answer_value` and `answerValue` in the same operation
-  - Inconsistent casing in join conditions
-- **Validation**: Always test answer persistence and export functionality after schema changes
+## Development Guidelines
+- **Database**: Use consistent camelCase field naming between Drizzle schema and queries
+- **Architecture**: Follow LEGO-style reusable component design
+- **Testing**: Verify answer persistence and PDF export functionality after changes

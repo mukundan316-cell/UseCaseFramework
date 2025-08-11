@@ -8,22 +8,23 @@ npm run dev  # Starts application on port 5000
 ```
 
 ## Core Features
-- **AI Use Case Management**: Complete CRUD with RSA scoring framework
-- **Assessment System**: 6-section AI maturity questionnaire with 14 question types  
+- **AI Use Case Management**: Complete CRUD with RSA 12-lever scoring framework
+- **Assessment System**: 6-section AI maturity questionnaire with 14 advanced question types  
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts
+- **PDF Export System**: Professional reports for use cases, assessments, and portfolios
 - **Manual Override System**: Toggle-based score customization
 - **LEGO Architecture**: Reusable component design throughout
 
 ## Database
-- **PostgreSQL**: 11 tables with 113 total records
-- **Complete Export**: Available in `COMPLETE-DATABASE-EXPORT.sql`
-- **Live Data**: 25 use cases (1 active, 24 reference), 49 assessment responses
+- **PostgreSQL**: 12 tables with JSONB support for complex data types
+- **Live Data**: 25 use cases, multiple assessment responses with structured answers
 
 ## Tech Stack
-- **Frontend**: React + TypeScript + shadcn/ui + TailwindCSS
-- **Backend**: Node.js + Express + Drizzle ORM  
-- **Database**: PostgreSQL with JSONB support
+- **Frontend**: React + TypeScript + shadcn/ui + TailwindCSS + Wouter
+- **Backend**: Node.js + Express + Drizzle ORM + Zod validation
+- **Database**: PostgreSQL with JSONB support for complex data types
 - **Charts**: Recharts for analytics visualization
+- **PDF**: PDFKit for professional report generation
 
 ## Key Directories
 - `client/` - React frontend application
