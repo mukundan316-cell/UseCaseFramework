@@ -170,9 +170,7 @@ const AIRoadmapPage = () => {
           <h1 className="text-4xl font-bold text-gray-900">
             RSA AI Strategy Assessment Framework
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Comprehensive evaluation to unlock £10-50M in annual value
-          </p>
+
           
           <Card className="p-6 bg-blue-50 border-blue-200">
             <p className="text-gray-700">

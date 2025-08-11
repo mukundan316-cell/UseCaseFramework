@@ -163,9 +163,7 @@ export default function RSAAssessmentLandingPage({
               RSA AI Strategy Assessment Framework
             </h1>
             
-            <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
-              Comprehensive evaluation to unlock £10-50M in annual value
-            </p>
+
             
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-4xl mx-auto">
               <p className="text-lg text-blue-50 leading-relaxed">
