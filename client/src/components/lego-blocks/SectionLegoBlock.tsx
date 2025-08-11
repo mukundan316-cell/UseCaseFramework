@@ -336,72 +336,77 @@ export default function SectionLegoBlock({
   const groupQuestionsIntoSubsections = () => {
     const subsections = [];
     
+    // Helper function to filter out subsection headers (questions that start with numbers like "1.1", "1.2")
+    const filterActualQuestions = (questions: any[]) => {
+      return questions.filter(q => !q.questionText || !q.questionText.match(/^\d+\.\d+\s/));
+    };
+    
     // Define subsection boundaries based on section
     if (sectionOrder === 1) {
       // Section 1: Business Strategy & AI Vision
       subsections.push({
         id: "1.1-executive-vision",
         title: "1.1 Executive Vision & Strategic Alignment",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 1 && q.questionOrder <= 7)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 1 && q.questionOrder <= 7))
       });
       subsections.push({
         id: "1.2-business-context",
         title: "1.2 Business Context & Market Position", 
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 8 && q.questionOrder <= 14)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 8 && q.questionOrder <= 14))
       });
       subsections.push({
         id: "1.3-operational-readiness",
         title: "1.3 Operational Readiness & Change Management",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 15 && q.questionOrder <= 17)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 15 && q.questionOrder <= 17))
       });
       subsections.push({
         id: "1.4-stakeholder-engagement", 
         title: "1.4 Stakeholder Engagement & Communication",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 18 && q.questionOrder <= 20)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 18 && q.questionOrder <= 20))
       });
     } else if (sectionOrder === 2) {
       // Section 2: Current AI & Data Capabilities
       subsections.push({
         id: "2.1-technology-infrastructure",
         title: "2.1 Technology Infrastructure",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 17 && q.questionOrder <= 20)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 21 && q.questionOrder <= 25))
       });
       subsections.push({
         id: "2.2-business-function-systems",
         title: "2.2 Business Function Systems", 
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 21 && q.questionOrder <= 25)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 26 && q.questionOrder <= 30))
       });
       subsections.push({
         id: "2.3-intelligent-workflows",
         title: "2.3 Intelligent Workflows & Automation",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 26 && q.questionOrder <= 30)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 31 && q.questionOrder <= 35))
       });
       subsections.push({
         id: "2.4-data-analytics-ai",
         title: "2.4 Data Analytics & AI/ML Capabilities",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 31 && q.questionOrder <= 36)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 36 && q.questionOrder <= 42))
       });
       subsections.push({
         id: "2.5-data-infrastructure",
         title: "2.5 Data Infrastructure & Storage",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 37 && q.questionOrder <= 40)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 43 && q.questionOrder <= 47))
       });
       subsections.push({
         id: "2.6-current-ai-applications",
         title: "2.6 Current AI Applications & Tools",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 41 && q.questionOrder <= 44)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 48 && q.questionOrder <= 52))
       });
       subsections.push({
         id: "2.7-data-quality-governance",
         title: "2.7 Data Quality & Governance",
-        questions: sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 45 && q.questionOrder <= 51)
+        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 53 && q.questionOrder <= 56))
       });
     } else {
       // For other sections, show all questions in one group
       subsections.push({
         id: `${sectionOrder}.1-all-questions`,
         title: `${sectionOrder}.1 Questions`,
-        questions: sortedQuestions
+        questions: filterActualQuestions(sortedQuestions)
       });
     }
     
