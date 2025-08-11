@@ -334,7 +334,7 @@ export class QuestionnairePdfService {
       const [responseData] = await db
         .select()
         .from(questionnaireResponses)
-        .leftJoin(questionnaires, eq(questionnaireResponses.questionnaire_id, questionnaires.id))
+        .leftJoin(questionnaires, eq(questionnaireResponses.questionnaireId, questionnaires.id))
         .where(eq(questionnaireResponses.id, responseId));
 
       if (!responseData) {
@@ -351,7 +351,7 @@ export class QuestionnairePdfService {
           eq(questionAnswers.questionId, questions.id),
           eq(questionAnswers.responseId, responseId)
         ))
-        .where(eq(questionnaireSections.questionnaireId, responseData.questionnaire_responses.questionnaire_id))
+        .where(eq(questionnaireSections.questionnaireId, responseData.questionnaire_responses.questionnaireId))
         .orderBy(questions.questionOrder);
 
       console.log('Found questions with responses:', questionsData.length);
@@ -393,9 +393,9 @@ export class QuestionnairePdfService {
       doc.fontSize(10)
          .fillColor('#333333')
          .font('Helvetica')
-         .text(`Respondent: ${responseData.questionnaire_responses.respondent_name || 'Anonymous'}`, 80, infoY + 15)
-         .text(`Email: ${responseData.questionnaire_responses.respondent_email || 'Not provided'}`, 80, infoY + 30)
-         .text(`Completed: ${responseData.questionnaire_responses.completed_at ? format(new Date(responseData.questionnaire_responses.completed_at), 'MMMM d, yyyy') : 'Recently'}`, 80, infoY + 45);
+         .text(`Respondent: ${responseData.questionnaire_responses.respondentName || 'Anonymous'}`, 80, infoY + 15)
+         .text(`Email: ${responseData.questionnaire_responses.respondentEmail || 'Not provided'}`, 80, infoY + 30)
+         .text(`Completed: ${responseData.questionnaire_responses.completedAt ? format(new Date(responseData.questionnaire_responses.completedAt), 'MMMM d, yyyy') : 'Recently'}`, 80, infoY + 45);
       
       doc.y = infoY + 80;
       
