@@ -332,7 +332,7 @@ export default function SectionLegoBlock({
     </CardHeader>
   );
 
-  // Group questions into subsections based on question ranges
+  // Group questions into subsections based on database structure
   const groupQuestionsIntoSubsections = () => {
     const subsections = [];
     
@@ -341,68 +341,47 @@ export default function SectionLegoBlock({
       return questions.filter(q => !q.questionText || !q.questionText.match(/^\d+\.\d+\s/));
     };
     
-    // Define subsection boundaries based on section
-    if (sectionOrder === 1) {
-      // Section 1: Business Strategy & AI Vision
-      subsections.push({
-        id: "1.1-executive-vision",
-        title: "1.1 Executive Vision & Strategic Alignment",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 1 && q.questionOrder <= 7))
-      });
-      subsections.push({
-        id: "1.2-business-context",
-        title: "1.2 Business Context & Market Position", 
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 8 && q.questionOrder <= 14))
-      });
-      subsections.push({
-        id: "1.3-operational-readiness",
-        title: "1.3 Operational Readiness & Change Management",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 15 && q.questionOrder <= 17))
-      });
-      subsections.push({
-        id: "1.4-stakeholder-engagement", 
-        title: "1.4 Stakeholder Engagement & Communication",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 18 && q.questionOrder <= 20))
-      });
-    } else if (sectionOrder === 2) {
-      // Section 2: Current AI & Data Capabilities
-      subsections.push({
-        id: "2.1-technology-infrastructure",
-        title: "2.1 Technology Infrastructure",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 21 && q.questionOrder <= 25))
-      });
-      subsections.push({
-        id: "2.2-business-function-systems",
-        title: "2.2 Business Function Systems", 
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 26 && q.questionOrder <= 30))
-      });
-      subsections.push({
-        id: "2.3-intelligent-workflows",
-        title: "2.3 Intelligent Workflows & Automation",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 31 && q.questionOrder <= 35))
-      });
-      subsections.push({
-        id: "2.4-data-analytics-ai",
-        title: "2.4 Data Analytics & AI/ML Capabilities",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 36 && q.questionOrder <= 42))
-      });
-      subsections.push({
-        id: "2.5-data-infrastructure",
-        title: "2.5 Data Infrastructure & Storage",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 43 && q.questionOrder <= 47))
-      });
-      subsections.push({
-        id: "2.6-current-ai-applications",
-        title: "2.6 Current AI Applications & Tools",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 48 && q.questionOrder <= 52))
-      });
-      subsections.push({
-        id: "2.7-data-quality-governance",
-        title: "2.7 Data Quality & Governance",
-        questions: filterActualQuestions(sortedQuestions.filter(q => q.questionOrder && q.questionOrder >= 53 && q.questionOrder <= 56))
-      });
-    } else {
-      // For other sections, show all questions in one group
+    // Find all subsection headers in sorted order
+    const subsectionHeaders = sortedQuestions.filter(q => 
+      q.questionText && q.questionText.match(/^\d+\.\d+\s/)
+    );
+    
+    // Group questions by subsection based on actual database structure
+    for (let i = 0; i < subsectionHeaders.length; i++) {
+      const currentHeader = subsectionHeaders[i];
+      const nextHeader = subsectionHeaders[i + 1];
+      
+      // Get subsection ID and title from the header
+      const headerMatch = currentHeader.questionText.match(/^(\d+\.\d+)\s+(.+)$/);
+      if (!headerMatch) continue;
+      
+      const subsectionNumber = headerMatch[1];
+      const subsectionTitle = headerMatch[2];
+      
+      // Calculate question range: from current header to next header (or end)
+      const startOrder = currentHeader.questionOrder;
+      const endOrder = nextHeader ? nextHeader.questionOrder - 1 : sortedQuestions[sortedQuestions.length - 1]?.questionOrder || startOrder;
+      
+      // Filter questions in this range, excluding the header itself
+      const subsectionQuestions = filterActualQuestions(
+        sortedQuestions.filter(q => 
+          q.questionOrder && 
+          q.questionOrder > startOrder && 
+          q.questionOrder <= endOrder
+        )
+      );
+      
+      if (subsectionQuestions.length > 0) {
+        subsections.push({
+          id: `${subsectionNumber.replace('.', '-')}-${subsectionTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`,
+          title: `${subsectionNumber} ${subsectionTitle}`,
+          questions: subsectionQuestions
+        });
+      }
+    }
+    
+    // If no subsection headers found, create a single subsection with all questions
+    if (subsections.length === 0 && sortedQuestions.length > 0) {
       subsections.push({
         id: `${sectionOrder}.1-all-questions`,
         title: `${sectionOrder}.1 Questions`,
@@ -410,7 +389,7 @@ export default function SectionLegoBlock({
       });
     }
     
-    return subsections.filter(subsection => subsection.questions.length > 0);
+    return subsections;
   };
 
   // Render individual question
@@ -430,7 +409,7 @@ export default function SectionLegoBlock({
         {!isHeader && actualQuestionNumber && (
           <div className="absolute -left-2 top-0">
             <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-              Q{actualQuestionNumber - 1}
+              Q{actualQuestionNumber}
             </div>
           </div>
         )}
