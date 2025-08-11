@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AssessmentPdfService } from '../services/assessmentPdfService';
 import { UseCasePdfService } from '../services/useCasePdfService';
+import { QuestionnairePdfService } from '../services/questionnairePdfService';
 
 const router = Router();
 
@@ -73,6 +74,44 @@ router.get('/use-case/:id', async (req, res) => {
   } catch (error) {
     console.error('Use case PDF export error:', error);
     res.status(500).json({ error: 'Failed to export use case report' });
+  }
+});
+
+/**
+ * Export blank questionnaire template as PDF
+ * GET /api/export/questionnaire/:questionnaireId/template
+ */
+router.get('/questionnaire/:questionnaireId/template', async (req, res) => {
+  try {
+    const { questionnaireId } = req.params;
+    
+    if (!questionnaireId) {
+      return res.status(400).json({ error: 'Questionnaire ID is required' });
+    }
+
+    await QuestionnairePdfService.generateBlankQuestionnaire(questionnaireId, res);
+  } catch (error) {
+    console.error('Questionnaire template export error:', error);
+    res.status(500).json({ error: 'Failed to export questionnaire template' });
+  }
+});
+
+/**
+ * Export populated questionnaire with responses as PDF
+ * GET /api/export/questionnaire/:responseId/responses
+ */
+router.get('/questionnaire/:responseId/responses', async (req, res) => {
+  try {
+    const { responseId } = req.params;
+    
+    if (!responseId) {
+      return res.status(400).json({ error: 'Response ID is required' });
+    }
+
+    await QuestionnairePdfService.generatePopulatedQuestionnaire(responseId, res);
+  } catch (error) {
+    console.error('Questionnaire responses export error:', error);
+    res.status(500).json({ error: 'Failed to export questionnaire responses' });
   }
 });
 

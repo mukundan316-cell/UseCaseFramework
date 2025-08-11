@@ -23,6 +23,7 @@ import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import ScoringDashboardLegoBlock, { type ScoringData } from './ScoringDashboardLegoBlock';
 import ResponseExportLegoBlock from './ResponseExportLegoBlock';
+import QuestionnaireExportLegoBlock from './QuestionnaireExportLegoBlock';
 import ReusableButton from './ReusableButton';
 import { useGenerateRecommendations, useRecommendations } from '@/hooks/useRecommendations';
 import { useUseCases } from '@/contexts/UseCaseContext';
@@ -248,6 +249,15 @@ export default function AssessmentResultsDashboard({
                   size="default"
                 />
               )}
+              
+              {/* Export Questionnaire */}
+              <QuestionnaireExportLegoBlock
+                questionnaireId={assessmentState?.questionnaireId || 'default'}
+                responseId={actualResponseId}
+                assessmentTitle="AI Maturity Assessment"
+                variant="outline"
+                size="default"
+              />
               
               <ReusableButton
                 rsaStyle="secondary"

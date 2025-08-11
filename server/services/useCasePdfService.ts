@@ -221,6 +221,141 @@ export class UseCasePdfService {
        .text(`Generated ${format(new Date(), 'MMM d, yyyy')}`, pageWidth - 150, pageHeight - 35);
   }
   /**
+   * Generate individual use case report
+   */
+  static async generateUseCaseReport(useCaseId: string, res: Response): Promise<void> {
+    try {
+      console.log('Generating individual use case report for:', useCaseId);
+      
+      // Fetch use case data
+      const [useCase] = await db
+        .select()
+        .from(useCases)
+        .where(eq(useCases.id, useCaseId));
+
+      if (!useCase) {
+        return res.status(404).json({ error: 'Use case not found' });
+      }
+
+      console.log('Use case data fetched successfully');
+      
+      // Create professional PDF document
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: { top: 60, bottom: 60, left: 60, right: 60 }
+      });
+
+      // Set headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="RSA_Use_Case_${useCase.title.replace(/[^a-zA-Z0-9]/g, '_')}_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
+      
+      doc.pipe(res);
+
+      // PAGE 1: Executive Cover Page
+      const summary = { totalUseCases: 1, activeUseCases: useCase.isActiveForRsa === 'true' ? 1 : 0 };
+      this.addExecutiveCoverPage(doc, 'individual', summary);
+      
+      // PAGE 2: Use Case Details
+      doc.addPage();
+      this.addPageHeader(doc, 'Use Case Details', 2);
+      doc.y = 80;
+      
+      // Use case title
+      doc.fontSize(24)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text(useCase.title);
+      
+      doc.moveDown(1);
+      
+      // Status badge
+      const isActive = useCase.isActiveForRsa === 'true';
+      const statusColor = isActive ? '#22C55E' : '#6B7280';
+      const statusText = isActive ? 'ACTIVE PORTFOLIO' : 'REFERENCE LIBRARY';
+      
+      doc.rect(60, doc.y, 150, 25)
+         .fill(statusColor)
+         .fillColor('#FFFFFF')
+         .fontSize(10)
+         .font('Helvetica-Bold')
+         .text(statusText, 60, doc.y + 8, { width: 150, align: 'center' });
+      
+      doc.y += 40;
+      
+      // Description section
+      doc.fontSize(16)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Description');
+      
+      doc.moveDown(0.5);
+      
+      doc.fontSize(11)
+         .fillColor('#333333')
+         .font('Helvetica')
+         .text(useCase.description || 'No description available', { width: 480, lineGap: 4 });
+      
+      doc.moveDown(2);
+      
+      // Problem statement if available
+      if (useCase.problemStatement) {
+        doc.fontSize(16)
+           .fillColor('#005DAA')
+           .font('Helvetica-Bold')
+           .text('Problem Statement');
+        
+        doc.moveDown(0.5);
+        
+        doc.fontSize(11)
+           .fillColor('#333333')
+           .font('Helvetica')
+           .text(useCase.problemStatement, { width: 480, lineGap: 4 });
+        
+        doc.moveDown(2);
+      }
+      
+      // Metadata section
+      doc.fontSize(16)
+         .fillColor('#005DAA')
+         .font('Helvetica-Bold')
+         .text('Use Case Details');
+      
+      doc.moveDown(0.5);
+      
+      const detailsY = doc.y;
+      doc.rect(60, detailsY, 480, 120)
+         .fill('#F8F9FA')
+         .stroke('#E5E5E5');
+      
+      doc.fontSize(11)
+         .fillColor('#333333')
+         .font('Helvetica')
+         .text(`Process: ${useCase.process || 'General'}`, 80, detailsY + 20)
+         .text(`Line of Business: ${useCase.lineOfBusiness || 'Cross-functional'}`, 80, detailsY + 40)
+         .text(`Use Case Type: ${useCase.useCaseType || 'Not specified'}`, 80, detailsY + 60);
+      
+      if (useCase.impactScore || useCase.effortScore) {
+        doc.text(`Impact Score: ${useCase.impactScore || 'N/A'} / 10`, 80, detailsY + 80)
+           .text(`Effort Score: ${useCase.effortScore || 'N/A'} / 10`, 280, detailsY + 80);
+      }
+      
+      doc.y = detailsY + 140;
+
+      // Add footer
+      this.addPageFooter(doc);
+
+      doc.end();
+      console.log('Individual use case report generated successfully');
+
+    } catch (error) {
+      console.error('Failed to generate use case report:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to generate use case report' });
+      }
+    }
+  }
+
+  /**
    * Generate use case library catalog
    */
   static async generateLibraryCatalog(res: Response, filters: {

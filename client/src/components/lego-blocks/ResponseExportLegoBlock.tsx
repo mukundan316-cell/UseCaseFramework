@@ -50,24 +50,24 @@ export default function ResponseExportLegoBlock({
   const exportOptions: ExportOption[] = [
     {
       format: 'pdf',
-      label: 'PDF Report',
-      description: 'Comprehensive assessment report with scores and recommendations',
+      label: 'Executive Report',
+      description: 'Professional assessment report with executive summary and insights',
       icon: <FileText className="h-4 w-4" />,
       mimeType: 'application/pdf',
       extension: 'pdf'
     },
     {
       format: 'excel',
-      label: 'Excel Spreadsheet',
-      description: 'Data export for analysis with detailed scoring breakdown',
+      label: 'Excel Analysis',
+      description: 'Detailed data export for analysis with scoring breakdown',
       icon: <Table className="h-4 w-4" />,
       mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       extension: 'xlsx'
     },
     {
       format: 'json',
-      label: 'JSON Data',
-      description: 'Raw data export for integration and custom analysis',
+      label: 'Raw Data',
+      description: 'Complete data export for integration and custom analysis',
       icon: <Code className="h-4 w-4" />,
       mimeType: 'application/json',
       extension: 'json'
