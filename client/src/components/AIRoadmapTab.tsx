@@ -34,17 +34,16 @@ const AIRoadmapTab = () => {
       lightColor: 'bg-teal-50 border-teal-200',
       textColor: 'text-teal-800',
       foundations: [
-        'Identify and rank initiative-cas',
-        'Appoint an AI leader/operating owner',
-        'Set up an initial AI team or center of excellence',
-        'Form initial external partnerships'
+        'Identify value opportunities and business cases',
+        'Establish success metrics and measurement frameworks',
+        'Run initial pilot programs with clear ROI tracking',
+        'Develop business case templates for AI initiatives'
       ],
       scaleOptimize: [
-        'Define AI operating model & ways of working',
-        'Set process to manage AI partnerships & vendors-IP',
-        'Establish AI operating target & architecture',
-        'Clarify roles & handoffs across functions',
-        'Pilot governance tooling'
+        'Implement comprehensive value tracking systems',
+        'Scale successful pilots to production',
+        'Establish portfolio-level value management',
+        'Create continuous improvement feedback loops'
       ]
     },
     {
@@ -76,16 +75,16 @@ const AIRoadmapTab = () => {
       lightColor: 'bg-yellow-50 border-yellow-200',
       textColor: 'text-yellow-800',
       foundations: [
-        'Identify top AI risks & mitigations',
-        'Define initial AI policies & ethics principles',
-        'Secure buy-in for governance approach',
-        'Stand up decision forums'
+        'Identify AI talent needs and skill gaps',
+        'Define initial training and upskilling programs',
+        'Create change management communication plan',
+        'Establish AI learning and development pathways'
       ],
       scaleOptimize: [
-        'Enforcement & control processes',
-        'Define decision rights & RACI for AI',
-        'Set cross-functional governance board',
-        'Pilot governance tooling for AI'
+        'Deploy comprehensive AI literacy programs',
+        'Implement role-specific AI competency frameworks',
+        'Scale cross-functional AI collaboration',
+        'Establish centers of excellence and communities of practice'
       ]
     },
     {
@@ -118,14 +117,14 @@ const AIRoadmapTab = () => {
       foundations: [
         'Establish build-vs buy framework',
         'Select vendors/tools for initial use cases',
-        'Set up a sandbox & reference architecta',
-        'Gain buy-in to evolve metadata & access'
+        'Set up a sandbox & reference architecture',
+        'Design AI development & deployment pipelines'
       ],
       scaleOptimize: [
-        'Establish AI data quality framework',
-        'Build an enterprise AI data platform',
-        'Implement data observability for AI',
-        'Deliver domain data products for AI'
+        'Implement MLOps & model lifecycle management',
+        'Build enterprise AI platform & infrastructure',
+        'Establish AI security & monitoring frameworks',
+        'Scale automated AI testing & validation'
       ]
     },
     {
@@ -136,18 +135,17 @@ const AIRoadmapTab = () => {
       lightColor: 'bg-indigo-50 border-indigo-200',
       textColor: 'text-indigo-800',
       foundations: [
-        'Establish build-vs buy framework',
-        'Select vendors/tools for initial use cases',
-        'Set up a sandbox & reference architecta',
-        'Gain buy-in to evolve metadata & access'
+        'Assess data quality & availability for AI',
+        'Establish data access & permissions framework',
+        'Create initial data pipelines for AI use cases',
+        'Define data governance policies for AI'
       ],
       scaleOptimize: [
         'Establish AI data quality framework',
         'Build an enterprise AI data platform',
         'Implement data observability for AI',
         'Deliver domain data products for AI'
-      ],
-
+      ]
     }
   ];
 
