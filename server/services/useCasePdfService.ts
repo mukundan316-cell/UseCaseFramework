@@ -199,6 +199,248 @@ export class UseCasePdfService {
   }
 
   /**
+   * Add comprehensive use case details across all 4 tabs
+   */
+  private static addComprehensiveUseCaseDetails(doc: any, useCase: any, index: number): void {
+    // Check if we have enough space for a new use case section
+    if (doc.y > 600) {
+      doc.addPage();
+      this.addPageHeader(doc, 'Use Case Details', Math.floor(doc.pageNumber));
+      doc.y = 80;
+    }
+    
+    // Use case header with number and title
+    doc.fontSize(16)
+       .fillColor('#005DAA')
+       .font('Helvetica-Bold')
+       .text(`${index + 1}. ${useCase.title}`, 60, doc.y);
+    
+    doc.moveDown(1);
+    
+    // TAB 1: BASIC INFORMATION
+    this.addSectionHeader(doc, 'BASIC INFORMATION');
+    
+    this.addDetailRow(doc, 'Description', useCase.description);
+    this.addDetailRow(doc, 'Problem Statement', useCase.problemStatement);
+    this.addDetailRow(doc, 'Use Case Type', useCase.useCaseType);
+    this.addDetailRow(doc, 'Process', useCase.process);
+    this.addDetailRow(doc, 'Line of Business', useCase.lineOfBusiness);
+    this.addDetailRow(doc, 'Business Segment', useCase.businessSegment);
+    this.addDetailRow(doc, 'Geography', useCase.geography);
+    
+    doc.moveDown(0.5);
+    
+    // TAB 2: BUSINESS CONTEXT
+    this.addSectionHeader(doc, 'BUSINESS CONTEXT');
+    
+    this.addDetailRow(doc, 'Lines of Business', this.formatArray(useCase.linesOfBusiness));
+    this.addDetailRow(doc, 'Business Segments', this.formatArray(useCase.businessSegments));
+    this.addDetailRow(doc, 'Geographies', this.formatArray(useCase.geographies));
+    this.addDetailRow(doc, 'Processes', this.formatArray(useCase.processes));
+    this.addDetailRow(doc, 'Activities', this.formatArray(useCase.activities));
+    
+    doc.moveDown(0.5);
+    
+    // TAB 3: IMPLEMENTATION & GOVERNANCE
+    this.addSectionHeader(doc, 'IMPLEMENTATION & GOVERNANCE');
+    
+    this.addDetailRow(doc, 'Primary Business Owner', useCase.primaryBusinessOwner);
+    this.addDetailRow(doc, 'Use Case Status', useCase.useCaseStatus);
+    this.addDetailRow(doc, 'Key Dependencies', useCase.keyDependencies);
+    this.addDetailRow(doc, 'Implementation Timeline', useCase.implementationTimeline);
+    this.addDetailRow(doc, 'Success Metrics', useCase.successMetrics);
+    this.addDetailRow(doc, 'Estimated Value', useCase.estimatedValue);
+    this.addDetailRow(doc, 'Value Measurement Approach', useCase.valueMeasurementApproach);
+    this.addDetailRow(doc, 'Integration Requirements', useCase.integrationRequirements);
+    this.addDetailRow(doc, 'AI/ML Technologies', this.formatArray(useCase.aiMlTechnologies));
+    this.addDetailRow(doc, 'Data Sources', this.formatArray(useCase.dataSources));
+    this.addDetailRow(doc, 'Stakeholder Groups', this.formatArray(useCase.stakeholderGroups));
+    
+    doc.moveDown(0.5);
+    
+    // TAB 4: RSA FRAMEWORK ASSESSMENT
+    this.addSectionHeader(doc, 'RSA FRAMEWORK ASSESSMENT');
+    
+    // Business Value dimensions
+    this.addScoreSubsection(doc, 'Business Value');
+    this.addScoreRow(doc, 'Revenue Impact', useCase.revenueImpact);
+    this.addScoreRow(doc, 'Cost Savings', useCase.costSavings);
+    this.addScoreRow(doc, 'Risk Reduction', useCase.riskReduction);
+    this.addScoreRow(doc, 'Broker Partner Experience', useCase.brokerPartnerExperience);
+    this.addScoreRow(doc, 'Strategic Fit', useCase.strategicFit);
+    
+    // Feasibility dimensions
+    this.addScoreSubsection(doc, 'Feasibility');
+    this.addScoreRow(doc, 'Data Readiness', useCase.dataReadiness);
+    this.addScoreRow(doc, 'Technical Complexity', useCase.technicalComplexity);
+    this.addScoreRow(doc, 'Change Impact', useCase.changeImpact);
+    this.addScoreRow(doc, 'Model Risk', useCase.modelRisk);
+    this.addScoreRow(doc, 'Adoption Readiness', useCase.adoptionReadiness);
+    
+    // AI Governance dimensions
+    this.addScoreSubsection(doc, 'AI Governance');
+    this.addScoreRow(doc, 'Explainability & Bias', useCase.explainabilityBias);
+    this.addScoreRow(doc, 'Regulatory Compliance', useCase.regulatoryCompliance);
+    
+    // Manual Override Information
+    if (useCase.manualImpactScore || useCase.manualEffortScore) {
+      this.addScoreSubsection(doc, 'Manual Overrides');
+      this.addDetailRow(doc, 'Manual Impact Score', useCase.manualImpactScore?.toString());
+      this.addDetailRow(doc, 'Manual Effort Score', useCase.manualEffortScore?.toString());
+      this.addDetailRow(doc, 'Manual Quadrant', useCase.manualQuadrant);
+      this.addDetailRow(doc, 'Override Reason', useCase.overrideReason);
+    }
+    
+    // Calculated Scores
+    if (useCase.calculatedImpactScore || useCase.calculatedEffortScore) {
+      this.addScoreSubsection(doc, 'Calculated Scores');
+      this.addDetailRow(doc, 'Impact Score', useCase.calculatedImpactScore?.toString());
+      this.addDetailRow(doc, 'Effort Score', useCase.calculatedEffortScore?.toString());
+      this.addDetailRow(doc, 'Strategic Quadrant', useCase.strategicQuadrant);
+    }
+    
+    // Portfolio Information
+    this.addScoreSubsection(doc, 'Portfolio Status');
+    this.addDetailRow(doc, 'Portfolio', useCase.isActiveForRsa === 'true' ? 'RSA Active Portfolio' : 'Reference Library');
+    this.addDetailRow(doc, 'Dashboard Visible', useCase.isDashboardVisible ? 'Yes' : 'No');
+    
+    // Add separator line before next use case
+    doc.moveDown(1);
+    doc.moveTo(60, doc.y)
+       .lineTo(540, doc.y)
+       .stroke('#E5E5E5');
+    doc.moveDown(1);
+  }
+
+  /**
+   * Add section header for use case details
+   */
+  private static addSectionHeader(doc: any, title: string): void {
+    doc.fontSize(12)
+       .fillColor('#005DAA')
+       .font('Helvetica-Bold')
+       .text(title, 60, doc.y);
+    
+    doc.moveDown(0.3);
+    
+    // Add underline
+    const textWidth = doc.widthOfString(title);
+    doc.moveTo(60, doc.y - 5)
+       .lineTo(60 + textWidth, doc.y - 5)
+       .stroke('#005DAA');
+    
+    doc.moveDown(0.5);
+  }
+
+  /**
+   * Add score subsection header
+   */
+  private static addScoreSubsection(doc: any, title: string): void {
+    doc.fontSize(10)
+       .fillColor('#333333')
+       .font('Helvetica-Bold')
+       .text(title, 80, doc.y);
+    
+    doc.moveDown(0.3);
+  }
+
+  /**
+   * Add detail row with label and value
+   */
+  private static addDetailRow(doc: any, label: string, value: any): void {
+    if (!value || value === '' || value === null || value === undefined) return;
+    
+    // Check if we need a new page
+    if (doc.y > 720) {
+      doc.addPage();
+      this.addPageHeader(doc, 'Use Case Details', Math.floor(doc.pageNumber));
+      doc.y = 80;
+    }
+    
+    const startY = doc.y;
+    
+    // Label
+    doc.fontSize(9)
+       .fillColor('#666666')
+       .font('Helvetica-Bold')
+       .text(`${label}:`, 80, startY, { width: 120 });
+    
+    // Value
+    const displayValue = typeof value === 'string' ? value : String(value);
+    doc.fontSize(9)
+       .fillColor('#333333')
+       .font('Helvetica')
+       .text(displayValue, 210, startY, { width: 320, lineGap: 2 });
+    
+    doc.moveDown(0.4);
+  }
+
+  /**
+   * Add score row with visual indicator
+   */
+  private static addScoreRow(doc: any, label: string, score: any): void {
+    if (!score || score === '' || score === null || score === undefined) return;
+    
+    // Check if we need a new page
+    if (doc.y > 720) {
+      doc.addPage();
+      this.addPageHeader(doc, 'Use Case Details', Math.floor(doc.pageNumber));
+      doc.y = 80;
+    }
+    
+    const startY = doc.y;
+    
+    // Label
+    doc.fontSize(9)
+       .fillColor('#666666')
+       .font('Helvetica-Bold')
+       .text(`${label}:`, 100, startY, { width: 120 });
+    
+    // Score value
+    doc.fontSize(9)
+       .fillColor('#333333')
+       .font('Helvetica')
+       .text(String(score), 230, startY);
+    
+    // Visual score indicator (1-5 scale)
+    const scoreNum = parseInt(String(score)) || 1;
+    for (let i = 1; i <= 5; i++) {
+      const circleX = 260 + (i * 15);
+      doc.circle(circleX, startY + 5, 4);
+      
+      if (i <= scoreNum) {
+        doc.fill('#005DAA');
+      } else {
+        doc.stroke('#E5E5E5').fillAndStroke('#FFFFFF', '#E5E5E5');
+      }
+    }
+    
+    doc.moveDown(0.4);
+  }
+
+  /**
+   * Format array values for display
+   */
+  private static formatArray(value: any): string {
+    if (!value) return '';
+    
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed.join(', ') : value;
+      } catch {
+        return value;
+      }
+    }
+    
+    return String(value);
+  }
+
+  /**
    * Add professional footer
    */
   private static addPageFooter(doc: any): void {
@@ -222,11 +464,11 @@ export class UseCasePdfService {
   }
 
   /**
-   * Generate individual use case report
+   * Generate comprehensive individual use case report with all 4 tabs
    */
   static async generateUseCaseReport(useCaseId: string, res: Response): Promise<void> {
     try {
-      console.log('Generating individual use case report for:', useCaseId);
+      console.log('Generating comprehensive use case report for:', useCaseId);
       
       // Fetch use case data
       const [useCase] = await db
@@ -257,66 +499,19 @@ export class UseCasePdfService {
       const summary = { totalUseCases: 1, activeUseCases: useCase.isActiveForRsa === 'true' ? 1 : 0 };
       this.addExecutiveCoverPage(doc, 'individual', summary);
       
-      // PAGE 2: Use Case Details
+      // PAGE 2: Comprehensive Use Case Details
       doc.addPage();
       this.addPageHeader(doc, 'Use Case Details', 2);
       doc.y = 80;
       
-      // Use case title
-      doc.fontSize(24)
-         .fillColor('#005DAA')
-         .font('Helvetica-Bold')
-         .text(useCase.title);
-      
-      doc.moveDown(1);
-      
-      // Status badge
-      const isActive = useCase.isActiveForRsa === 'true';
-      const statusColor = isActive ? '#22C55E' : '#6B7280';
-      const statusText = isActive ? 'ACTIVE PORTFOLIO' : 'REFERENCE LIBRARY';
-      
-      doc.rect(60, doc.y, 120, 25).fill(statusColor);
-      doc.fontSize(10)
-         .fillColor('#FFFFFF')
-         .font('Helvetica-Bold')
-         .text(statusText, 70, doc.y + 8);
-      
-      doc.y += 35;
-      doc.moveDown(1);
-      
-      // Description
-      doc.fontSize(12)
-         .fillColor('#333333')
-         .font('Helvetica-Bold')
-         .text('Description');
-      
-      doc.fontSize(11)
-         .fillColor('#666666')
-         .font('Helvetica')
-         .text(useCase.description || 'No description available', { width: 480 });
-      
-      doc.moveDown(1);
-      
-      // Problem Statement if available
-      if (useCase.problemStatement) {
-        doc.fontSize(12)
-           .fillColor('#333333')
-           .font('Helvetica-Bold')
-           .text('Problem Statement');
-        
-        doc.fontSize(11)
-           .fillColor('#666666')
-           .font('Helvetica')
-           .text(useCase.problemStatement, { width: 480 });
-        
-        doc.moveDown(1);
-      }
+      // Add comprehensive details using new method
+      this.addComprehensiveUseCaseDetails(doc, useCase, 0);
 
       // Add footer
       this.addPageFooter(doc);
 
       doc.end();
-      console.log('Individual use case report generated successfully');
+      console.log('Comprehensive use case report generated successfully');
 
     } catch (error) {
       console.error('Failed to generate use case PDF:', error);
@@ -366,7 +561,7 @@ export class UseCasePdfService {
       
       if (useCaseData.length > 0) {
         useCaseData.forEach((useCase, index) => {
-          this.addUseCaseCard(doc, useCase, index);
+          this.addComprehensiveUseCaseDetails(doc, useCase, index);
         });
       } else {
         // Empty state message
@@ -439,7 +634,7 @@ export class UseCasePdfService {
       
       if (activeUseCases.length > 0) {
         activeUseCases.forEach((useCase, index) => {
-          this.addUseCaseCard(doc, useCase, index);
+          this.addComprehensiveUseCaseDetails(doc, useCase, index);
         });
       } else {
         // Empty portfolio message

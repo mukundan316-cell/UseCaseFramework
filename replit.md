@@ -35,10 +35,14 @@ This design must be used consistently for all CRUD cards throughout the applicat
 - **Database**: PostgreSQL (12 tables, 130+ records with subsections table)
 
 ### Recent Changes (August 2025)
-- **Answer Persistence Bug**: Fixed critical schema mismatch causing completed assessments to have zero saved answers
-- **Export System**: Resolved questionnaire export failures by correcting database column naming consistency
-- **Database Schema**: Aligned all Drizzle queries to use consistent camelCase field names
-- **Scoring Logic Removed**: Per user request, removed all assessment scoring calculations to focus on questionnaire completion and export functionality first
+- **Complete PDF Export Overhaul**: Fixed critical limitation where use case PDFs only showed basic information. Now includes comprehensive data from all 4 CRUD modal tabs:
+  - Basic Information (title, description, problem statement, process, business details)
+  - Business Context (lines of business, segments, geographies, processes, activities)
+  - Implementation & Governance (owner, status, timeline, metrics, technologies, stakeholders)
+  - RSA Framework Assessment (all 12 scoring dimensions with visual indicators, manual overrides)
+- **Enhanced Questionnaire PDFs**: Added proper section/subsection hierarchy, question types, help text, and tailored response areas
+- **Professional PDF Formatting**: Comprehensive layouts with RSA branding, proper spacing, section headers, and visual score indicators
+- **Database Schema Consistency**: Fixed camelCase field naming across all PDF export services
 
 ### Key Features
 - **LEGO Architecture**: Reusable components with consistent CRUD card design
