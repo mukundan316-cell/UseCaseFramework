@@ -5,11 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form } from '@/components/ui/form';
-import { Plus, Edit, AlertCircle } from 'lucide-react';
+import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3 } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
 import ScoreOverrideLegoBlock from './ScoreOverrideLegoBlock';
@@ -21,6 +22,61 @@ import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import MultiSelectField from './MultiSelectField';
+
+// Tab 3 Options
+const useCaseStatusOptions = [
+  'Discovery',
+  'Analysis', 
+  'Planning',
+  'In Development',
+  'Testing',
+  'Deployed',
+  'On Hold',
+  'Cancelled'
+];
+
+const aiMlTechnologiesOptions = [
+  'Machine Learning',
+  'Natural Language Processing',
+  'Computer Vision',
+  'Deep Learning',
+  'Generative AI',
+  'Reinforcement Learning',
+  'Expert Systems',
+  'Neural Networks',
+  'Decision Trees',
+  'Ensemble Methods'
+];
+
+const dataSourcesOptions = [
+  'Guidewire Core',
+  'Policy Admin System',
+  'Claims System',
+  'Customer Database',
+  'External APIs',
+  'Third-party Data',
+  'Regulatory Data',
+  'Market Data',
+  'IoT Sensors',
+  'Document Management',
+  'Email Systems',
+  'Social Media'
+];
+
+const stakeholderGroupsOptions = [
+  'Underwriting Team',
+  'Claims Team',
+  'Product Management',
+  'IT Department',
+  'Data Science Team',
+  'Compliance Team',
+  'Customer Service',
+  'Business Analysts',
+  'Risk Management',
+  'Legal Team',
+  'Executive Leadership',
+  'External Partners'
+];
 
 const formSchema = z.object({
   // All fields optional for maximum flexibility - user can override anything
@@ -39,6 +95,18 @@ const formSchema = z.object({
   geography: z.string().optional(),
   useCaseType: z.string().optional(),
   activity: z.string().optional(),
+  // Tab 3: Implementation & Governance fields
+  primaryBusinessOwner: z.string().optional(),
+  useCaseStatus: z.string().optional(),
+  keyDependencies: z.string().optional(),
+  implementationTimeline: z.string().optional(),
+  successMetrics: z.string().optional(),
+  estimatedValue: z.string().optional(),
+  valueMeasurementApproach: z.string().optional(),
+  integrationRequirements: z.string().optional(),
+  aiMlTechnologies: z.array(z.string()).optional(),
+  dataSources: z.array(z.string()).optional(),
+  stakeholderGroups: z.array(z.string()).optional(),
   // RSA Portfolio Management
   isActiveForRsa: z.union([z.literal('true'), z.literal('false'), z.string()]).default('false'),
   isDashboardVisible: z.union([z.literal('true'), z.literal('false'), z.string()]).default('false'),
@@ -56,7 +124,7 @@ const formSchema = z.object({
   changeImpact: z.number().min(1).max(5).optional(),
   modelRisk: z.number().min(1).max(5).optional(),
   adoptionReadiness: z.number().min(1).max(5).optional(),
-  // AI Governance Levers (all optional)
+  // AI Governance Levers (all optional) - moved to Tab 3
   explainabilityBias: z.number().min(1).max(5).optional(),
   regulatoryCompliance: z.number().min(1).max(5).optional(),
   // Manual Score Override fields (completely optional, no validation when empty)
@@ -109,6 +177,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
 
   // Manual override toggle state
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(false);
+
+  // Tab state management
+  const [activeTab, setActiveTab] = useState('basic');
+
+  // Predefined options for Tab 3 dropdowns
+  const useCaseStatusOptions = ['Discovery', 'Backlog', 'In-flight', 'Implemented', 'On Hold'];
+  const aiMlTechnologiesOptions = ['Machine Learning', 'Deep Learning', 'Natural Language Processing', 'Computer Vision', 'Predictive Analytics', 'Large Language Models', 'Reinforcement Learning', 'Rule-based Systems'];
+  const dataSourcesOptions = ['Policy Database', 'Claims Database', 'Customer Database', 'External APIs', 'Third-party Data', 'Real-time Feeds', 'Historical Data', 'Regulatory Data'];
+  const stakeholderGroupsOptions = ['Underwriting Teams', 'Claims Teams', 'IT/Technology', 'Business Analytics', 'Risk Management', 'Compliance', 'Customer Service', 'External Partners'];
 
   // Tooltip definitions
   const sliderTooltips = {
@@ -316,6 +393,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         manualEffortScore: (useCase as any).manualEffortScore,
         manualQuadrant: (useCase as any).manualQuadrant,
         overrideReason: (useCase as any).overrideReason || '',
+        // Tab 3: Implementation & Governance fields
+        primaryBusinessOwner: (useCase as any).primaryBusinessOwner || '',
+        useCaseStatus: (useCase as any).useCaseStatus || 'Discovery',
+        keyDependencies: (useCase as any).keyDependencies || '',
+        implementationTimeline: (useCase as any).implementationTimeline || '',
+        successMetrics: (useCase as any).successMetrics || '',
+        estimatedValue: (useCase as any).estimatedValue || '',
+        valueMeasurementApproach: (useCase as any).valueMeasurementApproach || '',
+        integrationRequirements: (useCase as any).integrationRequirements || '',
+        aiMlTechnologies: (useCase as any).aiMlTechnologies || [],
+        dataSources: (useCase as any).dataSources || [],
+        stakeholderGroups: (useCase as any).stakeholderGroups || [],
       };
       
       // Update scores state first
@@ -367,6 +456,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         isDashboardVisible: 'false',
         libraryTier: 'reference',
         activationReason: '',
+        // Tab 3: Implementation & Governance defaults
+        primaryBusinessOwner: '',
+        useCaseStatus: 'Discovery',
+        keyDependencies: '',
+        implementationTimeline: '',
+        successMetrics: '',
+        estimatedValue: '',
+        valueMeasurementApproach: '',
+        integrationRequirements: '',
+        aiMlTechnologies: [],
+        dataSources: [],
+        stakeholderGroups: [],
         ...scores,
       };
       form.reset(defaultData);
@@ -422,6 +523,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         if (data.activities) changedData.activities = data.activities;
         if (data.businessSegments) changedData.businessSegments = data.businessSegments;
         if (data.geographies) changedData.geographies = data.geographies;
+        // Tab 3 multi-select arrays
+        if (data.aiMlTechnologies) changedData.aiMlTechnologies = data.aiMlTechnologies;
+        if (data.dataSources) changedData.dataSources = data.dataSources;
+        if (data.stakeholderGroups) changedData.stakeholderGroups = data.stakeholderGroups;
         
         // Handle manual override fields - convert empty strings to null
         if (data.manualImpactScore !== undefined) {
@@ -485,67 +590,85 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="title">Use Case Title</Label>
-                <Input
-                  id="title"
-                  placeholder="e.g., Automated Claims Triage"
-                  className="mt-1"
-                  {...form.register('title')}
-                />
-                {form.formState.errors.title && (
-                  <p className="text-sm text-red-600 mt-1">{form.formState.errors.title.message}</p>
-                )}
-              </div>
-              <div>
-                <Label>Use Case Type</Label>
-                <Select key={`useCaseType-${mode}-${useCase?.id}`} value={form.watch('useCaseType') || ''} onValueChange={(value) => form.setValue('useCaseType', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata.useCaseTypes.filter(type => type && type.trim()).map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                rows={3}
-                placeholder="Detailed description of the use case..."
-                className="mt-1"
-                {...form.register('description')}
-              />
-              {form.formState.errors.description && (
-                <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="problemStatement">Problem Statement / Business Need</Label>
-              <Textarea
-                id="problemStatement"
-                rows={3}
-                placeholder="Describe the specific business problem or need this use case addresses (e.g., 'Our current claims processing time is 25% higher than industry average, leading to poor customer satisfaction and increased operational costs.')"
-                className="mt-1"
-                {...form.register('problemStatement')}
-              />
-              {form.formState.errors.problemStatement && (
-                <p className="text-sm text-red-600 mt-1">{form.formState.errors.problemStatement.message}</p>
-              )}
-            </div>
-          </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="basic" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Basic Information
+                </TabsTrigger>
+                <TabsTrigger value="business" className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  Business Context
+                </TabsTrigger>
+                <TabsTrigger value="implementation" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Implementation & Governance
+                </TabsTrigger>
+                <TabsTrigger value="assessment" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  RSA Framework Assessment
+                </TabsTrigger>
+              </TabsList>
 
-          {/* Business Context - Aligned with Explorer: Process → Activity → LOB → Segment → Geography */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Business Context</h3>
+              {/* Tab 1: Basic Information */}
+              <TabsContent value="basic" className="space-y-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="title">Use Case Title</Label>
+                    <Input
+                      id="title"
+                      placeholder="e.g., Automated Claims Triage"
+                      className="mt-1"
+                      {...form.register('title')}
+                    />
+                    {form.formState.errors.title && (
+                      <p className="text-sm text-red-600 mt-1">{form.formState.errors.title.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label>Use Case Type</Label>
+                    <Select key={`useCaseType-${mode}-${useCase?.id}`} value={form.watch('useCaseType') || ''} onValueChange={(value) => form.setValue('useCaseType', value)}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {metadata.useCaseTypes.filter(type => type && type.trim()).map(type => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    rows={3}
+                    placeholder="Detailed description of the use case..."
+                    className="mt-1"
+                    {...form.register('description')}
+                  />
+                  {form.formState.errors.description && (
+                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="problemStatement">Problem Statement / Business Need</Label>
+                  <Textarea
+                    id="problemStatement"
+                    rows={3}
+                    placeholder="Describe the specific business problem or need this use case addresses (e.g., 'Our current claims processing time is 25% higher than industry average, leading to poor customer satisfaction and increased operational costs.')"
+                    className="mt-1"
+                    {...form.register('problemStatement')}
+                  />
+                  {form.formState.errors.problemStatement && (
+                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.problemStatement.message}</p>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* Tab 2: Business Context */}
+              <TabsContent value="business" className="space-y-4 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Process</Label>
@@ -635,14 +758,160 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 placeholder={!form.watch('process') ? "Select process first" : "Select activities..."}
               />
             </div>
-          </div>
+              </TabsContent>
 
+              {/* Tab 3: Implementation & Governance */}
+              <TabsContent value="implementation" className="space-y-4 mt-6">
+                {/* Project Management Section */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900">Project Management</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="primaryBusinessOwner">Primary Business Owner</Label>
+                      <Input
+                        id="primaryBusinessOwner"
+                        placeholder="e.g., John Smith, Claims Director"
+                        className="mt-1"
+                        {...form.register('primaryBusinessOwner')}
+                      />
+                    </div>
+                    <div>
+                      <Label>Use Case Status</Label>
+                      <Select value={form.watch('useCaseStatus') || 'Discovery'} onValueChange={(value) => form.setValue('useCaseStatus', value)}>
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {useCaseStatusOptions.map(status => (
+                            <SelectItem key={status} value={status}>{status}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="keyDependencies">Key Dependencies</Label>
+                      <Textarea
+                        id="keyDependencies"
+                        rows={2}
+                        placeholder="e.g., Guidewire API completion, Project Atlas data feeds"
+                        className="mt-1"
+                        {...form.register('keyDependencies')}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="implementationTimeline">Implementation Timeline</Label>
+                      <Input
+                        id="implementationTimeline"
+                        placeholder="e.g., Q2 2024 - Q4 2024"
+                        className="mt-1"
+                        {...form.register('implementationTimeline')}
+                      />
+                    </div>
+                  </div>
+                </div>
 
+                {/* Value Realization Section */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900">Value Realization</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="successMetrics">Success Metrics / KPIs</Label>
+                      <Textarea
+                        id="successMetrics"
+                        rows={2}
+                        placeholder="e.g., Reduce manual review time by 30%, Increase quote-to-bind ratio by 5%"
+                        className="mt-1"
+                        {...form.register('successMetrics')}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="estimatedValue">Estimated Value (£)</Label>
+                      <Input
+                        id="estimatedValue"
+                        placeholder="e.g., £2.5M annual savings"
+                        className="mt-1"
+                        {...form.register('estimatedValue')}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="valueMeasurementApproach">Value Measurement Approach</Label>
+                    <Textarea
+                      id="valueMeasurementApproach"
+                      rows={2}
+                      placeholder="How will success be tracked and reported?"
+                      className="mt-1"
+                      {...form.register('valueMeasurementApproach')}
+                    />
+                  </div>
+                </div>
 
-          {/* Enhanced RSA Framework Scoring - Conditional on RSA Active */}
-          {rsaSelection.isActiveForRsa ? (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Enhanced RSA Framework Assessment (1-5 Scale)</h3>
+                {/* Technical Implementation Section */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900">Technical Implementation</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <MultiSelectField
+                      label="AI/ML Technologies"
+                      items={aiMlTechnologiesOptions}
+                      selectedItems={form.watch('aiMlTechnologies') || []}
+                      onSelectionChange={(newItems) => form.setValue('aiMlTechnologies', newItems)}
+                      helpText="Select relevant AI/ML technologies"
+                    />
+                    <MultiSelectField
+                      label="Data Sources"
+                      items={dataSourcesOptions}
+                      selectedItems={form.watch('dataSources') || []}
+                      onSelectionChange={(newItems) => form.setValue('dataSources', newItems)}
+                      helpText="Select required data sources"
+                    />
+                    <MultiSelectField
+                      label="Stakeholder Groups"
+                      items={stakeholderGroupsOptions}
+                      selectedItems={form.watch('stakeholderGroups') || []}
+                      onSelectionChange={(newItems) => form.setValue('stakeholderGroups', newItems)}
+                      helpText="Select involved stakeholder groups"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="integrationRequirements">Integration Requirements</Label>
+                    <Textarea
+                      id="integrationRequirements"
+                      rows={2}
+                      placeholder="System touchpoints, API needs, data flows"
+                      className="mt-1"
+                      {...form.register('integrationRequirements')}
+                    />
+                  </div>
+                </div>
+
+                {/* AI Governance Section */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900">AI Governance & Risk</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <SliderField
+                      field="explainabilityBias"
+                      label="Explainability & Bias"
+                      tooltip={sliderTooltips.explainabilityBias}
+                      leftLabel="Low"
+                      rightLabel="High"
+                    />
+                    <SliderField
+                      field="regulatoryCompliance"
+                      label="Regulatory Compliance"
+                      tooltip={sliderTooltips.regulatoryCompliance}
+                      leftLabel="Low"
+                      rightLabel="High"
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Tab 4: RSA Framework Assessment */}
+              <TabsContent value="assessment" className="space-y-4 mt-6">
+                {rsaSelection.isActiveForRsa ? (
+                  <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Business Value Levers */}
               <div className="space-y-6">
@@ -780,49 +1049,51 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               calculatedQuadrant={currentQuadrant}
               onToggleChange={setIsOverrideEnabled}
             />
-            </div>
-          ) : (
-            <Card className="bg-gray-50 border-dashed border-2">
-              <CardContent className="p-8 text-center">
-                <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
-                  Scoring Available After RSA Portfolio Selection
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Use cases in the reference library can be browsed and selected. 
-                  Complete scoring and categorization becomes available once included in the RSA active portfolio.
-                </p>
-                <Alert className="border-blue-200 bg-blue-50 text-left">
-                  <AlertCircle className="h-4 w-4 text-blue-600" />
-                  <AlertDescription className="text-blue-800">
-                    <strong>Library-First Workflow:</strong> All use cases start in the reference library. 
-                    Toggle "Include in RSA Active Portfolio" above to enable detailed assessment and scoring.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-          )}
+                  </div>
+                ) : (
+                  <Card className="bg-gray-50 border-dashed border-2">
+                    <CardContent className="p-8 text-center">
+                      <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-medium text-gray-700 mb-2">
+                        Scoring Available After RSA Portfolio Selection
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Use cases in the reference library can be browsed and selected. 
+                        Complete scoring and categorization becomes available once included in the RSA active portfolio.
+                      </p>
+                      <Alert className="border-blue-200 bg-blue-50 text-left">
+                        <AlertCircle className="h-4 w-4 text-blue-600" />
+                        <AlertDescription className="text-blue-800">
+                          <strong>Library-First Workflow:</strong> All use cases start in the reference library. 
+                          Toggle "Include in RSA Active Portfolio" below to enable detailed assessment and scoring.
+                        </AlertDescription>
+                      </Alert>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
 
-          {/* RSA Portfolio Selection LEGO Block - Moved to bottom */}
-          <RSASelectionToggleLegoBlock
-            isActiveForRsa={rsaSelection.isActiveForRsa}
-            isDashboardVisible={rsaSelection.isDashboardVisible}
-            activationReason={rsaSelection.activationReason}
-            libraryTier={rsaSelection.libraryTier}
-            onRSAToggle={handleRSAToggle}
-            onDashboardToggle={handleDashboardToggle}
-            onActivationReasonChange={handleActivationReasonChange}
-            className="mb-6"
-          />
+            {/* RSA Portfolio Selection LEGO Block - Moved to bottom */}
+            <RSASelectionToggleLegoBlock
+              isActiveForRsa={rsaSelection.isActiveForRsa}
+              isDashboardVisible={rsaSelection.isDashboardVisible}
+              activationReason={rsaSelection.activationReason}
+              libraryTier={rsaSelection.libraryTier}
+              onRSAToggle={handleRSAToggle}
+              onDashboardToggle={handleDashboardToggle}
+              onActivationReasonChange={handleActivationReasonChange}
+              className="mb-6"
+            />
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              {mode === 'edit' ? 'Update Use Case' : 'Create Use Case'}
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                {mode === 'edit' ? 'Update Use Case' : 'Create Use Case'}
+              </Button>
+            </DialogFooter>
         </form>
         </Form>
       </DialogContent>

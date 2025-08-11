@@ -63,6 +63,19 @@ export const useCases = pgTable("use_cases", {
   deactivationReason: text("deactivation_reason"),
   librarySource: text("library_source").notNull().default('rsa_internal'), // 'rsa_internal', 'industry_standard', 'imported'
   
+  // Tab 3: Implementation & Governance fields
+  primaryBusinessOwner: text("primary_business_owner"),
+  useCaseStatus: text("use_case_status").default('Discovery'), // Discovery, Backlog, In-flight, Implemented, On Hold
+  keyDependencies: text("key_dependencies"),
+  implementationTimeline: text("implementation_timeline"),
+  successMetrics: text("success_metrics"),
+  estimatedValue: text("estimated_value"), // Using text to allow for currency formatting
+  valueMeasurementApproach: text("value_measurement_approach"),
+  integrationRequirements: text("integration_requirements"),
+  aiMlTechnologies: text("ai_ml_technologies").array(),
+  dataSources: text("data_sources").array(),
+  stakeholderGroups: text("stakeholder_groups").array(),
+  
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -95,6 +108,18 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   manualEffortScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
   manualQuadrant: z.union([z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']), z.null()]).optional(),
   overrideReason: z.union([z.string(), z.null()]).optional(),
+  // Tab 3: Implementation & Governance fields
+  primaryBusinessOwner: z.string().optional(),
+  useCaseStatus: z.enum(['Discovery', 'Backlog', 'In-flight', 'Implemented', 'On Hold']).optional(),
+  keyDependencies: z.string().optional(),
+  implementationTimeline: z.string().optional(),
+  successMetrics: z.string().optional(),
+  estimatedValue: z.string().optional(),
+  valueMeasurementApproach: z.string().optional(),
+  integrationRequirements: z.string().optional(),
+  aiMlTechnologies: z.array(z.string()).optional(),
+  dataSources: z.array(z.string()).optional(),
+  stakeholderGroups: z.array(z.string()).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
