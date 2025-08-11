@@ -49,7 +49,7 @@ router.get('/questionnaires/:id', async (req: Request, res: Response) => {
       })
       .from(questionnaireSections)
       .leftJoin(questionnaireSubsections, eq(questionnaireSubsections.sectionId, questionnaireSections.id))
-      .leftJoin(questions, eq(questions.sectionId, questionnaireSections.id))
+      .leftJoin(questions, eq(questions.subsectionId, questionnaireSubsections.id))
       .leftJoin(questionOptions, eq(questionOptions.questionId, questions.id))
       .where(eq(questionnaireSections.questionnaireId, questionnaireId))
       .orderBy(
