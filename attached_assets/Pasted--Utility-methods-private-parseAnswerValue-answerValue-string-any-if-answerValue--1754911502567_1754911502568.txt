@@ -1,0 +1,138 @@
+ // Utility methods
+  private parseAnswerValue(answerValue?: string): any {
+    if (!answerValue) return null;
+    
+    try {
+      return JSON.parse(answerValue);
+    } catch {
+      return answerValue;
+    }
+  }
+
+  private renderFieldValue(label: string, value: string): void {
+    this.doc
+      .fillColor('#666666')
+      .fontSize(9)
+      .font('Helvetica-Bold')
+      .text(`${label}:`, this.margins.left + 30, this.currentY);
+    
+    this.doc
+      .fillColor('#333333')
+      .fontSize(9)
+      .font('Helvetica')
+      .text(value, this.margins.left + 120, this.currentY, {
+        width: this.usableWidth - 140
+      });
+    
+    this.currentY += 15;
+  }
+
+  private renderTableRow(label: string, value: string): void {
+    // Simple two-column layout
+    this.doc
+      .fillColor('#333333')
+      .fontSize(9)
+      .font('Helvetica')
+      .text(label, this.margins.left + 30, this.currentY, {
+        width: 200
+      })
+      .text(value, this.margins.left + 250, this.currentY, {
+        width: 100,
+        align: 'right'
+      });
+    
+    this.currentY += 15;
+  }
+
+  private renderRatingScale(): void {
+    // Draw rating scale 1-5
+    this.doc
+      .fillColor('#666666')
+      .fontSize(9)
+      .font('Helvetica')
+      .text('Rating Scale: 1 (Poor) → 5 (Excellent)', this.margins.left + 20, this.currentY);
+    
+    this.currentY += 15;
+
+    // Draw scale circles
+    for (let i = 1; i <= 5; i++) {
+      const x = this.margins.left + 30 + (i - 1) * 40;
+      this.doc
+        .circle(x, this.currentY + 5, 8)
+        .stroke('#005DAA')
+        .fillColor('#333333')
+        .fontSize(8)
+        .text(i.toString(), x - 3, this.currentY + 2);
+    }
+    
+    this.currentY += 25;
+  }
+
+  private renderResponseArea(): void {
+    // Draw response box
+    this.doc
+      .rect(this.margins.left + 20, this.currentY, this.usableWidth - 40, 40)
+      .stroke('#CCCCCC');
+    
+    this.doc
+      .fillColor('#999999')
+      .fontSize(9)
+      .font('Helvetica-Oblique')
+      .text('Response Area', this.margins.left + 30, this.currentY + 15);
+    
+    this.currentY += 50;
+  }
+
+  private formatFieldLabel(key: string): string {
+    return key
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .replace(/_/g, ' ');
+  }
+
+  private wrapText(text: string, maxWidth: number): string[] {
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    words.forEach(word => {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word;
+      const width = this.doc.widthOfString(testLine);
+      
+      if (width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines;
+  }
+
+  private checkPageBreak(requiredSpace: number): void {
+    if (this.currentY + requiredSpace > this.pageWidth - this.margins.bottom) {
+      this.doc.addPage();
+      this.currentY = this.margins.top;
+    }
+  }
+}
+
+// Usage example in your questionnairePdfService.ts:
+export function renderQuestionsWithEnhancedRenderer(
+  doc: PDFKit.PDFDocument, 
+  questions: QuestionData[]
+): void {
+  const renderer = new EnhancedQuestionRenderer(doc);
+  
+  questions.forEach((question, index) => {
+    const sectionNumber = Math.floor(index / 10) + 1; // Adjust based on your structure
+    const questionNumber = (index % 10) + 1;
+    
+    renderer.renderQuestion(question, sectionNumber, questionNumber);
+  });
+}

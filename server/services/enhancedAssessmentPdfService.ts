@@ -4,6 +4,7 @@ import { questionnaireResponses, questionnaires } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { Response } from 'express';
 import { format } from 'date-fns';
+import { EnhancedQuestionRenderer } from './enhancedQuestionRenderer';
 
 export class EnhancedAssessmentPdfService {
   /**
@@ -250,7 +251,8 @@ export class EnhancedAssessmentPdfService {
 
       if (!responseData) {
         console.log('No response data found for ID:', responseId);
-        return res.status(404).json({ error: 'Assessment response not found' });
+        res.status(404).json({ error: 'Assessment response not found' });
+        return;
       }
 
       console.log('Assessment data fetched successfully');

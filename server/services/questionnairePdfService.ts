@@ -4,6 +4,7 @@ import { questionnaires, questions, questionnaireResponses, questionAnswers, que
 import { eq, and } from 'drizzle-orm';
 import { Response } from 'express';
 import { format } from 'date-fns';
+import { EnhancedQuestionRenderer } from './enhancedQuestionRenderer';
 
 export class QuestionnairePdfService {
   /**
@@ -876,8 +877,20 @@ export class QuestionnairePdfService {
           currentSubsection = subsection.title;
         }
         
-        // Add question
-        this.addEnhancedQuestion(doc, question, null, questionCounter);
+        // Use enhanced renderer for questions
+        if (question) {
+          const renderer = new EnhancedQuestionRenderer(doc);
+          renderer.renderQuestion({
+            id: question.id,
+            questionText: question.questionText,
+            questionType: question.questionType,
+            answerValue: undefined, // Blank template
+            answerData: undefined,
+            options: question.options,
+            sectionTitle: section?.title,
+            subsectionTitle: subsection?.title
+          }, section?.sectionOrder || 1, questionCounter);
+        }
         questionCounter++;
       });
       
@@ -998,8 +1011,20 @@ export class QuestionnairePdfService {
           currentSubsection = subsection.title;
         }
         
-        // Add question with response
-        this.addEnhancedQuestion(doc, question, response, questionCounter);
+        // Use enhanced renderer for questions with responses
+        if (question) {
+          const renderer = new EnhancedQuestionRenderer(doc);
+          renderer.renderQuestion({
+            id: question.id,
+            questionText: question.questionText,
+            questionType: question.questionType,
+            answerValue: response?.answerValue,
+            answerData: response?.answerData,
+            options: question.options,
+            sectionTitle: section?.title,
+            subsectionTitle: subsection?.title
+          }, section?.sectionOrder || 1, questionCounter);
+        }
         questionCounter++;
       });
 
