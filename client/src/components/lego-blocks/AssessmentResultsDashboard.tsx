@@ -129,14 +129,14 @@ export default function AssessmentResultsDashboard({
     }
   }, [actualResponseId, maturityScores, useCases, existingRecommendations, generateRecommendations]);
 
-  // Early return AFTER all hooks are called - check for meaningful maturity data
-  if (!maturityScores || !actualResponseId || Object.keys(maturityScores.maturityLevels || {}).length === 0) {
+  // Early return AFTER all hooks are called - simplified check without scoring
+  if (!actualResponseId) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Assessment Data</h3>
-          <p className="text-gray-600 mb-4">Complete an AI maturity assessment to see your scores here</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Assessment Not Found</h3>
+          <p className="text-gray-600 mb-4">Please complete an assessment to view results</p>
           {onRetake && (
             <Button onClick={onRetake} className="bg-[#005DAA] hover:bg-[#004A8C]">
               Start Assessment
@@ -163,31 +163,8 @@ export default function AssessmentResultsDashboard({
       quadrant: useCase.quadrant
     }));
 
-  // Transform maturity scores data for ScoringDashboardLegoBlock
-  const scoringData: ScoringData | undefined = maturityScores ? {
-    overallScore: maturityScores.overallAverage || 0,
-    overallLevel: getMaturityLevel(maturityScores.overallAverage || 0),
-    overallPercentage: Math.round((maturityScores.overallAverage || 0) * 20),
-    totalResponses: Object.values(maturityScores.averageScores || {}).reduce((sum: number, data: any) => sum + (data.count || 0), 0),
-    completedAt: completedAt || new Date().toISOString(),
-    dimensionScores: Object.entries(maturityScores.maturityLevels || {}).map(([category, data]: [string, any]) => ({
-      category,
-      score: data.average || 0,
-      level: data.level || 'Initial',
-      percentage: data.percentage || 0,
-      description: getDescriptionForCategory(category)
-    })),
-    gapAnalysis: {
-      strengths: ['Assessment completed successfully', 'Structured evaluation framework'],
-      improvements: ['Focus on identified gaps', 'Implement recommended actions'],
-      criticalGaps: Object.entries(maturityScores.maturityLevels || {})
-        .filter(([_, data]: [string, any]) => (data.percentage || 0) < 60)
-        .map(([category]) => category)
-    }
-  } : undefined;
-
-  // Generate gap analysis for detailed view
-  const detailedGapAnalysis = maturityScores ? generateDetailedGapAnalysis(maturityScores.maturityLevels || {}) : [];
+  // Basic assessment info without scoring complexity
+  // TODO: Add scoring components after questionnaire completion is working
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
@@ -226,16 +203,14 @@ export default function AssessmentResultsDashboard({
                     day: 'numeric' 
                   }) : 'Recently'}
                 </CardDescription>
-                {scoringData && (
-                  <div className="flex items-center space-x-4 mt-2">
-                    <Badge className="bg-green-100 text-green-800 text-sm px-3 py-1">
-                      Overall Score: {scoringData.overallPercentage}%
-                    </Badge>
-                    <Badge className="bg-blue-100 text-blue-800 text-sm px-3 py-1">
-                      Maturity Level: {scoringData.overallLevel}
-                    </Badge>
-                  </div>
-                )}
+                <div className="flex items-center space-x-4 mt-2">
+                  <Badge className="bg-gray-100 text-gray-800 text-sm px-3 py-1">
+                    Assessment Completed
+                  </Badge>
+                  <Badge className="bg-blue-100 text-blue-800 text-sm px-3 py-1">
+                    {maturityScores?.answerCount || 0} Questions Answered
+                  </Badge>
+                </div>
               </div>
             </div>
             
@@ -271,13 +246,41 @@ export default function AssessmentResultsDashboard({
         </CardHeader>
       </Card>
 
-      {/* Main Scoring Dashboard */}
-      <ScoringDashboardLegoBlock
-        data={scoringData ? { ...scoringData, responseId: actualResponseId } : undefined}
-        showGapAnalysis={true}
-        title="AI Maturity Assessment Results"
-        description="Comprehensive evaluation across key dimensions"
-      />
+      {/* Assessment Summary Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileText className="h-5 w-5 text-blue-600" />
+            <span>Assessment Summary</span>
+          </CardTitle>
+          <CardDescription>
+            Your questionnaire has been completed and saved
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold text-gray-900">{maturityScores?.answerCount || 0}</div>
+              <div className="text-sm text-gray-600">Questions Answered</div>
+            </div>
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold text-gray-900">
+                {completedAt ? new Date(completedAt).toLocaleDateString() : 'N/A'}
+              </div>
+              <div className="text-sm text-gray-600">Completion Date</div>
+            </div>
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold text-gray-900">Ready</div>
+              <div className="text-sm text-gray-600">For Export</div>
+            </div>
+          </div>
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Next Steps:</strong> Your assessment responses have been saved. You can export the questionnaire and responses using the buttons above, or retake the assessment if needed.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Recommendations Section */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">

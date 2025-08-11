@@ -34,10 +34,11 @@ This design must be used consistently for all CRUD cards throughout the applicat
 - **Backend**: Node.js + Express + Drizzle ORM + Zod validation  
 - **Database**: PostgreSQL (12 tables, 130+ records with subsections table)
 
-### Recent Fixes (August 2025)
+### Recent Changes (August 2025)
 - **Answer Persistence Bug**: Fixed critical schema mismatch causing completed assessments to have zero saved answers
 - **Export System**: Resolved questionnaire export failures by correcting database column naming consistency
 - **Database Schema**: Aligned all Drizzle queries to use consistent camelCase field names
+- **Scoring Logic Removed**: Per user request, removed all assessment scoring calculations to focus on questionnaire completion and export functionality first
 
 ### Key Features
 - **LEGO Architecture**: Reusable components with consistent CRUD card design

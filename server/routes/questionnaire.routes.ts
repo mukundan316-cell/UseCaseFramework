@@ -432,105 +432,16 @@ router.get('/responses/:id/scores', async (req: Request, res: Response) => {
       .innerJoin(questions, eq(questions.id, questionAnswers.questionId))
       .where(eq(questionAnswers.responseId, responseId));
 
-    // Group answers by scoring category for meaningful assessment scoring
-    const scoresByCategory = answersWithQuestions.reduce((acc, { answer, question }) => {
-      // Use scoring category for grouping, fallback to question type
-      const category = question.scoringCategory || 'general';
-      
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      
-      // Convert answer value to numeric score
-      let score = answer.score;
-      
-      // If no explicit score, calculate based on question type and answer
-      if (!score) {
-        const questionType = question.questionType;
-        const answerValue = answer.answerValue;
-        
-        console.log(`Processing question: ${question.id}, type: ${questionType}, answer: ${answerValue}`);
-        
-        switch (questionType) {
-          case 'score':
-          case 'scale':
-          case 'number':
-            score = parseInt(answerValue) || 0;
-            break;
-          case 'boolean':
-            // Convert boolean to score (yes=5, no=1)
-            const boolValue = answerValue?.toLowerCase();
-            score = (boolValue === 'true' || boolValue === 'yes') ? 5 : 1;
-            break;
-          case 'select':
-            // Try to extract numeric value from select options
-            if (answerValue && !isNaN(Number(answerValue))) {
-              score = Number(answerValue);
-            } else {
-              // Default scoring for text selections
-              score = 3; // Neutral score for participation
-            }
-            break;
-          default:
-            // For all other question types including text, risk_appetite, etc.
-            // Give participation score if answered meaningfully
-            if (answerValue && answerValue.toString().trim().length > 0) {
-              score = 3; // Participation score
-            } else {
-              score = 0; // No answer
-            }
-        }
-      }
-      
-      console.log(`Calculated score: ${score} for category: ${category}`);
-      
-      if (score && score > 0) {
-        acc[category].push(score);
-      }
-      
-      return acc;
-    }, {} as Record<string, number[]>);
-
-    // Calculate average scores by category
-    const averageScores = Object.entries(scoresByCategory).reduce((acc, [category, scores]) => {
-      if (scores.length > 0) {
-        acc[category] = {
-          average: scores.reduce((sum, score) => sum + score, 0) / scores.length,
-          count: scores.length,
-          total: scores.reduce((sum, score) => sum + score, 0)
-        };
-      }
-      return acc;
-    }, {} as Record<string, { average: number; count: number; total: number }>);
-
-    // Calculate maturity levels based on averages
-    const maturityLevels = Object.entries(averageScores).reduce((acc, [category, data]) => {
-      const { average } = data;
-      
-      let level = 'Initial';
-      if (average >= 4.5) level = 'Optimized';
-      else if (average >= 3.5) level = 'Managed';
-      else if (average >= 2.5) level = 'Defined';
-      else if (average >= 1.5) level = 'Repeatable';
-      
-      acc[category] = {
-        ...data,
-        level,
-        percentage: Math.round((average / 5) * 100)
-      };
-      
-      return acc;
-    }, {} as Record<string, any>);
+    // No scoring logic - just return basic response info with answer count
 
     const result = {
       responseId,
       totalScore: response.totalScore,
       completedAt: response.completedAt,
-      averageScores,
-      maturityLevels,
-      overallAverage: Object.values(averageScores).length > 0 
-        ? Object.values(averageScores).reduce((sum, data) => sum + data.average, 0) / Object.values(averageScores).length 
-        : 0
+      averageScores: {}, // Empty until scoring is implemented
+      maturityLevels: {}, // Empty until scoring is implemented
+      overallAverage: 0, // TODO: Implement after questionnaire completion
+      answerCount: answersWithQuestions.length
     };
 
     res.json(result);
