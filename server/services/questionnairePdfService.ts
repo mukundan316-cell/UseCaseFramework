@@ -379,28 +379,56 @@ export class QuestionnairePdfService {
     const responseY = doc.y;
     let responseHeight = 50;
     
-    if (response?.answerValue) {
-      // Show actual response with better formatting
+    // First try to get structured data from answerData (JSONB), fallback to answerValue
+    let displayData = null;
+    
+    if (response?.answerData) {
+      try {
+        displayData = typeof response.answerData === 'string' ? 
+          JSON.parse(response.answerData) : response.answerData;
+      } catch (e) {
+        console.warn('Failed to parse answer data:', e);
+      }
+    }
+    
+    if (response && (displayData || response.answerValue)) {
+      // Show actual response with enhanced formatting for complex types
       doc.fontSize(10)
          .fillColor('#005DAA')
          .font('Helvetica-Bold')
          .text('Response:', 70, responseY);
       
-      // Response background box
       const answerBoxY = responseY + 15;
-      const answerText = response.answerValue;
-      const answerHeight = Math.max(25, doc.heightOfString(answerText, { width: 450 }) + 10);
       
-      doc.rect(70, answerBoxY, 460, answerHeight)
-         .fill('#F0F8FF')
-         .stroke('#005DAA');
-      
-      doc.fontSize(10)
-         .fillColor('#333333')
-         .font('Helvetica')
-         .text(answerText, 80, answerBoxY + 8, { width: 440, lineGap: 3 });
-         
-      responseHeight = answerHeight + 25;
+      // Handle structured data rendering
+      if (displayData && displayData.value && typeof displayData.value === 'object') {
+        responseHeight = this.renderStructuredResponse(doc, displayData.value, question.questionType, answerBoxY);
+      } else {
+        // Fallback to simple text response
+        const answerText = displayData?.value || response.answerValue || 'No response provided';
+        
+        // Skip rendering if the answer is corrupted (e.g., "[object Object]")
+        if (answerText === '[object Object]' || answerText === '[object Object]') {
+          doc.fontSize(10)
+             .fillColor('#CC0000')
+             .font('Helvetica-Oblique')
+             .text('(Response data formatting issue - contact support)', 80, answerBoxY + 8);
+          responseHeight = 30;
+        } else {
+          const answerHeight = Math.max(25, doc.heightOfString(answerText, { width: 450 }) + 10);
+          
+          doc.rect(70, answerBoxY, 460, answerHeight)
+             .fill('#F0F8FF')
+             .stroke('#005DAA');
+          
+          doc.fontSize(10)
+             .fillColor('#333333')
+             .font('Helvetica')
+             .text(answerText, 80, answerBoxY + 8, { width: 440, lineGap: 3 });
+             
+          responseHeight = answerHeight + 25;
+        }
+      }
     } else {
       // Render based on specific question type and data structure
       responseHeight = this.renderQuestionFormElements(doc, question, questionData, responseY);
@@ -898,5 +926,195 @@ export class QuestionnairePdfService {
         res.status(500).json({ error: 'Failed to generate questionnaire responses' });
       }
     }
+  }
+
+  /**
+   * Render structured response data for complex question types
+   */
+  private static renderStructuredResponse(doc: any, data: any, questionType: string, startY: number): number {
+    let currentY = startY;
+    let totalHeight = 0;
+    
+    try {
+      switch (questionType) {
+        case 'company_profile':
+          if (data.companyName || data.gwp || data.employees || data.businessType) {
+            // Create a clean info box
+            const boxHeight = 80;
+            doc.rect(70, currentY, 460, boxHeight)
+               .fill('#F0F8FF')
+               .stroke('#005DAA');
+            
+            currentY += 10;
+            
+            if (data.companyName) {
+              doc.fontSize(10)
+                 .fillColor('#333333')
+                 .font('Helvetica-Bold')
+                 .text(`Company: ${data.companyName}`, 80, currentY);
+              currentY += 15;
+            }
+            
+            if (data.businessType) {
+              doc.fontSize(10)
+                 .fillColor('#333333')
+                 .font('Helvetica')
+                 .text(`Business Type: ${data.businessType}`, 80, currentY);
+              currentY += 15;
+            }
+            
+            if (data.gwp) {
+              doc.fontSize(10)
+                 .fillColor('#333333')
+                 .font('Helvetica')
+                 .text(`GWP: ${new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(data.gwp)}`, 80, currentY);
+              currentY += 15;
+            }
+            
+            if (data.employees) {
+              doc.fontSize(10)
+                 .fillColor('#333333')
+                 .font('Helvetica')
+                 .text(`Employees: ${data.employees.toLocaleString()}`, 80, currentY);
+              currentY += 15;
+            }
+            
+            totalHeight = boxHeight + 15;
+          }
+          break;
+          
+        case 'business_lines_matrix':
+          if (data.businessLines && Array.isArray(data.businessLines)) {
+            const boxHeight = 20 + (data.businessLines.length * 20) + 15;
+            doc.rect(70, currentY, 460, boxHeight)
+               .fill('#F0F8FF')
+               .stroke('#005DAA');
+            
+            currentY += 10;
+            
+            doc.fontSize(10)
+               .fillColor('#333333')
+               .font('Helvetica-Bold')
+               .text('Business Line Distribution:', 80, currentY);
+            currentY += 20;
+            
+            data.businessLines.forEach((line: any) => {
+              const lineText = `• ${line.line || line.name || 'Unknown'}: ${line.premium || 0}%`;
+              const trend = line.trend ? ` (${line.trend})` : '';
+              
+              doc.fontSize(9)
+                 .fillColor('#333333')
+                 .font('Helvetica')
+                 .text(lineText + trend, 80, currentY);
+              currentY += 15;
+            });
+            
+            totalHeight = boxHeight + 15;
+          }
+          break;
+          
+        case 'percentage_target':
+          if (typeof data === 'object') {
+            const entries = Object.entries(data);
+            const boxHeight = 20 + (entries.length * 15) + 10;
+            doc.rect(70, currentY, 460, boxHeight)
+               .fill('#F0F8FF')
+               .stroke('#005DAA');
+            
+            currentY += 10;
+            
+            doc.fontSize(10)
+               .fillColor('#333333')
+               .font('Helvetica-Bold')
+               .text('Distribution:', 80, currentY);
+            currentY += 20;
+            
+            entries.forEach(([key, value]) => {
+              doc.fontSize(9)
+                 .fillColor('#333333')
+                 .font('Helvetica')
+                 .text(`• ${key}: ${value}%`, 80, currentY);
+              currentY += 15;
+            });
+            
+            totalHeight = boxHeight + 15;
+          }
+          break;
+          
+        case 'ranking':
+          if (Array.isArray(data)) {
+            const boxHeight = 20 + (data.length * 15) + 10;
+            doc.rect(70, currentY, 460, boxHeight)
+               .fill('#F0F8FF')
+               .stroke('#005DAA');
+            
+            currentY += 10;
+            
+            doc.fontSize(10)
+               .fillColor('#333333')
+               .font('Helvetica-Bold')
+               .text('Ranking:', 80, currentY);
+            currentY += 20;
+            
+            data.sort((a, b) => (a.rank || 0) - (b.rank || 0)).forEach((item: any) => {
+              doc.fontSize(9)
+                 .fillColor('#333333')
+                 .font('Helvetica')
+                 .text(`${item.rank}. ${item.label || item.id}`, 80, currentY);
+              currentY += 15;
+            });
+            
+            totalHeight = boxHeight + 15;
+          }
+          break;
+          
+        case 'smart_rating':
+          if (data.value !== undefined) {
+            const boxHeight = 40;
+            doc.rect(70, currentY, 460, boxHeight)
+               .fill('#F0F8FF')
+               .stroke('#005DAA');
+            
+            currentY += 10;
+            
+            const ratingText = `Rating: ${data.value}/5`;
+            const labelText = data.label ? ` (${data.label})` : '';
+            
+            doc.fontSize(10)
+               .fillColor('#333333')
+               .font('Helvetica-Bold')
+               .text(ratingText + labelText, 80, currentY);
+            
+            totalHeight = boxHeight + 15;
+          }
+          break;
+          
+        default:
+          // Default structured display
+          const jsonString = JSON.stringify(data, null, 2);
+          const boxHeight = Math.max(40, doc.heightOfString(jsonString, { width: 440 }) + 20);
+          
+          doc.rect(70, currentY, 460, boxHeight)
+             .fill('#F0F8FF')
+             .stroke('#005DAA');
+          
+          doc.fontSize(9)
+             .fillColor('#333333')
+             .font('Courier')
+             .text(jsonString, 80, currentY + 10, { width: 440, lineGap: 2 });
+          
+          totalHeight = boxHeight + 15;
+      }
+    } catch (error) {
+      console.error('Error rendering structured response:', error);
+      // Fallback to simple text
+      doc.fontSize(10)
+         .fillColor('#CC0000')
+         .font('Helvetica-Oblique')
+         .text('(Unable to display structured response)', 80, currentY);
+      totalHeight = 25;
+    }
+    
+    return totalHeight;
   }
 }
