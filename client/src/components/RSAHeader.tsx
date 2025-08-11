@@ -1,17 +1,5 @@
 import React from 'react';
-// RSA Logo removed - using text-based branding
-
-const RSALogo = () => (
-  <div className="flex items-center">
-    {/* RSA Text-based Logo */}
-    <div className="text-2xl font-bold text-rsa-blue">
-      RSA
-    </div>
-    <div className="ml-2 text-sm text-gray-600">
-      an intact company
-    </div>
-  </div>
-);
+import RSALogo from './RSALogo';
 
 interface RSAHeaderProps {
   title?: string;
