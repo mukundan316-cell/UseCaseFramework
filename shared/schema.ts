@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, real, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, real, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -230,7 +230,8 @@ export const questionAnswers = pgTable("question_answers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   responseId: varchar("response_id").notNull().references(() => questionnaireResponses.id, { onDelete: 'cascade' }),
   questionId: varchar("question_id").notNull().references(() => questions.id, { onDelete: 'cascade' }),
-  answerValue: text("answer_value").notNull(), // Stored as string, parsed based on question type
+  answerValue: text("answer_value").notNull(), // Legacy text field - kept for backward compatibility
+  answerData: jsonb("answer_data"), // New JSONB field for structured data storage
   score: integer("score"), // Individual question score
   notes: text("notes"), // Qualitative feedback and observations for stakeholder interviews
   answeredAt: timestamp("answered_at").defaultNow().notNull(),

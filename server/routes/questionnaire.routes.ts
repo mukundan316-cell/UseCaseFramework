@@ -214,41 +214,57 @@ const enhancedAnswerSchema = z.object({
   })).min(1, 'At least one answer is required')
 });
 
-// Serialization helpers for complex answer types
-const serializeAnswerValue = (value: any, questionType?: string): string => {
+// Enhanced serialization helpers for JSONB storage
+const prepareAnswerData = (value: any, questionType?: string): { answerValue: string; answerData: any } => {
+  // For backward compatibility, always store string representation
+  const answerValue = typeof value === 'string' ? value : JSON.stringify(value);
+  
+  // Prepare structured data for JSONB storage
+  let answerData;
+  
   if (typeof value === 'string') {
-    return value;
+    // Simple text answer
+    answerData = { value, type: 'text' };
+  } else if (questionType && ['currency', 'percentage_allocation', 'percentage_target', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating'].includes(questionType)) {
+    // Complex structured answer
+    answerData = { 
+      value, 
+      type: questionType,
+      timestamp: new Date().toISOString()
+    };
+  } else {
+    // Generic object/array
+    answerData = { 
+      value, 
+      type: 'object',
+      timestamp: new Date().toISOString()
+    };
   }
   
-  // Handle complex types that need JSON serialization
-  if (questionType && ['currency', 'percentage_allocation', 'percentage_target', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating'].includes(questionType)) {
-    return JSON.stringify(value);
-  }
-  
-  // Handle arrays and objects
-  if (typeof value === 'object' || Array.isArray(value)) {
-    return JSON.stringify(value);
-  }
-  
-  // Convert primitives to string
-  return String(value);
+  return { answerValue, answerData };
 };
 
-const deserializeAnswerValue = (value: string, questionType?: string): any => {
-  // For complex question types, parse as JSON
+// Enhanced deserialization with JSONB support
+const deserializeAnswerValue = (answerValue: string, answerData?: any, questionType?: string): any => {
+  // Prefer structured answerData if available
+  if (answerData && typeof answerData === 'object' && answerData.value !== undefined) {
+    return answerData.value;
+  }
+  
+  // Fallback to legacy answerValue parsing
   if (questionType && ['currency', 'percentage_allocation', 'percentage_target', 'ranking', 'smart_rating', 'business_lines_matrix', 'department_skills_matrix', 'company_profile', 'business_performance', 'multi_rating'].includes(questionType)) {
     try {
-      return JSON.parse(value);
+      return JSON.parse(answerValue);
     } catch {
-      return value; // Return as string if parsing fails
+      return answerValue; // Return as string if parsing fails
     }
   }
   
   // For other types, attempt JSON parse but fallback to string
   try {
-    return JSON.parse(value);
+    return JSON.parse(answerValue);
   } catch {
-    return value;
+    return answerValue;
   }
 };
 
@@ -288,8 +304,8 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
       // Skip validation step for complex types - just use original answerValue
       let processedAnswerValue = answerData.answerValue;
 
-      // Serialize the answer value for database storage - use original answerValue instead of processed
-      const serializedValue = serializeAnswerValue(answerData.answerValue, answerData.questionType);
+      // Prepare answer data for JSONB storage
+      const preparedData = prepareAnswerData(answerData.answerValue, answerData.questionType);
 
       // Check if answer already exists for this question
       const [existingAnswer] = await db
@@ -305,7 +321,8 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
         const [updatedAnswer] = await db
           .update(questionAnswers)
           .set({
-            answerValue: serializedValue,
+            answerValue: preparedData.answerValue,
+            answerData: preparedData.answerData,
             score: answerData.score,
             answeredAt: new Date()
           })
@@ -315,7 +332,7 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
         // Deserialize for response
         const responseAnswer = {
           ...updatedAnswer,
-          answerValue: deserializeAnswerValue(updatedAnswer.answerValue, answerData.questionType)
+          answerValue: deserializeAnswerValue(updatedAnswer.answerValue, updatedAnswer.answerData, answerData.questionType)
         };
         savedAnswers.push(responseAnswer);
       } else {
@@ -325,7 +342,8 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
           .values({
             responseId: responseId,
             questionId: answerData.questionId,
-            answerValue: serializedValue,
+            answerValue: preparedData.answerValue,
+            answerData: preparedData.answerData,
             score: answerData.score
           })
           .returning();
@@ -333,7 +351,7 @@ router.put('/responses/:id/answers', async (req: Request, res: Response) => {
         // Deserialize for response
         const responseAnswer = {
           ...newAnswer,
-          answerValue: deserializeAnswerValue(newAnswer.answerValue, answerData.questionType)
+          answerValue: deserializeAnswerValue(newAnswer.answerValue, newAnswer.answerData, answerData.questionType)
         };
         savedAnswers.push(responseAnswer);
       }
@@ -479,10 +497,10 @@ router.get('/responses/:id', async (req: Request, res: Response) => {
       .leftJoin(questions, eq(questionAnswers.questionId, questions.id))
       .where(eq(questionAnswers.responseId, responseId));
 
-    // Deserialize answers based on question type
+    // Deserialize answers based on question type with JSONB support
     const processedAnswers = answersWithQuestions.map(({ answer, question }) => ({
       ...answer,
-      answerValue: deserializeAnswerValue(answer.answerValue, question?.questionType),
+      answerValue: deserializeAnswerValue(answer.answerValue, answer.answerData, question?.questionType),
       questionType: question?.questionType
     }));
 
