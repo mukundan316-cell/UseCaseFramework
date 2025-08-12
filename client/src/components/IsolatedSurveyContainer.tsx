@@ -35,7 +35,7 @@ export const IsolatedSurveyContainer = React.memo(({
     } finally {
       setSaving(false);
     }
-  }, [responseSession?.id, onSave, setSaving, setLastSaved, setUnsavedChanges]);
+  }, [onSave, setSaving, setLastSaved, setUnsavedChanges]); // Remove responseSession dependency
 
   // Survey completion handler
   const handleComplete = useCallback(async (survey: Model) => {
@@ -46,14 +46,14 @@ export const IsolatedSurveyContainer = React.memo(({
     } catch (error) {
       console.error('Error completing assessment:', error);
     }
-  }, [responseSession?.id, onComplete]);
+  }, [onComplete]); // Remove responseSession dependency
 
   // Load Survey.js configuration - this only runs once
   useEffect(() => {
     let isMounted = true;
     
     const loadSurveyConfig = async () => {
-      if (!questionnaireId || !responseSession) return;
+      if (!questionnaireId) return;
       
       setIsLoadingSurvey(true);
       try {
@@ -108,8 +108,8 @@ export const IsolatedSurveyContainer = React.memo(({
           }
         };
 
-        // Load existing answers if available
-        if (responseSession?.answers) {
+        // Load existing answers only on initial load (NOT during auto-save)
+        if (responseSession?.answers && !surveyModel) {
           const surveyData: any = {};
           if (Array.isArray(responseSession.answers)) {
             responseSession.answers.forEach((answer: any) => {
@@ -164,7 +164,7 @@ export const IsolatedSurveyContainer = React.memo(({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [questionnaireId, responseSession?.id]); // Only depend on stable IDs
+  }, [questionnaireId]); // CRITICAL: Only depend on questionnaireId, NOT responseSession.id to prevent reloading during auto-save
 
   if (isLoadingSurvey) {
     return (
