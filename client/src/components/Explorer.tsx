@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUseCases } from '../contexts/UseCaseContext';
-// Legacy LEGO blocks component removed - using Survey.js architecture
+import ImprovedUseCaseExplorer from './lego-blocks/ImprovedUseCaseExplorer';
 
 export default function ExplorerEnhanced() {
   const { 
@@ -35,17 +35,33 @@ export default function ExplorerEnhanced() {
           </TabsList>
 
           <TabsContent value="active" className="space-y-6">
-            <div className="text-center py-8">
-              <h3 className="text-lg font-semibold text-gray-900">RSA Active Portfolio</h3>
-              <p className="text-gray-600 mt-2">Legacy LEGO blocks components removed - migrated to Survey.js</p>
-            </div>
+            <ImprovedUseCaseExplorer
+              useCases={useCases || []}
+              title="RSA Active Portfolio"
+              description="Use cases selected for RSA implementation with completed scoring and prioritization"
+              showQuadrantFilters={true}
+              showRSASelection={true}
+              onDelete={handleDelete}
+              onActivate={handleActivate}
+              onDeactivate={handleDeactivate}
+              showCreateButton={false}
+              emptyStateMessage="No use cases in RSA Active Portfolio. Add use cases from the Reference Library to get started."
+            />
           </TabsContent>
 
           <TabsContent value="reference" className="space-y-6">
-            <div className="text-center py-8">
-              <h3 className="text-lg font-semibold text-gray-900">Reference Library</h3>
-              <p className="text-gray-600 mt-2">Legacy LEGO blocks components removed - migrated to Survey.js</p>
-            </div>
+            <ImprovedUseCaseExplorer
+              useCases={referenceUseCases || []}
+              title="Reference Library"
+              description="Complete library of all available use cases for browsing and selection"
+              showQuadrantFilters={false}
+              showRSASelection={true}
+              onDelete={handleDelete}
+              onActivate={handleActivate}
+              onDeactivate={handleDeactivate}
+              showCreateButton={true}
+              emptyStateMessage="No use cases in library. Create your first use case to get started."
+            />
           </TabsContent>
         </Tabs>
       </div>

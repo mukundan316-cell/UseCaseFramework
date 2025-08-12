@@ -1,6 +1,8 @@
 import React from 'react';
 import MatrixPlot from './MatrixPlot';
-// Legacy LEGO blocks components removed - using Survey.js architecture
+import SummaryMetricsLegoBlock from './lego-blocks/SummaryMetricsLegoBlock';
+import ReportsTabLegoBlock from './lego-blocks/ReportsTabLegoBlock';
+import ExportButton from './lego-blocks/ExportButton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Target, Download } from 'lucide-react';
 
@@ -15,10 +17,19 @@ export default function DashboardView() {
 
   return (
     <div className="space-y-6">
-      {/* Legacy components removed */}
-      <div className="text-center py-8">
-        <h3 className="text-lg font-semibold text-gray-900">Dashboard View</h3>
-        <p className="text-gray-600 mt-2">Legacy LEGO blocks components removed - migrated to Survey.js</p>
+      {/* Summary Metrics with Export */}
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <SummaryMetricsLegoBlock />
+        </div>
+        <div className="ml-4 pt-2">
+          <ExportButton 
+            exportType="portfolio"
+            variant="outline"
+            size="sm"
+            className="bg-white border-blue-200"
+          />
+        </div>
       </div>
       
       {/* Dashboard Tabs */}
@@ -39,10 +50,7 @@ export default function DashboardView() {
         </TabsContent>
 
         <TabsContent value="reports">
-          <div className="text-center py-8">
-            <h3 className="text-lg font-semibold text-gray-900">Reports</h3>
-            <p className="text-gray-600 mt-2">Legacy LEGO blocks components removed - migrated to Survey.js</p>
-          </div>
+          <ReportsTabLegoBlock />
         </TabsContent>
       </Tabs>
     </div>

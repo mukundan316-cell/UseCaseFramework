@@ -3,7 +3,7 @@ import { Brain, PlusCircle, Sparkle, Search, Settings, ClipboardCheck } from 'lu
 import { useUseCases } from '../contexts/UseCaseContext';
 import { TabType } from '../types';
 import RSAHeader from './RSAHeader';
-import TabButton from '@/components/ui/tab-button';
+import TabButton from './lego-blocks/TabButton';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { activeTab, setActiveTab } = useUseCases();

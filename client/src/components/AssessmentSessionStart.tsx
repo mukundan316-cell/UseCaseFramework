@@ -65,11 +65,8 @@ export function AssessmentSessionStart({
         duration: 3000
       });
 
-      if (onSessionStarted && session && session.responseId) {
+      if (onSessionStarted) {
         onSessionStarted(session.responseId);
-      } else {
-        // Navigate to Survey.js assessment
-        setLocation('/assessment/take');
       }
     } catch (error) {
       console.error('Failed to start session:', error);
