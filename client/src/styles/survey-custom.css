@@ -1,0 +1,168 @@
+/* Custom Survey.js Styling for RSA Assessment */
+
+/* Container and layout improvements */
+.survey-wrapper .sv-root {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.survey-wrapper .sv-body {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.survey-wrapper .sv-page {
+  background: transparent !important;
+  padding: 0 !important;
+  margin-bottom: 2rem !important;
+}
+
+/* Question styling */
+.survey-wrapper .sv-question {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1) !important;
+}
+
+.survey-wrapper .sv-question .sv-string-viewer {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Navigation styling */
+.survey-wrapper .sv-navigation {
+  background: transparent !important;
+  border: none !important;
+  padding: 1.5rem 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.survey-wrapper .sv-btn {
+  background: #005DAA !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.5rem 1.5rem !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  transition: background-color 0.2s !important;
+}
+
+.survey-wrapper .sv-btn:hover {
+  background: #004488 !important;
+}
+
+.survey-wrapper .sv-btn:disabled {
+  background: #6b7280 !important;
+  cursor: not-allowed !important;
+}
+
+/* Hide default progress bar */
+.survey-wrapper .sv-progress {
+  display: none !important;
+}
+
+/* Panel styling */
+.survey-wrapper .sv-panel {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Question number styling */
+.survey-wrapper .sv-question__num {
+  background: #005DAA !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Input styling */
+.survey-wrapper input[type="text"],
+.survey-wrapper input[type="number"],
+.survey-wrapper input[type="email"],
+.survey-wrapper textarea,
+.survey-wrapper select {
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  transition: border-color 0.2s !important;
+}
+
+.survey-wrapper input:focus,
+.survey-wrapper textarea:focus,
+.survey-wrapper select:focus {
+  outline: none !important;
+  border-color: #005DAA !important;
+  box-shadow: 0 0 0 3px rgb(0 93 170 / 0.1) !important;
+}
+
+/* Radio and checkbox styling */
+.survey-wrapper .sv-selectbase__item {
+  margin-bottom: 0.5rem !important;
+}
+
+.survey-wrapper .sv-selectbase__item label {
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.875rem !important;
+  color: #374151 !important;
+  cursor: pointer !important;
+}
+
+/* Matrix questions */
+.survey-wrapper .sv-table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+}
+
+.survey-wrapper .sv-table th,
+.survey-wrapper .sv-table td {
+  border: 1px solid #e5e7eb !important;
+  padding: 0.75rem !important;
+  text-align: left !important;
+}
+
+.survey-wrapper .sv-table th {
+  background: #f9fafb !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+}
+
+/* Page title styling */
+.survey-wrapper .sv-page__title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  margin-bottom: 1.5rem !important;
+  padding-bottom: 0.75rem !important;
+  border-bottom: 2px solid #005DAA !important;
+}
+
+/* Error styling */
+.survey-wrapper .sv-question--error {
+  border-color: #ef4444 !important;
+}
+
+.survey-wrapper .sv-question__erros {
+  color: #ef4444 !important;
+  font-size: 0.875rem !important;
+  margin-top: 0.5rem !important;
+}

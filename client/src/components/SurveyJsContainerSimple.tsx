@@ -8,10 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Home, Save, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Home, Save, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
-
-// Survey.js CSS is available via package but we'll use custom styling
+import '../styles/survey-custom.css';
 
 interface SurveyJsContainerProps {
   questionnaireId: string;
@@ -27,6 +26,7 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isLoadingSurvey, setIsLoadingSurvey] = useState(true);
 
   const {
     responseSession,
@@ -38,9 +38,6 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
     saveAnswersError,
     completeResponseError,
   } = useQuestionnaire(questionnaireId);
-
-  // Add loading state for survey config
-  const [isLoadingSurvey, setIsLoadingSurvey] = useState(true);
 
   // Load Survey.js configuration
   useEffect(() => {
@@ -57,23 +54,27 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
         model.progressBarType = "pages";
         model.showNavigationButtons = "bottom";
         model.showTitle = false;
-        model.showPageTitles = false;
+        model.showPageTitles = true;
         model.goNextPageAutomatic = false;
         model.checkErrorsMode = "onValueChanged";
         model.showQuestionNumbers = "onPage";
         model.questionErrorLocation = "bottom";
         
-        // Apply custom CSS classes
-        model.css = {
-          ...model.css,
-          container: "sv-container-modern",
-          page: "sv-page-modern",
-          body: "sv-body-modern",
-          navigation: "sv-navigation-modern",
-          progress: "sv-progress-modern",
-          progressBar: "sv-progress-bar-modern",
-          progressTextInBar: "sv-progress-text-modern"
-        };
+        // Apply modern theme
+        model.applyTheme({
+          "cssVariables": {
+            "--sjs-corner-radius": "8px",
+            "--sjs-base-unit": "8px",
+            "--sjs-primary-color": "#005DAA",
+            "--sjs-primary-forecolor": "#ffffff",
+            "--sjs-secondary-color": "#f3f4f6",
+            "--sjs-general-backcolor": "#ffffff",
+            "--sjs-general-backcolor-dim": "#f9fafb",
+            "--sjs-general-forecolor": "#374151",
+            "--sjs-general-dim-forecolor": "#6b7280",
+            "--sjs-border-light": "#e5e7eb"
+          }
+        });
     
         // Load existing answers if available
         if (responseSession?.answers) {
@@ -224,7 +225,7 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
     };
   };
 
-  // Loading state
+  // Loading state with better animation
   if (isLoadingQuestionnaire || isCheckingSession || isLoadingSurvey) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -320,7 +321,7 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
         </div>
       </div>
 
-      {/* Progress Section */}
+      {/* Progress Section with Save Status */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-3">
@@ -383,22 +384,11 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
               </div>
             )}
 
-            {/* Survey.js Component */}
-            <div className="survey-container">
+            {/* Survey.js Component with Custom Container */}
+            <div className="survey-wrapper p-6">
               {surveyModel && (
                 <Survey 
                   model={surveyModel}
-                  css={{
-                    container: "sv-container-modern",
-                    page: "sv-page-modern", 
-                    body: "sv-body-modern",
-                    navigation: "sv-navigation-modern sv-navigation-bottom",
-                    progress: "sv-progress-modern",
-                    progressBar: "sv-progress-bar-modern",
-                    progressTextInBar: "sv-progress-text-modern",
-                    question: "sv-question-modern",
-                    panel: "sv-panel-modern"
-                  }}
                 />
               )}
             </div>
@@ -427,154 +417,6 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
           )}
         </div>
       </div>
-
-      {/* Custom Survey.js Styles */}
-      <style dangerouslySetInnerHTML={{__html: `
-        .survey-container {
-          padding: 2rem;
-        }
-        
-        .sv-container-modern {
-          background: transparent !important;
-          border: none !important;
-          box-shadow: none !important;
-        }
-        
-        .sv-body-modern {
-          background: transparent !important;
-          padding: 0 !important;
-        }
-        
-        .sv-page-modern {
-          background: transparent !important;
-          padding: 0 !important;
-          margin-bottom: 2rem !important;
-        }
-        
-        .sv-question-modern {
-          background: white !important;
-          border: 1px solid #e5e7eb !important;
-          border-radius: 8px !important;
-          padding: 1.5rem !important;
-          margin-bottom: 1.5rem !important;
-          box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1) !important;
-        }
-        
-        .sv-question-modern .sv-string-viewer {
-          font-size: 1rem !important;
-          font-weight: 600 !important;
-          color: #111827 !important;
-          margin-bottom: 0.75rem !important;
-        }
-        
-        .sv-navigation-modern {
-          background: transparent !important;
-          border: none !important;
-          padding: 1.5rem 0 !important;
-          display: flex !important;
-          justify-content: space-between !important;
-          align-items: center !important;
-        }
-        
-        .sv-navigation-modern .sv-btn {
-          background: #005DAA !important;
-          color: white !important;
-          border: none !important;
-          padding: 0.5rem 1.5rem !important;
-          border-radius: 6px !important;
-          font-weight: 500 !important;
-          transition: background-color 0.2s !important;
-        }
-        
-        .sv-navigation-modern .sv-btn:hover {
-          background: #004488 !important;
-        }
-        
-        .sv-navigation-modern .sv-btn:disabled {
-          background: #6b7280 !important;
-          cursor: not-allowed !important;
-        }
-        
-        .sv-progress-modern {
-          display: none !important;
-        }
-        
-        .sv-panel-modern {
-          background: white !important;
-          border: 1px solid #e5e7eb !important;
-          border-radius: 8px !important;
-          padding: 1.5rem !important;
-          margin-bottom: 1rem !important;
-        }
-        
-        /* Question number styling */
-        .sv-question__num {
-          background: #005DAA !important;
-          color: white !important;
-          border-radius: 50% !important;
-          width: 24px !important;
-          height: 24px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          font-size: 0.75rem !important;
-          font-weight: 600 !important;
-          margin-right: 0.5rem !important;
-        }
-        
-        /* Input styling */
-        .sv-question-modern input[type="text"],
-        .sv-question-modern input[type="number"],
-        .sv-question-modern input[type="email"],
-        .sv-question-modern textarea,
-        .sv-question-modern select {
-          border: 1px solid #d1d5db !important;
-          border-radius: 6px !important;
-          padding: 0.5rem 0.75rem !important;
-          font-size: 0.875rem !important;
-          transition: border-color 0.2s !important;
-        }
-        
-        .sv-question-modern input:focus,
-        .sv-question-modern textarea:focus,
-        .sv-question-modern select:focus {
-          outline: none !important;
-          border-color: #005DAA !important;
-          box-shadow: 0 0 0 3px rgb(0 93 170 / 0.1) !important;
-        }
-        
-        /* Radio and checkbox styling */
-        .sv-question-modern .sv-selectbase__item {
-          margin-bottom: 0.5rem !important;
-        }
-        
-        .sv-question-modern .sv-selectbase__item label {
-          display: flex !important;
-          align-items: center !important;
-          font-size: 0.875rem !important;
-          color: #374151 !important;
-          cursor: pointer !important;
-        }
-        
-        /* Matrix questions */
-        .sv-question-modern .sv-table {
-          border-collapse: collapse !important;
-          width: 100% !important;
-        }
-        
-        .sv-question-modern .sv-table th,
-        .sv-question-modern .sv-table td {
-          border: 1px solid #e5e7eb !important;
-          padding: 0.75rem !important;
-          text-align: left !important;
-        }
-        
-        .sv-question-modern .sv-table th {
-          background: #f9fafb !important;
-          font-weight: 600 !important;
-          color: #374151 !important;
-        }
-      `}</style>
     </div>
   );
 }
