@@ -111,6 +111,20 @@ export const AssessmentHeader = React.memo(({
             
             <div className="flex items-center space-x-4">
               <SaveStatus />
+              <Button
+                onClick={() => {
+                  // Trigger manual save via global function
+                  if ((window as any).surveyManualSave) {
+                    (window as any).surveyManualSave();
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2 border-gray-300 hover:bg-gray-50"
+              >
+                <Save className="h-4 w-4" />
+                <span>Save</span>
+              </Button>
               {onSaveAndExit && (
                 <Button
                   onClick={onSaveAndExit}

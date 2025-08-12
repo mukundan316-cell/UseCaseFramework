@@ -20,7 +20,6 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
 
   console.log('🔥 ISOLATED ROOT COMPONENT RENDER - questionnaireId:', questionnaireId);
 
@@ -53,11 +52,11 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
             survey.data = sessionData.answers;
           }
 
-          // Auto-save handler
-          const handleAutoSave = async (data: any) => {
+          // Manual save handler
+          const handleManualSave = async (data: any) => {
             if (!sessionData) return;
             
-            console.log('🔥 ISOLATED ROOT - AUTO-SAVE START');
+            console.log('🔥 ISOLATED ROOT - MANUAL SAVE START');
             setIsSaving(true);
             onSaveStatusChange?.({ isSaving: true, lastSaved, hasUnsavedChanges });
             try {
@@ -66,12 +65,19 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
               setLastSaved(savedTime);
               setHasUnsavedChanges(false);
               onSaveStatusChange?.({ isSaving: false, lastSaved: savedTime, hasUnsavedChanges: false });
-              console.log('🔥 ISOLATED ROOT - AUTO-SAVE SUCCESS');
+              console.log('🔥 ISOLATED ROOT - MANUAL SAVE SUCCESS');
             } catch (error) {
-              console.error('🔥 ISOLATED ROOT - AUTO-SAVE ERROR:', error);
+              console.error('🔥 ISOLATED ROOT - MANUAL SAVE ERROR:', error);
               onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
             } finally {
               setIsSaving(false);
+            }
+          };
+
+          // Expose manual save function globally for button access
+          (window as any).surveyManualSave = () => {
+            if (survey) {
+              handleManualSave(survey.data);
             }
           };
 
@@ -80,16 +86,12 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
             console.log('🔥 ISOLATED ROOT - VALUE CHANGED:', options?.name, options?.value);
             setHasUnsavedChanges(true);
             onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
-            
-            // Clear existing timeout
-            if (saveTimeoutRef.current) {
-              clearTimeout(saveTimeoutRef.current);
-            }
-            
-            // Debounced auto-save
-            saveTimeoutRef.current = setTimeout(() => {
-              handleAutoSave(sender.data);
-            }, 2000);
+          });
+
+          // Save on page change
+          survey.onCurrentPageChanged.add((sender: Model) => {
+            console.log('🔥 ISOLATED ROOT - PAGE CHANGED - AUTO SAVING');
+            handleManualSave(sender.data);
           });
 
           survey.onComplete.add(() => {
@@ -113,9 +115,6 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
 
     return () => {
       isMounted = false;
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
     };
   }, [questionnaireId, onSave, onComplete]);
 
