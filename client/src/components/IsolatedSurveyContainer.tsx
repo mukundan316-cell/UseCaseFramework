@@ -21,12 +21,20 @@ export const IsolatedSurveyContainer = React.memo(({
   const { setSaving, setLastSaved, setUnsavedChanges } = useSaveStatus();
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   
-  // Get responseSession from hook directly to avoid prop changes
+  // Store initial session data to prevent any re-renders from hook updates
+  const [initialSession, setInitialSession] = useState<any>(null);
   const { responseSession } = useQuestionnaire(questionnaireId);
+  
+  // Capture initial session only once
+  useEffect(() => {
+    if (responseSession && !initialSession) {
+      setInitialSession(responseSession);
+    }
+  }, [responseSession, initialSession]);
 
   // Auto-save handler that doesn't cause re-renders
   const handleAutoSave = useCallback(async (data: any) => {
-    if (!responseSession) return;
+    if (!initialSession) return;
 
     setSaving(true);
     try {
@@ -38,18 +46,18 @@ export const IsolatedSurveyContainer = React.memo(({
     } finally {
       setSaving(false);
     }
-  }, [onSave, setSaving, setLastSaved, setUnsavedChanges]); // Remove responseSession dependency
+  }, [onSave, setSaving, setLastSaved, setUnsavedChanges, initialSession]); // Use static initialSession
 
   // Survey completion handler
   const handleComplete = useCallback(async (survey: Model) => {
-    if (!responseSession) return;
+    if (!initialSession) return;
     
     try {
       await onComplete(survey.data);
     } catch (error) {
       console.error('Error completing assessment:', error);
     }
-  }, [onComplete]); // Remove responseSession dependency
+  }, [onComplete, initialSession]); // Use static initialSession
 
   // Load Survey.js configuration - this only runs once
   useEffect(() => {
@@ -111,11 +119,11 @@ export const IsolatedSurveyContainer = React.memo(({
           }
         };
 
-        // Load existing answers only once on initial load
-        if (responseSession?.answers && !initialAnswersLoaded) {
+        // Load existing answers only once on initial load using static session
+        if (initialSession?.answers && !initialAnswersLoaded) {
           const surveyData: any = {};
-          if (Array.isArray(responseSession.answers)) {
-            responseSession.answers.forEach((answer: any) => {
+          if (Array.isArray(initialSession.answers)) {
+            initialSession.answers.forEach((answer: any) => {
               try {
                 if (answer.questionId && answer.answerValue !== undefined) {
                   try {
@@ -168,7 +176,7 @@ export const IsolatedSurveyContainer = React.memo(({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [questionnaireId]); // CRITICAL: Only depend on questionnaireId, NOT responseSession.id to prevent reloading during auto-save
+  }, [questionnaireId, initialSession]); // Only load when we have initial session data
 
   if (isLoadingSurvey) {
     return (
