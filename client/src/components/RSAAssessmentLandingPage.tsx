@@ -8,7 +8,6 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import ReusableButton from './lego-blocks/ReusableButton';
 import { useProgressPersistence } from '@/hooks/useProgressPersistence';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 import { useUseCases } from '@/contexts/UseCaseContext';
@@ -380,26 +379,24 @@ export default function RSAAssessmentLandingPage({
           {/* Action buttons based on state */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {assessmentState === 'none' && (
-              <ReusableButton
-                rsaStyle="primary"
+              <Button
                 onClick={handleBeginAssessment}
-                icon={Play}
-                className="px-8 py-3"
+                className="px-8 py-3 bg-[#005DAA] hover:bg-[#004A88] text-white flex items-center gap-2"
               >
+                <Play className="h-5 w-5" />
                 Begin Assessment
-              </ReusableButton>
+              </Button>
             )}
 
             {assessmentState === 'in-progress' && (
               <>
-                <ReusableButton
-                  rsaStyle="primary"
+                <Button
                   onClick={handleResumeAssessment}
-                  icon={Play}
-                  className="px-8 py-3"
+                  className="px-8 py-3 bg-[#005DAA] hover:bg-[#004A88] text-white flex items-center gap-2"
                 >
+                  <Play className="h-5 w-5" />
                   Resume Assessment ({progressData?.completionPercentage || 0}% complete)
-                </ReusableButton>
+                </Button>
                 <Button
                   variant="outline"
                   onClick={handleStartOver}
@@ -413,14 +410,13 @@ export default function RSAAssessmentLandingPage({
 
             {assessmentState === 'completed' && (
               <>
-                <ReusableButton
-                  rsaStyle="primary"
+                <Button
                   onClick={handleViewResults}
-                  icon={Eye}
-                  className="px-8 py-3"
+                  className="px-8 py-3 bg-[#005DAA] hover:bg-[#004A88] text-white flex items-center gap-2"
                 >
+                  <Eye className="h-5 w-5" />
                   View Results
-                </ReusableButton>
+                </Button>
                 <Button
                   variant="outline"
                   onClick={handleStartOver}

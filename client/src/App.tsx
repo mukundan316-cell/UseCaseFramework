@@ -5,20 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UseCaseProvider } from "./contexts/UseCaseContext";
 import HomePage from "./pages/HomePage";
-import ProcessActivityTest from "./components/lego-blocks/ProcessActivityTest";
-import QuestionLegoBlockDemo from "./components/lego-blocks/QuestionLegoBlockDemo";
-import SectionLegoBlockDemo from "./components/lego-blocks/SectionLegoBlockDemo";
-import SmartRatingLegoBlockDemo from "./components/lego-blocks/SmartRatingLegoBlockDemo";
-import RankingLegoBlockDemo from "./components/lego-blocks/RankingLegoBlockDemo";
-import CurrencyInputLegoBlockDemo from "./components/lego-blocks/CurrencyInputLegoBlockDemo";
-import PercentageAllocationLegoBlockDemo from "./components/lego-blocks/PercentageAllocationLegoBlockDemo";
-import QuestionnaireContainerDemo from "./components/QuestionnaireContainerDemo";
-import ScoringDashboardDemo from "./components/lego-blocks/ScoringDashboardDemo";
-import AssessmentResultsDashboard from "./components/lego-blocks/AssessmentResultsDashboard";
-import ResponseExportDemo from "./components/lego-blocks/ResponseExportDemo";
+// Legacy LEGO blocks imports removed - using Survey.js architecture
 import RSAAssessmentLandingPage from "./components/RSAAssessmentLandingPage";
-import QuestionnaireContainer from "./components/QuestionnaireContainer";
 import SurveyJsAssessment from "./pages/SurveyJsAssessment";
+import { AssessmentSessionStart } from "./components/AssessmentSessionStart";
 import { SimpleSurveyJsDemo } from "./components/SimpleSurveyJsDemo";
 import StandaloneSurveyDemo from "./pages/StandaloneSurveyDemo";
 import AIRoadmapPage from "./pages/AIRoadmapPage";
@@ -28,18 +18,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
-      <Route path="/test" component={ProcessActivityTest} />
-      <Route path="/question-demo" component={QuestionLegoBlockDemo} />
-      <Route path="/section-demo" component={SectionLegoBlockDemo} />
-      <Route path="/smart-rating-demo" component={SmartRatingLegoBlockDemo} />
-      <Route path="/ranking-demo" component={RankingLegoBlockDemo} />
-      <Route path="/currency-demo" component={CurrencyInputLegoBlockDemo} />
-      <Route path="/allocation-demo" component={PercentageAllocationLegoBlockDemo} />
-      <Route path="/questionnaire" component={QuestionnaireContainerDemo} />
+      {/* Legacy LEGO blocks demo routes removed - using Survey.js architecture */}
       <Route path="/roadmap" component={AIRoadmapPage} />
       <Route path="/assessment" component={() => <RSAAssessmentLandingPage />} />
       <Route path="/assessment/start" component={() => 
-        <QuestionnaireContainer questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
+        <AssessmentSessionStart questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
       } />
       <Route path="/assessment/take" component={() => 
         <SurveyJsAssessment questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
@@ -49,39 +32,7 @@ function Router() {
       } />
       <Route path="/surveyjs-demo" component={SimpleSurveyJsDemo} />
       <Route path="/surveyjs-standalone" component={StandaloneSurveyDemo} />
-      <Route path="/questionnaire/:responseId" component={({ params: { responseId } }) => 
-        <QuestionnaireContainer 
-          questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" 
-        />
-      } />
-      <Route path="/scoring-demo" component={ScoringDashboardDemo} />
-      <Route path="/export-demo" component={ResponseExportDemo} />
-      <Route path="/results/:responseId" component={({ params: { responseId } }) => 
-        <AssessmentResultsDashboard 
-          responseId={responseId}
-        />
-      } />
-      <Route path="/results-demo" component={() => 
-        <AssessmentResultsDashboard 
-          assessmentState={{ 
-            isCompleted: true, 
-            responseId: "demo-123",
-            totalScore: 85,
-            completedAt: new Date().toISOString(),
-            maturityScores: {
-              overallAverage: 4.2,
-              maturityLevels: {
-                'AI Strategy': { average: 4.5, level: 'Managed', percentage: 90 },
-                'Data Management': { average: 3.8, level: 'Defined', percentage: 76 },
-                'Technology Infrastructure': { average: 4.0, level: 'Managed', percentage: 80 },
-                'Talent & Skills': { average: 3.5, level: 'Defined', percentage: 70 },
-                'Risk & Ethics': { average: 4.3, level: 'Managed', percentage: 86 }
-              }
-            }
-          }}
-          onRetake={() => alert('Retake assessment clicked!')}
-        />
-      } />
+      {/* Results will be handled by Survey.js results processing */}
       <Route component={NotFound} />
     </Switch>
   );

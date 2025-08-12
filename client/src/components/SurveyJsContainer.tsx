@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ReusableButton } from '@/components/lego-blocks/ReusableButton';
-import { ProgressStatusLegoBlock } from '@/components/lego-blocks/ProgressStatusLegoBlock';
+// Legacy LEGO blocks components removed - using Survey.js architecture
 import { cn } from '@/lib/utils';
 import { ArrowLeft, Home, Save, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
@@ -292,8 +291,7 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <ReusableButton
-              rsaStyle="primary"
+            <Button
               onClick={() => startResponse({
                 questionnaireId,
                 respondentEmail: 'user@example.com',
@@ -303,11 +301,11 @@ export function SurveyJsContainer({ questionnaireId, className }: SurveyJsContai
                   userAgent: navigator.userAgent
                 }
               })}
-              loading={isStartingResponse}
-              className="w-full"
+              disabled={isStartingResponse}
+              className="w-full bg-[#005DAA] hover:bg-[#004A88] text-white"
             >
-              Begin Assessment
-            </ReusableButton>
+              {isStartingResponse ? 'Starting...' : 'Begin Assessment'}
+            </Button>
 
             {startResponseError && (
               <Alert variant="destructive">
