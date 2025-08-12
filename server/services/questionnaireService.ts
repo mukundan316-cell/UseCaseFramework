@@ -89,48 +89,91 @@ export class QuestionnaireService {
   }
 
   /**
-   * Save answer to a question
+   * Save multiple answers to a response
+   */
+  async saveResponseAnswers(
+    responseId: string,
+    answers: Array<{ questionId: string; answerValue: any; questionType?: string; score?: number }>
+  ): Promise<boolean> {
+    try {
+      // Get current response
+      const response = await this.storageService.getQuestionnaireResponse(responseId);
+      if (!response) {
+        console.error(`Response ${responseId} not found`);
+        return false;
+      }
+
+      // Update answers in response
+      answers.forEach(({ questionId, answerValue }) => {
+        const existingAnswerIndex = response.answers.findIndex(a => a.questionId === questionId);
+        
+        const answerData = {
+          questionId,
+          answerValue,
+          answeredAt: new Date().toISOString()
+        };
+
+        if (existingAnswerIndex >= 0) {
+          response.answers[existingAnswerIndex] = answerData;
+        } else {
+          response.answers.push(answerData);
+        }
+      });
+
+      // Update response metadata
+      response.lastUpdatedAt = new Date().toISOString();
+
+      // Save updated response to blob storage
+      await this.storageService.storeQuestionnaireResponse(response);
+
+      // Update session progress in PostgreSQL
+      const answeredQuestions = response.answers.length;
+      
+      // Get questionnaire to calculate progress
+      const questionnaire = await this.storageService.getQuestionnaireDefinition(response.questionnaireId);
+      const totalQuestions = questionnaire ? 
+        questionnaire.sections.reduce((total, section) => total + section.questions.length, 0) : 1;
+      const progressPercent = Math.round((answeredQuestions / totalQuestions) * 100);
+
+      await db
+        .update(responseSessions)
+        .set({
+          answeredQuestions,
+          progressPercent,
+          lastUpdatedAt: new Date(),
+          status: progressPercent === 100 ? 'completed' : 'in_progress',
+          responsePath: `/responses/${responseId}/response.json`
+        })
+        .where(eq(responseSessions.id, responseId));
+
+      return true;
+    } catch (error) {
+      console.error('Failed to save answers:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get response with answers
+   */
+  async getResponse(responseId: string): Promise<QuestionnaireResponse | null> {
+    try {
+      return await this.storageService.getQuestionnaireResponse(responseId);
+    } catch (error) {
+      console.error('Failed to get response:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Save answer to a question (legacy method)
    */
   async saveAnswer(
     responseId: string,
     questionId: string,
     answerValue: any
   ): Promise<boolean> {
-    try {
-      // Update answer in blob storage
-      const success = await this.storageService.updateResponseAnswer(responseId, questionId, answerValue);
-      
-      if (!success) {
-        return false;
-      }
-
-      // Update session progress in PostgreSQL
-      const response = await this.storageService.getQuestionnaireResponse(responseId);
-      if (response) {
-        const answeredQuestions = response.answers.length;
-        
-        // Get questionnaire to calculate progress
-        const questionnaire = await this.storageService.getQuestionnaireDefinition(response.questionnaireId);
-        const totalQuestions = questionnaire?.questions.length || 1;
-        const progressPercent = Math.round((answeredQuestions / totalQuestions) * 100);
-
-        await db
-          .update(responseSessions)
-          .set({
-            answeredQuestions,
-            progressPercent,
-            lastUpdatedAt: new Date(),
-            status: progressPercent === 100 ? 'completed' : 'in_progress',
-            responsePath: `/responses/${responseId}.json`
-          })
-          .where(eq(responseSessions.id, responseId));
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Failed to save answer:', error);
-      return false;
-    }
+    return this.saveResponseAnswers(responseId, [{ questionId, answerValue }]);
   }
 
   /**

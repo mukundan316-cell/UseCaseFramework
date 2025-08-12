@@ -639,6 +639,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to start assessment session' });
     }
   });
+
+  // PUT /api/responses/:id/answers - Save answers to response
+  app.put('/api/responses/:id/answers', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { answers } = req.body;
+      
+      if (!answers || !Array.isArray(answers)) {
+        return res.status(400).json({ 
+          error: 'Missing or invalid answers array' 
+        });
+      }
+
+      // Save answers using questionnaire service
+      await questionnaireService.saveResponseAnswers(id, answers);
+
+      res.json({ 
+        success: true, 
+        message: 'Answers saved successfully'
+      });
+    } catch (error) {
+      console.error('Error saving answers:', error);
+      res.status(500).json({ error: 'Failed to save answers' });
+    }
+  });
+
+  // GET /api/responses/:id - Get response with answers
+  app.get('/api/responses/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Get response data using questionnaire service
+      const response = await questionnaireService.getResponse(id);
+      
+      if (!response) {
+        return res.status(404).json({ error: 'Response not found' });
+      }
+
+      res.json(response);
+    } catch (error) {
+      console.error('Error getting response:', error);
+      res.status(500).json({ error: 'Failed to get response' });
+    }
+  });
   
   // Add compatibility route for frontend (plural form)
   app.get('/api/questionnaires/:id', async (req, res) => {
