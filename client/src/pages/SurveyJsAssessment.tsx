@@ -1,8 +1,13 @@
 import { useParams } from 'wouter';
 import { SurveyJsContainer } from '@/components/SurveyJsContainer';
 
-export default function SurveyJsAssessment() {
-  const { questionnaireId } = useParams<{ questionnaireId: string }>();
+interface SurveyJsAssessmentProps {
+  questionnaireId?: string;
+}
+
+export default function SurveyJsAssessment({ questionnaireId: propQuestionnaireId }: SurveyJsAssessmentProps) {
+  const { questionnaireId: paramQuestionnaireId } = useParams<{ questionnaireId: string }>();
+  const questionnaireId = propQuestionnaireId || paramQuestionnaireId;
   
   if (!questionnaireId) {
     return (

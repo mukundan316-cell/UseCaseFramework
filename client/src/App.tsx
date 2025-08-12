@@ -39,7 +39,7 @@ function Router() {
       <Route path="/roadmap" component={AIRoadmapPage} />
       <Route path="/assessment" component={() => <RSAAssessmentLandingPage />} />
       <Route path="/assessment/take" component={() => 
-        <QuestionnaireContainer questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
+        <SurveyJsAssessment questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
       } />
       <Route path="/assessment/surveyjs" component={SurveyJsAssessment} />
       <Route path="/surveyjs-demo" component={SimpleSurveyJsDemo} />
