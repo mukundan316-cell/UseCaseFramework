@@ -26,7 +26,7 @@ export function AssessmentSessionStart({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { startResponse, isStartingResponse, startResponseError } = useQuestionnaire(questionnaireId);
+  const { startResponseAsync, isStartingResponse, startResponseError } = useQuestionnaire(questionnaireId);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -49,15 +49,13 @@ export function AssessmentSessionStart({
     if (!validateForm()) return;
 
     try {
-      const session = await startResponse({
+      const result = await startResponseAsync({
         questionnaireId,
         respondentEmail: formData.email.trim(),
-        respondentName: formData.name.trim(),
-        metadata: {
-          startedAt: new Date().toISOString(),
-          userAgent: navigator.userAgent
-        }
+        respondentName: formData.name.trim()
       });
+
+      console.log('Session start result:', result);
 
       toast({
         title: "Assessment Started",
@@ -65,9 +63,12 @@ export function AssessmentSessionStart({
         duration: 3000
       });
 
-      if (onSessionStarted) {
-        onSessionStarted(session.responseId);
+      if (onSessionStarted && result?.responseId) {
+        onSessionStarted(result.responseId);
       }
+      
+      // Navigate to assessment
+      setLocation('/assessment/take');
     } catch (error) {
       console.error('Failed to start session:', error);
       toast({
