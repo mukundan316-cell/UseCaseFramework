@@ -1,6 +1,4 @@
-import { QuestionnaireStorageService } from './questionnaireStorageService';
-// Clean blob-first architecture - no migration needed
-import { QuestionnaireDefinition } from '../../shared/questionnaireTypes';
+import { QuestionnaireStorageService, QuestionnaireDefinition } from './questionnaireStorageService';
 
 /**
  * Demo service to test the hybrid questionnaire architecture
@@ -15,11 +13,12 @@ export class QuestionnaireDemoService {
    * Create a sample questionnaire for testing
    */
   async createSampleQuestionnaire(): Promise<string> {
+    const questionnaireId = '91684df8-9700-4605-bc3e-2320120e5e1b'; // Fixed ID for testing
     const questionnaire: QuestionnaireDefinition = {
-      id: this.storageService.generateQuestionnaireId(),
+      id: questionnaireId,
       title: 'RSA AI Strategy Assessment Framework',
       description: 'Comprehensive assessment for AI readiness and use case prioritization',
-      version: '1.0',
+      version: '2.0.0',
       createdAt: new Date().toISOString(),
       sections: [
         {

@@ -1,5 +1,6 @@
-import { ObjectStorageService } from '../objectStorage';
 import { randomUUID } from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 export interface QuestionDefinition {
   id: string;
@@ -53,12 +54,24 @@ export interface QuestionnaireResponse {
 }
 
 export class QuestionnaireStorageService {
-  private objectStorage: ObjectStorageService;
-  private questionnairesPath = 'questionnaires';
-  private responsesPath = 'responses';
+  private baseDir = path.join(process.cwd(), 'temp-questionnaire-storage');
+  private questionnairesDir = path.join(this.baseDir, 'questionnaires');
+  private responsesDir = path.join(this.baseDir, 'responses');
 
   constructor() {
-    this.objectStorage = new ObjectStorageService();
+    this.ensureDirectories();
+  }
+
+  private ensureDirectories() {
+    if (!fs.existsSync(this.baseDir)) {
+      fs.mkdirSync(this.baseDir, { recursive: true });
+    }
+    if (!fs.existsSync(this.questionnairesDir)) {
+      fs.mkdirSync(this.questionnairesDir, { recursive: true });
+    }
+    if (!fs.existsSync(this.responsesDir)) {
+      fs.mkdirSync(this.responsesDir, { recursive: true });
+    }
   }
 
   /**
@@ -66,14 +79,14 @@ export class QuestionnaireStorageService {
    */
   async storeQuestionnaireDefinition(questionnaire: QuestionnaireDefinition): Promise<string> {
     const fileName = `${questionnaire.id}.json`;
-    const filePath = `${this.questionnairesPath}/${fileName}`;
+    const filePath = path.join(this.questionnairesDir, fileName);
     const jsonContent = JSON.stringify(questionnaire, null, 2);
     
-    // Store in private object storage
-    const objectPath = await this.uploadJsonFile(filePath, jsonContent);
+    // Store as file
+    await fs.promises.writeFile(filePath, jsonContent, 'utf8');
     
-    console.log(`Questionnaire definition stored: ${objectPath}`);
-    return objectPath;
+    console.log(`Questionnaire definition stored: ${filePath}`);
+    return filePath;
   }
 
   /**
@@ -82,13 +95,13 @@ export class QuestionnaireStorageService {
   async getQuestionnaireDefinition(questionnaireId: string): Promise<QuestionnaireDefinition | null> {
     try {
       const fileName = `${questionnaireId}.json`;
-      const filePath = `${this.questionnairesPath}/${fileName}`;
-      const jsonContent = await this.downloadJsonFile(filePath);
+      const filePath = path.join(this.questionnairesDir, fileName);
       
-      if (!jsonContent) {
+      if (!fs.existsSync(filePath)) {
         return null;
       }
 
+      const jsonContent = await fs.promises.readFile(filePath, 'utf8');
       return JSON.parse(jsonContent) as QuestionnaireDefinition;
     } catch (error) {
       console.error('Failed to retrieve questionnaire definition:', error);
@@ -100,14 +113,20 @@ export class QuestionnaireStorageService {
    * Store questionnaire response as JSON blob
    */
   async storeQuestionnaireResponse(response: QuestionnaireResponse): Promise<string> {
-    const filePath = `${this.responsesPath}/${response.id}/response.json`;
+    const responseDir = path.join(this.responsesDir, response.id);
+    const filePath = path.join(responseDir, 'response.json');
     const jsonContent = JSON.stringify(response, null, 2);
     
-    // Store in private object storage
-    const objectPath = await this.uploadJsonFile(filePath, jsonContent);
+    // Ensure response directory exists
+    if (!fs.existsSync(responseDir)) {
+      fs.mkdirSync(responseDir, { recursive: true });
+    }
     
-    console.log(`Questionnaire response stored: ${objectPath}`);
-    return objectPath;
+    // Store as file
+    await fs.promises.writeFile(filePath, jsonContent, 'utf8');
+    
+    console.log(`Questionnaire response stored: ${filePath}`);
+    return filePath;
   }
 
   /**
@@ -115,13 +134,13 @@ export class QuestionnaireStorageService {
    */
   async getQuestionnaireResponse(responseId: string): Promise<QuestionnaireResponse | null> {
     try {
-      const filePath = `${this.responsesPath}/${responseId}/response.json`;
-      const jsonContent = await this.downloadJsonFile(filePath);
+      const filePath = path.join(this.responsesDir, responseId, 'response.json');
       
-      if (!jsonContent) {
+      if (!fs.existsSync(filePath)) {
         return null;
       }
 
+      const jsonContent = await fs.promises.readFile(filePath, 'utf8');
       return JSON.parse(jsonContent) as QuestionnaireResponse;
     } catch (error) {
       console.error('Failed to retrieve questionnaire response:', error);
@@ -145,18 +164,20 @@ export class QuestionnaireStorageService {
 
       // Find existing answer or create new one
       const existingAnswerIndex = response.answers.findIndex(a => a.questionId === questionId);
-      const answer = {
+      const answerData = {
         questionId,
         answerValue,
         answeredAt: new Date().toISOString()
       };
 
       if (existingAnswerIndex >= 0) {
-        response.answers[existingAnswerIndex] = answer;
+        response.answers[existingAnswerIndex] = answerData;
       } else {
-        response.answers.push(answer);
+        response.answers.push(answerData);
       }
 
+      response.status = 'in_progress';
+      
       // Store updated response
       await this.storeQuestionnaireResponse(response);
       return true;
@@ -178,7 +199,7 @@ export class QuestionnaireStorageService {
 
       response.status = 'completed';
       response.completedAt = new Date().toISOString();
-
+      
       await this.storeQuestionnaireResponse(response);
       return true;
     } catch (error) {
@@ -188,103 +209,44 @@ export class QuestionnaireStorageService {
   }
 
   /**
-   * Migrate existing questionnaire from PostgreSQL to JSON storage
+   * Generate unique questionnaire ID
    */
-  async migrateQuestionnaireFromDB(questionnaireId: string): Promise<string | null> {
-    try {
-      // This would fetch from existing DB and convert to JSON format
-      // Implementation depends on your current DB structure
-      console.log(`Migrating questionnaire ${questionnaireId} from DB to JSON storage`);
-      
-      // Placeholder - you'd implement the actual migration logic here
-      return null;
-    } catch (error) {
-      console.error('Failed to migrate questionnaire:', error);
-      return null;
-    }
+  generateQuestionnaireId(): string {
+    return randomUUID();
   }
 
   /**
-   * List all questionnaire versions
-   */
-  async listQuestionnaireVersions(questionnaireId: string): Promise<string[]> {
-    try {
-      // In a real implementation, you might store multiple versions
-      const definition = await this.getQuestionnaireDefinition(questionnaireId);
-      return definition ? [definition.version] : [];
-    } catch (error) {
-      console.error('Failed to list questionnaire versions:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Backup response data with timestamp
-   */
-  async backupResponse(responseId: string): Promise<string | null> {
-    try {
-      const response = await this.getQuestionnaireResponse(responseId);
-      if (!response) {
-        return null;
-      }
-
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const backupPath = `${this.responsesPath}/${responseId}/backups/response-${timestamp}.json`;
-      const jsonContent = JSON.stringify(response, null, 2);
-      
-      return await this.uploadJsonFile(backupPath, jsonContent);
-    } catch (error) {
-      console.error('Failed to backup response:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Private helper: Upload JSON file to object storage
-   */
-  private async uploadJsonFile(filePath: string, jsonContent: string): Promise<string> {
-    // Get upload URL for the file
-    const uploadUrl = await this.objectStorage.getObjectEntityUploadURL();
-    
-    // Write content directly to file system (development approach)
-    await this.objectStorage.writeFile(uploadUrl, jsonContent);
-
-    // Return the normalized object path
-    return this.objectStorage.normalizeObjectEntityPath(uploadUrl);
-  }
-
-  /**
-   * Private helper: Download JSON file from object storage
-   */
-  private async downloadJsonFile(filePath: string): Promise<string | null> {
-    try {
-      // Convert file path to full storage path
-      const fullPath = `file://${this.objectStorage.getPrivateObjectDir()}/${filePath}`;
-      
-      // Check if file exists
-      if (!(await this.objectStorage.fileExists(fullPath))) {
-        return null;
-      }
-
-      // Read file content
-      return await this.objectStorage.readFile(fullPath);
-    } catch (error) {
-      console.error('Failed to download JSON file:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Generate new questionnaire response ID
+   * Generate unique response ID
    */
   generateResponseId(): string {
     return randomUUID();
   }
 
   /**
-   * Generate new questionnaire ID
+   * Get all questionnaire definitions
    */
-  generateQuestionnaireId(): string {
-    return randomUUID();
+  async getAllDefinitions(): Promise<QuestionnaireDefinition[]> {
+    try {
+      const files = await fs.promises.readdir(this.questionnairesDir);
+      const jsonFiles = files.filter(f => f.endsWith('.json'));
+      
+      const definitions: QuestionnaireDefinition[] = [];
+      
+      for (const file of jsonFiles) {
+        const filePath = path.join(this.questionnairesDir, file);
+        try {
+          const content = await fs.promises.readFile(filePath, 'utf8');
+          const definition = JSON.parse(content) as QuestionnaireDefinition;
+          definitions.push(definition);
+        } catch (error) {
+          console.error(`Failed to parse questionnaire file ${file}:`, error);
+        }
+      }
+      
+      return definitions;
+    } catch (error) {
+      console.error('Failed to get all definitions:', error);
+      return [];
+    }
   }
 }

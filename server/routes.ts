@@ -603,11 +603,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-
   // Register questionnaire routes (blob storage based)
   const questionnaireRoutes = (await import('./routes/questionnaireHybrid.routes')).default;
   app.use('/api/questionnaire', questionnaireRoutes);
+  
+  // Add compatibility route for frontend (plural form)
+  app.get('/api/questionnaires/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Create a basic questionnaire structure for the RSA Assessment
+      const questionnaire = {
+        id,
+        title: "RSA AI Strategy Assessment",
+        description: "Complete assessment to evaluate your organization's AI readiness and identify strategic opportunities",
+        version: "2.0.0",
+        totalQuestions: 52,
+        estimatedMinutes: 45,
+        sections: [
+          {
+            id: "section-1",
+            title: "Current AI & Data Capabilities",
+            description: "Assessment of existing technological foundation",
+            questions: Array.from({length: 17}, (_, i) => ({
+              id: `q${i+1}`,
+              text: `Assessment question ${i+1}`,
+              type: "multiple_choice",
+              required: true,
+              options: [
+                { id: "basic", text: "Basic/Minimal", value: 1 },
+                { id: "developing", text: "Developing", value: 2 },
+                { id: "intermediate", text: "Intermediate", value: 3 },
+                { id: "advanced", text: "Advanced", value: 4 },
+                { id: "expert", text: "Expert", value: 5 }
+              ]
+            }))
+          },
+          {
+            id: "section-2", 
+            title: "Strategic Planning & Governance",
+            description: "Organizational readiness and governance structures",
+            questions: Array.from({length: 12}, (_, i) => ({
+              id: `q${i+18}`,
+              text: `Strategic question ${i+1}`,
+              type: "multiple_choice",
+              required: true,
+              options: [
+                { id: "basic", text: "Basic/Minimal", value: 1 },
+                { id: "developing", text: "Developing", value: 2 },
+                { id: "intermediate", text: "Intermediate", value: 3 },
+                { id: "advanced", text: "Advanced", value: 4 },
+                { id: "expert", text: "Expert", value: 5 }
+              ]
+            }))
+          },
+          {
+            id: "section-3",
+            title: "Use Case Discovery & Validation", 
+            description: "Process for identifying and validating AI opportunities",
+            questions: Array.from({length: 8}, (_, i) => ({
+              id: `q${i+30}`,
+              text: `Use case question ${i+1}`,
+              type: "multiple_choice",
+              required: true,
+              options: [
+                { id: "basic", text: "Basic/Minimal", value: 1 },
+                { id: "developing", text: "Developing", value: 2 },
+                { id: "intermediate", text: "Intermediate", value: 3 },
+                { id: "advanced", text: "Advanced", value: 4 },
+                { id: "expert", text: "Expert", value: 5 }
+              ]
+            }))
+          },
+          {
+            id: "section-4",
+            title: "Implementation & Change Management",
+            description: "Execution capabilities and change management processes",
+            questions: Array.from({length: 9}, (_, i) => ({
+              id: `q${i+38}`,
+              text: `Implementation question ${i+1}`,
+              type: "multiple_choice", 
+              required: true,
+              options: [
+                { id: "basic", text: "Basic/Minimal", value: 1 },
+                { id: "developing", text: "Developing", value: 2 },
+                { id: "intermediate", text: "Intermediate", value: 3 },
+                { id: "advanced", text: "Advanced", value: 4 },
+                { id: "expert", text: "Expert", value: 5 }
+              ]
+            }))
+          },
+          {
+            id: "section-5",
+            title: "Monitoring & Optimization",
+            description: "Performance tracking and continuous improvement",
+            questions: Array.from({length: 6}, (_, i) => ({
+              id: `q${i+47}`,
+              text: `Monitoring question ${i+1}`,
+              type: "multiple_choice",
+              required: true,
+              options: [
+                { id: "basic", text: "Basic/Minimal", value: 1 },
+                { id: "developing", text: "Developing", value: 2 },
+                { id: "intermediate", text: "Intermediate", value: 3 },
+                { id: "advanced", text: "Advanced", value: 4 },
+                { id: "expert", text: "Expert", value: 5 }
+              ]
+            }))
+          }
+        ]
+      };
+      
+      res.json(questionnaire);
+    } catch (error) {
+      console.error('Error fetching questionnaire:', error);
+      res.status(500).json({ error: 'Failed to load questionnaire' });
+    }
+  });
+
+  const httpServer = createServer(app);
   
   // Legacy assessment routes temporarily disabled during blob migration
   

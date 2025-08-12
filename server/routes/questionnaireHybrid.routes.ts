@@ -58,6 +58,26 @@ router.get('/definitions', async (req, res) => {
 });
 
 /**
+ * GET /api/questionnaire/:id
+ * Get specific questionnaire definition
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const questionnaire = await questionnaireService.getQuestionnaireDefinition(id);
+    
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
+    
+    res.json(questionnaire);
+  } catch (error) {
+    console.error('Failed to fetch questionnaire:', error);
+    res.status(500).json({ error: 'Failed to fetch questionnaire' });
+  }
+});
+
+/**
  * GET /api/questionnaire/stats
  * Get questionnaire statistics
  */
