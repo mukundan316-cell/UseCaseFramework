@@ -1,7 +1,7 @@
 import { QuestionnaireStorageService, QuestionnaireDefinition, QuestionnaireResponse } from './questionnaireStorageService';
 import { db } from '../db';
 import { responseSessions } from '../../shared/schema';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 
 /**
  * Main service for questionnaire operations
@@ -33,6 +33,42 @@ export class QuestionnaireService {
       questionnaire: questionnaireWithId,
       storagePath
     };
+  }
+
+  /**
+   * Get the most recent session for a questionnaire
+   */
+  async getMostRecentSession(questionnaireId: string): Promise<any> {
+    try {
+      const sessions = await db.select()
+        .from(responseSessions)
+        .where(eq(responseSessions.questionnaireId, questionnaireId))
+        .orderBy(desc(responseSessions.startedAt))
+        .limit(1);
+
+      if (sessions.length === 0) {
+        return null;
+      }
+
+      const session = sessions[0];
+      
+      // Load answers from blob storage
+      let answers = null;
+      try {
+        const response = await this.storageService.getQuestionnaireResponse(session.id);
+        answers = response?.answers;
+      } catch (error) {
+        console.log(`No answers found for session ${session.id}`);
+      }
+
+      return {
+        ...session,
+        answers
+      };
+    } catch (error) {
+      console.error('Error getting most recent session:', error);
+      return null;
+    }
   }
 
   /**

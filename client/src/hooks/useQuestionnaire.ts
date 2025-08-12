@@ -54,11 +54,7 @@ export interface ResponseSession {
 }
 
 export interface SaveAnswerData {
-  answers: {
-    questionId: string;
-    answerValue: string;
-    score?: number;
-  }[];
+  answers: any; // Survey.js data format
 }
 
 export interface MaturityScores {
@@ -112,19 +108,22 @@ export function useQuestionnaire(questionnaireId: string) {
       body: JSON.stringify(data)
     }),
     onSuccess: (data) => {
-      queryClient.setQueryData(['response', data.id], data);
+      // Update both session and response caches
+      queryClient.setQueryData(['session', questionnaireId], data);
+      queryClient.setQueryData(['response', data.responseId], data);
     }
   });
 
   // Save answers mutation with debouncing support
   const saveAnswersMutation = useMutation({
-    mutationFn: ({ responseId, answers }: { responseId: string; answers: SaveAnswerData['answers'] }) => 
+    mutationFn: ({ responseId, answers }: { responseId: string; answers: any }) => 
       apiRequest(`/api/responses/${responseId}/answers`, {
         method: 'PUT',
         body: JSON.stringify({ answers })
       }),
     onSuccess: (data, variables) => {
-      // Update the response cache with new answers
+      // Update the session cache with new answers
+      queryClient.invalidateQueries({ queryKey: ['session', questionnaireId] });
       queryClient.invalidateQueries({ queryKey: ['response', variables.responseId] });
     }
   });
@@ -157,11 +156,31 @@ export function useQuestionnaire(questionnaireId: string) {
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
 
+  // Check for existing session
+  const {
+    data: responseSession,
+    isLoading: isCheckingSession,
+    error: sessionError
+  } = useQuery<ResponseSession & { answers?: any }>({
+    queryKey: ['session', questionnaireId],
+    queryFn: () => apiRequest(`/api/responses/check-session?questionnaireId=${questionnaireId}`),
+    enabled: !!questionnaireId,
+    staleTime: 0, // Always check for latest session
+    retry: (failureCount, error: any) => {
+      // Don't retry if it's a 404 (no session found)
+      if (error?.status === 404) return false;
+      return failureCount < 3;
+    }
+  });
+
   return {
     // Data
     questionnaire,
+    responseSession,
     isLoadingQuestionnaire,
+    isCheckingSession,
     questionnaireError,
+    sessionError,
     
     // Mutations
     startResponse: startResponseMutation.mutate,

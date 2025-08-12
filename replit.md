@@ -62,6 +62,23 @@ All use case cards across the entire application must follow this exact specific
   - **Persistence Fix**: Added missing `/api/responses/:id/answers` endpoint for proper answer saving
   - **Blob Storage**: All questionnaire data (definitions + responses) stored in JSON files with PostgreSQL session tracking
 
+### Survey.js Integration (August 12, 2025)
+- **Library Integration**: Successfully installed and configured Survey.js (version 2.30) packages
+- **Parallel Architecture**: Created Survey.js infrastructure alongside existing questionnaire system
+- **Bridge Service**: Built `SurveyJsService` to convert between Survey.js format and existing data architecture
+- **API Endpoints**: Added `/api/survey-config/:id` for Survey.js configuration serving
+- **Components Created**:
+  - `SurveyJsContainer.tsx`: Full-featured Survey.js integration with auto-save
+  - `SimpleSurveyJsDemo.tsx`: Basic Survey.js demonstration
+  - `StandaloneSurveyDemo.tsx`: Database-independent Survey.js showcase
+  - `ProgressStatusLegoBlock.tsx`: Reusable LEGO component for save status display
+- **Routes Added**: 
+  - `/surveyjs-demo`: Simple Survey.js integration test
+  - `/surveyjs-standalone`: Advanced RSA assessment showcase with Survey.js
+  - `/assessment/surveyjs`: Full Survey.js assessment integration
+- **Enhanced Question Types**: Matrix questions, rating scales, conditional logic, and responsive design
+- **Database Bridge**: Seamless conversion between Survey.js data format and existing blob storage system
+
 ## Dependencies
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter

@@ -609,7 +609,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Import questionnaire service for response creation
   const { QuestionnaireService } = await import('./services/questionnaireService');
+  const { SurveyJsService } = await import('./services/surveyJsService');
   const questionnaireService = new QuestionnaireService();
+  const surveyJsService = new SurveyJsService();
+
+  // GET /api/responses/check-session - Check for existing session
+  app.get('/api/responses/check-session', async (req, res) => {
+    try {
+      const { questionnaireId } = req.query;
+      
+      if (!questionnaireId) {
+        return res.status(400).json({ error: 'Missing questionnaireId parameter' });
+      }
+
+      // Get the most recent response session for this questionnaire
+      const session = await questionnaireService.getMostRecentSession(questionnaireId as string);
+      
+      if (!session) {
+        return res.status(404).json({ error: 'No session found' });
+      }
+
+      res.json(session);
+    } catch (error) {
+      console.error('Error checking session:', error);
+      res.status(500).json({ error: 'Failed to check session' });
+    }
+  });
 
   // POST /api/responses/start - Create new response session
   app.post('/api/responses/start', async (req, res) => {
@@ -646,13 +671,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const { answers } = req.body;
       
-      if (!answers || !Array.isArray(answers)) {
+      if (!answers) {
         return res.status(400).json({ 
-          error: 'Missing or invalid answers array' 
+          error: 'Missing answers data' 
         });
       }
 
-      // Save answers using questionnaire service
+      // Save answers using questionnaire service (Survey.js format)
       await questionnaireService.saveResponseAnswers(id, answers);
 
       res.json({ 
@@ -684,6 +709,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // GET /api/survey-config/:id - Get Survey.js configuration
+  app.get('/api/survey-config/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const config = await surveyJsService.loadSurveyJsConfig(id);
+      res.json(config);
+    } catch (error) {
+      console.error('Error loading Survey.js config:', error);
+      res.status(500).json({ error: 'Failed to load survey configuration' });
+    }
+  });
+
   // Add compatibility route for frontend (plural form)
   app.get('/api/questionnaires/:id', async (req, res) => {
     try {

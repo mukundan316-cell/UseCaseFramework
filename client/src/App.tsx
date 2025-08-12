@@ -18,6 +18,9 @@ import AssessmentResultsDashboard from "./components/lego-blocks/AssessmentResul
 import ResponseExportDemo from "./components/lego-blocks/ResponseExportDemo";
 import RSAAssessmentLandingPage from "./components/RSAAssessmentLandingPage";
 import QuestionnaireContainer from "./components/QuestionnaireContainer";
+import SurveyJsAssessment from "./pages/SurveyJsAssessment";
+import { SimpleSurveyJsDemo } from "./components/SimpleSurveyJsDemo";
+import StandaloneSurveyDemo from "./pages/StandaloneSurveyDemo";
 import AIRoadmapPage from "./pages/AIRoadmapPage";
 import NotFound from "@/pages/not-found";
 
@@ -38,6 +41,9 @@ function Router() {
       <Route path="/assessment/take" component={() => 
         <QuestionnaireContainer questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
       } />
+      <Route path="/assessment/surveyjs" component={SurveyJsAssessment} />
+      <Route path="/surveyjs-demo" component={SimpleSurveyJsDemo} />
+      <Route path="/surveyjs-standalone" component={StandaloneSurveyDemo} />
       <Route path="/questionnaire/:responseId" component={({ params: { responseId } }) => 
         <QuestionnaireContainer 
           questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" 

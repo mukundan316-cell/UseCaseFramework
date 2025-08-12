@@ -16,7 +16,7 @@ import SectionLegoBlock from './lego-blocks/SectionLegoBlock';
 import ReusableButton from './lego-blocks/ReusableButton';
 import { useQuestionnaire, type ResponseSession, type QuestionData } from '@/hooks/useQuestionnaire';
 import { useProgressPersistence } from '@/hooks/useProgressPersistence';
-import ProgressStatusLegoBlock from './lego-blocks/ProgressStatusLegoBlock';
+import { ProgressStatusLegoBlock } from './lego-blocks/ProgressStatusLegoBlock';
 
 interface QuestionnaireContainerProps {
   questionnaireId: string;
