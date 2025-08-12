@@ -43,7 +43,18 @@ export class QuestionnaireService {
     respondentEmail: string,
     respondentName?: string
   ): Promise<string> {
-    // Use dummy questionnaire for now since we don't have questionnaire definitions yet
+    // Check if questionnaire exists, if not use defaults
+    let questionnaire = await this.storageService.getQuestionnaireDefinition(questionnaireId);
+    let questionnaireVersion = '2.0.0';
+    let totalQuestions = 3; // Default based on our demo questionnaire
+    
+    if (questionnaire) {
+      questionnaireVersion = questionnaire.version;
+      totalQuestions = questionnaire.questions.length;
+    } else {
+      console.log(`Questionnaire ${questionnaireId} not found, using defaults`);
+    }
+
     const sessionId = this.storageService.generateResponseId();
 
     // Create session in PostgreSQL for tracking
@@ -54,15 +65,15 @@ export class QuestionnaireService {
       respondentName: respondentName || null,
       status: 'started',
       questionnaireDefinitionPath: `/questionnaires/${questionnaireId}.json`,
-      questionnaireVersion: '2.0.0',
-      totalQuestions: 52,
+      questionnaireVersion,
+      totalQuestions,
     });
 
     // Create empty response in blob storage
     const emptyResponse: QuestionnaireResponse = {
       id: sessionId,
       questionnaireId,
-      questionnaireVersion: '2.0.0',
+      questionnaireVersion,
       respondentEmail,
       respondentName,
       status: 'started',

@@ -606,6 +606,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register questionnaire routes (blob storage based)
   const questionnaireRoutes = (await import('./routes/questionnaireHybrid.routes')).default;
   app.use('/api/questionnaire', questionnaireRoutes);
+
+  // Import questionnaire service for response creation
+  const { QuestionnaireService } = await import('./services/questionnaireService');
+  const questionnaireService = new QuestionnaireService();
+
+  // POST /api/responses/start - Create new response session
+  app.post('/api/responses/start', async (req, res) => {
+    try {
+      const { questionnaireId, respondentEmail, respondentName, metadata } = req.body;
+      
+      if (!questionnaireId || !respondentEmail) {
+        return res.status(400).json({ 
+          error: 'Missing required fields: questionnaireId and respondentEmail are required' 
+        });
+      }
+
+      // Start new response session
+      const sessionId = await questionnaireService.startResponseSession(
+        questionnaireId, 
+        respondentEmail, 
+        respondentName
+      );
+
+      res.json({ 
+        success: true, 
+        responseId: sessionId,
+        message: 'Assessment session started successfully'
+      });
+    } catch (error) {
+      console.error('Error starting response session:', error);
+      res.status(500).json({ error: 'Failed to start assessment session' });
+    }
+  });
   
   // Add compatibility route for frontend (plural form)
   app.get('/api/questionnaires/:id', async (req, res) => {
