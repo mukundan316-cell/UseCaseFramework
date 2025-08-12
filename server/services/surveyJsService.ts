@@ -10,7 +10,7 @@ export class SurveyJsService extends QuestionnaireService {
   async loadSurveyJsConfig(configId: string): Promise<any> {
     try {
       // Load Survey.js configuration from JSON file
-      const config = await this.storageService.getQuestionnaireDefinition(configId);
+      const config = await this.getQuestionnaireDefinition(configId);
       
       if (!config) {
         throw new Error(`Survey.js configuration not found for ID: ${configId}`);

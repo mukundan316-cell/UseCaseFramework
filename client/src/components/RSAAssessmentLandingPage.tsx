@@ -104,7 +104,7 @@ export default function RSAAssessmentLandingPage({
       title: section.title,
       time: timeRange,
       questions: questionCount,
-      description: section.description
+      description: section.description || `Assessment section covering ${section.title}`
     };
   }) || [
     // Fallback only if database fails to load

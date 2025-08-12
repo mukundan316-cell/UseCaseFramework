@@ -82,12 +82,26 @@ export class QuestionnaireService {
     // Check if questionnaire exists, if not use defaults
     let questionnaire = await this.storageService.getQuestionnaireDefinition(questionnaireId);
     let questionnaireVersion = '2.0.0';
-    let totalQuestions = 3; // Default based on our demo questionnaire
+    let totalQuestions = 45; // Default based on our Survey.js questionnaire
     
     if (questionnaire) {
-      questionnaireVersion = questionnaire.version;
-      // Count total questions across all sections
-      totalQuestions = questionnaire.sections.reduce((total, section) => total + section.questions.length, 0);
+      questionnaireVersion = questionnaire.version || '2.0.0';
+      console.log('Questionnaire loaded:', { id: questionnaire.id, hasPages: !!questionnaire.pages, hasSections: !!questionnaire.sections });
+      
+      // Count total questions from Survey.js pages format
+      if (questionnaire.pages && Array.isArray(questionnaire.pages)) {
+        // Survey.js format - count questions from pages
+        totalQuestions = this.countQuestionsFromSurveyJsPages(questionnaire.pages);
+        console.log('Counted questions from Survey.js pages:', totalQuestions);
+      } else if (questionnaire.sections && Array.isArray(questionnaire.sections)) {
+        // Legacy format - count questions from sections
+        totalQuestions = questionnaire.sections.reduce((total: number, section: any) => {
+          return total + (section.questions ? section.questions.length : 0);
+        }, 0);
+        console.log('Counted questions from legacy sections:', totalQuestions);
+      } else {
+        console.log('Questionnaire format not recognized, using default count');
+      }
     } else {
       console.log(`Questionnaire ${questionnaireId} not found, using defaults`);
     }
@@ -122,6 +136,40 @@ export class QuestionnaireService {
     await this.storageService.storeQuestionnaireResponse(emptyResponse);
 
     return sessionId;
+  }
+
+  /**
+   * Count questions from Survey.js pages format
+   */
+  protected countQuestionsFromSurveyJsPages(pages: any[]): number {
+    let totalQuestions = 0;
+    
+    const countElementsRecursively = (elements: any[]): void => {
+      elements.forEach((element: any) => {
+        if (element.type === 'panel' && element.elements) {
+          // Recursively count in panels
+          countElementsRecursively(element.elements);
+        } else if (this.isQuestionElement(element)) {
+          totalQuestions++;
+        }
+      });
+    };
+
+    pages.forEach((page: any) => {
+      if (page.elements) {
+        countElementsRecursively(page.elements);
+      }
+    });
+
+    return totalQuestions;
+  }
+
+  /**
+   * Check if element is a question (not just a container)
+   */
+  protected isQuestionElement(element: any): boolean {
+    const questionTypes = ['text', 'radiogroup', 'checkbox', 'rating', 'comment', 'dropdown', 'boolean'];
+    return questionTypes.includes(element.type);
   }
 
   /**
