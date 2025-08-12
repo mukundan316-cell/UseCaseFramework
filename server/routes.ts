@@ -726,10 +726,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       
-      // Try to get questionnaire from JSON blob storage first
-      const questionnaire = await questionnaireService.getQuestionnaireDefinition(id);
+      // Try to get Survey.js configuration and convert to legacy format for metadata
+      const surveyConfig = await surveyJsService.loadSurveyJsConfig(id);
       
-      if (questionnaire) {
+      if (surveyConfig) {
+        // Convert Survey.js format to legacy questionnaire format for landing page
+        const questionnaire = surveyJsService.convertSurveyJsToQuestionnaireMetadata(surveyConfig);
         // Transform questions to match frontend expectations
         const transformedSections = questionnaire.sections.map(section => ({
           id: section.id,

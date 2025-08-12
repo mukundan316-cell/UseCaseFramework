@@ -3,87 +3,498 @@
   "title": "RSA AI Strategy Assessment Framework",
   "description": "Comprehensive assessment for AI readiness and use case prioritization",
   "version": "2.0.0",
-  "createdAt": "2025-08-12T07:00:00.000Z",
-  "sections": [
+  "status": "active",
+  "showProgressBar": "top",
+  "progressBarType": "questions",
+  "questionTitleLocation": "top",
+  "questionsOnPageMode": "singlePage",
+  "showQuestionNumbers": "off",
+  "completeText": "Complete Assessment",
+  "pageNextText": "Next Section",
+  "pagePrevText": "Previous Section",
+  "pages": [
     {
-      "id": "section-1",
-      "title": "Business Strategy & Leadership",
-      "sectionOrder": 1,
-      "questions": [
+      "name": "page1",
+      "title": "1.1 Company Profile & Business Context",
+      "elements": [
         {
-          "id": "q1-company-name",
-          "questionText": "What is your company name?",
-          "questionType": "text",
-          "isRequired": true,
-          "questionOrder": 1,
-          "placeholder": "Enter your company name..."
-        },
-        {
-          "id": "q2-industry",
-          "questionText": "What industry is your company in?",
-          "questionType": "select",
-          "isRequired": true,
-          "questionOrder": 2,
-          "options": [
-            { "id": "insurance", "label": "Insurance" },
-            { "id": "financial", "label": "Financial Services" },
-            { "id": "technology", "label": "Technology" },
-            { "id": "other", "label": "Other" }
+          "type": "panel",
+          "name": "companyProfilePanel",
+          "title": "Q1. Company Profile",
+          "elements": [
+            {
+              "type": "text",
+              "name": "companyName",
+              "title": "Company Name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "gwp",
+              "title": "Gross Written Premium (GWP) in millions",
+              "inputType": "number",
+              "isRequired": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "companyTier",
+              "title": "Company Tier",
+              "isRequired": true,
+              "choices": [
+                { "value": "small", "text": "Small (Under $100M GWP)" },
+                { "value": "mid", "text": "Mid ($100M-$3B GWP)" },
+                { "value": "large", "text": "Large (Over $3B GWP)" }
+              ]
+            },
+            {
+              "type": "checkbox",
+              "name": "primaryMarkets",
+              "title": "Primary Markets",
+              "isRequired": true,
+              "choices": [
+                { "value": "personal", "text": "Personal Lines" },
+                { "value": "commercial", "text": "Commercial Lines" },
+                { "value": "specialty", "text": "Specialty" },
+                { "value": "reinsurance", "text": "Reinsurance" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "geographicFocus",
+              "title": "Geographic Focus"
+            }
           ]
         },
         {
-          "id": "q3-employee-count",
-          "questionText": "How many employees does your organization have?",
-          "questionType": "number",
-          "isRequired": false,
-          "questionOrder": 3,
-          "placeholder": "Enter number of employees..."
+          "type": "panel",
+          "name": "businessLinesPanel",
+          "title": "Q2. Business Lines & Distribution (% of premium)",
+          "elements": [
+            {
+              "type": "text",
+              "name": "personalAuto",
+              "title": "Personal Auto",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "homeowners",
+              "title": "Homeowners",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "commercialPC",
+              "title": "Commercial P&C",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "workersComp",
+              "title": "Workers Compensation",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "professionalLiability",
+              "title": "Professional Liability",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "cyberInsurance",
+              "title": "Cyber Insurance",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "marineAviation",
+              "title": "Marine/Aviation",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "otherSpecialty",
+              "title": "Other Specialty",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            }
+          ]
         },
         {
-          "id": "q4-ai-readiness",
-          "questionText": "How would you rate your organization's current AI readiness?",
-          "questionType": "score",
-          "isRequired": true,
-          "questionOrder": 4,
-          "helpText": "Consider factors like data quality, technical infrastructure, and leadership support",
-          "minValue": 1,
-          "maxValue": 5,
-          "leftLabel": "Very Low",
-          "rightLabel": "Very High"
+          "type": "panel",
+          "name": "distributionChannelsPanel",
+          "title": "Q3. Distribution Channels (% of business)",
+          "elements": [
+            {
+              "type": "text",
+              "name": "directToConsumer",
+              "title": "Direct to Consumer",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "independentAgents",
+              "title": "Independent Agents",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "brokerNetwork",
+              "title": "Broker Network",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "digitalOnline",
+              "title": "Digital/Online",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "otherChannel",
+              "title": "Other",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "businessPerformancePanel",
+          "title": "Q4. Current Business Performance",
+          "elements": [
+            {
+              "type": "text",
+              "name": "combinedRatio",
+              "title": "Combined Ratio",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "type": "text",
+              "name": "expenseRatio",
+              "title": "Expense Ratio",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "type": "text",
+              "name": "lossRatio",
+              "title": "Loss Ratio",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "type": "text",
+              "name": "premiumGrowthRate",
+              "title": "Premium Growth Rate (YoY)",
+              "inputType": "number",
+              "min": -100,
+              "max": 1000,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "policyRetentionRate",
+              "title": "Policy Retention Rate (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "avgPolicyProcessingTime",
+              "title": "Average Policy Processing Time (days)",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.5
+            },
+            {
+              "type": "text",
+              "name": "claimsSettlementTime",
+              "title": "Claims Settlement Time (days)",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.5
+            },
+            {
+              "type": "rating",
+              "name": "customerSatisfactionScore",
+              "title": "Customer Satisfaction Score (1-10)",
+              "rateMin": 1,
+              "rateMax": 10,
+              "minRateDescription": "1",
+              "maxRateDescription": "10"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "competitivePositionPanel",
+          "title": "Q5. Competitive Position (Score 1-5)",
+          "elements": [
+            {
+              "type": "rating",
+              "name": "marketPosition",
+              "title": "Market position in primary business lines",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Weak)",
+              "maxRateDescription": "5 (Strong)"
+            },
+            {
+              "type": "rating",
+              "name": "pricingAccuracy",
+              "title": "Pricing accuracy effectiveness",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Low)",
+              "maxRateDescription": "5 (High)"
+            },
+            {
+              "type": "rating",
+              "name": "brokerServiceQuality",
+              "title": "Broker/agent network service quality",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Poor)",
+              "maxRateDescription": "5 (Excellent)"
+            },
+            {
+              "type": "rating",
+              "name": "digitalExperience",
+              "title": "Digital customer experience vs. industry leaders",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Behind)",
+              "maxRateDescription": "5 (Leading)"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "geographicOperationsPanel",
+          "title": "Q6. Geographic Operations",
+          "elements": [
+            {
+              "type": "comment",
+              "name": "primaryJurisdictions",
+              "title": "Primary operating jurisdictions"
+            },
+            {
+              "type": "text",
+              "name": "premiumConcentration",
+              "title": "Premium concentration in top 3 markets (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "radiogroup",
+              "name": "multipleRegulatoryEnvs",
+              "title": "Do you operate in multiple regulatory environments?",
+              "isRequired": true,
+              "choices": [
+                { "value": true, "text": "Yes" },
+                { "value": false, "text": "No" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "numRegulatoryBodies",
+              "title": "Number of regulatory bodies you report to",
+              "inputType": "number",
+              "min": 1,
+              "visibleIf": "{multipleRegulatoryEnvs} = true"
+            },
+            {
+              "type": "panel",
+              "name": "regulatoryCompliancePanel",
+              "title": "Regulatory Compliance Maturity (Score 1-5)",
+              "elements": [
+                {
+                  "type": "rating",
+                  "name": "regulatoryReportingAutomation",
+                  "title": "Current regulatory reporting automation",
+                  "rateMin": 1,
+                  "rateMax": 5,
+                  "minRateDescription": "1 (Manual)",
+                  "maxRateDescription": "5 (Fully Automated)"
+                },
+                {
+                  "type": "rating",
+                  "name": "crossJurisdictionalCompliance",
+                  "title": "Cross-jurisdictional compliance management",
+                  "rateMin": 1,
+                  "rateMax": 5,
+                  "minRateDescription": "1 (Challenging)",
+                  "maxRateDescription": "5 (Seamless)"
+                },
+                {
+                  "type": "rating",
+                  "name": "aiRegulatoryPreparedness",
+                  "title": "AI-related regulatory preparedness (EU AI Act, etc.)",
+                  "rateMin": 1,
+                  "rateMax": 5,
+                  "minRateDescription": "1 (Not Ready)",
+                  "maxRateDescription": "5 (Fully Compliant)"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
     {
-      "id": "section-2", 
-      "title": "Current AI & Data Capabilities",
-      "sectionOrder": 2,
-      "questions": [
+      "name": "page2",
+      "title": "1.2 AI Vision & Success Definition",
+      "elements": [
         {
-          "id": "q5-business-lines",
-          "questionText": "Which insurance lines does your business focus on? (Select all that apply)",
-          "questionType": "checkbox",
-          "isRequired": true,
-          "questionOrder": 1,
-          "options": [
-            { "id": "property-casualty", "label": "Property & Casualty" },
-            { "id": "life-health", "label": "Life & Health" },
-            { "id": "commercial", "label": "Commercial Lines" },
-            { "id": "personal", "label": "Personal Lines" },
-            { "id": "specialty", "label": "Specialty Insurance" },
-            { "id": "reinsurance", "label": "Reinsurance" }
+          "type": "panel",
+          "name": "aiSuccessPanel",
+          "title": "Q8. What does success look like for AI in your business?",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "financialOutcomesPanel",
+              "title": "Financial Outcomes",
+              "elements": [
+                {
+                  "type": "checkbox",
+                  "name": "financialOutcomes",
+                  "title": "Select all that apply",
+                  "choices": [
+                    {
+                      "value": "combinedRatioImprovement",
+                      "text": "Combined ratio improvement"
+                    },
+                    {
+                      "value": "costReduction",
+                      "text": "Cost reduction (annually)"
+                    },
+                    {
+                      "value": "premiumGrowth",
+                      "text": "Premium growth"
+                    },
+                    {
+                      "value": "roiTarget",
+                      "text": "ROI target"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "name": "combinedRatioTarget",
+                  "title": "Combined ratio improvement target (points)",
+                  "inputType": "number",
+                  "min": 0,
+                  "step": 0.1,
+                  "visibleIf": "{financialOutcomes} contains 'combinedRatioImprovement'"
+                },
+                {
+                  "type": "text",
+                  "name": "costReductionTarget",
+                  "title": "Annual cost reduction target ($ millions)",
+                  "inputType": "number",
+                  "min": 0,
+                  "visibleIf": "{financialOutcomes} contains 'costReduction'"
+                },
+                {
+                  "type": "text",
+                  "name": "premiumGrowthTarget",
+                  "title": "Premium growth target (%)",
+                  "inputType": "number",
+                  "min": 0,
+                  "max": 100,
+                  "step": 0.1,
+                  "visibleIf": "{financialOutcomes} contains 'premiumGrowth'"
+                },
+                {
+                  "type": "text",
+                  "name": "roiTargetValue",
+                  "title": "ROI target (%)",
+                  "inputType": "number",
+                  "min": 0,
+                  "step": 0.1,
+                  "visibleIf": "{financialOutcomes} contains 'roiTarget'"
+                }
+              ]
+            }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "name": "page3",
+      "title": "Section 3: Strategic Implementation",
+      "elements": [
         {
-          "id": "q6-data-quality",
-          "questionText": "How would you rate the quality of your organization's data?",
-          "questionType": "score", 
-          "isRequired": true,
-          "questionOrder": 2,
-          "helpText": "Consider completeness, accuracy, consistency, and accessibility",
-          "minValue": 1,
-          "maxValue": 5,
-          "leftLabel": "Poor",
-          "rightLabel": "Excellent"
+          "type": "panel",
+          "name": "implementationPanel",
+          "title": "Q9. Implementation Priorities",
+          "elements": [
+            {
+              "type": "rating",
+              "name": "timeToValue",
+              "title": "How important is quick time-to-value for AI initiatives?",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Not Important)",
+              "maxRateDescription": "5 (Critical)"
+            },
+            {
+              "type": "rating",
+              "name": "riskTolerance",
+              "title": "What is your organization's risk tolerance for AI initiatives?",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Very Conservative)",
+              "maxRateDescription": "5 (High Risk Tolerance)"
+            },
+            {
+              "type": "checkbox",
+              "name": "primaryFocusAreas",
+              "title": "Primary focus areas for AI implementation",
+              "choices": [
+                { "value": "underwriting", "text": "Underwriting & Risk Assessment" },
+                { "value": "claims", "text": "Claims Processing & Management" },
+                { "value": "customerService", "text": "Customer Service & Experience" },
+                { "value": "fraud", "text": "Fraud Detection & Prevention" },
+                { "value": "pricing", "text": "Pricing & Actuarial" },
+                { "value": "operations", "text": "Operations & Efficiency" }
+              ]
+            }
+          ]
         }
       ]
     }

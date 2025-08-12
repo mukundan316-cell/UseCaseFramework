@@ -9,77 +9,108 @@ export class SurveyJsService extends QuestionnaireService {
    */
   async loadSurveyJsConfig(configId: string): Promise<any> {
     try {
-      // For now, use a simple hardcoded config based on the user's attached file
-      const surveyConfig = {
-        id: "surveyjs-assessment",
-        title: "RSA AI Strategy Assessment (Survey.js)",
-        description: "Enhanced assessment powered by Survey.js library",
-        showProgressBar: "top",
-        progressBarType: "questions",
-        questionTitleLocation: "top",
-        questionsOnPageMode: "singlePage",
-        showQuestionNumbers: "off",
-        completeText: "Complete Assessment",
-        pageNextText: "Next Section",
-        pagePrevText: "Previous Section",
-        pages: [
-          {
-            name: "page1",
-            title: "1.1 Company Profile & Business Context",
-            elements: [
-              {
-                type: "panel",
-                name: "companyProfilePanel",
-                title: "Q1. Company Profile",
-                elements: [
-                  {
-                    type: "text",
-                    name: "companyName",
-                    title: "Company Name",
-                    isRequired: true
-                  },
-                  {
-                    type: "text",
-                    name: "gwp",
-                    title: "Gross Written Premium (GWP) in millions",
-                    inputType: "number",
-                    isRequired: true
-                  },
-                  {
-                    type: "radiogroup",
-                    name: "companyTier",
-                    title: "Company Tier",
-                    isRequired: true,
-                    choices: [
-                      { value: "small", text: "Small (Under $100M GWP)" },
-                      { value: "mid", text: "Mid ($100M-$3B GWP)" },
-                      { value: "large", text: "Large (Over $3B GWP)" }
-                    ]
-                  },
-                  {
-                    type: "checkbox",
-                    name: "primaryMarkets",
-                    title: "Primary Markets",
-                    isRequired: true,
-                    choices: [
-                      { value: "personal", text: "Personal Lines" },
-                      { value: "commercial", text: "Commercial Lines" },
-                      { value: "specialty", text: "Specialty" },
-                      { value: "reinsurance", text: "Reinsurance" }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      };
+      // Load Survey.js configuration from JSON file
+      const config = await this.storageService.getQuestionnaireDefinition(configId);
+      
+      if (!config) {
+        throw new Error(`Survey.js configuration not found for ID: ${configId}`);
+      }
 
-      return surveyConfig;
+      return config;
     } catch (error) {
       console.error('Failed to load Survey.js config:', error);
       throw error;
     }
+  }
+
+  /**
+   * Convert Survey.js configuration to legacy questionnaire format for metadata
+   */
+  convertSurveyJsToQuestionnaireMetadata(surveyConfig: any): any {
+    if (!surveyConfig || !surveyConfig.pages) {
+      return null;
+    }
+
+    const sections = surveyConfig.pages.map((page: any, index: number) => {
+      const questions = this.extractQuestionsFromPage(page);
+      
+      return {
+        id: page.name || `section-${index + 1}`,
+        title: page.title || `Section ${index + 1}`,
+        description: page.description || `Assessment section covering ${page.title || 'various topics'}`,
+        sectionOrder: index + 1,
+        questions: questions
+      };
+    });
+
+    return {
+      id: surveyConfig.id,
+      title: surveyConfig.title,
+      description: surveyConfig.description,
+      version: surveyConfig.version || '2.0.0',
+      sections: sections
+    };
+  }
+
+  /**
+   * Extract questions from Survey.js page elements recursively
+   */
+  private extractQuestionsFromPage(page: any): any[] {
+    const questions: any[] = [];
+    let questionOrder = 1;
+
+    const processElements = (elements: any[], parentTitle = '') => {
+      elements.forEach((element: any) => {
+        if (element.type === 'panel' && element.elements) {
+          // Recursively process panel elements
+          processElements(element.elements, element.title || '');
+        } else if (this.isQuestionElement(element)) {
+          // Convert Survey.js element to legacy question format
+          questions.push({
+            id: element.name,
+            questionText: element.title,
+            questionType: this.mapSurveyJsTypeToLegacy(element.type),
+            isRequired: element.isRequired || false,
+            questionOrder: questionOrder++,
+            helpText: element.description,
+            options: element.choices?.map((choice: any) => ({
+              id: choice.value,
+              label: choice.text
+            }))
+          });
+        }
+      });
+    };
+
+    if (page.elements) {
+      processElements(page.elements);
+    }
+
+    return questions;
+  }
+
+  /**
+   * Check if element is a question (not just a panel)
+   */
+  private isQuestionElement(element: any): boolean {
+    const questionTypes = ['text', 'radiogroup', 'checkbox', 'rating', 'comment', 'dropdown', 'boolean'];
+    return questionTypes.includes(element.type);
+  }
+
+  /**
+   * Map Survey.js question types to legacy types
+   */
+  private mapSurveyJsTypeToLegacy(type: string): string {
+    const typeMapping: { [key: string]: string } = {
+      'text': 'text',
+      'radiogroup': 'radio',
+      'checkbox': 'checkbox',
+      'rating': 'smart_rating',
+      'comment': 'textarea',
+      'dropdown': 'select',
+      'boolean': 'radio'
+    };
+    return typeMapping[type] || 'text';
   }
 
   /**
