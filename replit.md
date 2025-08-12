@@ -65,6 +65,7 @@ All use case cards across the entire application must follow this exact specific
   - **Context API Architecture**: Created `SaveStatusProvider` to isolate save status from Survey.js component
   - **Component Isolation**: Built `IsolatedSurveyContainer` with zero re-render triggers
   - **Sticky Header**: Added sticky header functionality for improved user experience during scrolling
+  - **Race Condition Fix**: Eliminated query invalidation during auto-save to prevent user input overwriting
   - **No More Page Refresh**: Save status updates are completely isolated from Survey.js form rendering
 
 ### Survey.js Integration (August 12, 2025)

@@ -122,9 +122,9 @@ export function useQuestionnaire(questionnaireId: string) {
         body: JSON.stringify({ answers })
       }),
     onSuccess: (data, variables) => {
-      // Update the session cache with new answers
-      queryClient.invalidateQueries({ queryKey: ['session', questionnaireId] });
-      queryClient.invalidateQueries({ queryKey: ['response', variables.responseId] });
+      // Do NOT invalidate queries during auto-save to prevent race conditions
+      // The survey form should remain the source of truth during active editing
+      // Only sync in one direction: form → server during auto-save
     }
   });
 
@@ -135,8 +135,11 @@ export function useQuestionnaire(questionnaireId: string) {
         method: 'POST'
       }),
     onSuccess: (data) => {
+      // Update response data and invalidate scores for completion
       queryClient.setQueryData(['response', data.id], data);
       queryClient.invalidateQueries({ queryKey: ['scores', data.id] });
+      // Also invalidate session to reflect completion status
+      queryClient.invalidateQueries({ queryKey: ['session', questionnaireId] });
     }
   });
 
@@ -187,6 +190,9 @@ export function useQuestionnaire(questionnaireId: string) {
     startResponseAsync: startResponseMutation.mutateAsync,
     saveAnswers: saveAnswersMutation.mutate,
     completeResponse: completeResponseMutation.mutate,
+    
+    // Manual refresh function for explicit navigation
+    refreshSession: () => queryClient.invalidateQueries({ queryKey: ['session', questionnaireId] }),
     
     // Mutation states
     isStartingResponse: startResponseMutation.isPending,
