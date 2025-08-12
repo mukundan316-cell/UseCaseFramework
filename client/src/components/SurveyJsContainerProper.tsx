@@ -5,49 +5,14 @@ import { Survey } from 'survey-react-ui';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Home, Save, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Save, AlertCircle } from 'lucide-react';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
+import { AssessmentHeader } from './AssessmentHeader';
+import { SurveyWrapper } from './SurveyWrapper';
 
 // Import Survey.js default CSS
 import 'survey-core/survey-core.css';
-
-// Memoized save status component to prevent unnecessary re-renders
-const SaveStatus = React.memo(({ isSaving, lastSaved, hasUnsavedChanges }: {
-  isSaving: boolean;
-  lastSaved: Date | null;
-  hasUnsavedChanges: boolean;
-}) => {
-  if (isSaving) {
-    return (
-      <div className="flex items-center space-x-2 text-blue-600">
-        <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <span className="text-xs">Saving...</span>
-      </div>
-    );
-  }
-  
-  if (lastSaved && !hasUnsavedChanges) {
-    return (
-      <span className="text-xs text-green-600">
-        ✓ Saved {lastSaved.toLocaleTimeString()}
-      </span>
-    );
-  }
-  
-  if (hasUnsavedChanges) {
-    return (
-      <span className="text-xs text-amber-600">
-        Unsaved changes
-      </span>
-    );
-  }
-  
-  return null;
-});
-
-SaveStatus.displayName = 'SaveStatus';
 
 interface SurveyJsContainerProps {
   questionnaireId: string;
@@ -304,67 +269,15 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#005DAA] via-[#0066BB] to-[#9F4F96] text-white">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => setLocation('/assessment')}
-              className="text-white hover:bg-white/20 flex items-center space-x-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Assessment</span>
-            </Button>
-            
-            <div className="flex items-center space-x-2 text-sm">
-              <Home className="h-4 w-4" />
-              <span>RSA AI Assessment</span>
-            </div>
-          </div>
-
-          <div className="text-center space-y-3">
-            <h1 className="text-2xl md:text-3xl font-bold">
-              RSA AI Strategy Assessment Framework
-            </h1>
-            <p className="text-blue-100 text-sm">
-              Comprehensive assessment for AI readiness and use case prioritization
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Section with Save Status */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-medium text-gray-700">
-                Progress: {progress}%
-              </span>
-              <span className="text-sm text-gray-500">
-                Answered {answeredCount}/{totalQuestions} questions
-              </span>
-              {isCompleted && (
-                <div className="flex items-center space-x-2 text-green-600">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span className="text-sm font-medium">Completed</span>
-                </div>
-              )}
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <SaveStatus 
-                isSaving={isSaving}
-                lastSaved={lastSaved}
-                hasUnsavedChanges={hasUnsavedChanges}
-              />
-            </div>
-          </div>
-          
-          <Progress value={progress} className="h-2" />
-        </div>
-      </div>
+      <AssessmentHeader
+        progress={progress}
+        answeredCount={answeredCount}
+        totalQuestions={totalQuestions}
+        isCompleted={isCompleted}
+        isSaving={isSaving}
+        lastSaved={lastSaved}
+        hasUnsavedChanges={hasUnsavedChanges}
+      />
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto p-6">
@@ -383,7 +296,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
         <Card className="shadow-lg border-0">
           <CardContent className="p-8">
             {surveyModel && (
-              <Survey model={surveyModel} />
+              <SurveyWrapper surveyModel={surveyModel} />
             )}
           </CardContent>
         </Card>
