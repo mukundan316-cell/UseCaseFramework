@@ -20,7 +20,6 @@ export function SurveyWithStatusBridge({
 
   // Create the handler that bridges save status from isolated Survey to header
   const handleSaveStatusChange = useCallback((status: { isSaving: boolean; lastSaved: Date | null; hasUnsavedChanges: boolean }) => {
-    console.log('🔥 BRIDGING SAVE STATUS TO HEADER:', status);
     saveStatus.setSaving(status.isSaving);
     if (status.lastSaved) saveStatus.setLastSaved(status.lastSaved);
     saveStatus.setUnsavedChanges(status.hasUnsavedChanges);

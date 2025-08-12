@@ -21,7 +21,7 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  console.log('🔥 ISOLATED ROOT COMPONENT RENDER - questionnaireId:', questionnaireId);
+
 
   // Load session and survey config
   useEffect(() => {
@@ -29,11 +29,9 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
 
     const loadData = async () => {
       try {
-        console.log('🔥 ISOLATED ROOT - LOADING SESSION AND CONFIG');
-        
         // Load session
         const sessionData = await apiRequest(`/api/responses/check-session?questionnaireId=${questionnaireId}`);
-        console.log('🔥 ISOLATED ROOT - SESSION LOADED:', sessionData);
+
         
         if (isMounted) {
           setSession(sessionData);
@@ -41,14 +39,13 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
 
         // Load survey config
         const surveyConfig = await apiRequest(`/api/survey-config/${questionnaireId}`);
-        console.log('🔥 ISOLATED ROOT - CONFIG LOADED');
+
 
         if (isMounted) {
           const survey = new Model(surveyConfig);
           
           // Load existing answers
           if (sessionData?.answers && Object.keys(sessionData.answers).length > 0) {
-            console.log('🔥 ISOLATED ROOT - LOADING ANSWERS:', Object.keys(sessionData.answers).length);
             survey.data = sessionData.answers;
           }
 
@@ -56,7 +53,6 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
           const handleManualSave = async (data: any) => {
             if (!sessionData) return;
             
-            console.log('🔥 ISOLATED ROOT - MANUAL SAVE START');
             setIsSaving(true);
             onSaveStatusChange?.({ isSaving: true, lastSaved, hasUnsavedChanges });
             try {
@@ -65,9 +61,8 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
               setLastSaved(savedTime);
               setHasUnsavedChanges(false);
               onSaveStatusChange?.({ isSaving: false, lastSaved: savedTime, hasUnsavedChanges: false });
-              console.log('🔥 ISOLATED ROOT - MANUAL SAVE SUCCESS');
             } catch (error) {
-              console.error('🔥 ISOLATED ROOT - MANUAL SAVE ERROR:', error);
+              console.error('Save error:', error);
               onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
             } finally {
               setIsSaving(false);
@@ -83,28 +78,24 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
 
           // Set up event handlers
           survey.onValueChanged.add((sender: Model, options: any) => {
-            console.log('🔥 ISOLATED ROOT - VALUE CHANGED:', options?.name, options?.value);
             setHasUnsavedChanges(true);
             onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
           });
 
           // Save on page change
           survey.onCurrentPageChanged.add((sender: Model) => {
-            console.log('🔥 ISOLATED ROOT - PAGE CHANGED - AUTO SAVING');
             handleManualSave(sender.data);
           });
 
           survey.onComplete.add(() => {
-            console.log('🔥 ISOLATED ROOT - SURVEY COMPLETE');
             onComplete(survey.data);
           });
 
           setSurveyModel(survey);
           setIsLoading(false);
-          console.log('🔥 ISOLATED ROOT - SETUP COMPLETE');
         }
       } catch (error) {
-        console.error('🔥 ISOLATED ROOT - LOAD ERROR:', error);
+        console.error('Load error:', error);
         if (isMounted) {
           setIsLoading(false);
         }
@@ -164,7 +155,7 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
     return null;
   };
 
-  console.log('🔥 ISOLATED ROOT - RENDERING SURVEY');
+
   return (
     <div>
       {renderSaveStatus()}
@@ -181,7 +172,6 @@ export function mountIsolatedSurvey(
   onComplete: (data: any) => void,
   onSaveStatusChange?: (status: { isSaving: boolean; lastSaved: Date | null; hasUnsavedChanges: boolean }) => void
 ) {
-  console.log('🔥 MOUNTING ISOLATED SURVEY ROOT');
   const root = createRoot(containerElement);
   
   root.render(
@@ -195,7 +185,6 @@ export function mountIsolatedSurvey(
   );
 
   return () => {
-    console.log('🔥 UNMOUNTING ISOLATED SURVEY ROOT');
     root.unmount();
   };
 }

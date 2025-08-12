@@ -64,7 +64,6 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
 
   // Stable handlers that never change reference
   const handleSave = React.useCallback(async (data: any) => {
-    console.log('🔥 PARENT HANDLE SAVE CALLED');
     const { responseSession, saveAnswers } = handlersRef.current;
     if (!responseSession) return;
     
@@ -72,7 +71,6 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
       responseId: responseSession.id,
       answers: data
     });
-    console.log('🔥 PARENT HANDLE SAVE COMPLETE');
   }, []); // No dependencies = never re-creates
 
   const handleComplete = React.useCallback(async (data: any) => {

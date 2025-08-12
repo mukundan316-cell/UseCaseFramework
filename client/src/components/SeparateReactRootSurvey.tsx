@@ -19,12 +19,8 @@ export function SeparateReactRootSurvey({
   const containerRef = useRef<HTMLDivElement>(null);
   const unmountRef = useRef<(() => void) | null>(null);
 
-  console.log('🔥 SEPARATE ROOT WRAPPER RENDER - questionnaireId:', questionnaireId);
-
   useEffect(() => {
     if (containerRef.current && questionnaireId) {
-      console.log('🔥 MOUNTING SEPARATE REACT ROOT');
-      
       // Clear any existing root
       if (unmountRef.current) {
         unmountRef.current();
@@ -41,7 +37,6 @@ export function SeparateReactRootSurvey({
     }
 
     return () => {
-      console.log('🔥 CLEANUP SEPARATE ROOT');
       if (unmountRef.current) {
         // Use setTimeout to avoid synchronous unmount during render
         setTimeout(() => {
