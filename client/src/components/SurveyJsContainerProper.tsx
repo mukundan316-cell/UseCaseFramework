@@ -148,7 +148,6 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
             <CardContent className="p-8">
               <IsolatedSurveyContainer
                 questionnaireId={questionnaireId}
-                responseSession={responseSession}
                 onSave={handleSave}
                 onComplete={handleComplete}
               />

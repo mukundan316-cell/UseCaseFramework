@@ -2,24 +2,27 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import { useSaveStatus } from './SaveStatusProvider';
+import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 
 interface IsolatedSurveyContainerProps {
   questionnaireId: string;
-  responseSession: any;
   onSave: (data: any) => Promise<void>;
   onComplete: (data: any) => Promise<void>;
 }
 
 export const IsolatedSurveyContainer = React.memo(({
   questionnaireId,
-  responseSession,
   onSave,
   onComplete
 }: IsolatedSurveyContainerProps) => {
   const [surveyModel, setSurveyModel] = useState<Model | null>(null);
   const [isLoadingSurvey, setIsLoadingSurvey] = useState(true);
+  const [initialAnswersLoaded, setInitialAnswersLoaded] = useState(false);
   const { setSaving, setLastSaved, setUnsavedChanges } = useSaveStatus();
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  
+  // Get responseSession from hook directly to avoid prop changes
+  const { responseSession } = useQuestionnaire(questionnaireId);
 
   // Auto-save handler that doesn't cause re-renders
   const handleAutoSave = useCallback(async (data: any) => {
@@ -108,8 +111,8 @@ export const IsolatedSurveyContainer = React.memo(({
           }
         };
 
-        // Load existing answers only on initial load (NOT during auto-save)
-        if (responseSession?.answers && !surveyModel) {
+        // Load existing answers only once on initial load
+        if (responseSession?.answers && !initialAnswersLoaded) {
           const surveyData: any = {};
           if (Array.isArray(responseSession.answers)) {
             responseSession.answers.forEach((answer: any) => {
@@ -127,6 +130,7 @@ export const IsolatedSurveyContainer = React.memo(({
             });
           }
           survey.data = surveyData;
+          setInitialAnswersLoaded(true);
           console.log('Loaded existing answers:', surveyData);
         }
 
