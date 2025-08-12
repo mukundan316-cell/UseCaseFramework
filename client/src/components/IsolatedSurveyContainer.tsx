@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import { useSaveStatus } from './SaveStatusProvider';
-import { useQuestionnaire } from '@/hooks/useQuestionnaire';
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 interface IsolatedSurveyContainerProps {
   questionnaireId: string;
@@ -21,20 +22,29 @@ export const IsolatedSurveyContainer = React.memo(({
   const { setSaving, setLastSaved, setUnsavedChanges } = useSaveStatus();
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   
-  // Permanently freeze session data - never allow updates once set
+  // Freeze session data permanently and disable React Query after first load
   const [frozenSession, setFrozenSession] = useState<any>(null);
-  const [sessionFrozen, setSessionFrozen] = useState(false);
+  const [disableQuery, setDisableQuery] = useState(false);
   
-  const { responseSession } = useQuestionnaire(questionnaireId);
+  // Direct query that we can disable after first load
+  const { data: responseSession } = useQuery({
+    queryKey: ['session', questionnaireId],
+    queryFn: () => apiRequest('/api/responses/check-session'),
+    enabled: !disableQuery,
+    staleTime: Infinity, // Never refetch automatically
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false
+  });
   
-  // Freeze session data permanently on first load
+  // Freeze session data permanently and disable query to prevent ANY future updates
   useEffect(() => {
-    if (responseSession && !sessionFrozen) {
+    if (responseSession && !frozenSession) {
       setFrozenSession(responseSession);
-      setSessionFrozen(true);
-      console.log('Permanently froze session data:', responseSession);
+      setDisableQuery(true); // Disable query forever after first load
+      console.log('Permanently froze session data and disabled query:', responseSession);
     }
-  }, [responseSession, sessionFrozen]);
+  }, [responseSession, frozenSession]);
   
   // Always use frozen data once it's set
   const activeSession = frozenSession;
@@ -183,7 +193,7 @@ export const IsolatedSurveyContainer = React.memo(({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [questionnaireId, sessionFrozen]); // Only load once when session is frozen
+  }, [questionnaireId, frozenSession]); // Only load once when session is frozen
 
   if (isLoadingSurvey) {
     return (
