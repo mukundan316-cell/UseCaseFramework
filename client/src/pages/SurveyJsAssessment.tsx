@@ -1,5 +1,5 @@
 import { useParams } from 'wouter';
-import { SurveyJsContainer } from '@/components/SurveyJsContainer';
+import { SurveyJsContainer } from '@/components/SurveyJsContainerFixed';
 
 interface SurveyJsAssessmentProps {
   questionnaireId?: string;

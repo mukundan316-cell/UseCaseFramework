@@ -177,7 +177,7 @@ export class QuestionnaireService {
    */
   async saveResponseAnswers(
     responseId: string,
-    answers: Array<{ questionId: string; answerValue: any; questionType?: string; score?: number }>
+    answers: any
   ): Promise<boolean> {
     try {
       // Get current response
@@ -187,8 +187,32 @@ export class QuestionnaireService {
         return false;
       }
 
+      // Handle both array format (legacy) and object format (Survey.js)
+      const formattedAnswers: Array<{ questionId: string; answerValue: any }> = [];
+      
+      if (Array.isArray(answers)) {
+        answers.forEach((answer: any) => {
+          if (answer.questionId && answer.answerValue !== undefined) {
+            formattedAnswers.push({
+              questionId: answer.questionId,
+              answerValue: answer.answerValue
+            });
+          }
+        });
+      } else if (typeof answers === 'object' && answers !== null) {
+        // Convert Survey.js object format to our Answer format
+        Object.entries(answers).forEach(([questionId, answerValue]) => {
+          if (questionId && answerValue !== undefined) {
+            formattedAnswers.push({
+              questionId,
+              answerValue
+            });
+          }
+        });
+      }
+
       // Update answers in response
-      answers.forEach(({ questionId, answerValue }) => {
+      formattedAnswers.forEach(({ questionId, answerValue }) => {
         const existingAnswerIndex = response.answers.findIndex(a => a.questionId === questionId);
         
         const answerData = {
