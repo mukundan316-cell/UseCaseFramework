@@ -38,7 +38,7 @@ All use case cards across the entire application must follow this exact specific
 ### Tech Stack
 - **Frontend**: React + TypeScript + shadcn/ui + TailwindCSS + Wouter
 - **Backend**: Node.js + Express + Drizzle ORM + Zod validation  
-- **Database**: PostgreSQL with JSONB support
+- **Database**: Hybrid approach - PostgreSQL for session tracking + JSON blob storage for questionnaire data
 
 ### Core Features
 - **Use Case Management**: Complete CRUD with RSA 12-lever scoring framework
@@ -52,6 +52,11 @@ All use case cards across the entire application must follow this exact specific
 - **PDF Export System**: Enhanced to handle complex nested JSON data with proper rendering for structured question types
 - **Spacing Improvements**: Professional PDF formatting with consistent spacing, page breaks, and visual hierarchy
 - **Data Integrity**: Fixed complex JSON serialization issues in questionnaire responses
+- **Hybrid Architecture Migration**: Implemented JSON blob storage system for questionnaire data with PostgreSQL session tracking
+  - **Questionnaire Definitions**: Stored as structured JSON files in blob storage for better data integrity
+  - **Response Data**: Stored as JSON files to prevent serialization corruption
+  - **Session Tracking**: Lightweight PostgreSQL records for progress monitoring and quick queries
+  - **Migration Service**: Automated migration from existing PostgreSQL structure to hybrid approach
 
 ## Dependencies
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL

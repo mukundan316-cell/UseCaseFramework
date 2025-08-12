@@ -320,6 +320,46 @@ export type QuestionAnswer = typeof questionAnswers.$inferSelect;
 export type InsertQuestionAnswer = z.infer<typeof insertQuestionAnswerSchema>;
 
 // =============================================================================
+// HYBRID QUESTIONNAIRE ARCHITECTURE - POSTGRESQL + JSON BLOB STORAGE
+// Lightweight session tracking in PostgreSQL + questionnaire data in JSON files
+// =============================================================================
+
+// Lightweight session tracking in PostgreSQL
+export const responseSessions = pgTable("response_sessions", {
+  id: varchar("id").primaryKey(), // Same as response ID
+  questionnaireId: varchar("questionnaire_id").notNull(),
+  respondentEmail: text("respondent_email").notNull(),
+  respondentName: text("respondent_name"),
+  status: text("status").notNull().default('started'), // 'started', 'in_progress', 'completed', 'abandoned'
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  lastUpdatedAt: timestamp("last_updated_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+  progressPercent: integer("progress_percent").notNull().default(0),
+  currentSectionId: varchar("current_section_id"),
+  currentQuestionId: varchar("current_question_id"),
+  
+  // File references to JSON blob storage
+  questionnaireDefinitionPath: text("questionnaire_definition_path").notNull(), // Object storage path to questionnaire JSON
+  responsePath: text("response_path"), // Object storage path to response JSON (created when first answer saved)
+  
+  // Scoring and analytics (computed from JSON data)
+  totalScore: real("total_score"),
+  sectionScores: jsonb("section_scores"), // { sectionId: score }
+  
+  // Metadata for quick queries without reading JSON files
+  questionnaireVersion: text("questionnaire_version").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  answeredQuestions: integer("answered_questions").notNull().default(0),
+});
+
+export const insertResponseSessionSchema = createInsertSchema(responseSessions).extend({
+  status: z.enum(['started', 'in_progress', 'completed', 'abandoned']).default('started'),
+});
+
+export type ResponseSession = typeof responseSessions.$inferSelect;
+export type InsertResponseSession = z.infer<typeof insertResponseSessionSchema>;
+
+// =============================================================================
 // DYNAMIC QUESTION REGISTRY SCHEMA
 // =============================================================================
 

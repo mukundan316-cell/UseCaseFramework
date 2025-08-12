@@ -608,6 +608,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register questionnaire routes
   const questionnaireRoutes = (await import('./routes/questionnaire.routes')).default;
   app.use('/api', questionnaireRoutes);
+
+  // Register hybrid questionnaire routes
+  const questionnaireHybridRoutes = (await import('./routes/questionnaireHybrid.routes')).default;
+  app.use('/api/questionnaire-hybrid', questionnaireHybridRoutes);
   
   // Register assessment routes
   const assessmentRoutes = (await import('./routes/assessments.routes')).default;
