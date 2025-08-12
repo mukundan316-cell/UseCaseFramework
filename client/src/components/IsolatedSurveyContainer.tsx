@@ -39,29 +39,38 @@ export const IsolatedSurveyContainer = React.memo(({
   
   // Freeze session data permanently and disable query to prevent ANY future updates
   useEffect(() => {
+    console.log('🔥 SESSION FREEZE EFFECT - responseSession:', !!responseSession, 'frozenSession:', !!frozenSession, 'disableQuery:', disableQuery);
     if (responseSession && !frozenSession) {
+      console.log('🔥 FREEZING SESSION DATA');
       setFrozenSession(responseSession);
       setDisableQuery(true); // Disable query forever after first load
-      console.log('Permanently froze session data and disabled query:', responseSession);
+      console.log('🔥 SESSION FROZEN AND QUERY DISABLED:', responseSession);
     }
-  }, [responseSession, frozenSession]);
+  }, [responseSession, frozenSession, disableQuery]);
   
   // Always use frozen data once it's set
   const activeSession = frozenSession;
 
   // Auto-save handler with proper UI feedback
   const handleAutoSave = useCallback(async (data: any) => {
-    if (!activeSession) return;
+    console.log('🔥 HANDLE AUTO-SAVE CALLED:', { activeSession: !!activeSession, data });
+    if (!activeSession) {
+      console.log('🔥 NO ACTIVE SESSION - ABORTING AUTO-SAVE');
+      return;
+    }
 
+    console.log('🔥 STARTING AUTO-SAVE PROCESS');
     setSaving(true);
     try {
       await onSave(data);
+      console.log('🔥 AUTO-SAVE SUCCESSFUL');
       setLastSaved(new Date());
       setUnsavedChanges(false);
     } catch (error) {
-      console.error('Auto-save failed:', error);
+      console.error('🔥 AUTO-SAVE FAILED:', error);
     } finally {
       setSaving(false);
+      console.log('🔥 AUTO-SAVE PROCESS COMPLETE');
     }
   }, [onSave, setSaving, setLastSaved, setUnsavedChanges, activeSession]);
 
@@ -79,10 +88,15 @@ export const IsolatedSurveyContainer = React.memo(({
   // Load Survey.js configuration - this only runs once
   useEffect(() => {
     let isMounted = true;
+    console.log('🔥 SURVEY EFFECT TRIGGERED - questionnaireId:', questionnaireId, 'frozenSession:', !!frozenSession);
     
     const loadSurveyConfig = async () => {
-      if (!questionnaireId) return;
+      if (!questionnaireId) {
+        console.log('🔥 NO QUESTIONNAIRE ID - EXITING');
+        return;
+      }
       
+      console.log('🔥 STARTING SURVEY CONFIG LOAD');
       setIsLoadingSurvey(true);
       try {
         const response = await fetch(`/api/survey-config/${questionnaireId}`);
@@ -138,6 +152,7 @@ export const IsolatedSurveyContainer = React.memo(({
 
         // Load existing answers only once on initial load
         if (frozenSession?.answers && !initialAnswersLoaded) {
+          console.log('🔥 LOADING EXISTING ANSWERS - count:', frozenSession.answers.length);
           const surveyData: any = {};
           if (Array.isArray(frozenSession.answers)) {
             frozenSession.answers.forEach((answer: any) => {
@@ -156,11 +171,18 @@ export const IsolatedSurveyContainer = React.memo(({
           }
           survey.data = surveyData;
           setInitialAnswersLoaded(true);
-          console.log('Loaded existing answers:', surveyData);
+          console.log('🔥 SET SURVEY DATA:', surveyData);
+        } else {
+          console.log('🔥 SKIPPING ANSWER LOAD - frozenSession.answers:', !!frozenSession?.answers, 'initialAnswersLoaded:', initialAnswersLoaded);
         }
 
         // Set up event handlers - no form activity tracking needed since session is permanently frozen
-        const valueChangedHandler = () => {
+        const valueChangedHandler = (sender: any, options: any) => {
+          console.log('🔥 VALUE CHANGED EVENT:', {
+            question: options?.name,
+            value: options?.value,
+            surveyData: survey.data
+          });
           setUnsavedChanges(true);
           // Clear existing timeout
           if (saveTimeoutRef.current) {
@@ -168,6 +190,7 @@ export const IsolatedSurveyContainer = React.memo(({
           }
           // Debounced auto-save
           saveTimeoutRef.current = setTimeout(() => {
+            console.log('🔥 TRIGGERING AUTO-SAVE WITH DATA:', survey.data);
             handleAutoSave(survey.data);
           }, 2000);
         };
@@ -175,12 +198,15 @@ export const IsolatedSurveyContainer = React.memo(({
         survey.onValueChanged.add(valueChangedHandler);
         survey.onComplete.add(() => handleComplete(survey));
 
+        console.log('🔥 SETTING SURVEY MODEL - about to call setSurveyModel');
         setSurveyModel(survey);
+        console.log('🔥 SURVEY MODEL SET SUCCESSFULLY');
       } catch (error) {
-        console.error('Error loading Survey.js config:', error);
+        console.error('🔥 ERROR LOADING SURVEY CONFIG:', error);
       } finally {
         if (isMounted) {
           setIsLoadingSurvey(false);
+          console.log('🔥 SURVEY LOADING COMPLETE');
         }
       }
     };
@@ -214,6 +240,7 @@ export const IsolatedSurveyContainer = React.memo(({
     );
   }
 
+  console.log('🔥 RENDERING SURVEY COMPONENT - model exists:', !!surveyModel);
   return <Survey model={surveyModel} />;
 });
 
