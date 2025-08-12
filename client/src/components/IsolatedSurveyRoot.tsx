@@ -128,37 +128,8 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
     );
   }
 
-  // Render save status
-  const renderSaveStatus = () => {
-    if (isSaving) {
-      return (
-        <div className="flex items-center text-blue-600 text-sm mb-4">
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-          Saving...
-        </div>
-      );
-    }
-    if (lastSaved) {
-      return (
-        <div className="text-green-600 text-sm mb-4">
-          ✓ Saved {lastSaved.toLocaleTimeString()}
-        </div>
-      );
-    }
-    if (hasUnsavedChanges) {
-      return (
-        <div className="text-orange-600 text-sm mb-4">
-          • Unsaved changes
-        </div>
-      );
-    }
-    return null;
-  };
-
-
   return (
     <div>
-      {renderSaveStatus()}
       <Survey model={surveyModel} />
     </div>
   );
