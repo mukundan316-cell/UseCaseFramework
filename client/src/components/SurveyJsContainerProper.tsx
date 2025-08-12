@@ -135,13 +135,18 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
           console.log('Loaded existing answers:', surveyData);
         }
 
-        // Set up event handlers
+        // Set up event handlers with debouncing to prevent page refresh
+        let saveTimeout: NodeJS.Timeout;
         survey.onValueChanged.add(() => {
           setHasUnsavedChanges(true);
-          // Debounced auto-save
-          setTimeout(() => {
+          // Clear existing timeout
+          if (saveTimeout) {
+            clearTimeout(saveTimeout);
+          }
+          // Debounced auto-save without causing re-renders
+          saveTimeout = setTimeout(() => {
             handleAutoSave(survey.data);
-          }, 1000);
+          }, 2000);
         });
 
         survey.onComplete.add(surveyComplete);

@@ -4,3 +4,6 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Temporary questionnaire storage (development only)
+temp-questionnaire-storage/responses/

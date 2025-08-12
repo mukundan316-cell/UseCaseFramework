@@ -239,8 +239,17 @@ export class QuestionnaireService {
       
       // Get questionnaire to calculate progress
       const questionnaire = await this.storageService.getQuestionnaireDefinition(response.questionnaireId);
-      const totalQuestions = questionnaire ? 
-        questionnaire.sections.reduce((total, section) => total + section.questions.length, 0) : 1;
+      
+      // Calculate total questions from either sections (legacy) or pages (Survey.js)
+      let totalQuestions = 45; // Default fallback
+      if (questionnaire) {
+        if (questionnaire.sections && questionnaire.sections.length > 0) {
+          totalQuestions = questionnaire.sections.reduce((total, section) => total + section.questions.length, 0);
+        } else if (questionnaire.pages && questionnaire.pages.length > 0) {
+          // Count questions from Survey.js pages format
+          totalQuestions = this.countQuestionsFromSurveyJsPages(questionnaire.pages || []);
+        }
+      }
       const progressPercent = Math.round((answeredQuestions / totalQuestions) * 100);
 
       await db
@@ -313,6 +322,35 @@ export class QuestionnaireService {
   /**
    * Get questionnaire definition by ID
    */
+  /**
+   * Count questions from Survey.js pages format
+   */
+  private countQuestionsFromSurveyJsPages(pages: any[]): number {
+    let count = 0;
+    
+    const countElementQuestions = (elements: any[]): number => {
+      let elementCount = 0;
+      for (const element of elements) {
+        if (element.type === 'panel' && element.elements) {
+          // Panel contains sub-elements
+          elementCount += countElementQuestions(element.elements);
+        } else if (!['panel', 'html'].includes(element.type)) {
+          // Regular question (not a panel or HTML)
+          elementCount++;
+        }
+      }
+      return elementCount;
+    };
+    
+    for (const page of pages) {
+      if (page.elements) {
+        count += countElementQuestions(page.elements);
+      }
+    }
+    
+    return count;
+  }
+
   async getQuestionnaireDefinition(questionnaireId: string): Promise<QuestionnaireDefinition | null> {
     return await this.storageService.getQuestionnaireDefinition(questionnaireId);
   }
