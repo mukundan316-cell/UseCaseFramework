@@ -12,14 +12,11 @@ import SmartRatingLegoBlockDemo from "./components/lego-blocks/SmartRatingLegoBl
 import RankingLegoBlockDemo from "./components/lego-blocks/RankingLegoBlockDemo";
 import CurrencyInputLegoBlockDemo from "./components/lego-blocks/CurrencyInputLegoBlockDemo";
 import PercentageAllocationLegoBlockDemo from "./components/lego-blocks/PercentageAllocationLegoBlockDemo";
-import QuestionnaireContainerDemo from "./components/QuestionnaireContainerDemo";
 import ScoringDashboardDemo from "./components/lego-blocks/ScoringDashboardDemo";
 import AssessmentResultsDashboard from "./components/lego-blocks/AssessmentResultsDashboard";
 import ResponseExportDemo from "./components/lego-blocks/ResponseExportDemo";
 import RSAAssessmentLandingPage from "./components/RSAAssessmentLandingPage";
-import QuestionnaireContainer from "./components/QuestionnaireContainer";
 import SurveyJsAssessment from "./pages/SurveyJsAssessment";
-import { SimpleSurveyJsDemo } from "./components/SimpleSurveyJsDemo";
 import StandaloneSurveyDemo from "./pages/StandaloneSurveyDemo";
 import AIRoadmapPage from "./pages/AIRoadmapPage";
 import { AssessmentSessionStart } from "./components/AssessmentSessionStart";
@@ -36,7 +33,7 @@ function Router() {
       <Route path="/ranking-demo" component={RankingLegoBlockDemo} />
       <Route path="/currency-demo" component={CurrencyInputLegoBlockDemo} />
       <Route path="/allocation-demo" component={PercentageAllocationLegoBlockDemo} />
-      <Route path="/questionnaire" component={QuestionnaireContainerDemo} />
+
       <Route path="/roadmap" component={AIRoadmapPage} />
       <Route path="/assessment" component={() => <RSAAssessmentLandingPage />} />
       <Route path="/assessment/start" component={() => 
@@ -51,15 +48,12 @@ function Router() {
       <Route path="/assessment/take" component={() => 
         <SurveyJsAssessment questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
       } />
-      <Route path="/assessment/surveyjs" component={SurveyJsAssessment} />
-      <Route path="/surveyjs-demo" component={SimpleSurveyJsDemo} />
-      <Route path="/surveyjs-standalone" component={StandaloneSurveyDemo} />
-      <Route path="/questionnaire/:responseId" component={({ params: { responseId } }) => 
-        <QuestionnaireContainer 
-          questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" 
-          responseId={responseId}
-        />
+      <Route path="/assessment/surveyjs" component={() => 
+        <SurveyJsAssessment questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
       } />
+
+      <Route path="/surveyjs-standalone" component={StandaloneSurveyDemo} />
+
       <Route path="/scoring-demo" component={ScoringDashboardDemo} />
       <Route path="/export-demo" component={ResponseExportDemo} />
       <Route path="/results/:responseId" component={({ params: { responseId } }) => 

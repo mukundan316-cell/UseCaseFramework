@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import DashboardView from '../components/DashboardView';
 import Explorer from '../components/Explorer';
 import AdminPanel from '../components/AdminPanel';
-import AssessmentView from '../components/AssessmentView';
+import RSAAssessmentLandingPage from '../components/RSAAssessmentLandingPage';
 
 export default function HomePage() {
   const { activeTab } = useUseCases();
@@ -18,7 +18,7 @@ export default function HomePage() {
       case 'admin':
         return <AdminPanel />;
       case 'assessment':
-        return <AssessmentView />;
+        return <RSAAssessmentLandingPage />;
       default:
         return <DashboardView />;
     }

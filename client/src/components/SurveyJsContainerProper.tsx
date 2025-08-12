@@ -19,7 +19,6 @@ interface SurveyJsContainerProps {
 }
 
 export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
-  console.log('🔥 PARENT SURVEY CONTAINER RE-RENDER');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -32,14 +31,6 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     saveAnswersError,
     completeResponseError,
   } = useQuestionnaire(questionnaireId);
-  
-  console.log('🔥 PARENT QUERY STATE:', {
-    responseSession: !!responseSession,
-    isLoadingQuestionnaire,
-    isCheckingSession,
-    saveAnswersError: !!saveAnswersError,
-    completeResponseError: !!completeResponseError
-  });
 
   // Store handlers in refs to make them stable - never re-create
   const handlersRef = useRef({
