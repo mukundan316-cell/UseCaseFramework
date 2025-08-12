@@ -76,7 +76,7 @@ export default function QuestionnaireContainer({
   const progressPersistence = useProgressPersistence({
     storageKey: `questionnaire-progress-${questionnaireId}`,
     autoSaveDelay: 1000,
-    enableToasts: true
+    enableToasts: false  // Disable intrusive saving notifications
   });
 
   const {

@@ -129,12 +129,9 @@ export default function QuestionLegoBlock({
     return (
       <div>
         {renderQuestionLabel()}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <span>{leftLabel}</span>
-            <span>{rightLabel}</span>
-          </div>
-          <div className="flex items-center justify-center space-x-2">
+        <div className="flex items-center justify-center space-x-4">
+          <span className="text-sm text-gray-600 font-medium">{leftLabel}</span>
+          <div className="flex items-center space-x-2">
             {range.map((scoreValue) => (
               <button
                 key={scoreValue}
@@ -153,6 +150,7 @@ export default function QuestionLegoBlock({
               </button>
             ))}
           </div>
+          <span className="text-sm text-gray-600 font-medium">{rightLabel}</span>
         </div>
       </div>
     );
