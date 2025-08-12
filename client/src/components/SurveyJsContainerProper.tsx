@@ -7,8 +7,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Save, AlertCircle } from 'lucide-react';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 import { AssessmentHeader } from './AssessmentHeader';
-import { SeparateReactRootSurvey } from './SeparateReactRootSurvey';
-import { SaveStatusProvider, useSaveStatus } from './SaveStatusProvider';
+import { SurveyWithStatusBridge } from './SurveyWithStatusBridge';
+import { SaveStatusProvider } from './SaveStatusProvider';
 
 // Import Survey.js default CSS
 import 'survey-core/survey-core.css';
@@ -59,16 +59,8 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     setLocation
   };
 
-  // Get save status context to bridge to header
-  const saveStatus = useSaveStatus();
-
-  // Handler to bridge save status from isolated Survey to header
-  const handleSaveStatusChange = useCallback((status: { isSaving: boolean; lastSaved: Date | null; hasUnsavedChanges: boolean }) => {
-    console.log('🔥 BRIDGING SAVE STATUS TO HEADER:', status);
-    saveStatus.setSaving(status.isSaving);
-    if (status.lastSaved) saveStatus.setLastSaved(status.lastSaved);
-    saveStatus.setUnsavedChanges(status.hasUnsavedChanges);
-  }, [saveStatus]);
+  // Handler to bridge save status from isolated Survey to header - will be set inside provider
+  const handleSaveStatusChange = useRef<((status: { isSaving: boolean; lastSaved: Date | null; hasUnsavedChanges: boolean }) => void) | null>(null);
 
   // Stable handlers that never change reference
   const handleSave = React.useCallback(async (data: any) => {
@@ -188,11 +180,11 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
           {/* Survey Component - Completely Isolated React Root */}
           <Card className="shadow-lg border-0">
             <CardContent className="p-8">
-              <SeparateReactRootSurvey
+              <SurveyWithStatusBridge
                 questionnaireId={questionnaireId}
                 onSave={handleSave}
                 onComplete={handleComplete}
-                onSaveStatusChange={handleSaveStatusChange}
+                handleSaveStatusChangeRef={handleSaveStatusChange}
               />
             </CardContent>
           </Card>
