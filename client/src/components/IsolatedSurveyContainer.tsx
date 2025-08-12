@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import { useSaveStatus } from './SaveStatusProvider';
-import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 
 interface IsolatedSurveyContainerProps {
   questionnaireId: string;
@@ -21,16 +20,30 @@ export const IsolatedSurveyContainer = React.memo(({
   const { setSaving, setLastSaved, setUnsavedChanges } = useSaveStatus();
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   
-  // Store initial session data to prevent any re-renders from hook updates
+  // Store initial session data independently of React Query
   const [initialSession, setInitialSession] = useState<any>(null);
-  const { responseSession } = useQuestionnaire(questionnaireId);
   
-  // Capture initial session only once
+  // Fetch initial session data directly, completely bypassing React Query cache
   useEffect(() => {
-    if (responseSession && !initialSession) {
-      setInitialSession(responseSession);
+    const fetchInitialSession = async () => {
+      try {
+        const response = await fetch('/api/responses/check-session');
+        if (response.ok) {
+          const sessionData = await response.json();
+          if (sessionData && !initialSession) {
+            setInitialSession(sessionData);
+            console.log('Fetched initial session independently:', sessionData);
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to fetch initial session:', error);
+      }
+    };
+
+    if (!initialSession) {
+      fetchInitialSession();
     }
-  }, [responseSession, initialSession]);
+  }, [initialSession]);
 
   // Auto-save handler that doesn't cause re-renders
   const handleAutoSave = useCallback(async (data: any) => {
@@ -176,7 +189,7 @@ export const IsolatedSurveyContainer = React.memo(({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [questionnaireId, initialSession]); // Only load when we have initial session data
+  }, [questionnaireId, initialSession]); // Only load once when we have initial session data
 
   if (isLoadingSurvey) {
     return (
