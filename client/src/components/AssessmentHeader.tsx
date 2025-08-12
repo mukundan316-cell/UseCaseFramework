@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Home, CheckCircle2 } from 'lucide-react';
+import { useSaveStatus } from './SaveStatusProvider';
 
 interface AssessmentHeaderProps {
   questionnaireTitle?: string;
@@ -10,17 +11,12 @@ interface AssessmentHeaderProps {
   answeredCount: number;
   totalQuestions: number;
   isCompleted: boolean;
-  isSaving: boolean;
-  lastSaved: Date | null;
-  hasUnsavedChanges: boolean;
 }
 
-// Memoized save status component to prevent unnecessary re-renders
-const SaveStatus = React.memo(({ isSaving, lastSaved, hasUnsavedChanges }: {
-  isSaving: boolean;
-  lastSaved: Date | null;
-  hasUnsavedChanges: boolean;
-}) => {
+// Memoized save status component that uses context
+const SaveStatus = React.memo(() => {
+  const { isSaving, lastSaved, hasUnsavedChanges } = useSaveStatus();
+  
   if (isSaving) {
     return (
       <div className="flex items-center space-x-2 text-blue-600">
@@ -56,10 +52,7 @@ export const AssessmentHeader = React.memo(({
   progress,
   answeredCount,
   totalQuestions,
-  isCompleted,
-  isSaving,
-  lastSaved,
-  hasUnsavedChanges
+  isCompleted
 }: AssessmentHeaderProps) => {
   const [, setLocation] = useLocation();
 
@@ -115,11 +108,7 @@ export const AssessmentHeader = React.memo(({
             </div>
             
             <div className="flex items-center space-x-4">
-              <SaveStatus 
-                isSaving={isSaving}
-                lastSaved={lastSaved}
-                hasUnsavedChanges={hasUnsavedChanges}
-              />
+              <SaveStatus />
             </div>
           </div>
           
