@@ -121,26 +121,39 @@ export default function QuestionLegoBlock({
     </div>
   );
 
-  // Score slider component (1-5 scale)
+  // Score field with button-style rating (1-5 scale)
   const renderScoreField = () => {
-    const numericValue = typeof value === 'number' ? value : minValue;
+    const numericValue = typeof value === 'number' ? value : null;
+    const range = Array.from({ length: maxValue - minValue + 1 }, (_, i) => minValue + i);
     
     return (
       <div>
         {renderQuestionLabel()}
-        <ScoreSliderLegoBlock
-          label=""
-          field=""
-          value={numericValue}
-          onChange={(_, newValue) => onChange(newValue)}
-          leftLabel={leftLabel}
-          rightLabel={rightLabel}
-          minValue={minValue}
-          maxValue={maxValue}
-          disabled={readonly}
-          showTooltip={false}
-          valueDisplay="badge"
-        />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span>{leftLabel}</span>
+            <span>{rightLabel}</span>
+          </div>
+          <div className="flex items-center justify-center space-x-2">
+            {range.map((scoreValue) => (
+              <button
+                key={scoreValue}
+                type="button"
+                onClick={() => onChange(scoreValue)}
+                disabled={readonly}
+                className={cn(
+                  "w-10 h-10 rounded-full border-2 text-sm font-medium transition-colors",
+                  numericValue === scoreValue
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50",
+                  readonly && "cursor-not-allowed opacity-50"
+                )}
+              >
+                {scoreValue}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     );
   };
@@ -179,14 +192,11 @@ export default function QuestionLegoBlock({
               )}
             >
               <option value="">Select an option...</option>
-              {options
-                .sort((a, b) => a.optionOrder - b.optionOrder)
-                .map((option) => (
-                  <option key={option.id} value={option.optionValue}>
-                    {option.optionText}
-                    {option.scoreValue ? ` (Score: ${typeof option.scoreValue === 'object' ? JSON.stringify(option.scoreValue) : option.scoreValue})` : ''}
-                  </option>
-                ))}
+              {options.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
               <option value="__other__">Other (please specify)</option>
             </select>
             
@@ -226,24 +236,17 @@ export default function QuestionLegoBlock({
           disabled={readonly}
           className="space-y-2"
         >
-          {options
-            .sort((a, b) => a.optionOrder - b.optionOrder)
-            .map((option) => (
-              <div key={option.id} className="flex items-center space-x-2">
-                <RadioGroupItem value={option.optionValue} id={option.id} />
-                <Label
-                  htmlFor={option.id}
-                  className="text-sm font-normal text-gray-700 cursor-pointer flex-1"
-                >
-                  {option.optionText}
-                  {option.scoreValue && (
-                    <span className="ml-2 text-xs text-gray-500">
-                      (Score: {typeof option.scoreValue === 'object' ? JSON.stringify(option.scoreValue) : option.scoreValue})
-                    </span>
-                  )}
-                </Label>
-              </div>
-            ))}
+          {options.map((option) => (
+            <div key={option.id} className="flex items-center space-x-2">
+              <RadioGroupItem value={option.id} id={option.id} />
+              <Label
+                htmlFor={option.id}
+                className="text-sm font-normal text-gray-700 cursor-pointer flex-1"
+              >
+                {option.label}
+              </Label>
+            </div>
+          ))}
           
           {/* "Other" option */}
           <div className="space-y-2 border-t pt-2 mt-3">
@@ -314,52 +317,45 @@ export default function QuestionLegoBlock({
       <div>
         {renderQuestionLabel()}
         <div className="space-y-2">
-          {options
-            .sort((a, b) => a.optionOrder - b.optionOrder)
-            .map((option) => {
-              const isChecked = isArray 
-                ? actualValue?.includes(option.optionValue)
-                : actualValue === option.optionValue;
-                
-              return (
-                <div key={option.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={option.id}
-                    checked={isChecked}
-                    onCheckedChange={(checked) => {
-                      let newValue;
-                      if (isArray) {
-                        const currentSelected = actualValue || [];
-                        newValue = checked
-                          ? [...currentSelected, option.optionValue]
-                          : currentSelected.filter((v: string) => v !== option.optionValue);
-                      } else {
-                        newValue = checked ? option.optionValue : '';
-                      }
-                      
-                      // Preserve other text if it exists
-                      if (hasOtherValue) {
-                        onChange({ selected: newValue, other: otherText });
-                      } else {
-                        onChange(newValue);
-                      }
-                    }}
-                    disabled={readonly}
-                  />
-                  <Label
-                    htmlFor={option.id}
-                    className="text-sm font-normal text-gray-700 cursor-pointer flex-1"
-                  >
-                    {option.optionText}
-                    {option.scoreValue && (
-                      <span className="ml-2 text-xs text-gray-500">
-                        (Score: {typeof option.scoreValue === 'object' ? JSON.stringify(option.scoreValue) : option.scoreValue})
-                      </span>
-                    )}
-                  </Label>
-                </div>
-              );
-            })}
+          {options.map((option) => {
+            const isChecked = isArray 
+              ? actualValue?.includes(option.id)
+              : actualValue === option.id;
+              
+            return (
+              <div key={option.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={option.id}
+                  checked={isChecked}
+                  onCheckedChange={(checked) => {
+                    let newValue;
+                    if (isArray) {
+                      const currentSelected = actualValue || [];
+                      newValue = checked
+                        ? [...currentSelected, option.id]
+                        : currentSelected.filter((v: string) => v !== option.id);
+                    } else {
+                      newValue = checked ? option.id : '';
+                    }
+                    
+                    // Preserve other text if it exists
+                    if (hasOtherValue) {
+                      onChange({ selected: newValue, other: otherText });
+                    } else {
+                      onChange(newValue);
+                    }
+                  }}
+                  disabled={readonly}
+                />
+                <Label
+                  htmlFor={option.id}
+                  className="text-sm font-normal text-gray-700 cursor-pointer flex-1"
+                >
+                  {option.label}
+                </Label>
+              </div>
+            );
+          })}
           
           {/* "Other" option */}
           <div className="space-y-2 border-t pt-2 mt-3">
