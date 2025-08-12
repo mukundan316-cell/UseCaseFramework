@@ -32,58 +32,84 @@
   ],
   "questions": [
     {
-      "id": "q1-company-profile",
-      "questionText": "Please provide your company profile information",
-      "questionType": "company_profile",
+      "id": "q1-company-name",
+      "questionText": "What is your company name?",
+      "questionType": "text",
       "isRequired": true,
       "questionOrder": 1,
       "sectionId": "section-1",
       "subsectionId": "subsection-1-1",
-      "questionData": {
-        "fields": [
-          { "name": "companyName", "label": "Company Name", "type": "text", "required": true },
-          { "name": "industry", "label": "Industry", "type": "select", "options": ["Insurance", "Financial Services", "Technology"] },
-          { "name": "employeeCount", "label": "Number of Employees", "type": "number" }
-        ]
-      }
+      "placeholder": "Enter your company name..."
     },
     {
-      "id": "q2-smart-rating",
-      "questionText": "How would you rate your organization's current AI readiness?",
-      "questionType": "smart_rating",
+      "id": "q2-industry",
+      "questionText": "What industry is your company in?",
+      "questionType": "select",
       "isRequired": true,
       "questionOrder": 2,
       "sectionId": "section-1",
       "subsectionId": "subsection-1-1",
-      "questionData": {
-        "scale": 5,
-        "labels": ["Very Low", "Low", "Medium", "High", "Very High"],
-        "criteria": "Consider factors like data quality, technical infrastructure, and leadership support"
-      }
+      "options": [
+        { "id": "insurance", "label": "Insurance" },
+        { "id": "financial", "label": "Financial Services" },
+        { "id": "technology", "label": "Technology" },
+        { "id": "other", "label": "Other" }
+      ]
     },
     {
-      "id": "q3-business-lines",
-      "questionText": "Which insurance lines does your business focus on?",
-      "questionType": "business_lines_matrix",
-      "isRequired": true,
+      "id": "q3-employee-count",
+      "questionText": "How many employees does your organization have?",
+      "questionType": "number",
+      "isRequired": false,
       "questionOrder": 3,
+      "sectionId": "section-1",
+      "subsectionId": "subsection-1-1",
+      "placeholder": "Enter number of employees..."
+    },
+    {
+      "id": "q4-ai-readiness",
+      "questionText": "How would you rate your organization's current AI readiness?",
+      "questionType": "score",
+      "isRequired": true,
+      "questionOrder": 4,
+      "sectionId": "section-1",
+      "subsectionId": "subsection-1-1",
+      "helpText": "Consider factors like data quality, technical infrastructure, and leadership support",
+      "minValue": 1,
+      "maxValue": 5,
+      "leftLabel": "Very Low",
+      "rightLabel": "Very High"
+    },
+    {
+      "id": "q5-business-lines",
+      "questionText": "Which insurance lines does your business focus on? (Select all that apply)",
+      "questionType": "checkbox",
+      "isRequired": true,
+      "questionOrder": 5,
       "sectionId": "section-2",
       "subsectionId": "subsection-2-1",
-      "questionData": {
-        "businessLines": [
-          "Property & Casualty",
-          "Life & Health",
-          "Commercial Lines",
-          "Personal Lines",
-          "Specialty Insurance",
-          "Reinsurance"
-        ],
-        "focusAreas": [
-          "Primary Focus",
-          "Secondary Focus", 
-          "Not Applicable"
-        ]
-      }
+      "options": [
+        { "id": "property-casualty", "label": "Property & Casualty" },
+        { "id": "life-health", "label": "Life & Health" },
+        { "id": "commercial", "label": "Commercial Lines" },
+        { "id": "personal", "label": "Personal Lines" },
+        { "id": "specialty", "label": "Specialty Insurance" },
+        { "id": "reinsurance", "label": "Reinsurance" }
+      ]
+    },
+    {
+      "id": "q6-data-quality",
+      "questionText": "How would you rate the quality of your organization's data?",
+      "questionType": "score", 
+      "isRequired": true,
+      "questionOrder": 6,
+      "sectionId": "section-2",
+      "subsectionId": "subsection-2-1",
+      "helpText": "Consider completeness, accuracy, consistency, and accessibility",
+      "minValue": 1,
+      "maxValue": 5,
+      "leftLabel": "Poor",
+      "rightLabel": "Excellent"
     }
   ]
 }
