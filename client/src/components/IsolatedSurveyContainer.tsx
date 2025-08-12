@@ -16,11 +16,15 @@ export const IsolatedSurveyContainer = React.memo(({
   onSave,
   onComplete
 }: IsolatedSurveyContainerProps) => {
+  console.log('🔥 ISOLATED SURVEY CONTAINER RE-RENDER - questionnaireId:', questionnaireId);
   const [surveyModel, setSurveyModel] = useState<Model | null>(null);
   const [isLoadingSurvey, setIsLoadingSurvey] = useState(true);
   const [initialAnswersLoaded, setInitialAnswersLoaded] = useState(false);
-  const { setSaving, setLastSaved, setUnsavedChanges } = useSaveStatus();
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  
+  // Store save status functions in refs to avoid re-renders from context updates
+  const saveStatusRef = useRef(useSaveStatus());
+  saveStatusRef.current = useSaveStatus();
   
   // Freeze session data permanently and disable React Query after first load
   const [frozenSession, setFrozenSession] = useState<any>(null);
@@ -51,7 +55,7 @@ export const IsolatedSurveyContainer = React.memo(({
   // Always use frozen data once it's set
   const activeSession = frozenSession;
 
-  // Auto-save handler with proper UI feedback
+  // Auto-save handler with proper UI feedback - use refs to avoid context re-renders
   const handleAutoSave = useCallback(async (data: any) => {
     console.log('🔥 HANDLE AUTO-SAVE CALLED:', { activeSession: !!activeSession, data });
     if (!activeSession) {
@@ -60,19 +64,19 @@ export const IsolatedSurveyContainer = React.memo(({
     }
 
     console.log('🔥 STARTING AUTO-SAVE PROCESS');
-    setSaving(true);
+    saveStatusRef.current.setSaving(true);
     try {
       await onSave(data);
       console.log('🔥 AUTO-SAVE SUCCESSFUL');
-      setLastSaved(new Date());
-      setUnsavedChanges(false);
+      saveStatusRef.current.setLastSaved(new Date());
+      saveStatusRef.current.setUnsavedChanges(false);
     } catch (error) {
       console.error('🔥 AUTO-SAVE FAILED:', error);
     } finally {
-      setSaving(false);
+      saveStatusRef.current.setSaving(false);
       console.log('🔥 AUTO-SAVE PROCESS COMPLETE');
     }
-  }, [onSave, setSaving, setLastSaved, setUnsavedChanges, activeSession]);
+  }, [onSave, activeSession]);
 
   // Survey completion handler
   const handleComplete = useCallback(async (survey: Model) => {
@@ -183,7 +187,7 @@ export const IsolatedSurveyContainer = React.memo(({
             value: options?.value,
             surveyData: survey.data
           });
-          setUnsavedChanges(true);
+          saveStatusRef.current.setUnsavedChanges(true);
           // Clear existing timeout
           if (saveTimeoutRef.current) {
             clearTimeout(saveTimeoutRef.current);
@@ -242,6 +246,14 @@ export const IsolatedSurveyContainer = React.memo(({
 
   console.log('🔥 RENDERING SURVEY COMPONENT - model exists:', !!surveyModel);
   return <Survey model={surveyModel} />;
+}, (prevProps, nextProps) => {
+  // Only re-render if questionnaireId changes - ignore ALL other prop changes
+  const shouldSkipRender = prevProps.questionnaireId === nextProps.questionnaireId;
+  console.log('🔥 MEMO COMPARISON - shouldSkipRender:', shouldSkipRender, {
+    prevQuestionnaireId: prevProps.questionnaireId,
+    nextQuestionnaireId: nextProps.questionnaireId
+  });
+  return shouldSkipRender;
 });
 
 IsolatedSurveyContainer.displayName = 'IsolatedSurveyContainer';
