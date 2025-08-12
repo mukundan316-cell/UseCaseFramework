@@ -9,11 +9,47 @@
       "id": "section-1",
       "title": "Business Strategy & Leadership",
       "sectionOrder": 1,
-      "subsections": [
+      "questions": [
         {
-          "id": "subsection-1-1",
-          "title": "Executive Vision & Strategic Alignment",
-          "subsectionOrder": 1
+          "id": "q1-company-name",
+          "questionText": "What is your company name?",
+          "questionType": "text",
+          "isRequired": true,
+          "questionOrder": 1,
+          "placeholder": "Enter your company name..."
+        },
+        {
+          "id": "q2-industry",
+          "questionText": "What industry is your company in?",
+          "questionType": "select",
+          "isRequired": true,
+          "questionOrder": 2,
+          "options": [
+            { "id": "insurance", "label": "Insurance" },
+            { "id": "financial", "label": "Financial Services" },
+            { "id": "technology", "label": "Technology" },
+            { "id": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "q3-employee-count",
+          "questionText": "How many employees does your organization have?",
+          "questionType": "number",
+          "isRequired": false,
+          "questionOrder": 3,
+          "placeholder": "Enter number of employees..."
+        },
+        {
+          "id": "q4-ai-readiness",
+          "questionText": "How would you rate your organization's current AI readiness?",
+          "questionType": "score",
+          "isRequired": true,
+          "questionOrder": 4,
+          "helpText": "Consider factors like data quality, technical infrastructure, and leadership support",
+          "minValue": 1,
+          "maxValue": 5,
+          "leftLabel": "Very Low",
+          "rightLabel": "Very High"
         }
       ]
     },
@@ -21,95 +57,35 @@
       "id": "section-2", 
       "title": "Current AI & Data Capabilities",
       "sectionOrder": 2,
-      "subsections": [
+      "questions": [
         {
-          "id": "subsection-2-1",
-          "title": "Data Infrastructure Assessment",
-          "subsectionOrder": 1
+          "id": "q5-business-lines",
+          "questionText": "Which insurance lines does your business focus on? (Select all that apply)",
+          "questionType": "checkbox",
+          "isRequired": true,
+          "questionOrder": 1,
+          "options": [
+            { "id": "property-casualty", "label": "Property & Casualty" },
+            { "id": "life-health", "label": "Life & Health" },
+            { "id": "commercial", "label": "Commercial Lines" },
+            { "id": "personal", "label": "Personal Lines" },
+            { "id": "specialty", "label": "Specialty Insurance" },
+            { "id": "reinsurance", "label": "Reinsurance" }
+          ]
+        },
+        {
+          "id": "q6-data-quality",
+          "questionText": "How would you rate the quality of your organization's data?",
+          "questionType": "score", 
+          "isRequired": true,
+          "questionOrder": 2,
+          "helpText": "Consider completeness, accuracy, consistency, and accessibility",
+          "minValue": 1,
+          "maxValue": 5,
+          "leftLabel": "Poor",
+          "rightLabel": "Excellent"
         }
       ]
-    }
-  ],
-  "questions": [
-    {
-      "id": "q1-company-name",
-      "questionText": "What is your company name?",
-      "questionType": "text",
-      "isRequired": true,
-      "questionOrder": 1,
-      "sectionId": "section-1",
-      "subsectionId": "subsection-1-1",
-      "placeholder": "Enter your company name..."
-    },
-    {
-      "id": "q2-industry",
-      "questionText": "What industry is your company in?",
-      "questionType": "select",
-      "isRequired": true,
-      "questionOrder": 2,
-      "sectionId": "section-1",
-      "subsectionId": "subsection-1-1",
-      "options": [
-        { "id": "insurance", "label": "Insurance" },
-        { "id": "financial", "label": "Financial Services" },
-        { "id": "technology", "label": "Technology" },
-        { "id": "other", "label": "Other" }
-      ]
-    },
-    {
-      "id": "q3-employee-count",
-      "questionText": "How many employees does your organization have?",
-      "questionType": "number",
-      "isRequired": false,
-      "questionOrder": 3,
-      "sectionId": "section-1",
-      "subsectionId": "subsection-1-1",
-      "placeholder": "Enter number of employees..."
-    },
-    {
-      "id": "q4-ai-readiness",
-      "questionText": "How would you rate your organization's current AI readiness?",
-      "questionType": "score",
-      "isRequired": true,
-      "questionOrder": 4,
-      "sectionId": "section-1",
-      "subsectionId": "subsection-1-1",
-      "helpText": "Consider factors like data quality, technical infrastructure, and leadership support",
-      "minValue": 1,
-      "maxValue": 5,
-      "leftLabel": "Very Low",
-      "rightLabel": "Very High"
-    },
-    {
-      "id": "q5-business-lines",
-      "questionText": "Which insurance lines does your business focus on? (Select all that apply)",
-      "questionType": "checkbox",
-      "isRequired": true,
-      "questionOrder": 5,
-      "sectionId": "section-2",
-      "subsectionId": "subsection-2-1",
-      "options": [
-        { "id": "property-casualty", "label": "Property & Casualty" },
-        { "id": "life-health", "label": "Life & Health" },
-        { "id": "commercial", "label": "Commercial Lines" },
-        { "id": "personal", "label": "Personal Lines" },
-        { "id": "specialty", "label": "Specialty Insurance" },
-        { "id": "reinsurance", "label": "Reinsurance" }
-      ]
-    },
-    {
-      "id": "q6-data-quality",
-      "questionText": "How would you rate the quality of your organization's data?",
-      "questionType": "score", 
-      "isRequired": true,
-      "questionOrder": 6,
-      "sectionId": "section-2",
-      "subsectionId": "subsection-2-1",
-      "helpText": "Consider completeness, accuracy, consistency, and accessibility",
-      "minValue": 1,
-      "maxValue": 5,
-      "leftLabel": "Poor",
-      "rightLabel": "Excellent"
     }
   ]
 }

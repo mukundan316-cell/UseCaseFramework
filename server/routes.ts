@@ -649,51 +649,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const questionnaire = await questionnaireService.getQuestionnaireDefinition(id);
       
       if (questionnaire) {
-        // Transform the flat question structure into nested sections structure expected by frontend
-        const sectionsMap = new Map();
-        
-        // Initialize sections
-        questionnaire.sections.forEach(section => {
-          sectionsMap.set(section.id, {
-            id: section.id,
-            title: section.title,
-            sectionOrder: section.sectionOrder,
-            questions: []
-          });
-        });
-        
-        // Group questions by section
-        questionnaire.questions.forEach(question => {
-          const section = sectionsMap.get(question.sectionId);
-          if (section) {
-            // Transform question format to match frontend expectations
-            const transformedQuestion = {
-              id: question.id,
-              questionText: question.questionText,
-              questionType: question.questionType,
-              isRequired: question.isRequired ? 'true' : 'false',
-              questionOrder: question.questionOrder,
-              helpText: question.helpText,
-              options: question.options || [],
-              minValue: question.minValue,
-              maxValue: question.maxValue,
-              leftLabel: question.leftLabel,
-              rightLabel: question.rightLabel,
-              placeholder: question.placeholder,
-              questionData: question.questionData
-            };
-            section.questions.push(transformedQuestion);
-          }
-        });
-        
-        // Sort questions within each section by questionOrder
-        sectionsMap.forEach(section => {
-          section.questions.sort((a, b) => (a.questionOrder || 0) - (b.questionOrder || 0));
-        });
-        
-        // Convert map to array and sort by sectionOrder
-        const sections = Array.from(sectionsMap.values())
-          .sort((a, b) => a.sectionOrder - b.sectionOrder);
+        // Transform questions to match frontend expectations
+        const transformedSections = questionnaire.sections.map(section => ({
+          id: section.id,
+          title: section.title,
+          sectionOrder: section.sectionOrder,
+          questions: section.questions.map(question => ({
+            id: question.id,
+            questionText: question.questionText,
+            questionType: question.questionType,
+            isRequired: question.isRequired ? 'true' : 'false',
+            questionOrder: question.questionOrder,
+            helpText: question.helpText,
+            options: question.options || [],
+            minValue: question.minValue,
+            maxValue: question.maxValue,
+            leftLabel: question.leftLabel,
+            rightLabel: question.rightLabel,
+            placeholder: question.placeholder,
+            questionData: question.questionData
+          })).sort((a, b) => (a.questionOrder || 0) - (b.questionOrder || 0))
+        })).sort((a, b) => a.sectionOrder - b.sectionOrder);
         
         const transformedQuestionnaire = {
           id: questionnaire.id,
@@ -701,7 +677,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           description: questionnaire.description,
           version: questionnaire.version,
           status: 'active',
-          sections
+          sections: transformedSections
         };
         
         res.json(transformedQuestionnaire);

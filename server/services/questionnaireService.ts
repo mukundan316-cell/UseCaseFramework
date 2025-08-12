@@ -50,7 +50,8 @@ export class QuestionnaireService {
     
     if (questionnaire) {
       questionnaireVersion = questionnaire.version;
-      totalQuestions = questionnaire.questions.length;
+      // Count total questions across all sections
+      totalQuestions = questionnaire.sections.reduce((total, section) => total + section.questions.length, 0);
     } else {
       console.log(`Questionnaire ${questionnaireId} not found, using defaults`);
     }

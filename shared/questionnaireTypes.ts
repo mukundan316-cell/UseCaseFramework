@@ -1,22 +1,29 @@
 // Shared TypeScript types for questionnaire system
 
+export interface QuestionOption {
+  id: string;
+  label: string;
+  value?: string | number;
+}
+
 export interface QuestionDefinition {
   id: string;
   questionText: string;
   questionType: 'text' | 'textarea' | 'select' | 'multi_select' | 'radio' | 'checkbox' | 
-                'number' | 'date' | 'email' | 'url' | 'company_profile' | 'business_lines_matrix' |
-                'smart_rating' | 'multi_rating' | 'percentage_allocation' | 'percentage_target' |
-                'ranking' | 'currency' | 'department_skills_matrix' | 'business_performance' |
-                'composite' | 'dynamic_use_case_selector';
+                'number' | 'date' | 'email' | 'url' | 'score' | 'scale';
   isRequired: boolean;
   questionOrder: number;
   helpText?: string;
+  placeholder?: string;
+  options?: QuestionOption[];
+  minValue?: number;
+  maxValue?: number;
+  leftLabel?: string;
+  rightLabel?: string;
   questionData?: Record<string, any>;
   subQuestions?: QuestionDefinition[];
   displayCondition?: string;
   scoringCategory?: string;
-  sectionId: string;
-  subsectionId?: string;
 }
 
 export interface SectionDefinition {
@@ -24,15 +31,7 @@ export interface SectionDefinition {
   title: string;
   sectionOrder: number;
   description?: string;
-  subsections?: SubsectionDefinition[];
-}
-
-export interface SubsectionDefinition {
-  id: string;
-  title: string;
-  subsectionOrder: number;
-  description?: string;
-  sectionId: string;
+  questions: QuestionDefinition[];
 }
 
 export interface QuestionnaireDefinition {
@@ -43,7 +42,6 @@ export interface QuestionnaireDefinition {
   createdAt: string;
   updatedAt?: string;
   sections: SectionDefinition[];
-  questions: QuestionDefinition[];
   metadata?: {
     estimatedTimeMinutes?: number;
     category?: string;
