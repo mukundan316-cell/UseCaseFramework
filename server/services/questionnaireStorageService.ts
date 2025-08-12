@@ -94,10 +94,16 @@ export class QuestionnaireStorageService {
    */
   async getQuestionnaireDefinition(questionnaireId: string): Promise<QuestionnaireDefinition | null> {
     try {
-      const fileName = `${questionnaireId}.json`;
-      const filePath = path.join(this.questionnairesDir, fileName);
+      // Try both the old format (direct file) and new format (subdirectory)
+      const directFilePath = path.join(this.questionnairesDir, `${questionnaireId}.json`);
+      const subdirFilePath = path.join(this.questionnairesDir, questionnaireId, 'definition.json');
       
-      if (!fs.existsSync(filePath)) {
+      let filePath: string;
+      if (fs.existsSync(subdirFilePath)) {
+        filePath = subdirFilePath;
+      } else if (fs.existsSync(directFilePath)) {
+        filePath = directFilePath;
+      } else {
         return null;
       }
 
