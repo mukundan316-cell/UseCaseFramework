@@ -126,7 +126,7 @@ export default function RSAAssessmentLandingPage({
   };
 
   const handleBeginAssessment = () => {
-    setLocation('/assessment/take');
+    setLocation('/assessment/start');
   };
 
   const handleResumeAssessment = () => {

@@ -22,6 +22,7 @@ import SurveyJsAssessment from "./pages/SurveyJsAssessment";
 import { SimpleSurveyJsDemo } from "./components/SimpleSurveyJsDemo";
 import StandaloneSurveyDemo from "./pages/StandaloneSurveyDemo";
 import AIRoadmapPage from "./pages/AIRoadmapPage";
+import { AssessmentSessionStart } from "./components/AssessmentSessionStart";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -38,6 +39,15 @@ function Router() {
       <Route path="/questionnaire" component={QuestionnaireContainerDemo} />
       <Route path="/roadmap" component={AIRoadmapPage} />
       <Route path="/assessment" component={() => <RSAAssessmentLandingPage />} />
+      <Route path="/assessment/start" component={() => 
+        <AssessmentSessionStart 
+          questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b"
+          onSessionStarted={(sessionId) => {
+            // Navigate to the actual assessment with the session
+            window.location.href = '/assessment/take';
+          }}
+        />
+      } />
       <Route path="/assessment/take" component={() => 
         <SurveyJsAssessment questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
       } />
