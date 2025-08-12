@@ -357,7 +357,7 @@ export default function QuestionnaireContainer({
     // Only validate truly critical question-level requirements
     currentSection.questions.forEach((question: QuestionData) => {
       // Only block on explicit question-level requirements that are absolutely critical
-      if (question.isRequired === true || question.isRequired === 'true' || question.isRequired as any === true) {
+      if (question.isRequired === true || question.isRequired === 'true') {
         const value = responses.get(question.id);
         // More lenient validation - allow progression with any data present
         if (value === undefined || value === null) {
@@ -702,7 +702,7 @@ export default function QuestionnaireContainer({
           questions: getCurrentSectionQuestions().map(q => ({
             ...q,
             questionOrder: q.globalQuestionNumber,
-            isRequired: q.isRequired === true || q.isRequired === 'true' || q.isRequired as any === true
+            isRequired: q.isRequired === true || q.isRequired === 'true'
           }))
         }}
         responses={responses}
