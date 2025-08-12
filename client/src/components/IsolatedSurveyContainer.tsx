@@ -30,30 +30,28 @@ export const IsolatedSurveyContainer = React.memo(({
   const [frozenSession, setFrozenSession] = useState<any>(null);
   const [disableQuery, setDisableQuery] = useState(false);
   
-  // Direct query that we can disable after first load
-  const { data: responseSession } = useQuery({
-    queryKey: ['session', questionnaireId],
-    queryFn: () => apiRequest('/api/responses/check-session'),
-    enabled: !disableQuery,
-    staleTime: Infinity, // Never refetch automatically
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false
-  });
-  
-  // Freeze session data permanently and disable query to prevent ANY future updates
+  // Completely bypass React Query - direct API call only once
   useEffect(() => {
-    console.log('🔥 SESSION FREEZE EFFECT - responseSession:', !!responseSession, 'frozenSession:', !!frozenSession, 'disableQuery:', disableQuery);
-    if (responseSession && !frozenSession) {
-      console.log('🔥 FREEZING SESSION DATA');
-      setFrozenSession(responseSession);
-      setDisableQuery(true); // Disable query forever after first load
-      console.log('🔥 SESSION FROZEN AND QUERY DISABLED:', responseSession);
+    if (!frozenSession && !disableQuery && questionnaireId) {
+      console.log('🔥 DIRECT API CALL FOR SESSION DATA');
+      apiRequest('/api/responses/check-session')
+        .then((data) => {
+          console.log('🔥 DIRECT API RESPONSE:', data);
+          setFrozenSession(data);
+          setDisableQuery(true);
+        })
+        .catch((error) => {
+          console.error('🔥 DIRECT API ERROR:', error);
+        });
     }
-  }, [responseSession, frozenSession, disableQuery]);
+  }, [questionnaireId, frozenSession, disableQuery]);
+  
+  // No longer needed - session is fetched directly without React Query
   
   // Always use frozen data once it's set
   const activeSession = frozenSession;
+  
+  console.log('🔥 ACTIVE SESSION STATE:', { activeSession: !!activeSession, frozenSession: !!frozenSession });
 
   // Auto-save handler with proper UI feedback - use refs to avoid context re-renders
   const handleAutoSave = useCallback(async (data: any) => {
