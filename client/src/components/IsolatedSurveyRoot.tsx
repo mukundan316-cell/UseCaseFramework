@@ -1,0 +1,202 @@
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Survey } from 'survey-react-ui';
+import { Model } from 'survey-core';
+import { apiRequest } from '@/lib/queryClient';
+
+interface IsolatedSurveyRootProps {
+  questionnaireId: string;
+  onSave: (data: any) => Promise<void>;
+  onComplete: (data: any) => void;
+  containerElement: HTMLDivElement;
+  onSaveStatusChange?: (status: { isSaving: boolean; lastSaved: Date | null; hasUnsavedChanges: boolean }) => void;
+}
+
+// This component runs in its OWN React root, completely isolated
+function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containerElement, onSaveStatusChange }: IsolatedSurveyRootProps) {
+  const [surveyModel, setSurveyModel] = useState<Model | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [session, setSession] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+
+  console.log('🔥 ISOLATED ROOT COMPONENT RENDER - questionnaireId:', questionnaireId);
+
+  // Load session and survey config
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      try {
+        console.log('🔥 ISOLATED ROOT - LOADING SESSION AND CONFIG');
+        
+        // Load session
+        const sessionData = await apiRequest(`/api/responses/check-session?questionnaireId=${questionnaireId}`);
+        console.log('🔥 ISOLATED ROOT - SESSION LOADED:', sessionData);
+        
+        if (isMounted) {
+          setSession(sessionData);
+        }
+
+        // Load survey config
+        const surveyConfig = await apiRequest(`/api/survey-config/${questionnaireId}`);
+        console.log('🔥 ISOLATED ROOT - CONFIG LOADED');
+
+        if (isMounted) {
+          const survey = new Model(surveyConfig);
+          
+          // Load existing answers
+          if (sessionData?.answers && Object.keys(sessionData.answers).length > 0) {
+            console.log('🔥 ISOLATED ROOT - LOADING ANSWERS:', Object.keys(sessionData.answers).length);
+            survey.data = sessionData.answers;
+          }
+
+          // Auto-save handler
+          const handleAutoSave = async (data: any) => {
+            if (!sessionData) return;
+            
+            console.log('🔥 ISOLATED ROOT - AUTO-SAVE START');
+            setIsSaving(true);
+            onSaveStatusChange?.({ isSaving: true, lastSaved, hasUnsavedChanges });
+            try {
+              await onSave(data);
+              const savedTime = new Date();
+              setLastSaved(savedTime);
+              setHasUnsavedChanges(false);
+              onSaveStatusChange?.({ isSaving: false, lastSaved: savedTime, hasUnsavedChanges: false });
+              console.log('🔥 ISOLATED ROOT - AUTO-SAVE SUCCESS');
+            } catch (error) {
+              console.error('🔥 ISOLATED ROOT - AUTO-SAVE ERROR:', error);
+              onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
+            } finally {
+              setIsSaving(false);
+            }
+          };
+
+          // Set up event handlers
+          survey.onValueChanged.add((sender: Model, options: any) => {
+            console.log('🔥 ISOLATED ROOT - VALUE CHANGED:', options?.name, options?.value);
+            setHasUnsavedChanges(true);
+            onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
+            
+            // Clear existing timeout
+            if (saveTimeoutRef.current) {
+              clearTimeout(saveTimeoutRef.current);
+            }
+            
+            // Debounced auto-save
+            saveTimeoutRef.current = setTimeout(() => {
+              handleAutoSave(sender.data);
+            }, 2000);
+          });
+
+          survey.onComplete.add(() => {
+            console.log('🔥 ISOLATED ROOT - SURVEY COMPLETE');
+            onComplete(survey.data);
+          });
+
+          setSurveyModel(survey);
+          setIsLoading(false);
+          console.log('🔥 ISOLATED ROOT - SETUP COMPLETE');
+        }
+      } catch (error) {
+        console.error('🔥 ISOLATED ROOT - LOAD ERROR:', error);
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [questionnaireId, onSave, onComplete]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center space-x-3">
+          <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-gray-600">Loading assessment...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!surveyModel) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">Unable to load assessment questions.</p>
+      </div>
+    );
+  }
+
+  // Render save status
+  const renderSaveStatus = () => {
+    if (isSaving) {
+      return (
+        <div className="flex items-center text-blue-600 text-sm mb-4">
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+          Saving...
+        </div>
+      );
+    }
+    if (lastSaved) {
+      return (
+        <div className="text-green-600 text-sm mb-4">
+          ✓ Saved {lastSaved.toLocaleTimeString()}
+        </div>
+      );
+    }
+    if (hasUnsavedChanges) {
+      return (
+        <div className="text-orange-600 text-sm mb-4">
+          • Unsaved changes
+        </div>
+      );
+    }
+    return null;
+  };
+
+  console.log('🔥 ISOLATED ROOT - RENDERING SURVEY');
+  return (
+    <div>
+      {renderSaveStatus()}
+      <Survey model={surveyModel} />
+    </div>
+  );
+}
+
+// Mount Survey.js in completely separate React root
+export function mountIsolatedSurvey(
+  containerElement: HTMLDivElement,
+  questionnaireId: string,
+  onSave: (data: any) => Promise<void>,
+  onComplete: (data: any) => void,
+  onSaveStatusChange?: (status: { isSaving: boolean; lastSaved: Date | null; hasUnsavedChanges: boolean }) => void
+) {
+  console.log('🔥 MOUNTING ISOLATED SURVEY ROOT');
+  const root = createRoot(containerElement);
+  
+  root.render(
+    <IsolatedSurveyComponent
+      questionnaireId={questionnaireId}
+      onSave={onSave}
+      onComplete={onComplete}
+      containerElement={containerElement}
+      onSaveStatusChange={onSaveStatusChange}
+    />
+  );
+
+  return () => {
+    console.log('🔥 UNMOUNTING ISOLATED SURVEY ROOT');
+    root.unmount();
+  };
+}
