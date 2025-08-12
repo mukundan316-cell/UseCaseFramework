@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
@@ -19,6 +19,7 @@ interface SurveyJsContainerProps {
 }
 
 export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
+  console.log('🔥 PARENT SURVEY CONTAINER RE-RENDER');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -31,18 +32,48 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     saveAnswersError,
     completeResponseError,
   } = useQuestionnaire(questionnaireId);
+  
+  console.log('🔥 PARENT QUERY STATE:', {
+    responseSession: !!responseSession,
+    isLoadingQuestionnaire,
+    isCheckingSession,
+    saveAnswersError: !!saveAnswersError,
+    completeResponseError: !!completeResponseError
+  });
 
-  // Handlers that don't affect state
+  // Store handlers in refs to make them stable - never re-create
+  const handlersRef = useRef({
+    saveAnswers,
+    completeResponse,
+    responseSession,
+    toast,
+    setLocation
+  });
+  
+  // Update ref without causing re-renders
+  handlersRef.current = {
+    saveAnswers,
+    completeResponse,
+    responseSession,
+    toast,
+    setLocation
+  };
+
+  // Stable handlers that never change reference
   const handleSave = React.useCallback(async (data: any) => {
+    console.log('🔥 PARENT HANDLE SAVE CALLED');
+    const { responseSession, saveAnswers } = handlersRef.current;
     if (!responseSession) return;
     
     await saveAnswers({
       responseId: responseSession.id,
       answers: data
     });
-  }, [responseSession?.id, saveAnswers]);
+    console.log('🔥 PARENT HANDLE SAVE COMPLETE');
+  }, []); // No dependencies = never re-creates
 
   const handleComplete = React.useCallback(async (data: any) => {
+    const { responseSession, saveAnswers, completeResponse, toast, setLocation } = handlersRef.current;
     if (!responseSession) return;
 
     try {
@@ -72,7 +103,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
         variant: "destructive"
       });
     }
-  }, [responseSession?.id, saveAnswers, completeResponse, toast, setLocation]);
+  }, []); // No dependencies = never re-creates
 
   // Simple progress calculation - no complex state dependencies
   const progress = responseSession?.answers 
