@@ -317,8 +317,8 @@ export default function QuestionLegoBlock({
         <div className="space-y-2">
           {options.map((option) => {
             const isChecked = isArray 
-              ? actualValue?.includes(option.id)
-              : actualValue === option.id;
+              ? (actualValue || []).includes(option.optionValue || option.id)
+              : actualValue === (option.optionValue || option.id);
               
             return (
               <div key={option.id} className="flex items-center space-x-2">
@@ -326,15 +326,15 @@ export default function QuestionLegoBlock({
                   id={option.id}
                   checked={isChecked}
                   onCheckedChange={(checked) => {
+                    const optionVal = option.optionValue || option.id;
                     let newValue;
-                    if (isArray) {
-                      const currentSelected = actualValue || [];
-                      newValue = checked
-                        ? [...currentSelected, option.id]
-                        : currentSelected.filter((v: string) => v !== option.id);
-                    } else {
-                      newValue = checked ? option.id : '';
-                    }
+                    
+                    // For checkbox type, always use array for multiple selections
+                    const currentSelected = Array.isArray(actualValue) ? actualValue : (actualValue ? [actualValue] : []);
+                    
+                    newValue = checked
+                      ? [...currentSelected, optionVal]
+                      : currentSelected.filter((v: string) => v !== optionVal);
                     
                     // Preserve other text if it exists
                     if (hasOtherValue) {

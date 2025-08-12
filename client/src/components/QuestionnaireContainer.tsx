@@ -357,7 +357,7 @@ export default function QuestionnaireContainer({
     // Only validate truly critical question-level requirements
     currentSection.questions.forEach((question: QuestionData) => {
       // Only block on explicit question-level requirements that are absolutely critical
-      if (question.isRequired === true || question.isRequired === 'true') {
+      if (question.isRequired === true || question.isRequired === 'true' || question.isRequired as any === true) {
         const value = responses.get(question.id);
         // More lenient validation - allow progression with any data present
         if (value === undefined || value === null) {
@@ -424,26 +424,7 @@ export default function QuestionnaireContainer({
     completeResponse(responseSession.id);
   };
 
-  // Calculate overall progress
-  const overallProgress = useMemo(() => {
-    if (!questionnaire) return 0;
-    
-    let totalQuestions = 0;
-    let answeredQuestions = 0;
-    
-    questionnaire.sections.forEach(section => {
-      section.questions.forEach((question: QuestionData) => {
-        totalQuestions++;
-        const value = responses.get(question.id);
-        if (value !== undefined && value !== '' && 
-            (!Array.isArray(value) || value.length > 0)) {
-          answeredQuestions++;
-        }
-      });
-    });
-    
-    return totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
-  }, [questionnaire, responses]);
+  // Calculate overall progress (removed duplicate - using calculateOverallProgress function instead)
 
   // Loading state
   if (isLoadingQuestionnaire || isCheckingSession) {
@@ -584,6 +565,49 @@ export default function QuestionnaireContainer({
   const isLastSection = currentSectionIndex === questionnaire.sections.length - 1;
   const isCompleted = responseSession?.status === 'completed';
 
+  // Calculate global question numbers across all sections
+  const getAllQuestions = () => {
+    const allQuestions: Array<QuestionData & { globalQuestionNumber: number }> = [];
+    let globalQuestionNumber = 1;
+    
+    questionnaire.sections.forEach((section) => {
+      section.questions.forEach((question) => {
+        allQuestions.push({
+          ...question,
+          globalQuestionNumber
+        });
+        globalQuestionNumber++;
+      });
+    });
+    
+    return allQuestions;
+  };
+
+  // Get questions for current section with global numbering
+  const getCurrentSectionQuestions = () => {
+    const allQuestions = getAllQuestions();
+    let startIndex = 0;
+    
+    for (let i = 0; i < currentSectionIndex; i++) {
+      startIndex += questionnaire.sections[i].questions.length;
+    }
+    
+    return allQuestions.slice(startIndex, startIndex + currentSection.questions.length);
+  };
+
+  // Calculate total answered questions across all sections for progress
+  const calculateOverallProgress = () => {
+    const allQuestions = getAllQuestions();
+    const answeredCount = allQuestions.filter(q => {
+      const answer = responses.get(q.id);
+      return answer !== undefined && answer !== null && answer !== '';
+    }).length;
+    
+    return Math.round((answeredCount / allQuestions.length) * 100);
+  };
+
+  const currentOverallProgress = calculateOverallProgress();
+
   // Add safety check for currentSection
   if (!currentSection) {
     return (
@@ -641,9 +665,9 @@ export default function QuestionnaireContainer({
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Overall Progress</span>
-              <span className="font-medium text-[#005DAA]">{overallProgress}%</span>
+              <span className="font-medium text-[#005DAA]">{currentOverallProgress}%</span>
             </div>
-            <Progress value={overallProgress} className="h-2" />
+            <Progress value={currentOverallProgress} className="h-2" />
           </div>
           
           {/* Enhanced Progress Status */}
@@ -675,9 +699,10 @@ export default function QuestionnaireContainer({
       <SectionLegoBlock
         section={{
           ...currentSection,
-          questions: currentSection.questions.map(q => ({
+          questions: getCurrentSectionQuestions().map(q => ({
             ...q,
-            isRequired: q.isRequired === true || q.isRequired === 'true'
+            questionOrder: q.globalQuestionNumber,
+            isRequired: q.isRequired === true || q.isRequired === 'true' || q.isRequired as any === true
           }))
         }}
         responses={responses}
