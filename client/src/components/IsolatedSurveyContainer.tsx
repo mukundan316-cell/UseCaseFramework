@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import { useSaveStatus } from './SaveStatusProvider';
+import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 
 interface IsolatedSurveyContainerProps {
   questionnaireId: string;
@@ -20,34 +21,26 @@ export const IsolatedSurveyContainer = React.memo(({
   const { setSaving, setLastSaved, setUnsavedChanges } = useSaveStatus();
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   
-  // Store initial session data independently of React Query
-  const [initialSession, setInitialSession] = useState<any>(null);
+  // Use query but prevent updates during active editing
+  const [isFormActive, setIsFormActive] = useState(false);
+  const [frozenSession, setFrozenSession] = useState<any>(null);
   
-  // Fetch initial session data directly, completely bypassing React Query cache
+  const { responseSession } = useQuestionnaire(questionnaireId);
+  
+  // Freeze session data when form becomes active
   useEffect(() => {
-    const fetchInitialSession = async () => {
-      try {
-        const response = await fetch('/api/responses/check-session');
-        if (response.ok) {
-          const sessionData = await response.json();
-          if (sessionData && !initialSession) {
-            setInitialSession(sessionData);
-            console.log('Fetched initial session independently:', sessionData);
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to fetch initial session:', error);
-      }
-    };
-
-    if (!initialSession) {
-      fetchInitialSession();
+    if (responseSession && !frozenSession) {
+      setFrozenSession(responseSession);
+      console.log('Froze initial session data:', responseSession);
     }
-  }, [initialSession]);
+  }, [responseSession, frozenSession]);
+  
+  // Use frozen data during active editing, live data when idle
+  const activeSession = isFormActive ? frozenSession : responseSession;
 
-  // Auto-save handler that doesn't cause re-renders
+  // Auto-save handler with proper UI feedback
   const handleAutoSave = useCallback(async (data: any) => {
-    if (!initialSession) return;
+    if (!activeSession) return;
 
     setSaving(true);
     try {
@@ -59,18 +52,18 @@ export const IsolatedSurveyContainer = React.memo(({
     } finally {
       setSaving(false);
     }
-  }, [onSave, setSaving, setLastSaved, setUnsavedChanges, initialSession]); // Use static initialSession
+  }, [onSave, setSaving, setLastSaved, setUnsavedChanges, activeSession]);
 
   // Survey completion handler
   const handleComplete = useCallback(async (survey: Model) => {
-    if (!initialSession) return;
+    if (!activeSession) return;
     
     try {
       await onComplete(survey.data);
     } catch (error) {
       console.error('Error completing assessment:', error);
     }
-  }, [onComplete, initialSession]); // Use static initialSession
+  }, [onComplete, activeSession]);
 
   // Load Survey.js configuration - this only runs once
   useEffect(() => {
@@ -132,11 +125,11 @@ export const IsolatedSurveyContainer = React.memo(({
           }
         };
 
-        // Load existing answers only once on initial load using static session
-        if (initialSession?.answers && !initialAnswersLoaded) {
+        // Load existing answers only once on initial load
+        if (frozenSession?.answers && !initialAnswersLoaded) {
           const surveyData: any = {};
-          if (Array.isArray(initialSession.answers)) {
-            initialSession.answers.forEach((answer: any) => {
+          if (Array.isArray(frozenSession.answers)) {
+            frozenSession.answers.forEach((answer: any) => {
               try {
                 if (answer.questionId && answer.answerValue !== undefined) {
                   try {
@@ -155,8 +148,9 @@ export const IsolatedSurveyContainer = React.memo(({
           console.log('Loaded existing answers:', surveyData);
         }
 
-        // Set up event handlers - these are isolated from state updates
+        // Set up event handlers with form activity tracking
         const valueChangedHandler = () => {
+          setIsFormActive(true); // Freeze session data during editing
           setUnsavedChanges(true);
           // Clear existing timeout
           if (saveTimeoutRef.current) {
@@ -165,6 +159,8 @@ export const IsolatedSurveyContainer = React.memo(({
           // Debounced auto-save
           saveTimeoutRef.current = setTimeout(() => {
             handleAutoSave(survey.data);
+            // Allow session updates again after save completes
+            setTimeout(() => setIsFormActive(false), 100);
           }, 2000);
         };
         
@@ -189,7 +185,7 @@ export const IsolatedSurveyContainer = React.memo(({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [questionnaireId, initialSession]); // Only load once when we have initial session data
+  }, [questionnaireId, frozenSession]); // Only load once when we have frozen session data
 
   if (isLoadingSurvey) {
     return (
