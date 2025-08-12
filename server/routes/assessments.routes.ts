@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "../db";
-import { useCases, questionnaires, questionnaireResponses, questions, questionAnswers } from "@shared/schema";
+import { useCases, responseSessions } from "@shared/schema";
 import { eq, and, sql, desc, inArray } from "drizzle-orm";
 import { z } from "zod";
 

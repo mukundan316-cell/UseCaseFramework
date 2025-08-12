@@ -1,27 +1,21 @@
 import { Router } from 'express';
-import { QuestionnaireStorageService } from '../services/questionnaireStorageService';
-import { QuestionnaireMigrationService } from '../services/questionnaireMigrationService';
+import { QuestionnaireService } from '../services/questionnaireService';
 import { QuestionnaireDemoService } from '../services/questionnaireDemo';
 import { db } from '../db';
 import { responseSessions } from '../../shared/schema';
 import { eq, desc } from 'drizzle-orm';
 
 const router = Router();
-const storageService = new QuestionnaireStorageService();
-const migrationService = new QuestionnaireMigrationService();
+const questionnaireService = new QuestionnaireService();
 const demoService = new QuestionnaireDemoService();
 
 /**
- * GET /api/questionnaire-hybrid/sessions
- * List all response sessions with metadata for quick queries
+ * GET /api/questionnaire/sessions
+ * List all response sessions
  */
 router.get('/sessions', async (req, res) => {
   try {
-    const sessions = await db
-      .select()
-      .from(responseSessions)
-      .orderBy(desc(responseSessions.lastUpdatedAt));
-
+    const sessions = await questionnaireService.getAllSessions();
     res.json(sessions);
   } catch (error) {
     console.error('Failed to fetch sessions:', error);
@@ -30,17 +24,13 @@ router.get('/sessions', async (req, res) => {
 });
 
 /**
- * GET /api/questionnaire-hybrid/sessions/:id
+ * GET /api/questionnaire/sessions/:id
  * Get specific session details
  */
 router.get('/sessions/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const [session] = await db
-      .select()
-      .from(responseSessions)
-      .where(eq(responseSessions.id, id));
+    const session = await questionnaireService.getSession(id);
 
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
@@ -54,14 +44,42 @@ router.get('/sessions/:id', async (req, res) => {
 });
 
 /**
- * GET /api/questionnaire-hybrid/questionnaire/:id
+ * GET /api/questionnaire/definitions
+ * Get all questionnaire definitions from JSON storage
+ */
+router.get('/definitions', async (req, res) => {
+  try {
+    const definitions = await questionnaireService.getAllDefinitions();
+    res.json(definitions);
+  } catch (error) {
+    console.error('Failed to fetch definitions:', error);
+    res.status(500).json({ error: 'Failed to fetch definitions' });
+  }
+});
+
+/**
+ * GET /api/questionnaire/stats
+ * Get questionnaire statistics
+ */
+router.get('/stats', async (req, res) => {
+  try {
+    const stats = await questionnaireService.getStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('Failed to fetch stats:', error);
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+/**
+ * GET /api/questionnaire/questionnaire/:id
  * Get questionnaire definition from JSON storage
  */
 router.get('/questionnaire/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const questionnaire = await storageService.getQuestionnaireDefinition(id);
+    const questionnaire = await questionnaireService.getDefinition(id);
     
     if (!questionnaire) {
       return res.status(404).json({ error: 'Questionnaire not found' });
@@ -75,14 +93,14 @@ router.get('/questionnaire/:id', async (req, res) => {
 });
 
 /**
- * GET /api/questionnaire-hybrid/response/:id
+ * GET /api/questionnaire/response/:id
  * Get questionnaire response from JSON storage
  */
 router.get('/response/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const response = await storageService.getQuestionnaireResponse(id);
+    const response = await questionnaireService.getResponse(id);
     
     if (!response) {
       return res.status(404).json({ error: 'Response not found' });
@@ -116,7 +134,7 @@ router.post('/sessions', async (req, res) => {
       });
     }
 
-    const sessionId = storageService.generateResponseId();
+    const sessionId = questionnaireService.generateResponseId();
 
     await db.insert(responseSessions).values({
       id: sessionId,
@@ -157,14 +175,14 @@ router.put('/sessions/:id/answer', async (req, res) => {
     }
 
     // Update answer in JSON storage
-    const success = await storageService.updateResponseAnswer(id, questionId, answerValue);
+    const success = await questionnaireService.updateResponseAnswer(id, questionId, answerValue);
     
     if (!success) {
       return res.status(404).json({ error: 'Response not found or failed to update' });
     }
 
     // Update session progress
-    const response = await storageService.getQuestionnaireResponse(id);
+    const response = await questionnaireService.getResponse(id);
     if (response) {
       const answeredQuestions = response.answers.length;
       const progressPercent = Math.round((answeredQuestions / 52) * 100);
@@ -196,7 +214,7 @@ router.put('/sessions/:id/complete', async (req, res) => {
     const { id } = req.params;
 
     // Mark response as completed in JSON storage
-    await storageService.completeResponse(id);
+    await questionnaireService.completeResponse(id);
 
     // Update session status
     await db
@@ -216,51 +234,7 @@ router.put('/sessions/:id/complete', async (req, res) => {
   }
 });
 
-/**
- * POST /api/questionnaire-hybrid/migrate/:questionnaireId
- * Migrate existing questionnaire from PostgreSQL to hybrid storage
- */
-router.post('/migrate/:questionnaireId', async (req, res) => {
-  try {
-    const { questionnaireId } = req.params;
-
-    console.log(`Starting migration for questionnaire ${questionnaireId}`);
-
-    const result = await migrationService.migrateFullQuestionnaire(questionnaireId);
-
-    if (!result.questionnaireDefinitionPath) {
-      return res.status(404).json({ error: 'Questionnaire not found or migration failed' });
-    }
-
-    res.json({
-      message: 'Migration completed successfully',
-      questionnaireDefinitionPath: result.questionnaireDefinitionPath,
-      migratedResponses: result.migratedResponses.length,
-      sessionsCreated: result.sessionsCreated,
-      details: result
-    });
-  } catch (error) {
-    console.error('Migration failed:', error);
-    res.status(500).json({ error: 'Migration failed' });
-  }
-});
-
-/**
- * GET /api/questionnaire-hybrid/verify/:responseId
- * Verify migration integrity for a specific response
- */
-router.get('/verify/:responseId', async (req, res) => {
-  try {
-    const { responseId } = req.params;
-
-    const verification = await migrationService.verifyMigration(responseId);
-
-    res.json(verification);
-  } catch (error) {
-    console.error('Verification failed:', error);
-    res.status(500).json({ error: 'Verification failed' });
-  }
-});
+// Migration endpoints removed - clean blob-first approach
 
 /**
  * GET /api/questionnaire-hybrid/stats
@@ -295,12 +269,32 @@ router.get('/stats', async (req, res) => {
 });
 
 /**
- * POST /api/questionnaire-hybrid/demo
- * Run demo workflow to test the hybrid system
+ * GET /api/questionnaire/demo/create-questionnaire
+ * Create demo questionnaire for testing blob storage
+ */
+router.get('/demo/create-questionnaire', async (req, res) => {
+  try {
+    console.log('Creating demo questionnaire...');
+    
+    const result = await demoService.createDemoQuestionnaire();
+    
+    res.json({
+      message: 'Demo questionnaire created successfully',
+      result
+    });
+  } catch (error) {
+    console.error('Demo questionnaire creation failed:', error);
+    res.status(500).json({ error: 'Demo questionnaire creation failed' });
+  }
+});
+
+/**
+ * POST /api/questionnaire/demo
+ * Run demo workflow to test the blob system
  */
 router.post('/demo', async (req, res) => {
   try {
-    console.log('Running hybrid questionnaire demo...');
+    console.log('Running blob questionnaire demo...');
     
     const result = await demoService.runDemo();
     

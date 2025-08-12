@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AssessmentPdfService } from '../services/assessmentPdfService';
-import { EnhancedAssessmentPdfService } from '../services/enhancedAssessmentPdfService';
+// Legacy assessment PDF service removed - blob-first architecture
 import { UseCasePdfService } from '../services/useCasePdfService';
 import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
 import { QuestionnairePdfService } from '../services/questionnairePdfService';

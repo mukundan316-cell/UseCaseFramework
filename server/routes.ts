@@ -605,28 +605,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
 
-  // Register questionnaire routes
-  const questionnaireRoutes = (await import('./routes/questionnaire.routes')).default;
-  app.use('/api', questionnaireRoutes);
-
-  // Register hybrid questionnaire routes
-  const questionnaireHybridRoutes = (await import('./routes/questionnaireHybrid.routes')).default;
-  app.use('/api/questionnaire-hybrid', questionnaireHybridRoutes);
+  // Register questionnaire routes (blob storage based)
+  const questionnaireRoutes = (await import('./routes/questionnaireHybrid.routes')).default;
+  app.use('/api/questionnaire', questionnaireRoutes);
   
-  // Register assessment routes
-  const assessmentRoutes = (await import('./routes/assessments.routes')).default;
-  app.use('/api/assessments', assessmentRoutes);
+  // Legacy assessment routes temporarily disabled during blob migration
   
-  // Register export routes
-  const exportRoutes = (await import('./routes/export.routes')).default;
-  app.use('/api/export', exportRoutes);
+  // Legacy export routes temporarily disabled during blob migration
+  // Will be re-enabled with blob-compatible PDF services
   
   // Register recommendation routes
   app.use('/api/recommendations', recommendationRoutes);
   
-  // Register assessment statistics routes
-  const assessmentStatsRoutes = (await import('./routes/assessment-stats')).default;
-  app.use('/api', assessmentStatsRoutes);
+  // Legacy assessment statistics routes temporarily disabled during blob migration
 
   // Add saved progress endpoints
   app.get('/api/saved-progress', async (req, res) => {

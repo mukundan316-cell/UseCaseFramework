@@ -1,5 +1,5 @@
 import { QuestionnaireStorageService } from './questionnaireStorageService';
-import { QuestionnaireMigrationService } from './questionnaireMigrationService';
+// Clean blob-first architecture - no migration needed
 import { QuestionnaireDefinition } from '../../shared/questionnaireTypes';
 
 /**
@@ -7,11 +7,8 @@ import { QuestionnaireDefinition } from '../../shared/questionnaireTypes';
  */
 export class QuestionnaireDemoService {
   private storageService: QuestionnaireStorageService;
-  private migrationService: QuestionnaireMigrationService;
-
   constructor() {
     this.storageService = new QuestionnaireStorageService();
-    this.migrationService = new QuestionnaireMigrationService();
   }
 
   /**

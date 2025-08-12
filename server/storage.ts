@@ -1,7 +1,7 @@
 import { 
-  users, useCases, metadataConfig, sectionProgress, questionnaireResponses, questionAnswers,
+  users, useCases, metadataConfig, responseSessions,
   type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig,
-  type SectionProgress, type InsertSectionProgress, type QuestionnaireResponse, type QuestionAnswer
+  type ResponseSession, type InsertResponseSession
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, sql, and } from "drizzle-orm";
@@ -36,16 +36,13 @@ export interface IStorage {
   addMetadataItem(category: string, item: string): Promise<MetadataConfig>;
   removeMetadataItem(category: string, item: string): Promise<MetadataConfig>;
   
-  // Section progress management
-  getSectionProgress(responseId: string): Promise<SectionProgress[]>;
-  updateSectionProgress(responseId: string, sectionNumber: number, progress: Partial<InsertSectionProgress>): Promise<SectionProgress>;
+  // Response session management (blob storage questionnaires)
+  getResponseSessions(): Promise<ResponseSession[]>;
+  getResponseSession(id: string): Promise<ResponseSession | undefined>;
+  createResponseSession(session: InsertResponseSession): Promise<ResponseSession>;
+  updateResponseSession(id: string, updates: Partial<ResponseSession>): Promise<ResponseSession | undefined>;
   
-  // Questionnaire response management
-  updateQuestionnaireResponse(responseId: string, updates: Partial<QuestionnaireResponse>): Promise<QuestionnaireResponse | undefined>;
-  
-  // Question answer management
-  saveQuestionAnswer(responseId: string, questionId: string, answerValue: any): Promise<QuestionAnswer>;
-  getQuestionAnswersByResponse(responseId: string): Promise<QuestionAnswer[]>;
+  // Clean blob-first questionnaire architecture - answers stored in JSON files
 }
 
 /**
@@ -272,75 +269,34 @@ export class DatabaseStorage implements IStorage {
   }
 
   // ==================================================================================
-  // SECTION PROGRESS MANAGEMENT
+  // RESPONSE SESSION MANAGEMENT (BLOB STORAGE QUESTIONNAIRES)
   // ==================================================================================
 
-  async getSectionProgress(responseId: string): Promise<SectionProgress[]> {
-    return await db
-      .select()
-      .from(sectionProgress)
-      .where(eq(sectionProgress.userResponseId, responseId))
-      .orderBy(sectionProgress.sectionNumber);
+  async getResponseSessions(): Promise<ResponseSession[]> {
+    return await db.select().from(responseSessions);
   }
 
-  async updateSectionProgress(
-    responseId: string, 
-    sectionNumber: number, 
-    progress: Partial<InsertSectionProgress>
-  ): Promise<SectionProgress> {
-    // Check if section progress already exists
-    const existing = await db
+  async getResponseSession(id: string): Promise<ResponseSession | undefined> {
+    const [session] = await db
       .select()
-      .from(sectionProgress)
-      .where(
-        and(
-          eq(sectionProgress.userResponseId, responseId),
-          eq(sectionProgress.sectionNumber, sectionNumber)
-        )
-      );
-
-    if (existing.length > 0) {
-      // Update existing progress
-      const [updated] = await db
-        .update(sectionProgress)
-        .set({
-          ...progress,
-          lastModifiedAt: sql`NOW()`
-        })
-        .where(
-          and(
-            eq(sectionProgress.userResponseId, responseId),
-            eq(sectionProgress.sectionNumber, sectionNumber)
-          )
-        )
-        .returning();
-      return updated;
-    } else {
-      // Create new progress entry
-      const [created] = await db
-        .insert(sectionProgress)
-        .values({
-          userResponseId: responseId,
-          sectionNumber,
-          ...progress
-        })
-        .returning();
-      return created;
-    }
+      .from(responseSessions)
+      .where(eq(responseSessions.id, id));
+    return session || undefined;
   }
 
-  // ==================================================================================
-  // QUESTIONNAIRE RESPONSE MANAGEMENT
-  // ==================================================================================
+  async createResponseSession(session: InsertResponseSession): Promise<ResponseSession> {
+    const [created] = await db
+      .insert(responseSessions)
+      .values(session)
+      .returning();
+    return created;
+  }
 
-  async updateQuestionnaireResponse(
-    responseId: string, 
-    updates: Partial<QuestionnaireResponse>
-  ): Promise<QuestionnaireResponse | undefined> {
+  async updateResponseSession(id: string, updates: Partial<ResponseSession>): Promise<ResponseSession | undefined> {
     const [updated] = await db
-      .update(questionnaireResponses)
+      .update(responseSessions)
       .set(updates)
-      .where(eq(questionnaireResponses.id, responseId))
+      .where(eq(responseSessions.id, id))
       .returning();
     return updated || undefined;
   }
@@ -439,6 +395,8 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+  // Clean blob-first questionnaire architecture
+  // All questionnaire data is stored in JSON files
 }
 
 // Use DatabaseStorage for database-first compliance per REFERENCE.md
