@@ -83,7 +83,7 @@ export const IsolatedSurveyContainer = React.memo(({
         survey.requiredText = "*";
         survey.questionDescriptionLocation = "underTitle";
         
-        // Modern styling
+        // Modern styling with improved spacing for sticky header
         survey.applyTheme({
           "cssVariables": {
             "--sjs-corner-radius": "8px",
@@ -98,6 +98,15 @@ export const IsolatedSurveyContainer = React.memo(({
             "--sjs-border-light": "#e5e7eb"
           }
         });
+        
+        // Ensure proper spacing for sticky header
+        survey.css = {
+          ...survey.css,
+          page: {
+            ...survey.css?.page,
+            paddingTop: "0"
+          }
+        };
 
         // Load existing answers if available
         if (responseSession?.answers) {

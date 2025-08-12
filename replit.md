@@ -61,6 +61,11 @@ All use case cards across the entire application must follow this exact specific
   - **Clean Schema**: Only 4 essential PostgreSQL tables: `response_sessions`, `use_cases`, `users`, `metadata_config`
   - **Persistence Fix**: Added missing `/api/responses/:id/answers` endpoint for proper answer saving
   - **Blob Storage**: All questionnaire data (definitions + responses) stored in JSON files with PostgreSQL session tracking
+- **Survey.js Performance Fix (August 12, 2025)**: Solved critical page refresh issue
+  - **Context API Architecture**: Created `SaveStatusProvider` to isolate save status from Survey.js component
+  - **Component Isolation**: Built `IsolatedSurveyContainer` with zero re-render triggers
+  - **Sticky Header**: Added sticky header functionality for improved user experience during scrolling
+  - **No More Page Refresh**: Save status updates are completely isolated from Survey.js form rendering
 
 ### Survey.js Integration (August 12, 2025)
 - **Library Integration**: Successfully installed and configured Survey.js (version 2.30) packages

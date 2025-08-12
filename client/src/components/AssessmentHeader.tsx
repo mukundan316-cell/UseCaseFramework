@@ -57,7 +57,7 @@ export const AssessmentHeader = React.memo(({
   const [, setLocation] = useLocation();
 
   return (
-    <>
+    <div className="sticky top-0 z-50 bg-white shadow-sm">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#005DAA] via-[#0066BB] to-[#9F4F96] text-white">
         <div className="max-w-4xl mx-auto px-6 py-6">
@@ -115,7 +115,7 @@ export const AssessmentHeader = React.memo(({
           <Progress value={progress} className="h-2" />
         </div>
       </div>
-    </>
+    </div>
   );
 });
 
