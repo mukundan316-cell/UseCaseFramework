@@ -57,6 +57,10 @@ All use case cards across the entire application must follow this exact specific
   - **File Storage**: Development uses file system (`temp-questionnaire-storage/`), production-ready for Google Cloud Storage
 - **API Architecture**: Clean RESTful endpoints at `/api/questionnaire/` with blob storage backend
 - **Data Integrity**: No more "[object Object]" serialization issues - perfect JSON preservation
+- **Database Architecture (August 12, 2025)**: Complete cleanup of legacy questionnaire tables
+  - **Clean Schema**: Only 4 essential PostgreSQL tables: `response_sessions`, `use_cases`, `users`, `metadata_config`
+  - **Persistence Fix**: Added missing `/api/responses/:id/answers` endpoint for proper answer saving
+  - **Blob Storage**: All questionnaire data (definitions + responses) stored in JSON files with PostgreSQL session tracking
 
 ## Dependencies
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL
