@@ -18,7 +18,7 @@ interface ReusableButtonProps {
   rsaStyle?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'reset';
 }
 
-export default function ReusableButton({
+export function ReusableButton({
   children,
   onClick,
   type = 'button',
@@ -97,3 +97,5 @@ export default function ReusableButton({
     </Button>
   );
 }
+
+export default ReusableButton;
