@@ -83,6 +83,11 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
   const totalQuestions = 87;
   const isCompleted = responseSession?.status === 'completed';
 
+  // Save and exit handler
+  const handleSaveAndExit = React.useCallback(() => {
+    setLocation('/assessment');
+  }, [setLocation]);
+
   // Show loading state
   if (isLoadingQuestionnaire || isCheckingSession) {
     return (
@@ -116,23 +121,16 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
           answeredCount={answeredCount}
           totalQuestions={totalQuestions}
           isCompleted={isCompleted}
+          onSaveAndExit={handleSaveAndExit}
         />
 
         {/* Main Content */}
         <div className="max-w-4xl mx-auto px-6 py-8 space-y-6 mt-4">
-          {/* Manual Save Button */}
-          <div className="flex justify-between items-center">
+          {/* Info Message */}
+          <div className="text-center">
             <div className="text-sm text-gray-600">
               Complete all sections to generate your AI strategy report
             </div>
-            <Button
-              onClick={() => setLocation('/assessment')}
-              variant="outline"
-              className="flex items-center space-x-2"
-            >
-              <Save className="h-4 w-4" />
-              <span>Save & Exit</span>
-            </Button>
           </div>
 
           {/* Error Alerts */}

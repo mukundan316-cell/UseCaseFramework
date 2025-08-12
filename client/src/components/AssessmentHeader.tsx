@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Home, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Home, CheckCircle2, Save } from 'lucide-react';
 import { useSaveStatus } from './SaveStatusProvider';
 
 interface AssessmentHeaderProps {
@@ -11,6 +11,7 @@ interface AssessmentHeaderProps {
   answeredCount: number;
   totalQuestions: number;
   isCompleted: boolean;
+  onSaveAndExit?: () => void;
 }
 
 // Memoized save status component that uses context
@@ -52,7 +53,8 @@ export const AssessmentHeader = React.memo(({
   progress,
   answeredCount,
   totalQuestions,
-  isCompleted
+  isCompleted,
+  onSaveAndExit
 }: AssessmentHeaderProps) => {
   const [, setLocation] = useLocation();
 
@@ -109,6 +111,17 @@ export const AssessmentHeader = React.memo(({
             
             <div className="flex items-center space-x-4">
               <SaveStatus />
+              {onSaveAndExit && (
+                <Button
+                  onClick={onSaveAndExit}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-2 border-gray-300 hover:bg-gray-50"
+                >
+                  <Save className="h-4 w-4" />
+                  <span>Save & Exit</span>
+                </Button>
+              )}
             </div>
           </div>
           
