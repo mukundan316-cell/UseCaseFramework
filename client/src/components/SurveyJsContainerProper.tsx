@@ -161,7 +161,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                {saveAnswersError || completeResponseError}
+                {saveAnswersError?.message || completeResponseError?.message || 'An error occurred'}
               </AlertDescription>
             </Alert>
           )}
