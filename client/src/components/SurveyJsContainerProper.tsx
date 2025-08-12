@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
@@ -12,6 +12,42 @@ import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 
 // Import Survey.js default CSS
 import 'survey-core/survey-core.css';
+
+// Memoized save status component to prevent unnecessary re-renders
+const SaveStatus = React.memo(({ isSaving, lastSaved, hasUnsavedChanges }: {
+  isSaving: boolean;
+  lastSaved: Date | null;
+  hasUnsavedChanges: boolean;
+}) => {
+  if (isSaving) {
+    return (
+      <div className="flex items-center space-x-2 text-blue-600">
+        <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <span className="text-xs">Saving...</span>
+      </div>
+    );
+  }
+  
+  if (lastSaved && !hasUnsavedChanges) {
+    return (
+      <span className="text-xs text-green-600">
+        ✓ Saved {lastSaved.toLocaleTimeString()}
+      </span>
+    );
+  }
+  
+  if (hasUnsavedChanges) {
+    return (
+      <span className="text-xs text-amber-600">
+        Unsaved changes
+      </span>
+    );
+  }
+  
+  return null;
+});
+
+SaveStatus.displayName = 'SaveStatus';
 
 interface SurveyJsContainerProps {
   questionnaireId: string;
@@ -37,7 +73,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     completeResponseError,
   } = useQuestionnaire(questionnaireId);
 
-  // Auto-save handler
+  // Auto-save handler with stable reference
   const handleAutoSave = useCallback(async (data: any) => {
     if (!responseSession) return;
 
@@ -54,7 +90,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     } finally {
       setIsSaving(false);
     }
-  }, [responseSession, saveAnswers]);
+  }, [responseSession?.id, saveAnswers]); // Only depend on stable values
 
   // Handle survey completion
   const surveyComplete = useCallback(async (survey: Model) => {
@@ -137,7 +173,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
 
         // Set up event handlers with debouncing to prevent page refresh
         let saveTimeout: NodeJS.Timeout;
-        survey.onValueChanged.add(() => {
+        const valueChangedHandler = () => {
           setHasUnsavedChanges(true);
           // Clear existing timeout
           if (saveTimeout) {
@@ -147,7 +183,9 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
           saveTimeout = setTimeout(() => {
             handleAutoSave(survey.data);
           }, 2000);
-        });
+        };
+        
+        survey.onValueChanged.add(valueChangedHandler);
 
         survey.onComplete.add(surveyComplete);
 
@@ -165,7 +203,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     };
 
     loadSurveyConfig();
-  }, [questionnaireId, responseSession, handleAutoSave, surveyComplete, toast]);
+  }, [questionnaireId, responseSession?.id, handleAutoSave, surveyComplete, toast]); // Use stable ID reference
 
   // Save and exit
   const handleSaveAndExit = async () => {
@@ -316,22 +354,11 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
             </div>
             
             <div className="flex items-center space-x-4">
-              {isSaving && (
-                <div className="flex items-center space-x-2 text-blue-600">
-                  <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-xs">Saving...</span>
-                </div>
-              )}
-              {lastSaved && !isSaving && !hasUnsavedChanges && (
-                <span className="text-xs text-green-600">
-                  ✓ Saved {lastSaved.toLocaleTimeString()}
-                </span>
-              )}
-              {hasUnsavedChanges && !isSaving && (
-                <span className="text-xs text-amber-600">
-                  Unsaved changes
-                </span>
-              )}
+              <SaveStatus 
+                isSaving={isSaving}
+                lastSaved={lastSaved}
+                hasUnsavedChanges={hasUnsavedChanges}
+              />
             </div>
           </div>
           
