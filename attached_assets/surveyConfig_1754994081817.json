@@ -1,0 +1,998 @@
+{
+  "pages": [
+    {
+      "name": "page1",
+      "title": "1.1 Company Profile & Business Context",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "companyProfilePanel",
+          "title": "Q1. Company Profile",
+          "elements": [
+            {
+              "type": "text",
+              "name": "companyName",
+              "title": "Company Name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "gwp",
+              "title": "Gross Written Premium (GWP) in millions",
+              "inputType": "number",
+              "isRequired": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "companyTier",
+              "title": "Company Tier",
+              "isRequired": true,
+              "choices": [
+                { "value": "small", "text": "Small (Under $100M GWP)" },
+                { "value": "mid", "text": "Mid ($100M-$3B GWP)" },
+                { "value": "large", "text": "Large (Over $3B GWP)" }
+              ]
+            },
+            {
+              "type": "checkbox",
+              "name": "primaryMarkets",
+              "title": "Primary Markets",
+              "isRequired": true,
+              "choices": [
+                { "value": "personal", "text": "Personal Lines" },
+                { "value": "commercial", "text": "Commercial Lines" },
+                { "value": "specialty", "text": "Specialty" },
+                { "value": "reinsurance", "text": "Reinsurance" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "geographicFocus",
+              "title": "Geographic Focus"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "businessLinesPanel",
+          "title": "Q2. Business Lines & Distribution (% of premium)",
+          "elements": [
+            {
+              "type": "text",
+              "name": "personalAuto",
+              "title": "Personal Auto",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "homeowners",
+              "title": "Homeowners",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "commercialPC",
+              "title": "Commercial P&C",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "workersComp",
+              "title": "Workers Compensation",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "professionalLiability",
+              "title": "Professional Liability",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "cyberInsurance",
+              "title": "Cyber Insurance",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "marineAviation",
+              "title": "Marine/Aviation",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "otherSpecialty",
+              "title": "Other Specialty",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "distributionChannelsPanel",
+          "title": "Q3. Distribution Channels (% of business)",
+          "elements": [
+            {
+              "type": "text",
+              "name": "directToConsumer",
+              "title": "Direct to Consumer",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "independentAgents",
+              "title": "Independent Agents",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "brokerNetwork",
+              "title": "Broker Network",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "digitalOnline",
+              "title": "Digital/Online",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "type": "text",
+              "name": "otherChannel",
+              "title": "Other",
+              "inputType": "number",
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "businessPerformancePanel",
+          "title": "Q4. Current Business Performance",
+          "elements": [
+            {
+              "type": "text",
+              "name": "combinedRatio",
+              "title": "Combined Ratio",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "type": "text",
+              "name": "expenseRatio",
+              "title": "Expense Ratio",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "type": "text",
+              "name": "lossRatio",
+              "title": "Loss Ratio",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "type": "text",
+              "name": "premiumGrowthRate",
+              "title": "Premium Growth Rate (YoY)",
+              "inputType": "number",
+              "min": -100,
+              "max": 1000,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "policyRetentionRate",
+              "title": "Policy Retention Rate (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "avgPolicyProcessingTime",
+              "title": "Average Policy Processing Time (days)",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.5
+            },
+            {
+              "type": "text",
+              "name": "claimsSettlementTime",
+              "title": "Claims Settlement Time (days)",
+              "inputType": "number",
+              "min": 0,
+              "step": 0.5
+            },
+            {
+              "type": "rating",
+              "name": "customerSatisfactionScore",
+              "title": "Customer Satisfaction Score (1-10)",
+              "rateMin": 1,
+              "rateMax": 10,
+              "minRateDescription": "1",
+              "maxRateDescription": "10"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "competitivePositionPanel",
+          "title": "Q5. Competitive Position (Score 1-5)",
+          "elements": [
+            {
+              "type": "rating",
+              "name": "marketPosition",
+              "title": "Market position in primary business lines",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Weak)",
+              "maxRateDescription": "5 (Strong)"
+            },
+            {
+              "type": "rating",
+              "name": "pricingAccuracy",
+              "title": "Pricing accuracy effectiveness",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Low)",
+              "maxRateDescription": "5 (High)"
+            },
+            {
+              "type": "rating",
+              "name": "brokerServiceQuality",
+              "title": "Broker/agent network service quality",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Poor)",
+              "maxRateDescription": "5 (Excellent)"
+            },
+            {
+              "type": "rating",
+              "name": "digitalExperience",
+              "title": "Digital customer experience vs. industry leaders",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Behind)",
+              "maxRateDescription": "5 (Leading)"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "geographicOperationsPanel",
+          "title": "Q6. Geographic Operations",
+          "elements": [
+            {
+              "type": "comment",
+              "name": "primaryJurisdictions",
+              "title": "Primary operating jurisdictions"
+            },
+            {
+              "type": "text",
+              "name": "premiumConcentration",
+              "title": "Premium concentration in top 3 markets (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "radiogroup",
+              "name": "multipleRegulatoryEnvs",
+              "title": "Do you operate in multiple regulatory environments?",
+              "isRequired": true,
+              "choices": [
+                { "value": true, "text": "Yes" },
+                { "value": false, "text": "No" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "numRegulatoryBodies",
+              "title": "Number of regulatory bodies you report to",
+              "inputType": "number",
+              "min": 1,
+              "visibleIf": "{multipleRegulatoryEnvs} = true"
+            },
+            {
+              "type": "panel",
+              "name": "regulatoryCompliancePanel",
+              "title": "Regulatory Compliance Maturity (Score 1-5)",
+              "elements": [
+                {
+                  "type": "rating",
+                  "name": "regulatoryReportingAutomation",
+                  "title": "Current regulatory reporting automation",
+                  "rateMin": 1,
+                  "rateMax": 5,
+                  "minRateDescription": "1 (Manual)",
+                  "maxRateDescription": "5 (Fully Automated)"
+                },
+                {
+                  "type": "rating",
+                  "name": "crossJurisdictionalCompliance",
+                  "title": "Cross-jurisdictional compliance management",
+                  "rateMin": 1,
+                  "rateMax": 5,
+                  "minRateDescription": "1 (Challenging)",
+                  "maxRateDescription": "5 (Seamless)"
+                },
+                {
+                  "type": "rating",
+                  "name": "aiRegulatoryPreparedness",
+                  "title": "AI-related regulatory preparedness (EU AI Act, etc.)",
+                  "rateMin": 1,
+                  "rateMax": 5,
+                  "minRateDescription": "1 (Not Ready)",
+                  "maxRateDescription": "5 (Fully Compliant)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "page2",
+      "title": "1.2 AI Vision & Success Definition",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "aiSuccessPanel",
+          "title": "Q8. What does success look like for AI in your business?",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "financialOutcomesPanel",
+              "title": "Financial Outcomes",
+              "elements": [
+                {
+                  "type": "checkbox",
+                  "name": "financialOutcomes",
+                  "title": "Select all that apply",
+                  "choices": [
+                    {
+                      "value": "combinedRatioImprovement",
+                      "text": "Combined ratio improvement"
+                    },
+                    {
+                      "value": "costReduction",
+                      "text": "Cost reduction (annually)"
+                    },
+                    {
+                      "value": "premiumGrowth",
+                      "text": "Premium growth"
+                    },
+                    {
+                      "value": "roiTarget",
+                      "text": "ROI target"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "name": "combinedRatioImprovementValue",
+                  "title": "Combined ratio improvement (%)",
+                  "visibleIf": "{financialOutcomes} contains 'combinedRatioImprovement'",
+                  "inputType": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "type": "text",
+                  "name": "costReductionValue",
+                  "title": "Cost reduction (£M)",
+                  "visibleIf": "{financialOutcomes} contains 'costReduction'",
+                  "inputType": "number",
+                  "min": 0
+                },
+                {
+                  "type": "text",
+                  "name": "premiumGrowthValue",
+                  "title": "Premium growth (%)",
+                  "visibleIf": "{financialOutcomes} contains 'premiumGrowth'",
+                  "inputType": "number",
+                  "min": 0
+                },
+                {
+                  "type": "panel",
+                  "name": "roiTargetPanel",
+                  "title": "ROI Target",
+                  "visibleIf": "{financialOutcomes} contains 'roiTarget'",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "name": "roiPercentage",
+                      "title": "ROI (%)",
+                      "inputType": "number",
+                      "min": 0
+                    },
+                    {
+                      "type": "text",
+                      "name": "roiMonths",
+                      "title": "Within (months)",
+                      "inputType": "number",
+                      "min": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "name": "operationalOutcomesPanel",
+              "title": "Operational Outcomes",
+              "elements": [
+                {
+                  "type": "checkbox",
+                  "name": "operationalOutcomes",
+                  "title": "Select all that apply",
+                  "choices": [
+                    {
+                      "value": "processingTimeReduction",
+                      "text": "Processing time reduction"
+                    },
+                    {
+                      "value": "automationOfTasks",
+                      "text": "Automation of manual tasks"
+                    },
+                    {
+                      "value": "accuracyImprovement",
+                      "text": "Accuracy improvement"
+                    },
+                    {
+                      "value": "staffProductivity",
+                      "text": "Staff productivity increase"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "name": "processingTimeReductionValue",
+                  "title": "Processing time reduction (%)",
+                  "visibleIf": "{operationalOutcomes} contains 'processingTimeReduction'",
+                  "inputType": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "type": "text",
+                  "name": "automationOfTasksValue",
+                  "title": "Percentage of manual tasks to automate (%)",
+                  "visibleIf": "{operationalOutcomes} contains 'automationOfTasks'",
+                  "inputType": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "type": "text",
+                  "name": "accuracyImprovementValue",
+                  "title": "Accuracy improvement (%)",
+                  "visibleIf": "{operationalOutcomes} contains 'accuracyImprovement'",
+                  "inputType": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "type": "text",
+                  "name": "staffProductivityValue",
+                  "title": "Staff productivity increase (%)",
+                  "visibleIf": "{operationalOutcomes} contains 'staffProductivity'",
+                  "inputType": "number",
+                  "min": 0,
+                  "max": 100
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "name": "customerOutcomesPanel",
+              "title": "Customer Outcomes",
+              "elements": [
+                {
+                  "type": "checkbox",
+                  "name": "customerOutcomes",
+                  "title": "Select all that apply",
+                  "choices": [
+                    {
+                      "value": "customerSatisfactionIncrease",
+                      "text": "Customer satisfaction increase"
+                    },
+                    {
+                      "value": "claimsSettlementReduction",
+                      "text": "Claims settlement time reduction"
+                    },
+                    {
+                      "value": "customerRetention",
+                      "text": "Customer retention rate increase"
+                    },
+                    {
+                      "value": "npsImprovement",
+                      "text": "Net Promoter Score (NPS) improvement"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "name": "customerSatisfactionValue",
+                  "title": "Target customer satisfaction (%)",
+                  "visibleIf": "{customerOutcomes} contains 'customerSatisfactionIncrease'",
+                  "inputType": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "type": "text",
+                  "name": "claimsSettlementDays",
+                  "title": "Target claims settlement time (days)",
+                  "visibleIf": "{customerOutcomes} contains 'claimsSettlementReduction'",
+                  "inputType": "number",
+                  "min": 0
+                },
+                {
+                  "type": "text",
+                  "name": "customerRetentionValue",
+                  "title": "Target customer retention rate (%)",
+                  "visibleIf": "{customerOutcomes} contains 'customerRetention'",
+                  "inputType": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "type": "text",
+                  "name": "npsValue",
+                  "title": "Target Net Promoter Score (NPS)",
+                  "description": "NPS ranges from -100 to 100",
+                  "visibleIf": "{customerOutcomes} contains 'npsImprovement'",
+                  "inputType": "number",
+                  "min": -100,
+                  "max": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "strategicObjectivesPanel",
+          "title": "Q9. Strategic AI Objectives (Rank 1-5, 1=Most Important)",
+          "elements": [
+            {
+              "type": "ranking",
+              "name": "strategicObjectivesRanking",
+              "title": "Please rank the following objectives by importance (drag and drop to reorder)",
+              "isRequired": true,
+              "choices": [
+                "Cost reduction/efficiency",
+                "Revenue growth",
+                "Customer experience improvement",
+                "Risk management enhancement",
+                "Competitive differentiation"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "aiVisionAlignmentPanel",
+          "title": "Q10. AI Vision Alignment (Score 1-5)",
+          "elements": [
+            {
+              "type": "rating",
+              "name": "leadershipAlignment",
+              "title": "Leadership alignment on AI vision",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Not Aligned)",
+              "maxRateDescription": "5 (Fully Aligned)"
+            },
+            {
+              "type": "rating",
+              "name": "executiveCommitment",
+              "title": "Board/executive commitment to AI investment",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Low)",
+              "maxRateDescription": "5 (High)"
+            },
+            {
+              "type": "rating",
+              "name": "visionClarity",
+              "title": "AI vision clarity",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Unclear)",
+              "maxRateDescription": "5 (Very Clear)"
+            },
+            {
+              "type": "rating",
+              "name": "strategyAlignment",
+              "title": "AI strategy alignment with business strategy",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Not Aligned)",
+              "maxRateDescription": "5 (Fully Aligned)"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "riskAppetitePanel",
+          "title": "Q11. Risk Appetite for AI Innovation",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "aiRiskAppetite",
+              "title": "What is your risk appetite for experimenting with AI in regulated areas?",
+              "isRequired": true,
+              "choices": [
+                {
+                  "value": "conservative",
+                  "text": "Conservative: Proven solutions only, minimal regulatory risk"
+                },
+                {
+                  "value": "moderate",
+                  "text": "Moderate: Balanced approach with managed risk"
+                },
+                {
+                  "value": "aggressive",
+                  "text": "Aggressive: Early adoption with comprehensive risk management"
+                },
+                {
+                  "value": "varies",
+                  "text": "Varies by use case"
+                }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "riskAppetiteDetails",
+              "title": "If 'Varies by use case', please specify:",
+              "visibleIf": "{aiRiskAppetite} = 'varies'"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "targetAIImpactMetricsPanel",
+          "title": "Q12. Target AI Impact Metrics",
+          "elements": [
+            {
+              "type": "text",
+              "name": "combinedRatioImprovementTarget",
+              "title": "Combined ratio improvement target (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "claimsProcessingTimeReductionTarget",
+              "title": "Claims processing time reduction target (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "underwritingProductivityTarget",
+              "title": "Underwriting productivity improvement target (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 1000,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "customerSatisfactionImprovementTarget",
+              "title": "Customer satisfaction improvement target (percentage points)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "costReductionTarget",
+              "title": "Cost reduction target (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "premiumGrowthTarget",
+              "title": "Premium growth target (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 1000,
+              "step": 0.1
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "aiSpecificKPIsPanel",
+          "title": "Q13. AI-Specific KPIs",
+          "elements": [
+            {
+              "type": "text",
+              "name": "automatedDecisionsTarget",
+              "title": "Target percentage of decisions to be automated (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 1
+            },
+            {
+              "type": "text",
+              "name": "modelAccuracyImprovementTarget",
+              "title": "Target model accuracy improvement (percentage points)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "manualProcessingReductionTarget",
+              "title": "Target reduction in manual processing (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            },
+            {
+              "type": "text",
+              "name": "timeToMarketReductionTarget",
+              "title": "Target time-to-market improvement for new products (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 0.1
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "marketPositioningPanel",
+          "title": "Q14. Market Positioning (Score 1-5)",
+          "elements": [
+            {
+              "type": "rating",
+              "name": "digitalCapabilitiesVsCompetitors",
+              "title": "Digital capabilities vs. competitors",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Lagging)",
+              "maxRateDescription": "5 (Leading)"
+            },
+            {
+              "type": "rating",
+              "name": "dataAnalyticsSophistication",
+              "title": "Data analytics sophistication",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Basic)",
+              "maxRateDescription": "5 (Advanced)"
+            },
+            {
+              "type": "rating",
+              "name": "customerExperienceInnovation",
+              "title": "Customer experience innovation",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Traditional)",
+              "maxRateDescription": "5 (Innovative)"
+            },
+            {
+              "type": "rating",
+              "name": "operationalEfficiency",
+              "title": "Operational efficiency",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Inefficient)",
+              "maxRateDescription": "5 (Highly Efficient)"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "competitiveAIAwarenessPanel",
+          "title": "Q15. Competitive AI Awareness",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "aiInitiativesAwareness",
+              "title": "Are you aware of AI initiatives by key competitors?",
+              "isRequired": true,
+              "choices": [
+                { "value": "extensive", "text": "Yes, extensively" },
+                { "value": "somewhat", "text": "Yes, somewhat" },
+                { "value": "limited", "text": "Limited awareness" },
+                { "value": "none", "text": "No awareness" }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "competitiveAdvantagesSought",
+              "title": "If yes, what competitive advantages do you seek through AI?",
+              "visibleIf": "{aiInitiativesAwareness} = 'extensive' or {aiInitiativesAwareness} = 'somewhat'"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "investmentStrategyPanel",
+          "title": "1.4 Investment Strategy",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "aiInvestmentReadinessPanel",
+              "title": "Q16. AI Investment Readiness",
+              "elements": [
+                {
+                  "type": "text",
+                  "name": "aiInvestmentYear1",
+                  "title": "Total AI investment budget (Year 1) in £",
+                  "inputType": "number",
+                  "min": 0,
+                  "step": 1000
+                },
+                {
+                  "type": "text",
+                  "name": "aiInvestmentYears1to3",
+                  "title": "Total AI investment budget (Years 1-3) in £",
+                  "inputType": "number",
+                  "min": 0,
+                  "step": 1000
+                },
+                {
+                  "type": "text",
+                  "name": "expectedRoiTarget",
+                  "title": "Expected ROI target (%)",
+                  "inputType": "number",
+                  "min": 0,
+                  "step": 0.1
+                },
+                {
+                  "type": "text",
+                  "name": "roiTimeframeYears",
+                  "title": "Expected ROI timeframe (years)",
+                  "inputType": "number",
+                  "min": 1,
+                  "step": 0.5
+                },
+                {
+                  "type": "text",
+                  "name": "acceptablePaybackPeriod",
+                  "title": "Acceptable payback period (months)",
+                  "inputType": "number",
+                  "min": 0,
+                  "step": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "page3",
+      "title": "AI Investment Priorities",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "aiInvestmentPrioritiesPanel",
+          "title": "Q17. AI Investment Priorities (Allocate 100% across categories)",
+          "elements": [
+            {
+              "type": "text",
+              "name": "techInfrastructurePct",
+              "title": "Technology/Infrastructure (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 1
+            },
+            {
+              "type": "text",
+              "name": "talentPct",
+              "title": "Talent (hiring, training) (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 1
+            },
+            {
+              "type": "text",
+              "name": "dataImprovementPct",
+              "title": "Data improvement (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 1
+            },
+            {
+              "type": "text",
+              "name": "processReengineeringPct",
+              "title": "Process reengineering (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 1
+            },
+            {
+              "type": "text",
+              "name": "changeManagementPct",
+              "title": "Change management (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 1
+            },
+            {
+              "type": "text",
+              "name": "externalPartnershipsPct",
+              "title": "External partnerships (%)",
+              "inputType": "number",
+              "min": 0,
+              "max": 100,
+              "step": 1
+            },
+            {
+              "type": "html",
+              "name": "totalAllocation",
+              "html": "<div style='padding: 8px; margin-top: 10px; border: 1px solid #eee; background-color: #f9f9f9;'>Total allocated: <span id='totalAllocationValue'>0</span>%</div>"
+            },
+            {
+              "type": "html",
+              "name": "validationMessage",
+              "html": "<div id='validationMessage' style='color: red; padding: 5px 0;'></div>"
+            }
+          ],
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{techInfrastructurePct} + {talentPct} + {dataImprovementPct} + {processReengineeringPct} + {changeManagementPct} + {externalPartnershipsPct} == 100",
+              "text": "The total allocation must equal 100%"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
