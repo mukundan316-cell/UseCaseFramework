@@ -174,7 +174,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
             </Alert>
           )}
 
-          {/* Survey Component */}
+          {/* Survey Component - Isolated from SaveStatusProvider */}
           <Card className="shadow-lg border-0">
             <CardContent className="p-8">
               <IsolatedSurveyContainer

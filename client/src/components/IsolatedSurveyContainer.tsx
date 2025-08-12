@@ -22,9 +22,10 @@ export const IsolatedSurveyContainer = React.memo(({
   const [initialAnswersLoaded, setInitialAnswersLoaded] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   
-  // Store save status functions in refs to avoid re-renders from context updates
-  const saveStatusRef = useRef(useSaveStatus());
-  saveStatusRef.current = useSaveStatus();
+  // Create internal save status state - completely isolated from context
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
   // Freeze session data permanently and disable React Query after first load
   const [frozenSession, setFrozenSession] = useState<any>(null);
@@ -34,7 +35,7 @@ export const IsolatedSurveyContainer = React.memo(({
   useEffect(() => {
     if (!frozenSession && !disableQuery && questionnaireId) {
       console.log('🔥 DIRECT API CALL FOR SESSION DATA');
-      apiRequest('/api/responses/check-session')
+      apiRequest(`/api/responses/check-session?questionnaireId=${questionnaireId}`)
         .then((data) => {
           console.log('🔥 DIRECT API RESPONSE:', data);
           setFrozenSession(data);
@@ -53,7 +54,7 @@ export const IsolatedSurveyContainer = React.memo(({
   
   console.log('🔥 ACTIVE SESSION STATE:', { activeSession: !!activeSession, frozenSession: !!frozenSession });
 
-  // Auto-save handler with proper UI feedback - use refs to avoid context re-renders
+  // Auto-save handler with isolated UI feedback - no external context dependencies
   const handleAutoSave = useCallback(async (data: any) => {
     console.log('🔥 HANDLE AUTO-SAVE CALLED:', { activeSession: !!activeSession, data });
     if (!activeSession) {
@@ -62,16 +63,16 @@ export const IsolatedSurveyContainer = React.memo(({
     }
 
     console.log('🔥 STARTING AUTO-SAVE PROCESS');
-    saveStatusRef.current.setSaving(true);
+    setIsSaving(true);
     try {
       await onSave(data);
       console.log('🔥 AUTO-SAVE SUCCESSFUL');
-      saveStatusRef.current.setLastSaved(new Date());
-      saveStatusRef.current.setUnsavedChanges(false);
+      setLastSaved(new Date());
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('🔥 AUTO-SAVE FAILED:', error);
     } finally {
-      saveStatusRef.current.setSaving(false);
+      setIsSaving(false);
       console.log('🔥 AUTO-SAVE PROCESS COMPLETE');
     }
   }, [onSave, activeSession]);
@@ -185,7 +186,7 @@ export const IsolatedSurveyContainer = React.memo(({
             value: options?.value,
             surveyData: survey.data
           });
-          saveStatusRef.current.setUnsavedChanges(true);
+          setHasUnsavedChanges(true);
           // Clear existing timeout
           if (saveTimeoutRef.current) {
             clearTimeout(saveTimeoutRef.current);
@@ -242,8 +243,40 @@ export const IsolatedSurveyContainer = React.memo(({
     );
   }
 
+  // Show isolated save status within the survey component
+  const renderSaveStatus = () => {
+    if (isSaving) {
+      return (
+        <div className="flex items-center text-blue-600 text-sm mb-4">
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+          Saving...
+        </div>
+      );
+    }
+    if (lastSaved) {
+      return (
+        <div className="text-green-600 text-sm mb-4">
+          ✓ Saved {lastSaved.toLocaleTimeString()}
+        </div>
+      );
+    }
+    if (hasUnsavedChanges) {
+      return (
+        <div className="text-orange-600 text-sm mb-4">
+          • Unsaved changes
+        </div>
+      );
+    }
+    return null;
+  };
+
   console.log('🔥 RENDERING SURVEY COMPONENT - model exists:', !!surveyModel);
-  return <Survey model={surveyModel} />;
+  return (
+    <div>
+      {renderSaveStatus()}
+      <Survey model={surveyModel} />
+    </div>
+  );
 }, (prevProps, nextProps) => {
   // Only re-render if questionnaireId changes - ignore ALL other prop changes
   const shouldSkipRender = prevProps.questionnaireId === nextProps.questionnaireId;
