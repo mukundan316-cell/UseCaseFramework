@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Home, CheckCircle2, Save } from 'lucide-react';
+import { ArrowLeft, Home, CheckCircle2, Save, RotateCcw } from 'lucide-react';
 import { useSaveStatus } from './SaveStatusProvider';
 
 interface AssessmentHeaderProps {
@@ -12,6 +12,8 @@ interface AssessmentHeaderProps {
   totalQuestions: number;
   isCompleted: boolean;
   onSaveAndExit?: () => void;
+  onStartOver?: () => void;
+  isResetting?: boolean;
 }
 
 // Memoized save status component that uses context
@@ -54,7 +56,9 @@ export const AssessmentHeader = React.memo(({
   answeredCount,
   totalQuestions,
   isCompleted,
-  onSaveAndExit
+  onSaveAndExit,
+  onStartOver,
+  isResetting = false
 }: AssessmentHeaderProps) => {
   const [, setLocation] = useLocation();
 
@@ -111,6 +115,25 @@ export const AssessmentHeader = React.memo(({
             
             <div className="flex items-center space-x-4">
               <SaveStatus />
+              
+              {/* Start Over Button - only show if progress > 0% and not completed */}
+              {progress > 0 && !isCompleted && onStartOver && (
+                <Button
+                  onClick={onStartOver}
+                  variant="outline" 
+                  size="sm"
+                  disabled={isResetting}
+                  className="flex items-center space-x-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                >
+                  {isResetting ? (
+                    <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4" />
+                  )}
+                  <span>Start Over</span>
+                </Button>
+              )}
+              
               <Button
                 onClick={() => {
                   // Trigger manual save via global function

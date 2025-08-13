@@ -69,8 +69,22 @@ export function AssessmentSessionStart({
       
       // Navigate to assessment
       setLocation('/assessment/take');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to start session:', error);
+      
+      // Handle completed session case
+      if (error?.completedSessionId) {
+        toast({
+          title: "Assessment Already Completed",
+          description: "Redirecting to your results...",
+          duration: 3000
+        });
+        setTimeout(() => {
+          setLocation(`/results/${error.completedSessionId}`);
+        }, 1500);
+        return;
+      }
+      
       toast({
         title: "Failed to Start Assessment",
         description: "Please check your details and try again.",

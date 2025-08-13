@@ -634,7 +634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // POST /api/responses/start - Create new response session
+  // POST /api/responses/start - Create new response session or return existing
   app.post('/api/responses/start', async (req, res) => {
     try {
       const { questionnaireId, respondentEmail, respondentName, metadata } = req.body;
@@ -645,7 +645,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Start new response session
+      // Start new response session or get existing
       const sessionId = await questionnaireService.startResponseSession(
         questionnaireId, 
         respondentEmail, 
@@ -659,6 +659,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error('Error starting response session:', error);
+      
+      // Handle completed session case
+      if (error.message && error.message.startsWith('COMPLETED_SESSION:')) {
+        const completedSessionId = error.message.split(':')[1];
+        return res.status(409).json({ 
+          error: 'Assessment already completed',
+          completedSessionId,
+          message: 'You have already completed this assessment. Redirecting to results.'
+        });
+      }
+      
       res.status(500).json({ error: 'Failed to start assessment session' });
     }
   });
@@ -721,6 +732,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error loading survey config:', error);
       res.status(500).json({ error: 'Failed to load survey configuration' });
+    }
+  });
+
+  // POST /api/responses/:id/reset - Reset response session
+  app.post('/api/responses/:id/reset', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const success = await questionnaireService.resetResponseSession(id);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Response session not found' });
+      }
+
+      res.json({ 
+        success: true, 
+        message: 'Response session reset successfully'
+      });
+    } catch (error) {
+      console.error('Error resetting response session:', error);
+      res.status(500).json({ error: 'Failed to reset response session' });
     }
   });
 

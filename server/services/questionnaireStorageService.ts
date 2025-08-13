@@ -23,20 +23,8 @@ export interface QuestionnaireDefinition {
   description: string;
   version: string;
   createdAt: string;
-  // Survey.js format (current)
-  pages?: Array<any>;
-  // Legacy format (for backward compatibility)
-  sections?: Array<{
-    id: string;
-    title: string;
-    sectionOrder: number;
-    subsections?: Array<{
-      id: string;
-      title: string;
-      subsectionOrder: number;
-    }>;
-  }>;
-  questions?: QuestionDefinition[];
+  // Survey.js format only
+  pages: Array<any>;
 }
 
 export interface QuestionnaireResponse {

@@ -119,6 +119,14 @@ export function useQuestionnaire(questionnaireId: string) {
       // Update both session and response caches
       queryClient.setQueryData(['session', questionnaireId], data);
       queryClient.setQueryData(['response', data.responseId], data);
+    },
+    onError: (error: any) => {
+      // Handle completed session case - don't show as error
+      if (error?.completedSessionId) {
+        // This is handled in the component
+        return;
+      }
+      throw error;
     }
   });
 
@@ -148,6 +156,20 @@ export function useQuestionnaire(questionnaireId: string) {
       queryClient.invalidateQueries({ queryKey: ['scores', data.id] });
       // Also invalidate session to reflect completion status
       queryClient.invalidateQueries({ queryKey: ['session', questionnaireId] });
+    }
+  });
+
+  // Reset response session mutation
+  const resetResponseMutation = useMutation({
+    mutationFn: (responseId: string) => 
+      apiRequest(`/api/responses/${responseId}/reset`, {
+        method: 'POST'
+      }),
+    onSuccess: (data, responseId) => {
+      // Invalidate all related caches to force reload
+      queryClient.invalidateQueries({ queryKey: ['response', responseId] });
+      queryClient.invalidateQueries({ queryKey: ['session', questionnaireId] });
+      queryClient.invalidateQueries({ queryKey: ['scores', responseId] });
     }
   });
 
@@ -198,6 +220,8 @@ export function useQuestionnaire(questionnaireId: string) {
     startResponseAsync: startResponseMutation.mutateAsync,
     saveAnswers: saveAnswersMutation.mutate,
     completeResponse: completeResponseMutation.mutate,
+    resetResponse: resetResponseMutation.mutate,
+    resetResponseAsync: resetResponseMutation.mutateAsync,
     
     // Manual refresh function for explicit navigation
     refreshSession: () => queryClient.invalidateQueries({ queryKey: ['session', questionnaireId] }),
@@ -206,11 +230,13 @@ export function useQuestionnaire(questionnaireId: string) {
     isStartingResponse: startResponseMutation.isPending,
     isSavingAnswers: saveAnswersMutation.isPending,
     isCompletingResponse: completeResponseMutation.isPending,
+    isResettingResponse: resetResponseMutation.isPending,
     
     // Mutation errors
     startResponseError: startResponseMutation.error,
     saveAnswersError: saveAnswersMutation.error,
     completeResponseError: completeResponseMutation.error,
+    resetResponseError: resetResponseMutation.error,
     
     // Nested hooks for response data
     useResponse,

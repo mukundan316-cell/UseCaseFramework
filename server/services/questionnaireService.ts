@@ -1,7 +1,7 @@
 import { QuestionnaireStorageService, QuestionnaireDefinition, QuestionnaireResponse } from './questionnaireStorageService';
 import { db } from '../db';
 import { responseSessions } from '../../shared/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 
 /**
  * Main service for questionnaire operations
@@ -78,13 +78,38 @@ export class QuestionnaireService {
   }
 
   /**
-   * Start a new response session
+   * Start a new response session or return existing incomplete session
    */
   async startResponseSession(
     questionnaireId: string,
     respondentEmail: string,
     respondentName?: string
   ): Promise<string> {
+    // Check for existing sessions with same email and questionnaire
+    const existingSessions = await db.select()
+      .from(responseSessions)
+      .where(
+        and(
+          eq(responseSessions.questionnaireId, questionnaireId),
+          eq(responseSessions.respondentEmail, respondentEmail)
+        )
+      )
+      .orderBy(desc(responseSessions.startedAt));
+
+    // If there's an existing session, handle based on status
+    if (existingSessions.length > 0) {
+      const latestSession = existingSessions[0];
+      
+      if (latestSession.status === 'completed') {
+        // User has completed assessment, redirect them to results
+        throw new Error(`COMPLETED_SESSION:${latestSession.id}`);
+      } else {
+        // Return existing incomplete session
+        console.log(`Returning existing session ${latestSession.id} for ${respondentEmail}`);
+        return latestSession.id;
+      }
+    }
+
     // Check if questionnaire exists, if not use defaults
     let questionnaire = await this.storageService.getQuestionnaireDefinition(questionnaireId);
     let questionnaireVersion = '2.0.0';
@@ -92,19 +117,12 @@ export class QuestionnaireService {
     
     if (questionnaire) {
       questionnaireVersion = questionnaire.version || '2.0.0';
-      console.log('Questionnaire loaded:', { id: questionnaire.id, hasPages: !!questionnaire.pages, hasSections: !!questionnaire.sections });
+      console.log('Questionnaire loaded:', { id: questionnaire.id, hasPages: !!questionnaire.pages });
       
-      // Count total questions from Survey.js pages format
+      // Count total questions from Survey.js pages format only
       if (questionnaire.pages && Array.isArray(questionnaire.pages)) {
-        // Survey.js format - count questions from pages
         totalQuestions = this.countQuestionsFromSurveyJsPages(questionnaire.pages);
         console.log('Counted questions from Survey.js pages:', totalQuestions);
-      } else if (questionnaire.sections && Array.isArray(questionnaire.sections)) {
-        // Legacy format - count questions from sections
-        totalQuestions = questionnaire.sections.reduce((total: number, section: any) => {
-          return total + (section.questions ? section.questions.length : 0);
-        }, 0);
-        console.log('Counted questions from legacy sections:', totalQuestions);
       } else {
         console.log('Questionnaire format not recognized, using default count');
       }
@@ -169,19 +187,10 @@ export class QuestionnaireService {
         return false;
       }
 
-      // Handle both array format (legacy) and object format (Survey.js)
+      // Handle Survey.js object format only
       const formattedAnswers: Array<{ questionId: string; answerValue: any }> = [];
       
-      if (Array.isArray(answers)) {
-        answers.forEach((answer: any) => {
-          if (answer.questionId && answer.answerValue !== undefined) {
-            formattedAnswers.push({
-              questionId: answer.questionId,
-              answerValue: answer.answerValue
-            });
-          }
-        });
-      } else if (typeof answers === 'object' && answers !== null) {
+      if (typeof answers === 'object' && answers !== null && !Array.isArray(answers)) {
         // Convert Survey.js object format to our Answer format
         Object.entries(answers).forEach(([questionId, answerValue]) => {
           if (questionId && answerValue !== undefined) {
@@ -191,6 +200,9 @@ export class QuestionnaireService {
             });
           }
         });
+      } else {
+        console.error('Invalid answers format. Expected Survey.js object format.');
+        return false;
       }
 
       // Update answers in response
@@ -222,15 +234,10 @@ export class QuestionnaireService {
       // Get questionnaire to calculate progress
       const questionnaire = await this.storageService.getQuestionnaireDefinition(response.questionnaireId);
       
-      // Calculate total questions from either sections (legacy) or pages (Survey.js)
+      // Calculate total questions from Survey.js pages format only
       let totalQuestions = 45; // Default fallback
-      if (questionnaire) {
-        if (questionnaire.sections && questionnaire.sections.length > 0) {
-          totalQuestions = questionnaire.sections.reduce((total, section) => total + (section.questions?.length || 0), 0);
-        } else if (questionnaire.pages && questionnaire.pages.length > 0) {
-          // Count questions from Survey.js pages format
-          totalQuestions = this.countQuestionsFromSurveyJsPages(questionnaire.pages || []);
-        }
+      if (questionnaire && questionnaire.pages && questionnaire.pages.length > 0) {
+        totalQuestions = this.countQuestionsFromSurveyJsPages(questionnaire.pages);
       }
       const progressPercent = Math.round((answeredQuestions / totalQuestions) * 100);
 
@@ -287,6 +294,52 @@ export class QuestionnaireService {
       return true;
     } catch (error) {
       console.error('Failed to complete response:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Reset a response session - clear all answers and restart
+   */
+  async resetResponseSession(responseId: string): Promise<boolean> {
+    try {
+      // Get current response to preserve metadata
+      const response = await this.storageService.getQuestionnaireResponse(responseId);
+      if (!response) {
+        console.error(`Response ${responseId} not found`);
+        return false;
+      }
+
+      // Reset response data while keeping session metadata
+      const resetResponse: QuestionnaireResponse = {
+        ...response,
+        status: 'started',
+        lastUpdatedAt: new Date().toISOString(),
+        answers: [],
+        completedAt: undefined
+      };
+
+      // Save reset response to blob storage
+      await this.storageService.storeQuestionnaireResponse(resetResponse);
+
+      // Reset session progress in PostgreSQL
+      await db
+        .update(responseSessions)
+        .set({
+          answeredQuestions: 0,
+          progressPercent: 0,
+          lastUpdatedAt: new Date(),
+          status: 'started',
+          completedAt: null,
+          currentSectionId: null,
+          currentQuestionId: null
+        })
+        .where(eq(responseSessions.id, responseId));
+
+      console.log(`Reset session ${responseId} successfully`);
+      return true;
+    } catch (error) {
+      console.error('Failed to reset response session:', error);
       return false;
     }
   }

@@ -1,10 +1,20 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Save, AlertCircle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 import { AssessmentHeader } from './AssessmentHeader';
 import { SurveyWithStatusBridge } from './SurveyWithStatusBridge';
@@ -28,9 +38,14 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     isCheckingSession,
     saveAnswers,
     completeResponse,
+    resetResponseAsync,
+    isResettingResponse,
     saveAnswersError,
     completeResponseError,
+    resetResponseError,
   } = useQuestionnaire(questionnaireId);
+
+  const [showResetDialog, setShowResetDialog] = useState(false);
 
   // Store handlers in refs to make them stable - never re-create
   const handlersRef = useRef({
@@ -111,6 +126,40 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     setLocation('/assessment');
   }, [setLocation]);
 
+  // Start over handler with confirmation
+  const handleStartOver = React.useCallback(() => {
+    setShowResetDialog(true);
+  }, []);
+
+  // Confirm reset handler
+  const confirmReset = React.useCallback(async () => {
+    if (!responseSession?.id) return;
+    
+    try {
+      await resetResponseAsync(responseSession.id);
+      
+      toast({
+        title: "Assessment Reset",
+        description: "Starting fresh with a clean assessment.",
+        duration: 3000
+      });
+      
+      setShowResetDialog(false);
+      
+      // Slight delay to allow the UI to update before refresh
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error) {
+      console.error('Failed to reset assessment:', error);
+      toast({
+        title: "Reset Failed",
+        description: "Unable to reset assessment. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [responseSession?.id, resetResponseAsync, toast]);
+
   // Show loading state
   if (isLoadingQuestionnaire || isCheckingSession) {
     return (
@@ -145,6 +194,8 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
           totalQuestions={totalQuestions}
           isCompleted={isCompleted}
           onSaveAndExit={handleSaveAndExit}
+          onStartOver={handleStartOver}
+          isResetting={isResettingResponse}
         />
 
         {/* Main Content */}
@@ -157,11 +208,11 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
           </div>
 
           {/* Error Alerts */}
-          {(saveAnswersError || completeResponseError) && (
+          {(saveAnswersError || completeResponseError || resetResponseError) && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                {saveAnswersError?.message || completeResponseError?.message || 'An error occurred'}
+                {saveAnswersError?.message || completeResponseError?.message || resetResponseError?.message || 'An error occurred'}
               </AlertDescription>
             </Alert>
           )}
@@ -179,6 +230,37 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
           </Card>
         </div>
       </div>
+
+      {/* Reset Confirmation Dialog */}
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Start Over Assessment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all your current progress and answers. You'll start fresh with a completely clean assessment. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isResettingResponse}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmReset}
+              disabled={isResettingResponse}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {isResettingResponse ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Resetting...</span>
+                </div>
+              ) : (
+                "Yes, Start Over"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SaveStatusProvider>
   );
 }
