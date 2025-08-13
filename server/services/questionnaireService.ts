@@ -41,88 +41,7 @@ export class QuestionnaireService {
     };
   }
 
-  /**
-   * Calculate progress using Survey.js logic for page-level completion
-   * A page is considered complete only when all required questions are answered
-   */
-  private calculateSurveyProgress(questionnaire: QuestionnaireDefinition, answers: any[]): {
-    totalPages: number;
-    completedPages: number;
-    totalQuestions: number;
-    answeredQuestions: number;
-    progressPercent: number;
-  } {
-    if (!questionnaire?.pages) {
-      return {
-        totalPages: 0,
-        completedPages: 0,
-        totalQuestions: 0,
-        answeredQuestions: 0,
-        progressPercent: 0
-      };
-    }
 
-    // Convert answers array to Survey.js data format for easier lookup
-    const surveyData: Record<string, any> = {};
-    answers.forEach(answer => {
-      surveyData[answer.questionId] = answer.answerValue;
-    });
-
-    let totalPages = questionnaire.pages.length;
-    let completedPages = 0;
-    let totalQuestions = 0;
-    let answeredQuestions = 0;
-
-    // Analyze each page
-    questionnaire.pages.forEach((page: any) => {
-      if (!page.elements) return;
-
-      let pageQuestions = 0;
-      let pageAnsweredQuestions = 0;
-      let allPageRequiredAnswered = true;
-
-      // Count questions in this page
-      const analyzeElements = (elements: any[]) => {
-        elements.forEach(element => {
-          if (this.isQuestionElement(element)) {
-            pageQuestions++;
-            totalQuestions++;
-            
-            // Check if question is answered
-            if (surveyData[element.name] !== undefined && surveyData[element.name] !== null && surveyData[element.name] !== '') {
-              pageAnsweredQuestions++;
-              answeredQuestions++;
-            } else if (element.isRequired) {
-              allPageRequiredAnswered = false;
-            }
-          }
-          
-          // Handle nested elements (panels, etc.)
-          if (element.elements) {
-            analyzeElements(element.elements);
-          }
-        });
-      };
-
-      analyzeElements(page.elements);
-
-      // Page is complete if all required questions are answered
-      // For now, consider a page complete if it has answered questions and all required ones are filled
-      if (pageQuestions > 0 && allPageRequiredAnswered && pageAnsweredQuestions > 0) {
-        completedPages++;
-      }
-    });
-
-    const progressPercent = totalPages > 0 ? Math.round((completedPages / totalPages) * 100) : 0;
-
-    return {
-      totalPages,
-      completedPages,
-      totalQuestions,
-      answeredQuestions,
-      progressPercent
-    };
-  }
 
   /**
    * Get the most recent session for a questionnaire with accurate progress
@@ -552,6 +471,82 @@ export class QuestionnaireService {
     return {
       size: this.definitionCache.size,
       keys: Array.from(this.definitionCache.keys())
+    };
+  }
+
+  /**
+   * Calculate progress using Survey.js logic for question-level completion
+   * Each element in pages is considered a question - we track answered vs total questions
+   */
+  private calculateSurveyProgress(questionnaire: QuestionnaireDefinition, answers: any[]): {
+    totalPages: number;
+    completedPages: number;
+    totalQuestions: number;
+    answeredQuestions: number;
+    progressPercent: number;
+  } {
+    if (!questionnaire?.pages) {
+      return {
+        totalPages: 0,
+        completedPages: 0,
+        totalQuestions: 0,
+        answeredQuestions: 0,
+        progressPercent: 0
+      };
+    }
+
+    // Convert answers array to Survey.js data format for easier lookup
+    const surveyData: Record<string, any> = {};
+    answers.forEach(answer => {
+      surveyData[answer.questionId] = answer.answerValue;
+    });
+
+    let totalPages = questionnaire.pages.length;
+    let completedPages = 0;
+    let totalQuestions = 0;
+    let answeredQuestions = 0;
+
+    // Analyze each page to count questions (elements)
+    questionnaire.pages.forEach((page: any) => {
+      if (!page.elements) return;
+
+      let pageQuestions = 0;
+      let pageAnsweredQuestions = 0;
+
+      // Count all question elements in this page (not nested sub-elements)
+      page.elements.forEach((element: any) => {
+        if (this.isQuestionElement(element)) {
+          pageQuestions++;
+          totalQuestions++;
+          
+          // Check if this question element is answered
+          // A question is considered answered if it has a non-empty value
+          const hasValue = surveyData[element.name] !== undefined && 
+                          surveyData[element.name] !== null && 
+                          surveyData[element.name] !== '';
+          
+          if (hasValue) {
+            pageAnsweredQuestions++;
+            answeredQuestions++;
+          }
+        }
+      });
+
+      // Page is complete if all questions in the page are answered
+      if (pageQuestions > 0 && pageAnsweredQuestions === pageQuestions) {
+        completedPages++;
+      }
+    });
+
+    // Calculate progress based on answered questions vs total questions
+    const progressPercent = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+
+    return {
+      totalPages,
+      completedPages,
+      totalQuestions,
+      answeredQuestions,
+      progressPercent
     };
   }
 
