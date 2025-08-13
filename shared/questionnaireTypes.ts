@@ -71,7 +71,9 @@ export interface QuestionnaireResponse {
   startedAt: string;
   lastUpdatedAt: string;
   completedAt?: string;
-  answers: QuestionAnswer[];
+  surveyData: Record<string, any>; // Direct Survey.js data object
+  // Legacy support - will be removed in future versions
+  answers?: QuestionAnswer[];
   progress?: {
     currentSectionId?: string;
     currentQuestionId?: string;

@@ -147,12 +147,11 @@ export class QuestionnaireStorageService {
   }
 
   /**
-   * Update specific answer in questionnaire response
+   * Update survey data (replaces legacy updateResponseAnswer)
    */
-  async updateResponseAnswer(
+  async updateResponseSurveyData(
     responseId: string, 
-    questionId: string, 
-    answerValue: any
+    surveyData: Record<string, any>
   ): Promise<boolean> {
     try {
       const response = await this.getQuestionnaireResponse(responseId);
@@ -160,27 +159,16 @@ export class QuestionnaireStorageService {
         return false;
       }
 
-      // Find existing answer or create new one
-      const existingAnswerIndex = response.answers.findIndex(a => a.questionId === questionId);
-      const answerData = {
-        questionId,
-        answerValue,
-        answeredAt: new Date().toISOString()
-      };
-
-      if (existingAnswerIndex >= 0) {
-        response.answers[existingAnswerIndex] = answerData;
-      } else {
-        response.answers.push(answerData);
-      }
-
+      // Replace entire survey data
+      response.surveyData = surveyData;
       response.status = 'in_progress';
+      response.lastUpdatedAt = new Date().toISOString();
       
       // Store updated response
       await this.storeQuestionnaireResponse(response);
       return true;
     } catch (error) {
-      console.error('Failed to update response answer:', error);
+      console.error('Failed to update response survey data:', error);
       return false;
     }
   }

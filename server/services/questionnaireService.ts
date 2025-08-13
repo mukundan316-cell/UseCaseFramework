@@ -76,12 +76,17 @@ export class QuestionnaireService {
           this.storageService.getQuestionnaireDefinition(questionnaireId)
         ]);
         
-        if (response?.answers) {
-          answers = response.answers;
+        if (response?.surveyData) {
+          // Convert Survey.js data to legacy answers format for session response
+          answers = Object.entries(response.surveyData).map(([questionId, answerValue]) => ({
+            questionId,
+            answerValue,
+            answeredAt: response.lastUpdatedAt
+          }));
         }
 
         if (questionnaire) {
-          progressData = this.calculateSurveyProgress(questionnaire, answers);
+          progressData = this.calculateSurveyProgress(questionnaire, response.surveyData || {});
         }
       } catch (error) {
         console.log(`Error loading session data for ${session.id}:`, error.message);
@@ -175,7 +180,7 @@ export class QuestionnaireService {
       status: 'started',
       startedAt: new Date().toISOString(),
       lastUpdatedAt: new Date().toISOString(),
-      answers: []
+      surveyData: {}
     };
 
     await this.storageService.storeQuestionnaireResponse(emptyResponse);
@@ -199,11 +204,11 @@ export class QuestionnaireService {
   }
 
   /**
-   * Save multiple answers to a response
+   * Save Survey.js data directly without conversion
    */
   async saveResponseAnswers(
     responseId: string,
-    answers: any
+    surveyData: any
   ): Promise<boolean> {
     try {
       // Get current response
@@ -213,48 +218,20 @@ export class QuestionnaireService {
         return false;
       }
 
-      // Handle Survey.js object format only
-      const formattedAnswers: Array<{ questionId: string; answerValue: any }> = [];
-      
-      if (typeof answers === 'object' && answers !== null && !Array.isArray(answers)) {
-        // Convert Survey.js object format to our Answer format
-        Object.entries(answers).forEach(([questionId, answerValue]) => {
-          if (questionId && answerValue !== undefined) {
-            formattedAnswers.push({
-              questionId,
-              answerValue
-            });
-          }
-        });
-      } else {
-        console.error('Invalid answers format. Expected Survey.js object format.');
+      // Validate Survey.js data format
+      if (typeof surveyData !== 'object' || surveyData === null || Array.isArray(surveyData)) {
+        console.error('Invalid surveyData format. Expected Survey.js object format.');
         return false;
       }
 
-      // Update answers in response
-      formattedAnswers.forEach(({ questionId, answerValue }) => {
-        const existingAnswerIndex = response.answers.findIndex(a => a.questionId === questionId);
-        
-        const answerData = {
-          questionId,
-          answerValue,
-          answeredAt: new Date().toISOString()
-        };
-
-        if (existingAnswerIndex >= 0) {
-          response.answers[existingAnswerIndex] = answerData;
-        } else {
-          response.answers.push(answerData);
-        }
-      });
-
-      // Update response metadata
+      // Save Survey.js data directly without conversion
+      response.surveyData = surveyData;
       response.lastUpdatedAt = new Date().toISOString();
 
       // Save updated response to blob storage
       await this.storageService.storeQuestionnaireResponse(response);
 
-      // Calculate accurate progress using Survey.js page logic
+      // Calculate progress using Survey.js data directly
       const questionnaire = await this.storageService.getQuestionnaireDefinition(response.questionnaireId);
       let progressData = {
         totalPages: 0,
@@ -265,16 +242,15 @@ export class QuestionnaireService {
       };
 
       if (questionnaire) {
-        progressData = this.calculateSurveyProgress(questionnaire, response.answers);
+        progressData = this.calculateSurveyProgress(questionnaire, surveyData);
         console.log('Progress calculation debug:', {
           questionnaireId: response.questionnaireId,
-          answersCount: response.answers.length,
-          progressData,
-          sampleAnswers: response.answers.slice(0, 3).map(a => ({ id: a.questionId, value: a.answerValue }))
+          surveyDataKeys: Object.keys(surveyData),
+          progressData
         });
       }
 
-      // Update session progress in PostgreSQL with accurate data
+      // Update session progress in PostgreSQL
       await db
         .update(responseSessions)
         .set({
@@ -289,7 +265,7 @@ export class QuestionnaireService {
 
       return true;
     } catch (error) {
-      console.error('Failed to save answers:', error);
+      console.error('Failed to save survey data:', error);
       return false;
     }
   }
@@ -297,7 +273,19 @@ export class QuestionnaireService {
 
 
   /**
-   * Save answer to a question (legacy method)
+   * Get response by ID
+   */
+  async getResponse(responseId: string): Promise<QuestionnaireResponse | null> {
+    try {
+      return await this.storageService.getQuestionnaireResponse(responseId);
+    } catch (error) {
+      console.error('Failed to get response:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Save answer to a question (legacy method - deprecated)
    */
   async saveAnswer(
     responseId: string,
@@ -350,7 +338,7 @@ export class QuestionnaireService {
         ...response,
         status: 'started',
         lastUpdatedAt: new Date().toISOString(),
-        answers: [],
+        surveyData: {},
         completedAt: undefined
       };
 
@@ -484,7 +472,7 @@ export class QuestionnaireService {
    * Calculate progress using Survey.js logic for question-level completion
    * Each element in pages is considered a question - we track answered vs total questions
    */
-  private calculateSurveyProgress(questionnaire: QuestionnaireDefinition, answers: any[]): {
+  private calculateSurveyProgress(questionnaire: QuestionnaireDefinition, surveyData: Record<string, any>): {
     totalPages: number;
     completedPages: number;
     totalQuestions: number;
@@ -500,12 +488,6 @@ export class QuestionnaireService {
         progressPercent: 0
       };
     }
-
-    // Convert answers array to Survey.js data format for easier lookup
-    const surveyData: Record<string, any> = {};
-    answers.forEach(answer => {
-      surveyData[answer.questionId] = answer.answerValue;
-    });
 
     let totalPages = questionnaire.pages.length;
     let completedPages = 0;

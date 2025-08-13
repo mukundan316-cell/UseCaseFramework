@@ -40,30 +40,27 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
         // Load survey config
         const surveyConfig = await apiRequest(`/api/survey-config/${questionnaireId}`);
 
-        // Load existing answers from session data (already included in check-session response)
-        let existingAnswers = {};
-        if (sessionData?.answers) {
-          // Convert answer array to Survey.js data format
-          // Filter out corrupted nested answers and only use the clean ones
-          sessionData.answers.forEach((answer: any) => {
-            // Skip answers with questionId that are numeric strings (corrupted data)
-            if (answer.questionId && !answer.questionId.match(/^\d+$/)) {
-              // Only use answers where answerValue is a primitive value, not an object
-              if (typeof answer.answerValue !== 'object') {
-                existingAnswers[answer.questionId] = answer.answerValue;
-              }
+        // Load existing survey data if session exists
+        let existingSurveyData = {};
+        if (sessionData?.id) {
+          try {
+            const responseData = await apiRequest(`/api/responses/${sessionData.id}`);
+            if (responseData?.surveyData) {
+              existingSurveyData = responseData.surveyData;
+              console.log('Loaded existing survey data:', existingSurveyData);
             }
-          });
-          console.log('Filtered existing answers:', existingAnswers);
+          } catch (error) {
+            console.error('Failed to load existing survey data:', error);
+          }
         }
 
         if (isMounted) {
           const survey = new Model(surveyConfig);
           
-          // Load existing answers into survey
-          if (Object.keys(existingAnswers).length > 0) {
-            survey.data = existingAnswers;
-            console.log('Loaded existing answers:', existingAnswers);
+          // Load existing survey data into survey
+          if (Object.keys(existingSurveyData).length > 0) {
+            survey.data = existingSurveyData;
+            console.log('Loaded existing survey data into survey:', existingSurveyData);
           }
 
           // Manual save handler
