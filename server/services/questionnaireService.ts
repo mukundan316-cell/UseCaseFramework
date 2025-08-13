@@ -343,10 +343,14 @@ export class QuestionnaireService {
             return null;
           }
 
-          // Count actual questions (not just first-level elements)
+          // Count first-level elements (panels/questions) per page
           let questionCount = 0;
           if (definition.pages) {
-            questionCount = this.countQuestionsFromSurveyJsPages(definition.pages);
+            definition.pages.forEach((page: any) => {
+              if (page.elements) {
+                questionCount += page.elements.length; // Count all first-level elements
+              }
+            });
           }
 
           return {
