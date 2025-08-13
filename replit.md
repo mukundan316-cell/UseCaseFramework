@@ -53,7 +53,7 @@ All use case cards across the entire application must follow this exact specific
   - **Start Over Always Visible**: Button now shows when progress > 0% regardless of completion status
   - **Completed Sessions Reopenable**: Users can reopen completed assessments and use Start Over to restart
   - **No Auto-Completion**: Removed automatic completion at 100% progress - users must manually complete
-  - **Progress Logic Fixed**: Panel questions now count progress when ANY nested element has data (not all required)
+  - **Progress Logic Fixed**: Panel questions now require ALL nested input elements to be completed (6/6 fields required)
   - **Session Status Correction**: Status remains "in_progress" until manually completed, allowing restarts
 - **Simplified Survey.js Storage Architecture (August 13, 2025)**: Eliminated data corruption at the root cause
   - **Root Cause Fixed**: Replaced complex answer merging logic with direct Survey.js data replacement

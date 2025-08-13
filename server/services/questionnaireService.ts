@@ -501,27 +501,41 @@ export class QuestionnaireService {
         totalQuestions++;
         
         // Check if this question element is answered
-        // For panels, check if ALL nested elements have data
+        // For panels, check if ALL nested input elements have data
         let isElementAnswered = false;
         
         if (element.type === 'panel' && element.elements) {
-          // For panels, check if any nested input elements have values (not all)
-          let hasAnyAnsweredElements = false;
+          // For panels, check if ALL nested input elements have values
+          let allNestedAnswered = true;
+          let hasAnyInputElements = false;
           
+          const inputElements: any[] = [];
           element.elements.forEach((nestedElement: any) => {
             // Only check actual input elements (skip expressions, displays, etc.)
             if (nestedElement.type === 'text' || nestedElement.type === 'radiogroup' || 
                 nestedElement.type === 'checkbox' || nestedElement.type === 'dropdown') {
+              hasAnyInputElements = true;
+              inputElements.push(nestedElement);
               const hasValue = surveyData[nestedElement.name] !== undefined && 
                               surveyData[nestedElement.name] !== null && 
                               surveyData[nestedElement.name] !== '';
-              if (hasValue) {
-                hasAnyAnsweredElements = true;
+              if (!hasValue) {
+                allNestedAnswered = false;
               }
             }
           });
           
-          isElementAnswered = hasAnyAnsweredElements;
+          // Debug logging for panel completion (can be removed in production)
+          if (inputElements.length > 0) {
+            const answeredElements = inputElements.filter(el => 
+              surveyData[el.name] !== undefined && 
+              surveyData[el.name] !== null && 
+              surveyData[el.name] !== ''
+            );
+            console.log(`Panel ${element.name}: ${answeredElements.length}/${inputElements.length} elements answered, allComplete: ${allNestedAnswered}`);
+          }
+          
+          isElementAnswered = hasAnyInputElements && allNestedAnswered;
         } else {
           // For non-panel elements, check directly
           isElementAnswered = surveyData[element.name] !== undefined && 
