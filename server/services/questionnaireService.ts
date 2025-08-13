@@ -120,8 +120,9 @@ export class QuestionnaireService {
       const latestSession = existingSessions[0];
       
       if (latestSession.status === 'completed') {
-        // User has completed assessment, redirect them to results
-        throw new Error(`COMPLETED_SESSION:${latestSession.id}`);
+        // Allow users to reopen completed assessments for Start Over functionality
+        console.log(`Returning completed session ${latestSession.id} for ${respondentEmail} (allowing restart)`);
+        return latestSession.id;
       } else {
         // Return existing incomplete session
         console.log(`Returning existing session ${latestSession.id} for ${respondentEmail}`);
@@ -251,7 +252,7 @@ export class QuestionnaireService {
           progressPercent: progressData.progressPercent,
           totalQuestions: progressData.totalQuestions,
           lastUpdatedAt: new Date(),
-          status: progressData.progressPercent === 100 ? 'completed' : 'in_progress',
+          status: 'in_progress', // Don't auto-complete based on progress - let users manually complete
           responsePath: `/responses/${responseId}/response.json`
         })
         .where(eq(responseSessions.id, responseId));
@@ -504,25 +505,23 @@ export class QuestionnaireService {
         let isElementAnswered = false;
         
         if (element.type === 'panel' && element.elements) {
-          // For panels, check if all nested input elements have values
-          let allNestedAnswered = true;
-          let hasAnyInputElements = false;
+          // For panels, check if any nested input elements have values (not all)
+          let hasAnyAnsweredElements = false;
           
           element.elements.forEach((nestedElement: any) => {
             // Only check actual input elements (skip expressions, displays, etc.)
             if (nestedElement.type === 'text' || nestedElement.type === 'radiogroup' || 
                 nestedElement.type === 'checkbox' || nestedElement.type === 'dropdown') {
-              hasAnyInputElements = true;
               const hasValue = surveyData[nestedElement.name] !== undefined && 
                               surveyData[nestedElement.name] !== null && 
                               surveyData[nestedElement.name] !== '';
-              if (!hasValue) {
-                allNestedAnswered = false;
+              if (hasValue) {
+                hasAnyAnsweredElements = true;
               }
             }
           });
           
-          isElementAnswered = hasAnyInputElements && allNestedAnswered;
+          isElementAnswered = hasAnyAnsweredElements;
         } else {
           // For non-panel elements, check directly
           isElementAnswered = surveyData[element.name] !== undefined && 

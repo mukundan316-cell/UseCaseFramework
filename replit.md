@@ -49,6 +49,12 @@ All use case cards across the entire application must follow this exact specific
 - **Real-time Persistence**: Live database synchronization
 
 ### Recent Enhancements (August 2025)
+- **Fixed Start Over Button & Session Management (August 13, 2025)**: Implemented user-requested behavior changes
+  - **Start Over Always Visible**: Button now shows when progress > 0% regardless of completion status
+  - **Completed Sessions Reopenable**: Users can reopen completed assessments and use Start Over to restart
+  - **No Auto-Completion**: Removed automatic completion at 100% progress - users must manually complete
+  - **Progress Logic Fixed**: Panel questions now count progress when ANY nested element has data (not all required)
+  - **Session Status Correction**: Status remains "in_progress" until manually completed, allowing restarts
 - **Simplified Survey.js Storage Architecture (August 13, 2025)**: Eliminated data corruption at the root cause
   - **Root Cause Fixed**: Replaced complex answer merging logic with direct Survey.js data replacement
   - **Clean Storage Format**: `surveyData: Record<string, any>` stores Survey.js data exactly as submitted

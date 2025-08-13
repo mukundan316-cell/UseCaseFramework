@@ -116,8 +116,8 @@ export const AssessmentHeader = React.memo(({
             <div className="flex items-center space-x-4">
               <SaveStatus />
               
-              {/* Start Over Button - only show if progress > 0% and not completed */}
-              {progress > 0 && !isCompleted && onStartOver && (
+              {/* Start Over Button - show if progress > 0% regardless of completion status */}
+              {progress > 0 && onStartOver && (
                 <Button
                   onClick={onStartOver}
                   variant="outline" 
