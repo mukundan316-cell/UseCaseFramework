@@ -182,6 +182,8 @@ export const responseSessions = pgTable("response_sessions", {
   questionnaireVersion: text("questionnaire_version").notNull(),
   totalQuestions: integer("total_questions").notNull(),
   answeredQuestions: integer("answered_questions").notNull().default(0),
+  totalPages: integer("total_pages").notNull().default(0),
+  completedPages: integer("completed_pages").notNull().default(0),
 });
 
 export const insertResponseSessionSchema = createInsertSchema(responseSessions).extend({

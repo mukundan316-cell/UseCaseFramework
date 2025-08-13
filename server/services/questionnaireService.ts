@@ -42,7 +42,90 @@ export class QuestionnaireService {
   }
 
   /**
-   * Get the most recent session for a questionnaire
+   * Calculate progress using Survey.js logic for page-level completion
+   * A page is considered complete only when all required questions are answered
+   */
+  private calculateSurveyProgress(questionnaire: QuestionnaireDefinition, answers: any[]): {
+    totalPages: number;
+    completedPages: number;
+    totalQuestions: number;
+    answeredQuestions: number;
+    progressPercent: number;
+  } {
+    if (!questionnaire?.pages) {
+      return {
+        totalPages: 0,
+        completedPages: 0,
+        totalQuestions: 0,
+        answeredQuestions: 0,
+        progressPercent: 0
+      };
+    }
+
+    // Convert answers array to Survey.js data format for easier lookup
+    const surveyData: Record<string, any> = {};
+    answers.forEach(answer => {
+      surveyData[answer.questionId] = answer.answerValue;
+    });
+
+    let totalPages = questionnaire.pages.length;
+    let completedPages = 0;
+    let totalQuestions = 0;
+    let answeredQuestions = 0;
+
+    // Analyze each page
+    questionnaire.pages.forEach((page: any) => {
+      if (!page.elements) return;
+
+      let pageQuestions = 0;
+      let pageAnsweredQuestions = 0;
+      let allPageRequiredAnswered = true;
+
+      // Count questions in this page
+      const analyzeElements = (elements: any[]) => {
+        elements.forEach(element => {
+          if (this.isQuestionElement(element)) {
+            pageQuestions++;
+            totalQuestions++;
+            
+            // Check if question is answered
+            if (surveyData[element.name] !== undefined && surveyData[element.name] !== null && surveyData[element.name] !== '') {
+              pageAnsweredQuestions++;
+              answeredQuestions++;
+            } else if (element.isRequired) {
+              allPageRequiredAnswered = false;
+            }
+          }
+          
+          // Handle nested elements (panels, etc.)
+          if (element.elements) {
+            analyzeElements(element.elements);
+          }
+        });
+      };
+
+      analyzeElements(page.elements);
+
+      // Page is complete if all required questions are answered
+      // For now, consider a page complete if it has answered questions and all required ones are filled
+      if (pageQuestions > 0 && allPageRequiredAnswered && pageAnsweredQuestions > 0) {
+        completedPages++;
+      }
+    });
+
+    const progressPercent = totalPages > 0 ? Math.round((completedPages / totalPages) * 100) : 0;
+
+    return {
+      totalPages,
+      completedPages,
+      totalQuestions,
+      answeredQuestions,
+      progressPercent
+    };
+  }
+
+  /**
+   * Get the most recent session for a questionnaire with accurate progress
    */
   async getMostRecentSession(questionnaireId: string): Promise<any> {
     try {
@@ -58,18 +141,37 @@ export class QuestionnaireService {
 
       const session = sessions[0];
       
-      // Load answers from blob storage
-      let answers = null;
+      // Load answers from blob storage and questionnaire definition
+      let answers = [];
+      let progressData = {
+        totalPages: 0,
+        completedPages: 0,
+        totalQuestions: 0,
+        answeredQuestions: 0,
+        progressPercent: 0
+      };
+
       try {
-        const response = await this.storageService.getQuestionnaireResponse(session.id);
-        answers = response?.answers;
+        const [response, questionnaire] = await Promise.all([
+          this.storageService.getQuestionnaireResponse(session.id),
+          this.storageService.getQuestionnaireDefinition(questionnaireId)
+        ]);
+        
+        if (response?.answers) {
+          answers = response.answers;
+        }
+
+        if (questionnaire) {
+          progressData = this.calculateSurveyProgress(questionnaire, answers);
+        }
       } catch (error) {
-        console.log(`No answers found for session ${session.id}`);
+        console.log(`Error loading session data for ${session.id}:`, error.message);
       }
 
       return {
         ...session,
-        answers
+        answers,
+        ...progressData
       };
     } catch (error) {
       console.error('Error getting most recent session:', error);
@@ -166,9 +268,14 @@ export class QuestionnaireService {
 
   /**
    * Check if element is a question (not just a container)
+   * Updated to include more Survey.js question types
    */
   private isQuestionElement(element: any): boolean {
-    const questionTypes = ['text', 'radiogroup', 'checkbox', 'rating', 'comment', 'dropdown', 'boolean'];
+    const questionTypes = [
+      'text', 'radiogroup', 'checkbox', 'rating', 'comment', 'dropdown', 'boolean',
+      'multipletext', 'matrix', 'matrixdropdown', 'matrixdynamic', 'paneldynamic',
+      'file', 'imagepicker', 'ranking', 'nouislider', 'tagbox'
+    ];
     return questionTypes.includes(element.type);
   }
 
@@ -228,26 +335,29 @@ export class QuestionnaireService {
       // Save updated response to blob storage
       await this.storageService.storeQuestionnaireResponse(response);
 
-      // Update session progress in PostgreSQL
-      const answeredQuestions = response.answers.length;
-      
-      // Get questionnaire to calculate progress
+      // Calculate accurate progress using Survey.js page logic
       const questionnaire = await this.storageService.getQuestionnaireDefinition(response.questionnaireId);
-      
-      // Calculate total questions from Survey.js pages format only
-      let totalQuestions = 45; // Default fallback
-      if (questionnaire && questionnaire.pages && questionnaire.pages.length > 0) {
-        totalQuestions = this.countQuestionsFromSurveyJsPages(questionnaire.pages);
-      }
-      const progressPercent = Math.round((answeredQuestions / totalQuestions) * 100);
+      let progressData = {
+        totalPages: 0,
+        completedPages: 0,
+        totalQuestions: 0,
+        answeredQuestions: 0,
+        progressPercent: 0
+      };
 
+      if (questionnaire) {
+        progressData = this.calculateSurveyProgress(questionnaire, response.answers);
+      }
+
+      // Update session progress in PostgreSQL with accurate data
       await db
         .update(responseSessions)
         .set({
-          answeredQuestions,
-          progressPercent,
+          answeredQuestions: progressData.answeredQuestions,
+          progressPercent: progressData.progressPercent,
+          totalQuestions: progressData.totalQuestions,
           lastUpdatedAt: new Date(),
-          status: progressPercent === 100 ? 'completed' : 'in_progress',
+          status: progressData.progressPercent === 100 ? 'completed' : 'in_progress',
           responsePath: `/responses/${responseId}/response.json`
         })
         .where(eq(responseSessions.id, responseId));

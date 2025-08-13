@@ -54,11 +54,18 @@ export interface ResponseSession {
   questionnaireId: string;
   respondentEmail: string;
   respondentName?: string;
-  status: 'started' | 'completed' | 'abandoned';
+  status: 'started' | 'completed' | 'abandoned' | 'in_progress';
   startedAt: string;
   completedAt?: string;
   totalScore?: number;
   metadata?: string;
+  // Progress tracking fields from unified backend
+  answeredQuestions?: number;
+  progressPercent?: number;
+  totalQuestions?: number;
+  totalPages?: number;
+  completedPages?: number;
+  lastUpdatedAt?: string;
 }
 
 export interface SaveAnswerData {

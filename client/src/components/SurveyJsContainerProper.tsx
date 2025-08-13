@@ -77,6 +77,11 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
       responseId: responseSession.id,
       answers: data
     });
+    
+    // Refresh session data after save to get updated progress
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ['session', questionnaireId] });
+    }, 500);
   }, []); // No dependencies = never re-creates
 
   const handleComplete = React.useCallback(async (data: any) => {
@@ -112,13 +117,10 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     }
   }, []); // No dependencies = never re-creates
 
-  // Simple progress calculation - no complex state dependencies
-  const progress = responseSession?.answers 
-    ? Math.round((Object.keys(responseSession.answers).length / 87) * 100) 
-    : 0;
-
-  const answeredCount = responseSession?.answers ? Object.keys(responseSession.answers).length : 0;
-  const totalQuestions = 87;
+  // Use progress data from backend - unified approach
+  const progress = responseSession?.progressPercent || 0;
+  const answeredCount = responseSession?.answeredQuestions || 0;
+  const totalQuestions = responseSession?.totalQuestions || 0;
   const isCompleted = responseSession?.status === 'completed';
 
   // Save and exit handler
