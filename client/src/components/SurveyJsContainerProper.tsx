@@ -19,6 +19,7 @@ import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 import { AssessmentHeader } from './AssessmentHeader';
 import { SurveyWithStatusBridge } from './SurveyWithStatusBridge';
 import { SaveStatusProvider } from './SaveStatusProvider';
+import { queryClient } from '@/lib/queryClient';
 
 // Import Survey.js default CSS
 import 'survey-core/survey-core.css';
