@@ -13,6 +13,8 @@ import { useProgressPersistence } from '@/hooks/useProgressPersistence';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 import { useUseCases } from '@/contexts/UseCaseContext';
 import AIRoadmapTab from './AIRoadmapTab';
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 interface RSAAssessmentLandingPageProps {
   className?: string;
@@ -93,62 +95,42 @@ export default function RSAAssessmentLandingPage({
     }
   ];
 
-  // Dynamic assessment sections from Survey.js pages format
+  // Fetch assessment sections from new backend API
+  const { 
+    data: sectionsData, 
+    isLoading: sectionsLoading, 
+    error: sectionsError 
+  } = useQuery({
+    queryKey: ['questionnaire-sections'],
+    queryFn: () => apiRequest('/api/questionnaire/sections'),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000 // 10 minutes
+  });
+
+  // Format sections data for display
   const assessmentSections = React.useMemo(() => {
-    if (questionnaire?.pages) {
-      // Convert Survey.js pages to sections for display
-      // Group pages by major section (looking for patterns in page titles)
-      const sectionGroups = new Map<string, { pages: any[], questionCount: number }>();
-      
-      questionnaire.pages.forEach((page: any) => {
-        // Extract section name from page title (e.g., "1.1 Company Profile" -> "Business Strategy")
-        const title = page.title || '';
-        let sectionName = 'General Assessment';
-        
-        // Map page titles to logical sections
-        if (title.includes('Company Profile') || title.includes('Business Context') || title.includes('Strategic') || title.includes('Goals')) {
-          sectionName = 'Business Strategy & Context';
-        } else if (title.includes('Technology') || title.includes('Infrastructure') || title.includes('Data') || title.includes('Platform')) {
-          sectionName = 'Technology Infrastructure';
-        } else if (title.includes('AI') || title.includes('Machine Learning') || title.includes('Analytics')) {
-          sectionName = 'AI Capabilities';
-        } else if (title.includes('Use Case') || title.includes('Implementation')) {
-          sectionName = 'Use Case Implementation';
-        }
-        
-        const existing = sectionGroups.get(sectionName) || { pages: [], questionCount: 0 };
-        existing.pages.push(page);
-        
-        // Count questions in this page
-        const pageQuestions = page.elements?.reduce((count: number, element: any) => {
-          if (element.type === 'panel') {
-            return count + (element.elements?.length || 0);
-          }
-          return count + 1;
-        }, 0) || 0;
-        
-        existing.questionCount += pageQuestions;
-        sectionGroups.set(sectionName, existing);
-      });
-      
-      // Convert to section format
-      return Array.from(sectionGroups.entries()).map(([title, data]) => {
-        const baseTime = Math.max(10, Math.min(25, data.questionCount * 2.5));
+    if (sectionsData && Array.isArray(sectionsData)) {
+      return sectionsData.map((section: { id: string; title: string; questions: number }) => {
+        const minTime = section.questions * 2;
+        const maxTime = section.questions * 4;
         return {
-          title,
-          time: `${Math.floor(baseTime)}-${Math.ceil(baseTime + 5)} min`,
-          questions: data.questionCount,
-          description: `Assessment covering ${title.toLowerCase()}`
+          title: section.title,
+          time: `${minTime}-${maxTime} min`,
+          questions: section.questions,
+          description: `Assessment covering ${section.title.toLowerCase()}`
         };
       });
     }
     
-    // Fallback only if no pages data
+    // Show loading state or fallback only if API fails
+    if (sectionsLoading) {
+      return [{ title: "Loading sections...", time: "-- min", questions: 0, description: "Loading assessment data" }];
+    }
+    
     return [
-      { title: "Business Strategy", time: "15-20 min", questions: 16, description: "Strategic AI vision and business alignment" },
-      { title: "Technology Infrastructure", time: "10-15 min", questions: 4, description: "Current systems and technical readiness" }
+      { title: "No sections available", time: "-- min", questions: 0, description: "No assessment sections found" }
     ];
-  }, [questionnaire]);
+  }, [sectionsData, sectionsLoading]);
 
   const totalQuestions = assessmentSections.reduce((sum, section) => sum + section.questions, 0);
   const totalEstimatedTime = `${Math.floor(totalQuestions * 2.5)}-${Math.ceil(totalQuestions * 4)} minutes`;

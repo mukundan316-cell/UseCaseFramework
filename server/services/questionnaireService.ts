@@ -347,6 +347,58 @@ export class QuestionnaireService {
   }
 
   /**
+   * Get all sections (definition IDs with titles and question counts)
+   * This replaces the artificial section grouping with real definition-based sections
+   */
+  async getAllSections(): Promise<Array<{id: string; title: string; questions: number}>> {
+    try {
+      // Get all definition IDs by scanning the questionnaire storage folder
+      const definitionIds = await this.storageService.getAllDefinitionIds();
+      
+      if (definitionIds.length === 0) {
+        return [];
+      }
+
+      // Load all definitions in parallel
+      const definitionPromises = definitionIds.map(async (id) => {
+        try {
+          const definition = await this.getQuestionnaireDefinition(id);
+          if (!definition) {
+            return null;
+          }
+
+          // Count questions from all page elements (first-level)
+          let questionCount = 0;
+          if (definition.pages) {
+            definition.pages.forEach((page: any) => {
+              if (page.elements) {
+                questionCount += page.elements.length; // Count all first-level elements
+              }
+            });
+          }
+
+          return {
+            id: id, // Use the folder name as ID
+            title: definition.title || 'Untitled Section',
+            questions: questionCount
+          };
+        } catch (error) {
+          console.error(`Failed to load definition ${id}:`, error);
+          return null; // Skip corrupted definitions
+        }
+      });
+
+      // Wait for all promises and filter out null results
+      const sections = await Promise.all(definitionPromises);
+      return sections.filter((section): section is {id: string; title: string; questions: number} => section !== null);
+
+    } catch (error) {
+      console.error('Failed to get all sections:', error);
+      return [];
+    }
+  }
+
+  /**
    * Clear all definition cache
    */
   clearAllDefinitionCache(): void {

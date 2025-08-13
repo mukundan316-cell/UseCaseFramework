@@ -45,6 +45,20 @@ router.get('/sessions/:id', async (req, res) => {
 });
 
 /**
+ * GET /api/questionnaire/sections
+ * Get all sections (definitions with titles and question counts)
+ */
+router.get('/sections', async (req, res) => {
+  try {
+    const sections = await questionnaireService.getAllSections();
+    res.json(sections);
+  } catch (error) {
+    console.error('Failed to fetch sections:', error);
+    res.status(500).json({ error: 'Failed to fetch sections' });
+  }
+});
+
+/**
  * GET /api/questionnaire/definitions
  * Get all questionnaire definitions from JSON storage
  */
@@ -55,26 +69,6 @@ router.get('/definitions', async (req, res) => {
   } catch (error) {
     console.error('Failed to fetch definitions:', error);
     res.status(500).json({ error: 'Failed to fetch definitions' });
-  }
-});
-
-/**
- * GET /api/questionnaire/:id
- * Get specific questionnaire definition
- */
-router.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const questionnaire = await questionnaireService.getQuestionnaireDefinition(id);
-    
-    if (!questionnaire) {
-      return res.status(404).json({ error: 'Questionnaire not found' });
-    }
-    
-    res.json(questionnaire);
-  } catch (error) {
-    console.error('Failed to fetch questionnaire:', error);
-    res.status(500).json({ error: 'Failed to fetch questionnaire' });
   }
 });
 
@@ -103,6 +97,33 @@ router.get('/cache/stats', async (req, res) => {
   } catch (error) {
     console.error('Failed to fetch cache stats:', error);
     res.status(500).json({ error: 'Failed to fetch cache stats' });
+  }
+});
+
+/**
+ * GET /api/questionnaire/:id
+ * Get specific questionnaire definition
+ * Note: This route must come after all specific routes like /sections, /definitions, etc.
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Don't treat reserved routes as IDs
+    if (['sections', 'definitions', 'stats', 'cache'].includes(id)) {
+      return res.status(400).json({ error: 'Invalid questionnaire ID' });
+    }
+    
+    const questionnaire = await questionnaireService.getQuestionnaireDefinition(id);
+    
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
+    
+    res.json(questionnaire);
+  } catch (error) {
+    console.error('Failed to fetch questionnaire:', error);
+    res.status(500).json({ error: 'Failed to fetch questionnaire' });
   }
 });
 
