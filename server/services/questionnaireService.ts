@@ -266,6 +266,11 @@ export class QuestionnaireService {
 
       if (questionnaire) {
         progressData = this.calculateSurveyProgress(questionnaire, response.answers);
+        console.log('Progress calculation debug:', {
+          questionnaireId: response.questionnaireId,
+          answersCount: response.answers.length,
+          progressData
+        });
       }
 
       // Update session progress in PostgreSQL with accurate data
