@@ -6,8 +6,16 @@ export interface QuestionnaireData {
   title: string;
   description: string;
   version: string;
-  status: string;
-  sections: SectionData[];
+  status?: string;
+  createdAt?: string;
+  // Survey.js format (current)
+  pages?: Array<{
+    name: string;
+    title: string;
+    elements: any[];
+  }>;
+  // Legacy format (for backward compatibility)
+  sections?: SectionData[];
 }
 
 export interface SectionData {
@@ -83,14 +91,14 @@ export interface MaturityScores {
 export function useQuestionnaire(questionnaireId: string) {
   const queryClient = useQueryClient();
 
-  // Fetch questionnaire with sections and questions
+  // Fetch questionnaire with sections and questions (updated to use hybrid endpoint)
   const {
     data: questionnaire,
     isLoading: isLoadingQuestionnaire,
     error: questionnaireError
   } = useQuery<QuestionnaireData>({
     queryKey: ['questionnaire', questionnaireId],
-    queryFn: () => apiRequest(`/api/questionnaires/${questionnaireId}`),
+    queryFn: () => apiRequest(`/api/questionnaire/${questionnaireId}`),
     enabled: !!questionnaireId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000 // 10 minutes

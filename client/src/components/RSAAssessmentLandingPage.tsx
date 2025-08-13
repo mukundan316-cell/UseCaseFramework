@@ -93,24 +93,62 @@ export default function RSAAssessmentLandingPage({
     }
   ];
 
-  // Dynamic assessment sections from database
-  const assessmentSections = questionnaire?.sections?.map(section => {
-    const questionCount = section.questions?.length || 0;
-    // Calculate estimated time based on question count and complexity
-    const baseTime = Math.max(5, Math.min(25, questionCount * 3)); // 3 minutes per question, 5-25 min range
-    const timeRange = `${baseTime}-${baseTime + 5} min`;
+  // Dynamic assessment sections from Survey.js pages format
+  const assessmentSections = React.useMemo(() => {
+    if (questionnaire?.pages) {
+      // Convert Survey.js pages to sections for display
+      // Group pages by major section (looking for patterns in page titles)
+      const sectionGroups = new Map<string, { pages: any[], questionCount: number }>();
+      
+      questionnaire.pages.forEach((page: any) => {
+        // Extract section name from page title (e.g., "1.1 Company Profile" -> "Business Strategy")
+        const title = page.title || '';
+        let sectionName = 'General Assessment';
+        
+        // Map page titles to logical sections
+        if (title.includes('Company Profile') || title.includes('Business Context') || title.includes('Strategic') || title.includes('Goals')) {
+          sectionName = 'Business Strategy & Context';
+        } else if (title.includes('Technology') || title.includes('Infrastructure') || title.includes('Data') || title.includes('Platform')) {
+          sectionName = 'Technology Infrastructure';
+        } else if (title.includes('AI') || title.includes('Machine Learning') || title.includes('Analytics')) {
+          sectionName = 'AI Capabilities';
+        } else if (title.includes('Use Case') || title.includes('Implementation')) {
+          sectionName = 'Use Case Implementation';
+        }
+        
+        const existing = sectionGroups.get(sectionName) || { pages: [], questionCount: 0 };
+        existing.pages.push(page);
+        
+        // Count questions in this page
+        const pageQuestions = page.elements?.reduce((count: number, element: any) => {
+          if (element.type === 'panel') {
+            return count + (element.elements?.length || 0);
+          }
+          return count + 1;
+        }, 0) || 0;
+        
+        existing.questionCount += pageQuestions;
+        sectionGroups.set(sectionName, existing);
+      });
+      
+      // Convert to section format
+      return Array.from(sectionGroups.entries()).map(([title, data]) => {
+        const baseTime = Math.max(10, Math.min(25, data.questionCount * 2.5));
+        return {
+          title,
+          time: `${Math.floor(baseTime)}-${Math.ceil(baseTime + 5)} min`,
+          questions: data.questionCount,
+          description: `Assessment covering ${title.toLowerCase()}`
+        };
+      });
+    }
     
-    return {
-      title: section.title,
-      time: timeRange,
-      questions: questionCount,
-      description: section.description || `Assessment section covering ${section.title}`
-    };
-  }) || [
-    // Fallback only if database fails to load
-    { title: "Business Strategy", time: "15-20 min", questions: 16, description: "Strategic AI vision and business alignment" },
-    { title: "Technology Infrastructure", time: "10-15 min", questions: 4, description: "Current systems and technical readiness" }
-  ];
+    // Fallback only if no pages data
+    return [
+      { title: "Business Strategy", time: "15-20 min", questions: 16, description: "Strategic AI vision and business alignment" },
+      { title: "Technology Infrastructure", time: "10-15 min", questions: 4, description: "Current systems and technical readiness" }
+    ];
+  }, [questionnaire]);
 
   const totalQuestions = assessmentSections.reduce((sum, section) => sum + section.questions, 0);
   const totalEstimatedTime = `${Math.floor(totalQuestions * 2.5)}-${Math.ceil(totalQuestions * 4)} minutes`;
