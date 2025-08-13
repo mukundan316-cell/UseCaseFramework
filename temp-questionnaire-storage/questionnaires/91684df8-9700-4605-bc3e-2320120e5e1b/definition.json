@@ -975,14 +975,12 @@
               "step": 1
             },
             {
-              "type": "html",
-              "name": "totalAllocation",
-              "html": "<div style='padding: 8px; margin-top: 10px; border: 1px solid #eee; background-color: #f9f9f9;'>Total allocated: <span id='totalAllocationValue'>0</span>%</div>"
-            },
-            {
-              "type": "html",
-              "name": "validationMessage",
-              "html": "<div id='validationMessage' style='color: red; padding: 5px 0;'></div>"
+              "type": "expression",
+              "name": "totalAllocationCalculated",
+              "title": "Total allocated: {totalAllocationCalculated}%",
+              "expression": "({techInfrastructurePct} empty ? 0 : {techInfrastructurePct}) + ({talentPct} empty ? 0 : {talentPct}) + ({dataImprovementPct} empty ? 0 : {dataImprovementPct}) + ({processReengineeringPct} empty ? 0 : {processReengineeringPct}) + ({changeManagementPct} empty ? 0 : {changeManagementPct}) + ({externalPartnershipsPct} empty ? 0 : {externalPartnershipsPct})",
+              "displayStyle": "decimal",
+              "startWithNewLine": true
             }
           ],
           "validators": [
