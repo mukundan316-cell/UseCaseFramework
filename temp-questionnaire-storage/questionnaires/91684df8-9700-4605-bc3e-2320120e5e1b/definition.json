@@ -67,8 +67,8 @@
             {
               "type": "expression",
               "name": "totalAllocationCalculated",
-              "title": "Total allocated: {totalAllocationCalculated}%",
-              "expression": "iif({techInfrastructurePct} notempty, {techInfrastructurePct}, 0) + iif({talentPct} notempty, {talentPct}, 0) + iif({dataImprovementPct} notempty, {dataImprovementPct}, 0) + iif({processReengineeringPct} notempty, {processReengineeringPct}, 0) + iif({changeManagementPct} notempty, {changeManagementPct}, 0) + iif({externalPartnershipsPct} notempty, {externalPartnershipsPct}, 0)",
+              "title": "Total allocated, %",
+              "expression": "{techInfrastructurePct} + {talentPct} + {dataImprovementPct} + {processReengineeringPct} + {changeManagementPct} + {externalPartnershipsPct}",
               "displayStyle": "decimal",
               "hideNumber": true
             }
@@ -76,7 +76,7 @@
           "validators": [
             {
               "type": "expression",
-              "expression": "{techInfrastructurePct} + {talentPct} + {dataImprovementPct} + {processReengineeringPct} + {changeManagementPct} + {externalPartnershipsPct} == 100",
+              "expression": "{totalAllocationCalculated} == 100",
               "text": "The total allocation must equal 100%"
             }
           ]
