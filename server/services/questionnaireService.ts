@@ -144,36 +144,12 @@ export class QuestionnaireService {
     return sessionId;
   }
 
-  /**
-   * Count questions from Survey.js pages format
-   */
-  protected countQuestionsFromSurveyJsPages(pages: any[]): number {
-    let totalQuestions = 0;
-    
-    const countElementsRecursively = (elements: any[]): void => {
-      elements.forEach((element: any) => {
-        if (element.type === 'panel' && element.elements) {
-          // Recursively count in panels
-          countElementsRecursively(element.elements);
-        } else if (this.isQuestionElement(element)) {
-          totalQuestions++;
-        }
-      });
-    };
 
-    pages.forEach((page: any) => {
-      if (page.elements) {
-        countElementsRecursively(page.elements);
-      }
-    });
-
-    return totalQuestions;
-  }
 
   /**
    * Check if element is a question (not just a container)
    */
-  protected isQuestionElement(element: any): boolean {
+  private isQuestionElement(element: any): boolean {
     const questionTypes = ['text', 'radiogroup', 'checkbox', 'rating', 'comment', 'dropdown', 'boolean'];
     return questionTypes.includes(element.type);
   }
@@ -367,14 +343,10 @@ export class QuestionnaireService {
             return null;
           }
 
-          // Count questions from all page elements (first-level)
+          // Count actual questions (not just first-level elements)
           let questionCount = 0;
           if (definition.pages) {
-            definition.pages.forEach((page: any) => {
-              if (page.elements) {
-                questionCount += page.elements.length; // Count all first-level elements
-              }
-            });
+            questionCount = this.countQuestionsFromSurveyJsPages(definition.pages);
           }
 
           return {
@@ -417,32 +389,29 @@ export class QuestionnaireService {
   }
 
   /**
-   * Count questions from Survey.js pages format
+   * Count questions from Survey.js pages format (unified method)
    */
   private countQuestionsFromSurveyJsPages(pages: any[]): number {
-    let count = 0;
+    let totalQuestions = 0;
     
-    const countElementQuestions = (elements: any[]): number => {
-      let elementCount = 0;
-      for (const element of elements) {
+    const countElementsRecursively = (elements: any[]): void => {
+      elements.forEach((element: any) => {
         if (element.type === 'panel' && element.elements) {
-          // Panel contains sub-elements
-          elementCount += countElementQuestions(element.elements);
-        } else if (!['panel', 'html'].includes(element.type)) {
-          // Regular question (not a panel or HTML)
-          elementCount++;
+          // Recursively count in panels
+          countElementsRecursively(element.elements);
+        } else if (this.isQuestionElement(element)) {
+          totalQuestions++;
         }
-      }
-      return elementCount;
+      });
     };
-    
-    for (const page of pages) {
+
+    pages.forEach((page: any) => {
       if (page.elements) {
-        count += countElementQuestions(page.elements);
+        countElementsRecursively(page.elements);
       }
-    }
-    
-    return count;
+    });
+
+    return totalQuestions;
   }
 
   /**

@@ -15,6 +15,7 @@ import { useUseCases } from '@/contexts/UseCaseContext';
 import AIRoadmapTab from './AIRoadmapTab';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { TIME_ESTIMATION } from '../../../shared/timeEstimation';
 
 interface RSAAssessmentLandingPageProps {
   className?: string;
@@ -111,11 +112,9 @@ export default function RSAAssessmentLandingPage({
   const assessmentSections = React.useMemo(() => {
     if (sectionsData && Array.isArray(sectionsData)) {
       return sectionsData.map((section: { id: string; title: string; questions: number }) => {
-        const minTime = section.questions * 2;
-        const maxTime = section.questions * 4;
         return {
           title: section.title,
-          time: `${minTime}-${maxTime} min`,
+          time: TIME_ESTIMATION.formatRange(section.questions),
           questions: section.questions,
           description: `Assessment covering ${section.title.toLowerCase()}`
         };
@@ -133,7 +132,7 @@ export default function RSAAssessmentLandingPage({
   }, [sectionsData, sectionsLoading]);
 
   const totalQuestions = assessmentSections.reduce((sum, section) => sum + section.questions, 0);
-  const totalEstimatedTime = `${Math.floor(totalQuestions * 2.5)}-${Math.ceil(totalQuestions * 4)} minutes`;
+  const totalEstimatedTime = TIME_ESTIMATION.formatRange(totalQuestions).replace(' min', ' minutes');
 
   // Get context for tab management
   const { setActiveTab } = useUseCases();

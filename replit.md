@@ -67,6 +67,11 @@ All use case cards across the entire application must follow this exact specific
   - **Sticky Header**: Added sticky header functionality for improved user experience during scrolling
   - **Race Condition Fix**: Eliminated query invalidation during auto-save to prevent user input overwriting
   - **No More Page Refresh**: Save status updates are completely isolated from Survey.js form rendering
+- **Section Listing System (August 13, 2025)**: Implemented proper definition-based sections
+  - **Real-Time Section Discovery**: Added `/api/questionnaire/sections` endpoint that scans definition folders
+  - **Accurate Question Counting**: Fixed question count logic to count actual Survey.js elements (86 vs 16 previously)
+  - **Parallel Definition Loading**: Efficient `Promise.all()` loading of multiple section definitions with caching
+  - **Consistent Time Estimation**: Created centralized `TIME_ESTIMATION` constants (2.5-4 min multipliers) for app-wide consistency
 
 ### Survey.js Integration & Performance Optimization (August 13, 2025)
 - **Library Integration**: Successfully installed and configured Survey.js (version 2.30) packages
