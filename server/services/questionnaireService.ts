@@ -269,7 +269,8 @@ export class QuestionnaireService {
         console.log('Progress calculation debug:', {
           questionnaireId: response.questionnaireId,
           answersCount: response.answers.length,
-          progressData
+          progressData,
+          sampleAnswers: response.answers.slice(0, 3).map(a => ({ id: a.questionId, value: a.answerValue }))
         });
       }
 
@@ -518,22 +519,45 @@ export class QuestionnaireService {
       let pageQuestions = 0;
       let pageAnsweredQuestions = 0;
 
-      // Count all question elements in this page (not nested sub-elements)
+      // Count all first-level elements as questions (same logic as sections endpoint)
       page.elements.forEach((element: any) => {
-        if (this.isQuestionElement(element)) {
-          pageQuestions++;
-          totalQuestions++;
+        pageQuestions++;
+        totalQuestions++;
+        
+        // Check if this question element is answered
+        // For panels, check if ALL nested elements have data
+        let isElementAnswered = false;
+        
+        if (element.type === 'panel' && element.elements) {
+          // For panels, check if all nested input elements have values
+          let allNestedAnswered = true;
+          let hasAnyInputElements = false;
           
-          // Check if this question element is answered
-          // A question is considered answered if it has a non-empty value
-          const hasValue = surveyData[element.name] !== undefined && 
-                          surveyData[element.name] !== null && 
-                          surveyData[element.name] !== '';
+          element.elements.forEach((nestedElement: any) => {
+            // Only check actual input elements (skip expressions, displays, etc.)
+            if (nestedElement.type === 'text' || nestedElement.type === 'radiogroup' || 
+                nestedElement.type === 'checkbox' || nestedElement.type === 'dropdown') {
+              hasAnyInputElements = true;
+              const hasValue = surveyData[nestedElement.name] !== undefined && 
+                              surveyData[nestedElement.name] !== null && 
+                              surveyData[nestedElement.name] !== '';
+              if (!hasValue) {
+                allNestedAnswered = false;
+              }
+            }
+          });
           
-          if (hasValue) {
-            pageAnsweredQuestions++;
-            answeredQuestions++;
-          }
+          isElementAnswered = hasAnyInputElements && allNestedAnswered;
+        } else {
+          // For non-panel elements, check directly
+          isElementAnswered = surveyData[element.name] !== undefined && 
+                             surveyData[element.name] !== null && 
+                             surveyData[element.name] !== '';
+        }
+        
+        if (isElementAnswered) {
+          pageAnsweredQuestions++;
+          answeredQuestions++;
         }
       });
 
