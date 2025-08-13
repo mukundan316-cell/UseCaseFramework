@@ -72,8 +72,6 @@ export interface QuestionnaireResponse {
   lastUpdatedAt: string;
   completedAt?: string;
   surveyData: Record<string, any>; // Direct Survey.js data object
-  // Legacy support - will be removed in future versions
-  answers?: QuestionAnswer[];
   progress?: {
     currentSectionId?: string;
     currentQuestionId?: string;
@@ -151,25 +149,20 @@ export const QuestionTypes = [
 
 export const ResponseStatuses = ['started', 'in_progress', 'completed', 'abandoned'] as const;
 
-// Utility functions
-export function calculateProgress(response: QuestionnaireResponse, questionnaire: QuestionnaireDefinition): number {
-  const totalQuestions = questionnaire.questions.length;
-  const answeredQuestions = response.answers.length;
-  return totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+// Survey.js utility functions
+export function getSurveyDataValue(response: QuestionnaireResponse, fieldName: string): any {
+  return response.surveyData?.[fieldName];
 }
 
-export function getQuestionById(questionnaire: QuestionnaireDefinition, questionId: string): QuestionDefinition | null {
-  return questionnaire.questions.find(q => q.id === questionId) || null;
+export function getAnsweredFieldNames(response: QuestionnaireResponse): string[] {
+  return Object.keys(response.surveyData || {}).filter(key => {
+    const value = response.surveyData[key];
+    return value !== undefined && value !== null && value !== '';
+  });
 }
 
-export function getAnswerByQuestionId(response: QuestionnaireResponse, questionId: string): QuestionAnswer | null {
-  return response.answers.find(a => a.questionId === questionId) || null;
-}
-
-export function getSectionQuestions(questionnaire: QuestionnaireDefinition, sectionId: string): QuestionDefinition[] {
-  return questionnaire.questions.filter(q => q.sectionId === sectionId);
-}
-
-export function getSubsectionQuestions(questionnaire: QuestionnaireDefinition, subsectionId: string): QuestionDefinition[] {
-  return questionnaire.questions.filter(q => q.subsectionId === subsectionId);
+export function calculateSurveyProgress(response: QuestionnaireResponse): number {
+  const answeredFields = getAnsweredFieldNames(response);
+  // Progress calculated at the service level with questionnaire context
+  return answeredFields.length > 0 ? 50 : 0; // Simplified fallback
 }

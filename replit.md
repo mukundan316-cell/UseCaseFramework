@@ -49,6 +49,13 @@ All use case cards across the entire application must follow this exact specific
 - **Real-time Persistence**: Live database synchronization
 
 ### Recent Enhancements (August 2025)
+- **Simplified Survey.js Storage Architecture (August 13, 2025)**: Eliminated data corruption at the root cause
+  - **Root Cause Fixed**: Replaced complex answer merging logic with direct Survey.js data replacement
+  - **Clean Storage Format**: `surveyData: Record<string, any>` stores Survey.js data exactly as submitted
+  - **No More Corruption**: Eliminates nested answer objects, merge conflicts, and "[object Object]" issues
+  - **Legacy Cleanup**: Removed all corrupted answers arrays from existing response files
+  - **Simplified Code**: Removed unnecessary conversion between Survey.js format and internal format
+  - **Perfect Data Integrity**: Values stored exactly as `{fieldName: value}` matching Survey.js expectations
 - **Clean Blob-First Architecture**: Complete migration from PostgreSQL to pure JSON blob storage for questionnaire data
   - **Questionnaire Definitions**: Stored as structured JSON files in blob storage for perfect data integrity
   - **Response Data**: Stored as JSON files eliminating all serialization corruption issues
@@ -56,7 +63,6 @@ All use case cards across the entire application must follow this exact specific
   - **Legacy Cleanup**: Removed all legacy PostgreSQL questionnaire tables and migration code for maintainer clarity
   - **File Storage**: Development uses file system (`temp-questionnaire-storage/`), production-ready for Google Cloud Storage
 - **API Architecture**: Clean RESTful endpoints at `/api/questionnaire/` with blob storage backend
-- **Data Integrity**: No more "[object Object]" serialization issues - perfect JSON preservation
 - **Database Architecture (August 12, 2025)**: Complete cleanup of legacy questionnaire tables
   - **Clean Schema**: Only 4 essential PostgreSQL tables: `response_sessions`, `use_cases`, `users`, `metadata_config`
   - **Persistence Fix**: Added missing `/api/responses/:id/answers` endpoint for proper answer saving

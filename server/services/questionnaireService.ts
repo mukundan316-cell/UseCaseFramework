@@ -76,14 +76,7 @@ export class QuestionnaireService {
           this.storageService.getQuestionnaireDefinition(questionnaireId)
         ]);
         
-        if (response?.surveyData) {
-          // Convert Survey.js data to legacy answers format for session response
-          answers = Object.entries(response.surveyData).map(([questionId, answerValue]) => ({
-            questionId,
-            answerValue,
-            answeredAt: response.lastUpdatedAt
-          }));
-        }
+        // No conversion needed - surveyData is used directly
 
         if (questionnaire) {
           progressData = this.calculateSurveyProgress(questionnaire, response.surveyData || {});
@@ -285,7 +278,7 @@ export class QuestionnaireService {
   }
 
   /**
-   * Save answer to a question (legacy method - deprecated)
+   * Save answer to a question (legacy method - deprecated, use saveResponseAnswers instead)
    */
   async saveAnswer(
     responseId: string,
