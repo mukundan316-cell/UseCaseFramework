@@ -69,7 +69,8 @@
               "name": "totalAllocationCalculated",
               "title": "Total allocated: {totalAllocationCalculated}%",
               "expression": "iif({techInfrastructurePct} notempty, {techInfrastructurePct}, 0) + iif({talentPct} notempty, {talentPct}, 0) + iif({dataImprovementPct} notempty, {dataImprovementPct}, 0) + iif({processReengineeringPct} notempty, {processReengineeringPct}, 0) + iif({changeManagementPct} notempty, {changeManagementPct}, 0) + iif({externalPartnershipsPct} notempty, {externalPartnershipsPct}, 0)",
-              "displayStyle": "decimal"
+              "displayStyle": "decimal",
+              "hideNumber": true
             }
           ],
           "validators": [
