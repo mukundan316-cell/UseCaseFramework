@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import { QuestionnaireService } from '../services/questionnaireService';
+import { questionnaireServiceInstance } from '../services/questionnaireService';
 import { QuestionnaireDemoService } from '../services/questionnaireDemo';
 import { db } from '../db';
 import { responseSessions } from '../../shared/schema';
 import { eq, desc } from 'drizzle-orm';
 
 const router = Router();
-const questionnaireService = new QuestionnaireService();
+// Use singleton instance for shared cache across all API calls
+const questionnaireService = questionnaireServiceInstance;
 const demoService = new QuestionnaireDemoService();
 
 /**
@@ -88,6 +89,49 @@ router.get('/stats', async (req, res) => {
   } catch (error) {
     console.error('Failed to fetch stats:', error);
     res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+/**
+ * GET /api/questionnaire/cache/stats
+ * Get cache statistics
+ */
+router.get('/cache/stats', async (req, res) => {
+  try {
+    const cacheStats = questionnaireService.getCacheStats();
+    res.json(cacheStats);
+  } catch (error) {
+    console.error('Failed to fetch cache stats:', error);
+    res.status(500).json({ error: 'Failed to fetch cache stats' });
+  }
+});
+
+/**
+ * DELETE /api/questionnaire/cache
+ * Clear all definition cache
+ */
+router.delete('/cache', async (req, res) => {
+  try {
+    questionnaireService.clearAllDefinitionCache();
+    res.json({ message: 'Cache cleared successfully' });
+  } catch (error) {
+    console.error('Failed to clear cache:', error);
+    res.status(500).json({ error: 'Failed to clear cache' });
+  }
+});
+
+/**
+ * DELETE /api/questionnaire/cache/:id
+ * Clear cache for specific questionnaire
+ */
+router.delete('/cache/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    questionnaireService.clearDefinitionCache(id);
+    res.json({ message: `Cache cleared for questionnaire ${id}` });
+  } catch (error) {
+    console.error('Failed to clear cache:', error);
+    res.status(500).json({ error: 'Failed to clear cache' });
   }
 });
 

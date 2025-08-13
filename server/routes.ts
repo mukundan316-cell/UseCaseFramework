@@ -608,10 +608,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/questionnaire', questionnaireRoutes);
 
   // Import questionnaire service for response creation
-  const { QuestionnaireService } = await import('./services/questionnaireService');
-  const { SurveyJsService } = await import('./services/surveyJsService');
-  const questionnaireService = new QuestionnaireService();
-  const surveyJsService = new SurveyJsService();
+  const { questionnaireServiceInstance } = await import('./services/questionnaireService');
+  const questionnaireService = questionnaireServiceInstance;
 
   // GET /api/responses/check-session - Check for existing session
   app.get('/api/responses/check-session', async (req, res) => {
@@ -709,68 +707,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // GET /api/survey-config/:id - Get Survey.js configuration
+  // GET /api/survey-config/:id - Get Survey.js configuration (direct from questionnaire service)
   app.get('/api/survey-config/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const config = await surveyJsService.loadSurveyJsConfig(id);
+      const config = await questionnaireService.getQuestionnaireDefinition(id);
+      
+      if (!config) {
+        return res.status(404).json({ error: 'Survey configuration not found' });
+      }
+      
       res.json(config);
     } catch (error) {
-      console.error('Error loading Survey.js config:', error);
+      console.error('Error loading survey config:', error);
       res.status(500).json({ error: 'Failed to load survey configuration' });
-    }
-  });
-
-  // Add compatibility route for frontend (plural form)
-  app.get('/api/questionnaires/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      
-      // Try to get Survey.js configuration and convert to legacy format for metadata
-      const surveyConfig = await surveyJsService.loadSurveyJsConfig(id);
-      
-      if (surveyConfig) {
-        // Convert Survey.js format to legacy questionnaire format for landing page
-        const questionnaire = surveyJsService.convertSurveyJsToQuestionnaireMetadata(surveyConfig);
-        // Transform questions to match frontend expectations
-        const transformedSections = questionnaire.sections.map(section => ({
-          id: section.id,
-          title: section.title,
-          sectionOrder: section.sectionOrder,
-          questions: section.questions.map(question => ({
-            id: question.id,
-            questionText: question.questionText,
-            questionType: question.questionType,
-            isRequired: question.isRequired ? 'true' : 'false',
-            questionOrder: question.questionOrder,
-            helpText: question.helpText,
-            options: question.options || [],
-            minValue: question.minValue,
-            maxValue: question.maxValue,
-            leftLabel: question.leftLabel,
-            rightLabel: question.rightLabel,
-            placeholder: question.placeholder,
-            questionData: question.questionData
-          })).sort((a, b) => (a.questionOrder || 0) - (b.questionOrder || 0))
-        })).sort((a, b) => a.sectionOrder - b.sectionOrder);
-        
-        const transformedQuestionnaire = {
-          id: questionnaire.id,
-          title: questionnaire.title,
-          description: questionnaire.description,
-          version: questionnaire.version,
-          status: 'active',
-          sections: transformedSections
-        };
-        
-        res.json(transformedQuestionnaire);
-      } else {
-        // Fallback to dummy data if questionnaire not found
-        res.status(404).json({ error: 'Questionnaire not found' });
-      }
-    } catch (error) {
-      console.error('Error fetching questionnaire:', error);
-      res.status(500).json({ error: 'Failed to load questionnaire' });
     }
   });
 

@@ -68,11 +68,16 @@ All use case cards across the entire application must follow this exact specific
   - **Race Condition Fix**: Eliminated query invalidation during auto-save to prevent user input overwriting
   - **No More Page Refresh**: Save status updates are completely isolated from Survey.js form rendering
 
-### Survey.js Integration (August 12, 2025)
+### Survey.js Integration & Performance Optimization (August 13, 2025)
 - **Library Integration**: Successfully installed and configured Survey.js (version 2.30) packages
-- **Parallel Architecture**: Created Survey.js infrastructure alongside existing questionnaire system
-- **Bridge Service**: Built `SurveyJsService` to convert between Survey.js format and existing data architecture
-- **API Endpoints**: Added `/api/survey-config/:id` for Survey.js configuration serving
+- **Simplified Architecture**: Removed legacy format conversion code for cleaner, faster implementation
+- **In-Memory Caching**: Added simple dictionary-based caching for questionnaire definitions to improve performance
+  - **Cache Implementation**: `Map<string, QuestionnaireDefinition>` in `QuestionnaireService`
+  - **Cache Hit/Miss Logging**: Detailed logging for performance monitoring
+  - **Cache Management APIs**: Added endpoints for cache statistics and manual cache clearing
+  - **Automatic Cache Updates**: New questionnaires automatically cached upon creation
+- **Code Cleanup**: Removed unused `SurveyJsService` and legacy `/api/questionnaires/:id` endpoint
+- **Direct Storage Access**: Survey configurations served directly from blob storage without conversion overhead
 - **Components Created**:
   - `SurveyJsContainer.tsx`: Full-featured Survey.js integration with auto-save
   - `SimpleSurveyJsDemo.tsx`: Basic Survey.js demonstration

@@ -6,9 +6,11 @@ import { eq, desc } from 'drizzle-orm';
 /**
  * Main service for questionnaire operations
  * Clean blob-first architecture with no legacy PostgreSQL dependencies
+ * Features simple in-memory caching for questionnaire definitions
  */
 export class QuestionnaireService {
   private storageService: QuestionnaireStorageService;
+  private definitionCache: Map<string, QuestionnaireDefinition> = new Map();
 
   constructor() {
     this.storageService = new QuestionnaireStorageService();
@@ -28,6 +30,10 @@ export class QuestionnaireService {
     };
 
     const storagePath = await this.storageService.storeQuestionnaireDefinition(questionnaireWithId);
+
+    // Cache the newly created questionnaire
+    this.definitionCache.set(questionnaireWithId.id, questionnaireWithId);
+    console.log(`Cached newly created questionnaire definition: ${questionnaireWithId.id}`);
 
     return {
       questionnaire: questionnaireWithId,
@@ -244,7 +250,7 @@ export class QuestionnaireService {
       let totalQuestions = 45; // Default fallback
       if (questionnaire) {
         if (questionnaire.sections && questionnaire.sections.length > 0) {
-          totalQuestions = questionnaire.sections.reduce((total, section) => total + section.questions.length, 0);
+          totalQuestions = questionnaire.sections.reduce((total, section) => total + (section.questions?.length || 0), 0);
         } else if (questionnaire.pages && questionnaire.pages.length > 0) {
           // Count questions from Survey.js pages format
           totalQuestions = this.countQuestionsFromSurveyJsPages(questionnaire.pages || []);
@@ -270,17 +276,7 @@ export class QuestionnaireService {
     }
   }
 
-  /**
-   * Get response with answers
-   */
-  async getResponse(responseId: string): Promise<QuestionnaireResponse | null> {
-    try {
-      return await this.storageService.getQuestionnaireResponse(responseId);
-    } catch (error) {
-      console.error('Failed to get response:', error);
-      return null;
-    }
-  }
+
 
   /**
    * Save answer to a question (legacy method)
@@ -320,8 +316,54 @@ export class QuestionnaireService {
   }
 
   /**
-   * Get questionnaire definition by ID
+   * Get questionnaire definition by ID with caching
    */
+  async getQuestionnaireDefinition(questionnaireId: string): Promise<QuestionnaireDefinition | null> {
+    // Check cache first
+    if (this.definitionCache.has(questionnaireId)) {
+      console.log(`Cache hit for questionnaire definition: ${questionnaireId}`);
+      return this.definitionCache.get(questionnaireId)!;
+    }
+
+    // Cache miss - load from storage
+    console.log(`Cache miss for questionnaire definition: ${questionnaireId}, loading from storage`);
+    const definition = await this.storageService.getQuestionnaireDefinition(questionnaireId);
+    
+    // Store in cache if found
+    if (definition) {
+      this.definitionCache.set(questionnaireId, definition);
+      console.log(`Cached questionnaire definition: ${questionnaireId}`);
+    }
+    
+    return definition;
+  }
+
+  /**
+   * Clear cache for a specific questionnaire definition
+   */
+  clearDefinitionCache(questionnaireId: string): void {
+    this.definitionCache.delete(questionnaireId);
+    console.log(`Cleared cache for questionnaire definition: ${questionnaireId}`);
+  }
+
+  /**
+   * Clear all definition cache
+   */
+  clearAllDefinitionCache(): void {
+    this.definitionCache.clear();
+    console.log('Cleared all questionnaire definition cache');
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats(): { size: number; keys: string[] } {
+    return {
+      size: this.definitionCache.size,
+      keys: Array.from(this.definitionCache.keys())
+    };
+  }
+
   /**
    * Count questions from Survey.js pages format
    */
@@ -349,10 +391,6 @@ export class QuestionnaireService {
     }
     
     return count;
-  }
-
-  async getQuestionnaireDefinition(questionnaireId: string): Promise<QuestionnaireDefinition | null> {
-    return await this.storageService.getQuestionnaireDefinition(questionnaireId);
   }
 
   /**
@@ -452,21 +490,12 @@ export class QuestionnaireService {
   }
 
   /**
-   * Get all response sessions (lightweight from PostgreSQL)
+   * Get all response sessions lightweight from PostgreSQL (duplicate method)
    */
-  async getAllSessions(): Promise<any[]> {
+  async getAllSessionsLegacy(): Promise<any[]> {
     return await db.select().from(responseSessions);
   }
-
-  /**
-   * Get session by ID
-   */
-  async getSession(sessionId: string): Promise<any | null> {
-    const [session] = await db
-      .select()
-      .from(responseSessions)
-      .where(eq(responseSessions.id, sessionId));
-
-    return session || null;
-  }
 }
+
+// Export singleton instance for shared cache
+export const questionnaireServiceInstance = new QuestionnaireService();

@@ -23,7 +23,10 @@ export interface QuestionnaireDefinition {
   description: string;
   version: string;
   createdAt: string;
-  sections: Array<{
+  // Survey.js format (current)
+  pages?: Array<any>;
+  // Legacy format (for backward compatibility)
+  sections?: Array<{
     id: string;
     title: string;
     sectionOrder: number;
@@ -33,7 +36,7 @@ export interface QuestionnaireDefinition {
       subsectionOrder: number;
     }>;
   }>;
-  questions: QuestionDefinition[];
+  questions?: QuestionDefinition[];
 }
 
 export interface QuestionnaireResponse {
@@ -44,6 +47,7 @@ export interface QuestionnaireResponse {
   respondentName?: string;
   status: 'started' | 'in_progress' | 'completed' | 'abandoned';
   startedAt: string;
+  lastUpdatedAt: string;
   completedAt?: string;
   answers: Array<{
     questionId: string;

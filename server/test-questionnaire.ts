@@ -108,7 +108,7 @@ async function testQuestionnaireAPI() {
     console.log('- Options created: 3');
     console.log('\n🎉 All database operations successful!');
     console.log('\n📝 API Endpoints ready:');
-    console.log(`- GET /api/questionnaires/${questionnaire.id}`);
+    console.log(`- GET /api/questionnaire/${questionnaire.id}`);
     console.log(`- POST /api/responses/start`);
     console.log(`- PUT /api/responses/:id/answers`);
     console.log(`- POST /api/responses/:id/complete`);
