@@ -324,40 +324,40 @@
               "inputType": "number",
               "min": 1,
               "visibleIf": "{multipleRegulatoryEnvs} = true"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "regulatoryCompliancePanel",
+          "title": "Q7. Regulatory Compliance Maturity (Score 1-5)",
+          "elements": [
+            {
+              "type": "rating",
+              "name": "regulatoryReportingAutomation",
+              "title": "Current regulatory reporting automation",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Manual)",
+              "maxRateDescription": "5 (Fully Automated)"
             },
             {
-              "type": "panel",
-              "name": "regulatoryCompliancePanel",
-              "title": "Regulatory Compliance Maturity (Score 1-5)",
-              "elements": [
-                {
-                  "type": "rating",
-                  "name": "regulatoryReportingAutomation",
-                  "title": "Current regulatory reporting automation",
-                  "rateMin": 1,
-                  "rateMax": 5,
-                  "minRateDescription": "1 (Manual)",
-                  "maxRateDescription": "5 (Fully Automated)"
-                },
-                {
-                  "type": "rating",
-                  "name": "crossJurisdictionalCompliance",
-                  "title": "Cross-jurisdictional compliance management",
-                  "rateMin": 1,
-                  "rateMax": 5,
-                  "minRateDescription": "1 (Challenging)",
-                  "maxRateDescription": "5 (Seamless)"
-                },
-                {
-                  "type": "rating",
-                  "name": "aiRegulatoryPreparedness",
-                  "title": "AI-related regulatory preparedness (EU AI Act, etc.)",
-                  "rateMin": 1,
-                  "rateMax": 5,
-                  "minRateDescription": "1 (Not Ready)",
-                  "maxRateDescription": "5 (Fully Compliant)"
-                }
-              ]
+              "type": "rating",
+              "name": "crossJurisdictionalCompliance",
+              "title": "Cross-jurisdictional compliance management",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Challenging)",
+              "maxRateDescription": "5 (Seamless)"
+            },
+            {
+              "type": "rating",
+              "name": "aiRegulatoryPreparedness",
+              "title": "AI-related regulatory preparedness (EU AI Act, etc.)",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "1 (Not Ready)",
+              "maxRateDescription": "5 (Fully Compliant)"
             }
           ]
         }
