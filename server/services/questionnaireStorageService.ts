@@ -229,22 +229,31 @@ export class QuestionnaireStorageService {
    */
   async getAllDefinitions(): Promise<QuestionnaireDefinition[]> {
     try {
-      const files = await fs.promises.readdir(this.questionnairesDir);
-      const jsonFiles = files.filter(f => f.endsWith('.json'));
+      console.log(`Reading questionnaires from: ${this.questionnairesDir}`);
+      
+      // Read directories (each questionnaire has its own subdirectory)
+      const entries = await fs.promises.readdir(this.questionnairesDir, { withFileTypes: true });
+      console.log(`Found ${entries.length} entries in questionnaires directory`);
+      
+      const directories = entries.filter(entry => entry.isDirectory());
+      console.log(`Found ${directories.length} directories: ${directories.map(d => d.name).join(', ')}`);
       
       const definitions: QuestionnaireDefinition[] = [];
       
-      for (const file of jsonFiles) {
-        const filePath = path.join(this.questionnairesDir, file);
+      for (const dir of directories) {
+        const definitionPath = path.join(this.questionnairesDir, dir.name, 'definition.json');
+        console.log(`Reading definition from: ${definitionPath}`);
         try {
-          const content = await fs.promises.readFile(filePath, 'utf8');
+          const content = await fs.promises.readFile(definitionPath, 'utf8');
           const definition = JSON.parse(content) as QuestionnaireDefinition;
+          console.log(`Successfully parsed definition for ${dir.name}: ${definition.title}`);
           definitions.push(definition);
         } catch (error) {
-          console.error(`Failed to parse questionnaire file ${file}:`, error);
+          console.error(`Failed to parse questionnaire definition in ${dir.name}:`, error);
         }
       }
       
+      console.log(`Returning ${definitions.length} definitions`);
       return definitions;
     } catch (error) {
       console.error('Failed to get all definitions:', error);
