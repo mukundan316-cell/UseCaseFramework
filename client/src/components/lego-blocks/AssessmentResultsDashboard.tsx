@@ -96,6 +96,42 @@ export default function AssessmentResultsDashboard({
   const generateRecommendations = useGenerateRecommendations();
   const { data: existingRecommendations } = useRecommendations(actualResponseId);
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  
+  // Handle retake assessment with progress reset
+  const handleRetakeAssessment = async () => {
+    if (!actualResponseId) return;
+    
+    try {
+      // Reset the assessment progress using the same API as Start Over
+      const response = await fetch(`/api/responses/${actualResponseId}/reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Assessment Reset",
+          description: "Starting fresh assessment. Redirecting to questionnaire...",
+          duration: 2000
+        });
+        
+        // Navigate to the take page after a brief delay
+        setTimeout(() => {
+          setLocation('/take');
+        }, 1000);
+      } else {
+        throw new Error('Failed to reset assessment');
+      }
+    } catch (error) {
+      console.error('Error resetting assessment:', error);
+      toast({
+        title: "Reset Failed",
+        description: "Could not reset assessment. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Use fetched data or fallback to assessmentState
   const maturityScores = fetchedMaturityScores || assessmentState?.maturityScores;
@@ -417,7 +453,7 @@ export default function AssessmentResultsDashboard({
               <p className="text-xs text-gray-600 mb-3">Retake assessment to monitor improvement</p>
               <ReusableButton
                 rsaStyle="primary"
-                onClick={() => setLocation('/questionnaire')}
+                onClick={handleRetakeAssessment}
                 className="w-full text-xs"
               >
                 Retake Assessment
