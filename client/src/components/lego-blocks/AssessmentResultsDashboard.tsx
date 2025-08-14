@@ -117,9 +117,9 @@ export default function AssessmentResultsDashboard({
           duration: 2000
         });
         
-        // Navigate to the take page after a brief delay
+        // Navigate to the assessment take page after a brief delay
         setTimeout(() => {
-          setLocation('/take');
+          setLocation('/assessment/take');
         }, 1000);
       } else {
         throw new Error('Failed to reset assessment');
@@ -274,7 +274,7 @@ export default function AssessmentResultsDashboard({
               
               <ReusableButton
                 rsaStyle="secondary"
-                onClick={() => setLocation('/questionnaire')}
+                onClick={handleRetakeAssessment}
                 className="text-sm"
               >
                 Retake Assessment
