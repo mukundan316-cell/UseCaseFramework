@@ -748,9 +748,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Response session not found' });
       }
 
-      // Return database value - panel-level question counting (1 panel = 1 answered question)
+      // Return database values including completion date
       const scores = {
-        answerCount: session.answeredQuestions ?? 0
+        answerCount: session.answeredQuestions ?? 0,
+        completedAt: session.completedAt
       };
 
       res.json(scores);

@@ -99,7 +99,7 @@ export default function AssessmentResultsDashboard({
   // Use fetched data or fallback to assessmentState
   const maturityScores = fetchedMaturityScores || assessmentState?.maturityScores;
   const totalScore = responseData?.totalScore || assessmentState?.totalScore || 0;
-  const completedAt = responseData?.completedAt || assessmentState?.completedAt;
+  const completedAt = fetchedMaturityScores?.completedAt || responseData?.completedAt || assessmentState?.completedAt;
 
   // Debug logging
   console.log('AssessmentResultsDashboard props:', { assessmentState, responseId, actualResponseId });
