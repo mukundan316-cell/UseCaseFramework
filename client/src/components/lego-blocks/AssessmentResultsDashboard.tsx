@@ -25,6 +25,7 @@ import ScoringDashboardLegoBlock, { type ScoringData } from './ScoringDashboardL
 import ResponseExportLegoBlock from './ResponseExportLegoBlock';
 import QuestionnaireExportLegoBlock from './QuestionnaireExportLegoBlock';
 import ReusableButton from './ReusableButton';
+import { PdfExportButton } from '@/components/PdfExportButton';
 import { useGenerateRecommendations, useRecommendations } from '@/hooks/useRecommendations';
 import { useUseCases } from '@/contexts/UseCaseContext';
 
@@ -275,9 +276,29 @@ export default function AssessmentResultsDashboard({
             </div>
           </div>
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Next Steps:</strong> Your assessment responses have been saved. You can export the questionnaire and responses using the buttons above, or retake the assessment if needed.
+            <p className="text-sm text-blue-800 mb-3">
+              <strong>Next Steps:</strong> Your assessment responses have been saved. You can export your responses using the buttons below:
             </p>
+            <div className="flex flex-wrap gap-2">
+              {actualResponseId && (
+                <>
+                  <PdfExportButton 
+                    type="responses" 
+                    id={actualResponseId} 
+                    title="Export My Responses"
+                    variant="default"
+                    size="sm"
+                  />
+                  <PdfExportButton 
+                    type="template" 
+                    id={responseData?.questionnaire_id || '91684df8-9700-4605-bc3e-2320120e5e1b'}
+                    title="Export Blank Template"
+                    variant="outline"
+                    size="sm"
+                  />
+                </>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

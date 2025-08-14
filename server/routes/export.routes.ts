@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { UseCasePdfService } from '../services/useCasePdfService';
 import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
 import { questionnaireServiceInstance } from '../services/questionnaireService';
+import { SurveyJsPdfService } from '../services/surveyJsPdfService';
+import { QuestionnairePdfService } from '../services/questionnairePdfService';
 
 const router = Router();
 
@@ -72,15 +74,18 @@ router.get('/use-case/:id', async (req, res) => {
 });
 
 /**
- * Export blank questionnaire template as PDF - Disabled during blob migration
+ * Export blank questionnaire template as PDF using Survey.js
  * GET /api/export/questionnaire/:questionnaireId/template
  */
 router.get('/questionnaire/:questionnaireId/template', async (req, res) => {
   try {
-    res.status(501).json({ 
-      error: 'Questionnaire template export not yet implemented for blob storage system',
-      message: 'This feature will be re-implemented with the new Survey.js questionnaire system'
-    });
+    const { questionnaireId } = req.params;
+    
+    if (!questionnaireId) {
+      return res.status(400).json({ error: 'Questionnaire ID is required' });
+    }
+
+    await QuestionnairePdfService.generateBlankQuestionnaire(questionnaireId, res);
   } catch (error) {
     console.error('Questionnaire template export error:', error);
     res.status(500).json({ error: 'Failed to export questionnaire template' });
@@ -88,15 +93,18 @@ router.get('/questionnaire/:questionnaireId/template', async (req, res) => {
 });
 
 /**
- * Export populated questionnaire with responses as PDF - Disabled during blob migration
+ * Export populated questionnaire with responses as PDF using Survey.js
  * GET /api/export/questionnaire/:responseId/responses
  */
 router.get('/questionnaire/:responseId/responses', async (req, res) => {
   try {
-    res.status(501).json({ 
-      error: 'Questionnaire response export not yet implemented for blob storage system',
-      message: 'This feature will be re-implemented with the new Survey.js questionnaire system'
-    });
+    const { responseId } = req.params;
+    
+    if (!responseId) {
+      return res.status(400).json({ error: 'Response ID is required' });
+    }
+
+    await QuestionnairePdfService.generateFilledQuestionnaire(responseId, res);
   } catch (error) {
     console.error('Questionnaire responses export error:', error);
     res.status(500).json({ error: 'Failed to export questionnaire responses' });
