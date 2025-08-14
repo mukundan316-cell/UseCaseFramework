@@ -630,12 +630,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For now, return mock data with the correct structure until we get the definitions working
       const definitions = await questionnaireServiceInstance.getAllDefinitions();
       
-      // Create mock sessions with different questionnaire types showing the expected UI
+      // Create mock sessions using the actual questionnaire IDs from definitions
       const mockSessions = [
         {
           id: 'session-1',
           questionnaireId: '91684df8-9700-4605-bc3e-2320120e5e1b',
-          title: 'RSA AI Strategy Assessment',
+          title: 'Business Strategy & AI Vision',
           status: '45%',
           progressPercent: 45,
           completedAt: null,
@@ -644,23 +644,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           id: 'session-2', 
-          questionnaireId: 'questionnaire-2',
-          title: 'Technical Readiness Assessment',
+          questionnaireId: '11f4eaf5-0bcd-4963-9ace-84045ecbb79a',
+          title: 'Current AI & Data Capabilities',
           status: 'not started',
           progressPercent: 0,
           completedAt: null,
           updatedAt: new Date(),
           isCompleted: false
-        },
-        {
-          id: 'session-3',
-          questionnaireId: 'questionnaire-3', 
-          title: 'Business Impact Evaluation',
-          status: 'completed',
-          progressPercent: 100,
-          completedAt: new Date(Date.now() - 24*60*60*1000), // Yesterday
-          updatedAt: new Date(Date.now() - 24*60*60*1000),
-          isCompleted: true
         }
       ];
       
