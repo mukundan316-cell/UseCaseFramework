@@ -66,17 +66,25 @@ export function SurveyJsPdfExportButton({
         throw new Error('Response data not found');
       }
 
-      // Load Survey.js libraries
+      // Load Survey.js libraries dynamically
+      console.log('Loading Survey.js libraries...');
       const surveyLibs = await loadSurveyJs();
       if (!surveyLibs) {
         throw new Error('Failed to load Survey.js libraries');
       }
 
       const { SurveyPDF } = surveyLibs;
+      console.log('Survey.js libraries loaded successfully');
 
-      // Get survey configuration
+      // Get survey configuration - use the surveyConfig directly
       const surveyConfig = questionnaire.surveyConfig || questionnaire;
+      console.log('Using survey config:', surveyConfig);
       
+      // Validate survey config has required structure
+      if (!surveyConfig.pages || !Array.isArray(surveyConfig.pages)) {
+        throw new Error('Invalid survey configuration - missing pages');
+      }
+
       // Create PDF instance with proper options
       const surveyPdf = new SurveyPDF(surveyConfig, {
         fontSize: 12,
@@ -87,6 +95,7 @@ export function SurveyJsPdfExportButton({
 
       // For filled questionnaire, set the response data
       if (type === 'responses' && responseData?.surveyData) {
+        console.log('Setting survey data:', responseData.surveyData);
         surveyPdf.data = responseData.surveyData;
       }
 
@@ -95,8 +104,13 @@ export function SurveyJsPdfExportButton({
       const baseTitle = questionnaire.title?.replace(/[^a-zA-Z0-9]/g, '_') || 'Questionnaire';
       const filename = `${baseTitle}_${type === 'template' ? 'Template' : 'Responses'}_${timestamp}.pdf`;
 
+      console.log('Generating PDF with filename:', filename);
+      
       // Generate and download PDF (client-side)
+      // The save() method handles the download automatically in the browser
       surveyPdf.save(filename);
+      
+      console.log('PDF generation completed');
       
       toast({
         title: "PDF Export Successful",
