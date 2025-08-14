@@ -626,35 +626,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // GET /api/responses/user-sessions - Get all user sessions across questionnaires with progress
   app.get('/api/responses/user-sessions', async (req, res) => {
+    console.log('=== GET /api/responses/user-sessions called ===');
     try {
-      // For now, return mock data with the correct structure until we get the definitions working
+      const userEmail = 'antonm1@hexaware.com'; // TODO: Get from session/auth
+      console.log(`Querying for user: ${userEmail}`);
+      
+      // Get all questionnaire definitions
       const definitions = await questionnaireServiceInstance.getAllDefinitions();
+      console.log(`Found ${definitions.length} questionnaire definitions`);
       
-      // Create mock sessions using the actual questionnaire IDs from definitions
-      const mockSessions = [
-        {
-          id: 'session-1',
-          questionnaireId: '91684df8-9700-4605-bc3e-2320120e5e1b',
-          title: 'Business Strategy & AI Vision',
-          status: '45%',
-          progressPercent: 45,
-          completedAt: null,
-          updatedAt: new Date(),
-          isCompleted: false
-        },
-        {
-          id: 'session-2', 
-          questionnaireId: '11f4eaf5-0bcd-4963-9ace-84045ecbb79a',
-          title: 'Current AI & Data Capabilities',
-          status: 'not started',
-          progressPercent: 0,
-          completedAt: null,
-          updatedAt: new Date(),
-          isCompleted: false
+      // Get all sessions for this user from database
+      const userSessions = await db.select()
+        .from(responseSessions)
+        .where(eq(responseSessions.respondentEmail, userEmail))
+        .orderBy(desc(responseSessions.lastUpdatedAt));
+      
+      console.log(`Found ${userSessions.length} sessions for user ${userEmail}`);
+      
+      if (userSessions.length === 0) {
+        // Check what emails are in the database
+        const allEmails = await db.select({
+          email: responseSessions.respondentEmail
+        }).from(responseSessions).limit(10);
+        console.log(`Sample emails in database:`, allEmails.map(s => s.email));
+      }
+      
+      // Create a map of the MOST RECENT session by questionnaire ID (first in array = most recent due to ORDER BY)
+      const existingSessionsMap = new Map();
+      userSessions.forEach(session => {
+        console.log(`Session: ${session.id}, questionnaire: ${session.questionnaireId}, status: ${session.status}`);
+        // Only set if we haven't seen this questionnaire yet (so we keep the most recent one)
+        if (!existingSessionsMap.has(session.questionnaireId)) {
+          existingSessionsMap.set(session.questionnaireId, session);
         }
-      ];
+      });
       
-      res.json(mockSessions);
+      // Build sessions with progress for all available questionnaires
+      const sessionsWithProgress = definitions.map(definition => {
+        const existingSession = existingSessionsMap.get(definition.id);
+        console.log(`Processing ${definition.title} (${definition.id}), existing session: ${existingSession ? existingSession.id : 'none'}`);
+        
+        let status: string;
+        let progressPercent = 0;
+        
+        if (existingSession?.completedAt) {
+          status = 'completed';
+          progressPercent = 100;
+        } else if (existingSession && existingSession.answeredQuestions > 0) {
+          progressPercent = existingSession.progressPercent || 0;
+          status = `${progressPercent}%`;
+        } else {
+          status = 'not started';
+          progressPercent = 0;
+        }
+        
+        return {
+          id: existingSession?.id || `no-session-${definition.id}`,
+          questionnaireId: definition.id,
+          title: definition.title,
+          status,
+          progressPercent,
+          completedAt: existingSession?.completedAt || null,
+          updatedAt: existingSession?.lastUpdatedAt || new Date(),
+          isCompleted: !!existingSession?.completedAt
+        };
+      });
+      
+      console.log(`Returning ${sessionsWithProgress.length} sessions with progress`);
+      res.json(sessionsWithProgress);
     } catch (error) {
       console.error('Error fetching user sessions:', error);
       res.status(500).json({ error: 'Failed to fetch user sessions' });

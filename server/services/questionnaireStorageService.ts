@@ -245,9 +245,22 @@ export class QuestionnaireStorageService {
         console.log(`Reading definition from: ${definitionPath}`);
         try {
           const content = await fs.promises.readFile(definitionPath, 'utf8');
-          const definition = JSON.parse(content) as QuestionnaireDefinition;
-          console.log(`Successfully parsed definition for ${dir.name}: ${definition.title}`);
-          definitions.push(definition);
+          const definition = JSON.parse(content) as any;
+          
+          // Add missing metadata fields using directory name as ID
+          const completeDefinition: QuestionnaireDefinition = {
+            id: dir.name, // Use directory name as questionnaire ID
+            title: definition.title || `Questionnaire ${dir.name}`,
+            description: definition.description || '',
+            version: definition.version || '1.0',
+            estimatedTimeMinutes: definition.estimatedTimeMinutes || 30,
+            sections: definition.sections || [],
+            createdAt: definition.createdAt || new Date().toISOString(),
+            pages: definition.pages || []
+          };
+          
+          console.log(`Successfully parsed definition for ${dir.name}: ${completeDefinition.title}`);
+          definitions.push(completeDefinition);
         } catch (error) {
           console.error(`Failed to parse questionnaire definition in ${dir.name}:`, error);
         }
