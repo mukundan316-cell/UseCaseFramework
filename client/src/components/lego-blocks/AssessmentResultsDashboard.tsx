@@ -25,7 +25,7 @@ import ScoringDashboardLegoBlock, { type ScoringData } from './ScoringDashboardL
 import ResponseExportLegoBlock from './ResponseExportLegoBlock';
 import QuestionnaireExportLegoBlock from './QuestionnaireExportLegoBlock';
 import ReusableButton from './ReusableButton';
-import { SurveyJsPdfExportButton } from '@/components/SurveyJsPdfExportButton';
+// Removed SurveyJsPdfExportButton - using existing QuestionnaireExportLegoBlock instead
 import { useGenerateRecommendations, useRecommendations } from '@/hooks/useRecommendations';
 import { useUseCases } from '@/contexts/UseCaseContext';
 
@@ -276,30 +276,9 @@ export default function AssessmentResultsDashboard({
             </div>
           </div>
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800 mb-3">
-              <strong>Next Steps:</strong> Your assessment responses have been saved. You can export your responses using the buttons below:
+            <p className="text-sm text-blue-800">
+              <strong>Next Steps:</strong> Your assessment responses have been saved. Use the export buttons in the header above to download your results.
             </p>
-            <div className="flex flex-wrap gap-2">
-              {actualResponseId && (
-                <>
-                  <SurveyJsPdfExportButton 
-                    type="responses" 
-                    questionnaireId={responseData?.questionnaire_id || '91684df8-9700-4605-bc3e-2320120e5e1b'}
-                    responseId={actualResponseId}
-                    title="Export My Responses"
-                    variant="default"
-                    size="sm"
-                  />
-                  <SurveyJsPdfExportButton 
-                    type="template" 
-                    questionnaireId={responseData?.questionnaire_id || '91684df8-9700-4605-bc3e-2320120e5e1b'}
-                    title="Export Blank Template"
-                    variant="outline"
-                    size="sm"
-                  />
-                </>
-              )}
-            </div>
           </div>
         </CardContent>
       </Card>

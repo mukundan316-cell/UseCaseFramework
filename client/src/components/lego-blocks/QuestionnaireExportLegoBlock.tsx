@@ -88,47 +88,66 @@ export default function QuestionnaireExportLegoBlock({
         duration: 3000
       });
 
-      // Determine endpoint based on export type
-      let endpoint = '';
-      if (type === 'template' && questionnaireId) {
-        endpoint = `/api/export/questionnaire/${questionnaireId}/template`;
-      } else if (type === 'responses' && responseId) {
-        endpoint = `/api/export/questionnaire/${responseId}/responses`;
-      } else {
-        throw new Error('Invalid export configuration');
+      // Load Survey.js libraries dynamically
+      console.log('Loading Survey.js libraries for questionnaire export...');
+      const surveyLibs = await loadSurveyJs();
+      if (!surveyLibs) {
+        throw new Error('Failed to load Survey.js libraries');
       }
 
-      const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf'
-        }
+      const { SurveyPDF } = surveyLibs;
+      console.log('Survey.js libraries loaded successfully');
+
+      // Fetch questionnaire definition
+      const questionnaireResponse = await fetch(`/api/questionnaire/${questionnaireId}`);
+      if (!questionnaireResponse.ok) {
+        throw new Error('Failed to load questionnaire definition');
+      }
+      const questionnaire = await questionnaireResponse.json();
+      
+      // Get survey configuration
+      const surveyConfig = questionnaire.surveyConfig || questionnaire;
+      console.log('Using survey config for questionnaire export:', surveyConfig);
+      
+      // Validate survey config has required structure
+      if (!surveyConfig.pages || !Array.isArray(surveyConfig.pages)) {
+        throw new Error('Invalid survey configuration - missing pages');
+      }
+
+      // Create PDF instance with proper options
+      const surveyPdf = new SurveyPDF(surveyConfig, {
+        fontSize: 12,
+        margins: { left: 20, right: 20, top: 30, bot: 30 },
+        format: 'A4' as any,
+        orientation: 'p' as 'p' | 'l'
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Export failed with status ${response.status}`);
+      // For filled questionnaire, set the response data
+      if (type === 'responses' && responseId) {
+        const responseResponse = await fetch(`/api/responses/${responseId}`);
+        if (!responseResponse.ok) {
+          throw new Error('Failed to load response data');
+        }
+        const responseData = await responseResponse.json();
+        
+        if (responseData?.surveyData) {
+          console.log('Setting survey data for responses export:', responseData.surveyData);
+          surveyPdf.data = responseData.surveyData;
+        }
       }
 
-      // Get the blob data
-      const blob = await response.blob();
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().split('T')[0];
       const sanitizedTitle = assessmentTitle.replace(/[^a-zA-Z0-9]/g, '_');
       const typeLabel = type === 'template' ? 'Template' : 'Responses';
-      link.download = `RSA_${sanitizedTitle}_${typeLabel}_${timestamp}.pdf`;
+      const filename = `RSA_${sanitizedTitle}_${typeLabel}_${timestamp}.pdf`;
+
+      console.log('Generating PDF with filename:', filename);
       
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Generate and download PDF (client-side)
+      surveyPdf.save(filename);
+      
+      console.log('PDF generation completed');
 
       // Success feedback
       toast({
@@ -153,6 +172,19 @@ export default function QuestionnaireExportLegoBlock({
       setCurrentExport(null);
     }
   };
+
+  // Load Survey.js dynamically when needed
+  const loadSurveyJs = React.useCallback(async () => {
+    if (typeof window === 'undefined') return null;
+    
+    // Dynamically import Survey.js libraries
+    const [{ Survey }, { SurveyPDF }] = await Promise.all([
+      import('survey-react-ui'),
+      import('survey-pdf')
+    ]);
+    
+    return { Survey, SurveyPDF };
+  }, []);
 
   const getCurrentExportLabel = () => {
     if (!currentExport) return '';
