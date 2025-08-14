@@ -99,15 +99,8 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
       // Mark as completed
       await completeResponse(responseSession.id);
       
-      toast({
-        title: "Assessment Completed!",
-        description: "Redirecting to your results...",
-        duration: 3000
-      });
-      
-      setTimeout(() => {
-        setLocation(`/results/${responseSession.id}`);
-      }, 1500);
+      // Direct redirect without intermediate screen
+      setLocation(`/results/${responseSession.id}`);
     } catch (error) {
       console.error('Error completing assessment:', error);
       toast({
