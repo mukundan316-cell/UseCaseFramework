@@ -8,7 +8,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Mail, User, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
-import { useQuestionnaireSelection } from '@/hooks/useQuestionnaireSelection';
 
 interface AssessmentSessionStartProps {
   onSessionStarted?: (sessionId: string) => void;
@@ -25,8 +24,8 @@ export function AssessmentSessionStart({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { selectedQuestionnaireId, isLoading: isLoadingQuestionnaireSelection } = useQuestionnaireSelection();
-  const { startResponseAsync, isStartingResponse, startResponseError } = useQuestionnaire(selectedQuestionnaireId || '');
+  // We'll use a default questionnaire ID for session creation - the /take page will handle questionnaire selection
+  const { startResponseAsync, isStartingResponse, startResponseError } = useQuestionnaire('91684df8-9700-4605-bc3e-2320120e5e1b');
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -47,29 +46,10 @@ export function AssessmentSessionStart({
 
   const handleStartAssessment = async () => {
     if (!validateForm()) return;
-    
-    // If no questionnaire is selected yet, wait for selection to load
-    if (isLoadingQuestionnaireSelection) {
-      toast({
-        title: "Loading questionnaires...",
-        description: "Please wait while we prepare your assessment.",
-        duration: 2000
-      });
-      return;
-    }
-    
-    if (!selectedQuestionnaireId) {
-      toast({
-        title: "No questionnaire available",
-        description: "Unable to load assessment questionnaire. Please try again.",
-        variant: "destructive"
-      });
-      return;
-    }
 
     try {
       const result = await startResponseAsync({
-        questionnaireId: selectedQuestionnaireId,
+        questionnaireId: '91684df8-9700-4605-bc3e-2320120e5e1b', // Use default questionnaire ID
         respondentEmail: formData.email.trim(),
         respondentName: formData.name.trim()
       });
@@ -222,7 +202,7 @@ export function AssessmentSessionStart({
             <div className="pt-4">
               <Button
                 onClick={handleStartAssessment}
-                disabled={isStartingResponse || isLoadingQuestionnaireSelection || !formData.email.trim() || !formData.name.trim()}
+                disabled={isStartingResponse || !formData.email.trim() || !formData.name.trim()}
                 className="w-full bg-[#005DAA] hover:bg-[#004A88] text-white py-3 h-auto"
                 size="lg"
               >
@@ -230,11 +210,6 @@ export function AssessmentSessionStart({
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                     Starting Assessment...
-                  </div>
-                ) : isLoadingQuestionnaireSelection ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                    Loading Questionnaires...
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
