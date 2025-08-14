@@ -1,9 +1,11 @@
 import PDFDocument from 'pdfkit';
 import { db } from '../db';
-import { questionnaireResponses, questionnaires } from '@shared/schema';
+import { responseSessions } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { Response } from 'express';
 import { format } from 'date-fns';
+import { questionnaireServiceInstance } from './questionnaireService';
+import { PDFExportService } from './pdfExportService';
 
 interface AssessmentData {
   response: any;
@@ -69,12 +71,16 @@ export class AssessmentPdfService {
        .font('Helvetica-Bold')
        .text('Assessment Overview', 100, boxY + 20);
     
+    const sessionData = responseData?.session || {};
+    const respondentName = sessionData?.respondentName || 'Executive Leadership';
+    const createdAt = sessionData?.createdAt || new Date();
+    
     doc.fontSize(10)
        .fillColor('#666666')
        .font('Helvetica')
-       .text(`Respondent: ${responseData?.questionnaire_responses?.respondentName || 'Executive Leadership'}`, 100, boxY + 45)
+       .text(`Respondent: ${respondentName}`, 100, boxY + 45)
        .text(`Organization: RSA Insurance`, 100, boxY + 60)
-       .text(`Assessment Date: ${format(new Date(responseData?.questionnaire_responses?.createdAt || new Date()), 'MMMM d, yyyy')}`, 100, boxY + 75)
+       .text(`Assessment Date: ${format(new Date(createdAt), 'MMMM d, yyyy')}`, 100, boxY + 75)
        .text(`Report Generated: ${format(new Date(), 'MMMM d, yyyy')}`, 100, boxY + 90);
     
     // Bottom section with key insights preview
@@ -228,14 +234,11 @@ export class AssessmentPdfService {
     try {
       console.log('Starting executive PDF generation for response:', responseId);
       
-      // Fetch assessment data and scores
-      const [responseData] = await db
-        .select()
-        .from(questionnaireResponses)
-        .leftJoin(questionnaires, eq(questionnaireResponses.questionnaireId, questionnaires.id))
-        .where(eq(questionnaireResponses.id, responseId));
+      // Fetch assessment data using new questionnaire service
+      const session = await questionnaireServiceInstance.getSession(responseId);
+      const responseData = await questionnaireServiceInstance.getResponse(responseId);
 
-      if (!responseData) {
+      if (!session || !responseData) {
         console.log('No response data found for ID:', responseId);
         return res.status(404).json({ error: 'Assessment response not found' });
       }
@@ -256,7 +259,7 @@ export class AssessmentPdfService {
       doc.pipe(res);
 
       // PAGE 1: Executive Cover Page
-      this.addExecutiveCoverPage(doc, responseData);
+      this.addExecutiveCoverPage(doc, { session, responseData });
       
       // PAGE 2: Executive Summary
       doc.addPage();
@@ -265,10 +268,10 @@ export class AssessmentPdfService {
       
       this.addSectionHeader(doc, 'Executive Summary');
       
-      // Key insights
+      // Key insights based on response data
       const keyInsights = [
         'Assessment completed successfully across all strategic dimensions',
-        'Organization demonstrates strong foundational capabilities for AI adoption',
+        'Organization demonstrates foundational capabilities for AI adoption',
         'Strategic focus areas identified for accelerated implementation',
         'Comprehensive roadmap developed for sustainable AI transformation'
       ];

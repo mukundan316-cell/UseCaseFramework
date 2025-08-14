@@ -5,6 +5,7 @@ import { insertUseCaseSchema } from "@shared/schema";
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@shared/calculations";
 import { mapUseCaseToFrontend } from "@shared/mappers";
 import recommendationRoutes from "./routes/recommendations";
+import exportRoutes from "./routes/export.routes";
 
 // Helper function to recalculate all use case scores with new weights
 async function recalculateAllUseCaseScores(scoringModel: any) {
@@ -760,8 +761,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Legacy assessment routes temporarily disabled during blob migration
   
-  // Legacy export routes temporarily disabled during blob migration
-  // Will be re-enabled with blob-compatible PDF services
+  // Register export routes (re-enabled after blob migration completion)
+  app.use('/api/export', exportRoutes);
   
   // Register recommendation routes
   app.use('/api/recommendations', recommendationRoutes);

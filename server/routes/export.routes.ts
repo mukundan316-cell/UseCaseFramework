@@ -1,9 +1,7 @@
 import { Router } from 'express';
-import { AssessmentPdfService } from '../services/assessmentPdfService';
-// Legacy assessment PDF service removed - blob-first architecture
 import { UseCasePdfService } from '../services/useCasePdfService';
 import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
-import { QuestionnairePdfService } from '../services/questionnairePdfService';
+import { questionnaireServiceInstance } from '../services/questionnaireService';
 
 const router = Router();
 
@@ -13,19 +11,13 @@ const router = Router();
  */
 router.get('/assessment/:responseId', async (req, res) => {
   try {
-    const { responseId } = req.params;
-    
-    if (!responseId) {
-      return res.status(400).json({ error: 'Response ID is required' });
-    }
-
-    console.log('Generating enhanced PDF for assessment:', responseId);
-    await EnhancedAssessmentPdfService.generateAssessmentReport(responseId, res);
+    res.status(501).json({ 
+      error: 'Assessment PDF export temporarily disabled during blob migration',
+      message: 'This feature will be re-implemented with the new Survey.js questionnaire system'
+    });
   } catch (error) {
     console.error('Assessment PDF export error:', error);
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Failed to export assessment report' });
-    }
+    res.status(500).json({ error: 'Failed to export assessment report' });
   }
 });
 
@@ -80,18 +72,15 @@ router.get('/use-case/:id', async (req, res) => {
 });
 
 /**
- * Export blank questionnaire template as PDF
+ * Export blank questionnaire template as PDF - Disabled during blob migration
  * GET /api/export/questionnaire/:questionnaireId/template
  */
 router.get('/questionnaire/:questionnaireId/template', async (req, res) => {
   try {
-    const { questionnaireId } = req.params;
-    
-    if (!questionnaireId) {
-      return res.status(400).json({ error: 'Questionnaire ID is required' });
-    }
-
-    await QuestionnairePdfService.generateBlankQuestionnaire(questionnaireId, res);
+    res.status(501).json({ 
+      error: 'Questionnaire template export not yet implemented for blob storage system',
+      message: 'This feature will be re-implemented with the new Survey.js questionnaire system'
+    });
   } catch (error) {
     console.error('Questionnaire template export error:', error);
     res.status(500).json({ error: 'Failed to export questionnaire template' });
@@ -99,18 +88,15 @@ router.get('/questionnaire/:questionnaireId/template', async (req, res) => {
 });
 
 /**
- * Export populated questionnaire with responses as PDF
+ * Export populated questionnaire with responses as PDF - Disabled during blob migration
  * GET /api/export/questionnaire/:responseId/responses
  */
 router.get('/questionnaire/:responseId/responses', async (req, res) => {
   try {
-    const { responseId } = req.params;
-    
-    if (!responseId) {
-      return res.status(400).json({ error: 'Response ID is required' });
-    }
-
-    await QuestionnairePdfService.generatePopulatedQuestionnaire(responseId, res);
+    res.status(501).json({ 
+      error: 'Questionnaire response export not yet implemented for blob storage system',
+      message: 'This feature will be re-implemented with the new Survey.js questionnaire system'
+    });
   } catch (error) {
     console.error('Questionnaire responses export error:', error);
     res.status(500).json({ error: 'Failed to export questionnaire responses' });

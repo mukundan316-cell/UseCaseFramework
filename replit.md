@@ -49,6 +49,12 @@ All use case cards across the entire application must follow this exact specific
 - **Real-time Persistence**: Live database synchronization
 
 ### Recent Enhancements (August 2025)
+- **Legacy Route Cleanup Completed (August 14, 2025)**: Removed all unused legacy questionnaire routes for consistency
+  - **Complete Legacy Removal**: Cleaned up unused session management, answer handling, and completion routes
+  - **Export Routes Re-enabled**: Restored PDF export functionality after blob migration completion
+  - **Single API Pattern**: Ensured only one consistent way of performing actions in the system
+  - **Clean Import Structure**: Removed unused service imports and simplified route organization
+  - **Blob-Compatible Exports**: Assessment and use case PDF exports fully operational, questionnaire exports marked for future implementation
 - **Fixed Start Over Button & Session Management (August 13, 2025)**: Implemented user-requested behavior changes
   - **Start Over Always Visible**: Button now shows when progress > 0% regardless of completion status
   - **Completed Sessions Reopenable**: Users can reopen completed assessments and use Start Over to restart
