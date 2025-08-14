@@ -46,7 +46,26 @@ export function AssessmentSessionStart({
   };
 
   const handleStartAssessment = async () => {
-    if (!validateForm() || !selectedQuestionnaireId) return;
+    if (!validateForm()) return;
+    
+    // If no questionnaire is selected yet, wait for selection to load
+    if (isLoadingQuestionnaireSelection) {
+      toast({
+        title: "Loading questionnaires...",
+        description: "Please wait while we prepare your assessment.",
+        duration: 2000
+      });
+      return;
+    }
+    
+    if (!selectedQuestionnaireId) {
+      toast({
+        title: "No questionnaire available",
+        description: "Unable to load assessment questionnaire. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       const result = await startResponseAsync({
@@ -97,18 +116,8 @@ export function AssessmentSessionStart({
     setLocation('/assessment');
   };
 
-  // Show loading state while questionnaire selection is loading
-  if (isLoadingQuestionnaireSelection || !selectedQuestionnaireId) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Preparing Assessment...</h2>
-          <p className="text-gray-600">Loading available questionnaires...</p>
-        </div>
-      </div>
-    );
-  }
+  // Don't wait for questionnaire selection on the start page - just show the form
+  // The questionnaire will be selected when the user actually starts the assessment
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -213,7 +222,7 @@ export function AssessmentSessionStart({
             <div className="pt-4">
               <Button
                 onClick={handleStartAssessment}
-                disabled={isStartingResponse || !formData.email.trim() || !formData.name.trim()}
+                disabled={isStartingResponse || isLoadingQuestionnaireSelection || !formData.email.trim() || !formData.name.trim()}
                 className="w-full bg-[#005DAA] hover:bg-[#004A88] text-white py-3 h-auto"
                 size="lg"
               >
@@ -221,6 +230,11 @@ export function AssessmentSessionStart({
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                     Starting Assessment...
+                  </div>
+                ) : isLoadingQuestionnaireSelection ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                    Loading Questionnaires...
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
