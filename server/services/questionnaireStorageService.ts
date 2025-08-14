@@ -37,11 +37,13 @@ export interface QuestionnaireResponse {
   startedAt: string;
   lastUpdatedAt: string;
   completedAt?: string;
-  answers: Array<{
+  answers?: Array<{
     questionId: string;
     answerValue: any;
     answeredAt: string;
   }>;
+  // Survey.js data stored as key-value pairs
+  surveyData?: Record<string, any>;
   metadata?: Record<string, any>;
 }
 

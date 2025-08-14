@@ -61,7 +61,7 @@ export class QuestionnaireService {
       const session = sessions[0];
       
       // Load answers from blob storage and questionnaire definition
-      let answers = [];
+      let answers: any[] = [];
       let progressData = {
         totalPages: 0,
         completedPages: 0,
@@ -78,11 +78,11 @@ export class QuestionnaireService {
         
         // No conversion needed - surveyData is used directly
 
-        if (questionnaire) {
+        if (questionnaire && response) {
           progressData = this.calculateSurveyProgress(questionnaire, response.surveyData || {});
         }
       } catch (error) {
-        console.log(`Error loading session data for ${session.id}:`, error.message);
+        console.log(`Error loading session data for ${session.id}:`, (error as Error).message);
       }
 
       return {
@@ -650,12 +650,7 @@ export class QuestionnaireService {
     return await this.getQuestionnaireDefinition(questionnaireId);
   }
 
-  /**
-   * Get questionnaire response (alias method)
-   */
-  async getResponse(responseId: string) {
-    return await this.getQuestionnaireResponse(responseId);
-  }
+
 
   /**
    * Generate response ID (alias method)
