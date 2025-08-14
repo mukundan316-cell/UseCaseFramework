@@ -15,6 +15,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
