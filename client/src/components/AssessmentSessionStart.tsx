@@ -8,14 +8,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Mail, User, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
+import { useQuestionnaireSelection } from '@/hooks/useQuestionnaireSelection';
 
 interface AssessmentSessionStartProps {
-  questionnaireId: string;
   onSessionStarted?: (sessionId: string) => void;
 }
 
 export function AssessmentSessionStart({ 
-  questionnaireId, 
   onSessionStarted 
 }: AssessmentSessionStartProps) {
   const [, setLocation] = useLocation();
@@ -26,7 +25,8 @@ export function AssessmentSessionStart({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { startResponseAsync, isStartingResponse, startResponseError } = useQuestionnaire(questionnaireId);
+  const { selectedQuestionnaireId, isLoading: isLoadingQuestionnaireSelection } = useQuestionnaireSelection();
+  const { startResponseAsync, isStartingResponse, startResponseError } = useQuestionnaire(selectedQuestionnaireId || '');
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -46,11 +46,11 @@ export function AssessmentSessionStart({
   };
 
   const handleStartAssessment = async () => {
-    if (!validateForm()) return;
+    if (!validateForm() || !selectedQuestionnaireId) return;
 
     try {
       const result = await startResponseAsync({
-        questionnaireId,
+        questionnaireId: selectedQuestionnaireId,
         respondentEmail: formData.email.trim(),
         respondentName: formData.name.trim()
       });
@@ -96,6 +96,19 @@ export function AssessmentSessionStart({
   const handleBackToLanding = () => {
     setLocation('/assessment');
   };
+
+  // Show loading state while questionnaire selection is loading
+  if (isLoadingQuestionnaireSelection || !selectedQuestionnaireId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Preparing Assessment...</h2>
+          <p className="text-gray-600">Loading available questionnaires...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">

@@ -1,5 +1,9 @@
+import React, { useState, useRef } from 'react';
 import { useParams } from 'wouter';
-import { SurveyJsContainer } from '@/components/SurveyJsContainerProper';
+import { SurveyJsContainer, type SurveyJsContainerRef } from '@/components/SurveyJsContainerProper';
+import AssessmentSideMenu from '@/components/AssessmentSideMenu';
+import { useQuestionnaireSelection } from '@/hooks/useQuestionnaireSelection';
+import { useToast } from '@/hooks/use-toast';
 
 interface SurveyJsAssessmentProps {
   questionnaireId?: string;
@@ -7,18 +11,95 @@ interface SurveyJsAssessmentProps {
 
 export default function SurveyJsAssessment({ questionnaireId: propQuestionnaireId }: SurveyJsAssessmentProps) {
   const { questionnaireId: paramQuestionnaireId } = useParams<{ questionnaireId: string }>();
-  const questionnaireId = propQuestionnaireId || paramQuestionnaireId;
+  const initialQuestionnaireId = propQuestionnaireId || paramQuestionnaireId;
   
-  if (!questionnaireId) {
+  const {
+    questionnairesWithProgress,
+    selectedQuestionnaireId,
+    selectQuestionnaire,
+    isLoading
+  } = useQuestionnaireSelection();
+  
+  const { toast } = useToast();
+  const surveyContainerRef = useRef<SurveyJsContainerRef>(null);
+
+  // Use selection hook's selected ID, fallback to initial prop/param
+  const activeQuestionnaireId = selectedQuestionnaireId || initialQuestionnaireId;
+
+  const handleQuestionnaireSwitch = async (newQuestionnaireId: string) => {
+    try {
+      // Save current progress before switching
+      if (surveyContainerRef.current) {
+        await surveyContainerRef.current.saveCurrentProgress();
+      }
+      
+      // Switch to new questionnaire
+      selectQuestionnaire(newQuestionnaireId);
+      
+      toast({
+        title: "Assessment Switched",
+        description: "Your progress has been saved and the new assessment loaded.",
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('Error switching questionnaire:', error);
+      toast({
+        title: "Save Error",
+        description: "Failed to save progress before switching. Please try again.",
+        variant: "destructive",
+        duration: 5000
+      });
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Questionnaire</h1>
-          <p className="text-gray-600">No questionnaire ID provided.</p>
+      <div className="flex h-screen">
+        <div className="flex items-center justify-center w-full">
+          <div className="text-center">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Loading Assessments...</h2>
+            <p className="text-gray-600">Please wait while we fetch your available assessments.</p>
+          </div>
         </div>
       </div>
     );
   }
 
-  return <SurveyJsContainer questionnaireId={questionnaireId} />;
+  if (!activeQuestionnaireId || questionnairesWithProgress.length === 0) {
+    return (
+      <div className="flex h-screen">
+        <div className="flex items-center justify-center w-full">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">No Assessments Available</h1>
+            <p className="text-gray-600">No questionnaires are currently available for completion.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      {/* Side Menu */}
+      <div className="flex-shrink-0 bg-white shadow-sm">
+        <AssessmentSideMenu
+          questionnaires={questionnairesWithProgress}
+          selectedId={activeQuestionnaireId}
+          onSelect={handleQuestionnaireSwitch}
+          onSaveBeforeSwitch={() => 
+            surveyContainerRef.current?.saveCurrentProgress() || Promise.resolve()
+          }
+        />
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 overflow-hidden">
+        <SurveyJsContainer 
+          key={activeQuestionnaireId} // Force re-render when questionnaire changes
+          questionnaireId={activeQuestionnaireId}
+          ref={surveyContainerRef}
+        />
+      </div>
+    </div>
+  );
 }

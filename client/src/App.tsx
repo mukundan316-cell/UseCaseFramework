@@ -38,7 +38,6 @@ function Router() {
       <Route path="/assessment" component={() => <RSAAssessmentLandingPage />} />
       <Route path="/assessment/start" component={() => 
         <AssessmentSessionStart 
-          questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b"
           onSessionStarted={(sessionId) => {
             // Navigate to the actual assessment with the session
             window.location.href = '/assessment/take';
@@ -46,10 +45,10 @@ function Router() {
         />
       } />
       <Route path="/assessment/take" component={() => 
-        <SurveyJsAssessment questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
+        <SurveyJsAssessment />
       } />
       <Route path="/assessment/surveyjs" component={() => 
-        <SurveyJsAssessment questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b" />
+        <SurveyJsAssessment />
       } />
 
       <Route path="/surveyjs-standalone" component={StandaloneSurveyDemo} />
