@@ -49,6 +49,12 @@ All use case cards across the entire application must follow this exact specific
 - **Real-time Persistence**: Live database synchronization
 
 ### Recent Enhancements (August 2025)
+- **Client-Side Survey.js PDF Export (August 14, 2025)**: Implemented proper browser-based PDF generation
+  - **Authentic Survey.js Output**: PDFs now generated using Survey.js native functionality in browser environment
+  - **Data Integrity Protection**: Filled questionnaires exported as read-only PDFs to preserve response integrity
+  - **Existing Button Integration**: Updated existing export buttons instead of creating duplicates
+  - **Client-Side Processing**: Eliminated server-side conversion issues by using Survey.js in its intended browser context
+  - **Dual Export Modes**: Blank templates (editable) and completed responses (read-only) with proper Survey.js formatting
 - **Legacy Route Cleanup Completed (August 14, 2025)**: Removed all unused legacy questionnaire routes for consistency
   - **Complete Legacy Removal**: Cleaned up unused session management, answer handling, and completion routes
   - **Export Routes Re-enabled**: Restored PDF export functionality after blob migration completion
