@@ -737,40 +737,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // GET /api/responses/:id/scores - Get maturity scores for response
+  // GET /api/responses/:id/scores - Get basic progress information for response
   app.get('/api/responses/:id/scores', async (req, res) => {
     try {
       const { id } = req.params;
       
-      const response = await questionnaireService.getResponse(id);
       const session = await questionnaireService.getSession(id);
       
-      if (!response || !session) {
-        return res.status(404).json({ error: 'Response not found' });
+      if (!session) {
+        return res.status(404).json({ error: 'Response session not found' });
       }
 
-      // Calculate basic scores from response data
-      const surveyData = response.surveyData || {};
-      const answerCount = Object.keys(surveyData).length;
+      // Use session progress data for answered questions count
+      const progress = session.progress || {};
+      const answeredQuestions = progress.answeredQuestions || 0;
       
-      // For now, return basic scoring information
-      // TODO: Implement comprehensive maturity scoring logic
+      // Return only actual data from session, no hardcoded values
       const scores = {
-        answerCount,
-        totalQuestions: answerCount > 0 ? answerCount : 1, // Avoid division by zero
-        completionRate: answerCount > 0 ? 100 : 0,
-        overallAverage: answerCount > 0 ? 75 : 0, // Default score for completed assessments
-        maturityLevels: {
-          strategy: { average: 75 },
-          governance: { average: 70 },
-          implementation: { average: 80 }
-        }
+        answerCount: answeredQuestions
       };
 
       res.json(scores);
     } catch (error) {
-      console.error('Error calculating scores:', error);
-      res.status(500).json({ error: 'Failed to calculate scores' });
+      console.error('Error getting response scores:', error);
+      res.status(500).json({ error: 'Failed to get response scores' });
     }
   });
 
