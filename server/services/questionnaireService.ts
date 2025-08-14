@@ -292,26 +292,32 @@ export class QuestionnaireService {
   /**
    * Complete a response session
    */
-  async completeResponse(responseId: string): Promise<boolean> {
+  async completeResponse(responseId: string): Promise<any> {
     try {
       // Mark response as completed in blob storage
       await this.storageService.completeResponse(responseId);
 
       // Update session status in PostgreSQL
+      const completedAt = new Date();
       await db
         .update(responseSessions)
         .set({
           status: 'completed',
-          completedAt: new Date(),
+          completedAt,
           lastUpdatedAt: new Date(),
           progressPercent: 100
         })
         .where(eq(responseSessions.id, responseId));
 
-      return true;
+      // Return the updated session data
+      return {
+        id: responseId,
+        status: 'completed',
+        completedAt
+      };
     } catch (error) {
       console.error('Failed to complete response:', error);
-      return false;
+      return null;
     }
   }
 

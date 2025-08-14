@@ -761,6 +761,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST /api/responses/:id/complete - Mark response as completed
+  app.post('/api/responses/:id/complete', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const completedResponse = await questionnaireService.completeResponse(id);
+      
+      if (!completedResponse) {
+        return res.status(404).json({ error: 'Response session not found' });
+      }
+
+      res.json({ 
+        id: completedResponse.id,
+        status: completedResponse.status,
+        completedAt: completedResponse.completedAt,
+        success: true, 
+        message: 'Assessment completed successfully'
+      });
+    } catch (error) {
+      console.error('Error completing response:', error);
+      res.status(500).json({ error: 'Failed to complete response' });
+    }
+  });
+
   // POST /api/responses/:id/reset - Reset response session
   app.post('/api/responses/:id/reset', async (req, res) => {
     try {
