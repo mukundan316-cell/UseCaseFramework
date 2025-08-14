@@ -2,8 +2,7 @@ import { Router } from 'express';
 import { UseCasePdfService } from '../services/useCasePdfService';
 import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
 import { questionnaireServiceInstance } from '../services/questionnaireService';
-import { SurveyJsPdfService } from '../services/surveyJsPdfService';
-import { QuestionnairePdfService } from '../services/questionnairePdfService';
+// PDF services removed - using client-side Survey.js PDF export instead
 
 const router = Router();
 
@@ -74,41 +73,22 @@ router.get('/use-case/:id', async (req, res) => {
 });
 
 /**
- * Export blank questionnaire template as PDF using Survey.js
- * GET /api/export/questionnaire/:questionnaireId/template
+ * Questionnaire PDF exports are now handled client-side using Survey.js
+ * These server-side routes are disabled in favor of browser-based PDF generation
+ * which provides better compatibility with Survey.js formatting and features
  */
 router.get('/questionnaire/:questionnaireId/template', async (req, res) => {
-  try {
-    const { questionnaireId } = req.params;
-    
-    if (!questionnaireId) {
-      return res.status(400).json({ error: 'Questionnaire ID is required' });
-    }
-
-    await QuestionnairePdfService.generateBlankQuestionnaire(questionnaireId, res);
-  } catch (error) {
-    console.error('Questionnaire template export error:', error);
-    res.status(500).json({ error: 'Failed to export questionnaire template' });
-  }
+  res.status(501).json({ 
+    error: 'Server-side PDF export disabled',
+    message: 'Questionnaire PDF exports are now handled client-side using Survey.js for better compatibility'
+  });
 });
 
-/**
- * Export populated questionnaire with responses as PDF using Survey.js
- * GET /api/export/questionnaire/:responseId/responses
- */
 router.get('/questionnaire/:responseId/responses', async (req, res) => {
-  try {
-    const { responseId } = req.params;
-    
-    if (!responseId) {
-      return res.status(400).json({ error: 'Response ID is required' });
-    }
-
-    await QuestionnairePdfService.generateFilledQuestionnaire(responseId, res);
-  } catch (error) {
-    console.error('Questionnaire responses export error:', error);
-    res.status(500).json({ error: 'Failed to export questionnaire responses' });
-  }
+  res.status(501).json({ 
+    error: 'Server-side PDF export disabled',
+    message: 'Questionnaire PDF exports are now handled client-side using Survey.js for better compatibility'
+  });
 });
 
 export default router;

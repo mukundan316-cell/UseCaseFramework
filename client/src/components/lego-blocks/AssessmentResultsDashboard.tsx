@@ -25,7 +25,7 @@ import ScoringDashboardLegoBlock, { type ScoringData } from './ScoringDashboardL
 import ResponseExportLegoBlock from './ResponseExportLegoBlock';
 import QuestionnaireExportLegoBlock from './QuestionnaireExportLegoBlock';
 import ReusableButton from './ReusableButton';
-import { PdfExportButton } from '@/components/PdfExportButton';
+import { SurveyJsPdfExportButton } from '@/components/SurveyJsPdfExportButton';
 import { useGenerateRecommendations, useRecommendations } from '@/hooks/useRecommendations';
 import { useUseCases } from '@/contexts/UseCaseContext';
 
@@ -282,16 +282,17 @@ export default function AssessmentResultsDashboard({
             <div className="flex flex-wrap gap-2">
               {actualResponseId && (
                 <>
-                  <PdfExportButton 
+                  <SurveyJsPdfExportButton 
                     type="responses" 
-                    id={actualResponseId} 
+                    questionnaireId={responseData?.questionnaire_id || '91684df8-9700-4605-bc3e-2320120e5e1b'}
+                    responseId={actualResponseId}
                     title="Export My Responses"
                     variant="default"
                     size="sm"
                   />
-                  <PdfExportButton 
+                  <SurveyJsPdfExportButton 
                     type="template" 
-                    id={responseData?.questionnaire_id || '91684df8-9700-4605-bc3e-2320120e5e1b'}
+                    questionnaireId={responseData?.questionnaire_id || '91684df8-9700-4605-bc3e-2320120e5e1b'}
                     title="Export Blank Template"
                     variant="outline"
                     size="sm"
