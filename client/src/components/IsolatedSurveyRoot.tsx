@@ -101,8 +101,11 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
             handleManualSave(sender.data);
           });
 
-          survey.onComplete.add(() => {
-            onComplete(survey.data);
+          survey.onComplete.add(async (sender: Model) => {
+            // Save data first before completion
+            await handleManualSave(sender.data);
+            // Then trigger completion
+            onComplete(sender.data);
           });
 
           setSurveyModel(survey);

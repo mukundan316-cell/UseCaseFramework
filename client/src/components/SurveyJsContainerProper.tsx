@@ -47,6 +47,7 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
   } = useQuestionnaire(questionnaireId);
 
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
 
   // Store handlers in refs to make them stable - never re-create
   const handlersRef = useRef({
@@ -90,24 +91,26 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
     if (!responseSession) return;
 
     try {
-      // Save final answers
-      await saveAnswers({
-        responseId: responseSession.id,
-        answers: data
-      });
+      // Set completing state to show progress
+      setIsCompleting(true);
       
-      // Mark as completed
+      // Mark as completed (saveAnswers was already called in onComplete handler)
       await completeResponse(responseSession.id);
       
-      // Direct redirect without intermediate screen
+      // Small delay to ensure data is fully persisted
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Navigate to results
       setLocation(`/results/${responseSession.id}`);
     } catch (error) {
       console.error('Error completing assessment:', error);
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to complete assessment. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsCompleting(false);
     }
   }, []); // No dependencies = never re-creates
 
@@ -183,7 +186,26 @@ export function SurveyJsContainer({ questionnaireId }: SurveyJsContainerProps) {
 
   return (
     <SaveStatusProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative">
+        
+        {/* Completion Loading Overlay */}
+        {isCompleting && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 shadow-xl max-w-sm w-full mx-4">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Completing Assessment</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Saving your responses and generating results...
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '75%' }}></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">Please don't close this window</p>
+              </div>
+            </div>
+          </div>
+        )}
         <AssessmentHeader
           progress={progress}
           answeredCount={answeredCount}
