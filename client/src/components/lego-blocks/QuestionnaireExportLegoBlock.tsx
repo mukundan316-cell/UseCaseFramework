@@ -124,7 +124,7 @@ export default function QuestionnaireExportLegoBlock({
       
       const surveyPdf = new SurveyPDF(surveyConfig, pdfOptions);
 
-      // For filled questionnaire, set the response data and configure for read-only
+      // For filled questionnaire, set the response data and make it read-only
       if (type === 'responses' && responseId) {
         const responseResponse = await fetch(`/api/responses/${responseId}`);
         if (!responseResponse.ok) {
@@ -136,17 +136,13 @@ export default function QuestionnaireExportLegoBlock({
           console.log('Setting survey data for responses export:', responseData.surveyData);
           surveyPdf.data = responseData.surveyData;
           
-          // Try to make filled questionnaires read-only for data integrity
-          try {
-            if (surveyPdf.survey) {
-              surveyPdf.survey.mode = 'display';
-              console.log('Set survey to display mode (read-only) for filled questionnaire');
-            }
-          } catch (modeError) {
-            console.warn('Could not set survey mode, proceeding with default:', modeError);
-          }
+          // Make filled questionnaires read-only for data integrity
+          surveyPdf.readOnly = true;
+          console.log('Set PDF to read-only mode for filled questionnaire');
         }
       } else {
+        // For blank templates, ensure editable mode
+        surveyPdf.readOnly = false;
         console.log('Generating blank template (editable)');
       }
 
