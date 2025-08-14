@@ -114,20 +114,17 @@ export default function QuestionnaireExportLegoBlock({
         throw new Error('Invalid survey configuration - missing pages');
       }
 
-      // Create PDF instance with proper options
-      // For responses export, make fields read-only to preserve integrity
+      // Create PDF instance with basic options first
       const pdfOptions = {
         fontSize: 12,
         margins: { left: 20, right: 20, top: 30, bot: 30 },
         format: 'A4' as any,
-        orientation: 'p' as 'p' | 'l',
-        // Make filled questionnaires read-only for data integrity
-        mode: type === 'responses' ? 'display' : 'edit' as any
+        orientation: 'p' as 'p' | 'l'
       };
       
       const surveyPdf = new SurveyPDF(surveyConfig, pdfOptions);
 
-      // For filled questionnaire, set the response data and make it read-only
+      // For filled questionnaire, set the response data and configure for read-only
       if (type === 'responses' && responseId) {
         const responseResponse = await fetch(`/api/responses/${responseId}`);
         if (!responseResponse.ok) {
@@ -139,14 +136,18 @@ export default function QuestionnaireExportLegoBlock({
           console.log('Setting survey data for responses export:', responseData.surveyData);
           surveyPdf.data = responseData.surveyData;
           
-          // Make all questions read-only for filled questionnaires to preserve data integrity
-          surveyPdf.survey.mode = 'display';
-          console.log('Set survey to display mode (read-only) for filled questionnaire');
+          // Try to make filled questionnaires read-only for data integrity
+          try {
+            if (surveyPdf.survey) {
+              surveyPdf.survey.mode = 'display';
+              console.log('Set survey to display mode (read-only) for filled questionnaire');
+            }
+          } catch (modeError) {
+            console.warn('Could not set survey mode, proceeding with default:', modeError);
+          }
         }
       } else {
-        // For blank templates, ensure edit mode
-        surveyPdf.survey.mode = 'edit';
-        console.log('Set survey to edit mode for blank template');
+        console.log('Generating blank template (editable)');
       }
 
       // Generate filename with timestamp
@@ -157,10 +158,14 @@ export default function QuestionnaireExportLegoBlock({
 
       console.log('Generating PDF with filename:', filename);
       
-      // Generate and download PDF (client-side)
-      surveyPdf.save(filename);
-      
-      console.log('PDF generation completed');
+      try {
+        // Generate and download PDF (client-side)
+        surveyPdf.save(filename);
+        console.log('PDF generation completed');
+      } catch (saveError) {
+        console.error('PDF save error:', saveError);
+        throw new Error(`Failed to generate PDF: ${saveError instanceof Error ? saveError.message : 'Unknown error'}`);
+      }
 
       // Success feedback
       toast({
@@ -170,13 +175,18 @@ export default function QuestionnaireExportLegoBlock({
       });
 
     } catch (error) {
-      console.error('Export error:', error);
+      console.error('Questionnaire export error:', error);
+      
+      // Enhanced error reporting for debugging
+      let errorMessage = 'An unexpected error occurred during export.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        console.error('Error stack:', error.stack);
+      }
       
       toast({
         title: "Export Failed",
-        description: error instanceof Error 
-          ? error.message 
-          : `Failed to generate ${option?.label}. Please try again.`,
+        description: `Failed to generate ${option?.label}: ${errorMessage}`,
         variant: "destructive",
         duration: 7000
       });
