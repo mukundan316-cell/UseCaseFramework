@@ -121,6 +121,18 @@ All use case cards across the entire application must follow this exact specific
 
 ## Development Guidelines
 
+### Question Counting Logic (August 14, 2025)
+**IMPORTANT: Do NOT modify this logic - it is working as designed**
+
+The system correctly counts **top-level Survey.js elements (panels) as questions**, not individual input fields within panels:
+- **Design Logic**: Each `element` in Survey.js pages counts as 1 question
+- **Panel Behavior**: A panel with 6 input fields = 1 question (correct)
+- **Completion Logic**: Panel is "answered" only when ALL nested input elements have values
+- **Database Storage**: `answered_questions` reflects panel-level completion (e.g., 1 panel = 1 answered question)
+- **Frontend Display**: Should show database value, not input field count
+
+**Example**: Assessment with 1 panel containing 6 fields shows "1 Question Answered" (not 7).
+
 ### Database Schema Consistency Principle
 **Critical**: Always maintain consistent casing between Drizzle schema definitions and database operations.
 
