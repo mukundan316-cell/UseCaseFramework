@@ -38,9 +38,9 @@ function Router() {
       <Route path="/assessment" component={() => <RSAAssessmentLandingPage />} />
       <Route path="/assessment/start" component={() => 
         <AssessmentSessionStart 
-          onSessionStarted={(sessionId) => {
-            // Navigate to the actual assessment with the session
-            window.location.href = '/assessment/take';
+          onSessionStarted={(email, name) => {
+            // User info collected, navigation handled by component
+            console.log('User info collected:', { email, name });
           }}
         />
       } />

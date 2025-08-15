@@ -7,10 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Mail, User, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 
 interface AssessmentSessionStartProps {
-  onSessionStarted?: (sessionId: string) => void;
+  onSessionStarted?: (email: string, name: string) => void;
 }
 
 export function AssessmentSessionStart({ 
@@ -23,9 +22,7 @@ export function AssessmentSessionStart({
     name: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // We'll use a default questionnaire ID for session creation - the /take page will handle questionnaire selection
-  const { startResponseAsync, isStartingResponse, startResponseError } = useQuestionnaire('91684df8-9700-4605-bc3e-2320120e5e1b');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -47,48 +44,36 @@ export function AssessmentSessionStart({
   const handleStartAssessment = async () => {
     if (!validateForm()) return;
 
+    setIsSubmitting(true);
     try {
-      const result = await startResponseAsync({
-        questionnaireId: '91684df8-9700-4605-bc3e-2320120e5e1b', // Use default questionnaire ID
-        respondentEmail: formData.email.trim(),
-        respondentName: formData.name.trim()
-      });
-
-      console.log('Session start result:', result);
+      // Store user info in localStorage for the /take page to use
+      localStorage.setItem('assessmentUser', JSON.stringify({
+        email: formData.email.trim(),
+        name: formData.name.trim()
+      }));
 
       toast({
-        title: "Assessment Started",
-        description: "Your session has been created successfully.",
+        title: "Ready to Start",
+        description: "Proceeding to questionnaire selection.",
         duration: 3000
       });
 
-      if (onSessionStarted && result?.responseId) {
-        onSessionStarted(result.responseId);
+      if (onSessionStarted) {
+        onSessionStarted(formData.email.trim(), formData.name.trim());
       }
       
-      // Navigate to assessment
+      // Navigate to assessment selection
       setLocation('/assessment/take');
     } catch (error: any) {
-      console.error('Failed to start session:', error);
-      
-      // Handle completed session case
-      if (error?.completedSessionId) {
-        toast({
-          title: "Assessment Already Completed",
-          description: "Redirecting to your results...",
-          duration: 3000
-        });
-        setTimeout(() => {
-          setLocation(`/results/${error.completedSessionId}`);
-        }, 1500);
-        return;
-      }
+      console.error('Failed to prepare assessment:', error);
       
       toast({
-        title: "Failed to Start Assessment",
+        title: "Failed to Prepare Assessment",
         description: "Please check your details and try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -140,14 +125,7 @@ export function AssessmentSessionStart({
           </CardHeader>
           
           <CardContent className="space-y-6">
-            {/* Error Alert */}
-            {startResponseError && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  Failed to start assessment. Please check your information and try again.
-                </AlertDescription>
-              </Alert>
-            )}
+            {/* Error Alert removed - no longer needed for user info collection */}
             
             {/* Email Field */}
             <div className="space-y-2">
@@ -162,7 +140,7 @@ export function AssessmentSessionStart({
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 placeholder="your.email@company.com"
                 className={errors.email ? 'border-red-500' : ''}
-                disabled={isStartingResponse}
+                disabled={isSubmitting}
               />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email}</p>
@@ -182,7 +160,7 @@ export function AssessmentSessionStart({
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Your full name"
                 className={errors.name ? 'border-red-500' : ''}
-                disabled={isStartingResponse}
+                disabled={isSubmitting}
               />
               {errors.name && (
                 <p className="text-sm text-red-600">{errors.name}</p>
@@ -202,14 +180,14 @@ export function AssessmentSessionStart({
             <div className="pt-4">
               <Button
                 onClick={handleStartAssessment}
-                disabled={isStartingResponse || !formData.email.trim() || !formData.name.trim()}
+                disabled={isSubmitting || !formData.email.trim() || !formData.name.trim()}
                 className="w-full bg-[#005DAA] hover:bg-[#004A88] text-white py-3 h-auto"
                 size="lg"
               >
-                {isStartingResponse ? (
+                {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                    Starting Assessment...
+                    Preparing Assessment...
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">

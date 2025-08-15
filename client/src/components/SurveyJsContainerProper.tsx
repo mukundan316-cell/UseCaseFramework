@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useRef, useCallback, useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
@@ -58,10 +58,69 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
     saveAnswersError,
     completeResponseError,
     resetResponseError,
+    startResponseAsync,
+    isStartingResponse,
+    sessionError
   } = useQuestionnaire(questionnaireId);
 
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
+
+  // Handle automatic session creation when navigating to questionnaires without existing sessions
+  useEffect(() => {
+    const createSessionIfNeeded = async () => {
+      // If we're already checking session or have a session, don't create
+      if (isCheckingSession || responseSession || isStartingResponse || isCreatingSession) return;
+      
+      // Check if we have a 404 error (no session found) and user info in localStorage
+      if (sessionError && (sessionError as any).status === 404) {
+        const userInfo = localStorage.getItem('assessmentUser');
+        if (!userInfo) {
+          // No user info available - redirect to start page
+          toast({
+            title: "User Information Required",
+            description: "Please provide your contact information to begin the assessment.",
+            variant: "destructive"
+          });
+          setLocation('/assessment/start');
+          return;
+        }
+
+        try {
+          setIsCreatingSession(true);
+          const { email, name } = JSON.parse(userInfo);
+          
+          console.log(`Creating session for questionnaire ${questionnaireId} for user ${email}`);
+          
+          const result = await startResponseAsync({
+            questionnaireId,
+            respondentEmail: email,
+            respondentName: name
+          });
+
+          toast({
+            title: "Assessment Session Created",
+            description: "Your assessment session has been initialized.",
+            duration: 3000
+          });
+
+          console.log('Session created successfully:', result);
+        } catch (error: any) {
+          console.error('Failed to create session:', error);
+          toast({
+            title: "Failed to Create Session",
+            description: "Please try refreshing the page or contact support.",
+            variant: "destructive"
+          });
+        } finally {
+          setIsCreatingSession(false);
+        }
+      }
+    };
+
+    createSessionIfNeeded();
+  }, [questionnaireId, isCheckingSession, responseSession, sessionError, isStartingResponse, isCreatingSession, startResponseAsync, toast, setLocation]);
 
   // Store handlers in refs to make them stable - never re-create
   const handlersRef = useRef({
@@ -189,12 +248,16 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
   }), [responseSession, handleSave]);
 
   // Show loading state
-  if (isLoadingQuestionnaire || isCheckingSession) {
+  if (isLoadingQuestionnaire || isCheckingSession || isCreatingSession) {
+    const loadingMessage = isCreatingSession 
+      ? "Setting up your assessment session..." 
+      : "Loading assessment...";
+      
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="flex items-center space-x-3">
           <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-gray-600">Loading assessment...</span>
+          <span className="text-gray-600">{loadingMessage}</span>
         </div>
       </div>
     );
