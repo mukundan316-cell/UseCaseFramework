@@ -65,7 +65,8 @@ export default function SurveyJsAssessment({ questionnaireId: propQuestionnaireI
     );
   }
 
-  if (!activeQuestionnaireId || questionnairesWithProgress.length === 0) {
+  // Show loading while waiting for auto-selection or if no questionnaires
+  if (!activeQuestionnaireId && !isLoading) {
     return (
       <div className="flex h-screen">
         <div className="flex items-center justify-center w-full">

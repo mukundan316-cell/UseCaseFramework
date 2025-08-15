@@ -73,37 +73,41 @@ export function useQuestionnaireSelection() {
     };
   });
 
-  // Selection logic: 1) not started, 2) in progress, 3) completed
+  // Selection logic: 1) first started, 2) first unstarted, 3) first completed
   const selectDefaultQuestionnaire = (): string | null => {
     if (questionnairesWithProgress.length === 0) return null;
     
-    // Check localStorage for last selection
-    const lastSelected = localStorage.getItem('lastSelectedQuestionnaireId');
-    if (lastSelected && questionnairesWithProgress.some(q => q.definition.id === lastSelected)) {
-      return lastSelected;
+    console.log('Auto-selecting questionnaire, available options:', questionnairesWithProgress.map(q => ({
+      id: q.definition.id,
+      title: q.definition.title,
+      isStarted: q.isStarted,
+      isCompleted: q.isCompleted,
+      progressPercent: q.progressPercent
+    })));
+    
+    // 1. Find first started (in progress) assessment
+    const started = questionnairesWithProgress.find(q => q.isStarted && !q.isCompleted);
+    if (started) {
+      console.log('Auto-selected first started assessment:', started.definition.title);
+      return started.definition.id;
     }
     
-    // Find first not started questionnaire
-    const notStarted = questionnairesWithProgress.find(q => !q.isStarted);
-    if (notStarted) return notStarted.definition.id;
+    // 2. Find first unstarted assessment
+    const unstarted = questionnairesWithProgress.find(q => !q.isStarted);
+    if (unstarted) {
+      console.log('Auto-selected first unstarted assessment:', unstarted.definition.title);
+      return unstarted.definition.id;
+    }
     
-    // Find first in-progress (highest progress)
-    const inProgress = questionnairesWithProgress
-      .filter(q => q.isStarted && !q.isCompleted)
-      .sort((a, b) => b.progressPercent - a.progressPercent);
-    if (inProgress.length > 0) return inProgress[0].definition.id;
-    
-    // Find first completed (most recently updated)
-    const completed = questionnairesWithProgress
-      .filter(q => q.isCompleted)
-      .sort((a, b) => {
-        const dateA = new Date(a.session?.updatedAt || 0);
-        const dateB = new Date(b.session?.updatedAt || 0);
-        return dateB.getTime() - dateA.getTime();
-      });
-    if (completed.length > 0) return completed[0].definition.id;
+    // 3. Find first completed assessment
+    const completed = questionnairesWithProgress.find(q => q.isCompleted);
+    if (completed) {
+      console.log('Auto-selected first completed assessment:', completed.definition.title);
+      return completed.definition.id;
+    }
     
     // Fallback to first questionnaire
+    console.log('Auto-selected fallback assessment:', questionnairesWithProgress[0].definition.title);
     return questionnairesWithProgress[0].definition.id;
   };
 
