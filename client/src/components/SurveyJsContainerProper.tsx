@@ -50,18 +50,20 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
   // Get current questionnaire info from props to optimize session handling
   const currentQuestionnaire = questionnaires.find(q => q.definition.id === questionnaireId);
   const knownSession = currentQuestionnaire?.session;
+  const currentStatus = currentQuestionnaire?.status;
   
-  // Only skip session check if we have questionnaires data AND no session exists
+  // Skip session check if: no session exists OR status is "not started"
   const shouldSkipSessionCheck = questionnaires.length > 0 && 
     currentQuestionnaire && 
-    (knownSession === null || knownSession === undefined);
+    (!knownSession || currentStatus === "not started");
   
   // Debug logging to understand what's happening
-  console.log('Session check debug:', {
+  console.log('Session check debug (updated):', {
     questionnaireId,
     questionnairesLength: questionnaires.length,
     currentQuestionnaire: currentQuestionnaire?.definition.id,
     knownSession,
+    currentStatus,
     shouldSkipSessionCheck
   });
   

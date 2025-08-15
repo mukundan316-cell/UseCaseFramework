@@ -681,14 +681,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         return {
-          id: existingSession?.id || `no-session-${definition.id}`,
+          id: existingSession?.id || null, // No more fake IDs!
           questionnaireId: definition.id,
           title: definition.title,
           status,
           progressPercent,
           completedAt: existingSession?.completedAt || null,
           updatedAt: existingSession?.lastUpdatedAt || new Date(),
-          isCompleted: !!existingSession?.completedAt
+          isCompleted: !!existingSession?.completedAt,
+          session: existingSession || null // Explicit session field
         };
       });
       

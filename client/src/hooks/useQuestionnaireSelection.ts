@@ -8,7 +8,7 @@ interface QuestionnaireDefinition {
 }
 
 interface UserSession {
-  id: string;
+  id: string | null; // Can be null for unstarted questionnaires
   questionnaireId: string;
   title: string;
   status: string;
@@ -16,6 +16,7 @@ interface UserSession {
   completedAt: string | null;
   updatedAt: string;
   isCompleted: boolean;
+  session?: any; // The actual session data if it exists
 }
 
 export interface QuestionnaireWithProgress {
