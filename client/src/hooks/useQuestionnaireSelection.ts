@@ -18,7 +18,7 @@ interface UserSession {
   isCompleted: boolean;
 }
 
-interface QuestionnaireWithProgress {
+export interface QuestionnaireWithProgress {
   definition: QuestionnaireDefinition;
   session?: UserSession;
   status: string;

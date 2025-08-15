@@ -79,27 +79,17 @@ export default function SurveyJsAssessment({ questionnaireId: propQuestionnaireI
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Side Menu */}
-      <div className="flex-shrink-0 bg-white shadow-sm">
-        <AssessmentSideMenu
-          questionnaires={questionnairesWithProgress}
-          selectedId={activeQuestionnaireId}
-          onSelect={handleQuestionnaireSwitch}
-          onSaveBeforeSwitch={() => 
-            surveyContainerRef.current?.saveCurrentProgress() || Promise.resolve()
-          }
-        />
-      </div>
-      
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        <SurveyJsContainer 
-          key={activeQuestionnaireId} // Force re-render when questionnaire changes
-          questionnaireId={activeQuestionnaireId}
-          ref={surveyContainerRef}
-        />
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <SurveyJsContainer 
+        key={activeQuestionnaireId} // Force re-render when questionnaire changes
+        questionnaireId={activeQuestionnaireId}
+        ref={surveyContainerRef}
+        questionnaires={questionnairesWithProgress}
+        onQuestionnaireSwitch={handleQuestionnaireSwitch}
+        onSaveBeforeSwitch={() => 
+          surveyContainerRef.current?.saveCurrentProgress() || Promise.resolve()
+        }
+      />
     </div>
   );
 }

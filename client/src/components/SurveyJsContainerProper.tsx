@@ -20,6 +20,8 @@ import { AssessmentHeader } from './AssessmentHeader';
 import { SurveyWithStatusBridge } from './SurveyWithStatusBridge';
 import { SaveStatusProvider } from './SaveStatusProvider';
 import { queryClient } from '@/lib/queryClient';
+import AssessmentSideMenu from './AssessmentSideMenu';
+import type { QuestionnaireWithProgress } from '@/hooks/useQuestionnaireSelection';
 
 // Import Survey.js default CSS
 import 'survey-core/survey-core.css';
@@ -27,13 +29,21 @@ import 'survey-core/survey-core.css';
 interface SurveyJsContainerProps {
   questionnaireId: string;
   className?: string;
+  questionnaires?: QuestionnaireWithProgress[];
+  onQuestionnaireSwitch?: (questionnaireId: string) => Promise<void>;
+  onSaveBeforeSwitch?: () => Promise<void>;
 }
 
 export interface SurveyJsContainerRef {
   saveCurrentProgress: () => Promise<void>;
 }
 
-export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContainerProps>(({ questionnaireId }, ref) => {
+export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContainerProps>(({ 
+  questionnaireId, 
+  questionnaires = [], 
+  onQuestionnaireSwitch, 
+  onSaveBeforeSwitch 
+}, ref) => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -235,36 +245,53 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
           isResetting={isResettingResponse}
         />
 
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto px-6 py-8 space-y-6 mt-4">
-          {/* Info Message */}
-          <div className="text-center">
-            <div className="text-sm text-gray-600">
-              Complete all sections to generate your AI strategy report
+        {/* Main Content Area with Sidebar */}
+        <div className="flex flex-1 h-[calc(100vh-120px)]">
+          {/* Sidebar - only show if questionnaires are provided */}
+          {questionnaires.length > 0 && (
+            <div className="flex-shrink-0 bg-white shadow-sm">
+              <AssessmentSideMenu
+                questionnaires={questionnaires}
+                selectedId={questionnaireId}
+                onSelect={onQuestionnaireSwitch || (() => Promise.resolve())}
+                onSaveBeforeSwitch={onSaveBeforeSwitch || (() => Promise.resolve())}
+              />
+            </div>
+          )}
+          
+          {/* Survey Content */}
+          <div className="flex-1 overflow-auto">
+            <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+              {/* Info Message */}
+              <div className="text-center">
+                <div className="text-sm text-gray-600">
+                  Complete all sections to generate your AI strategy report
+                </div>
+              </div>
+
+              {/* Error Alerts */}
+              {(saveAnswersError || completeResponseError || resetResponseError) && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {saveAnswersError?.message || completeResponseError?.message || resetResponseError?.message || 'An error occurred'}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Survey Component - Completely Isolated React Root */}
+              <Card className="shadow-lg border-0">
+                <CardContent className="p-8">
+                  <SurveyWithStatusBridge
+                    questionnaireId={questionnaireId}
+                    onSave={handleSave}
+                    onComplete={handleComplete}
+                    handleSaveStatusChangeRef={handleSaveStatusChange}
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
-
-          {/* Error Alerts */}
-          {(saveAnswersError || completeResponseError || resetResponseError) && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {saveAnswersError?.message || completeResponseError?.message || resetResponseError?.message || 'An error occurred'}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Survey Component - Completely Isolated React Root */}
-          <Card className="shadow-lg border-0">
-            <CardContent className="p-8">
-              <SurveyWithStatusBridge
-                questionnaireId={questionnaireId}
-                onSave={handleSave}
-                onComplete={handleComplete}
-                handleSaveStatusChangeRef={handleSaveStatusChange}
-              />
-            </CardContent>
-          </Card>
         </div>
       </div>
 
