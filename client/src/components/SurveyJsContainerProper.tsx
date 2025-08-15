@@ -65,7 +65,9 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
     startResponseAsync,
     isStartingResponse,
     sessionError
-  } = useQuestionnaire(questionnaireId);
+  } = useQuestionnaire(questionnaireId, { 
+    skipSessionCheck: knownSession === null || knownSession === undefined 
+  });
 
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -79,10 +81,9 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
       
       // OPTIMIZATION: If we know from the questionnaires prop that no session exists, create one immediately
       // This skips the redundant session check API call that returns 404
-      const shouldCreateSession = knownSession === null || knownSession === undefined || 
-                                 (sessionError && (sessionError as any).status === 404);
+      const shouldCreateSession = knownSession === null || knownSession === undefined;
       
-      if (shouldCreateSession && !isCheckingSession) {
+      if (shouldCreateSession) {
         const userInfo = localStorage.getItem('assessmentUser');
         if (!userInfo) {
           // No user info available - redirect to start page

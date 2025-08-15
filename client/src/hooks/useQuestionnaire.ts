@@ -95,7 +95,7 @@ export interface MaturityScores {
  * Custom hook for questionnaire data fetching and management
  * Follows existing patterns from UseCaseContext for consistency
  */
-export function useQuestionnaire(questionnaireId: string) {
+export function useQuestionnaire(questionnaireId: string, options: { skipSessionCheck?: boolean } = {}) {
   const queryClient = useQueryClient();
 
   // Fetch questionnaire with sections and questions (updated to use hybrid endpoint)
@@ -196,7 +196,7 @@ export function useQuestionnaire(questionnaireId: string) {
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
 
-  // Check for existing session
+  // Check for existing session - can be skipped if we already know no session exists
   const {
     data: responseSession,
     isLoading: isCheckingSession,
@@ -204,7 +204,7 @@ export function useQuestionnaire(questionnaireId: string) {
   } = useQuery<ResponseSession & { answers?: any }>({
     queryKey: ['session', questionnaireId],
     queryFn: () => apiRequest(`/api/responses/check-session?questionnaireId=${questionnaireId}`),
-    enabled: !!questionnaireId,
+    enabled: !!questionnaireId && !options.skipSessionCheck,
     staleTime: 30 * 1000, // Cache for 30 seconds to prevent excessive 404s
     refetchInterval: false, // Don't auto-refetch to prevent 404 loops
     retry: (failureCount, error: any) => {
