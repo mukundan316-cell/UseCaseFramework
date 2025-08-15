@@ -23,14 +23,12 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
 
 
 
-  // Load session and survey config - handles questionnaire switching smoothly
+  // Load session and survey config
   useEffect(() => {
     let isMounted = true;
 
     const loadData = async () => {
       try {
-        setIsLoading(true);
-        
         // Load session
         const sessionData = await apiRequest(`/api/responses/check-session?questionnaireId=${questionnaireId}`);
 
@@ -57,84 +55,61 @@ function IsolatedSurveyComponent({ questionnaireId, onSave, onComplete, containe
         }
 
         if (isMounted) {
-          let currentSurvey: Model;
+          const survey = new Model(surveyConfig);
           
-          // If we already have a survey model, update it instead of creating new one
-          if (surveyModel) {
-            console.log('🔄 Switching questionnaire: Updating existing Survey.js model (no unmount/remount)');
-            // Update existing survey with new configuration
-            surveyModel.fromJSON(surveyConfig);
-            currentSurvey = surveyModel;
-            
-            // Load existing survey data into updated survey
-            if (Object.keys(existingSurveyData).length > 0) {
-              surveyModel.data = existingSurveyData;
-              console.log('Updated existing survey with new data:', existingSurveyData);
-            } else {
-              // Clear existing data for new questionnaire
-              surveyModel.clear();
-            }
-            
-            setIsLoading(false);
-          } else {
-            // Create new survey model only on first load
-            const survey = new Model(surveyConfig);
-            currentSurvey = survey;
-            
-            // Load existing survey data into survey
-            if (Object.keys(existingSurveyData).length > 0) {
-              survey.data = existingSurveyData;
-              console.log('Loaded existing survey data into survey:', existingSurveyData);
-            }
-
-            // Manual save handler
-            const handleManualSave = async (data: any) => {
-              if (!sessionData) return;
-              
-              setIsSaving(true);
-              onSaveStatusChange?.({ isSaving: true, lastSaved, hasUnsavedChanges });
-              try {
-                await onSave(data);
-                const savedTime = new Date();
-                setLastSaved(savedTime);
-                setHasUnsavedChanges(false);
-                onSaveStatusChange?.({ isSaving: false, lastSaved: savedTime, hasUnsavedChanges: false });
-              } catch (error) {
-                console.error('Save error:', error);
-                onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
-              } finally {
-                setIsSaving(false);
-              }
-            };
-
-            // Expose manual save function globally for button access
-            (window as any).surveyManualSave = () => {
-              if (survey) {
-                handleManualSave(survey.data);
-              }
-            };
-
-            // Set up event handlers
-            survey.onValueChanged.add((sender: Model, options: any) => {
-              setHasUnsavedChanges(true);
-              onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
-            });
-
-            // Save on page change
-            survey.onCurrentPageChanged.add((sender: Model) => {
-              handleManualSave(sender.data);
-            });
-
-            survey.onComplete.add(async (sender: Model) => {
-              // Save data first before completion
-              await handleManualSave(sender.data);
-              // Then trigger completion
-              onComplete(sender.data);
-            });
-
-            setSurveyModel(survey);
-            setIsLoading(false);
+          // Load existing survey data into survey
+          if (Object.keys(existingSurveyData).length > 0) {
+            survey.data = existingSurveyData;
+            console.log('Loaded existing survey data into survey:', existingSurveyData);
           }
+
+          // Manual save handler
+          const handleManualSave = async (data: any) => {
+            if (!sessionData) return;
+            
+            setIsSaving(true);
+            onSaveStatusChange?.({ isSaving: true, lastSaved, hasUnsavedChanges });
+            try {
+              await onSave(data);
+              const savedTime = new Date();
+              setLastSaved(savedTime);
+              setHasUnsavedChanges(false);
+              onSaveStatusChange?.({ isSaving: false, lastSaved: savedTime, hasUnsavedChanges: false });
+            } catch (error) {
+              console.error('Save error:', error);
+              onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
+            } finally {
+              setIsSaving(false);
+            }
+          };
+
+          // Expose manual save function globally for button access
+          (window as any).surveyManualSave = () => {
+            if (survey) {
+              handleManualSave(survey.data);
+            }
+          };
+
+          // Set up event handlers
+          survey.onValueChanged.add((sender: Model, options: any) => {
+            setHasUnsavedChanges(true);
+            onSaveStatusChange?.({ isSaving: false, lastSaved, hasUnsavedChanges: true });
+          });
+
+          // Save on page change
+          survey.onCurrentPageChanged.add((sender: Model) => {
+            handleManualSave(sender.data);
+          });
+
+          survey.onComplete.add(async (sender: Model) => {
+            // Save data first before completion
+            await handleManualSave(sender.data);
+            // Then trigger completion
+            onComplete(sender.data);
+          });
+
+          setSurveyModel(survey);
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Load error:', error);
