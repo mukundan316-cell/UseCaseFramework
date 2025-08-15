@@ -626,6 +626,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // GET /api/responses/user-sessions - Get all user sessions across questionnaires with progress
   app.get('/api/responses/user-sessions', async (req, res) => {
+    // Disable caching for dynamic session data
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
     console.log('=== GET /api/responses/user-sessions called ===');
     try {
       const userEmail = 'antonm1@hexaware.com'; // TODO: Get from session/auth
@@ -703,6 +708,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // GET /api/responses/check-session - Check for existing session
   app.get('/api/responses/check-session', async (req, res) => {
+    // Disable caching for dynamic session data
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
     try {
       const { questionnaireId } = req.query;
       

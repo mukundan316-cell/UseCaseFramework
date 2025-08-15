@@ -57,15 +57,7 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
     currentQuestionnaire && 
     (!knownSession || currentStatus === "not started");
   
-  // Debug logging to understand what's happening
-  console.log('Session check debug (updated):', {
-    questionnaireId,
-    questionnairesLength: questionnaires.length,
-    currentQuestionnaire: currentQuestionnaire?.definition.id,
-    knownSession,
-    currentStatus,
-    shouldSkipSessionCheck
-  });
+  // Session check optimization is working - debug logging removed
   
   const {
     responseSession,
@@ -97,7 +89,7 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
       
       // OPTIMIZATION: If we know from the questionnaires prop that no session exists, create one immediately
       // This skips the redundant session check API call that returns 404
-      const shouldCreateSession = knownSession === null || knownSession === undefined;
+      const shouldCreateSession = (!knownSession || currentStatus === "not started") && !responseSession;
       
       if (shouldCreateSession) {
         const userInfo = localStorage.getItem('assessmentUser');
@@ -288,14 +280,13 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
     );
   }
 
+  // No fallback screen - we automatically create sessions, so show loading instead
   if (!responseSession) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">No active assessment session found.</p>
-          <Button onClick={() => setLocation('/assessment')}>
-            Start New Assessment
-          </Button>
+        <div className="flex items-center space-x-3">
+          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-gray-600">Initializing assessment session...</span>
         </div>
       </div>
     );
