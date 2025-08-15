@@ -51,6 +51,20 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
   const currentQuestionnaire = questionnaires.find(q => q.definition.id === questionnaireId);
   const knownSession = currentQuestionnaire?.session;
   
+  // Only skip session check if we have questionnaires data AND no session exists
+  const shouldSkipSessionCheck = questionnaires.length > 0 && 
+    currentQuestionnaire && 
+    (knownSession === null || knownSession === undefined);
+  
+  // Debug logging to understand what's happening
+  console.log('Session check debug:', {
+    questionnaireId,
+    questionnairesLength: questionnaires.length,
+    currentQuestionnaire: currentQuestionnaire?.definition.id,
+    knownSession,
+    shouldSkipSessionCheck
+  });
+  
   const {
     responseSession,
     isLoadingQuestionnaire,
@@ -66,7 +80,7 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
     isStartingResponse,
     sessionError
   } = useQuestionnaire(questionnaireId, { 
-    skipSessionCheck: knownSession === null || knownSession === undefined 
+    skipSessionCheck: shouldSkipSessionCheck
   });
 
   const [showResetDialog, setShowResetDialog] = useState(false);
