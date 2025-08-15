@@ -99,7 +99,6 @@ export default function SurveyJsAssessment({ questionnaireId: propQuestionnaireI
   return (
     <div className="min-h-screen bg-gray-50">
       <SurveyJsContainer 
-        key={activeQuestionnaireId} // Force re-render when questionnaire changes
         questionnaireId={activeQuestionnaireId}
         ref={surveyContainerRef}
         questionnaires={questionnairesWithProgress}
