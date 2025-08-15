@@ -47,6 +47,10 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
+  // Get current questionnaire info from props to optimize session handling
+  const currentQuestionnaire = questionnaires.find(q => q.definition.id === questionnaireId);
+  const knownSession = currentQuestionnaire?.session;
+  
   const {
     responseSession,
     isLoadingQuestionnaire,
@@ -67,14 +71,18 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
   const [isCompleting, setIsCompleting] = useState(false);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
 
-  // Handle automatic session creation when navigating to questionnaires without existing sessions
+  // Handle automatic session creation - optimized approach
   useEffect(() => {
     const createSessionIfNeeded = async () => {
-      // If we're already checking session or have a session, don't create
-      if (isCheckingSession || responseSession || isStartingResponse || isCreatingSession) return;
+      // If we already have a session or are creating one, don't proceed
+      if (responseSession || isStartingResponse || isCreatingSession) return;
       
-      // Check if we have a 404 error (no session found) and user info in localStorage
-      if (sessionError && (sessionError as any).status === 404) {
+      // OPTIMIZATION: If we know from the questionnaires prop that no session exists, create one immediately
+      // This skips the redundant session check API call that returns 404
+      const shouldCreateSession = knownSession === null || knownSession === undefined || 
+                                 (sessionError && (sessionError as any).status === 404);
+      
+      if (shouldCreateSession && !isCheckingSession) {
         const userInfo = localStorage.getItem('assessmentUser');
         if (!userInfo) {
           // No user info available - redirect to start page
@@ -91,6 +99,7 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
           setIsCreatingSession(true);
           const { email, name } = JSON.parse(userInfo);
           
+          console.log('Creating session proactively for unstarted questionnaire:', questionnaireId);
           const result = await startResponseAsync({
             questionnaireId,
             respondentEmail: email,
@@ -116,7 +125,7 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
     };
 
     createSessionIfNeeded();
-  }, [questionnaireId, isCheckingSession, responseSession, sessionError, isStartingResponse, isCreatingSession, startResponseAsync, toast, setLocation]);
+  }, [questionnaireId, knownSession, isCheckingSession, responseSession, sessionError, isStartingResponse, isCreatingSession, startResponseAsync, toast, setLocation]);
 
   // Store handlers in refs to make them stable - never re-create
   const handlersRef = useRef({
