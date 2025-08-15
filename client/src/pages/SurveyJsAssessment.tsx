@@ -25,6 +25,10 @@ export default function SurveyJsAssessment({ questionnaireId: propQuestionnaireI
 
   // Use selection hook's selected ID, fallback to initial prop/param
   const activeQuestionnaireId = selectedQuestionnaireId || initialQuestionnaireId;
+  
+  // Check if selected questionnaire has no session and needs one created
+  const selectedQuestionnaire = questionnairesWithProgress.find(q => q.definition.id === activeQuestionnaireId);
+  const needsSessionCreation = selectedQuestionnaire && !selectedQuestionnaire.session;
 
   const handleQuestionnaireSwitch = async (newQuestionnaireId: string) => {
     try {
@@ -65,8 +69,21 @@ export default function SurveyJsAssessment({ questionnaireId: propQuestionnaireI
     );
   }
 
-  // Show loading while waiting for auto-selection or if no questionnaires
-  if (!activeQuestionnaireId && !isLoading) {
+  // Show a simple message if no questionnaire is selected yet
+  if (!activeQuestionnaireId) {
+    if (isLoading) {
+      return (
+        <div className="flex h-screen">
+          <div className="flex items-center justify-center w-full">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">Loading Assessments...</h2>
+              <p className="text-gray-600">Please wait while we fetch your available assessments.</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="flex h-screen">
         <div className="flex items-center justify-center w-full">

@@ -205,7 +205,8 @@ export function useQuestionnaire(questionnaireId: string) {
     queryKey: ['session', questionnaireId],
     queryFn: () => apiRequest(`/api/responses/check-session?questionnaireId=${questionnaireId}`),
     enabled: !!questionnaireId,
-    staleTime: 0, // Always check for latest session
+    staleTime: 30 * 1000, // Cache for 30 seconds to prevent excessive 404s
+    refetchInterval: false, // Don't auto-refetch to prevent 404 loops
     retry: (failureCount, error: any) => {
       // Don't retry if it's a 404 (no session found)
       if (error?.status === 404) return false;

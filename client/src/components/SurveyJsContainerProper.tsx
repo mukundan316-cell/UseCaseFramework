@@ -91,8 +91,6 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
           setIsCreatingSession(true);
           const { email, name } = JSON.parse(userInfo);
           
-          console.log(`Creating session for questionnaire ${questionnaireId} for user ${email}`);
-          
           const result = await startResponseAsync({
             questionnaireId,
             respondentEmail: email,
@@ -102,10 +100,8 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
           toast({
             title: "Assessment Session Created",
             description: "Your assessment session has been initialized.",
-            duration: 3000
+            duration: 2000
           });
-
-          console.log('Session created successfully:', result);
         } catch (error: any) {
           console.error('Failed to create session:', error);
           toast({
@@ -247,8 +243,11 @@ export const SurveyJsContainer = forwardRef<SurveyJsContainerRef, SurveyJsContai
     }
   }), [responseSession, handleSave]);
 
-  // Show loading state
-  if (isLoadingQuestionnaire || isCheckingSession || isCreatingSession) {
+  // Show loading state - but don't show loading if session check failed with 404 (no session exists)
+  const shouldShowLoading = isLoadingQuestionnaire || isCreatingSession || 
+    (isCheckingSession && !(sessionError && (sessionError as any).status === 404));
+  
+  if (shouldShowLoading) {
     const loadingMessage = isCreatingSession 
       ? "Setting up your assessment session..." 
       : "Loading assessment...";

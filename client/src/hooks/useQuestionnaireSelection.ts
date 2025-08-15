@@ -77,49 +77,44 @@ export function useQuestionnaireSelection() {
   const selectDefaultQuestionnaire = (): string | null => {
     if (questionnairesWithProgress.length === 0) return null;
     
-    console.log('Auto-selecting questionnaire, available options:', questionnairesWithProgress.map(q => ({
-      id: q.definition.id,
-      title: q.definition.title,
-      isStarted: q.isStarted,
-      isCompleted: q.isCompleted,
-      progressPercent: q.progressPercent
-    })));
-    
     // 1. Find first started (in progress) assessment
     const started = questionnairesWithProgress.find(q => q.isStarted && !q.isCompleted);
     if (started) {
-      console.log('Auto-selected first started assessment:', started.definition.title);
       return started.definition.id;
     }
     
     // 2. Find first unstarted assessment
     const unstarted = questionnairesWithProgress.find(q => !q.isStarted);
     if (unstarted) {
-      console.log('Auto-selected first unstarted assessment:', unstarted.definition.title);
       return unstarted.definition.id;
     }
     
     // 3. Find first completed assessment
     const completed = questionnairesWithProgress.find(q => q.isCompleted);
     if (completed) {
-      console.log('Auto-selected first completed assessment:', completed.definition.title);
       return completed.definition.id;
     }
     
     // Fallback to first questionnaire
-    console.log('Auto-selected fallback assessment:', questionnairesWithProgress[0].definition.title);
     return questionnairesWithProgress[0].definition.id;
   };
 
   // Auto-select default questionnaire when data loads
   useEffect(() => {
-    if (!selectedQuestionnaireId && questionnairesWithProgress.length > 0) {
+    if (!selectedQuestionnaireId && questionnairesWithProgress.length > 0 && !isLoadingDefinitions && !isLoadingSessions) {
       const defaultId = selectDefaultQuestionnaire();
       if (defaultId) {
         setSelectedQuestionnaireId(defaultId);
+        
+        // Check if the selected questionnaire needs a session created
+        const selectedQuestionnaire = questionnairesWithProgress.find(q => q.definition.id === defaultId);
+        if (selectedQuestionnaire && !selectedQuestionnaire.session) {
+          // This is an unstarted questionnaire - we'll need to create a session
+          console.log('Auto-selected unstarted questionnaire, session will be created automatically');
+        }
       }
     }
-  }, [questionnairesWithProgress.length, selectedQuestionnaireId]);
+  }, [questionnairesWithProgress.length, selectedQuestionnaireId, isLoadingDefinitions, isLoadingSessions, questionnairesWithProgress]);
 
   const selectQuestionnaire = (questionnaireId: string) => {
     setSelectedQuestionnaireId(questionnaireId);
