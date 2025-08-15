@@ -42,8 +42,8 @@ export function useUserSessions() {
 }
 
 export function useQuestionnaireSelection() {
-  const { data: definitions = [] } = useQuestionnaireDefinitions();
-  const { data: userSessions = [] } = useUserSessions();
+  const { data: definitions = [], isLoading: isLoadingDefinitions } = useQuestionnaireDefinitions();
+  const { data: userSessions = [], isLoading: isLoadingSessions } = useUserSessions();
   
   const [selectedQuestionnaireId, setSelectedQuestionnaireId] = useState<string | null>(null);
 
@@ -131,6 +131,6 @@ export function useQuestionnaireSelection() {
     selectedQuestionnaireId,
     selectedQuestionnaire,
     selectQuestionnaire,
-    isLoading: !definitions.length || !userSessions.length
+    isLoading: isLoadingDefinitions || isLoadingSessions
   };
 }
