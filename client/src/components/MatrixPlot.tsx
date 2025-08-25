@@ -21,7 +21,7 @@ export default function MatrixPlot() {
       y: effectiveImpact, // Use effective impact score (manual override or calculated)
       name: useCase.title,
       quadrant: effectiveQuadrant,
-      color: getQuadrantColor(effectiveQuadrant),
+      color: getQuadrantColor(effectiveQuadrant as any),
       useCase: useCase,
       isRecommended: !!useCase.recommendedByAssessment // Flag for recommendation highlighting
     };
