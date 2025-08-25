@@ -327,16 +327,16 @@ export default function ImprovedUseCaseExplorer({
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredUseCases.map((useCase) => (
-            <div key={useCase.id} onClick={() => handleViewUseCase(useCase)} className="cursor-pointer">
-              <CleanUseCaseCard
-                useCase={useCase}
-                showScores={showQuadrantFilters}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onMoveToLibrary={showRSASelection ? handleMoveToLibrary : undefined}
-                showRSAActions={showRSASelection}
-              />
-            </div>
+            <CleanUseCaseCard
+              key={useCase.id}
+              useCase={useCase}
+              showScores={showQuadrantFilters}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onMoveToLibrary={showRSASelection ? handleMoveToLibrary : undefined}
+              showRSAActions={showRSASelection}
+              onView={handleViewUseCase}
+            />
           ))}
         </div>
       )}

@@ -12,6 +12,7 @@ interface CleanUseCaseCardProps {
   onDelete?: (useCase: UseCase) => void;
   onMoveToLibrary?: (useCase: UseCase) => void;
   showRSAActions?: boolean;
+  onView?: (useCase: UseCase) => void;
 }
 
 export default function CleanUseCaseCard({
@@ -20,7 +21,8 @@ export default function CleanUseCaseCard({
   onEdit,
   onDelete,
   onMoveToLibrary,
-  showRSAActions = false
+  showRSAActions = false,
+  onView
 }: CleanUseCaseCardProps) {
   
   // Get quadrant-based styling for RSA cases with scores
@@ -58,8 +60,9 @@ export default function CleanUseCaseCard({
   
   return (
     <div 
-      className={`border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200 ${bgClass}`}
+      className={`border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200 ${bgClass} ${onView ? 'cursor-pointer' : ''}`}
       style={{ borderLeft: `4px solid ${borderColor}` }}
+      onClick={() => onView?.(useCase)}
     >
       <div className="p-5">
         {/* Source Badge */}
