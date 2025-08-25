@@ -8,6 +8,7 @@ import { useUseCases } from '../../contexts/UseCaseContext';
 import { UseCase } from '../../types';
 import CleanUseCaseCard from './CleanUseCaseCard';
 import CRUDUseCaseModal from './CRUDUseCaseModal';
+import UseCaseDrawer from './UseCaseDrawer';
 import SourceLegend from './SourceLegend';
 
 interface ImprovedUseCaseExplorerProps {
@@ -41,6 +42,8 @@ export default function ImprovedUseCaseExplorer({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedUseCase, setSelectedUseCase] = useState<UseCase | undefined>();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerUseCase, setDrawerUseCase] = useState<UseCase | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   // Filters
@@ -94,6 +97,18 @@ export default function ImprovedUseCaseExplorer({
     setSelectedUseCase(useCase);
     setIsModalOpen(true);
     onEdit?.(useCase);
+  };
+
+  const handleViewUseCase = (useCase: UseCase) => {
+    setDrawerUseCase(useCase);
+    setIsDrawerOpen(true);
+  };
+
+  const handleEditFromDrawer = () => {
+    if (drawerUseCase) {
+      setIsDrawerOpen(false);
+      handleEdit(drawerUseCase);
+    }
   };
 
   const handleDelete = async (useCase: UseCase) => {
@@ -309,15 +324,16 @@ export default function ImprovedUseCaseExplorer({
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredUseCases.map((useCase) => (
-            <CleanUseCaseCard
-              key={useCase.id}
-              useCase={useCase}
-              showScores={showQuadrantFilters}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onMoveToLibrary={showRSASelection ? handleMoveToLibrary : undefined}
-              showRSAActions={showRSASelection}
-            />
+            <div key={useCase.id} onClick={() => handleViewUseCase(useCase)} className="cursor-pointer">
+              <CleanUseCaseCard
+                useCase={useCase}
+                showScores={showQuadrantFilters}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onMoveToLibrary={showRSASelection ? handleMoveToLibrary : undefined}
+                showRSAActions={showRSASelection}
+              />
+            </div>
           ))}
         </div>
       )}
@@ -328,6 +344,14 @@ export default function ImprovedUseCaseExplorer({
         onClose={() => setIsModalOpen(false)}
         mode={modalMode}
         useCase={selectedUseCase}
+      />
+
+      {/* Use Case Drawer */}
+      <UseCaseDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onEdit={handleEditFromDrawer}
+        useCase={drawerUseCase}
       />
     </div>
   );

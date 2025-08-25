@@ -312,14 +312,20 @@ export default function CleanUseCaseCard({
         <div className="flex justify-between items-center gap-2 pt-3 border-t border-gray-100">
           <div className="flex gap-1">
             <button
-              onClick={() => onEdit?.(useCase)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(useCase);
+              }}
               className="inline-flex items-center px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded border-none bg-transparent transition-colors"
             >
               <Edit className="h-3 w-3 mr-1" />
               Edit
             </button>
             <button
-              onClick={() => onDelete?.(useCase)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(useCase);
+              }}
               className="inline-flex items-center px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded border-none bg-transparent transition-colors"
             >
               <Trash2 className="h-3 w-3 mr-1" />
@@ -329,7 +335,10 @@ export default function CleanUseCaseCard({
           
           {showRSAActions && (
             <button
-              onClick={() => onMoveToLibrary?.(useCase)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveToLibrary?.(useCase);
+              }}
               className="inline-flex items-center px-2 py-1.5 text-xs text-orange-600 hover:bg-orange-50 rounded border-none bg-transparent transition-colors"
             >
               <Library className="h-3 w-3 mr-1" />
