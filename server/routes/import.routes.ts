@@ -13,13 +13,20 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-      'application/vnd.ms-excel' // .xls
+      'application/vnd.ms-excel', // .xls
+      'application/octet-stream' // Sometimes Excel files are detected as this
     ];
     
-    if (allowedTypes.includes(file.mimetype)) {
+    // Also check file extension as backup
+    const fileName = file.originalname.toLowerCase();
+    const hasValidExtension = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+    
+    console.log('File upload - Name:', file.originalname, 'MIME:', file.mimetype);
+    
+    if (allowedTypes.includes(file.mimetype) || hasValidExtension) {
       cb(null, true);
     } else {
-      cb(new Error('Only Excel files (.xlsx, .xls) are allowed'), false);
+      cb(new Error('Only Excel files (.xlsx, .xls) are allowed'));
     }
   }
 });

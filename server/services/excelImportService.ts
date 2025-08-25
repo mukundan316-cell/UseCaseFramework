@@ -226,24 +226,26 @@ export class ExcelImportService {
     
     const getValue = (columnName: string): any => {
       const index = headers.findIndex(h => h === columnName);
-      return index >= 0 ? row[index] : undefined;
+      const value = index >= 0 ? row[index] : undefined;
+      // Convert empty strings to null for proper validation
+      return value === '' ? null : value;
     };
 
     const title = getValue('Title');
     if (!title) return null;
 
-    // Base use case data
+    // Base use case data - handle empty strings properly
     const useCase: Partial<InsertUseCase> = {
       title: title,
       description: getValue('Description') || '',
-      problemStatement: getValue('Problem Statement') || null,
+      problemStatement: getValue('Problem Statement'),
       process: getValue('Process') || '',
       lineOfBusiness: getValue('Line of Business') || '',
       businessSegment: getValue('Business Segment') || '',
       geography: getValue('Geography') || '',
       useCaseType: getValue('Use Case Type') || 'Process',
       useCaseStatus: getValue('Use Case Status') || 'Reference',
-      librarySource: getValue('Library Source') || 'Manual Entry',
+      librarySource: getValue('Library Source') || 'rsa_internal',
       isActiveForRsa: (getValue('Portfolio Status')?.toLowerCase().includes('active') || false) ? 'true' : 'false',
       isDashboardVisible: (getValue('Dashboard Visible') === 'Yes' || getValue('Dashboard Visible') === true) ? 'true' : 'false',
       activationReason: getValue('Activation Reason') || null,
