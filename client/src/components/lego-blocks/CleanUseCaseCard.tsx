@@ -60,8 +60,10 @@ export default function CleanUseCaseCard({
   
   return (
     <div 
-      className={`border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200 ${bgClass}`}
+      className={`border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200 cursor-pointer ${bgClass}`}
       style={{ borderLeft: `4px solid ${borderColor}` }}
+      onClick={() => onView?.(useCase)}
+      data-testid="card-usecase"
     >
       <div className="p-5">
         {/* Source Badge */}
@@ -313,18 +315,11 @@ export default function CleanUseCaseCard({
         {/* Action Buttons */}
         <div className="flex justify-between items-center gap-2 pt-3 border-t border-gray-100">
           <div className="flex gap-1">
-            {onView && (
-              <button
-                onClick={() => onView(useCase)}
-                className="inline-flex items-center px-2 py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded border-none bg-transparent transition-colors"
-                data-testid="button-view"
-              >
-                <Eye className="h-3 w-3 mr-1" />
-                View
-              </button>
-            )}
             <button
-              onClick={() => onEdit?.(useCase)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
+                onEdit?.(useCase);
+              }}
               className="inline-flex items-center px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded border-none bg-transparent transition-colors"
               data-testid="button-edit"
             >
@@ -332,7 +327,10 @@ export default function CleanUseCaseCard({
               Edit
             </button>
             <button
-              onClick={() => onDelete?.(useCase)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
+                onDelete?.(useCase);
+              }}
               className="inline-flex items-center px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded border-none bg-transparent transition-colors"
               data-testid="button-delete"
             >
@@ -343,8 +341,12 @@ export default function CleanUseCaseCard({
           
           {showRSAActions && (
             <button
-              onClick={() => onMoveToLibrary?.(useCase)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
+                onMoveToLibrary?.(useCase);
+              }}
               className="inline-flex items-center px-2 py-1.5 text-xs text-orange-600 hover:bg-orange-50 rounded border-none bg-transparent transition-colors"
+              data-testid="button-move-to-library"
             >
               <Library className="h-3 w-3 mr-1" />
               Move to Library
