@@ -652,7 +652,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                           <p className="text-sm text-emerald-800 font-medium">AI Inventory Item Selected</p>
                         </div>
                         <p className="text-sm text-emerald-700 mt-1">
-                          Additional AI governance fields are available on the <strong>"Implementation & Governance"</strong> tab.
+                          AI Inventory governance fields are available on the <strong>"Implementation & Governance"</strong> tab below the RSA Ethical Principles section.
                         </p>
                       </div>
                     )}
@@ -1065,8 +1065,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
 
                 {/* AI Inventory Governance Section - Only show for AI inventory */}
                 {form.watch('librarySource') === 'ai_inventory' && (
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-gray-900">AI Inventory Governance</h4>
+                  <div className="space-y-4 border-l-4 border-emerald-500 pl-4 bg-emerald-50/30 p-4 rounded-lg">
+                    <h4 className="font-medium text-emerald-800 text-lg flex items-center gap-2">
+                      <FolderOpen className="h-5 w-5" />
+                      AI Inventory Governance
+                    </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
