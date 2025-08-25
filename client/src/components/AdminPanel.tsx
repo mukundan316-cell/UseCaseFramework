@@ -219,6 +219,12 @@ export default function AdminPanel() {
                     items={metadata.useCaseTypes}
                     placeholder="Add new use case type..."
                   />
+                  <MetadataLegoBlock
+                    category="sourceTypes"
+                    title="Source Types"
+                    items={metadata.sourceTypes || []}
+                    placeholder="Add new source type..."
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -300,14 +306,6 @@ export default function AdminPanel() {
               {/* Scoring Model Management */}
               <div className="space-y-6">
                 <ScoringModelManagementBlock />
-                
-                {/* Source Type Management */}
-                <MetadataLegoBlock
-                  category="sourceTypes"
-                  title="Source Types"
-                  items={metadata.sourceTypes}
-                  placeholder="Add new source type..."
-                />
               </div>
             </TabsContent>
           </Tabs>
