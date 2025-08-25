@@ -87,12 +87,14 @@ export default function ImprovedUseCaseExplorer({
   });
 
   const handleCreate = () => {
+    console.log('handleCreate called - Opening CREATE modal');
     setModalMode('create');
     setSelectedUseCase(undefined);
     setIsModalOpen(true);
   };
 
   const handleEdit = (useCase: UseCase) => {
+    console.log('handleEdit called - Opening EDIT modal for:', useCase.title);
     setModalMode('edit');
     setSelectedUseCase(useCase);
     setIsModalOpen(true);
