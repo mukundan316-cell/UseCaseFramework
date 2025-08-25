@@ -84,6 +84,7 @@ export default function UseCaseDetailDrawer({
   // Check data availability for conditional rendering
   const extendedUseCase = useCase as any; // Cast to access extended fields
   const isAiInventory = useCase.librarySource === 'ai_inventory';
+  const isActiveForRsa = extendedUseCase.isActiveForRsa === 'true' || extendedUseCase.isActiveForRsa === true;
   
   const hasImplementationData = !!(
     extendedUseCase.primaryBusinessOwner || 
@@ -332,12 +333,14 @@ export default function UseCaseDetailDrawer({
             <AccordionTrigger className="px-4 py-3 hover:no-underline">
               <div className="flex items-center">
                 <Target className="w-4 h-4 mr-2 text-blue-600" />
-                <span className="font-semibold text-gray-900">Overview & Scoring</span>
+                <span className="font-semibold text-gray-900">
+                  {isActiveForRsa ? 'Overview & Scoring' : 'Overview'}
+                </span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 space-y-4">
-              {/* Scoring Section - Hidden for AI Inventory */}
-              {hasScores && !isAiInventory && (
+              {/* Scoring Section - Hidden for AI Inventory and Reference Library */}
+              {hasScores && !isAiInventory && isActiveForRsa && (
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <ScoreDisplay 
