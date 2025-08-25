@@ -8,15 +8,15 @@ npm run dev  # Starts application on port 5000
 ```
 
 ## Core Features
-- **AI Use Case Management**: Complete CRUD with RSA 12-lever scoring framework
-- **Assessment System**: 6-section AI maturity questionnaire with 14 advanced question types  
+- **AI Use Case Management**: Complete CRUD with RSA 10-lever scoring framework
+- **Assessment System**: 6-section AI maturity questionnaire with 25+ advanced question types  
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts
 - **PDF Export System**: Professional reports for use cases, assessments, and portfolios
 - **Manual Override System**: Toggle-based score customization
 - **LEGO Architecture**: Reusable component design throughout
 
 ## Database
-- **PostgreSQL**: 12 tables with JSONB support for complex data types
+- **PostgreSQL**: 4 core tables with hybrid JSON blob storage for questionnaires
 - **Live Data**: 25 use cases, multiple assessment responses with structured answers
 
 ## Tech Stack
