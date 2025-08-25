@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UseCaseProvider } from "./contexts/UseCaseContext";
 import HomePage from "./pages/HomePage";
-import ProcessActivityTest from "./components/lego-blocks/ProcessActivityTest";
+import ProcessActivityManagementBlock from "./components/lego-blocks/ProcessActivityManagementBlock";
 import QuestionLegoBlockDemo from "./components/lego-blocks/QuestionLegoBlockDemo";
 import SectionLegoBlockDemo from "./components/lego-blocks/SectionLegoBlockDemo";
 import SmartRatingLegoBlockDemo from "./components/lego-blocks/SmartRatingLegoBlockDemo";
@@ -26,7 +26,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
-      <Route path="/test" component={ProcessActivityTest} />
+      <Route path="/test" component={ProcessActivityManagementBlock} />
       <Route path="/question-demo" component={QuestionLegoBlockDemo} />
       <Route path="/section-demo" component={SectionLegoBlockDemo} />
       <Route path="/smart-rating-demo" component={SmartRatingLegoBlockDemo} />
