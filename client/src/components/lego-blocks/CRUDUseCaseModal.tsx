@@ -665,17 +665,19 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                   )}
                 </div>
 
-                {/* RSA Portfolio Selection - Only on Tab 1 */}
-                <RSASelectionToggleLegoBlock
-                  isActiveForRsa={rsaSelection.isActiveForRsa}
-                  isDashboardVisible={rsaSelection.isDashboardVisible}
-                  activationReason={rsaSelection.activationReason}
-                  libraryTier={rsaSelection.libraryTier}
-                  onRSAToggle={handleRSAToggle}
-                  onDashboardToggle={handleDashboardToggle}
-                  onActivationReasonChange={handleActivationReasonChange}
-                  className="mb-6"
-                />
+                {/* RSA Portfolio Selection - Only for strategic use cases, not AI Inventory */}
+                {form.watch('librarySource') !== 'ai_inventory' && (
+                  <RSASelectionToggleLegoBlock
+                    isActiveForRsa={rsaSelection.isActiveForRsa}
+                    isDashboardVisible={rsaSelection.isDashboardVisible}
+                    activationReason={rsaSelection.activationReason}
+                    libraryTier={rsaSelection.libraryTier}
+                    onRSAToggle={handleRSAToggle}
+                    onDashboardToggle={handleDashboardToggle}
+                    onActivationReasonChange={handleActivationReasonChange}
+                    className="mb-6"
+                  />
+                )}
               </TabsContent>
 
               {/* Tab 2: Business Context */}
