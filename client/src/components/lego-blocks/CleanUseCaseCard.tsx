@@ -94,70 +94,171 @@ export default function CleanUseCaseCard({
 
         {/* Conditional Context Display - AI Inventory vs Strategic Use Cases */}
         <div className="space-y-1.5 mb-3">
-          {useCase.librarySource === 'sharepoint_import' ? (
+          {useCase.librarySource === 'ai_inventory' ? (
             // AI Inventory Governance Information (Purple theme)
             <>
-              {/* AI/Model Classification */}
-              {(useCase as any).aiOrModel && (
-                <div className="flex items-center text-xs text-purple-700">
-                  <Tag className="w-3 h-3 mr-1.5 text-purple-600" />
-                  <span className="font-medium">{(useCase as any).aiOrModel} System</span>
-                </div>
-              )}
+              {/* AI/Model Classification & Status */}
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                {(useCase as any).aiOrModel && (
+                  <div className="flex items-center text-xs text-purple-700">
+                    <Tag className="w-3 h-3 mr-1.5 text-purple-600" />
+                    <span className="font-medium">{(useCase as any).aiOrModel} System</span>
+                  </div>
+                )}
+                {(useCase as any).useCaseStatus && (
+                  <div className="flex items-center text-xs text-slate-700">
+                    <Settings className="w-3 h-3 mr-1.5 text-slate-600" />
+                    <span className="font-medium">{(useCase as any).useCaseStatus}</span>
+                  </div>
+                )}
+              </div>
               
-              {/* Model Owner */}
+              {/* Process & Business Context */}
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                {useCase.process && (
+                  <div className="flex items-center text-xs text-blue-700">
+                    <Building2 className="w-3 h-3 mr-1.5 text-blue-600" />
+                    <span className="font-medium">{useCase.process}</span>
+                  </div>
+                )}
+                {useCase.lineOfBusiness && (
+                  <div className="flex items-center text-xs text-indigo-700">
+                    <Tag className="w-3 h-3 mr-1.5 text-indigo-600" />
+                    <span className="font-medium">{useCase.lineOfBusiness}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Model Owner & Data Used */}
               {(useCase as any).modelOwner && (
-                <div className="flex items-center text-xs text-indigo-700">
-                  <Users className="w-3 h-3 mr-1.5 text-indigo-600" />
+                <div className="flex items-center text-xs text-violet-700 mb-1">
+                  <Users className="w-3 h-3 mr-1.5 text-violet-600" />
                   <span className="font-medium">Owner: {(useCase as any).modelOwner}</span>
                 </div>
               )}
+              {(useCase as any).dataUsed && (
+                <div className="flex items-center text-xs text-teal-700 mb-1">
+                  <Tag className="w-3 h-3 mr-1.5 text-teal-600" />
+                  <span className="font-medium">Data: {(useCase as any).dataUsed}</span>
+                </div>
+              )}
 
-              {/* Risk Level Indicator */}
+              {/* Risk Assessment */}
               {((useCase as any).riskToCustomers || (useCase as any).riskToRsa) && (
-                <div className="flex items-center text-xs text-amber-700">
-                  <AlertTriangle className="w-3 h-3 mr-1.5 text-amber-600" />
-                  <span className="font-medium">Risk Assessment Available</span>
+                <div className="bg-amber-50 p-2 rounded border border-amber-200 mb-2">
+                  <div className="flex items-center text-xs text-amber-800 mb-1">
+                    <AlertTriangle className="w-3 h-3 mr-1.5 text-amber-600" />
+                    <span className="font-semibold">Risk Assessment</span>
+                  </div>
+                  {(useCase as any).riskToCustomers && (
+                    <div className="text-xs text-amber-700 mb-1">
+                      <span className="font-medium">Customer:</span> {(useCase as any).riskToCustomers}
+                    </div>
+                  )}
+                  {(useCase as any).riskToRsa && (
+                    <div className="text-xs text-amber-700">
+                      <span className="font-medium">RSA:</span> {(useCase as any).riskToRsa}
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Validation Responsibility */}
-              {(useCase as any).validationResponsibility && (
-                <div className="flex items-center text-xs text-violet-700">
-                  <Settings className="w-3 h-3 mr-1.5 text-violet-600" />
-                  <span className="font-medium">{(useCase as any).validationResponsibility} Validation</span>
-                </div>
-              )}
+              {/* Governance & Compliance */}
+              <div className="grid grid-cols-2 gap-3">
+                {(useCase as any).rsaPolicyGovernance && (
+                  <div className="flex items-center text-xs text-purple-700">
+                    <Settings className="w-3 h-3 mr-1.5 text-purple-600" />
+                    <span className="font-medium">Policy: {(useCase as any).rsaPolicyGovernance}</span>
+                  </div>
+                )}
+                {(useCase as any).thirdPartyModel && (
+                  <div className="flex items-center text-xs text-orange-700">
+                    <ExternalLink className="w-3 h-3 mr-1.5 text-orange-600" />
+                    <span className="font-medium">3rd Party: {(useCase as any).thirdPartyModel}</span>
+                  </div>
+                )}
+              </div>
 
-              {/* Third Party Indicator */}
-              {(useCase as any).thirdPartyModel === 'yes' && (
-                <div className="flex items-center text-xs text-orange-700">
-                  <ExternalLink className="w-3 h-3 mr-1.5 text-orange-600" />
-                  <span className="font-medium">Third Party Model</span>
-                </div>
-              )}
+              {/* Validation & Contact */}
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                {(useCase as any).validationResponsibility && (
+                  <div className="flex items-center text-xs text-violet-700">
+                    <Settings className="w-3 h-3 mr-1.5 text-violet-600" />
+                    <span className="font-medium">{(useCase as any).validationResponsibility} Validation</span>
+                  </div>
+                )}
+                {(useCase as any).informedBy && (
+                  <div className="flex items-center text-xs text-gray-700">
+                    <Users className="w-3 h-3 mr-1.5 text-gray-600" />
+                    <span className="font-medium">{(useCase as any).informedBy}</span>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
-            // Strategic Use Case Business Context (Original theme)
+            // Strategic Use Case Business Context (Enhanced with more fields)
             <>
-              <div className="flex items-center text-xs text-blue-700">
-                <Settings className="w-3 h-3 mr-1.5 text-blue-600" />
-                <span className="font-medium">{useCase.process}</span>
+              {/* Primary Business Context */}
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                {useCase.process && (
+                  <div className="flex items-center text-xs text-blue-700">
+                    <Settings className="w-3 h-3 mr-1.5 text-blue-600" />
+                    <span className="font-medium">{useCase.process}</span>
+                  </div>
+                )}
+                {useCase.useCaseType && (
+                  <div className="flex items-center text-xs text-orange-700">
+                    <Tag className="w-3 h-3 mr-1.5 text-orange-600" />
+                    <span className="font-medium">{useCase.useCaseType}</span>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center text-xs text-purple-700">
-                <Building2 className="w-3 h-3 mr-1.5 text-purple-600" />
-                <span className="font-medium">{useCase.lineOfBusiness}</span>
+
+              {/* Business Segments */}
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                {useCase.lineOfBusiness && (
+                  <div className="flex items-center text-xs text-purple-700">
+                    <Building2 className="w-3 h-3 mr-1.5 text-purple-600" />
+                    <span className="font-medium">{useCase.lineOfBusiness}</span>
+                  </div>
+                )}
+                {useCase.businessSegment && (
+                  <div className="flex items-center text-xs text-indigo-700">
+                    <Tag className="w-3 h-3 mr-1.5 text-indigo-600" />
+                    <span className="font-medium">{useCase.businessSegment}</span>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center text-xs text-orange-700">
-                <Tag className="w-3 h-3 mr-1.5 text-orange-600" />
-                <span className="font-medium">{useCase.useCaseType}</span>
+
+              {/* Geography & Primary Owner */}
+              <div className="grid grid-cols-2 gap-3">
+                {useCase.geography && (
+                  <div className="flex items-center text-xs text-green-700">
+                    <Building2 className="w-3 h-3 mr-1.5 text-green-600" />
+                    <span className="font-medium">{useCase.geography}</span>
+                  </div>
+                )}
+                {(useCase as any).primaryBusinessOwner && (
+                  <div className="flex items-center text-xs text-violet-700">
+                    <Users className="w-3 h-3 mr-1.5 text-violet-600" />
+                    <span className="font-medium">{(useCase as any).primaryBusinessOwner}</span>
+                  </div>
+                )}
               </div>
+
+              {/* Implementation Status */}
+              {(useCase as any).useCaseStatus && (
+                <div className="flex items-center text-xs text-slate-700 mt-2">
+                  <Settings className="w-3 h-3 mr-1.5 text-slate-600" />
+                  <span className="font-medium">Status: {(useCase as any).useCaseStatus}</span>
+                </div>
+              )}
             </>
           )}
         </div>
 
         {/* Scores Display - Only for Strategic Use Cases (not AI inventory) with RSA Active Portfolio */}
-        {hasScores && effectiveImpact !== undefined && effectiveEffort !== undefined && useCase.librarySource !== 'sharepoint_import' && (
+        {hasScores && effectiveImpact !== undefined && effectiveEffort !== undefined && useCase.librarySource !== 'ai_inventory' && (
           <div className="mb-4">
             {/* Quadrant Badge with Override Indicator */}
             <div className="mb-3 text-center">
