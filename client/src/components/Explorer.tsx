@@ -6,6 +6,7 @@ import ImprovedUseCaseExplorer from './lego-blocks/ImprovedUseCaseExplorer';
 export default function ExplorerEnhanced() {
   const { 
     useCases,
+    dashboardUseCases,
     referenceUseCases,
     deleteUseCase,
     activateUseCase,
@@ -36,7 +37,7 @@ export default function ExplorerEnhanced() {
 
           <TabsContent value="active" className="space-y-6">
             <ImprovedUseCaseExplorer
-              useCases={useCases || []}
+              useCases={dashboardUseCases || []}
               title="RSA Active Portfolio"
               description="Use cases selected for RSA implementation with completed scoring and prioritization"
               showQuadrantFilters={true}
