@@ -110,7 +110,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   overrideReason: z.union([z.string(), z.null()]).optional(),
   // Tab 3: Implementation & Governance fields
   primaryBusinessOwner: z.string().optional(),
-  useCaseStatus: z.enum(['Discovery', 'Backlog', 'In-flight', 'Implemented', 'On Hold']).optional(),
+  useCaseStatus: z.string().optional(), // Now dynamic from metadata
   keyDependencies: z.string().optional(),
   implementationTimeline: z.string().optional(),
   successMetrics: z.string().optional(),
@@ -138,6 +138,11 @@ export const metadataConfig = pgTable('metadata_config', {
   useCaseTypes: text('use_case_types').array().notNull(),
   activities: text('activities').array().notNull().default(sql`'{}'`),
   sourceTypes: text('source_types').array().notNull().default(sql`'{"rsa_internal","hexaware_external","industry_standard","imported","consolidated_database"}'`),
+  // Tab 3 Implementation & Governance LOVs
+  useCaseStatuses: text('use_case_statuses').array().notNull().default(sql`'{"Discovery","Backlog","In-flight","Implemented","On Hold"}'`),
+  aiMlTechnologies: text('ai_ml_technologies').array().notNull().default(sql`'{"Machine Learning","Deep Learning","Natural Language Processing","Computer Vision","Predictive Analytics","Large Language Models","Reinforcement Learning","Rule-based Systems"}'`),
+  dataSources: text('data_sources').array().notNull().default(sql`'{"Policy Database","Claims Database","Customer Database","External APIs","Third-party Data","Real-time Feeds","Historical Data","Regulatory Data"}'`),
+  stakeholderGroups: text('stakeholder_groups').array().notNull().default(sql`'{"Underwriting Teams","Claims Teams","IT/Technology","Business Analytics","Risk Management","Compliance","Customer Service","External Partners"}'`),
   processActivities: text('process_activities').$type<Record<string, string[]> | string>(),
   scoringModel: text('scoring_model').$type<any>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()

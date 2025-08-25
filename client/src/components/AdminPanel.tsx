@@ -225,6 +225,30 @@ export default function AdminPanel() {
                     items={metadata.sourceTypes || []}
                     placeholder="Add new source type..."
                   />
+                  <MetadataLegoBlock
+                    category="useCaseStatuses"
+                    title="Use Case Statuses"
+                    items={metadata.useCaseStatuses || []}
+                    placeholder="Add new use case status..."
+                  />
+                  <MetadataLegoBlock
+                    category="aiMlTechnologies"
+                    title="AI/ML Technologies"
+                    items={metadata.aiMlTechnologies || []}
+                    placeholder="Add new AI/ML technology..."
+                  />
+                  <MetadataLegoBlock
+                    category="dataSources"
+                    title="Data Sources"
+                    items={metadata.dataSources || []}
+                    placeholder="Add new data source..."
+                  />
+                  <MetadataLegoBlock
+                    category="stakeholderGroups"
+                    title="Stakeholder Groups"
+                    items={metadata.stakeholderGroups || []}
+                    placeholder="Add new stakeholder group..."
+                  />
                 </div>
               </div>
             </TabsContent>

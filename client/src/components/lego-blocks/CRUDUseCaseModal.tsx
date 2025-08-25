@@ -23,60 +23,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import MultiSelectField from './MultiSelectField';
 
-// Tab 3 Options
-const useCaseStatusOptions = [
-  'Discovery',
-  'Analysis', 
-  'Planning',
-  'In Development',
-  'Testing',
-  'Deployed',
-  'On Hold',
-  'Cancelled'
-];
-
-const aiMlTechnologiesOptions = [
-  'Machine Learning',
-  'Natural Language Processing',
-  'Computer Vision',
-  'Deep Learning',
-  'Generative AI',
-  'Reinforcement Learning',
-  'Expert Systems',
-  'Neural Networks',
-  'Decision Trees',
-  'Ensemble Methods'
-];
-
-const dataSourcesOptions = [
-  'Guidewire Core',
-  'Policy Admin System',
-  'Claims System',
-  'Customer Database',
-  'External APIs',
-  'Third-party Data',
-  'Regulatory Data',
-  'Market Data',
-  'IoT Sensors',
-  'Document Management',
-  'Email Systems',
-  'Social Media'
-];
-
-const stakeholderGroupsOptions = [
-  'Underwriting Team',
-  'Claims Team',
-  'Product Management',
-  'IT Department',
-  'Data Science Team',
-  'Compliance Team',
-  'Customer Service',
-  'Business Analysts',
-  'Risk Management',
-  'Legal Team',
-  'Executive Leadership',
-  'External Partners'
-];
 
 const formSchema = z.object({
   // All fields optional for maximum flexibility - user can override anything
@@ -183,11 +129,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
   // Tab state management
   const [activeTab, setActiveTab] = useState('basic');
 
-  // Predefined options for Tab 3 dropdowns
-  const useCaseStatusOptions = ['Discovery', 'Backlog', 'In-flight', 'Implemented', 'On Hold'];
-  const aiMlTechnologiesOptions = ['Machine Learning', 'Deep Learning', 'Natural Language Processing', 'Computer Vision', 'Predictive Analytics', 'Large Language Models', 'Reinforcement Learning', 'Rule-based Systems'];
-  const dataSourcesOptions = ['Policy Database', 'Claims Database', 'Customer Database', 'External APIs', 'Third-party Data', 'Real-time Feeds', 'Historical Data', 'Regulatory Data'];
-  const stakeholderGroupsOptions = ['Underwriting Teams', 'Claims Teams', 'IT/Technology', 'Business Analytics', 'Risk Management', 'Compliance', 'Customer Service', 'External Partners'];
+  // Dynamic options from database metadata (replacing hardcoded arrays)
+  const useCaseStatusOptions = metadata?.useCaseStatuses || [];
+  const aiMlTechnologiesOptions = metadata?.aiMlTechnologies || [];
+  const dataSourcesOptions = metadata?.dataSources || [];
+  const stakeholderGroupsOptions = metadata?.stakeholderGroups || [];
 
   // Tooltip definitions
   const sliderTooltips = {
