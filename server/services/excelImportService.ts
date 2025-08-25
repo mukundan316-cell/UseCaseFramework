@@ -311,8 +311,9 @@ export class ExcelImportService {
       useCase.stakeholderGroups = this.parseArray(getValue('Stakeholder Groups'));
 
     } else if (type === 'ai_inventory') {
-      // AI Inventory specific fields
-      useCase.businessFunction = getValue('Business Function') || null;
+      // AI Inventory specific fields - map to exact column names from user's Excel
+      useCase.aiOrModel = getValue('Is your application a Model or AI?') || getValue('AI or Model') || null;
+      useCase.businessFunction = getValue('Function') || getValue('Business Function') || null;
       useCase.aiInventoryStatus = getValue('AI Inventory Status') || null;
       
       // Handle deployment status with case normalization
@@ -328,11 +329,28 @@ export class ExcelImportService {
       } else {
         useCase.deploymentStatus = null;
       }
-      useCase.riskToCustomers = getValue('Risk to Customers') || null;
-      useCase.riskToRsa = getValue('Risk to RSA') || null;
-      useCase.dataUsed = getValue('Data Used') || null;
-      useCase.modelOwner = getValue('Model Ownership') || null;
-      useCase.validationResponsibility = getValue('Validation Process') || null;
+      
+      // Risk fields
+      useCase.riskToCustomers = getValue('Risk(s) to Customers, third parties, staff') || getValue('Risk to Customers') || null;
+      useCase.riskToRsa = getValue('Risk(s) to RSA') || getValue('Risk to RSA') || null;
+      
+      // Data and governance fields
+      useCase.dataUsed = getValue('What data is used in this AI?') || getValue('Data Used') || null;
+      useCase.modelOwner = getValue('Model Owner (day-to-day maintenance)') || getValue('Model Owner') || getValue('Model Ownership') || null;
+      useCase.rsaPolicyGovernance = getValue('RSA Policy Governance') || null;
+      useCase.thirdPartyProvidedModel = getValue('Third Party Provided Model') || null;
+      useCase.validationResponsibility = getValue('Are you responsible for validation / testing, or is a Third Party?') || getValue('Validation Process') || null;
+      useCase.informedBy = getValue('Informed By') || null;
+      
+      // Map Purpose of Use to description if not already set
+      if (!useCase.description || useCase.description === '') {
+        useCase.description = getValue('Purpose Of Use') || '';
+      }
+      
+      // Use Case Status for AI inventory
+      if (!useCase.useCaseStatus) {
+        useCase.useCaseStatus = getValue('Use Case Status - For support please click …') || getValue('Use Case Status') || null;
+      }
     }
 
     return useCase;
