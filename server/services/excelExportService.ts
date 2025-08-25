@@ -29,6 +29,15 @@ export class ExcelExportService {
         allUseCases = await db.select().from(useCases).where(eq(useCases.isActiveForRsa, 'false'));
       }
       
+      // Apply category filtering if specified
+      if (filters.category && filters.category !== 'all') {
+        if (filters.category === 'ai_inventory') {
+          allUseCases = allUseCases.filter(uc => uc.librarySource === 'ai_inventory');
+        } else if (filters.category === 'strategic') {
+          allUseCases = allUseCases.filter(uc => uc.librarySource !== 'ai_inventory');
+        }
+      }
+      
       console.log('Found use cases for Excel export:', allUseCases.length);
       
       // Create new workbook
