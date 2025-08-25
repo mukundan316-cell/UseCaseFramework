@@ -9,7 +9,7 @@ import exportRoutes from "./routes/export.routes";
 import { questionnaireServiceInstance } from './services/questionnaireService';
 import { db } from './db';
 import { responseSessions } from '@shared/schema';
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 
 // Helper function to recalculate all use case scores with new weights
 async function recalculateAllUseCaseScores(scoringModel: any) {
@@ -457,166 +457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ==================================================================================
-  // SECTION PROGRESS TRACKING ROUTES
-  // ==================================================================================
-
-  // GET /api/responses/:id/section-progress - DISABLED (depends on missing storage methods)
-  app.get("/api/responses/:id/section-progress", async (req, res) => {
-    res.status(501).json({ error: "Section progress endpoint disabled - use blob storage system" });
-    return;
-    try {
-      const { id } = req.params;
-      // const sectionProgress = await storage.getSectionProgress(id);
-      
-      // Transform to frontend format
-      const progressMap: Record<number, any> = {};
-      sectionProgress.forEach(progress => {
-        progressMap[progress.sectionNumber] = {
-          sectionNumber: progress.sectionNumber,
-          started: true,
-          completed: progress.isComplete === 'true',
-          currentQuestionIndex: 0, // Will be updated from answers
-          totalQuestions: 0, // Will be calculated from section
-          completionPercentage: progress.completionPercentage,
-          lastModified: progress.lastModifiedAt.toISOString(),
-          answers: {} // Will be populated from question answers
-        };
-      });
-
-      res.json(progressMap);
-    } catch (error) {
-      console.error("Error fetching section progress:", error);
-      res.status(500).json({ error: "Failed to fetch section progress" });
-    }
-  });
-
-  // PUT /api/responses/:id/section/:sectionNum/progress - DISABLED 
-  app.put("/api/responses/:id/section/:sectionNum/progress", async (req, res) => {
-    res.status(501).json({ error: "Section progress endpoint disabled - use blob storage system" });
-    return;
-    try {
-      const { id, sectionNum } = req.params;
-      const { currentQuestionIndex, totalQuestions, completionPercentage, answers } = req.body;
-
-      const sectionNumber = parseInt(sectionNum);
-      if (isNaN(sectionNumber) || sectionNumber < 1 || sectionNumber > 6) {
-        return res.status(400).json({ error: "Invalid section number" });
-      }
-
-      // Update or create section progress
-      // await storage.updateSectionProgress(id, sectionNumber, {
-      //   completionPercentage: Math.min(100, Math.max(0, completionPercentage || 0)),
-      //   isComplete: completionPercentage >= 100 ? 'true' : 'false'
-      // });
-
-      // Save individual answers if provided
-      if (answers && typeof answers === 'object') {
-        for (const [questionId, answer] of Object.entries(answers)) {
-          await storage.saveQuestionAnswer(id, questionId, answer);
-        }
-      }
-
-      res.json({ 
-        success: true, 
-        message: "Section progress updated successfully",
-        sectionNumber,
-        completionPercentage: completionPercentage || 0
-      });
-    } catch (error) {
-      console.error("Error updating section progress:", error);
-      res.status(500).json({ error: "Failed to update section progress" });
-    }
-  });
-
-  // POST /api/responses/:id/section/:sectionNum/complete - DISABLED
-  app.post("/api/responses/:id/section/:sectionNum/complete", async (req, res) => {
-    res.status(501).json({ error: "Section complete endpoint disabled - use blob storage system" });
-    return;
-    try {
-      const { id, sectionNum } = req.params;
-      const sectionNumber = parseInt(sectionNum);
-
-      if (isNaN(sectionNumber) || sectionNumber < 1 || sectionNumber > 6) {
-        return res.status(400).json({ error: "Invalid section number" });
-      }
-
-      // Mark section as complete
-      // await storage.updateSectionProgress(id, sectionNumber, {
-      //   completionPercentage: 100,
-      //   isComplete: 'true'
-      // });
-
-      // Check if all sections are complete
-      const allProgress = await storage.getSectionProgress(id);
-      const completedSections = allProgress.filter(p => p.isComplete === 'true').length;
-      const isFullyComplete = completedSections >= 6;
-
-      // Update overall response status if all sections complete
-      if (isFullyComplete) {
-        await storage.updateQuestionnaireResponse(id, {
-          completedAt: new Date()
-        });
-      }
-
-      res.json({ 
-        success: true, 
-        message: `Section ${sectionNumber} marked as complete`,
-        sectionNumber,
-        completedSections,
-        totalSections: 6,
-        isFullyComplete
-      });
-    } catch (error) {
-      console.error("Error completing section:", error);
-      res.status(500).json({ error: "Failed to complete section" });
-    }
-  });
-
-  // GET /api/responses/:id/resume-point - DISABLED
-  app.get("/api/responses/:id/resume-point", async (req, res) => {
-    res.status(501).json({ error: "Resume point endpoint disabled - use blob storage system" });
-    return;
-    try {
-      const { id } = req.params;
-      // const sectionProgress = await storage.getSectionProgress(id);
-      
-      // Find first incomplete section
-      let resumeSection = 1;
-      let resumeQuestionIndex = 0;
-      
-      for (let sectionNum = 1; sectionNum <= 6; sectionNum++) {
-        const progress = sectionProgress.find(p => p.sectionNumber === sectionNum);
-        
-        if (!progress || progress.isComplete !== 'true') {
-          resumeSection = sectionNum;
-          resumeQuestionIndex = progress?.completionPercentage ? 
-            Math.floor((progress.completionPercentage / 100) * 10) : 0; // Estimate based on completion
-          break;
-        }
-      }
-
-      // Get answers for resume section
-      const answers = await storage.getQuestionAnswersByResponse(id);
-      const sectionAnswers: Record<string, any> = {};
-      
-      // Filter answers for the resume section (would need section mapping)
-      answers.forEach(answer => {
-        sectionAnswers[answer.questionId] = answer.answerValue;
-      });
-
-      res.json({
-        responseId: id,
-        sectionNumber: resumeSection,
-        questionIndex: resumeQuestionIndex,
-        answers: sectionAnswers,
-        totalSections: 6
-      });
-    } catch (error) {
-      console.error("Error getting resume point:", error);
-      res.status(500).json({ error: "Failed to get resume point" });
-    }
-  });
+  // Section progress tracking is handled by the blob storage system via questionnaire routes
 
   // Register questionnaire routes (blob storage based)
   const questionnaireRoutes = (await import('./routes/questionnaireHybrid.routes')).default;
@@ -906,15 +747,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   
-  // Legacy assessment routes temporarily disabled during blob migration
-  
-  // Register export routes (re-enabled after blob migration completion)
+  // Register export routes
   app.use('/api/export', exportRoutes);
   
   // Register recommendation routes
   app.use('/api/recommendations', recommendationRoutes);
-  
-  // Legacy assessment statistics routes temporarily disabled during blob migration
 
   // Add saved progress endpoints
   app.get('/api/saved-progress', async (req, res) => {

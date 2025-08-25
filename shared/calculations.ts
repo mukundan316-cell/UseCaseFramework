@@ -25,7 +25,7 @@ export function calculateImpactScore(
     brokerPartnerExperience: 20,
     strategicFit: 20
   };
-  
+
   // Apply weighted calculation: (lever × weight) / 100, then sum
   const weightedScore = (
     (revenueImpact * w.revenueImpact / 100) +
@@ -34,7 +34,7 @@ export function calculateImpactScore(
     (brokerPartnerExperience * w.brokerPartnerExperience / 100) +
     (strategicFit * w.strategicFit / 100)
   );
-  
+
   return weightedScore;
 }
 
@@ -65,7 +65,7 @@ export function calculateEffortScore(
     modelRisk: 20,
     adoptionReadiness: 20
   };
-  
+
   // Apply weighted calculation: (lever × weight) / 100, then sum
   const weightedScore = (
     (dataReadiness * w.dataReadiness / 100) +
@@ -74,7 +74,7 @@ export function calculateEffortScore(
     (modelRisk * w.modelRisk / 100) +
     (adoptionReadiness * w.adoptionReadiness / 100)
   );
-  
+
   return weightedScore;
 }
 
@@ -105,3 +105,7 @@ export function calculateQuadrant(
     return "Watchlist";
   }
 }
+
+export { calculateImpactScore, calculateEffortScore, calculateQuadrant };
+
+// Note: calculateGovernanceScore was removed as it's not implemented

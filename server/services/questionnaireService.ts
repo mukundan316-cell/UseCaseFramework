@@ -278,16 +278,7 @@ export class QuestionnaireService {
     }
   }
 
-  /**
-   * Save answer to a question (legacy method - deprecated, use saveResponseAnswers instead)
-   */
-  async saveAnswer(
-    responseId: string,
-    questionId: string,
-    answerValue: any
-  ): Promise<boolean> {
-    return this.saveResponseAnswers(responseId, [{ questionId, answerValue }]);
-  }
+  
 
   /**
    * Complete a response session
@@ -690,12 +681,7 @@ export class QuestionnaireService {
     }
   }
 
-  /**
-   * Get all response sessions lightweight from PostgreSQL (duplicate method)
-   */
-  async getAllSessionsLegacy(): Promise<any[]> {
-    return await db.select().from(responseSessions);
-  }
+  
 }
 
 // Export singleton instance for shared cache
