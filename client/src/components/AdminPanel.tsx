@@ -255,6 +255,36 @@ export default function AdminPanel() {
                     items={metadata.quadrants || []}
                     placeholder="Add new quadrant..."
                   />
+                  <MetadataLegoBlock
+                    category="valueChainComponents"
+                    title="Value Chain Components"
+                    items={metadata.valueChainComponents || []}
+                    placeholder="Add new value chain component..."
+                  />
+                  <MetadataLegoBlock
+                    category="questionTypes"
+                    title="Question Types"
+                    items={metadata.questionTypes || []}
+                    placeholder="Add new question type..."
+                  />
+                  <MetadataLegoBlock
+                    category="responseStatuses"
+                    title="Response Statuses"
+                    items={metadata.responseStatuses || []}
+                    placeholder="Add new response status..."
+                  />
+                  <MetadataLegoBlock
+                    category="companyTiers"
+                    title="Company Tiers"
+                    items={metadata.companyTiers || []}
+                    placeholder="Add new company tier..."
+                  />
+                  <MetadataLegoBlock
+                    category="marketOptions"
+                    title="Market Options"
+                    items={metadata.marketOptions || []}
+                    placeholder="Add new market option..."
+                  />
                 </div>
               </div>
             </TabsContent>

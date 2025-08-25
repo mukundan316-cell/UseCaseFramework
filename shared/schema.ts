@@ -145,6 +145,12 @@ export const metadataConfig = pgTable('metadata_config', {
   stakeholderGroups: text('stakeholder_groups').array().notNull().default(sql`'{"Underwriting Teams","Claims Teams","IT/Technology","Business Analytics","Risk Management","Compliance","Customer Service","External Partners"}'`),
   // Quadrant definitions for RSA AI Value Matrix
   quadrants: text('quadrants').array().notNull().default(sql`'{"Quick Win","Strategic Bet","Experimental","Watchlist"}'`),
+  // Assessment and questionnaire LOVs
+  questionTypes: text('question_types').array().notNull().default(sql`'{"text","textarea","select","multi_select","radio","checkbox","number","date","email","url","company_profile","business_lines_matrix","smart_rating","multi_rating","percentage_allocation","percentage_target","ranking","currency","department_skills_matrix","business_performance","composite","dynamic_use_case_selector"}'`),
+  responseStatuses: text('response_statuses').array().notNull().default(sql`'{"started","in_progress","completed","abandoned"}'`),
+  // Company profile options
+  companyTiers: text('company_tiers').array().notNull().default(sql`'{"Small (<£100M)","Mid (£100M-£3B)","Large (>£3B)"}'`),
+  marketOptions: text('market_options').array().notNull().default(sql`'{"Personal Lines","Commercial Lines","Specialty Lines","Reinsurance"}'`),
   processActivities: text('process_activities').$type<Record<string, string[]> | string>(),
   scoringModel: text('scoring_model').$type<any>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()

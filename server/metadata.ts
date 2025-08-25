@@ -52,6 +52,12 @@ function getDefaultMetadata(): MetadataConfig {
     sourceTypes: ["rsa_internal", "hexaware_external", "industry_standard", "imported", "consolidated_database"],
     // RSA AI Value Matrix quadrants
     quadrants: ["Quick Win", "Strategic Bet", "Experimental", "Watchlist"],
+    // Assessment and questionnaire LOVs
+    questionTypes: ["text", "textarea", "select", "multi_select", "radio", "checkbox", "number", "date", "email", "url", "company_profile", "business_lines_matrix", "smart_rating", "multi_rating", "percentage_allocation", "percentage_target", "ranking", "currency", "department_skills_matrix", "business_performance", "composite", "dynamic_use_case_selector"],
+    responseStatuses: ["started", "in_progress", "completed", "abandoned"],
+    // Company profile options  
+    companyTiers: ["Small (<£100M)", "Mid (£100M-£3B)", "Large (>£3B)"],
+    marketOptions: ["Personal Lines", "Commercial Lines", "Specialty Lines", "Reinsurance"],
     processActivities: null,
     scoringModel: null,
     updatedAt: new Date()
