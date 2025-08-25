@@ -118,30 +118,26 @@ export default function AdminPanel() {
       <Card className="bg-white rounded-2xl shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-900">Admin Panel</CardTitle>
-          <CardDescription>Comprehensive admin interface with 5 specialized management areas using LEGO-style reusable blocks</CardDescription>
+          <CardDescription>Comprehensive admin interface with 4 specialized management areas using LEGO-style reusable blocks</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="data" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="data" className="flex items-center gap-2">
                 <Database className="h-4 w-4" />
                 Data Management
               </TabsTrigger>
               <TabsTrigger value="library" className="flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                Library Management
-              </TabsTrigger>
-              <TabsTrigger value="process" className="flex items-center gap-2">
-                <Workflow className="h-4 w-4" />
-                Process Config
+                <ClipboardList className="h-4 w-4" />
+                Library
               </TabsTrigger>
               <TabsTrigger value="assessment" className="flex items-center gap-2">
-                <ClipboardList className="h-4 w-4" />
-                Assessment Mgmt
+                <Settings className="h-4 w-4" />
+                Assessment
               </TabsTrigger>
               <TabsTrigger value="system" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                System Config
+                System
               </TabsTrigger>
             </TabsList>
 
@@ -268,6 +264,18 @@ export default function AdminPanel() {
                     placeholder="Add new activity..."
                   />
                 </div>
+                
+                {/* Process-Activity Relationships */}
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <div className="text-center py-4">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Process-Activity Relationships</h4>
+                    <p className="text-sm text-gray-600">
+                      Configure which activities are available for each business process. 
+                      These mappings enable dynamic activity selection in use case forms.
+                    </p>
+                  </div>
+                  <ProcessActivityManagementBlock />
+                </div>
               </div>
             </TabsContent>
 
@@ -287,21 +295,6 @@ export default function AdminPanel() {
               </div>
             </TabsContent>
 
-            {/* Process Configuration Tab */}
-            <TabsContent value="process" className="space-y-6">
-              <div className="text-center py-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Process-Activity Relationship Management</h3>
-                <p className="text-sm text-gray-600">
-                  Configure advanced relationships between business processes and activities. 
-                  These mappings drive dynamic activity selection and workflow optimization logic.
-                </p>
-              </div>
-              
-              {/* Process-Activity Relationship Management Only */}
-              <div className="grid grid-cols-1 gap-6">
-                <ProcessActivityManagementBlock />
-              </div>
-            </TabsContent>
 
             {/* Assessment Management Tab */}
             <TabsContent value="assessment" className="space-y-6">
