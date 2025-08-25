@@ -39,7 +39,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
     { id: 'strategic-scoring', label: 'Strategic Scoring', ref: sectionRefs['strategic-scoring'] },
     { id: 'business-context', label: 'Business Context', ref: sectionRefs['business-context'] },
     { id: 'implementation-details', label: 'Implementation & Governance', ref: sectionRefs['implementation-details'] },
-    { id: 'rsa-portfolio', label: 'RSA Portfolio Selection', ref: useRef<HTMLDivElement>(null) }
+    { id: 'rsa-portfolio', label: 'RSA Portfolio Selection', ref: sectionRefs['rsa-portfolio'] }
   ];
 
   // Track current section based on scroll position
@@ -297,7 +297,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
         </div>
 
         {/* Content */}
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 pb-20">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 pb-24" style={{ maxHeight: 'calc(100vh - 140px)' }}>
           {/* Check if this is a strategic use case */}
           {(useCase.librarySource === 'rsa_internal' || useCase.librarySource === 'hexaware_external') ? (
             <Accordion type="multiple" defaultValue={["overview", "strategic-scoring", "business-context"]} className="w-full">
@@ -1046,9 +1046,9 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
         </div>
 
         {/* Mini-map Navigation */}
-        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10">
-          <div className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
-            <div className="space-y-1">
+        <div className="absolute right-2 top-1/3 transform -translate-y-1/2 z-10">
+          <div className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm max-h-80 overflow-y-auto">
+            <div className="space-y-2">
               {sections.map((section) => (
                 <div
                   key={section.id}
@@ -1056,15 +1056,20 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
                 >
                   <button
                     onClick={() => scrollToSection(section.id)}
-                    className={`w-16 h-3 rounded border transition-all duration-200 ${
+                    className={`w-16 h-4 rounded border transition-all duration-200 text-xs px-1 flex items-center justify-center ${
                       currentSection === section.id
-                        ? 'bg-blue-500 border-blue-600'
-                        : 'bg-gray-100 border-gray-300 hover:bg-gray-200'
+                        ? 'bg-blue-500 border-blue-600 text-white'
+                        : 'bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-600'
                     }`}
                     title={section.label}
-                  />
+                  >
+                    {section.id === 'overview' ? '📋' : 
+                     section.id === 'strategic-scoring' ? '📊' :
+                     section.id === 'business-context' ? '🏢' :
+                     section.id === 'implementation-details' ? '⚙️' : '📝'}
+                  </button>
                   {/* Tooltip on hover */}
-                  <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
                     {section.label}
                   </div>
                 </div>
