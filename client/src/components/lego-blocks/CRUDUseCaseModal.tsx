@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
@@ -78,6 +78,15 @@ const formSchema = z.object({
   dataOutsideUkEu: z.enum(['yes', 'no']).optional(),
   thirdPartyModel: z.enum(['yes', 'no']).optional(),
   humanAccountability: z.enum(['yes', 'no']).optional(),
+  // AI Inventory Governance Fields (all optional)
+  aiOrModel: z.enum(['AI', 'Model']).optional(),
+  riskToCustomers: z.string().optional(),
+  riskToRsa: z.string().optional(),
+  dataUsed: z.string().optional(),
+  modelOwner: z.string().optional(),
+  rsaPolicyGovernance: z.string().optional(),
+  validationResponsibility: z.enum(['Internal', 'Third Party']).optional(),
+  informedBy: z.string().optional(),
   // Manual Score Override fields (completely optional, no validation when empty)
   manualImpactScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
   manualEffortScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
@@ -341,6 +350,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         dataOutsideUkEu: (useCase as any).dataOutsideUkEu || undefined,
         thirdPartyModel: (useCase as any).thirdPartyModel || undefined,
         humanAccountability: (useCase as any).humanAccountability || undefined,
+        // AI Inventory Governance Fields
+        aiOrModel: (useCase as any).aiOrModel || undefined,
+        riskToCustomers: (useCase as any).riskToCustomers || undefined,
+        riskToRsa: (useCase as any).riskToRsa || undefined,
+        dataUsed: (useCase as any).dataUsed || undefined,
+        modelOwner: (useCase as any).modelOwner || undefined,
+        rsaPolicyGovernance: (useCase as any).rsaPolicyGovernance || undefined,
+        validationResponsibility: (useCase as any).validationResponsibility || undefined,
+        informedBy: (useCase as any).informedBy || undefined,
         // Manual override fields
         manualImpactScore: (useCase as any).manualImpactScore,
         manualEffortScore: (useCase as any).manualEffortScore,
@@ -976,6 +994,156 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                     />
                   </div>
                 </div>
+
+                {/* AI Inventory Governance Section - Only show for SharePoint imports */}
+                {form.watch('librarySource') === 'sharepoint_import' && (
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-gray-900">AI Inventory Governance</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="aiOrModel"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">AI or Model Classification</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select classification..." />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="AI">AI</SelectItem>
+                                <SelectItem value="Model">Model</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="validationResponsibility"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Validation Responsibility</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select responsibility..." />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Internal">Internal</SelectItem>
+                                <SelectItem value="Third Party">Third Party</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="riskToCustomers"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Risk to Customers</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Describe potential risks to customers..."
+                                className="mt-1"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="riskToRsa"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Risk to RSA</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Describe RSA-specific risks..."
+                                className="mt-1"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="dataUsed"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Data Sources Used</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Describe data sources and types used..."
+                                className="mt-1"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="modelOwner"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Model Owner</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Owner contact information..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="rsaPolicyGovernance"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">RSA Policy Governance</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Governance framework reference..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="informedBy"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Informed By</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Stakeholder information..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                )}
               </TabsContent>
 
               {/* Tab 4: RSA Framework Assessment */}
@@ -986,20 +1154,25 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               {/* Business Value Levers */}
               <div className="space-y-6">
                 <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Value Levers</h4>
-                <SliderField
-                  field="revenueImpact"
-                  label="Revenue Impact"
-                  tooltip={sliderTooltips.revenueImpact}
-                  leftLabel="Low"
-                  rightLabel="High"
-                />
-                <SliderField
-                  field="costSavings"
-                  label="Cost Savings"
-                  tooltip={sliderTooltips.costSavings}
-                  leftLabel="Low"
-                  rightLabel="High"
-                />
+                {/* Hide strategic scoring fields for AI inventory items */}
+                {form.watch('librarySource') !== 'sharepoint_import' && (
+                  <>
+                    <SliderField
+                      field="revenueImpact"
+                      label="Revenue Impact"
+                      tooltip={sliderTooltips.revenueImpact}
+                      leftLabel="Low"
+                      rightLabel="High"
+                    />
+                    <SliderField
+                      field="costSavings"
+                      label="Cost Savings"
+                      tooltip={sliderTooltips.costSavings}
+                      leftLabel="Low"
+                      rightLabel="High"
+                    />
+                  </>
+                )}
                 <SliderField
                   field="riskReduction"
                   label="Risk Reduction"
