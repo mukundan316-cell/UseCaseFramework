@@ -89,118 +89,32 @@ export interface UseCaseFrontend {
 }
 
 /**
- * Maps database UseCase (snake_case) to frontend format (camelCase)
+ * Maps database UseCase to frontend format with minimal transformation
+ * Drizzle automatically handles snake_case ↔ camelCase conversion
  */
 export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
   return {
-    id: dbUseCase.id,
-    title: dbUseCase.title,
-    description: dbUseCase.description,
-    problemStatement: dbUseCase.problemStatement ?? undefined,
-    valueChainComponent: dbUseCase.process, // Using process as valueChainComponent
-    process: dbUseCase.process,
-    lineOfBusiness: dbUseCase.lineOfBusiness,
-    linesOfBusiness: dbUseCase.linesOfBusiness || [dbUseCase.lineOfBusiness].filter(Boolean),
-    businessSegment: dbUseCase.businessSegment,
-    geography: dbUseCase.geography,
-    useCaseType: dbUseCase.useCaseType,
-    // Enhanced RSA Framework mappings
-    revenueImpact: dbUseCase.revenueImpact,
-    costSavings: dbUseCase.costSavings,
-    riskReduction: dbUseCase.riskReduction,
-    brokerPartnerExperience: dbUseCase.brokerPartnerExperience,
-    strategicFit: dbUseCase.strategicFit,
-    dataReadiness: dbUseCase.dataReadiness,
-    technicalComplexity: dbUseCase.technicalComplexity,
-    changeImpact: dbUseCase.changeImpact,
-    modelRisk: dbUseCase.modelRisk,
-    adoptionReadiness: dbUseCase.adoptionReadiness,
-    impactScore: dbUseCase.impactScore,
-    effortScore: dbUseCase.effortScore,
-    quadrant: dbUseCase.quadrant,
-    // RSA Portfolio Selection fields
+    ...dbUseCase,
+    // Convert string booleans to actual booleans for UI
     isActiveForRsa: dbUseCase.isActiveForRsa === 'true',
     isDashboardVisible: dbUseCase.isDashboardVisible === 'true',
-    libraryTier: dbUseCase.libraryTier,
-    librarySource: dbUseCase.librarySource,
-    activationReason: dbUseCase.activationReason ?? undefined,
-    deactivationReason: dbUseCase.deactivationReason ?? undefined,
-    activationDate: dbUseCase.activationDate ?? undefined,
-    createdAt: dbUseCase.createdAt ?? undefined,
-    // Manual Override field mappings
-    manualImpactScore: dbUseCase.manualImpactScore ?? undefined,
-    manualEffortScore: dbUseCase.manualEffortScore ?? undefined,
-    manualQuadrant: dbUseCase.manualQuadrant ?? undefined,
-    overrideReason: dbUseCase.overrideReason ?? undefined,
-    // AI Inventory specific fields
-    aiInventoryStatus: dbUseCase.aiInventoryStatus ?? undefined,
-    deploymentStatus: dbUseCase.deploymentStatus ?? undefined,
-    businessFunction: dbUseCase.businessFunction ?? undefined,
-    modelOwner: dbUseCase.modelOwner ?? undefined,
-    lastStatusUpdate: dbUseCase.lastStatusUpdate ?? undefined,
-    thirdPartyProvidedModel: dbUseCase.thirdPartyProvidedModel ?? undefined,
-    // AI Governance fields
-    aiOrModel: dbUseCase.aiOrModel ?? undefined,
-    riskToCustomers: dbUseCase.riskToCustomers ?? undefined,
-    riskToRsa: dbUseCase.riskToRsa ?? undefined,
-    dataUsed: dbUseCase.dataUsed ?? undefined,
-    rsaPolicyGovernance: dbUseCase.rsaPolicyGovernance ?? undefined,
-    validationResponsibility: dbUseCase.validationResponsibility ?? undefined,
-    informedBy: dbUseCase.informedBy ?? undefined,
-    // Implementation & Governance fields
-    primaryBusinessOwner: dbUseCase.primaryBusinessOwner ?? undefined,
-    useCaseStatus: dbUseCase.useCaseStatus ?? undefined,
-    keyDependencies: dbUseCase.keyDependencies ?? undefined,
-    implementationTimeline: dbUseCase.implementationTimeline ?? undefined,
-    successMetrics: dbUseCase.successMetrics ?? undefined,
-    estimatedValue: dbUseCase.estimatedValue ?? undefined,
-    valueMeasurementApproach: dbUseCase.valueMeasurementApproach ?? undefined,
-    integrationRequirements: dbUseCase.integrationRequirements ?? undefined,
-    // Technology & Data fields
-    aiMlTechnologies: dbUseCase.aiMlTechnologies ?? undefined,
-    dataSources: dbUseCase.dataSources ?? undefined,
-    stakeholderGroups: dbUseCase.stakeholderGroups ?? undefined,
-    // RSA Ethical Principles
-    explainabilityRequired: dbUseCase.explainabilityRequired ?? undefined,
-    customerHarmRisk: dbUseCase.customerHarmRisk ?? undefined,
-    dataOutsideUkEu: dbUseCase.dataOutsideUkEu ?? undefined,
-    thirdPartyModel: dbUseCase.thirdPartyModel ?? undefined,
-    humanAccountability: dbUseCase.humanAccountability ?? undefined,
-    // Multi-select arrays
-    processes: dbUseCase.processes ?? undefined,
-    activities: dbUseCase.activities ?? undefined,
-    businessSegments: dbUseCase.businessSegments ?? undefined,
-    geographies: dbUseCase.geographies ?? undefined
+    // Add process as valueChainComponent alias for backward compatibility
+    valueChainComponent: dbUseCase.process,
+    // Ensure arrays exist for backward compatibility
+    linesOfBusiness: dbUseCase.linesOfBusiness || [dbUseCase.lineOfBusiness].filter(Boolean)
   };
 }
 
 /**
  * Maps frontend UseCase data to database format for API calls
+ * Drizzle automatically handles camelCase ↔ snake_case conversion
  */
 export function mapUseCaseToDatabase(frontendUseCase: Partial<UseCaseFrontend>): Partial<UseCase> {
+  const { valueChainComponent, ...rest } = frontendUseCase;
   return {
-    id: frontendUseCase.id,
-    title: frontendUseCase.title,
-    description: frontendUseCase.description,
-    process: frontendUseCase.process,
-    lineOfBusiness: frontendUseCase.lineOfBusiness,
-    businessSegment: frontendUseCase.businessSegment,
-    geography: frontendUseCase.geography,
-    useCaseType: frontendUseCase.useCaseType,
-    // Enhanced RSA Framework mappings
-    revenueImpact: frontendUseCase.revenueImpact,
-    costSavings: frontendUseCase.costSavings,
-    riskReduction: frontendUseCase.riskReduction,
-    brokerPartnerExperience: frontendUseCase.brokerPartnerExperience,
-    strategicFit: frontendUseCase.strategicFit,
-    dataReadiness: frontendUseCase.dataReadiness,
-    technicalComplexity: frontendUseCase.technicalComplexity,
-    changeImpact: frontendUseCase.changeImpact,
-    modelRisk: frontendUseCase.modelRisk,
-    adoptionReadiness: frontendUseCase.adoptionReadiness,
-    impactScore: frontendUseCase.impactScore,
-    effortScore: frontendUseCase.effortScore,
-    quadrant: frontendUseCase.quadrant,
-    createdAt: frontendUseCase.createdAt
-  };
+    ...rest,
+    // Convert boolean back to string for database storage
+    isActiveForRsa: frontendUseCase.isActiveForRsa ? 'true' : 'false',
+    isDashboardVisible: frontendUseCase.isDashboardVisible ? 'true' : 'false'
+  } as Partial<UseCase>;
 }
