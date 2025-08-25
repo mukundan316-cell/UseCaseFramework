@@ -186,10 +186,10 @@ export default function AdminPanel() {
               {/* UI List of Values Management */}
               <div className="space-y-6">
                 <div className="text-center py-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">UI List of Values Management</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">User-Selectable List of Values</h3>
                   <p className="text-sm text-gray-600">
-                    Manage dropdown options, filter values, and categorization lists used throughout the application.
-                    Each block below controls the available options in forms and filters.
+                    Manage dropdown options that users explicitly select during use case creation, editing, and workflow activities.
+                    Each category below controls the available choices in user-facing forms and filters.
                   </p>
                 </div>
                 
@@ -256,34 +256,16 @@ export default function AdminPanel() {
                     placeholder="Add new quadrant..."
                   />
                   <MetadataLegoBlock
-                    category="valueChainComponents"
-                    title="Value Chain Components"
-                    items={metadata.valueChainComponents || []}
-                    placeholder="Add new value chain component..."
+                    category="processes"
+                    title="Business Processes"
+                    items={metadata.processes || []}
+                    placeholder="Add new business process..."
                   />
                   <MetadataLegoBlock
-                    category="questionTypes"
-                    title="Question Types"
-                    items={metadata.questionTypes || []}
-                    placeholder="Add new question type..."
-                  />
-                  <MetadataLegoBlock
-                    category="responseStatuses"
-                    title="Response Statuses"
-                    items={metadata.responseStatuses || []}
-                    placeholder="Add new response status..."
-                  />
-                  <MetadataLegoBlock
-                    category="companyTiers"
-                    title="Company Tiers"
-                    items={metadata.companyTiers || []}
-                    placeholder="Add new company tier..."
-                  />
-                  <MetadataLegoBlock
-                    category="marketOptions"
-                    title="Market Options"
-                    items={metadata.marketOptions || []}
-                    placeholder="Add new market option..."
+                    category="activities"
+                    title="Activities"
+                    items={metadata.activities || []}
+                    placeholder="Add new activity..."
                   />
                 </div>
               </div>
@@ -308,19 +290,16 @@ export default function AdminPanel() {
             {/* Process Configuration Tab */}
             <TabsContent value="process" className="space-y-6">
               <div className="text-center py-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Business Process Configuration</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Process-Activity Relationship Management</h3>
                 <p className="text-sm text-gray-600">
-                  Configure business processes and their relationships with activities. 
-                  These mappings drive use case categorization and workflow optimization.
+                  Configure advanced relationships between business processes and activities. 
+                  These mappings drive dynamic activity selection and workflow optimization logic.
                 </p>
               </div>
               
-              {/* Business Processes and Process-Activity Relationships */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <ProcessManagementBlock />
-                <div className="lg:col-span-1">
-                  <ProcessActivityManagementBlock />
-                </div>
+              {/* Process-Activity Relationship Management Only */}
+              <div className="grid grid-cols-1 gap-6">
+                <ProcessActivityManagementBlock />
               </div>
             </TabsContent>
 
