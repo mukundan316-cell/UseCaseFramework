@@ -227,7 +227,7 @@ export class UseCaseDataExtractor {
 
     // Display Helpers
     const isAiInventory = useCase.librarySource === 'ai_inventory';
-    const hasScoring = !isAiInventory;
+    const hasScoring = !isAiInventory && portfolioStatus.isActiveForRsa;
     
     const display = {
       statusBadge: portfolioStatus.isActiveForRsa ? 'ACTIVE PORTFOLIO' : 'REFERENCE LIBRARY',

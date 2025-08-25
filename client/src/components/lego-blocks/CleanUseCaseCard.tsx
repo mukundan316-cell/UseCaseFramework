@@ -26,7 +26,7 @@ export default function CleanUseCaseCard({
 }: CleanUseCaseCardProps) {
   
   // Get quadrant-based styling for RSA cases with scores
-  const hasScores = showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined;
+  const hasScores = showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined && useCase.isActiveForRsa === 'true';
   
   // Get effective scores (manual overrides take precedence)
   const effectiveImpact = hasScores ? getEffectiveImpactScore(useCase as any) : undefined;
