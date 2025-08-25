@@ -270,11 +270,11 @@ export default function ImprovedUseCaseExplorer({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Sources</SelectItem>
-            <SelectItem value="rsa_internal">RSA Internal</SelectItem>
-            <SelectItem value="hexaware_external">Hexaware External</SelectItem>
-            <SelectItem value="industry_standard">Industry Standard</SelectItem>
-            <SelectItem value="imported">Imported</SelectItem>
-            <SelectItem value="consolidated_database">Consolidated</SelectItem>
+            {metadata?.sourceTypes?.map((sourceType) => (
+              <SelectItem key={sourceType} value={sourceType}>
+                {sourceType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
