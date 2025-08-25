@@ -23,6 +23,7 @@ interface ImprovedUseCaseExplorerProps {
   onDeactivate?: (id: string, reason?: string) => Promise<void>;
   showCreateButton?: boolean;
   emptyStateMessage?: string;
+  context?: 'reference' | 'active' | 'dashboard';
 }
 
 export default function ImprovedUseCaseExplorer({
@@ -36,7 +37,8 @@ export default function ImprovedUseCaseExplorer({
   onActivate,
   onDeactivate,
   showCreateButton = false,
-  emptyStateMessage = "No use cases found"
+  emptyStateMessage = "No use cases found",
+  context = 'reference'
 }: ImprovedUseCaseExplorerProps) {
   const { metadata } = useUseCases();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -532,6 +534,7 @@ export default function ImprovedUseCaseExplorer({
         onClose={() => setIsModalOpen(false)}
         mode={modalMode}
         useCase={selectedUseCase}
+        context={context}
       />
 
       {/* Detail Drawer */}

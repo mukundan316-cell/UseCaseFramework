@@ -521,6 +521,7 @@ export default function UseCaseExplorerLegoBlock({
         onClose={() => setIsModalOpen(false)}
         mode={modalMode}
         useCase={selectedUseCase}
+        context="reference"
       />
     </div>
   );

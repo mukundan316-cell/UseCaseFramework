@@ -47,6 +47,7 @@ export default function ExplorerEnhanced() {
               onDeactivate={handleDeactivate}
               showCreateButton={false}
               emptyStateMessage="No use cases in RSA Active Portfolio. Add use cases from the Reference Library to get started."
+              context="active"
             />
           </TabsContent>
 
@@ -62,6 +63,7 @@ export default function ExplorerEnhanced() {
               onDeactivate={handleDeactivate}
               showCreateButton={true}
               emptyStateMessage="No use cases in library. Create your first use case to get started."
+              context="reference"
             />
           </TabsContent>
         </Tabs>

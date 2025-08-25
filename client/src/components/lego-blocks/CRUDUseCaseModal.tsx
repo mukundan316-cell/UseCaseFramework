@@ -107,6 +107,7 @@ interface CRUDUseCaseModalProps {
   onClose: () => void;
   mode: 'create' | 'edit';
   useCase?: UseCase;
+  context?: 'reference' | 'active' | 'dashboard';
 }
 
 /**
@@ -114,7 +115,7 @@ interface CRUDUseCaseModalProps {
  * Reusable modal component supporting both create and edit operations
  * Follows database-first architecture with full RSA framework compliance
  */
-export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRUDUseCaseModalProps) {
+export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, context = 'active' }: CRUDUseCaseModalProps) {
   const { addUseCase, updateUseCase, metadata } = useUseCases();
   const { toast } = useToast();
 
@@ -1278,8 +1279,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 )}
               </TabsContent>
 
-              {/* Tab 4: RSA Framework Assessment - Hidden for AI Inventory */}
-              {form.watch('librarySource') !== 'ai_inventory' && (
+              {/* Tab 4: RSA Framework Assessment - Hidden for AI Inventory and Reference Library */}
+              {form.watch('librarySource') !== 'ai_inventory' && context !== 'reference' && (
                 <TabsContent value="assessment" className="space-y-4 mt-6">
                 {rsaSelection.isActiveForRsa ? (
                   <div className="space-y-6">
@@ -1398,14 +1399,16 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               </CardContent>
             </Card>
             
-            {/* Manual Score Override Section */}
-            <ScoreOverrideLegoBlock
-              form={form}
-              calculatedImpact={currentImpactScore}
-              calculatedEffort={currentEffortScore}
-              calculatedQuadrant={currentQuadrant}
-              onToggleChange={setIsOverrideEnabled}
-            />
+            {/* Manual Score Override Section - Hidden for Reference Library */}
+            {context !== 'reference' && (
+              <ScoreOverrideLegoBlock
+                form={form}
+                calculatedImpact={currentImpactScore}
+                calculatedEffort={currentEffortScore}
+                calculatedQuadrant={currentQuadrant}
+                onToggleChange={setIsOverrideEnabled}
+              />
+            )}
                   </div>
                 ) : (
                   <Card className="bg-gray-50 border-dashed border-2">
