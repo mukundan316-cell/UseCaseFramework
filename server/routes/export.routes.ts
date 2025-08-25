@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { UseCasePdfService } from '../services/useCasePdfService';
 import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
+import { CompactPdfService } from '../services/compactPdfService';
 import { ExcelExportService } from '../services/excelExportService';
 import { questionnaireServiceInstance } from '../services/questionnaireService';
 // PDF services removed - using client-side Survey.js PDF export instead
@@ -24,17 +25,24 @@ router.get('/assessment/:responseId', async (req, res) => {
 });
 
 /**
- * Export use case library as PDF (Enhanced Professional Version)
- * GET /api/export/library?category=all&status=active
+ * Export use case library as PDF (Compact & Enhanced Versions)
+ * GET /api/export/library?category=all&status=active&format=compact
  */
 router.get('/library', async (req, res) => {
   try {
-    const { category = 'all', status = 'all' } = req.query;
+    const { category = 'all', status = 'all', format = 'compact' } = req.query;
     
-    await EnhancedUseCasePdfService.generateLibraryCatalog(res, {
-      category: category as string,
-      status: status as string,
-    });
+    if (format === 'compact') {
+      await CompactPdfService.generateCompactLibraryPdf(res, {
+        category: category as string,
+        status: status as string,
+      });
+    } else {
+      await EnhancedUseCasePdfService.generateLibraryCatalog(res, {
+        category: category as string,
+        status: status as string,
+      });
+    }
   } catch (error) {
     console.error('Library PDF export error:', error);
     res.status(500).json({ error: 'Failed to export use case library' });
@@ -42,12 +50,18 @@ router.get('/library', async (req, res) => {
 });
 
 /**
- * Export RSA active portfolio as PDF (Enhanced Professional Version)
- * GET /api/export/portfolio
+ * Export RSA active portfolio as PDF (Compact & Enhanced Versions)
+ * GET /api/export/portfolio?format=compact
  */
 router.get('/portfolio', async (req, res) => {
   try {
-    await EnhancedUseCasePdfService.generatePortfolioReport(res);
+    const { format = 'compact' } = req.query;
+    
+    if (format === 'compact') {
+      await CompactPdfService.generateCompactPortfolioPdf(res);
+    } else {
+      await EnhancedUseCasePdfService.generatePortfolioReport(res);
+    }
   } catch (error) {
     console.error('Portfolio PDF export error:', error);
     res.status(500).json({ error: 'Failed to export portfolio report' });
@@ -55,18 +69,23 @@ router.get('/portfolio', async (req, res) => {
 });
 
 /**
- * Export individual use case as PDF
- * GET /api/export/use-case/:id
+ * Export individual use case as PDF (Compact & Enhanced Versions)
+ * GET /api/export/use-case/:id?format=compact
  */
 router.get('/use-case/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const { format = 'compact' } = req.query;
     
     if (!id) {
       return res.status(400).json({ error: 'Use case ID is required' });
     }
 
-    await UseCasePdfService.generateUseCaseReport(id, res);
+    if (format === 'compact') {
+      await CompactPdfService.generateCompactUseCasePdf(id, res);
+    } else {
+      await UseCasePdfService.generateUseCaseReport(id, res);
+    }
   } catch (error) {
     console.error('Use case PDF export error:', error);
     res.status(500).json({ error: 'Failed to export use case report' });
