@@ -1,6 +1,7 @@
 import React from 'react';
 import { Building2, ExternalLink, Users, Download, Database } from 'lucide-react';
 import { getSourceConfig } from '../../utils/sourceColors';
+import { useUseCases } from '../../contexts/UseCaseContext';
 
 interface SourceLegendProps {
   className?: string;
@@ -8,13 +9,22 @@ interface SourceLegendProps {
 }
 
 export default function SourceLegend({ className = '', showTitle = true }: SourceLegendProps) {
-  const sourceTypes = [
-    { key: 'rsa_internal', icon: Building2 },
-    { key: 'hexaware_external', icon: ExternalLink },
-    { key: 'industry_standard', icon: Users },
-    { key: 'imported', icon: Download },
-    { key: 'consolidated_database', icon: Database }
-  ];
+  const { metadata } = useUseCases();
+  
+  // Icon mapping for source types
+  const iconMapping: Record<string, any> = {
+    'rsa_internal': Building2,
+    'hexaware_external': ExternalLink,
+    'industry_standard': Users,
+    'imported': Download,
+    'consolidated_database': Database
+  };
+
+  // Generate dynamic source types from metadata
+  const sourceTypes = (metadata?.sourceTypes || []).map(sourceKey => ({
+    key: sourceKey,
+    icon: iconMapping[sourceKey] || Building2 // Default to Building2 if no mapping exists
+  }));
 
   return (
     <div className={`bg-gray-50 rounded-lg p-4 ${className}`}>
