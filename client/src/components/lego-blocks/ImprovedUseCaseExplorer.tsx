@@ -100,6 +100,7 @@ export default function ImprovedUseCaseExplorer({
   };
 
   const handleViewUseCase = (useCase: UseCase) => {
+    console.log('Opening drawer for use case:', useCase.title);
     setDrawerUseCase(useCase);
     setIsDrawerOpen(true);
   };
