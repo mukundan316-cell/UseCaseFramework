@@ -40,9 +40,12 @@ export const useCases = pgTable("use_cases", {
   modelRisk: integer("model_risk").notNull(),
   adoptionReadiness: integer("adoption_readiness").notNull(),
   
-  // AI Governance Levers
-  explainabilityBias: integer("explainability_bias").notNull(),
-  regulatoryCompliance: integer("regulatory_compliance").notNull(),
+  // RSA Ethical Principles
+  explainabilityRequired: text("explainability_required"),
+  customerHarmRisk: text("customer_harm_risk"),
+  dataOutsideUkEu: text("data_outside_uk_eu"),
+  thirdPartyModel: text("third_party_model"),
+  humanAccountability: text("human_accountability"),
   impactScore: real("impact_score").notNull(),
   effortScore: real("effort_score").notNull(),
   quadrant: text("quadrant").notNull(),

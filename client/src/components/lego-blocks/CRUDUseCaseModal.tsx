@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Form } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3 } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
@@ -72,9 +72,12 @@ const formSchema = z.object({
   changeImpact: z.number().min(1).max(5).optional(),
   modelRisk: z.number().min(1).max(5).optional(),
   adoptionReadiness: z.number().min(1).max(5).optional(),
-  // AI Governance Levers (all optional) - moved to Tab 3
-  explainabilityBias: z.number().min(1).max(5).optional(),
-  regulatoryCompliance: z.number().min(1).max(5).optional(),
+  // RSA Ethical Principles (all optional) - moved to Tab 3
+  explainabilityRequired: z.enum(['yes', 'no']).optional(),
+  customerHarmRisk: z.enum(['none', 'low', 'medium', 'high']).optional(),
+  dataOutsideUkEu: z.enum(['yes', 'no']).optional(),
+  thirdPartyModel: z.enum(['yes', 'no']).optional(),
+  humanAccountability: z.enum(['yes', 'no']).optional(),
   // Manual Score Override fields (completely optional, no validation when empty)
   manualImpactScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
   manualEffortScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
@@ -119,8 +122,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     changeImpact: 3,
     modelRisk: 3,
     adoptionReadiness: 3,
-    explainabilityBias: 3,
-    regulatoryCompliance: 3,
   });
 
   // Manual override toggle state
@@ -147,8 +148,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     changeImpact: "Degree of process and role redesign required for implementation",
     modelRisk: "Potential harm if model fails (regulatory, reputational, financial)",
     adoptionReadiness: "Stakeholder and user buy-in, especially in underwriting/claims",
-    explainabilityBias: "Support for responsible AI principles and bias management",
-    regulatoryCompliance: "FCA, GDPR, and UK/EU AI Act readiness",
   };
 
   const form = useForm<FormData>({
@@ -336,8 +335,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         changeImpact: (useCase as any).changeImpact ?? 3,
         modelRisk: (useCase as any).modelRisk ?? 3,
         adoptionReadiness: (useCase as any).adoptionReadiness ?? 3,
-        explainabilityBias: (useCase as any).explainabilityBias ?? 3,
-        regulatoryCompliance: (useCase as any).regulatoryCompliance ?? 3,
+        // RSA Ethical Principles
+        explainabilityRequired: (useCase as any).explainabilityRequired || undefined,
+        customerHarmRisk: (useCase as any).customerHarmRisk || undefined,
+        dataOutsideUkEu: (useCase as any).dataOutsideUkEu || undefined,
+        thirdPartyModel: (useCase as any).thirdPartyModel || undefined,
+        humanAccountability: (useCase as any).humanAccountability || undefined,
         // Manual override fields
         manualImpactScore: (useCase as any).manualImpactScore,
         manualEffortScore: (useCase as any).manualEffortScore,
@@ -369,8 +372,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         changeImpact: formData.changeImpact,
         modelRisk: formData.modelRisk,
         adoptionReadiness: formData.adoptionReadiness,
-        explainabilityBias: formData.explainabilityBias,
-        regulatoryCompliance: formData.regulatoryCompliance,
       });
       
       // Reset form with all data
@@ -451,8 +452,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
           changeImpact: (useCase as any).changeImpact,
           modelRisk: (useCase as any).modelRisk,
           adoptionReadiness: (useCase as any).adoptionReadiness,
-          explainabilityBias: (useCase as any).explainabilityBias,
-          regulatoryCompliance: (useCase as any).regulatoryCompliance,
           // Manual override fields
           manualImpactScore: (useCase as any).manualImpactScore,
           manualEffortScore: (useCase as any).manualEffortScore,
@@ -864,23 +863,116 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                   </div>
                 </div>
 
-                {/* AI Governance Section */}
+                {/* RSA Ethical Principles Section */}
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">AI Governance & Risk</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <SliderField
-                      field="explainabilityBias"
-                      label="Explainability & Bias"
-                      tooltip={sliderTooltips.explainabilityBias}
-                      leftLabel="Low"
-                      rightLabel="High"
+                  <h4 className="font-medium text-gray-900">RSA Ethical Principles</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="explainabilityRequired"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Is explainability required?</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                    <SliderField
-                      field="regulatoryCompliance"
-                      label="Regulatory Compliance"
-                      tooltip={sliderTooltips.regulatoryCompliance}
-                      leftLabel="Low"
-                      rightLabel="High"
+                    <FormField
+                      control={form.control}
+                      name="customerHarmRisk"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Customer harm risk?</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="dataOutsideUkEu"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Data processing outside UK/EU?</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="thirdPartyModel"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Third party model?</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="humanAccountability"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Human accountability required?</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
                 </div>
