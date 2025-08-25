@@ -108,55 +108,103 @@ export default function CleanUseCaseCard({
           </div>
         </div>
 
-        {/* Scores Display - Only for RSA Active Portfolio with enhanced quadrant styling */}
-        {hasScores && effectiveImpact !== undefined && effectiveEffort !== undefined && (
+        {/* Conditional Display: Governance Tags for AI Inventory vs Scores for Strategic Use Cases */}
+        {useCase.librarySource === 'sharepoint_import' ? (
+          /* AI Inventory Governance Display */
           <div className="mb-4">
-            {/* Quadrant Badge with Override Indicator */}
-            <div className="mb-3 text-center">
-              <div className="flex items-center justify-center gap-1">
-                <span 
-                  className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                  style={{ 
-                    backgroundColor: quadrantBorder, 
-                    color: 'white' 
-                  }}
-                >
-                  {effectiveQuadrant || 'Unassigned'}
-                </span>
-                {hasOverrides && (
-                  <AlertTriangle className="w-3 h-3 text-orange-500" />
-                )}
-              </div>
+            <div className="space-y-2">
+              {/* AI/Model Type Badge */}
+              {(useCase as any).aiOrModel && (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <Tag className="w-3 h-3 mr-1" />
+                    {(useCase as any).aiOrModel}
+                  </span>
+                </div>
+              )}
+              
+              {/* Model Owner */}
+              {(useCase as any).modelOwner && (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <Users className="w-3 h-3 mr-1" />
+                    Owner: {(useCase as any).modelOwner}
+                  </span>
+                </div>
+              )}
+              
+              {/* Risk Level Indicator */}
+              {((useCase as any).riskToCustomers || (useCase as any).riskToRsa) && (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    Risk Assessment Available
+                  </span>
+                </div>
+              )}
+              
+              {/* Validation Responsibility */}
+              {(useCase as any).validationResponsibility && (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <Settings className="w-3 h-3 mr-1" />
+                    Validation: {(useCase as any).validationResponsibility}
+                  </span>
+                </div>
+              )}
             </div>
-            
-            {/* Score Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="text-center bg-green-50 rounded-lg p-3 border border-green-200">
-                <div className="text-2xl font-bold text-green-700">
-                  {effectiveImpact.toFixed(1)}
-                </div>
-                <div className="text-xs text-green-600">
-                  Impact {hasOverrides && useCase.manualImpactScore && '(Manual)'}
-                </div>
-              </div>
-              <div className="text-center bg-blue-50 rounded-lg p-3 border border-blue-200">
-                <div className="text-2xl font-bold text-blue-700">
-                  {effectiveEffort.toFixed(1)}
-                </div>
-                <div className="text-xs text-blue-600">
-                  Effort {hasOverrides && useCase.manualEffortScore && '(Manual)'}
-                </div>
-              </div>
-            </div>
-            
-            {/* Override Reason Display */}
-            {hasOverrides && useCase.overrideReason && (
-              <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs">
-                <div className="font-medium text-orange-800">Override Reason:</div>
-                <div className="text-orange-700">{useCase.overrideReason}</div>
-              </div>
-            )}
           </div>
+        ) : (
+          /* Strategic Use Cases - Scores Display */
+          hasScores && effectiveImpact !== undefined && effectiveEffort !== undefined && (
+            <div className="mb-4">
+              {/* Quadrant Badge with Override Indicator */}
+              <div className="mb-3 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <span 
+                    className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                    style={{ 
+                      backgroundColor: quadrantBorder, 
+                      color: 'white' 
+                    }}
+                  >
+                    {effectiveQuadrant || 'Unassigned'}
+                  </span>
+                  {hasOverrides && (
+                    <AlertTriangle className="w-3 h-3 text-orange-500" />
+                  )}
+                </div>
+              </div>
+              
+              {/* Score Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center bg-green-50 rounded-lg p-3 border border-green-200">
+                  <div className="text-2xl font-bold text-green-700">
+                    {effectiveImpact.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-green-600">
+                    Impact {hasOverrides && useCase.manualImpactScore && '(Manual)'}
+                  </div>
+                </div>
+                <div className="text-center bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <div className="text-2xl font-bold text-blue-700">
+                    {effectiveEffort.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-blue-600">
+                    Effort {hasOverrides && useCase.manualEffortScore && '(Manual)'}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Override Reason Display */}
+              {hasOverrides && useCase.overrideReason && (
+                <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs">
+                  <div className="font-medium text-orange-800">Override Reason:</div>
+                  <div className="text-orange-700">{useCase.overrideReason}</div>
+                </div>
+              )}
+            </div>
+          )
         )}
 
         {/* Action Buttons */}
