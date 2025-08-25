@@ -373,7 +373,25 @@ export class ExcelImportService {
       } catch (error) {
         if (error instanceof z.ZodError) {
           const title = useCaseData.title || 'Unknown';
-          result.errors.push(`Validation error for "${title}": ${error.errors.map(e => e.message).join(', ')}`);
+          const detailedErrors = error.errors.map(e => {
+            const field = e.path.join('.');
+            let friendlyMessage = `${field}: ${e.message}`;
+            
+            // Provide more specific error messages for common issues
+            if (e.code === 'invalid_type' && e.expected === 'string') {
+              friendlyMessage = `${field} is required and must be text`;
+            } else if (e.code === 'too_small' && e.type === 'number') {
+              friendlyMessage = `${field} must be between 1-5`;
+            } else if (e.code === 'too_big' && e.type === 'number') {
+              friendlyMessage = `${field} must be between 1-5`;
+            } else if (e.code === 'invalid_enum_value') {
+              friendlyMessage = `${field} has invalid value "${e.received}". Expected: ${e.options?.join(', ')}`;
+            }
+            
+            return friendlyMessage;
+          });
+          
+          result.errors.push(`Validation error for "${title}": ${detailedErrors.join(', ')}`);
         } else {
           result.errors.push(`Validation error: ${error}`);
         }
