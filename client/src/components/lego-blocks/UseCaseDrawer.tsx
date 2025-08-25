@@ -52,6 +52,16 @@ const formSchema = z.object({
   manualEffortScore: z.string().optional(),
   manualQuadrant: z.string().optional(),
   overrideReason: z.string().optional(),
+  // Additional fields that were missing
+  implementationTimeline: z.string().optional(),
+  successMetrics: z.string().optional(),
+  estimatedValue: z.string().optional(),
+  valueMeasurementApproach: z.string().optional(),
+  technicalImplementation: z.string().optional(),
+  isActiveForRsa: z.boolean().optional(),
+  isDashboardVisible: z.boolean().optional(),
+  activationReason: z.string().optional(),
+  deactivationReason: z.string().optional(),
 });
 
 type UseCaseFormData = z.infer<typeof formSchema>;
@@ -1022,87 +1032,9 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
 
                   {/* Note: Multi-select LOB functionality removed - using single select in Business Context */}
 
-                  {/* Business Segments multi-select checkboxes */}
-                  <div>
-                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Business Segments</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {segmentOptions.map((segment) => (
-                        <div key={segment} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`segment-${segment}`}
-                            checked={formData.businessSegments.includes(segment)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setFormData({...formData, businessSegments: [...formData.businessSegments, segment]});
-                              } else {
-                                setFormData({...formData, businessSegments: formData.businessSegments.filter(s => s !== segment)});
-                              }
-                            }}
-                          />
-                          <Label htmlFor={`segment-${segment}`} className="text-sm text-gray-700">
-                            {segment}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Selected segment tags */}
-                    {formData.businessSegments.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {formData.businessSegments.map((segment) => (
-                          <Badge key={segment} variant="secondary" className="bg-purple-100 text-purple-800">
-                            {segment}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  {/* Multi-select business segments removed - now using single select above */}
 
-                  {/* Geographies multi-select checkboxes */}
-                  <div>
-                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Geographies</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {geographyOptions.map((geo) => (
-                        <div key={geo} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`geo-${geo}`}
-                            checked={formData.geographies.includes(geo)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setFormData({...formData, geographies: [...formData.geographies, geo]});
-                              } else {
-                                setFormData({...formData, geographies: formData.geographies.filter(g => g !== geo)});
-                              }
-                            }}
-                          />
-                          <Label htmlFor={`geo-${geo}`} className="text-sm text-gray-700">
-                            {geo}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Selected geography tags */}
-                    {formData.geographies.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {formData.geographies.map((geo) => (
-                          <Badge key={geo} variant="secondary" className="bg-orange-100 text-orange-800">
-                            {geo}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Process Activities filtered by selected Process */}
-                  {formData.process && (
-                    <div>
-                      <Label className="text-base font-semibold text-gray-900">Process Activities</Label>
-                      <p className="text-sm text-gray-500 mt-1">Activities filtered by selected process: {formData.process}</p>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        <Badge variant="outline" className="border-blue-300 text-blue-800">Sample Activity 1</Badge>
-                        <Badge variant="outline" className="border-blue-300 text-blue-800">Sample Activity 2</Badge>
-                      </div>
-                    </div>
-                  )}
+                  {/* Multi-select sections removed - using single selects in Business Context above */}
                 </AccordionContent>
               </AccordionItem>
 
@@ -1166,8 +1098,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                         <div className="flex items-center gap-2 mt-2">
                           <Calendar className="h-4 w-4 text-gray-500" />
                           <Input
-                            value={formData.implementationTimeline}
-                            onChange={(e) => setFormData({...formData, implementationTimeline: e.target.value})}
+                            {...form.register('implementationTimeline')}
                             placeholder="e.g., Q1 2024 - Q3 2024"
                             className="flex-1"
                           />
@@ -1188,8 +1119,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                       <div>
                         <Label className="text-base font-semibold text-gray-900">Success Metrics/KPIs</Label>
                         <Textarea
-                          value={formData.successMetrics}
-                          onChange={(e) => setFormData({...formData, successMetrics: e.target.value})}
+                          {...form.register('successMetrics')}
                           placeholder="Define success metrics and key performance indicators"
                           className="mt-2"
                           rows={3}
@@ -1200,8 +1130,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                       <div>
                         <Label className="text-base font-semibold text-gray-900">Estimated Value</Label>
                         <Input
-                          value={formData.estimatedValue}
-                          onChange={(e) => setFormData({...formData, estimatedValue: e.target.value})}
+                          {...form.register('estimatedValue')}
                           placeholder="e.g., £2.5M annual savings"
                           className="mt-2"
                         />
@@ -1211,8 +1140,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                       <div>
                         <Label className="text-base font-semibold text-gray-900">Value Measurement Approach</Label>
                         <Textarea
-                          value={formData.valueMeasurementApproach}
-                          onChange={(e) => setFormData({...formData, valueMeasurementApproach: e.target.value})}
+                          {...form.register('valueMeasurementApproach')}
                           placeholder="Describe how value will be measured and tracked"
                           className="mt-2"
                           rows={3}
@@ -1225,8 +1153,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                   <div>
                     <Label className="text-base font-semibold text-gray-900">Technical Implementation</Label>
                     <Textarea
-                      value={formData.technicalImplementation}
-                      onChange={(e) => setFormData({...formData, technicalImplementation: e.target.value})}
+                      {...form.register('technicalImplementation')}
                       placeholder="Describe technical approach, architecture, and implementation details"
                       className="mt-2"
                       rows={4}
@@ -1255,8 +1182,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                           <p className="text-sm text-gray-600">Include this use case in RSA's active portfolio</p>
                         </div>
                         <Switch
-                          checked={formData.isActiveForRsa}
-                          onCheckedChange={(checked) => setFormData({...formData, isActiveForRsa: checked})}
+                          checked={form.watch('isActiveForRsa') || false}
+                          onCheckedChange={(checked) => form.setValue('isActiveForRsa', checked)}
                         />
                       </div>
 
@@ -1267,20 +1194,19 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                           <p className="text-sm text-gray-600">Show this use case on executive dashboards</p>
                         </div>
                         <Switch
-                          checked={formData.isDashboardVisible}
-                          onCheckedChange={(checked) => setFormData({...formData, isDashboardVisible: checked})}
+                          checked={form.watch('isDashboardVisible') || false}
+                          onCheckedChange={(checked) => form.setValue('isDashboardVisible', checked)}
                         />
                       </div>
 
                       {/* Activation Reason - required if active */}
-                      {formData.isActiveForRsa && (
+                      {form.watch('isActiveForRsa') && (
                         <div>
                           <Label className="text-base font-semibold text-gray-900">
                             Activation Reason <span className="text-red-500">*</span>
                           </Label>
                           <Textarea
-                            value={formData.activationReason}
-                            onChange={(e) => setFormData({...formData, activationReason: e.target.value})}
+                            {...form.register('activationReason')}
                             placeholder="Explain why this use case is being activated (required)"
                             className="mt-2"
                             rows={3}
@@ -1290,12 +1216,11 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                       )}
 
                       {/* Deactivation Reason - shows if inactive */}
-                      {!formData.isActiveForRsa && (
+                      {!form.watch('isActiveForRsa') && (
                         <div>
                           <Label className="text-base font-semibold text-gray-900">Deactivation Reason</Label>
                           <Textarea
-                            value={formData.deactivationReason}
-                            onChange={(e) => setFormData({...formData, deactivationReason: e.target.value})}
+                            {...form.register('deactivationReason')}
                             placeholder="Explain why this use case is inactive (optional)"
                             className="mt-2"
                             rows={3}
