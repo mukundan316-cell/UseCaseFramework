@@ -38,6 +38,7 @@ export function saveMetadata(metadata: MetadataConfig): void {
  */
 function getDefaultMetadata(): MetadataConfig {
   return {
+    id: 'default',
     valueChainComponents: [
       "Claims", "Underwriting", "Policy Servicing", "Distribution",
       "Product Development", "IT Operations", "Fraud/Compliance", "Customer Service"
@@ -46,6 +47,11 @@ function getDefaultMetadata(): MetadataConfig {
     linesOfBusiness: ["Auto", "Property", "Marine", "Life", "Cyber", "Specialty"],
     businessSegments: ["Mid-Market", "Large Commercial", "SME", "E&S"],
     geographies: ["UK", "Europe", "Global", "North America"],
-    useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"]
+    useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"],
+    activities: [],
+    sourceTypes: ["rsa_internal", "hexaware_external", "industry_standard", "imported", "consolidated_database"],
+    processActivities: null,
+    scoringModel: null,
+    updatedAt: new Date()
   };
 }

@@ -96,7 +96,7 @@ const formSchema = z.object({
   useCaseType: z.string().optional(),
   activity: z.string().optional(),
   // Source type selection
-  librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
+  librarySource: z.string().default('rsa_internal'), // Now dynamic from metadata
   // Tab 3: Implementation & Governance fields
   primaryBusinessOwner: z.string().optional(),
   useCaseStatus: z.string().optional(),
@@ -368,7 +368,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         geography: useCase.geography || '',
         useCaseType: useCase.useCaseType || '',
         activity: (useCase as any).activity || '',
-        librarySource: ((useCase as any).librarySource as 'rsa_internal' | 'hexaware_external' | 'industry_standard' | 'imported' | 'consolidated_database') || 'rsa_internal',
+        librarySource: (useCase as any).librarySource || 'rsa_internal',
         // Multi-select arrays with backward compatibility
         processes: (useCase as any).processes || [useCase.process].filter(Boolean),
         activities: (useCase as any).activities || [(useCase as any).activity].filter(Boolean),
@@ -645,16 +645,16 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                   </div>
                   <div>
                     <Label>Source Type</Label>
-                    <Select key={`librarySource-${mode}-${useCase?.id}`} value={form.watch('librarySource') || 'rsa_internal'} onValueChange={(value) => form.setValue('librarySource', value as 'rsa_internal' | 'hexaware_external' | 'industry_standard' | 'imported' | 'consolidated_database')}>
+                    <Select key={`librarySource-${mode}-${useCase?.id}`} value={form.watch('librarySource') || 'rsa_internal'} onValueChange={(value) => form.setValue('librarySource', value)}>
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Select source type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="rsa_internal">RSA Internal</SelectItem>
-                        <SelectItem value="hexaware_external">Hexaware External</SelectItem>
-                        <SelectItem value="industry_standard">Industry Standard</SelectItem>
-                        <SelectItem value="imported">Imported</SelectItem>
-                        <SelectItem value="consolidated_database">Consolidated Database</SelectItem>
+                        {(metadata?.sourceTypes || ['rsa_internal']).filter(source => source && source.trim()).map(source => (
+                          <SelectItem key={source} value={source}>
+                            {source.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

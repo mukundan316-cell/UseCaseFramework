@@ -13,7 +13,6 @@ import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibr
 import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationLegoBlock';
 import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
 import LibraryManagementLegoBlock from './lego-blocks/LibraryManagementLegoBlock';
-import SourceTypeManagementBlock from './lego-blocks/SourceTypeManagementBlock';
 
 export default function AdminPanel() {
   const { 
@@ -303,7 +302,12 @@ export default function AdminPanel() {
                 <ScoringModelManagementBlock />
                 
                 {/* Source Type Management */}
-                <SourceTypeManagementBlock />
+                <MetadataLegoBlock
+                  category="sourceTypes"
+                  title="Source Types"
+                  items={metadata.sourceTypes}
+                  placeholder="Add new source type..."
+                />
               </div>
             </TabsContent>
           </Tabs>

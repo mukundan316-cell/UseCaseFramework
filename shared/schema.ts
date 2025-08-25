@@ -100,7 +100,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   isActiveForRsa: z.enum(['true', 'false']).default('false'),
   isDashboardVisible: z.enum(['true', 'false']).default('false'),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
-  librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
+  librarySource: z.string().default('rsa_internal'), // Now dynamic from metadata
   activationReason: z.string().optional(),
   deactivationReason: z.string().optional(),
   // Manual override fields (accept null values for optional operation)
@@ -137,6 +137,7 @@ export const metadataConfig = pgTable('metadata_config', {
   geographies: text('geographies').array().notNull(),
   useCaseTypes: text('use_case_types').array().notNull(),
   activities: text('activities').array().notNull().default(sql`'{}'`),
+  sourceTypes: text('source_types').array().notNull().default(sql`'{"rsa_internal","hexaware_external","industry_standard","imported","consolidated_database"}'`),
   processActivities: text('process_activities').$type<Record<string, string[]> | string>(),
   scoringModel: text('scoring_model').$type<any>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
