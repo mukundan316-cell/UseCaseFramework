@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3 } from 'lucide-react';
+import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
 import ScoreOverrideLegoBlock from './ScoreOverrideLegoBlock';
@@ -620,6 +620,19 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                         ))}
                       </SelectContent>
                     </Select>
+                    
+                    {/* AI Inventory Selection Hint */}
+                    {form.watch('librarySource') === 'ai_inventory' && (
+                      <div className="mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <FolderOpen className="w-4 h-4 text-emerald-600" />
+                          <p className="text-sm text-emerald-800 font-medium">AI Inventory Item Selected</p>
+                        </div>
+                        <p className="text-sm text-emerald-700 mt-1">
+                          Additional AI governance fields are available on the <strong>"Implementation & Governance"</strong> tab.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div>
