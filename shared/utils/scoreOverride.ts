@@ -15,7 +15,7 @@ export function getEffectiveEffortScore(useCase: UseCase): number {
 }
 
 /**
- * Gets the effective quadrant (manual override or calculated)
+ * Gets the effective quadrant (manual override or stored database value)
  */
 export function getEffectiveQuadrant(useCase: UseCase): string {
   // First check if there's a manual quadrant override
@@ -23,29 +23,8 @@ export function getEffectiveQuadrant(useCase: UseCase): string {
     return useCase.manualQuadrant;
   }
   
-  // If there are manual impact/effort scores, calculate quadrant from those
-  if (useCase.manualImpactScore !== undefined || useCase.manualEffortScore !== undefined) {
-    const effectiveImpact = getEffectiveImpactScore(useCase);
-    const effectiveEffort = getEffectiveEffortScore(useCase);
-    
-    // Use standard 3.0 threshold for quadrant calculation
-    if (effectiveImpact >= 3.0 && effectiveEffort < 3.0) return 'Quick Win';
-    if (effectiveImpact >= 3.0 && effectiveEffort >= 3.0) return 'Strategic Bet';
-    if (effectiveImpact < 3.0 && effectiveEffort < 3.0) return 'Experimental';
-    if (effectiveImpact < 3.0 && effectiveEffort >= 3.0) return 'Watchlist';
-    return 'Watchlist';
-  }
-  
-  // Calculate quadrant from current scores (don't rely on potentially stale stored quadrant)
-  const effectiveImpact = getEffectiveImpactScore(useCase);
-  const effectiveEffort = getEffectiveEffortScore(useCase);
-  
-  if (effectiveImpact >= 3.0 && effectiveEffort < 3.0) return 'Quick Win';
-  if (effectiveImpact >= 3.0 && effectiveEffort >= 3.0) return 'Strategic Bet';
-  if (effectiveImpact < 3.0 && effectiveEffort < 3.0) return 'Experimental';
-  if (effectiveImpact < 3.0 && effectiveEffort >= 3.0) return 'Watchlist';
-  
-  // Fallback to stored quadrant only if scores are invalid
+  // Use the stored quadrant from database as authoritative source
+  // This ensures consistency with filtering logic that also uses stored quadrant
   return useCase.quadrant || 'Unassigned';
 }
 
