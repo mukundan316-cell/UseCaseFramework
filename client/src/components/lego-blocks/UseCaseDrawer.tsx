@@ -62,6 +62,10 @@ const formSchema = z.object({
   isDashboardVisible: z.boolean().optional(),
   activationReason: z.string().optional(),
   deactivationReason: z.string().optional(),
+  // Multi-select arrays
+  linesOfBusiness: z.array(z.string()).optional(),
+  businessSegments: z.array(z.string()).optional(),
+  geographies: z.array(z.string()).optional(),
 });
 
 type UseCaseFormData = z.infer<typeof formSchema>;
@@ -234,6 +238,10 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
       manualEffortScore: (useCase as any)?.manualEffortScore || '',
       manualQuadrant: (useCase as any)?.manualQuadrant || '',
       overrideReason: (useCase as any)?.overrideReason || '',
+      // Multi-select arrays
+      linesOfBusiness: useCase?.linesOfBusiness || [],
+      businessSegments: useCase?.businessSegments || [],
+      geographies: useCase?.geographies || [],
     }
   });
 
@@ -1034,7 +1042,125 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
 
                   {/* Multi-select business segments removed - now using single select above */}
 
-                  {/* Multi-select sections removed - using single selects in Business Context above */}
+                  {/* Lines of Business multi-select checkboxes in 2 columns */}
+                  <div>
+                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Lines of Business</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {metadata?.linesOfBusiness?.map((lob) => (
+                        <div key={lob} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`lob-${lob}`}
+                            checked={(form.watch('linesOfBusiness') || []).includes(lob)}
+                            onCheckedChange={(checked) => {
+                              const currentLobs = form.watch('linesOfBusiness') || [];
+                              if (checked) {
+                                form.setValue('linesOfBusiness', [...currentLobs, lob]);
+                              } else {
+                                form.setValue('linesOfBusiness', currentLobs.filter(l => l !== lob));
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`lob-${lob}`} className="text-sm text-gray-700">
+                            {lob}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Selected LOB tags */}
+                    {(form.watch('linesOfBusiness') || []).length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {(form.watch('linesOfBusiness') || []).map((lob) => (
+                          <Badge key={lob} variant="secondary" className="bg-green-100 text-green-800">
+                            {lob}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Business Segments multi-select checkboxes */}
+                  <div>
+                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Business Segments</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {metadata?.businessSegments?.map((segment) => (
+                        <div key={segment} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`segment-${segment}`}
+                            checked={(form.watch('businessSegments') || []).includes(segment)}
+                            onCheckedChange={(checked) => {
+                              const currentSegments = form.watch('businessSegments') || [];
+                              if (checked) {
+                                form.setValue('businessSegments', [...currentSegments, segment]);
+                              } else {
+                                form.setValue('businessSegments', currentSegments.filter(s => s !== segment));
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`segment-${segment}`} className="text-sm text-gray-700">
+                            {segment}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Selected segments tags */}
+                    {(form.watch('businessSegments') || []).length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {(form.watch('businessSegments') || []).map((segment) => (
+                          <Badge key={segment} variant="secondary" className="bg-purple-100 text-purple-800">
+                            {segment}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Geographies multi-select checkboxes */}
+                  <div>
+                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Geographies</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {metadata?.geographies?.map((geo) => (
+                        <div key={geo} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`geo-${geo}`}
+                            checked={(form.watch('geographies') || []).includes(geo)}
+                            onCheckedChange={(checked) => {
+                              const currentGeos = form.watch('geographies') || [];
+                              if (checked) {
+                                form.setValue('geographies', [...currentGeos, geo]);
+                              } else {
+                                form.setValue('geographies', currentGeos.filter(g => g !== geo));
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`geo-${geo}`} className="text-sm text-gray-700">
+                            {geo}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Selected geographies tags */}
+                    {(form.watch('geographies') || []).length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {(form.watch('geographies') || []).map((geo) => (
+                          <Badge key={geo} variant="secondary" className="bg-orange-100 text-orange-800">
+                            {geo}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Process Activities filtered by selected Process */}
+                  {form.watch('process') && (
+                    <div>
+                      <Label className="text-base font-semibold text-gray-900">Process Activities</Label>
+                      <p className="text-sm text-gray-500 mt-1">Activities filtered by selected process: {form.watch('process')}</p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <Badge variant="outline" className="border-blue-300 text-blue-800">Sample Activity 1</Badge>
+                        <Badge variant="outline" className="border-blue-300 text-blue-800">Sample Activity 2</Badge>
+                      </div>
+                    </div>
+                  )}
                 </AccordionContent>
               </AccordionItem>
 
