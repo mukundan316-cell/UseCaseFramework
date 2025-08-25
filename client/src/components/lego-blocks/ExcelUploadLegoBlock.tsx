@@ -37,7 +37,7 @@ export default function ExcelUploadLegoBlock({
   const [isUploading, setIsUploading] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [importMode, setImportMode] = useState<'append' | 'replace'>('append');
+  const [importMode, setImportMode] = useState<'append' | 'replace' | 'replace_ai_inventory'>('append');
   const [validationResult, setValidationResult] = useState<ImportResult | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
@@ -291,8 +291,8 @@ export default function ExcelUploadLegoBlock({
             <Label className="text-base font-semibold">Import Mode</Label>
             <RadioGroup
               value={importMode}
-              onValueChange={(value) => setImportMode(value as 'append' | 'replace')}
-              className="grid grid-cols-2 gap-4"
+              onValueChange={(value) => setImportMode(value as 'append' | 'replace' | 'replace_ai_inventory')}
+              className="grid grid-cols-1 gap-3"
             >
               <div className="flex items-center space-x-2 p-3 border rounded-lg">
                 <RadioGroupItem value="append" id="append" />
@@ -309,6 +309,15 @@ export default function ExcelUploadLegoBlock({
                   <div>
                     <p className="font-medium">Replace All</p>
                     <p className="text-xs text-gray-600">Clear library, rebuild</p>
+                  </div>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                <RadioGroupItem value="replace_ai_inventory" id="replace_ai_inventory" />
+                <Label htmlFor="replace_ai_inventory" className="cursor-pointer">
+                  <div>
+                    <p className="font-medium">Replace AI Inventory</p>
+                    <p className="text-xs text-gray-600">Clear only AI inventory, replace with new data</p>
                   </div>
                 </Label>
               </div>

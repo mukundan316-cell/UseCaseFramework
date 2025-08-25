@@ -43,15 +43,15 @@ router.post('/excel/use-cases', upload.single('file'), async (req, res) => {
 
     const { mode = 'append', validateOnly = false } = req.body;
     
-    if (!['append', 'replace'].includes(mode)) {
-      return res.status(400).json({ error: 'Mode must be "append" or "replace"' });
+    if (!['append', 'replace', 'replace_ai_inventory'].includes(mode)) {
+      return res.status(400).json({ error: 'Mode must be "append", "replace", or "replace_ai_inventory"' });
     }
 
     // Import use cases from Excel
     const result = await ExcelImportService.importUseCasesFromExcel(
       req.file.buffer,
       { 
-        mode: mode as 'append' | 'replace',
+        mode: mode as 'append' | 'replace' | 'replace_ai_inventory',
         validateOnly: validateOnly === 'true'
       }
     );

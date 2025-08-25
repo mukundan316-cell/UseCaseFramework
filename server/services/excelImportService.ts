@@ -16,7 +16,7 @@ interface ImportResult {
 }
 
 interface ImportOptions {
-  mode: 'append' | 'replace';
+  mode: 'append' | 'replace' | 'replace_ai_inventory';
   validateOnly?: boolean;
 }
 
@@ -70,15 +70,17 @@ export class ExcelImportService {
         return result;
       }
 
-      // Handle replace mode
+      // Handle replace modes
       if (options.mode === 'replace') {
         await this.clearExistingUseCases();
+      } else if (options.mode === 'replace_ai_inventory') {
+        await this.clearExistingAIInventoryUseCases();
       }
 
       // Import use cases
       for (const useCaseData of validatedUseCases) {
         try {
-          // For replace mode, don't check for existing since we just cleared everything
+          // For replace modes, don't check for existing since we just cleared everything
           let existingUseCase = null;
           if (options.mode === 'append') {
             const allUseCases = await storage.getAllUseCases();
@@ -409,6 +411,24 @@ export class ExcelImportService {
   private static async clearExistingUseCases(): Promise<void> {
     const allUseCases = await storage.getAllUseCases();
     for (const useCase of allUseCases) {
+      await storage.deleteUseCase(useCase.id);
+    }
+  }
+
+  /**
+   * Clear only AI inventory use cases (for AI inventory replace mode)
+   */
+  private static async clearExistingAIInventoryUseCases(): Promise<void> {
+    const allUseCases = await storage.getAllUseCases();
+    const aiInventoryUseCases = allUseCases.filter(useCase => 
+      useCase.librarySource === 'ai_inventory' || 
+      (useCase.aiInventoryStatus !== null && useCase.aiInventoryStatus !== undefined) ||
+      (useCase.deploymentStatus !== null && useCase.deploymentStatus !== undefined) ||
+      (useCase.businessFunction !== null && useCase.businessFunction !== undefined)
+    );
+    
+    console.log(`Found ${aiInventoryUseCases.length} AI inventory use cases to delete`);
+    for (const useCase of aiInventoryUseCases) {
       await storage.deleteUseCase(useCase.id);
     }
   }
