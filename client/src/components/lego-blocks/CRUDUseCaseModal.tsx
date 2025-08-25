@@ -572,10 +572,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                   <Settings className="h-4 w-4" />
                   Implementation & Governance
                 </TabsTrigger>
-                <TabsTrigger value="assessment" className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4" />
-                  RSA Framework Assessment
-                </TabsTrigger>
+                {/* Hide RSA Framework Assessment for AI Inventory items */}
+                {form.watch('librarySource') !== 'ai_inventory' && (
+                  <TabsTrigger value="assessment" className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    RSA Framework Assessment
+                  </TabsTrigger>
+                )}
               </TabsList>
 
               {/* Tab 1: Basic Information */}
@@ -1159,8 +1162,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                 )}
               </TabsContent>
 
-              {/* Tab 4: RSA Framework Assessment */}
-              <TabsContent value="assessment" className="space-y-4 mt-6">
+              {/* Tab 4: RSA Framework Assessment - Hidden for AI Inventory */}
+              {form.watch('librarySource') !== 'ai_inventory' && (
+                <TabsContent value="assessment" className="space-y-4 mt-6">
                 {rsaSelection.isActiveForRsa ? (
                   <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1308,7 +1312,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                     </CardContent>
                   </Card>
                 )}
-              </TabsContent>
+                </TabsContent>
+              )}
             </Tabs>
 
             <DialogFooter>
