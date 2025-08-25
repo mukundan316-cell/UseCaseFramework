@@ -23,11 +23,6 @@ export default function MetadataLegoBlock({
   const { addMetadataItem, removeMetadataItem } = useUseCases();
   const { toast } = useToast();
   
-  // Debug logging for activities
-  if (category === 'activities') {
-    console.log(`[${title}] Received ${items.length} items:`, items.slice(0, 5), '...');
-  }
-  
   const [newItem, setNewItem] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState('');

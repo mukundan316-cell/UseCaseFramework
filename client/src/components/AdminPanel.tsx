@@ -257,12 +257,6 @@ export default function AdminPanel() {
                     items={metadata.processes || []}
                     placeholder="Add new business process..."
                   />
-                  <MetadataLegoBlock
-                    category="activities"
-                    title="Activities"
-                    items={metadata.activities || []}
-                    placeholder="Add new activity..."
-                  />
                 </div>
                 
                 {/* Process-Activity Relationships */}
