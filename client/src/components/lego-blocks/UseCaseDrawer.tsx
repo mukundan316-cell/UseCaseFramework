@@ -92,27 +92,27 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
     }
   };
 
-  if (!useCase) return null;
-
-  // Form state for editable fields
+  // Form state for editable fields - must be before early return to avoid hook count issues
   const [formData, setFormData] = useState({
-    process: useCase.process || '',
-    linesOfBusiness: useCase.linesOfBusiness || [useCase.lineOfBusiness].filter(Boolean),
-    businessSegments: useCase.businessSegments || [useCase.businessSegment].filter(Boolean),
-    geographies: useCase.geographies || [useCase.geography].filter(Boolean),
-    primaryBusinessOwner: (useCase as any).primaryBusinessOwner || '',
-    useCaseStatus: (useCase as any).useCaseStatus || '',
-    keyDependencies: (useCase as any).keyDependencies || '',
-    implementationTimeline: (useCase as any).implementationTimeline || '',
-    successMetrics: (useCase as any).successMetrics || '',
-    estimatedValue: (useCase as any).estimatedValue || '',
-    valueMeasurementApproach: (useCase as any).valueMeasurementApproach || '',
-    technicalImplementation: (useCase as any).technicalImplementation || '',
-    isActiveForRsa: useCase.isActiveForRsa === 'true' || useCase.isActiveForRsa === true,
-    isDashboardVisible: useCase.isDashboardVisible === 'true' || useCase.isDashboardVisible === true,
-    activationReason: (useCase as any).activationReason || '',
-    deactivationReason: (useCase as any).deactivationReason || ''
+    process: useCase?.process || '',
+    linesOfBusiness: useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean),
+    businessSegments: useCase?.businessSegments || [useCase?.businessSegment].filter(Boolean),
+    geographies: useCase?.geographies || [useCase?.geography].filter(Boolean),
+    primaryBusinessOwner: (useCase as any)?.primaryBusinessOwner || '',
+    useCaseStatus: (useCase as any)?.useCaseStatus || '',
+    keyDependencies: (useCase as any)?.keyDependencies || '',
+    implementationTimeline: (useCase as any)?.implementationTimeline || '',
+    successMetrics: (useCase as any)?.successMetrics || '',
+    estimatedValue: (useCase as any)?.estimatedValue || '',
+    valueMeasurementApproach: (useCase as any)?.valueMeasurementApproach || '',
+    technicalImplementation: (useCase as any)?.technicalImplementation || '',
+    isActiveForRsa: useCase?.isActiveForRsa === 'true' || useCase?.isActiveForRsa === true,
+    isDashboardVisible: useCase?.isDashboardVisible === 'true' || useCase?.isDashboardVisible === true,
+    activationReason: (useCase as any)?.activationReason || '',
+    deactivationReason: (useCase as any)?.deactivationReason || ''
   });
+
+  if (!useCase) return null;
 
   // Sample data for dropdowns
   const processOptions = [
