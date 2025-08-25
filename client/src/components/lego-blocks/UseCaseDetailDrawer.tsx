@@ -7,11 +7,11 @@ import {
   SheetDescription 
 } from '@/components/ui/sheet';
 import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from '@/components/ui/tabs';
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion';
 import { 
   Badge 
 } from '@/components/ui/badge';
@@ -204,69 +204,75 @@ export default function UseCaseDetailDrawer({
           </div>
         </SheetHeader>
 
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="business">Business</TabsTrigger>
-            {(hasImplementationData || hasTechData || hasGovernanceData) && (
-              <TabsTrigger value="details">Details</TabsTrigger>
-            )}
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4">
-            {/* Scoring Section */}
-            {hasScores && (
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-                  <Target className="w-4 h-4 mr-2" />
-                  RSA Scoring Framework
-                </h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <ScoreDisplay 
-                    label="Impact Score" 
-                    score={effectiveImpact!} 
-                    icon={TrendingUp}
-                    color="text-green-600"
-                  />
-                  <ScoreDisplay 
-                    label="Effort Score" 
-                    score={effectiveEffort!} 
-                    icon={TrendingDown}
-                    color="text-blue-600"
-                  />
-                </div>
-                
-                {/* Quadrant Display */}
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Strategic Quadrant</span>
-                    <Badge 
-                      style={{ 
-                        backgroundColor: getQuadrantColor(effectiveQuadrant as any),
-                        color: 'white'
-                      }}
-                    >
-                      {effectiveQuadrant}
-                    </Badge>
+        <Accordion type="multiple" defaultValue={["overview", "business"]} className="space-y-2">
+          
+          {/* Overview Section */}
+          <AccordionItem value="overview" className="border border-gray-200 rounded-lg">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center">
+                <Target className="w-4 h-4 mr-2 text-blue-600" />
+                <span className="font-semibold text-gray-900">Overview & Scoring</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 space-y-4">
+              {/* Scoring Section */}
+              {hasScores && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <ScoreDisplay 
+                      label="Impact Score" 
+                      score={effectiveImpact!} 
+                      icon={TrendingUp}
+                      color="text-green-600"
+                    />
+                    <ScoreDisplay 
+                      label="Effort Score" 
+                      score={effectiveEffort!} 
+                      icon={TrendingDown}
+                      color="text-blue-600"
+                    />
+                  </div>
+                  
+                  {/* Quadrant Display */}
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Strategic Quadrant</span>
+                      <Badge 
+                        style={{ 
+                          backgroundColor: getQuadrantColor(effectiveQuadrant as any),
+                          color: 'white'
+                        }}
+                      >
+                        {effectiveQuadrant}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
+              )}
+
+              {/* Problem Statement */}
+              {useCase.problemStatement && (
+                <>
+                  <Separator />
+                  <FieldDisplay 
+                    label="Problem Statement"
+                    value={useCase.problemStatement}
+                    icon={AlertTriangle}
+                  />
+                </>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Business Context Section */}
+          <AccordionItem value="business" className="border border-gray-200 rounded-lg">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center">
+                <Building2 className="w-4 h-4 mr-2 text-green-600" />
+                <span className="font-semibold text-gray-900">Business Context</span>
               </div>
-            )}
-
-            <Separator />
-
-            {/* Problem Statement */}
-            {useCase.problemStatement && (
-              <FieldDisplay 
-                label="Problem Statement"
-                value={useCase.problemStatement}
-                icon={AlertTriangle}
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="business" className="space-y-4">
-            <div className="space-y-4">
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 space-y-4">
               <FieldDisplay 
                 label="Process"
                 value={useCase.process}
@@ -329,135 +335,138 @@ export default function UseCaseDetailDrawer({
                   icon={Network}
                 />
               )}
-            </div>
-          </TabsContent>
+            </AccordionContent>
+          </AccordionItem>
 
-          {(hasImplementationData || hasTechData || hasGovernanceData) && (
-            <TabsContent value="details" className="space-y-4">
-              {/* Implementation Section */}
-              {hasImplementationData && (
-                <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Implementation & Governance
-                  </h4>
-                  
-                  <FieldDisplay 
-                    label="Primary Business Owner"
-                    value={extendedUseCase.primaryBusinessOwner}
-                    icon={Users}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Implementation Timeline"
-                    value={extendedUseCase.implementationTimeline}
-                    icon={Clock}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Key Dependencies"
-                    value={extendedUseCase.keyDependencies}
-                    icon={Network}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Success Metrics"
-                    value={extendedUseCase.successMetrics}
-                    icon={Target}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Estimated Value"
-                    value={extendedUseCase.estimatedValue}
-                    icon={DollarSign}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Value Measurement Approach"
-                    value={extendedUseCase.valueMeasurementApproach}
-                    icon={TrendingUp}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Integration Requirements"
-                    value={extendedUseCase.integrationRequirements}
-                    icon={Network}
-                  />
+          {/* Implementation & Governance Section */}
+          {hasImplementationData && (
+            <AccordionItem value="implementation" className="border border-gray-200 rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center">
+                  <Settings className="w-4 h-4 mr-2 text-purple-600" />
+                  <span className="font-semibold text-gray-900">Implementation & Governance</span>
                 </div>
-              )}
-
-              {/* Technology Section */}
-              {hasTechData && (
-                <div className="space-y-3">
-                  <Separator />
-                  <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-                    <Cpu className="w-4 h-4 mr-2" />
-                    Technology & Data
-                  </h4>
-                  
-                  <FieldDisplay 
-                    label="AI/ML Technologies"
-                    value={extendedUseCase.aiMlTechnologies}
-                    icon={Cpu}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Data Sources"
-                    value={extendedUseCase.dataSources}
-                    icon={Database}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Stakeholder Groups"
-                    value={extendedUseCase.stakeholderGroups}
-                    icon={Users}
-                  />
-                </div>
-              )}
-
-              {/* Governance Section */}
-              {hasGovernanceData && (
-                <div className="space-y-3">
-                  <Separator />
-                  <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-                    <Shield className="w-4 h-4 mr-2" />
-                    Risk & Compliance
-                  </h4>
-                  
-                  <FieldDisplay 
-                    label="AI/Model Type"
-                    value={extendedUseCase.aiOrModel}
-                    icon={Cpu}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Risk to Customers"
-                    value={extendedUseCase.riskToCustomers}
-                    icon={AlertTriangle}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Risk to RSA"
-                    value={extendedUseCase.riskToRsa}
-                    icon={Shield}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Data Used"
-                    value={extendedUseCase.dataUsed}
-                    icon={Database}
-                  />
-                  
-                  <FieldDisplay 
-                    label="Model Owner"
-                    value={extendedUseCase.modelOwner}
-                    icon={Users}
-                  />
-                </div>
-              )}
-            </TabsContent>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4 space-y-4">
+                <FieldDisplay 
+                  label="Primary Business Owner"
+                  value={extendedUseCase.primaryBusinessOwner}
+                  icon={Users}
+                />
+                
+                <FieldDisplay 
+                  label="Implementation Timeline"
+                  value={extendedUseCase.implementationTimeline}
+                  icon={Clock}
+                />
+                
+                <FieldDisplay 
+                  label="Key Dependencies"
+                  value={extendedUseCase.keyDependencies}
+                  icon={Network}
+                />
+                
+                <FieldDisplay 
+                  label="Success Metrics"
+                  value={extendedUseCase.successMetrics}
+                  icon={Target}
+                />
+                
+                <FieldDisplay 
+                  label="Estimated Value"
+                  value={extendedUseCase.estimatedValue}
+                  icon={DollarSign}
+                />
+                
+                <FieldDisplay 
+                  label="Value Measurement Approach"
+                  value={extendedUseCase.valueMeasurementApproach}
+                  icon={TrendingUp}
+                />
+                
+                <FieldDisplay 
+                  label="Integration Requirements"
+                  value={extendedUseCase.integrationRequirements}
+                  icon={Network}
+                />
+              </AccordionContent>
+            </AccordionItem>
           )}
-        </Tabs>
+
+          {/* Technology & Data Section */}
+          {hasTechData && (
+            <AccordionItem value="technology" className="border border-gray-200 rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center">
+                  <Cpu className="w-4 h-4 mr-2 text-indigo-600" />
+                  <span className="font-semibold text-gray-900">Technology & Data</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4 space-y-4">
+                <FieldDisplay 
+                  label="AI/ML Technologies"
+                  value={extendedUseCase.aiMlTechnologies}
+                  icon={Cpu}
+                />
+                
+                <FieldDisplay 
+                  label="Data Sources"
+                  value={extendedUseCase.dataSources}
+                  icon={Database}
+                />
+                
+                <FieldDisplay 
+                  label="Stakeholder Groups"
+                  value={extendedUseCase.stakeholderGroups}
+                  icon={Users}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {/* Risk & Compliance Section */}
+          {hasGovernanceData && (
+            <AccordionItem value="governance" className="border border-gray-200 rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center">
+                  <Shield className="w-4 h-4 mr-2 text-red-600" />
+                  <span className="font-semibold text-gray-900">Risk & Compliance</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4 space-y-4">
+                <FieldDisplay 
+                  label="AI/Model Type"
+                  value={extendedUseCase.aiOrModel}
+                  icon={Cpu}
+                />
+                
+                <FieldDisplay 
+                  label="Risk to Customers"
+                  value={extendedUseCase.riskToCustomers}
+                  icon={AlertTriangle}
+                />
+                
+                <FieldDisplay 
+                  label="Risk to RSA"
+                  value={extendedUseCase.riskToRsa}
+                  icon={Shield}
+                />
+                
+                <FieldDisplay 
+                  label="Data Used"
+                  value={extendedUseCase.dataUsed}
+                  icon={Database}
+                />
+                
+                <FieldDisplay 
+                  label="Model Owner"
+                  value={extendedUseCase.modelOwner}
+                  icon={Users}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )}
+        </Accordion>
       </SheetContent>
     </Sheet>
   );
