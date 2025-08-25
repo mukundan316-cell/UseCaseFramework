@@ -77,8 +77,25 @@ export class ExcelImportService {
           const existingUseCase = allUseCases.find(uc => uc.title === useCaseData.title);
           
           if (existingUseCase && options.mode === 'append') {
-            // Update existing
-            await storage.updateUseCase(existingUseCase.id, useCaseData);
+            // Update existing - ensure proper types for scoring fields
+            const updateData = {
+              ...useCaseData,
+              // Convert null scoring values to undefined for database compatibility
+              revenueImpact: useCaseData.revenueImpact ?? undefined,
+              costSavings: useCaseData.costSavings ?? undefined,
+              riskReduction: useCaseData.riskReduction ?? undefined,
+              brokerPartnerExperience: useCaseData.brokerPartnerExperience ?? undefined,
+              strategicFit: useCaseData.strategicFit ?? undefined,
+              dataReadiness: useCaseData.dataReadiness ?? undefined,
+              technicalComplexity: useCaseData.technicalComplexity ?? undefined,
+              changeImpact: useCaseData.changeImpact ?? undefined,
+              modelRisk: useCaseData.modelRisk ?? undefined,
+              adoptionReadiness: useCaseData.adoptionReadiness ?? undefined,
+              finalImpactScore: useCaseData.finalImpactScore ?? undefined,
+              finalEffortScore: useCaseData.finalEffortScore ?? undefined,
+              finalQuadrant: useCaseData.finalQuadrant ?? undefined,
+            };
+            await storage.updateUseCase(existingUseCase.id, updateData);
             result.updatedCount++;
           } else {
             // Create new - add required scoring fields for new use cases
@@ -86,7 +103,18 @@ export class ExcelImportService {
               ...useCaseData,
               impactScore: useCaseData.finalImpactScore || 0,
               effortScore: useCaseData.finalEffortScore || 0,
-              quadrant: useCaseData.finalQuadrant || 'Low Impact, High Effort'
+              quadrant: useCaseData.finalQuadrant || 'Low Impact, High Effort',
+              // Ensure scoring fields have default values if null
+              revenueImpact: useCaseData.revenueImpact || 0,
+              costSavings: useCaseData.costSavings || 0,
+              riskReduction: useCaseData.riskReduction || 0,
+              brokerPartnerExperience: useCaseData.brokerPartnerExperience || 0,
+              strategicFit: useCaseData.strategicFit || 0,
+              dataReadiness: useCaseData.dataReadiness || 0,
+              technicalComplexity: useCaseData.technicalComplexity || 0,
+              changeImpact: useCaseData.changeImpact || 0,
+              modelRisk: useCaseData.modelRisk || 0,
+              adoptionReadiness: useCaseData.adoptionReadiness || 0
             };
             await storage.createUseCase(useCaseWithScoring);
             result.importedCount++;
@@ -279,9 +307,8 @@ export class ExcelImportService {
       useCase.riskToCustomers = getValue('Risk to Customers') || null;
       useCase.riskToRsa = getValue('Risk to RSA') || null;
       useCase.dataUsed = getValue('Data Used') || null;
-      useCase.modelOwnership = getValue('Model Ownership') || null;
-      useCase.validationProcess = getValue('Validation Process') || null;
-      useCase.lastStatusUpdate = getValue('Last Status Update') ? new Date(getValue('Last Status Update')) : null;
+      useCase.modelOwner = getValue('Model Ownership') || null;
+      useCase.validationResponsibility = getValue('Validation Process') || null;
     }
 
     return useCase;
