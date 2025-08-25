@@ -340,11 +340,11 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
   const hasScores = effectiveImpact !== undefined && effectiveEffort !== undefined;
 
   // Get source configuration for badge colors
-  const sourceConfig = getSourceConfig(useCase.librarySource || 'rsa_internal');
+  const sourceConfig = getSourceConfig(useCase?.librarySource || 'rsa_internal');
 
   // Get source badge info
   const getSourceBadge = () => {
-    const source = useCase.librarySource || 'rsa_internal';
+    const source = useCase?.librarySource || 'rsa_internal';
     let icon = <Building2 className="w-3 h-3 mr-1" />;
     let label = 'RSA Internal';
     let bgColor = '#2563eb';
