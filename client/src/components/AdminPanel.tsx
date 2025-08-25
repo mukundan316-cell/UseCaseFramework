@@ -13,6 +13,7 @@ import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibr
 import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationLegoBlock';
 import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
 import LibraryManagementLegoBlock from './lego-blocks/LibraryManagementLegoBlock';
+import SourceTypeManagementBlock from './lego-blocks/SourceTypeManagementBlock';
 
 export default function AdminPanel() {
   const { 
@@ -300,6 +301,9 @@ export default function AdminPanel() {
               {/* Scoring Model Management */}
               <div className="space-y-6">
                 <ScoringModelManagementBlock />
+                
+                {/* Source Type Management */}
+                <SourceTypeManagementBlock />
               </div>
             </TabsContent>
           </Tabs>

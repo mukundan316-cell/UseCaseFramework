@@ -95,6 +95,8 @@ const formSchema = z.object({
   geography: z.string().optional(),
   useCaseType: z.string().optional(),
   activity: z.string().optional(),
+  // Source type selection
+  librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
   // Tab 3: Implementation & Governance fields
   primaryBusinessOwner: z.string().optional(),
   useCaseStatus: z.string().optional(),
@@ -214,6 +216,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
       businessSegment: '',
       geography: '',
       useCaseType: '',
+      librarySource: 'rsa_internal',
       isActiveForRsa: 'false',
       isDashboardVisible: 'false',
       libraryTier: 'reference',
@@ -365,6 +368,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         geography: useCase.geography || '',
         useCaseType: useCase.useCaseType || '',
         activity: (useCase as any).activity || '',
+        librarySource: ((useCase as any).librarySource as 'rsa_internal' | 'hexaware_external' | 'industry_standard' | 'imported' | 'consolidated_database') || 'rsa_internal',
         // Multi-select arrays with backward compatibility
         processes: (useCase as any).processes || [useCase.process].filter(Boolean),
         activities: (useCase as any).activities || [(useCase as any).activity].filter(Boolean),
@@ -446,6 +450,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         geography: '',
         useCaseType: '',
         activity: '',
+        librarySource: 'rsa_internal',
         // Multi-select arrays
         processes: [],
         activities: [],
@@ -635,6 +640,21 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                         {metadata.useCaseTypes.filter(type => type && type.trim()).map(type => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Source Type</Label>
+                    <Select key={`librarySource-${mode}-${useCase?.id}`} value={form.watch('librarySource') || 'rsa_internal'} onValueChange={(value) => form.setValue('librarySource', value as 'rsa_internal' | 'hexaware_external' | 'industry_standard' | 'imported' | 'consolidated_database')}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select source type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="rsa_internal">RSA Internal</SelectItem>
+                        <SelectItem value="hexaware_external">Hexaware External</SelectItem>
+                        <SelectItem value="industry_standard">Industry Standard</SelectItem>
+                        <SelectItem value="imported">Imported</SelectItem>
+                        <SelectItem value="consolidated_database">Consolidated Database</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
