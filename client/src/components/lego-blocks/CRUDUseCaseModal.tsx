@@ -61,17 +61,17 @@ const formSchema = z.object({
   libraryTier: z.union([z.literal('active'), z.literal('reference'), z.string()]).default('reference'),
   activationReason: z.string().optional(),
   // Enhanced RSA Framework - Business Value Levers (all optional - no validation restrictions)
-  revenueImpact: z.number().min(1).max(5).optional(),
-  costSavings: z.number().min(1).max(5).optional(),
-  riskReduction: z.number().min(1).max(5).optional(),
-  brokerPartnerExperience: z.number().min(1).max(5).optional(),
-  strategicFit: z.number().min(1).max(5).optional(),
+  revenueImpact: z.number().optional(),
+  costSavings: z.number().optional(),
+  riskReduction: z.number().optional(),
+  brokerPartnerExperience: z.number().optional(),
+  strategicFit: z.number().optional(),
   // Feasibility Levers (all optional)
-  dataReadiness: z.number().min(1).max(5).optional(),
-  technicalComplexity: z.number().min(1).max(5).optional(),
-  changeImpact: z.number().min(1).max(5).optional(),
-  modelRisk: z.number().min(1).max(5).optional(),
-  adoptionReadiness: z.number().min(1).max(5).optional(),
+  dataReadiness: z.number().optional(),
+  technicalComplexity: z.number().optional(),
+  changeImpact: z.number().optional(),
+  modelRisk: z.number().optional(),
+  adoptionReadiness: z.number().optional(),
   // RSA Ethical Principles (all optional) - moved to Tab 3
   explainabilityRequired: z.enum(['yes', 'no']).optional(),
   customerHarmRisk: z.enum(['none', 'low', 'medium', 'high']).optional(),
@@ -88,8 +88,8 @@ const formSchema = z.object({
   validationResponsibility: z.enum(['Internal', 'Third Party']).optional(),
   informedBy: z.string().optional(),
   // Manual Score Override fields (completely optional, no validation when empty)
-  manualImpactScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
-  manualEffortScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
+  manualImpactScore: z.union([z.number(), z.string(), z.null()]).optional(),
+  manualEffortScore: z.union([z.number(), z.string(), z.null()]).optional(),
   manualQuadrant: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
   overrideReason: z.union([z.string(), z.null()]).optional(),
   businessFunction: z.string().optional(),
@@ -521,19 +521,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           changedData.overrideReason = (data.overrideReason === '' || data.overrideReason === null) ? null : data.overrideReason;
         }
         
-        // Check if there are any validation issues
-        const hasActivationValidationIssue = changedData.isActiveForRsa === 'true' && 
-          (!changedData.activationReason || changedData.activationReason.trim().length < 10);
-        
-        if (hasActivationValidationIssue) {
-          console.warn('Activation reason validation failed');
-          toast({
-            title: "Validation Error",
-            description: "Please provide at least 10 characters for the activation reason when including in RSA portfolio.",
-            variant: "destructive",
-          });
-          return;
-        }
+        // Validation constraints removed to allow free form submission
         
         console.log('Sending data for update:', changedData);
         console.log('Calling updateUseCase with ID:', useCase.id);

@@ -114,21 +114,21 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activationDate: true,
   lastStatusUpdate: true, // Auto-managed field
 }).extend({
-  // Business Value Levers (Impact Score) - optional for import
-  revenueImpact: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  costSavings: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  riskReduction: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  brokerPartnerExperience: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  strategicFit: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  // Feasibility Levers (Effort Score) - optional for import
-  dataReadiness: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  technicalComplexity: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  changeImpact: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  modelRisk: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  adoptionReadiness: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  // Final scoring fields - optional for import
-  finalImpactScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  finalEffortScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  // Business Value Levers (Impact Score) - optional for import - no constraints
+  revenueImpact: z.union([z.number(), z.null()]).optional(),
+  costSavings: z.union([z.number(), z.null()]).optional(),
+  riskReduction: z.union([z.number(), z.null()]).optional(),
+  brokerPartnerExperience: z.union([z.number(), z.null()]).optional(),
+  strategicFit: z.union([z.number(), z.null()]).optional(),
+  // Feasibility Levers (Effort Score) - optional for import - no constraints
+  dataReadiness: z.union([z.number(), z.null()]).optional(),
+  technicalComplexity: z.union([z.number(), z.null()]).optional(),
+  changeImpact: z.union([z.number(), z.null()]).optional(),
+  modelRisk: z.union([z.number(), z.null()]).optional(),
+  adoptionReadiness: z.union([z.number(), z.null()]).optional(),
+  // Final scoring fields - optional for import - no constraints
+  finalImpactScore: z.union([z.number(), z.null()]).optional(),
+  finalEffortScore: z.union([z.number(), z.null()]).optional(),
   finalQuadrant: z.union([z.string(), z.null()]).optional(),
   
   linesOfBusiness: z.array(z.string()).optional(),

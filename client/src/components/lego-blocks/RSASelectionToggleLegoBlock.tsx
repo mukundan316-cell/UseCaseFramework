@@ -190,15 +190,7 @@ export default function RSASelectionToggleLegoBlock({
               </div>
             </div>
 
-            {/* Validation Alert */}
-            {isActiveForRsa && activationReason.trim().length > 0 && activationReason.trim().length < 10 && (
-              <Alert className="border-yellow-200 bg-yellow-50">
-                <AlertCircle className="h-4 w-4 text-yellow-600" />
-                <AlertDescription className="text-yellow-800">
-                  Activation reason needs at least 10 characters. Current: {activationReason.trim().length}/10
-                </AlertDescription>
-              </Alert>
-            )}
+            {/* Validation Alert - Removed to allow free form submission */}
           </div>
         )}
 
