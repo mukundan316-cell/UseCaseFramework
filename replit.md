@@ -1,7 +1,7 @@
 # RSA AI Use Case Value Framework
 
 ## Overview
-Strategic AI use case prioritization platform for RSA Insurance. It features a comprehensive assessment system, a 12-lever scoring framework, and an executive analytics dashboard. The platform's business vision is to streamline AI use case prioritization, enhance decision-making, and provide clear insights into potential AI investments within RSA. Its market potential lies in offering a standardized, data-driven approach to AI strategy, which is critical for large enterprises. The project aims to be a foundational tool for AI adoption and value realization within RSA.
+Strategic AI use case prioritization platform for RSA Insurance. It features a comprehensive assessment system, a 10-lever scoring framework, and an executive analytics dashboard. The platform's business vision is to streamline AI use case prioritization, enhance decision-making, and provide clear insights into potential AI investments within RSA. Its market potential lies in offering a standardized, data-driven approach to AI strategy, which is critical for large enterprises. The project aims to be a foundational tool for AI adoption and value realization within RSA.
 
 ## User Preferences
 - **Communication**: Simple, everyday language
@@ -19,7 +19,7 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 - **Database**: Hybrid approach utilizing PostgreSQL for session tracking and JSON blob storage for questionnaire data.
 
 ### Core Features
-- **Use Case Management**: Complete CRUD operations integrated with the RSA 12-lever scoring framework.
+- **Use Case Management**: Complete CRUD operations integrated with the RSA 10-lever scoring framework.
 - **Assessment System**: A 6-section questionnaire featuring 14 advanced question types (e.g., company_profile, business_lines_matrix, smart_rating, ranking).
 - **Manual Override System**: Toggle-based score customization with database persistence.
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts.
