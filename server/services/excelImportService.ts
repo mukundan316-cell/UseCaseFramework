@@ -216,8 +216,8 @@ export class ExcelImportService {
       useCaseType: getValue('Use Case Type') || 'Process',
       useCaseStatus: getValue('Use Case Status') || 'Reference',
       librarySource: getValue('Library Source') || 'Manual Entry',
-      isActiveForRsa: getValue('Portfolio Status')?.toLowerCase().includes('active') || false,
-      isDashboardVisible: getValue('Dashboard Visible') === 'Yes' || getValue('Dashboard Visible') === true,
+      isActiveForRsa: (getValue('Portfolio Status')?.toLowerCase().includes('active') || false) ? 'true' : 'false',
+      isDashboardVisible: (getValue('Dashboard Visible') === 'Yes' || getValue('Dashboard Visible') === true) ? 'true' : 'false',
       activationReason: getValue('Activation Reason') || null,
     };
 
