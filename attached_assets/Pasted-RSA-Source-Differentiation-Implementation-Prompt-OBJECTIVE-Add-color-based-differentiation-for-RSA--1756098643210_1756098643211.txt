@@ -1,0 +1,304 @@
+RSA Source Differentiation: Implementation Prompt
+OBJECTIVE
+Add color-based differentiation for RSA internal vs Hexaware consultant use cases in the Reference Library, integrating seamlessly into existing admin panel without breaking LEGO block principles.
+
+DATABASE SCHEMA EXTENSION
+Step 1: Extend use_cases table
+sql-- Add source tracking column with default for existing records
+ALTER TABLE use_cases 
+ADD COLUMN source_type text DEFAULT 'rsa_internal'::text;
+
+-- Add constraint to ensure valid values
+ALTER TABLE use_cases 
+ADD CONSTRAINT source_type_check 
+CHECK (source_type IN ('rsa_internal', 'hexaware_consultant'));
+
+-- Update any existing Hexaware-created records (if identifiable)
+-- UPDATE use_cases SET source_type = 'hexaware_consultant' WHERE [criteria];
+Step 2: Extend metadata_config for dropdown values
+sql-- Add source types to business metadata
+UPDATE metadata_config 
+SET updated_at = now()
+WHERE id = 'default';
+
+-- Note: No schema change needed - this will be handled in form options
+
+ADMIN PANEL INTEGRATION (LEGO PRINCIPLES)
+Step 3: Extend existing use case creation form
+Following the LEGO Form Standards (text-base font-semibold text-gray-900 labels, shadcn/ui components):
+Add to existing form component (after geography field):
+tsx{/* Source Type Field - LEGO Form Standard */}
+<FormField
+  control={form.control}
+  name="sourceType"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel className="text-base font-semibold text-gray-900">
+        Source Type
+      </FormLabel>
+      <Select onValueChange={field.onChange} defaultValue="rsa_internal">
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue placeholder="Select source" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          <SelectItem value="rsa_internal">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              🏢 RSA Internal
+            </div>
+          </SelectItem>
+          <SelectItem value="hexaware_consultant">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+              👥 Hexaware Consultant
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+Step 4: Extend existing use case edit form
+Add to existing edit form component (same position after geography):
+tsx{/* Source Type Field - Edit Mode */}
+<FormField
+  control={form.control}
+  name="sourceType"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel className="text-base font-semibold text-gray-900">
+        Source Type
+      </FormLabel>
+      <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          <SelectItem value="rsa_internal">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              🏢 RSA Internal
+            </div>
+          </SelectItem>
+          <SelectItem value="hexaware_consultant">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+              👥 Hexaware Consultant
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+LEGO CRUD CARD ENHANCEMENT
+Step 5: Enhance existing use case card component
+Following LEGO CRUD Card Design Standard (white cards, blue left border, color-coded pills):
+Modify existing card component:
+tsx// Replace existing card border logic
+const getCardBorderClass = (sourceType: string) => {
+  return sourceType === 'rsa_internal' 
+    ? 'border-l-4 border-l-blue-500' 
+    : 'border-l-4 border-l-amber-500';
+};
+
+// Add to existing tag row (after use case type tag)
+<div className="flex flex-wrap gap-2 mb-3">
+  {/* Existing tags: Process, Line of Business, Use Case Type */}
+  
+  {/* NEW: Source type tag */}
+  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+    useCase.sourceType === 'rsa_internal'
+      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+      : 'bg-amber-50 text-amber-700 border border-amber-200'
+  }`}>
+    {useCase.sourceType === 'rsa_internal' ? '🏢 RSA' : '👥 Hexaware'}
+  </span>
+</div>
+
+// Update card container classes
+<div className={`bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow p-4 ${getCardBorderClass(useCase.sourceType)}`}>
+
+ADMIN PANEL FILTERING
+Step 6: Add filter controls to Reference Library view
+Following existing filter pattern in admin panel:
+Add to existing filter section:
+tsx{/* Add to existing filter controls */}
+<div className="flex flex-wrap gap-2 mb-4">
+  {/* Existing filters remain unchanged */}
+  
+  {/* NEW: Source type filters */}
+  <div className="flex gap-1 border border-gray-200 rounded-lg p-1">
+    <Button
+      variant={sourceFilter === 'all' ? 'default' : 'ghost'}
+      size="sm"
+      onClick={() => setSourceFilter('all')}
+    >
+      All Sources
+    </Button>
+    <Button
+      variant={sourceFilter === 'rsa_internal' ? 'default' : 'ghost'}
+      size="sm"
+      onClick={() => setSourceFilter('rsa_internal')}
+      className="gap-1"
+    >
+      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+      RSA
+    </Button>
+    <Button
+      variant={sourceFilter === 'hexaware_consultant' ? 'default' : 'ghost'}
+      size="sm"
+      onClick={() => setSourceFilter('hexaware_consultant')}
+      className="gap-1"
+    >
+      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+      Hexaware
+    </Button>
+  </div>
+  
+  {/* Source count badge */}
+  <Badge variant="outline" className="ml-auto">
+    {filteredUseCases.length} use cases
+  </Badge>
+</div>
+
+BACKEND API EXTENSION
+Step 7: Extend existing API endpoints
+Following existing API patterns with Drizzle ORM:
+Extend use case creation endpoint:
+typescript// Add to existing POST /api/use-cases validation schema
+const createUseCaseSchema = z.object({
+  // ... existing fields
+  sourceType: z.enum(['rsa_internal', 'hexaware_consultant']).default('rsa_internal'),
+});
+
+// Add to existing database insert
+const newUseCase = await db.insert(useCases).values({
+  // ... existing fields
+  sourceType: validatedData.sourceType,
+}).returning();
+Extend use case update endpoint:
+typescript// Add to existing PATCH /api/use-cases/:id validation schema
+const updateUseCaseSchema = z.object({
+  // ... existing fields
+  sourceType: z.enum(['rsa_internal', 'hexaware_consultant']).optional(),
+});
+
+// Add to existing database update
+const updatedUseCase = await db.update(useCases)
+  .set({
+    // ... existing fields
+    sourceType: validatedData.sourceType,
+  })
+  .where(eq(useCases.id, id));
+
+ANALYTICS DASHBOARD EXTENSION
+Step 8: Add source analytics to existing dashboard
+Following existing dashboard component pattern:
+Add to existing analytics cards:
+tsx{/* Add after existing metric cards */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <Card>
+    <CardHeader className="pb-2">
+      <CardTitle className="text-sm font-medium text-gray-600">
+        RSA Internal Use Cases
+      </CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="flex items-center justify-between">
+        <div className="text-2xl font-bold text-blue-600">
+          {useCases.filter(uc => uc.sourceType === 'rsa_internal').length}
+        </div>
+        <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+          🏢
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader className="pb-2">
+      <CardTitle className="text-sm font-medium text-gray-600">
+        Hexaware Contributions
+      </CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="flex items-center justify-between">
+        <div className="text-2xl font-bold text-amber-600">
+          {useCases.filter(uc => uc.sourceType === 'hexaware_consultant').length}
+        </div>
+        <div className="h-8 w-8 bg-amber-100 rounded-full flex items-center justify-center">
+          👥
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+</div>
+
+PDF EXPORT ENHANCEMENT
+Step 9: Extend existing PDF generation
+Following existing PDFKit pattern:
+Add to existing library catalog generation:
+typescript// Extend existing generateLibraryCatalog function
+const generateEnhancedLibraryCatalog = (useCases: UseCase[]) => {
+  // Group by source type
+  const rsaInternal = useCases.filter(uc => uc.sourceType === 'rsa_internal');
+  const hexawareContributions = useCases.filter(uc => uc.sourceType === 'hexaware_consultant');
+  
+  // Add to existing PDF sections
+  doc.addPage();
+  doc.fontSize(16).text('Use Cases by Source', 50, 50);
+  
+  doc.fontSize(14).text(`RSA Internal: ${rsaInternal.length} use cases`, 50, 80);
+  doc.fontSize(14).text(`Hexaware Contributions: ${hexawareContributions.length} use cases`, 50, 100);
+  
+  // Continue with existing PDF generation logic
+};
+
+TESTING CHECKLIST
+Step 10: Validation steps
+
+✅ Database migration runs without errors
+✅ Existing use cases display correctly (default to 'rsa_internal')
+✅ Admin panel form accepts source selection
+✅ Cards show correct border colors (blue/amber)
+✅ Filtering works correctly in Reference Library
+✅ Analytics dashboard shows source metrics
+✅ PDF exports include source differentiation
+✅ No existing functionality is broken
+
+
+IMPLEMENTATION PRIORITY
+Phase 1: Core Functionality (30 minutes)
+
+Database schema extension
+Admin panel form updates
+Basic card color differentiation
+
+Phase 2: User Experience (20 minutes)
+
+Filter controls
+Analytics dashboard updates
+Visual polish
+
+Phase 3: Reporting (10 minutes)
+
+PDF export enhancements
+Source-based analytics
+
+Total Implementation Time: ~60 minutes
+
+SUCCESS CRITERIA
+✅ RSA users can immediately distinguish between internal and consultant contributions
+✅ Admin panel seamlessly integrates source selection without breaking existing workflow
+✅ LEGO design principles maintained throughout all components
+✅ Zero regression in existing functionality
+✅ Clear audit trail for governance and Andrew's team
+This implementation provides immediate visual differentiation while maintaining your application's architectural integrity and user experience standards.

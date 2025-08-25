@@ -1,8 +1,9 @@
 import React from 'react';
-import { Edit, Trash2, Library, Plus, Settings, Building2, Tag, AlertTriangle } from 'lucide-react';
+import { Edit, Trash2, Library, Plus, Settings, Building2, Tag, AlertTriangle, Users, ExternalLink } from 'lucide-react';
 import { UseCase } from '../../types';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
+import { getSourceConfig, getSourceBackgroundTint } from '../../utils/sourceColors';
 
 interface CleanUseCaseCardProps {
   useCase: UseCase;
@@ -43,19 +44,49 @@ export default function CleanUseCaseCard({
     }
   };
   
-  const bgClass = hasScores ? getQuadrantBgClass(effectiveQuadrant) : 'bg-white';
+  // Get source-based styling
+  const sourceConfig = getSourceConfig(useCase.librarySource || 'rsa_internal');
+  const sourceBgTint = getSourceBackgroundTint(useCase.librarySource || 'rsa_internal');
+  
+  // Combine quadrant and source styling
+  const bgClass = hasScores 
+    ? `${getQuadrantBgClass(effectiveQuadrant)} ${sourceBgTint}` 
+    : sourceBgTint;
+  
+  // Use source color for border if no quadrant scores available
+  const borderColor = hasScores ? quadrantBorder : sourceConfig.borderColor;
   
   return (
     <div 
       className={`border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200 ${bgClass}`}
-      style={{ borderLeft: `4px solid ${quadrantBorder}` }}
+      style={{ borderLeft: `4px solid ${borderColor}` }}
     >
       <div className="p-5">
-        {/* Title and Description */}
+        {/* Source Badge */}
         <div className="mb-3">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {useCase.title}
-          </h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 flex-1">
+              {useCase.title}
+            </h3>
+            <div className="ml-2 flex items-center">
+              <span 
+                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                style={{ 
+                  backgroundColor: sourceConfig.badgeBackground, 
+                  color: sourceConfig.badgeColor 
+                }}
+              >
+                {(useCase.librarySource || 'rsa_internal') === 'rsa_internal' ? (
+                  <Building2 className="w-3 h-3 mr-1" />
+                ) : (useCase.librarySource || 'rsa_internal') === 'hexaware_external' ? (
+                  <ExternalLink className="w-3 h-3 mr-1" />
+                ) : (
+                  <Users className="w-3 h-3 mr-1" />
+                )}
+                {sourceConfig.label}
+              </span>
+            </div>
+          </div>
           <p className="text-sm text-gray-600 line-clamp-2">
             {useCase.description}
           </p>

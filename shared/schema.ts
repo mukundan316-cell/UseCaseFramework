@@ -61,7 +61,7 @@ export const useCases = pgTable("use_cases", {
   activationDate: timestamp("activation_date").defaultNow(),
   activationReason: text("activation_reason"), // Required when isActiveForRsa = 'true'
   deactivationReason: text("deactivation_reason"),
-  librarySource: text("library_source").notNull().default('rsa_internal'), // 'rsa_internal', 'industry_standard', 'imported'
+  librarySource: text("library_source").notNull().default('rsa_internal'), // 'rsa_internal', 'hexaware_external', 'industry_standard', 'imported'
   
   // Tab 3: Implementation & Governance fields
   primaryBusinessOwner: text("primary_business_owner"),
@@ -100,7 +100,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   isActiveForRsa: z.enum(['true', 'false']).default('false'),
   isDashboardVisible: z.enum(['true', 'false']).default('false'),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
-  librarySource: z.enum(['rsa_internal', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
+  librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'consolidated_database']).default('rsa_internal'),
   activationReason: z.string().optional(),
   deactivationReason: z.string().optional(),
   // Manual override fields (accept null values for optional operation)

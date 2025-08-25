@@ -8,6 +8,7 @@ import { useUseCases } from '../../contexts/UseCaseContext';
 import { UseCase } from '../../types';
 import CleanUseCaseCard from './CleanUseCaseCard';
 import CRUDUseCaseModal from './CRUDUseCaseModal';
+import SourceLegend from './SourceLegend';
 
 interface ImprovedUseCaseExplorerProps {
   useCases: UseCase[];
@@ -50,7 +51,8 @@ export default function ImprovedUseCaseExplorer({
     businessSegment: '',
     geography: '',
     useCaseType: '',
-    quadrant: ''
+    quadrant: '',
+    librarySource: '' // New filter for source differentiation
   });
 
   // Filter use cases
@@ -76,6 +78,7 @@ export default function ImprovedUseCaseExplorer({
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
     if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+    if (filters.librarySource && (useCase as any).librarySource !== filters.librarySource) return false;
 
     return true;
   });
@@ -187,8 +190,8 @@ export default function ImprovedUseCaseExplorer({
         </Button>
       </div>
 
-      {/* Filter Dropdowns Row - Exact match to screenshot */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+      {/* Filter Dropdowns Row - Enhanced with source filter */}
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
         <Select value={filters.process} onValueChange={(value) => setFilters(prev => ({ ...prev, process: value === 'all' ? '' : value }))}>
           <SelectTrigger>
             <SelectValue placeholder="All Processes" />
@@ -260,7 +263,24 @@ export default function ImprovedUseCaseExplorer({
             ))}
           </SelectContent>
         </Select>
+
+        <Select value={filters.librarySource} onValueChange={(value) => setFilters(prev => ({ ...prev, librarySource: value === 'all' ? '' : value }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Sources" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sources</SelectItem>
+            <SelectItem value="rsa_internal">RSA Internal</SelectItem>
+            <SelectItem value="hexaware_external">Hexaware External</SelectItem>
+            <SelectItem value="industry_standard">Industry Standard</SelectItem>
+            <SelectItem value="imported">Imported</SelectItem>
+            <SelectItem value="consolidated_database">Consolidated</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
+      {/* Source Legend */}
+      <SourceLegend className="mb-4" />
 
       {/* Show Recommendations Only Toggle - Exact match to screenshot */}
       <div className="flex justify-end">
