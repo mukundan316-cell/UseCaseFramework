@@ -41,5 +41,13 @@
     "Predictive ML",
     "NLP",
     "RPA"
+  ],
+  "sourceTypes": [
+    "rsa_internal",
+    "hexaware_external",
+    "industry_standard", 
+    "imported",
+    "consolidated_database",
+    "ai_inventory"
   ]
 }

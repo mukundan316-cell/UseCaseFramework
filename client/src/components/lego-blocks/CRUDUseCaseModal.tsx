@@ -995,8 +995,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                   </div>
                 </div>
 
-                {/* AI Inventory Governance Section - Only show for SharePoint imports */}
-                {form.watch('librarySource') === 'sharepoint_import' && (
+                {/* AI Inventory Governance Section - Only show for AI inventory */}
+                {form.watch('librarySource') === 'ai_inventory' && (
                   <div className="space-y-4">
                     <h4 className="font-medium text-gray-900">AI Inventory Governance</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1155,7 +1155,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
               <div className="space-y-6">
                 <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Value Levers</h4>
                 {/* Hide strategic scoring fields for AI inventory items */}
-                {form.watch('librarySource') !== 'sharepoint_import' && (
+                {form.watch('librarySource') !== 'ai_inventory' && (
                   <>
                     <SliderField
                       field="revenueImpact"
