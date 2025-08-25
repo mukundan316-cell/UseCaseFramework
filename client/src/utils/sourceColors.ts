@@ -20,15 +20,6 @@ export const getSourceConfig = (librarySource: string): SourceStyleConfig => {
         label: 'RSA Internal',
         description: 'Contributed by RSA internal teams and employees'
       };
-    case 'hexaware_external':
-      return {
-        borderColor: '#7c2d12', // orange-800
-        badgeColor: '#ea580c',
-        badgeBackground: '#fed7aa', // orange-100
-        iconColor: '#f97316', // orange-500
-        label: 'Hexaware External',
-        description: 'Contributed by Hexaware external consultants'
-      };
     case 'industry_standard':
       return {
         borderColor: '#166534', // green-800
@@ -82,8 +73,6 @@ export const getSourceBackgroundTint = (librarySource: string): string => {
   switch (librarySource) {
     case 'rsa_internal':
       return 'bg-blue-50/30'; // Very subtle blue tint
-    case 'hexaware_external':
-      return 'bg-orange-50/30'; // Very subtle orange tint
     case 'industry_standard':
       return 'bg-green-50/30'; // Very subtle green tint
     case 'imported':
@@ -98,8 +87,7 @@ export const getSourceBackgroundTint = (librarySource: string): string => {
 };
 
 export const getAllSourceTypes = () => [
-  'rsa_internal',
-  'hexaware_external', 
+  'rsa_internal', 
   'industry_standard',
   'imported',
   'consolidated_database',

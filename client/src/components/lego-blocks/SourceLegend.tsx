@@ -14,7 +14,6 @@ export default function SourceLegend({ className = '', showTitle = true }: Sourc
   // Icon mapping for source types
   const iconMapping: Record<string, any> = {
     'rsa_internal': Building2,
-    'hexaware_external': ExternalLink,
     'industry_standard': Users,
     'imported': Download,
     'consolidated_database': Database,
