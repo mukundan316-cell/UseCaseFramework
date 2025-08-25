@@ -1,8 +1,9 @@
 import PDFDocument from 'pdfkit';
 import { Response } from 'express';
 import { format } from 'date-fns';
-import { UseCaseDataExtractor, ExtractedUseCaseData } from './useCaseDataExtractor';
+import { UseCaseDataExtractor, type ExtractedUseCaseData } from './useCaseDataExtractor';
 import { storage } from '../storage';
+import { UseCase } from '@shared/schema';
 
 export class CompactPdfService {
   private static readonly COLORS = {
@@ -37,9 +38,7 @@ export class CompactPdfService {
   static async generateCompactLibraryPdf(res: Response, filters: any = {}): Promise<void> {
     try {
       const useCases = await storage.getAllUseCases();
-      const extractedData = await Promise.all(
-        useCases.map(uc => UseCaseDataExtractor.extractUseCaseData(uc))
-      );
+      const extractedData = useCases.map(uc => UseCaseDataExtractor.extractCompleteData(uc));
 
       const doc = new PDFDocument({
         size: 'A4',
@@ -55,21 +54,21 @@ export class CompactPdfService {
       this.addCompactCoverPage(doc, 'library', { totalUseCases: useCases.length });
 
       // Strategic use cases section
-      const strategicUseCases = extractedData.filter(uc => uc.display.hasScoring);
+      const strategicUseCases = extractedData.filter((uc: ExtractedUseCaseData) => uc.display.hasScoring);
       if (strategicUseCases.length > 0) {
         doc.addPage();
         this.addCompactSection(doc, 'Strategic Use Cases', strategicUseCases, 'strategic');
       }
 
       // AI inventory section  
-      const aiInventory = extractedData.filter(uc => uc.display.isAiInventory);
+      const aiInventory = extractedData.filter((uc: ExtractedUseCaseData) => uc.display.isAiInventory);
       if (aiInventory.length > 0) {
         doc.addPage();
         this.addCompactSection(doc, 'AI Inventory', aiInventory, 'inventory');
       }
 
       // Industry reference section
-      const industryUseCases = extractedData.filter(uc => 
+      const industryUseCases = extractedData.filter((uc: ExtractedUseCaseData) => 
         !uc.display.hasScoring && !uc.display.isAiInventory
       );
       if (industryUseCases.length > 0) {
@@ -91,9 +90,7 @@ export class CompactPdfService {
   static async generateCompactPortfolioPdf(res: Response): Promise<void> {
     try {
       const activeUseCases = await storage.getActiveUseCases();
-      const extractedData = await Promise.all(
-        activeUseCases.map(uc => UseCaseDataExtractor.extractUseCaseData(uc))
-      );
+      const extractedData = activeUseCases.map(uc => UseCaseDataExtractor.extractCompleteData(uc));
 
       const doc = new PDFDocument({
         size: 'A4',
@@ -131,7 +128,7 @@ export class CompactPdfService {
         return res.status(404).json({ error: 'Use case not found' });
       }
 
-      const extractedData = await UseCaseDataExtractor.extractUseCaseData(useCase);
+      const extractedData = UseCaseDataExtractor.extractCompleteData(useCase);
 
       const doc = new PDFDocument({
         size: 'A4',
@@ -169,14 +166,14 @@ export class CompactPdfService {
        .text('AI Strategy & Prioritization Framework', pageWidth - 200, 12);
     
     // Title section (compact)
-    const titles = {
+    const titles: Record<string, string> = {
       library: 'Use Case Library',
       portfolio: 'Active AI Portfolio', 
       individual: 'Use Case Analysis'
     };
     
     doc.fontSize(24).fillColor(this.COLORS.text).font('Helvetica-Bold')
-       .text(titles[type] || 'AI Framework Report', this.LAYOUT.margin, 60);
+       .text(titles[type as keyof typeof titles] || 'AI Framework Report', this.LAYOUT.margin, 60);
     
     // Summary metrics (compact grid)
     const metrics = this.getCompactMetrics(type, summary);
