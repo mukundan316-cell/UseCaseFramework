@@ -109,7 +109,13 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
     isActiveForRsa: useCase?.isActiveForRsa === 'true' || useCase?.isActiveForRsa === true,
     isDashboardVisible: useCase?.isDashboardVisible === 'true' || useCase?.isDashboardVisible === true,
     activationReason: (useCase as any)?.activationReason || '',
-    deactivationReason: (useCase as any)?.deactivationReason || ''
+    deactivationReason: (useCase as any)?.deactivationReason || '',
+    // Manual override fields
+    enableManualOverrides: hasManualOverrides(useCase as any),
+    manualImpactScore: (useCase as any)?.manualImpactScore || '',
+    manualEffortScore: (useCase as any)?.manualEffortScore || '',
+    manualQuadrant: (useCase as any)?.manualQuadrant || '',
+    overrideReason: (useCase as any)?.overrideReason || ''
   });
 
   if (!useCase) return null;
@@ -135,6 +141,13 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
 
   const statusOptions = [
     'Discovery', 'Development', 'Testing', 'Implementation', 'Live', 'On Hold', 'Cancelled'
+  ];
+
+  const quadrantOptions = [
+    { value: 'Strategic Bet', label: 'Strategic Bet', color: '#10b981' },
+    { value: 'Quick Win', label: 'Quick Win', color: '#3b82f6' },
+    { value: 'Fill-in', label: 'Fill-in', color: '#f59e0b' },
+    { value: 'Questionable', label: 'Questionable', color: '#ef4444' }
   ];
 
   // Get effective scores (manual overrides take precedence)
@@ -352,19 +365,113 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
                 <AccordionTrigger className="text-lg font-semibold">
                   Strategic Scoring
                 </AccordionTrigger>
-                <AccordionContent className="space-y-4">
-                  {/* Manual Override Banner */}
-                  {hasManualOverrides(useCase as any) && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                        <span className="text-sm font-medium text-yellow-800">Manual Override Active</span>
+                <AccordionContent className="space-y-6">
+                  {/* Manual Override Controls */}
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-base font-semibold text-gray-900">Enable Manual Overrides</Label>
+                        <p className="text-sm text-gray-600">Override calculated scores with manual values</p>
                       </div>
-                      {useCase.overrideReason && (
-                        <p className="text-sm text-yellow-700 mt-1">{useCase.overrideReason}</p>
-                      )}
+                      <Switch
+                        checked={formData.enableManualOverrides}
+                        onCheckedChange={(checked) => setFormData({...formData, enableManualOverrides: checked})}
+                      />
                     </div>
-                  )}
+
+                    {/* Manual Override Fields - Show when enabled */}
+                    {formData.enableManualOverrides && (
+                      <div className="mt-4 space-y-4 pt-4 border-t border-yellow-200">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Manual Impact Score */}
+                          <div>
+                            <Label className="text-base font-semibold text-gray-900">Manual Impact Score</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="5"
+                              step="0.1"
+                              value={formData.manualImpactScore}
+                              onChange={(e) => setFormData({...formData, manualImpactScore: e.target.value})}
+                              placeholder="0.0 - 5.0"
+                              className="mt-2 bg-yellow-50 border-yellow-300 focus:border-yellow-500"
+                            />
+                            {effectiveImpact && (
+                              <p className="text-sm text-gray-500 mt-1">
+                                Original calculated: {effectiveImpact.toFixed(1)}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Manual Effort Score */}
+                          <div>
+                            <Label className="text-base font-semibold text-gray-900">Manual Effort Score</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="5"
+                              step="0.1"
+                              value={formData.manualEffortScore}
+                              onChange={(e) => setFormData({...formData, manualEffortScore: e.target.value})}
+                              placeholder="0.0 - 5.0"
+                              className="mt-2 bg-yellow-50 border-yellow-300 focus:border-yellow-500"
+                            />
+                            {effectiveEffort && (
+                              <p className="text-sm text-gray-500 mt-1">
+                                Original calculated: {effectiveEffort.toFixed(1)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Manual Quadrant */}
+                        <div>
+                          <Label className="text-base font-semibold text-gray-900">Manual Quadrant</Label>
+                          <Select 
+                            value={formData.manualQuadrant} 
+                            onValueChange={(value) => setFormData({...formData, manualQuadrant: value})}
+                          >
+                            <SelectTrigger className="mt-2 bg-yellow-50 border-yellow-300 focus:border-yellow-500">
+                              <SelectValue placeholder="Select quadrant" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {quadrantOptions.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  <div className="flex items-center gap-2">
+                                    <div 
+                                      className="w-3 h-3 rounded-full" 
+                                      style={{ backgroundColor: option.color }}
+                                    />
+                                    {option.label}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {effectiveQuadrant && (
+                            <p className="text-sm text-gray-500 mt-1">
+                              Original calculated: {effectiveQuadrant}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Override Reason - Required */}
+                        <div>
+                          <Label className="text-base font-semibold text-gray-900">
+                            Override Reason <span className="text-red-500">*</span>
+                          </Label>
+                          <Textarea
+                            value={formData.overrideReason}
+                            onChange={(e) => setFormData({...formData, overrideReason: e.target.value})}
+                            placeholder="Explain why manual overrides are needed (required)"
+                            className="mt-2 bg-yellow-50 border-yellow-300 focus:border-yellow-500"
+                            rows={3}
+                            required
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* 10 Lever Scores in 2-column grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -453,16 +560,30 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
                     </div>
                   </div>
 
-                  {/* Calculated Scores */}
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  {/* Calculated Scores - Highlight overrides in yellow */}
+                  <div className={`mt-6 p-4 rounded-lg ${formData.enableManualOverrides ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50'}`}>
                     <div className="flex justify-center items-center gap-8">
                       <div className="text-center">
                         <div className="text-sm text-gray-600">Overall Impact</div>
-                        <div className="text-2xl font-bold text-blue-600">{effectiveImpact?.toFixed(1)}</div>
+                        <div className={`text-2xl font-bold ${formData.enableManualOverrides ? 'text-yellow-600' : 'text-blue-600'}`}>
+                          {formData.manualImpactScore || effectiveImpact?.toFixed(1)}
+                        </div>
+                        {formData.enableManualOverrides && effectiveImpact && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Original: {effectiveImpact.toFixed(1)}
+                          </div>
+                        )}
                       </div>
                       <div className="text-center">
                         <div className="text-sm text-gray-600">Overall Effort</div>
-                        <div className="text-2xl font-bold text-orange-600">{effectiveEffort?.toFixed(1)}</div>
+                        <div className={`text-2xl font-bold ${formData.enableManualOverrides ? 'text-yellow-600' : 'text-orange-600'}`}>
+                          {formData.manualEffortScore || effectiveEffort?.toFixed(1)}
+                        </div>
+                        {formData.enableManualOverrides && effectiveEffort && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Original: {effectiveEffort.toFixed(1)}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
