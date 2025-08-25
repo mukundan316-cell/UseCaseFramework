@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { UseCase } from '../../types';
 import CleanUseCaseCard from './CleanUseCaseCard';
-import UseCaseDrawer from './UseCaseDrawer';
+import CRUDUseCaseModal from './CRUDUseCaseModal';
 import SourceLegend from './SourceLegend';
 
 interface ImprovedUseCaseExplorerProps {
@@ -38,9 +38,9 @@ export default function ImprovedUseCaseExplorer({
   emptyStateMessage = "No use cases found"
 }: ImprovedUseCaseExplorerProps) {
   const { metadata } = useUseCases();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [drawerUseCase, setDrawerUseCase] = useState<UseCase | null>(null);
-  const [drawerMode, setDrawerMode] = useState<'view' | 'edit' | 'create'>('view');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [selectedUseCase, setSelectedUseCase] = useState<UseCase | undefined>();
   const [searchTerm, setSearchTerm] = useState('');
   
   // Filters
@@ -84,43 +84,16 @@ export default function ImprovedUseCaseExplorer({
   });
 
   const handleCreate = () => {
-    console.log('handleCreate called - Opening CREATE drawer');
-    setDrawerMode('create');
-    setDrawerUseCase(null);
-    setIsDrawerOpen(true);
+    setModalMode('create');
+    setSelectedUseCase(undefined);
+    setIsModalOpen(true);
   };
 
   const handleEdit = (useCase: UseCase) => {
-    console.log('handleEdit called - Opening EDIT drawer for:', useCase.title);
-    setDrawerMode('edit');
-    setDrawerUseCase(useCase);
-    setIsDrawerOpen(true);
+    setModalMode('edit');
+    setSelectedUseCase(useCase);
+    setIsModalOpen(true);
     onEdit?.(useCase);
-  };
-
-  const handleViewUseCase = (useCase: UseCase) => {
-    console.log('Opening drawer for use case:', useCase.title);
-    setDrawerMode('view');
-    setDrawerUseCase(useCase);
-    setIsDrawerOpen(true);
-  };
-
-  const handleSave = async (useCase: UseCase) => {
-    // Handle both create and update operations
-    try {
-      if (drawerMode === 'create') {
-        // Handle creation (you'll need to add this to your context)
-        console.log('Creating new use case:', useCase);
-        // await createUseCase(useCase);
-      } else {
-        // Handle update
-        console.log('Updating use case:', useCase);
-        onEdit?.(useCase);
-      }
-      setIsDrawerOpen(false);
-    } catch (error) {
-      console.error('Error saving use case:', error);
-    }
   };
 
   const handleDelete = async (useCase: UseCase) => {
@@ -344,21 +317,17 @@ export default function ImprovedUseCaseExplorer({
               onDelete={handleDelete}
               onMoveToLibrary={showRSASelection ? handleMoveToLibrary : undefined}
               showRSAActions={showRSASelection}
-              onView={handleViewUseCase}
             />
           ))}
         </div>
       )}
 
-      {/* Use Case Drawer - Handles all CRUD operations */}
-      <UseCaseDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        onSave={handleSave}
-        onDelete={handleDelete}
-        onEdit={handleEdit}
-        useCase={drawerUseCase}
-        mode={drawerMode}
+      {/* CRUD Modal */}
+      <CRUDUseCaseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        mode={modalMode}
+        useCase={selectedUseCase}
       />
     </div>
   );
