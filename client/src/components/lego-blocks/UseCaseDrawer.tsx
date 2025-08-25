@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { X, Edit, Save, Trash2, FileText, Building2, Users, ExternalLink, Target, AlertTriangle, Eye, GitCompare, FolderPlus, History, ChevronUp, Bot, Shield, Database, Briefcase, Calendar, User, Settings } from 'lucide-react';
+import { X, Edit, Save, Trash2, FileText, Building2, Users, ExternalLink, Target, AlertTriangle, Eye, GitCompare, FolderPlus, History, ChevronUp, Bot, Shield, Database, Briefcase, Calendar, User, Settings, Info, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -9,12 +9,101 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { UseCase } from '../../types';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
 import { getSourceConfig } from '../../utils/sourceColors';
+import { useUseCases } from '../../contexts/UseCaseContext';
+import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '../../utils/calculations';
 import ExportButton from './ExportButton';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
+
+// Comprehensive Zod schema from the original form
+const formSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  problemStatement: z.string().optional(),
+  valueChainComponent: z.string().min(1, 'Value chain component is required'),
+  process: z.string().min(1, 'Process is required'),
+  lineOfBusiness: z.string().min(1, 'Line of business is required'),
+  businessSegment: z.string().min(1, 'Business segment is required'),
+  geography: z.string().min(1, 'Geography is required'),
+  useCaseType: z.string().min(1, 'Use case type is required'),
+  // 12 Lever Scores
+  revenueImpact: z.number().min(1).max(5),
+  costSavings: z.number().min(1).max(5),
+  riskReduction: z.number().min(1).max(5),
+  brokerPartnerExperience: z.number().min(1).max(5),
+  strategicFit: z.number().min(1).max(5),
+  dataReadiness: z.number().min(1).max(5),
+  technicalComplexity: z.number().min(1).max(5),
+  changeImpact: z.number().min(1).max(5),
+  modelRisk: z.number().min(1).max(5),
+  adoptionReadiness: z.number().min(1).max(5),
+  explainabilityBias: z.number().min(1).max(5),
+  regulatoryCompliance: z.number().min(1).max(5),
+});
+
+type UseCaseFormData = z.infer<typeof formSchema>;
+
+// Interactive Slider Component with Tooltips
+const InteractiveSlider = ({ 
+  field, 
+  label, 
+  tooltip, 
+  leftLabel, 
+  rightLabel, 
+  form,
+  disabled = false
+}: { 
+  field: keyof UseCaseFormData; 
+  label: string; 
+  tooltip: string;
+  leftLabel: string;
+  rightLabel: string;
+  form: any;
+  disabled?: boolean;
+}) => {
+  const value = form.watch(field) as number;
+  
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <Label className="text-sm font-medium text-gray-700">{label}</Label>
+        <div className="flex items-center space-x-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="h-4 w-4 text-gray-400 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">{tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <span className="font-semibold text-blue-600">{value}</span>
+        </div>
+      </div>
+      <input
+        type="range"
+        min="1"
+        max="5"
+        value={value}
+        onChange={(e) => form.setValue(field, parseInt(e.target.value))}
+        disabled={disabled}
+        className={`w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      />
+      <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <span>{leftLabel}</span>
+        <span>{rightLabel}</span>
+      </div>
+    </div>
+  );
+};
 
 interface UseCaseDrawerProps {
   isOpen: boolean;
@@ -29,6 +118,7 @@ interface UseCaseDrawerProps {
 export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdit, useCase, mode = 'view' }: UseCaseDrawerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentSection, setCurrentSection] = useState<string>('overview');
+  const { metadata } = useUseCases();
   const sectionRefs = {
     overview: useRef<HTMLDivElement>(null),
     'strategic-scoring': useRef<HTMLDivElement>(null),
@@ -96,48 +186,68 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
     }
   };
 
-  // Form state for editable fields - must be before early return to avoid hook count issues
-  const [formData, setFormData] = useState({
-    title: useCase?.title || '',
-    description: useCase?.description || '',
-    problemStatement: useCase?.problemStatement || '',
-    process: useCase?.process || '',
-    linesOfBusiness: useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean),
-    businessSegments: useCase?.businessSegments || [useCase?.businessSegment].filter(Boolean),
-    geographies: useCase?.geographies || [useCase?.geography].filter(Boolean),
-    primaryBusinessOwner: (useCase as any)?.primaryBusinessOwner || '',
-    useCaseStatus: (useCase as any)?.useCaseStatus || '',
-    keyDependencies: (useCase as any)?.keyDependencies || '',
-    implementationTimeline: (useCase as any)?.implementationTimeline || '',
-    successMetrics: (useCase as any)?.successMetrics || '',
-    estimatedValue: (useCase as any)?.estimatedValue || '',
-    valueMeasurementApproach: (useCase as any)?.valueMeasurementApproach || '',
-    technicalImplementation: (useCase as any)?.technicalImplementation || '',
-    isActiveForRsa: useCase?.isActiveForRsa === 'true' || useCase?.isActiveForRsa === true,
-    isDashboardVisible: useCase?.isDashboardVisible === 'true' || useCase?.isDashboardVisible === true,
-    activationReason: (useCase as any)?.activationReason || '',
-    deactivationReason: (useCase as any)?.deactivationReason || '',
-    // Manual override fields
-    enableManualOverrides: hasManualOverrides(useCase as any),
-    manualImpactScore: (useCase as any)?.manualImpactScore || '',
-    manualEffortScore: (useCase as any)?.manualEffortScore || '',
-    manualQuadrant: (useCase as any)?.manualQuadrant || '',
-    overrideReason: (useCase as any)?.overrideReason || ''
+  // react-hook-form with proper validation
+  const form = useForm<UseCaseFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: useCase?.title || '',
+      description: useCase?.description || '',
+      problemStatement: useCase?.problemStatement || '',
+      valueChainComponent: useCase?.valueChainComponent || '',
+      process: useCase?.process || '',
+      lineOfBusiness: useCase?.lineOfBusiness || '',
+      businessSegment: useCase?.businessSegment || '',
+      geography: useCase?.geography || '',
+      useCaseType: useCase?.useCaseType || '',
+      // Default scores to 3 for new use cases
+      revenueImpact: useCase?.revenueImpact || 3,
+      costSavings: useCase?.costSavings || 3,
+      riskReduction: useCase?.riskReduction || 3,
+      brokerPartnerExperience: useCase?.brokerPartnerExperience || 3,
+      strategicFit: useCase?.strategicFit || 3,
+      dataReadiness: useCase?.dataReadiness || 3,
+      technicalComplexity: useCase?.technicalComplexity || 3,
+      changeImpact: useCase?.changeImpact || 3,
+      modelRisk: useCase?.modelRisk || 3,
+      adoptionReadiness: useCase?.adoptionReadiness || 3,
+      explainabilityBias: useCase?.explainabilityBias || 3,
+      regulatoryCompliance: useCase?.regulatoryCompliance || 3,
+    }
   });
+
+  // Watch form values for real-time calculations
+  const formValues = form.watch();
+  const currentImpactScore = calculateImpactScore(
+    formValues.revenueImpact,
+    formValues.costSavings,
+    formValues.riskReduction,
+    formValues.brokerPartnerExperience,
+    formValues.strategicFit
+  );
+  const currentEffortScore = calculateEffortScore(
+    formValues.dataReadiness,
+    formValues.technicalComplexity,
+    formValues.changeImpact,
+    formValues.modelRisk,
+    formValues.adoptionReadiness
+  );
+  const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore);
 
   const { toast } = useToast();
   
-  // CRUD handlers
-  const handleSave = async () => {
+  // CRUD handlers with form validation
+  const handleSave = async (data: UseCaseFormData) => {
     try {
       if (onSave) {
         const updatedUseCase = {
           ...(useCase || {}),
-          ...formData,
-          // Convert arrays back to appropriate format
-          linesOfBusiness: formData.linesOfBusiness.length > 0 ? formData.linesOfBusiness : undefined,
-          businessSegments: formData.businessSegments.length > 0 ? formData.businessSegments : undefined,
-          geographies: formData.geographies.length > 0 ? formData.geographies : undefined,
+          ...data,
+          // Calculate final scores
+          impactScore: currentImpactScore,
+          effortScore: currentEffortScore,
+          quadrant: currentQuadrant,
+          // Ensure proper date handling
+          updatedAt: new Date().toISOString(),
         } as UseCase;
         
         await onSave(updatedUseCase);
@@ -154,6 +264,10 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
         variant: "destructive",
       });
     }
+  };
+
+  const handleFormSubmit = () => {
+    form.handleSubmit(handleSave)();
   };
 
   const handleDelete = async () => {
@@ -318,12 +432,16 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
 
               {/* Title */}
               {mode === 'edit' || mode === 'create' ? (
-                <Input
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="text-2xl font-semibold mb-2 border-0 p-0 focus:ring-0 bg-transparent"
-                  placeholder="Enter use case title..."
-                />
+                <div>
+                  <Input
+                    {...form.register('title')}
+                    className="text-2xl font-semibold mb-1 border-0 p-0 focus:ring-0 bg-transparent"
+                    placeholder="Enter use case title..."
+                  />
+                  {form.formState.errors.title && (
+                    <p className="text-sm text-red-600">{form.formState.errors.title.message}</p>
+                  )}
+                </div>
               ) : (
                 <h2 className="text-2xl font-semibold text-gray-900 mb-2">
                   {useCase?.title || 'New Use Case'}
@@ -353,13 +471,14 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
               ) : (
                 <>
                   <Button
-                    onClick={handleSave}
+                    onClick={handleFormSubmit}
                     variant="default"
                     size="sm"
                     className="bg-green-600 hover:bg-green-700"
+                    disabled={form.formState.isSubmitting}
                   >
                     <Save className="h-4 w-4 mr-1" />
-                    Save
+                    {form.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>
                   {mode === 'edit' && onDelete && (
                     <Button
@@ -413,12 +532,16 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Description</h4>
                     {mode === 'edit' || mode === 'create' ? (
-                      <Textarea
-                        value={formData.description || useCase?.description || ''}
-                        onChange={(e) => setFormData({...formData, description: e.target.value})}
-                        placeholder="Enter use case description..."
-                        className="min-h-[80px]"
-                      />
+                      <div>
+                        <Textarea
+                          {...form.register('description')}
+                          placeholder="Enter use case description..."
+                          className="min-h-[80px]"
+                        />
+                        {form.formState.errors.description && (
+                          <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
+                        )}
+                      </div>
                     ) : (
                       <p className="text-gray-700 leading-relaxed">{useCase?.description}</p>
                     )}
@@ -429,8 +552,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                     <h4 className="font-medium text-gray-900 mb-2">Problem Statement</h4>
                     {mode === 'edit' || mode === 'create' ? (
                       <Textarea
-                        value={formData.problemStatement || useCase?.problemStatement || ''}
-                        onChange={(e) => setFormData({...formData, problemStatement: e.target.value})}
+                        {...form.register('problemStatement')}
                         placeholder="Describe the problem this use case solves..."
                         className="min-h-[80px]"
                       />
@@ -580,117 +702,153 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                     )}
                   </div>
 
-                  {/* 10 Lever Scores in 2-column grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Impact Levers */}
-                    <div className="space-y-4">
-                      <h4 className="font-medium text-gray-900">Impact Levers</h4>
-                      <div className="space-y-3">
-                        <ScoreSliderLegoBlock
-                          label="Revenue Impact"
-                          field="revenueImpact"
-                          value={useCase.revenueImpact}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                        <ScoreSliderLegoBlock
-                          label="Cost Savings"
-                          field="costSavings"
-                          value={useCase.costSavings}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                        <ScoreSliderLegoBlock
-                          label="Risk Reduction"
-                          field="riskReduction"
-                          value={useCase.riskReduction}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                        <ScoreSliderLegoBlock
-                          label="Broker/Partner Experience"
-                          field="brokerPartnerExperience"
-                          value={useCase.brokerPartnerExperience}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                        <ScoreSliderLegoBlock
-                          label="Strategic Fit"
-                          field="strategicFit"
-                          value={useCase.strategicFit}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                      </div>
+                  {/* 12 Lever Scores - Interactive in edit/create mode */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Business Value Levers */}
+                    <div className="space-y-6">
+                      <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Value Levers</h4>
+                      <InteractiveSlider
+                        field="revenueImpact"
+                        label="Revenue Impact"
+                        tooltip="Potential to increase revenue through new products or improved pricing"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="costSavings"
+                        label="Cost Savings"
+                        tooltip="Operational cost reduction through automation or efficiency gains"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="riskReduction"
+                        label="Risk Reduction"
+                        tooltip="Ability to reduce operational, regulatory, or financial risks"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="brokerPartnerExperience"
+                        label="Broker/Partner Experience"
+                        tooltip="Impact on broker/partner experience - faster TAT, self-service tools, analytics access"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="strategicFit"
+                        label="Strategic Fit"
+                        tooltip="Alignment with RSA's delegated, specialty, or mid-market focus"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
                     </div>
 
-                    {/* Effort Levers */}
-                    <div className="space-y-4">
-                      <h4 className="font-medium text-gray-900">Effort Levers</h4>
-                      <div className="space-y-3">
-                        <ScoreSliderLegoBlock
-                          label="Data Readiness"
-                          field="dataReadiness"
-                          value={useCase.dataReadiness}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                        <ScoreSliderLegoBlock
-                          label="Technical Complexity"
-                          field="technicalComplexity"
-                          value={useCase.technicalComplexity}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                        <ScoreSliderLegoBlock
-                          label="Change Impact"
-                          field="changeImpact"
-                          value={useCase.changeImpact}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                        <ScoreSliderLegoBlock
-                          label="Model Risk"
-                          field="modelRisk"
-                          value={useCase.modelRisk}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                        <ScoreSliderLegoBlock
-                          label="Adoption Readiness"
-                          field="adoptionReadiness"
-                          value={useCase.adoptionReadiness}
-                          onChange={() => {}}
-                          disabled={true}
-                        />
-                      </div>
+                    {/* Feasibility Levers */}
+                    <div className="space-y-6">
+                      <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Feasibility Levers</h4>
+                      <InteractiveSlider
+                        field="dataReadiness"
+                        label="Data Readiness"
+                        tooltip="Quality, structure, and sufficient volume of available data"
+                        leftLabel="Poor"
+                        rightLabel="Excellent"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="technicalComplexity"
+                        label="Technical Complexity"
+                        tooltip="Maturity of models needed (LLMs vs ML) and technical difficulty"
+                        leftLabel="Simple"
+                        rightLabel="Complex"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="changeImpact"
+                        label="Change Impact"
+                        tooltip="Degree of process and role redesign required for implementation"
+                        leftLabel="Minimal"
+                        rightLabel="Extensive"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="modelRisk"
+                        label="Model Risk"
+                        tooltip="Potential harm if model fails (regulatory, reputational, financial)"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="adoptionReadiness"
+                        label="Adoption Readiness"
+                        tooltip="Stakeholder and user buy-in, especially in underwriting/claims"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                    </div>
+
+                    {/* AI Governance Levers */}
+                    <div className="space-y-6">
+                      <h4 className="font-medium text-purple-700 text-sm uppercase tracking-wide">AI Governance Levers</h4>
+                      <InteractiveSlider
+                        field="explainabilityBias"
+                        label="Explainability & Bias"
+                        tooltip="Support for responsible AI principles and bias management"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
+                      <InteractiveSlider
+                        field="regulatoryCompliance"
+                        label="Regulatory Compliance"
+                        tooltip="FCA, GDPR, and UK/EU AI Act readiness"
+                        leftLabel="Low"
+                        rightLabel="High"
+                        form={form}
+                        disabled={mode === 'view'}
+                      />
                     </div>
                   </div>
 
-                  {/* Calculated Scores - Highlight overrides in yellow */}
-                  <div className={`mt-6 p-4 rounded-lg ${formData.enableManualOverrides ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50'}`}>
-                    <div className="flex justify-center items-center gap-8">
+                  {/* Calculated Scores - Real-time updates */}
+                  <div className="mt-6 p-6 rounded-lg bg-gray-50 border">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">Real-time Score Calculation</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="text-center">
-                        <div className="text-sm text-gray-600">Overall Impact</div>
-                        <div className={`text-2xl font-bold ${formData.enableManualOverrides ? 'text-yellow-600' : 'text-blue-600'}`}>
-                          {formData.manualImpactScore || effectiveImpact?.toFixed(1)}
+                        <div className="text-3xl font-bold text-green-600 mb-1">
+                          {currentImpactScore.toFixed(1)}
                         </div>
-                        {formData.enableManualOverrides && effectiveImpact && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Original: {effectiveImpact.toFixed(1)}
-                          </div>
-                        )}
+                        <div className="text-sm text-gray-600">Impact Score</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm text-gray-600">Overall Effort</div>
-                        <div className={`text-2xl font-bold ${formData.enableManualOverrides ? 'text-yellow-600' : 'text-orange-600'}`}>
-                          {formData.manualEffortScore || effectiveEffort?.toFixed(1)}
+                        <div className="text-3xl font-bold text-orange-600 mb-1">
+                          {currentEffortScore.toFixed(1)}
                         </div>
-                        {formData.enableManualOverrides && effectiveEffort && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Original: {effectiveEffort.toFixed(1)}
-                          </div>
-                        )}
+                        <div className="text-sm text-gray-600">Effort Score</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-semibold text-blue-600 bg-white px-4 py-2 rounded-lg border">
+                          {currentQuadrant}
+                        </div>
+                        <div className="text-sm text-gray-600">Quadrant</div>
                       </div>
                     </div>
                   </div>
@@ -703,21 +861,151 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                   Business Context
                 </AccordionTrigger>
                 <AccordionContent className="space-y-6">
-                  {/* Process Dropdown */}
-                  <div>
-                    <Label className="text-base font-semibold text-gray-900">Process</Label>
-                    <Select value={formData.process} onValueChange={(value) => setFormData({...formData, process: value})}>
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Select process" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {processOptions.map((process) => (
-                          <SelectItem key={process} value={process}>
-                            {process}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  {/* Business Context Fields - Now properly validated */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Value Chain Component */}
+                    <div>
+                      <Label className="text-base font-semibold text-gray-900">Value Chain Component</Label>
+                      {mode === 'edit' || mode === 'create' ? (
+                        <div className="mt-2">
+                          <Select onValueChange={(value) => form.setValue('valueChainComponent', value)} value={form.watch('valueChainComponent')}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select component" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {metadata?.valueChainComponents?.filter(component => component && component.trim()).map(component => (
+                                <SelectItem key={component} value={component}>{component}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {form.formState.errors.valueChainComponent && (
+                            <p className="text-sm text-red-600 mt-1">{form.formState.errors.valueChainComponent.message}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700 mt-2">{useCase?.valueChainComponent || 'Not specified'}</p>
+                      )}
+                    </div>
+
+                    {/* Use Case Type */}
+                    <div>
+                      <Label className="text-base font-semibold text-gray-900">Use Case Type</Label>
+                      {mode === 'edit' || mode === 'create' ? (
+                        <div className="mt-2">
+                          <Select onValueChange={(value) => form.setValue('useCaseType', value)} value={form.watch('useCaseType')}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {metadata?.useCaseTypes?.filter(type => type && type.trim()).map(type => (
+                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {form.formState.errors.useCaseType && (
+                            <p className="text-sm text-red-600 mt-1">{form.formState.errors.useCaseType.message}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700 mt-2">{useCase?.useCaseType || 'Not specified'}</p>
+                      )}
+                    </div>
+
+                    {/* Process */}
+                    <div>
+                      <Label className="text-base font-semibold text-gray-900">Process</Label>
+                      {mode === 'edit' || mode === 'create' ? (
+                        <div className="mt-2">
+                          <Select onValueChange={(value) => form.setValue('process', value)} value={form.watch('process')}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select process" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {metadata?.processes?.filter(process => process && process.trim()).map(process => (
+                                <SelectItem key={process} value={process}>{process}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {form.formState.errors.process && (
+                            <p className="text-sm text-red-600 mt-1">{form.formState.errors.process.message}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700 mt-2">{useCase?.process || 'Not specified'}</p>
+                      )}
+                    </div>
+
+                    {/* Line of Business */}
+                    <div>
+                      <Label className="text-base font-semibold text-gray-900">Line of Business</Label>
+                      {mode === 'edit' || mode === 'create' ? (
+                        <div className="mt-2">
+                          <Select onValueChange={(value) => form.setValue('lineOfBusiness', value)} value={form.watch('lineOfBusiness')}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select LOB" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {metadata?.linesOfBusiness?.filter(lob => lob && lob.trim()).map(lob => (
+                                <SelectItem key={lob} value={lob}>{lob}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {form.formState.errors.lineOfBusiness && (
+                            <p className="text-sm text-red-600 mt-1">{form.formState.errors.lineOfBusiness.message}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700 mt-2">{useCase?.lineOfBusiness || 'Not specified'}</p>
+                      )}
+                    </div>
+
+                    {/* Business Segment */}
+                    <div>
+                      <Label className="text-base font-semibold text-gray-900">Business Segment</Label>
+                      {mode === 'edit' || mode === 'create' ? (
+                        <div className="mt-2">
+                          <Select onValueChange={(value) => form.setValue('businessSegment', value)} value={form.watch('businessSegment')}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select segment" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {metadata?.businessSegments?.filter(segment => segment && segment.trim()).map(segment => (
+                                <SelectItem key={segment} value={segment}>{segment}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {form.formState.errors.businessSegment && (
+                            <p className="text-sm text-red-600 mt-1">{form.formState.errors.businessSegment.message}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700 mt-2">{useCase?.businessSegment || 'Not specified'}</p>
+                      )}
+                    </div>
+
+                    {/* Geography */}
+                    <div>
+                      <Label className="text-base font-semibold text-gray-900">Geography</Label>
+                      {mode === 'edit' || mode === 'create' ? (
+                        <div className="mt-2">
+                          <Select onValueChange={(value) => form.setValue('geography', value)} value={form.watch('geography')}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select geography" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {metadata?.geographies?.filter(geo => geo && geo.trim()).map(geo => (
+                                <SelectItem key={geo} value={geo}>{geo}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {form.formState.errors.geography && (
+                            <p className="text-sm text-red-600 mt-1">{form.formState.errors.geography.message}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700 mt-2">{useCase?.geography || 'Not specified'}</p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Lines of Business multi-select checkboxes in 2 columns */}
