@@ -92,24 +92,72 @@ export default function CleanUseCaseCard({
           </p>
         </div>
 
-        {/* Business Context Tags - Compact icon-based layout */}
+        {/* Conditional Context Display - AI Inventory vs Strategic Use Cases */}
         <div className="space-y-1.5 mb-3">
-          <div className="flex items-center text-xs text-blue-700">
-            <Settings className="w-3 h-3 mr-1.5 text-blue-600" />
-            <span className="font-medium">{useCase.process}</span>
-          </div>
-          <div className="flex items-center text-xs text-purple-700">
-            <Building2 className="w-3 h-3 mr-1.5 text-purple-600" />
-            <span className="font-medium">{useCase.lineOfBusiness}</span>
-          </div>
-          <div className="flex items-center text-xs text-orange-700">
-            <Tag className="w-3 h-3 mr-1.5 text-orange-600" />
-            <span className="font-medium">{useCase.useCaseType}</span>
-          </div>
+          {useCase.librarySource === 'sharepoint_import' ? (
+            // AI Inventory Governance Information (Purple theme)
+            <>
+              {/* AI/Model Classification */}
+              {(useCase as any).aiOrModel && (
+                <div className="flex items-center text-xs text-purple-700">
+                  <Tag className="w-3 h-3 mr-1.5 text-purple-600" />
+                  <span className="font-medium">{(useCase as any).aiOrModel} System</span>
+                </div>
+              )}
+              
+              {/* Model Owner */}
+              {(useCase as any).modelOwner && (
+                <div className="flex items-center text-xs text-indigo-700">
+                  <Users className="w-3 h-3 mr-1.5 text-indigo-600" />
+                  <span className="font-medium">Owner: {(useCase as any).modelOwner}</span>
+                </div>
+              )}
+
+              {/* Risk Level Indicator */}
+              {((useCase as any).riskToCustomers || (useCase as any).riskToRsa) && (
+                <div className="flex items-center text-xs text-amber-700">
+                  <AlertTriangle className="w-3 h-3 mr-1.5 text-amber-600" />
+                  <span className="font-medium">Risk Assessment Available</span>
+                </div>
+              )}
+
+              {/* Validation Responsibility */}
+              {(useCase as any).validationResponsibility && (
+                <div className="flex items-center text-xs text-violet-700">
+                  <Settings className="w-3 h-3 mr-1.5 text-violet-600" />
+                  <span className="font-medium">{(useCase as any).validationResponsibility} Validation</span>
+                </div>
+              )}
+
+              {/* Third Party Indicator */}
+              {(useCase as any).thirdPartyModel === 'yes' && (
+                <div className="flex items-center text-xs text-orange-700">
+                  <ExternalLink className="w-3 h-3 mr-1.5 text-orange-600" />
+                  <span className="font-medium">Third Party Model</span>
+                </div>
+              )}
+            </>
+          ) : (
+            // Strategic Use Case Business Context (Original theme)
+            <>
+              <div className="flex items-center text-xs text-blue-700">
+                <Settings className="w-3 h-3 mr-1.5 text-blue-600" />
+                <span className="font-medium">{useCase.process}</span>
+              </div>
+              <div className="flex items-center text-xs text-purple-700">
+                <Building2 className="w-3 h-3 mr-1.5 text-purple-600" />
+                <span className="font-medium">{useCase.lineOfBusiness}</span>
+              </div>
+              <div className="flex items-center text-xs text-orange-700">
+                <Tag className="w-3 h-3 mr-1.5 text-orange-600" />
+                <span className="font-medium">{useCase.useCaseType}</span>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Scores Display - Only for RSA Active Portfolio with enhanced quadrant styling */}
-        {hasScores && effectiveImpact !== undefined && effectiveEffort !== undefined && (
+        {/* Scores Display - Only for Strategic Use Cases (not AI inventory) with RSA Active Portfolio */}
+        {hasScores && effectiveImpact !== undefined && effectiveEffort !== undefined && useCase.librarySource !== 'sharepoint_import' && (
           <div className="mb-4">
             {/* Quadrant Badge with Override Indicator */}
             <div className="mb-3 text-center">
