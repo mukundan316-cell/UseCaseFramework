@@ -89,7 +89,15 @@ export default function UseCaseDetailDrawer({
     extendedUseCase.keyDependencies || 
     extendedUseCase.successMetrics ||
     extendedUseCase.implementationTimeline ||
-    extendedUseCase.estimatedValue
+    extendedUseCase.estimatedValue ||
+    // Include AI inventory specific implementation fields
+    (isAiInventory && (
+      extendedUseCase.aiInventoryStatus ||
+      extendedUseCase.deploymentStatus ||
+      extendedUseCase.businessFunction ||
+      extendedUseCase.lastStatusUpdate ||
+      extendedUseCase.thirdPartyProvidedModel
+    ))
   );
   
   const hasAiInventoryData = !!(
@@ -453,6 +461,7 @@ export default function UseCaseDetailDrawer({
             <AccordionContent className="px-4 pb-4 space-y-4">
               {hasImplementationData ? (
                 <>
+                  {/* Traditional Implementation Fields */}
                   <FieldDisplay 
                     label="Primary Business Owner"
                     value={extendedUseCase.primaryBusinessOwner}
@@ -494,6 +503,44 @@ export default function UseCaseDetailDrawer({
                     value={extendedUseCase.integrationRequirements}
                     icon={Network}
                   />
+
+                  {/* AI Inventory Specific Fields */}
+                  {isAiInventory && (
+                    <>
+                      <Separator className="my-4" />
+                      <div className="text-sm font-medium text-gray-600 mb-2">AI Inventory Status</div>
+                      
+                      <FieldDisplay 
+                        label="AI Inventory Status"
+                        value={extendedUseCase.aiInventoryStatus}
+                        icon={Activity}
+                      />
+                      
+                      <FieldDisplay 
+                        label="Deployment Status"
+                        value={extendedUseCase.deploymentStatus}
+                        icon={Circle}
+                      />
+                      
+                      <FieldDisplay 
+                        label="Business Function"
+                        value={extendedUseCase.businessFunction}
+                        icon={Building2}
+                      />
+                      
+                      <FieldDisplay 
+                        label="Third Party Model"
+                        value={extendedUseCase.thirdPartyProvidedModel}
+                        icon={ExternalLink}
+                      />
+                      
+                      <FieldDisplay 
+                        label="Last Status Update"
+                        value={extendedUseCase.lastStatusUpdate ? new Date(extendedUseCase.lastStatusUpdate).toLocaleDateString() : undefined}
+                        icon={Calendar}
+                      />
+                    </>
+                  )}
                 </>
               ) : (
                 <div className="text-center py-6 text-gray-500">
