@@ -22,10 +22,11 @@ export class ExcelExportService {
       let allUseCases;
       if (filters.status === 'active') {
         allUseCases = await db.select().from(useCases).where(eq(useCases.isActiveForRsa, 'true'));
-      } else if (filters.status === 'reference') {
-        allUseCases = await db.select().from(useCases).where(eq(useCases.isActiveForRsa, 'false'));
-      } else {
+      } else if (filters.status === 'all') {
         allUseCases = await db.select().from(useCases);
+      } else {
+        // Default library export to reference items only (excludes active portfolio)
+        allUseCases = await db.select().from(useCases).where(eq(useCases.isActiveForRsa, 'false'));
       }
       
       console.log('Found use cases for Excel export:', allUseCases.length);
