@@ -106,6 +106,4 @@ export function calculateQuadrant(
   }
 }
 
-export { calculateImpactScore, calculateEffortScore, calculateQuadrant };
-
 // Note: calculateGovernanceScore was removed as it's not implemented
