@@ -339,7 +339,7 @@ export default function ImprovedUseCaseExplorer({
           exportType={title.includes('Active') ? 'portfolio' : 'library'}
           filters={{
             category: filters.useCaseType || 'all',
-            status: title.includes('Active') ? 'active' : 'all'
+            status: title.includes('Active') ? 'active' : 'reference'
           }}
           variant="outline"
           size="sm"
