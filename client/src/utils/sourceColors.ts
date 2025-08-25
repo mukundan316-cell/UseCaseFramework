@@ -56,7 +56,7 @@ export const getSourceConfig = (librarySource: string): SourceStyleConfig => {
         label: 'Consolidated',
         description: 'Consolidated from database migration'
       };
-    case 'sharepoint_import':
+    case 'ai_inventory':
       return {
         borderColor: '#7c3aed', // purple-600
         badgeColor: '#7c3aed',
@@ -90,7 +90,7 @@ export const getSourceBackgroundTint = (librarySource: string): string => {
       return 'bg-purple-50/30'; // Very subtle purple tint
     case 'consolidated_database':
       return 'bg-indigo-50/30'; // Very subtle indigo tint
-    case 'sharepoint_import':
+    case 'ai_inventory':
       return 'bg-purple-50/30'; // Very subtle purple tint
     default:
       return 'bg-white';
@@ -103,5 +103,5 @@ export const getAllSourceTypes = () => [
   'industry_standard',
   'imported',
   'consolidated_database',
-  'sharepoint_import'
+  'ai_inventory'
 ];

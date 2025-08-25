@@ -49,7 +49,7 @@ function getDefaultMetadata(): MetadataConfig {
     geographies: ["UK", "Europe", "Global", "North America"],
     useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"],
     activities: [],
-    sourceTypes: ["rsa_internal", "hexaware_external", "industry_standard", "imported", "consolidated_database"],
+    sourceTypes: ["rsa_internal", "hexaware_external", "industry_standard", "imported", "consolidated_database", "ai_inventory"],
     // RSA AI Value Matrix quadrants
     quadrants: ["Quick Win", "Strategic Bet", "Experimental", "Watchlist"],
     // Assessment and questionnaire LOVs
@@ -58,6 +58,11 @@ function getDefaultMetadata(): MetadataConfig {
     // Company profile options  
     companyTiers: ["Small (<£100M)", "Mid (£100M-£3B)", "Large (>£3B)"],
     marketOptions: ["Personal Lines", "Commercial Lines", "Specialty Lines", "Reinsurance"],
+    // AI inventory governance fields
+    useCaseStatuses: ["Active", "Obsolete", "Pending Closure", "Proof of Concept", "Discovery"],
+    aiMlTechnologies: ["AI", "Model", "ML", "GenAI", "NLP"],
+    dataSources: ["Internal Data", "External Data", "Aggregated Data", "Public Data"],
+    stakeholderGroups: ["IT Operations", "Business Users", "Risk Management", "Compliance"],
     processActivities: null,
     scoringModel: null,
     updatedAt: new Date()

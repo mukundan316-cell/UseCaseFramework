@@ -18,7 +18,7 @@ export default function SourceLegend({ className = '', showTitle = true }: Sourc
     'industry_standard': Users,
     'imported': Download,
     'consolidated_database': Database,
-    'sharepoint_import': Users
+    'ai_inventory': Users
   };
 
   // Generate dynamic source types from metadata
