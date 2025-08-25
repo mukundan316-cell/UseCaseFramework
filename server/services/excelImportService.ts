@@ -78,9 +78,12 @@ export class ExcelImportService {
       // Import use cases
       for (const useCaseData of validatedUseCases) {
         try {
-          // Find existing use case by title
-          const allUseCases = await storage.getAllUseCases();
-          const existingUseCase = allUseCases.find(uc => uc.title === useCaseData.title);
+          // For replace mode, don't check for existing since we just cleared everything
+          let existingUseCase = null;
+          if (options.mode === 'append') {
+            const allUseCases = await storage.getAllUseCases();
+            existingUseCase = allUseCases.find(uc => uc.title === useCaseData.title);
+          }
           
           if (existingUseCase && options.mode === 'append') {
             // Update existing - ensure proper types for scoring fields
@@ -251,7 +254,7 @@ export class ExcelImportService {
       geography: getValue('Geography') || '',
       useCaseType: getValue('Use Case Type') || 'Process',
       useCaseStatus: getValue('Use Case Status') || 'Reference',
-      librarySource: getValue('Library Source') || 'rsa_internal',
+      librarySource: this.normalizeLibrarySource(getValue('Library Source')),
       isActiveForRsa: getValue('Portfolio Status')?.toLowerCase().includes('active') ? 'true' : 'false',
       isDashboardVisible: (getValue('Dashboard Visible') === 'Yes' || getValue('Dashboard Visible') === true) ? 'true' : 'false',
       activationReason: getValue('Activation Reason') || null,
@@ -397,6 +400,39 @@ export class ExcelImportService {
       summary.strategic++;
     } else {
       summary.industry++;
+    }
+  }
+
+  /**
+   * Normalize library source values to match schema enum
+   */
+  private static normalizeLibrarySource(value: any): 'rsa_internal' | 'hexaware_external' | 'industry_standard' | 'imported' | 'ai_inventory' {
+    if (!value) return 'rsa_internal';
+    
+    const normalized = String(value).toLowerCase().replace(/\s+/g, '_');
+    
+    // Map common variations to correct enum values
+    switch (normalized) {
+      case 'rsa_internal':
+      case 'rsa':
+      case 'internal':
+        return 'rsa_internal';
+      case 'hexaware_external':
+      case 'hexaware':
+      case 'external':
+        return 'hexaware_external';
+      case 'industry_standard':
+      case 'industry':
+      case 'standard':
+        return 'industry_standard';
+      case 'imported':
+        return 'imported';
+      case 'ai_inventory':
+      case 'ai':
+      case 'inventory':
+        return 'ai_inventory';
+      default:
+        return 'imported'; // Default fallback for unknown values
     }
   }
 
