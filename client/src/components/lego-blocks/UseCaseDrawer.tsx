@@ -300,7 +300,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 pb-20">
           {/* Check if this is a strategic use case */}
           {(useCase.librarySource === 'rsa_internal' || useCase.librarySource === 'hexaware_external') ? (
-            <Accordion type="multiple" defaultValue={["overview", "strategic-scoring"]} className="w-full">
+            <Accordion type="multiple" defaultValue={["overview", "strategic-scoring", "business-context"]} className="w-full">
               {/* Overview Section */}
               <AccordionItem value="overview" ref={sectionRefs.overview}>
                 <AccordionTrigger className="text-lg font-semibold">
