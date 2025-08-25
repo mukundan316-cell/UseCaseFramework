@@ -170,9 +170,9 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   informedBy: z.union([z.string(), z.null()]).optional(),
   businessFunction: z.union([z.string(), z.null()]).optional(),
   thirdPartyProvidedModel: z.union([z.string(), z.null()]).optional(),
-  // AI Inventory specific fields (optional for backward compatibility)
-  aiInventoryStatus: z.union([z.enum(['Active', 'Proof_of_Concept', 'Pending_Closure', 'Obsolete', 'Inactive']), z.null()]).optional(),
-  deploymentStatus: z.union([z.enum(['PoC', 'Pilot', 'Production', 'Decommissioned']), z.null()]).optional(),
+  // AI Inventory specific fields (flexible for import - allow any string values)
+  aiInventoryStatus: z.union([z.string(), z.null()]).optional(),
+  deploymentStatus: z.union([z.string(), z.null()]).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

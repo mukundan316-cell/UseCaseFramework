@@ -315,51 +315,13 @@ export class ExcelImportService {
       useCase.aiOrModel = getValue('Is your application a Model or AI?') || getValue('AI or Model') || null;
       useCase.businessFunction = getValue('Function') || getValue('Business Function') || null;
       
-      // Handle deployment status with case normalization and common variations
+      // Handle deployment status - preserve original values for AI inventory
       const deploymentStatus = getValue('Deployment Status');
-      if (deploymentStatus) {
-        const normalizedStatus = String(deploymentStatus).toLowerCase().trim();
-        
-        // Map common variations to correct enum values
-        if (normalizedStatus === 'poc' || normalizedStatus === 'proof of concept') {
-          useCase.deploymentStatus = 'PoC';
-        } else if (normalizedStatus === 'pilot') {
-          useCase.deploymentStatus = 'Pilot';
-        } else if (normalizedStatus === 'production' || normalizedStatus === 'prod' || normalizedStatus === 'live') {
-          useCase.deploymentStatus = 'Production';
-        } else if (normalizedStatus === 'decommissioned' || normalizedStatus === 'retired' || normalizedStatus === 'discontinued') {
-          useCase.deploymentStatus = 'Decommissioned';
-        } else {
-          // Keep original value for better error reporting
-          useCase.deploymentStatus = deploymentStatus;
-        }
-      } else {
-        useCase.deploymentStatus = null;
-      }
+      useCase.deploymentStatus = deploymentStatus || null;
       
-      // Handle AI inventory status with normalization and common variations  
+      // Handle AI inventory status - preserve original values
       const aiInventoryStatus = getValue('AI Inventory Status');
-      if (aiInventoryStatus) {
-        const normalizedStatus = String(aiInventoryStatus).toLowerCase().trim().replace(/\s+/g, '_');
-        
-        // Map common variations to correct enum values
-        if (normalizedStatus === 'active') {
-          useCase.aiInventoryStatus = 'Active';
-        } else if (normalizedStatus === 'proof_of_concept' || normalizedStatus === 'poc' || normalizedStatus === 'pilot') {
-          useCase.aiInventoryStatus = 'Proof_of_Concept';
-        } else if (normalizedStatus === 'pending_closure' || normalizedStatus === 'pending' || normalizedStatus === 'closing') {
-          useCase.aiInventoryStatus = 'Pending_Closure';
-        } else if (normalizedStatus === 'obsolete' || normalizedStatus === 'deprecated') {
-          useCase.aiInventoryStatus = 'Obsolete';
-        } else if (normalizedStatus === 'inactive' || normalizedStatus === 'disabled') {
-          useCase.aiInventoryStatus = 'Inactive';
-        } else {
-          // Keep original value for better error reporting
-          useCase.aiInventoryStatus = aiInventoryStatus;
-        }
-      } else {
-        useCase.aiInventoryStatus = null;
-      }
+      useCase.aiInventoryStatus = aiInventoryStatus || null;
       
       // Risk fields
       useCase.riskToCustomers = getValue('Risk(s) to Customers, third parties, staff') || getValue('Risk to Customers') || null;
