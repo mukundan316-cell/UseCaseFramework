@@ -4,6 +4,7 @@ import { useCases } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { Response } from 'express';
 import { format } from 'date-fns';
+import { UseCaseDataExtractor, ExtractedUseCaseData } from './useCaseDataExtractor';
 
 export class EnhancedUseCasePdfService {
   /**
@@ -101,16 +102,16 @@ export class EnhancedUseCasePdfService {
     const colWidth = 140;
     const colHeight = 80;
     
-    // Total Use Cases
+    // Strategic Use Cases
     doc.rect(col1X, metricsY, colWidth, colHeight).fill('#F0F9FF').stroke('#E0E7FF');
     doc.fontSize(36)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text(summary.totalUseCases.toString(), col1X + 20, metricsY + 15);
+       .text(summary.strategicUseCases.toString(), col1X + 20, metricsY + 15);
     doc.fontSize(12)
        .fillColor('#666666')
        .font('Helvetica')
-       .text('Total Use Cases', col1X + 20, metricsY + 55);
+       .text('Strategic Use Cases', col1X + 20, metricsY + 55);
     
     // Active Portfolio (highlighted in green)
     doc.rect(col2X, metricsY, colWidth, colHeight).fill('#F0FDF4').stroke('#BBF7D0');
@@ -123,17 +124,16 @@ export class EnhancedUseCasePdfService {
        .font('Helvetica')
        .text('Active Portfolio', col2X + 20, metricsY + 55);
     
-    // Reference Library
-    const referenceCount = summary.totalUseCases - summary.activeUseCases;
-    doc.rect(col3X, metricsY, colWidth, colHeight).fill('#F9FAFB').stroke('#E5E7EB');
+    // AI Inventory
+    doc.rect(col3X, metricsY, colWidth, colHeight).fill('#FEF3C7').stroke('#F59E0B');
     doc.fontSize(36)
-       .fillColor('#6B7280')
+       .fillColor('#D97706')
        .font('Helvetica-Bold')
-       .text(referenceCount.toString(), col3X + 20, metricsY + 15);
+       .text(summary.aiInventoryItems.toString(), col3X + 20, metricsY + 15);
     doc.fontSize(12)
        .fillColor('#666666')
        .font('Helvetica')
-       .text('Reference Library', col3X + 20, metricsY + 55);
+       .text('AI Inventory', col3X + 20, metricsY + 55);
     
     // Footer metadata
     doc.fontSize(10)
@@ -184,7 +184,9 @@ export class EnhancedUseCasePdfService {
   /**
    * Add professional use case table with all captured details
    */
-  private static addUseCaseTable(doc: any, useCase: any, index: number): void {
+  private static addUseCaseTable(doc: any, rawUseCase: any, index: number): void {
+    // Extract structured data
+    const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
     const startY = doc.y;
     const tableWidth = 480;
     const leftMargin = 60;
@@ -198,9 +200,8 @@ export class EnhancedUseCasePdfService {
     
     // Use case header with color coding
     const headerY = doc.y + 20;
-    const isActive = useCase.isActiveForRsa === 'true';
-    const headerColor = isActive ? '#22C55E' : '#005DAA';
-    const statusText = isActive ? 'ACTIVE PORTFOLIO' : 'REFERENCE LIBRARY';
+    const headerColor = useCase.display.statusColor;
+    const statusText = useCase.display.statusBadge;
     
     // Header rectangle
     doc.rect(leftMargin, headerY, tableWidth, 50)
@@ -210,7 +211,7 @@ export class EnhancedUseCasePdfService {
     // Use case number and title
     doc.fontSize(16)
        .font('Helvetica-Bold')
-       .text(`${index}. ${useCase.title}`, leftMargin + 20, headerY + 12);
+       .text(`${index}. ${useCase.basicInfo.title}`, leftMargin + 20, headerY + 12);
     
     // Status badge
     doc.fontSize(10)
@@ -223,7 +224,7 @@ export class EnhancedUseCasePdfService {
     doc.fillColor('#333333')
        .fontSize(11)
        .font('Helvetica')
-       .text(useCase.description || 'No description available', leftMargin + 20, doc.y, { 
+       .text(useCase.basicInfo.description, leftMargin + 20, doc.y, { 
          width: tableWidth - 40, 
          lineGap: 4 
        });
@@ -231,7 +232,7 @@ export class EnhancedUseCasePdfService {
     doc.y += 30;
     
     // Problem statement if available
-    if (useCase.problemStatement) {
+    if (useCase.basicInfo.problemStatement) {
       doc.fontSize(12)
          .fillColor('#005DAA')
          .font('Helvetica-Bold')
@@ -242,7 +243,7 @@ export class EnhancedUseCasePdfService {
       doc.fontSize(11)
          .fillColor('#333333')
          .font('Helvetica')
-         .text(useCase.problemStatement, leftMargin + 20, doc.y, { 
+         .text(useCase.basicInfo.problemStatement, leftMargin + 20, doc.y, { 
            width: tableWidth - 40, 
            lineGap: 4 
          });
@@ -269,15 +270,15 @@ export class EnhancedUseCasePdfService {
        .text('Details', leftMargin + col1Width + 10, tableY + 7)
        .text('Scores & Metrics', leftMargin + col1Width + col2Width + 10, tableY + 7);
     
-    // Table rows with alternating colors
+    // Table rows with structured data
     let currentY = tableY + rowHeight;
     const rows = [
-      ['Process', useCase.process || 'General', `Impact: ${useCase.impactScore?.toFixed(1) || 'N/A'} / 10`],
-      ['Line of Business', useCase.lineOfBusiness || 'Cross-functional', `Effort: ${useCase.effortScore?.toFixed(1) || 'N/A'} / 10`],
-      ['Use Case Type', useCase.useCaseType || 'Not specified', `Quadrant: ${useCase.quadrant || 'TBD'}`],
-      ['Business Unit', useCase.businessSegment || 'Enterprise-wide', `Revenue Impact: ${useCase.revenueImpact || 'N/A'} / 5`],
-      ['Geography', useCase.geography || 'Global', `Risk Reduction: ${useCase.riskReduction || 'N/A'} / 5`],
-      ['Status', useCase.useCaseStatus || 'Discovery', `Strategic Fit: ${useCase.strategicFit || 'N/A'} / 5`]
+      ['Process', useCase.basicInfo.process, useCase.display.hasScoring ? `Impact: ${useCase.scoring.finalImpactScore.toFixed(1)} / 10` : 'Governance Only'],
+      ['Line of Business', useCase.basicInfo.lineOfBusiness, useCase.display.hasScoring ? `Effort: ${useCase.scoring.finalEffortScore.toFixed(1)} / 10` : useCase.aiInventory.aiInventoryStatus || 'N/A'],
+      ['Use Case Type', useCase.basicInfo.useCaseType, useCase.display.hasScoring ? `Quadrant: ${useCase.scoring.finalQuadrant}` : useCase.aiInventory.deploymentStatus || 'N/A'],
+      ['Business Unit', useCase.basicInfo.businessSegment, useCase.display.hasScoring ? `Revenue Impact: ${useCase.businessValue.revenueImpact} / 5` : useCase.aiInventory.businessFunction || 'N/A'],
+      ['Geography', useCase.basicInfo.geography, useCase.display.hasScoring ? `Risk Reduction: ${useCase.businessValue.riskReduction} / 5` : useCase.aiInventory.modelOwner || 'N/A'],
+      ['Status', useCase.implementation.useCaseStatus || useCase.portfolioStatus.libraryTier, useCase.display.hasScoring ? `Strategic Fit: ${useCase.businessValue.strategicFit} / 5` : useCase.aiInventory.informedBy || 'N/A']
     ];
     
     rows.forEach((row, rowIndex) => {
@@ -304,30 +305,60 @@ export class EnhancedUseCasePdfService {
     });
     
     // Implementation details if available
-    if (useCase.implementationTimeline || useCase.estimatedValue) {
+    const hasImplementationDetails = useCase.implementation.implementationTimeline || 
+                                   useCase.implementation.estimatedValue ||
+                                   useCase.aiInventory.riskToCustomers ||
+                                   useCase.aiInventory.riskToRsa;
+    
+    if (hasImplementationDetails) {
       doc.y = currentY + 15;
       
       doc.fontSize(12)
          .fillColor('#005DAA')
          .font('Helvetica-Bold')
-         .text('Implementation Details:', leftMargin + 20, doc.y);
+         .text(useCase.display.isAiInventory ? 'Governance Details:' : 'Implementation Details:', leftMargin + 20, doc.y);
       
       doc.y += 20;
       
-      if (useCase.implementationTimeline) {
-        doc.fontSize(10)
-           .fillColor('#374151')
-           .font('Helvetica')
-           .text(`Timeline: ${useCase.implementationTimeline}`, leftMargin + 20, doc.y);
-        doc.y += 15;
-      }
-      
-      if (useCase.estimatedValue) {
-        doc.fontSize(10)
-           .fillColor('#374151')
-           .font('Helvetica')
-           .text(`Estimated Value: ${useCase.estimatedValue}`, leftMargin + 20, doc.y);
-        doc.y += 15;
+      if (useCase.display.isAiInventory) {
+        // AI Inventory governance details
+        if (useCase.aiInventory.riskToCustomers) {
+          doc.fontSize(10)
+             .fillColor('#374151')
+             .font('Helvetica')
+             .text(`Risk to Customers: ${useCase.aiInventory.riskToCustomers}`, leftMargin + 20, doc.y, { width: tableWidth - 40 });
+          doc.y += 15;
+        }
+        if (useCase.aiInventory.riskToRsa) {
+          doc.fontSize(10)
+             .fillColor('#374151')
+             .font('Helvetica')
+             .text(`Risk to RSA: ${useCase.aiInventory.riskToRsa}`, leftMargin + 20, doc.y, { width: tableWidth - 40 });
+          doc.y += 15;
+        }
+        if (useCase.aiInventory.dataUsed) {
+          doc.fontSize(10)
+             .fillColor('#374151')
+             .font('Helvetica')
+             .text(`Data Used: ${useCase.aiInventory.dataUsed}`, leftMargin + 20, doc.y, { width: tableWidth - 40 });
+          doc.y += 15;
+        }
+      } else {
+        // Strategic use case implementation details
+        if (useCase.implementation.implementationTimeline) {
+          doc.fontSize(10)
+             .fillColor('#374151')
+             .font('Helvetica')
+             .text(`Timeline: ${useCase.implementation.implementationTimeline}`, leftMargin + 20, doc.y);
+          doc.y += 15;
+        }
+        if (useCase.implementation.estimatedValue) {
+          doc.fontSize(10)
+             .fillColor('#374151')
+             .font('Helvetica')
+             .text(`Estimated Value: ${useCase.implementation.estimatedValue}`, leftMargin + 20, doc.y);
+          doc.y += 15;
+        }
       }
     }
     
@@ -368,16 +399,14 @@ export class EnhancedUseCasePdfService {
       console.log('Generating enhanced library catalog with filters:', filters);
       
       // Fetch use cases based on filters
-      let query = db.select().from(useCases);
-      
-      // Apply filters if needed
+      let allUseCases;
       if (filters.status === 'active') {
-        query = query.where(eq(useCases.isActiveForRsa, 'true'));
+        allUseCases = await db.select().from(useCases).where(eq(useCases.isActiveForRsa, 'true'));
       } else if (filters.status === 'reference') {
-        query = query.where(eq(useCases.isActiveForRsa, 'false'));
+        allUseCases = await db.select().from(useCases).where(eq(useCases.isActiveForRsa, 'false'));
+      } else {
+        allUseCases = await db.select().from(useCases);
       }
-      
-      const allUseCases = await query;
       console.log('Found use cases:', allUseCases.length);
       
       // Create professional PDF document
@@ -392,11 +421,8 @@ export class EnhancedUseCasePdfService {
       
       doc.pipe(res);
 
-      // Calculate summary
-      const summary = {
-        totalUseCases: allUseCases.length,
-        activeUseCases: allUseCases.filter(uc => uc.isActiveForRsa === 'true').length
-      };
+      // Calculate summary using data extractor
+      const summary = UseCaseDataExtractor.getSummaryStats(allUseCases);
 
       // PAGE 1: Professional Cover Page
       this.addProfessionalCoverPage(doc, 'library', summary);
@@ -437,7 +463,7 @@ export class EnhancedUseCasePdfService {
       });
 
       // Add footer to final page
-      this.addPageFooter(doc, Math.ceil(doc.pageNumber));
+      this.addPageFooter(doc, 1);
 
       doc.end();
       console.log('Enhanced library catalog generated successfully');
@@ -477,12 +503,9 @@ export class EnhancedUseCasePdfService {
       
       doc.pipe(res);
 
-      // Calculate summary
+      // Calculate summary using data extractor
       const allUseCases = await db.select().from(useCases);
-      const summary = {
-        totalUseCases: allUseCases.length,
-        activeUseCases: activeUseCases.length
-      };
+      const summary = UseCaseDataExtractor.getSummaryStats(allUseCases);
 
       // PAGE 1: Professional Cover Page
       this.addProfessionalCoverPage(doc, 'portfolio', summary);
@@ -515,7 +538,7 @@ export class EnhancedUseCasePdfService {
       });
 
       // Add footer to final page
-      this.addPageFooter(doc, Math.ceil(doc.pageNumber));
+      this.addPageFooter(doc, 1);
 
       doc.end();
       console.log('Enhanced portfolio report generated successfully');

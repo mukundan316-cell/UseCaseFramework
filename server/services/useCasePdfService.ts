@@ -4,6 +4,7 @@ import { useCases } from '@shared/schema';
 import { eq, and, or } from 'drizzle-orm';
 import { Response } from 'express';
 import { format } from 'date-fns';
+import { UseCaseDataExtractor } from './useCaseDataExtractor';
 
 export class UseCasePdfService {
   /**
