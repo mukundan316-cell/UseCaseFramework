@@ -132,7 +132,7 @@ export default function ImprovedUseCaseExplorer({
           >
             All
           </button>
-          {['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist'].map((quadrant) => (
+          {(metadata?.quadrants || ['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']).map((quadrant) => (
             <button
               key={quadrant}
               onClick={() => setFilters(prev => ({ 

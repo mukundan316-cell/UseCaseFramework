@@ -50,6 +50,8 @@ function getDefaultMetadata(): MetadataConfig {
     useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"],
     activities: [],
     sourceTypes: ["rsa_internal", "hexaware_external", "industry_standard", "imported", "consolidated_database"],
+    // RSA AI Value Matrix quadrants
+    quadrants: ["Quick Win", "Strategic Bet", "Experimental", "Watchlist"],
     processActivities: null,
     scoringModel: null,
     updatedAt: new Date()

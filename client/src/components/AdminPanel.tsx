@@ -249,6 +249,12 @@ export default function AdminPanel() {
                     items={metadata.stakeholderGroups || []}
                     placeholder="Add new stakeholder group..."
                   />
+                  <MetadataLegoBlock
+                    category="quadrants"
+                    title="Matrix Quadrants"
+                    items={metadata.quadrants || []}
+                    placeholder="Add new quadrant..."
+                  />
                 </div>
               </div>
             </TabsContent>

@@ -78,7 +78,7 @@ const formSchema = z.object({
   // Manual Score Override fields (completely optional, no validation when empty)
   manualImpactScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
   manualEffortScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
-  manualQuadrant: z.union([z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']), z.string(), z.null()]).optional(),
+  manualQuadrant: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
   overrideReason: z.union([z.string(), z.null()]).optional(),
 });
 

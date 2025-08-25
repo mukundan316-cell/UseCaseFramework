@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { AlertCircle, Calculator, Settings } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
+import { useUseCases } from '../../contexts/UseCaseContext';
 // No need to import UseCase type since we're only using form props
 
 interface ScoreOverrideLegoBlockProps {
@@ -25,6 +26,7 @@ export default function ScoreOverrideLegoBlock({
   calculatedQuadrant,
   onToggleChange
 }: ScoreOverrideLegoBlockProps) {
+  const { metadata } = useUseCases();
   const manualImpact = form.watch('manualImpactScore');
   const manualEffort = form.watch('manualEffortScore');
   const manualQuadrant = form.watch('manualQuadrant');
@@ -205,10 +207,9 @@ export default function ScoreOverrideLegoBlock({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Quick Win">Quick Win</SelectItem>
-                      <SelectItem value="Strategic Bet">Strategic Bet</SelectItem>
-                      <SelectItem value="Experimental">Experimental</SelectItem>
-                      <SelectItem value="Watchlist">Watchlist</SelectItem>
+                      {(metadata?.quadrants || ['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']).map((quadrant) => (
+                        <SelectItem key={quadrant} value={quadrant}>{quadrant}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

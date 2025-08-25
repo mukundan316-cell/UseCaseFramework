@@ -106,7 +106,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   // Manual override fields (accept null values for optional operation)
   manualImpactScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
   manualEffortScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  manualQuadrant: z.union([z.enum(['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']), z.null()]).optional(),
+  manualQuadrant: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
   overrideReason: z.union([z.string(), z.null()]).optional(),
   // Tab 3: Implementation & Governance fields
   primaryBusinessOwner: z.string().optional(),
@@ -143,6 +143,8 @@ export const metadataConfig = pgTable('metadata_config', {
   aiMlTechnologies: text('ai_ml_technologies').array().notNull().default(sql`'{"Machine Learning","Deep Learning","Natural Language Processing","Computer Vision","Predictive Analytics","Large Language Models","Reinforcement Learning","Rule-based Systems"}'`),
   dataSources: text('data_sources').array().notNull().default(sql`'{"Policy Database","Claims Database","Customer Database","External APIs","Third-party Data","Real-time Feeds","Historical Data","Regulatory Data"}'`),
   stakeholderGroups: text('stakeholder_groups').array().notNull().default(sql`'{"Underwriting Teams","Claims Teams","IT/Technology","Business Analytics","Risk Management","Compliance","Customer Service","External Partners"}'`),
+  // Quadrant definitions for RSA AI Value Matrix
+  quadrants: text('quadrants').array().notNull().default(sql`'{"Quick Win","Strategic Bet","Experimental","Watchlist"}'`),
   processActivities: text('process_activities').$type<Record<string, string[]> | string>(),
   scoringModel: text('scoring_model').$type<any>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
