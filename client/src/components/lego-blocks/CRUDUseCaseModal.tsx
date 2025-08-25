@@ -521,6 +521,20 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           changedData.overrideReason = (data.overrideReason === '' || data.overrideReason === null) ? null : data.overrideReason;
         }
         
+        // Check if there are any validation issues
+        const hasActivationValidationIssue = changedData.isActiveForRsa === 'true' && 
+          (!changedData.activationReason || changedData.activationReason.trim().length < 10);
+        
+        if (hasActivationValidationIssue) {
+          console.warn('Activation reason validation failed');
+          toast({
+            title: "Validation Error",
+            description: "Please provide at least 10 characters for the activation reason when including in RSA portfolio.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         console.log('Sending data for update:', changedData);
         console.log('Calling updateUseCase with ID:', useCase.id);
         const result = await updateUseCase(useCase.id, changedData);

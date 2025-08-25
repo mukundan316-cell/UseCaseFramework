@@ -191,11 +191,11 @@ export default function RSASelectionToggleLegoBlock({
             </div>
 
             {/* Validation Alert */}
-            {isActiveForRsa && activationReason.trim().length < 10 && (
+            {isActiveForRsa && activationReason.trim().length > 0 && activationReason.trim().length < 10 && (
               <Alert className="border-yellow-200 bg-yellow-50">
                 <AlertCircle className="h-4 w-4 text-yellow-600" />
                 <AlertDescription className="text-yellow-800">
-                  Please provide a detailed reason for including this use case in the RSA portfolio.
+                  Activation reason needs at least 10 characters. Current: {activationReason.trim().length}/10
                 </AlertDescription>
               </Alert>
             )}
