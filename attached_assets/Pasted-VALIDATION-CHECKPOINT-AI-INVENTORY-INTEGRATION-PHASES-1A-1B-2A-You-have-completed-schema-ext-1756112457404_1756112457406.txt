@@ -1,0 +1,94 @@
+VALIDATION CHECKPOINT: AI INVENTORY INTEGRATION - PHASES 1A, 1B, 2A
+
+You have completed schema extension (1A), migration script (1B), and conditional form rendering (2A). 
+Please perform comprehensive validation to ensure implementation follows LEGO architecture principles.
+
+PHASE 1A VALIDATION: Schema Extension
+=================================== 
+
+1. Check shared/schema.ts file:
+   - Verify use_cases table includes these NEW governance fields:
+     * aiOrModel: text (nullable)
+     * riskToCustomers: text (nullable) 
+     * riskToRsa: text (nullable)
+     * dataUsed: text (nullable)
+     * modelOwner: text (nullable)
+     * rsaPolicyGovernance: text (nullable)
+     * thirdPartyModel: boolean (default false)
+     * validationResponsibility: text (nullable)
+     * informedBy: text (nullable)
+
+   - Confirm existing 46 columns remain UNCHANGED
+   - Verify camelCase naming convention maintained
+   - Check Drizzle ORM types are properly defined
+
+EXPECTED RESULT: use_cases table should have 55 total columns (46 existing + 9 new)
+
+PHASE 1B VALIDATION: Database Migration
+====================================
+
+2. Check database migration was successful:
+   - Run: SELECT COUNT(*) FROM use_cases; 
+     Expected: 25 records (existing use cases intact)
+   
+   - Run: SELECT aiOrModel, riskToCustomers FROM use_cases LIMIT 1;
+     Expected: NULL values for existing records (backward compatibility)
+   
+   - Verify API endpoints still work:
+     GET /api/use-cases should return all 25 existing records
+   
+   - Check admin panel still loads without errors
+
+EXPECTED RESULT: All existing functionality preserved, new fields available
+
+PHASE 2A VALIDATION: Conditional Form Rendering  
+============================================
+
+3. Check form component updates:
+   - Verify use case form shows strategic fields for library_source = 'rsa_internal'
+   - Confirm form hides governance fields for existing strategic use cases
+   - Test that form submission still works for existing use case editing
+   - Check that new governance fields appear when library_source would be 'sharepoint_import'
+
+   Key files to check:
+   - Form components show conditional field rendering
+   - FormField components from shadcn/ui reused (not duplicated)
+   - Existing form validation logic preserved
+   - LEGO form standards maintained (text-base font-semibold text-gray-900)
+
+EXPECTED RESULT: Single form handles both strategic and governance data types
+
+ARCHITECTURAL COMPLIANCE CHECK:
+=============================
+
+4. Verify LEGO principles maintained:
+   ✅ No new major components created
+   ✅ Existing component patterns reused
+   ✅ camelCase naming throughout
+   ✅ Database follows established patterns
+   ✅ Form components follow LEGO standards
+   ✅ Backward compatibility preserved
+
+5. Test existing workflows:
+   - Admin panel loads correctly
+   - Use case creation/editing works normally
+   - Dashboard displays existing data properly
+   - PDF export functions correctly
+   - Search and filtering work as before
+
+REPORT VALIDATION RESULTS:
+========================
+
+Please provide a summary report covering:
+1. Schema changes verified ✅/❌
+2. Database migration successful ✅/❌  
+3. Form conditional rendering working ✅/❌
+4. Existing functionality preserved ✅/❌
+5. LEGO architecture principles maintained ✅/❌
+6. Any issues discovered and resolution status
+
+If any validation fails, identify the specific issue and recommend fix before proceeding to Phase 2B.
+
+NEXT PHASE READINESS:
+===================
+Only proceed to Phase 2B (CleanUseCaseCard updates + data migration) if ALL validation checks pass.
