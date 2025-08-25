@@ -20,6 +20,8 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 
 ### Core Features
 - **Use Case Management**: Complete CRUD operations integrated with the RSA 10-lever scoring framework.
+- **Comprehensive Detail View**: Accordion-style detail drawer with 5 expandable sections (Overview & Scoring, Business Context, Implementation & Governance, Technology & Data, Risk & Compliance) providing complete use case information with progressive disclosure.
+- **Intuitive Navigation**: Clickable use case cards for seamless detail access while preserving action button functionality.
 - **Assessment System**: A 6-section questionnaire featuring 14 advanced question types (e.g., company_profile, business_lines_matrix, smart_rating, ranking).
 - **Manual Override System**: Toggle-based score customization with database persistence.
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts.
@@ -30,7 +32,8 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 - **Simplified Storage Architecture**: Pure JSON blob storage for questionnaire data, eliminating data corruption and simplifying data handling.
 
 ### UI/UX Decisions
-- **LEGO CRUD Card Design Standard**: All use case cards adhere to a consistent design: white cards with a blue left border, subtle gray border, hover shadow, standard padding, clear title and description, color-coded rounded pill-style tags (Process, Line of Business, Use Case Type), side-by-side score display (Impact, Effort), ghost-style action buttons, and contextual actions based on the view.
+- **LEGO CRUD Card Design Standard**: All use case cards adhere to a consistent design: white cards with a blue left border, subtle gray border, hover shadow, standard padding, clear title and description, color-coded rounded pill-style tags (Process, Line of Business, Use Case Type), side-by-side score display (Impact, Effort), ghost-style action buttons, and contextual actions based on the view. Cards are fully clickable for detail access.
+- **LEGO Detail View Standard**: UseCaseDetailDrawer follows accordion pattern with color-coded sections (blue=overview, green=business, purple=implementation, indigo=technology, red=governance), conditional rendering based on data availability, and appropriate empty states.
 - **LEGO Form Standards**: Field labels use `text-base font-semibold text-gray-900`, consistent styling for all form inputs using shadcn/ui components, and standardized error/success states.
 
 ### System Design Choices
@@ -56,16 +59,21 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 6. **Priority-Based Selection**: Automatic questionnaire selection (started → unstarted → completed)
 7. **Survey.js Integration**: Full Survey.js library integration with 161 questions rendering correctly
 8. **HTTP Cache Prevention**: No-cache headers implemented for real-time session data
+9. **Comprehensive Use Case Detail View**: Full accordion-style detail drawer with 5 expandable sections showing complete use case information
+10. **Intuitive Card Navigation**: Clickable use case cards with preserved action button functionality for seamless user experience
 
 ### 🏗️ **Technical Achievements**
 - **API Optimization**: `/api/responses/user-sessions` and `/api/responses/check-session` with cache prevention headers
 - **Smart Session Logic**: System detects "not started" status and skips redundant session checks
-- **Component Architecture**: Complete `useQuestionnaireSelection` hook, `AssessmentSideMenu`, and `SurveyJsAssessment` integration
+- **Component Architecture**: Complete `useQuestionnaireSelection` hook, `AssessmentSideMenu`, `SurveyJsAssessment`, and `UseCaseDetailDrawer` integration
 - **Database Performance**: Lightweight PostgreSQL session tracking with JSON blob storage for questionnaire data
 - **UX Improvements**: Eliminated "no active session" fallback screens, replaced with loading states during automatic session creation
+- **Detail View Architecture**: Progressive disclosure pattern with conditional content rendering and appropriate empty states for missing data
 
 ### 🎯 **User Experience**
-- **Seamless Navigation**: Users can switch between questionnaires without losing progress
+- **Seamless Navigation**: Users can switch between questionnaires without losing progress and access detailed use case information with single clicks
 - **Visual Progress Indicators**: Sidebar tiles show status badges (Not Started, X%, Completed)
 - **Automatic Workflow**: No manual session creation required - system handles everything transparently
 - **Save Confirmation**: Toast notifications confirm successful saves and questionnaire switches
+- **Comprehensive Detail Access**: Single-page accordion interface displaying all available use case data with expandable sections
+- **Intelligent Empty States**: Graceful handling of missing data with informative empty state messages rather than hidden sections
