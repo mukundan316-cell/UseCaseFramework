@@ -46,6 +46,12 @@ const formSchema = z.object({
   adoptionReadiness: z.number().min(1).max(5),
   explainabilityBias: z.number().min(1).max(5),
   regulatoryCompliance: z.number().min(1).max(5),
+  // Additional form fields
+  enableManualOverrides: z.boolean().optional(),
+  manualImpactScore: z.string().optional(),
+  manualEffortScore: z.string().optional(),
+  manualQuadrant: z.string().optional(),
+  overrideReason: z.string().optional(),
 });
 
 type UseCaseFormData = z.infer<typeof formSchema>;
@@ -212,6 +218,12 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
       adoptionReadiness: useCase?.adoptionReadiness || 3,
       explainabilityBias: useCase?.explainabilityBias || 3,
       regulatoryCompliance: useCase?.regulatoryCompliance || 3,
+      // Additional form state
+      enableManualOverrides: hasManualOverrides(useCase as any),
+      manualImpactScore: (useCase as any)?.manualImpactScore || '',
+      manualEffortScore: (useCase as any)?.manualEffortScore || '',
+      manualQuadrant: (useCase as any)?.manualQuadrant || '',
+      overrideReason: (useCase as any)?.overrideReason || '',
     }
   });
 
@@ -603,13 +615,13 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                         <p className="text-sm text-gray-600">Override calculated scores with manual values</p>
                       </div>
                       <Switch
-                        checked={formData.enableManualOverrides}
-                        onCheckedChange={(checked) => setFormData({...formData, enableManualOverrides: checked})}
+                        checked={form.watch('enableManualOverrides') || false}
+                        onCheckedChange={(checked) => form.setValue('enableManualOverrides', checked)}
                       />
                     </div>
 
                     {/* Manual Override Fields - Show when enabled */}
-                    {formData.enableManualOverrides && (
+                    {form.watch('enableManualOverrides') && (
                       <div className="mt-4 space-y-4 pt-4 border-t border-yellow-200">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Manual Impact Score */}
@@ -620,8 +632,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                               min="0"
                               max="5"
                               step="0.1"
-                              value={formData.manualImpactScore}
-                              onChange={(e) => setFormData({...formData, manualImpactScore: e.target.value})}
+                              value={form.watch('manualImpactScore') || ''}
+                              onChange={(e) => form.setValue('manualImpactScore', e.target.value)}
                               placeholder="0.0 - 5.0"
                               className="mt-2 bg-yellow-50 border-yellow-300 focus:border-yellow-500"
                             />
@@ -640,8 +652,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                               min="0"
                               max="5"
                               step="0.1"
-                              value={formData.manualEffortScore}
-                              onChange={(e) => setFormData({...formData, manualEffortScore: e.target.value})}
+                              value={form.watch('manualEffortScore') || ''}
+                              onChange={(e) => form.setValue('manualEffortScore', e.target.value)}
                               placeholder="0.0 - 5.0"
                               className="mt-2 bg-yellow-50 border-yellow-300 focus:border-yellow-500"
                             />
@@ -657,8 +669,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                         <div>
                           <Label className="text-base font-semibold text-gray-900">Manual Quadrant</Label>
                           <Select 
-                            value={formData.manualQuadrant} 
-                            onValueChange={(value) => setFormData({...formData, manualQuadrant: value})}
+                            value={form.watch('manualQuadrant') || ''} 
+                            onValueChange={(value) => form.setValue('manualQuadrant', value)}
                           >
                             <SelectTrigger className="mt-2 bg-yellow-50 border-yellow-300 focus:border-yellow-500">
                               <SelectValue placeholder="Select quadrant" />
@@ -690,8 +702,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                             Override Reason <span className="text-red-500">*</span>
                           </Label>
                           <Textarea
-                            value={formData.overrideReason}
-                            onChange={(e) => setFormData({...formData, overrideReason: e.target.value})}
+                            value={form.watch('overrideReason') || ''}
+                            onChange={(e) => form.setValue('overrideReason', e.target.value)}
                             placeholder="Explain why manual overrides are needed (required)"
                             className="mt-2 bg-yellow-50 border-yellow-300 focus:border-yellow-500"
                             rows={3}
@@ -1008,40 +1020,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                     </div>
                   </div>
 
-                  {/* Lines of Business multi-select checkboxes in 2 columns */}
-                  <div>
-                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Lines of Business</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {lobOptions.map((lob) => (
-                        <div key={lob} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`lob-${lob}`}
-                            checked={formData.linesOfBusiness.includes(lob)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setFormData({...formData, linesOfBusiness: [...formData.linesOfBusiness, lob]});
-                              } else {
-                                setFormData({...formData, linesOfBusiness: formData.linesOfBusiness.filter(l => l !== lob)});
-                              }
-                            }}
-                          />
-                          <Label htmlFor={`lob-${lob}`} className="text-sm text-gray-700">
-                            {lob}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Selected LOB tags */}
-                    {formData.linesOfBusiness.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {formData.linesOfBusiness.map((lob) => (
-                          <Badge key={lob} variant="secondary" className="bg-green-100 text-green-800">
-                            {lob}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  {/* Note: Multi-select LOB functionality removed - using single select in Business Context */}
 
                   {/* Business Segments multi-select checkboxes */}
                   <div>
@@ -1145,8 +1124,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                       <div>
                         <Label className="text-base font-semibold text-gray-900">Primary Business Owner</Label>
                         <Input
-                          value={formData.primaryBusinessOwner}
-                          onChange={(e) => setFormData({...formData, primaryBusinessOwner: e.target.value})}
+                          value={form.watch('primaryBusinessOwner') || ''}
+                          onChange={(e) => form.setValue('primaryBusinessOwner', e.target.value)}
                           placeholder="Enter business owner name"
                           className="mt-2"
                         />
@@ -1155,7 +1134,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                       {/* Use Case Status */}
                       <div>
                         <Label className="text-base font-semibold text-gray-900">Use Case Status</Label>
-                        <Select value={formData.useCaseStatus} onValueChange={(value) => setFormData({...formData, useCaseStatus: value})}>
+                        <Select value={form.watch('useCaseStatus') || ''} onValueChange={(value) => form.setValue('useCaseStatus', value)}>
                           <SelectTrigger className="mt-2">
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
@@ -1173,8 +1152,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                       <div>
                         <Label className="text-base font-semibold text-gray-900">Key Dependencies</Label>
                         <Textarea
-                          value={formData.keyDependencies}
-                          onChange={(e) => setFormData({...formData, keyDependencies: e.target.value})}
+                          value={form.watch('keyDependencies') || ''}
+                          onChange={(e) => form.setValue('keyDependencies', e.target.value)}
                           placeholder="Describe key dependencies and requirements"
                           className="mt-2"
                           rows={3}
