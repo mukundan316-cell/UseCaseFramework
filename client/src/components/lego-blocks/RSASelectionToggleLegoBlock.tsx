@@ -104,42 +104,72 @@ export default function RSASelectionToggleLegoBlock({
 
       <CardContent className="space-y-6">
         {/* Primary RSA Toggle */}
-        <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-white">
+        <div className="flex items-center justify-between p-4 rounded-lg border-2 border-gray-300 bg-white hover:border-rsa-blue/50 transition-all duration-200">
           <div className="flex-1">
-            <Label htmlFor="rsa-active" className="text-base font-medium text-gray-900">
+            <Label htmlFor="rsa-active" className="text-base font-medium text-gray-900 cursor-pointer">
               Include in RSA Active Portfolio
             </Label>
             <p className="text-sm text-gray-600 mt-1">
               Move this use case from reference library to active portfolio for scoring and evaluation
             </p>
           </div>
-          <Switch 
-            id="rsa-active"
-            checked={isActiveForRsa}
-            onCheckedChange={handleRSAToggle}
-            className="ml-4"
-          />
+          <div className="flex items-center ml-4">
+            <div className={`px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
+              isActiveForRsa 
+                ? 'bg-green-50 border-green-300 text-green-800' 
+                : 'bg-gray-50 border-gray-300 text-gray-600'
+            }`}>
+              <Switch 
+                id="rsa-active"
+                checked={isActiveForRsa}
+                onCheckedChange={handleRSAToggle}
+                className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-400 scale-110"
+              />
+            </div>
+            <div className="ml-2 text-xs font-medium">
+              <div className={`transition-all duration-200 ${
+                isActiveForRsa ? 'text-green-700' : 'text-gray-500'
+              }`}>
+                {isActiveForRsa ? 'YES' : 'NO'}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Conditional Dashboard Controls */}
         {isActiveForRsa && (
           <div className="ml-6 space-y-4 border-l-3 border-rsa-blue/30 pl-6">
             {/* Dashboard Visibility Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50/50 border border-blue-200">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50/50 border-2 border-blue-200 hover:border-blue-300 transition-all duration-200">
               <div className="flex-1">
-                <Label htmlFor="dashboard-visible" className="text-sm font-medium text-gray-900">
+                <Label htmlFor="dashboard-visible" className="text-sm font-medium text-gray-900 cursor-pointer">
                   Show on Dashboard Matrix
                 </Label>
                 <p className="text-xs text-gray-600 mt-1">
                   Display this use case in the main dashboard prioritization matrix
                 </p>
               </div>
-              <Switch 
-                id="dashboard-visible"
-                checked={isDashboardVisible}
-                onCheckedChange={onDashboardToggle}
-                className="ml-3"
-              />
+              <div className="flex items-center ml-3">
+                <div className={`px-2 py-1 rounded border-2 transition-all duration-200 ${
+                  isDashboardVisible 
+                    ? 'bg-blue-50 border-blue-300 text-blue-800' 
+                    : 'bg-gray-50 border-gray-300 text-gray-600'
+                }`}>
+                  <Switch 
+                    id="dashboard-visible"
+                    checked={isDashboardVisible}
+                    onCheckedChange={onDashboardToggle}
+                    className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-gray-400 scale-105"
+                  />
+                </div>
+                <div className="ml-2 text-xs font-medium">
+                  <div className={`transition-all duration-200 ${
+                    isDashboardVisible ? 'text-blue-700' : 'text-gray-500'
+                  }`}>
+                    {isDashboardVisible ? 'YES' : 'NO'}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Activation Reason */}
