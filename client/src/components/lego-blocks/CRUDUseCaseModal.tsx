@@ -115,7 +115,7 @@ interface CRUDUseCaseModalProps {
  * Reusable modal component supporting both create and edit operations
  * Follows database-first architecture with full RSA framework compliance
  */
-export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, context = 'active' as 'reference' | 'active' | 'dashboard' }: CRUDUseCaseModalProps) {
+export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, context = 'active' }: CRUDUseCaseModalProps) {
   const { addUseCase, updateUseCase, metadata } = useUseCases();
   const { toast } = useToast();
 
@@ -467,6 +467,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
   const onSubmit = async (data: FormData) => {
     try {
+      console.log('Form submission triggered');
+      console.log('Form validation errors:', form.formState.errors);
       console.log('Submitting form data:', data);
       
       if (mode === 'edit' && useCase) {
@@ -498,24 +500,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           overrideReason: (useCase as any).overrideReason,
         };
         
-        // Only include fields that have actually changed
-        const changedData: any = {};
-        Object.keys(data).forEach(key => {
-          if (data[key as keyof FormData] !== originalData[key as keyof typeof originalData]) {
-            changedData[key] = data[key as keyof FormData];
-          }
-        });
+        // For now, send all data to avoid change detection issues
+        // TODO: Optimize to only send changed fields once working
+        console.log('Original data:', originalData);
+        console.log('New data:', data);
         
-        // Always include multi-select arrays as they may have been updated
-        if (data.linesOfBusiness) changedData.linesOfBusiness = data.linesOfBusiness;
-        if (data.processes) changedData.processes = data.processes;
-        if (data.activities) changedData.activities = data.activities;
-        if (data.businessSegments) changedData.businessSegments = data.businessSegments;
-        if (data.geographies) changedData.geographies = data.geographies;
-        // Tab 3 multi-select arrays
-        if (data.aiMlTechnologies) changedData.aiMlTechnologies = data.aiMlTechnologies;
-        if (data.dataSources) changedData.dataSources = data.dataSources;
-        if (data.stakeholderGroups) changedData.stakeholderGroups = data.stakeholderGroups;
+        const changedData: any = { ...data };
         
         // Handle manual override fields - convert empty strings to null
         if (data.manualImpactScore !== undefined) {
@@ -531,7 +521,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           changedData.overrideReason = (data.overrideReason === '' || data.overrideReason === null) ? null : data.overrideReason;
         }
         
-        console.log('Sending only changed data:', changedData);
+        console.log('Sending data for update:', changedData);
+        console.log('Calling updateUseCase with ID:', useCase.id);
         const result = await updateUseCase(useCase.id, changedData);
         console.log('Update successful:', result);
         toast({
@@ -1280,7 +1271,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               </TabsContent>
 
               {/* Tab 4: RSA Framework Assessment - Hidden for AI Inventory and Reference Library */}
-              {form.watch('librarySource') !== 'ai_inventory' && context !== 'reference' && (
+              {form.watch('librarySource') !== 'ai_inventory' && (context as string) !== 'reference' && (
                 <TabsContent value="assessment" className="space-y-4 mt-6">
                 {rsaSelection.isActiveForRsa ? (
                   <div className="space-y-6">
@@ -1400,7 +1391,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             </Card>
             
             {/* Manual Score Override Section - Hidden for Reference Library */}
-            {context !== 'reference' && (
+            {(context as string) !== 'reference' && (
               <ScoreOverrideLegoBlock
                 form={form}
                 calculatedImpact={currentImpactScore}
