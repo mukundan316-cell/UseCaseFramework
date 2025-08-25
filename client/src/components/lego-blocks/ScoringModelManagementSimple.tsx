@@ -46,9 +46,6 @@ export default function ScoringModelManagementBlock() {
   const [modelWeight, setModelWeight] = useState(savedModel?.feasibility?.modelRisk || 20);
   const [adoptionWeight, setAdoptionWeight] = useState(savedModel?.feasibility?.adoptionReadiness || 20);
   
-  // AI Governance weights - load from database or defaults
-  const [explainabilityWeight, setExplainabilityWeight] = useState(savedModel?.aiGovernance?.explainabilityBias || 50);
-  const [complianceWeight, setComplianceWeight] = useState(savedModel?.aiGovernance?.regulatoryCompliance || 50);
   
   // Quadrant threshold - load from database or default
   const [quadrantThreshold, setQuadrantThreshold] = useState(savedModel?.quadrantThreshold || 3.0);
@@ -69,10 +66,6 @@ export default function ScoringModelManagementBlock() {
           changeImpact: changeWeight,
           modelRisk: modelWeight,
           adoptionReadiness: adoptionWeight
-        },
-        aiGovernance: {
-          explainabilityBias: explainabilityWeight,
-          regulatoryCompliance: complianceWeight
         },
         quadrantThreshold: quadrantThreshold
       };
@@ -106,8 +99,6 @@ export default function ScoringModelManagementBlock() {
     setChangeWeight(20);
     setModelWeight(20);
     setAdoptionWeight(20);
-    setExplainabilityWeight(50);
-    setComplianceWeight(50);
     setQuadrantThreshold(3.0);
     
     toast({
@@ -142,7 +133,6 @@ export default function ScoringModelManagementBlock() {
 
   const businessTotal = revenueWeight + costWeight + riskWeight + experienceWeight + strategicWeight;
   const feasibilityTotal = dataWeight + technicalWeight + changeWeight + modelWeight + adoptionWeight;
-  const governanceTotal = explainabilityWeight + complianceWeight;
 
   return (
     <div className="space-y-6">
@@ -374,54 +364,6 @@ export default function ScoringModelManagementBlock() {
                 </CardContent>
               </Card>
 
-              {/* AI Governance */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                        AI Governance Levers
-                      </Badge>
-                    </div>
-                    <span className="text-sm">Total: {governanceTotal}%</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm font-medium">Explainability & Bias</Label>
-                        <span className="text-sm font-mono">{explainabilityWeight}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        value={explainabilityWeight}
-                        onChange={(e) => setExplainabilityWeight(parseInt(e.target.value))}
-                        max={100}
-                        min={0}
-                        step={5}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm font-medium">Regulatory Compliance</Label>
-                        <span className="text-sm font-mono">{complianceWeight}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        value={complianceWeight}
-                        onChange={(e) => setComplianceWeight(parseInt(e.target.value))}
-                        max={100}
-                        min={0}
-                        step={5}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
 
             <TabsContent value="formulas" className="space-y-6">
