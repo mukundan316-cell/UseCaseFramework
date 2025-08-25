@@ -70,8 +70,9 @@ export default function UseCaseDetailDrawer({
   
   if (!useCase) return null;
 
-  // Get effective scores and overrides
-  const hasScores = useCase.impactScore !== undefined && useCase.effortScore !== undefined;
+  // Get effective scores and overrides - only consider meaningful scoring (> 0)
+  const hasScores = useCase.impactScore !== undefined && useCase.effortScore !== undefined && 
+                   useCase.impactScore > 0 && useCase.effortScore > 0;
   const effectiveImpact = hasScores ? getEffectiveImpactScore(useCase as any) : undefined;
   const effectiveEffort = hasScores ? getEffectiveEffortScore(useCase as any) : undefined;
   const effectiveQuadrant = hasScores ? getEffectiveQuadrant(useCase as any) : '';
