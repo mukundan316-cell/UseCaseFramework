@@ -524,16 +524,18 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                 </>
               )}
 
-              <ExportButton
-                exportType="use-case"
-                exportId={useCase.id}
-                variant="outline"
-                size="sm"
-                className="border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                <FileText className="h-4 w-4 mr-1" />
-                Export PDF
-              </ExportButton>
+              {useCase && (
+                <ExportButton
+                  exportType="use-case"
+                  exportId={useCase.id}
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  <FileText className="h-4 w-4 mr-1" />
+                  Export PDF
+                </ExportButton>
+              )}
 
               <Button
                 onClick={onClose}
@@ -550,7 +552,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
         {/* Content */}
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 pb-24" style={{ maxHeight: 'calc(100vh - 140px)' }}>
           {/* Check if this is a strategic use case */}
-          {(useCase.librarySource === 'rsa_internal' || useCase.librarySource === 'hexaware_external') ? (
+          {(useCase?.librarySource === 'rsa_internal' || useCase?.librarySource === 'hexaware_external') ? (
             <Accordion type="multiple" defaultValue={["overview", "strategic-scoring", "business-context"]} className="w-full">
               {/* Overview Section */}
               <AccordionItem value="overview" ref={sectionRefs.overview}>
