@@ -47,14 +47,6 @@ const DEFAULT_SCORING_MODEL = {
         { key: "modelRisk", name: "Model Risk", weight: 20 },
         { key: "adoptionReadiness", name: "Adoption Readiness", weight: 20 }
       ]
-    },
-    aiGovernance: {
-      name: "AI Governance",
-      color: "purple",
-      levers: [
-        { key: "explainabilityBias", name: "Explainability & Bias", weight: 50 },
-        { key: "regulatoryCompliance", name: "Regulatory Compliance", weight: 50 }
-      ]
     }
   },
   formulas: {

@@ -24,8 +24,7 @@ export interface UseCase {
   changeImpact: number;
   modelRisk: number;
   adoptionReadiness: number;
-  explainabilityBias: number;
-  regulatoryCompliance: number;
+
   impactScore: number;
   effortScore: number;
   quadrant: QuadrantType;
@@ -79,8 +78,7 @@ export interface UseCaseFormData {
   modelRisk: number;
   adoptionReadiness: number;
   // AI Governance Levers
-  explainabilityBias: number;
-  regulatoryCompliance: number;
+
   activity?: string;
   // Assessment recommendation tracking
   recommendedByAssessment?: string;

@@ -27,8 +27,6 @@ export interface UseCaseFrontend {
   changeImpact: number;
   modelRisk: number;
   adoptionReadiness: number;
-  explainabilityBias: number;
-  regulatoryCompliance: number;
   impactScore: number;
   effortScore: number;
   quadrant: string;
@@ -74,8 +72,6 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     changeImpact: dbUseCase.changeImpact,
     modelRisk: dbUseCase.modelRisk,
     adoptionReadiness: dbUseCase.adoptionReadiness,
-    explainabilityBias: dbUseCase.explainabilityBias,
-    regulatoryCompliance: dbUseCase.regulatoryCompliance,
     impactScore: dbUseCase.impactScore,
     effortScore: dbUseCase.effortScore,
     quadrant: dbUseCase.quadrant,
@@ -121,8 +117,6 @@ export function mapUseCaseToDatabase(frontendUseCase: Partial<UseCaseFrontend>):
     changeImpact: frontendUseCase.changeImpact,
     modelRisk: frontendUseCase.modelRisk,
     adoptionReadiness: frontendUseCase.adoptionReadiness,
-    explainabilityBias: frontendUseCase.explainabilityBias,
-    regulatoryCompliance: frontendUseCase.regulatoryCompliance,
     impactScore: frontendUseCase.impactScore,
     effortScore: frontendUseCase.effortScore,
     quadrant: frontendUseCase.quadrant,

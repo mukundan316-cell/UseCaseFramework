@@ -78,16 +78,6 @@ export function calculateEffortScore(
   return weightedScore;
 }
 
-/**
- * Calculates AI Governance composite score
- * Combines explainability/bias and regulatory compliance dimensions
- */
-export function calculateGovernanceScore(
-  explainabilityBias: number,
-  regulatoryCompliance: number
-): number {
-  return (explainabilityBias + regulatoryCompliance) / 2;
-}
 
 /**
  * Determines quadrant based on impact and effort scores with configurable threshold
