@@ -110,9 +110,17 @@ export default function UseCaseDetailDrawer({
   const hasGovernanceData = !!(
     extendedUseCase.aiOrModel ||
     extendedUseCase.riskToCustomers ||
+    extendedUseCase.riskToRsa ||
     extendedUseCase.explainabilityRequired ||
     extendedUseCase.dataUsed ||
-    extendedUseCase.modelOwner
+    extendedUseCase.modelOwner ||
+    extendedUseCase.rsaPolicyGovernance ||
+    extendedUseCase.validationResponsibility ||
+    extendedUseCase.informedBy ||
+    extendedUseCase.customerHarmRisk ||
+    extendedUseCase.dataOutsideUkEu ||
+    extendedUseCase.thirdPartyModel ||
+    extendedUseCase.humanAccountability
   );
   
   const hasTechData = !!(
@@ -627,6 +635,54 @@ export default function UseCaseDetailDrawer({
                   <FieldDisplay 
                     label="Model Owner"
                     value={extendedUseCase.modelOwner}
+                    icon={Users}
+                  />
+
+                  <FieldDisplay 
+                    label="RSA Policy Governance"
+                    value={extendedUseCase.rsaPolicyGovernance}
+                    icon={Shield}
+                  />
+
+                  <FieldDisplay 
+                    label="Validation Responsibility"
+                    value={extendedUseCase.validationResponsibility}
+                    icon={CheckCircle}
+                  />
+
+                  <FieldDisplay 
+                    label="Informed By"
+                    value={extendedUseCase.informedBy}
+                    icon={Users}
+                  />
+
+                  <FieldDisplay 
+                    label="Explainability Required"
+                    value={extendedUseCase.explainabilityRequired}
+                    icon={AlertTriangle}
+                  />
+
+                  <FieldDisplay 
+                    label="Customer Harm Risk"
+                    value={extendedUseCase.customerHarmRisk}
+                    icon={AlertTriangle}
+                  />
+
+                  <FieldDisplay 
+                    label="Data Outside UK/EU"
+                    value={extendedUseCase.dataOutsideUkEu}
+                    icon={Network}
+                  />
+
+                  <FieldDisplay 
+                    label="Third Party Model"
+                    value={extendedUseCase.thirdPartyModel}
+                    icon={ExternalLink}
+                  />
+
+                  <FieldDisplay 
+                    label="Human Accountability"
+                    value={extendedUseCase.humanAccountability}
                     icon={Users}
                   />
                 </>
