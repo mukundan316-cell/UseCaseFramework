@@ -1,0 +1,102 @@
+# META-PROMPT: Structured Analysis → Answer
+
+## Part 1: Initial Question Deconstruction
+
+**UNDERSTAND**: You want a recommendation (suggestions only, no implementation) that’s the least complex, follows LEGO (reusable blocks) principles, and keeps the app intuitive for mixing AI Inventory (unscored) with scored use cases.
+
+**ANALYZE**:
+
+* Current UI and model are optimized for scored portfolio items.
+* AI Inventory needs just a small set of lifecycle fields and clear visual separation.
+* Risk: user confusion if components behave inconsistently or filters get cluttered.
+
+**REASON**:
+
+* Minimize schema changes; reuse existing card/detail/filter blocks with type-aware rendering driven by a single “source/category” field.
+* Keep navigation unchanged; avoid route proliferation.
+* Add one toggle in filters; add badges and conditional sections.
+
+**SYNTHESIZE**:
+
+* Recommend a single-interface, type-aware pattern with 3 small schema additions and 1 new enum value, plus simple conditional UI.
+* Provide a brief acceptance checklist and risks/mitigations.
+
+**CONCLUDE**:
+
+* Endorse the “Minimal-Complexity LEGO Integration” you drafted, with a few small refinements below.
+
+---
+
+## Part 2: Answer (Bloom’s Taxonomy)
+
+### 1) Remember
+
+Your draft proposes: single interface, conditional UI via `librarySource`, plus 3 fields: `aiInventoryStatus`, `deploymentStage`, `lastStatusUpdate`. That’s already the simplest viable path.
+
+### 2) Understand
+
+This approach preserves user muscle memory (same routes, same cards/drawers), while clearly labeling inventory vs scored items. It adheres to LEGO by extending existing blocks rather than introducing new ones.
+
+### 3) Apply — Suggested Refinements (still minimal)
+
+* **Schema (keep tiny):**
+
+  * Extend `librarySource` enum with `'ai_inventory'`.
+  * Add:
+
+    * `aiInventoryStatus` (enum/text: `Active`, `Proof_of_Concept`, `Pending_Closure`, `Obsolete`, `Inactive`)
+    * `deploymentStage` (enum/text: `PoC`, `Pilot`, `Production`, `Decommissioned`)
+    * `lastStatusUpdate` (timestamp)
+  * (Optional later: `systemPath` only if users ask for deep links; avoid now to stay minimal.)
+* **Cards (type-aware, same component):**
+
+  * If `librarySource==='ai_inventory'`: show `[INVENTORY]` badge + status pill; omit impact/effort area.
+  * Else: current scored view.
+* **Detail Drawer (conditional sections, same component):**
+
+  * Hide scoring section for inventory; show lifecycle/status panel instead.
+* **Filters (one toggle):**
+
+  * Checkboxes: “Scored items” and “AI Inventory”. Show type-specific filters when a type is selected (status for inventory, quadrant/score for scored).
+
+### 4) Analyze — Why this is least complex & LEGO-friendly
+
+* **Least complex**: No new pages, no new components; just conditional rendering and a few fields.
+* **LEGO**: Reuses the same card and drawer with props/guards; same filter panel with one toggle and conditional chips.
+* **Intuitive**: Users recognize the layout; badges + pills clarify why some items don’t show scores.
+
+### 5) Synthesize — Acceptance Checklist (before approving work)
+
+* **Data**
+
+  * [ ] `librarySource` includes `'ai_inventory'`
+  * [ ] Enum sets agreed for `aiInventoryStatus`, `deploymentStage`
+  * [ ] Status mapping rules documented (how raw statuses map to enum)
+* **UI**
+
+  * [ ] Inventory badge + status pill copy approved
+  * [ ] Filter toggle labels approved (“Scored items”, “AI Inventory”)
+  * [ ] Empty-state messages for each type approved
+* **Behavior**
+
+  * [ ] Scoring controls hidden for inventory
+  * [ ] Inventory items excluded from quadrants by default
+  * [ ] Conversion action (optional/later): “Convert to Use Case” defined but not implemented now
+
+### 6) Evaluate — Risks & Mitigations
+
+* **Risk: Status sprawl** → Mitigate with a small, locked enum and a mapping table for imports.
+* **Risk: Filter clutter** → Show context-specific filters only when that type is selected.
+* **Risk: User confusion** → Prominent “INVENTORY” badge + brief tooltip (“Operational registry item; not scored”).
+
+### 7) Create — Recommended Approach (final suggestion; do not implement)
+
+**Adopt your proposed “Single Interface with Smart Components” with the refinements above.**
+It is the least complex, adheres to LEGO (extend, don’t fork), and remains user-friendly:
+
+* **Minimal schema**: 3 fields + 1 enum value.
+* **Zero route changes**: keep navigation intact.
+* **Type-aware UI**: one card, one drawer, one filter panel—conditioned by `librarySource`.
+* **Clear UX**: badges and pills communicate differences; no training required.
+
+If you’d like, I can draft the exact enum values, copy text for badges/tooltips, and the status-mapping table—still as suggestions only.
