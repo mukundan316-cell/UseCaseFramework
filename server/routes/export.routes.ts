@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { UseCasePdfService } from '../services/useCasePdfService';
 import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
+import { ExcelExportService } from '../services/excelExportService';
 import { questionnaireServiceInstance } from '../services/questionnaireService';
 // PDF services removed - using client-side Survey.js PDF export instead
 
@@ -89,6 +90,61 @@ router.get('/questionnaire/:responseId/responses', async (req, res) => {
     error: 'Server-side PDF export disabled',
     message: 'Questionnaire PDF exports are now handled client-side using Survey.js for better compatibility'
   });
+});
+
+// =============================================================================
+// EXCEL EXPORT ROUTES
+// Comprehensive Excel exports with multiple worksheets and structured data
+// =============================================================================
+
+/**
+ * Export use case library as Excel (Comprehensive Multi-Sheet Version)
+ * GET /api/export/excel/library?category=all&status=all
+ */
+router.get('/excel/library', async (req, res) => {
+  try {
+    const { category = 'all', status = 'all' } = req.query;
+    
+    await ExcelExportService.generateUseCaseLibraryExcel(res, {
+      category: category as string,
+      status: status as string,
+    });
+  } catch (error) {
+    console.error('Library Excel export error:', error);
+    res.status(500).json({ error: 'Failed to export use case library to Excel' });
+  }
+});
+
+/**
+ * Export RSA active portfolio as Excel
+ * GET /api/export/excel/portfolio
+ */
+router.get('/excel/portfolio', async (req, res) => {
+  try {
+    await ExcelExportService.generateActivePortfolioExcel(res);
+  } catch (error) {
+    console.error('Portfolio Excel export error:', error);
+    res.status(500).json({ error: 'Failed to export portfolio to Excel' });
+  }
+});
+
+/**
+ * Export individual use case as Excel
+ * GET /api/export/excel/use-case/:id
+ */
+router.get('/excel/use-case/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ error: 'Use case ID is required' });
+    }
+
+    await ExcelExportService.generateIndividualUseCaseExcel(id, res);
+  } catch (error) {
+    console.error('Use case Excel export error:', error);
+    res.status(500).json({ error: 'Failed to export use case to Excel' });
+  }
 });
 
 export default router;

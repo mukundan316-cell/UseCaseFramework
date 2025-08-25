@@ -1,0 +1,488 @@
+import XLSX from 'xlsx';
+import { db } from '../db';
+import { useCases } from '@shared/schema';
+import { eq } from 'drizzle-orm';
+import { Response } from 'express';
+import { format } from 'date-fns';
+import { UseCaseDataExtractor } from './useCaseDataExtractor';
+
+export class ExcelExportService {
+  
+  /**
+   * Generate comprehensive Excel export with multiple worksheets
+   */
+  static async generateUseCaseLibraryExcel(res: Response, filters: {
+    category?: string;
+    status?: string;
+  } = {}): Promise<void> {
+    try {
+      console.log('Generating Excel export with filters:', filters);
+      
+      // Fetch use cases based on filters
+      let allUseCases;
+      if (filters.status === 'active') {
+        allUseCases = await db.select().from(useCases).where(eq(useCases.isActiveForRsa, 'true'));
+      } else if (filters.status === 'reference') {
+        allUseCases = await db.select().from(useCases).where(eq(useCases.isActiveForRsa, 'false'));
+      } else {
+        allUseCases = await db.select().from(useCases);
+      }
+      
+      console.log('Found use cases for Excel export:', allUseCases.length);
+      
+      // Create new workbook
+      const workbook = XLSX.utils.book_new();
+      
+      // WORKSHEET 1: Summary Overview
+      const summaryData = UseCaseDataExtractor.getSummaryStats(allUseCases);
+      const summarySheet = this.createSummarySheet(summaryData);
+      XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+      
+      // WORKSHEET 2: Strategic Use Cases (scored)
+      const strategicUseCases = allUseCases.filter(uc => uc.librarySource !== 'ai_inventory');
+      if (strategicUseCases.length > 0) {
+        const strategicSheet = this.createStrategicUseCasesSheet(strategicUseCases);
+        XLSX.utils.book_append_sheet(workbook, strategicSheet, 'Strategic Use Cases');
+      }
+      
+      // WORKSHEET 3: AI Inventory (governance)
+      const aiInventoryItems = allUseCases.filter(uc => uc.librarySource === 'ai_inventory');
+      if (aiInventoryItems.length > 0) {
+        const aiInventorySheet = this.createAiInventorySheet(aiInventoryItems);
+        XLSX.utils.book_append_sheet(workbook, aiInventorySheet, 'AI Inventory');
+      }
+      
+      // WORKSHEET 4: Complete Raw Data
+      const rawDataSheet = this.createRawDataSheet(allUseCases);
+      XLSX.utils.book_append_sheet(workbook, rawDataSheet, 'Raw Data');
+      
+      // Generate Excel buffer
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      
+      // Set response headers
+      const filename = `RSA_Use_Cases_${format(new Date(), 'yyyy-MM-dd_HH-mm')}.xlsx`;
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', buffer.length);
+      
+      // Send the buffer
+      res.send(buffer);
+      console.log('Excel export generated successfully');
+      
+    } catch (error) {
+      console.error('Failed to generate Excel export:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to generate Excel export' });
+      }
+    }
+  }
+  
+  /**
+   * Create summary overview worksheet
+   */
+  private static createSummarySheet(summary: any): XLSX.WorkSheet {
+    const data = [
+      ['RSA AI Use Case Value Framework - Executive Summary'],
+      ['Generated', format(new Date(), 'EEEE, MMMM d, yyyy \'at\' h:mm a')],
+      [''],
+      ['Portfolio Overview'],
+      ['Total Use Cases', summary.totalUseCases],
+      ['Strategic Use Cases', summary.strategicUseCases],
+      ['AI Inventory Items', summary.aiInventoryItems],
+      ['Active Portfolio', summary.activeUseCases],
+      ['Reference Library', summary.referenceUseCases],
+      [''],
+      ['Performance Metrics'],
+      ['Average Impact Score', summary.averageImpactScore.toFixed(2)],
+      ['Average Effort Score', summary.averageEffortScore.toFixed(2)],
+      [''],
+      ['Export Details'],
+      ['Organization', 'RSA Insurance'],
+      ['Framework Version', '2.0'],
+      ['Classification', 'Internal Use Only']
+    ];
+    
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Style the header
+    ws['A1'].s = { font: { bold: true, sz: 14 }, fill: { fgColor: { rgb: "005DAA" } } };
+    
+    // Set column widths
+    ws['!cols'] = [{ width: 25 }, { width: 20 }];
+    
+    return ws;
+  }
+  
+  /**
+   * Create strategic use cases worksheet
+   */
+  private static createStrategicUseCasesSheet(useCases: any[]): XLSX.WorkSheet {
+    const headers = [
+      'Title',
+      'Description',
+      'Problem Statement',
+      'Process',
+      'Line of Business',
+      'Business Segment',
+      'Geography',
+      'Use Case Type',
+      'Use Case Status',
+      'Portfolio Status',
+      'Dashboard Visible',
+      'Library Source',
+      'Final Impact Score',
+      'Final Effort Score',
+      'Final Quadrant',
+      'Revenue Impact (1-5)',
+      'Cost Savings (1-5)',
+      'Risk Reduction (1-5)',
+      'Broker Partner Experience (1-5)',
+      'Strategic Fit (1-5)',
+      'Data Readiness (1-5)',
+      'Technical Complexity (1-5)',
+      'Change Impact (1-5)',
+      'Model Risk (1-5)',
+      'Adoption Readiness (1-5)',
+      'Primary Business Owner',
+      'Implementation Timeline',
+      'Success Metrics',
+      'Estimated Value',
+      'Integration Requirements',
+      'AI/ML Technologies',
+      'Data Sources',
+      'Stakeholder Groups',
+      'Manual Override?',
+      'Override Reason',
+      'Activation Reason',
+      'Created Date'
+    ];
+    
+    const rows = useCases.map(rawUseCase => {
+      const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
+      
+      return [
+        useCase.basicInfo.title,
+        useCase.basicInfo.description,
+        useCase.basicInfo.problemStatement || '',
+        useCase.basicInfo.process,
+        useCase.basicInfo.lineOfBusiness,
+        useCase.basicInfo.businessSegment,
+        useCase.basicInfo.geography,
+        useCase.basicInfo.useCaseType,
+        useCase.implementation.useCaseStatus || '',
+        useCase.portfolioStatus.isActiveForRsa ? 'Active Portfolio' : 'Reference Library',
+        useCase.portfolioStatus.isDashboardVisible ? 'Yes' : 'No',
+        useCase.portfolioStatus.librarySource,
+        useCase.scoring.finalImpactScore,
+        useCase.scoring.finalEffortScore,
+        useCase.scoring.finalQuadrant,
+        useCase.businessValue.revenueImpact,
+        useCase.businessValue.costSavings,
+        useCase.businessValue.riskReduction,
+        useCase.businessValue.brokerPartnerExperience,
+        useCase.businessValue.strategicFit,
+        useCase.feasibility.dataReadiness,
+        useCase.feasibility.technicalComplexity,
+        useCase.feasibility.changeImpact,
+        useCase.feasibility.modelRisk,
+        useCase.feasibility.adoptionReadiness,
+        useCase.implementation.primaryBusinessOwner || '',
+        useCase.implementation.implementationTimeline || '',
+        useCase.implementation.successMetrics || '',
+        useCase.implementation.estimatedValue || '',
+        useCase.implementation.integrationRequirements || '',
+        useCase.multiSelectData.aiMlTechnologies.join(', '),
+        useCase.multiSelectData.dataSources.join(', '),
+        useCase.multiSelectData.stakeholderGroups.join(', '),
+        useCase.scoring.manualImpactScore ? 'Yes' : 'No',
+        useCase.scoring.overrideReason || '',
+        useCase.portfolioStatus.activationReason || '',
+        useCase.basicInfo.createdAt ? format(useCase.basicInfo.createdAt, 'yyyy-MM-dd') : ''
+      ];
+    });
+    
+    const data = [headers, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Style headers
+    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (ws[cellAddress]) {
+        ws[cellAddress].s = { 
+          font: { bold: true }, 
+          fill: { fgColor: { rgb: "E3F2FD" } },
+          border: {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+          }
+        };
+      }
+    }
+    
+    // Auto-fit columns
+    ws['!cols'] = headers.map(() => ({ width: 20 }));
+    
+    return ws;
+  }
+  
+  /**
+   * Create AI inventory worksheet
+   */
+  private static createAiInventorySheet(useCases: any[]): XLSX.WorkSheet {
+    const headers = [
+      'Title',
+      'Description',
+      'Business Function',
+      'AI Inventory Status',
+      'Deployment Status',
+      'AI or Model',
+      'Risk to Customers',
+      'Risk to RSA',
+      'Data Used',
+      'Model Owner',
+      'RSA Policy Governance',
+      'Validation Responsibility',
+      'Informed By',
+      'Third Party Provided Model',
+      'Portfolio Status',
+      'Library Source',
+      'Last Status Update',
+      'Created Date'
+    ];
+    
+    const rows = useCases.map(rawUseCase => {
+      const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
+      
+      return [
+        useCase.basicInfo.title,
+        useCase.basicInfo.description,
+        useCase.aiInventory.businessFunction || '',
+        useCase.aiInventory.aiInventoryStatus || '',
+        useCase.aiInventory.deploymentStatus || '',
+        useCase.aiInventory.aiOrModel || '',
+        useCase.aiInventory.riskToCustomers || '',
+        useCase.aiInventory.riskToRsa || '',
+        useCase.aiInventory.dataUsed || '',
+        useCase.aiInventory.modelOwner || '',
+        useCase.aiInventory.rsaPolicyGovernance || '',
+        useCase.aiInventory.validationResponsibility || '',
+        useCase.aiInventory.informedBy || '',
+        useCase.aiInventory.thirdPartyProvidedModel || '',
+        useCase.portfolioStatus.isActiveForRsa ? 'Active Portfolio' : 'Reference Library',
+        useCase.portfolioStatus.librarySource,
+        useCase.aiInventory.lastStatusUpdate ? format(useCase.aiInventory.lastStatusUpdate, 'yyyy-MM-dd') : '',
+        useCase.basicInfo.createdAt ? format(useCase.basicInfo.createdAt, 'yyyy-MM-dd') : ''
+      ];
+    });
+    
+    const data = [headers, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Style headers
+    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (ws[cellAddress]) {
+        ws[cellAddress].s = { 
+          font: { bold: true }, 
+          fill: { fgColor: { rgb: "FFF3E0" } },
+          border: {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+          }
+        };
+      }
+    }
+    
+    // Auto-fit columns
+    ws['!cols'] = headers.map(() => ({ width: 25 }));
+    
+    return ws;
+  }
+  
+  /**
+   * Create raw data worksheet with all fields
+   */
+  private static createRawDataSheet(useCases: any[]): XLSX.WorkSheet {
+    if (useCases.length === 0) {
+      return XLSX.utils.aoa_to_sheet([['No data available']]);
+    }
+    
+    // Get all field names from the first use case
+    const firstUseCase = useCases[0];
+    const headers = Object.keys(firstUseCase).filter(key => key !== 'id');
+    
+    const rows = useCases.map(useCase => {
+      return headers.map(header => {
+        const value = useCase[header];
+        
+        // Handle different data types
+        if (value === null || value === undefined) {
+          return '';
+        } else if (Array.isArray(value)) {
+          return value.join(', ');
+        } else if (typeof value === 'object' && value instanceof Date) {
+          return format(value, 'yyyy-MM-dd HH:mm:ss');
+        } else if (typeof value === 'boolean') {
+          return value ? 'Yes' : 'No';
+        } else {
+          return String(value);
+        }
+      });
+    });
+    
+    const data = [headers, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Style headers
+    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (ws[cellAddress]) {
+        ws[cellAddress].s = { 
+          font: { bold: true }, 
+          fill: { fgColor: { rgb: "F5F5F5" } }
+        };
+      }
+    }
+    
+    return ws;
+  }
+  
+  /**
+   * Generate active portfolio Excel export
+   */
+  static async generateActivePortfolioExcel(res: Response): Promise<void> {
+    return this.generateUseCaseLibraryExcel(res, { status: 'active' });
+  }
+  
+  /**
+   * Generate individual use case Excel export
+   */
+  static async generateIndividualUseCaseExcel(useCaseId: string, res: Response): Promise<void> {
+    try {
+      console.log('Generating individual use case Excel for:', useCaseId);
+      
+      // Fetch specific use case
+      const [useCase] = await db
+        .select()
+        .from(useCases)
+        .where(eq(useCases.id, useCaseId));
+
+      if (!useCase) {
+        res.status(404).json({ error: 'Use case not found' });
+        return;
+      }
+      
+      // Extract structured data
+      const extractedData = UseCaseDataExtractor.extractCompleteData(useCase);
+      
+      // Create workbook with detailed breakdown
+      const workbook = XLSX.utils.book_new();
+      
+      // Main details sheet
+      const detailsData = [
+        ['RSA Use Case Analysis'],
+        [''],
+        ['Basic Information'],
+        ['Title', extractedData.basicInfo.title],
+        ['Description', extractedData.basicInfo.description],
+        ['Problem Statement', extractedData.basicInfo.problemStatement || ''],
+        ['Process', extractedData.basicInfo.process],
+        ['Line of Business', extractedData.basicInfo.lineOfBusiness],
+        ['Business Segment', extractedData.basicInfo.businessSegment],
+        ['Geography', extractedData.basicInfo.geography],
+        ['Use Case Type', extractedData.basicInfo.useCaseType],
+        [''],
+        ['Portfolio Status'],
+        ['Active for RSA', extractedData.portfolioStatus.isActiveForRsa ? 'Yes' : 'No'],
+        ['Dashboard Visible', extractedData.portfolioStatus.isDashboardVisible ? 'Yes' : 'No'],
+        ['Library Source', extractedData.portfolioStatus.librarySource],
+        ['Activation Reason', extractedData.portfolioStatus.activationReason || ''],
+        ['']
+      ];
+      
+      // Add scoring section if it's a strategic use case
+      if (extractedData.display.hasScoring) {
+        detailsData.push(
+          ['Scoring'],
+          ['Final Impact Score', extractedData.scoring.finalImpactScore.toString()],
+          ['Final Effort Score', extractedData.scoring.finalEffortScore.toString()],
+          ['Final Quadrant', extractedData.scoring.finalQuadrant],
+          ['Manual Override', extractedData.scoring.manualImpactScore ? 'Yes' : 'No'],
+          ['Override Reason', extractedData.scoring.overrideReason || ''],
+          [''],
+          ['Business Value Scores (1-5)'],
+          ['Revenue Impact', extractedData.businessValue.revenueImpact.toString()],
+          ['Cost Savings', extractedData.businessValue.costSavings.toString()],
+          ['Risk Reduction', extractedData.businessValue.riskReduction.toString()],
+          ['Broker Partner Experience', extractedData.businessValue.brokerPartnerExperience.toString()],
+          ['Strategic Fit', extractedData.businessValue.strategicFit.toString()],
+          [''],
+          ['Feasibility Scores (1-5)'],
+          ['Data Readiness', extractedData.feasibility.dataReadiness.toString()],
+          ['Technical Complexity', extractedData.feasibility.technicalComplexity.toString()],
+          ['Change Impact', extractedData.feasibility.changeImpact.toString()],
+          ['Model Risk', extractedData.feasibility.modelRisk.toString()],
+          ['Adoption Readiness', extractedData.feasibility.adoptionReadiness.toString()],
+          ['']
+        );
+      } else {
+        // Add AI inventory governance details
+        detailsData.push(
+          ['AI Inventory Governance'],
+          ['Business Function', extractedData.aiInventory.businessFunction || ''],
+          ['AI Inventory Status', extractedData.aiInventory.aiInventoryStatus || ''],
+          ['Deployment Status', extractedData.aiInventory.deploymentStatus || ''],
+          ['Risk to Customers', extractedData.aiInventory.riskToCustomers || ''],
+          ['Risk to RSA', extractedData.aiInventory.riskToRsa || ''],
+          ['Data Used', extractedData.aiInventory.dataUsed || ''],
+          ['Model Owner', extractedData.aiInventory.modelOwner || ''],
+          ['Informed By', extractedData.aiInventory.informedBy || ''],
+          ['']
+        );
+      }
+      
+      // Add implementation details
+      detailsData.push(
+        ['Implementation & Governance'],
+        ['Primary Business Owner', extractedData.implementation.primaryBusinessOwner || ''],
+        ['Use Case Status', extractedData.implementation.useCaseStatus || ''],
+        ['Implementation Timeline', extractedData.implementation.implementationTimeline || ''],
+        ['Success Metrics', extractedData.implementation.successMetrics || ''],
+        ['Estimated Value', extractedData.implementation.estimatedValue || ''],
+        ['Integration Requirements', extractedData.implementation.integrationRequirements || ''],
+        ['AI/ML Technologies', extractedData.multiSelectData.aiMlTechnologies.join(', ')],
+        ['Data Sources', extractedData.multiSelectData.dataSources.join(', ')],
+        ['Stakeholder Groups', extractedData.multiSelectData.stakeholderGroups.join(', ')]
+      );
+      
+      const ws = XLSX.utils.aoa_to_sheet(detailsData);
+      ws['!cols'] = [{ width: 25 }, { width: 60 }];
+      
+      XLSX.utils.book_append_sheet(workbook, ws, 'Use Case Details');
+      
+      // Generate and send Excel
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      const filename = `RSA_UseCase_${extractedData.basicInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+      
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', buffer.length);
+      
+      res.send(buffer);
+      console.log('Individual use case Excel generated successfully');
+      
+    } catch (error) {
+      console.error('Failed to generate individual use case Excel:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to generate individual use case Excel' });
+      }
+    }
+  }
+}
