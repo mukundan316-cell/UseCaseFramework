@@ -62,19 +62,6 @@ export default function ImprovedUseCaseExplorer({
       localStorage.setItem('usecase-explorer-tab', activeTab);
     }
     
-    // Light telemetry for post-launch validation
-    const telemetryData = {
-      action: 'tab_switch',
-      tab: activeTab,
-      timestamp: new Date().toISOString(),
-      useCaseCount: {
-        strategic: strategicCount,
-        inventory: inventoryCount,
-        total: strategicCount + inventoryCount
-      }
-    };
-    console.log('[RSA-AI-Telemetry]', telemetryData);
-    
     // Reset filters that don't apply to the new tab context
     if (activeTab === 'inventory') {
       // Reset strategic-only filters
@@ -91,7 +78,7 @@ export default function ImprovedUseCaseExplorer({
         deploymentStatus: ''
       }));
     }
-  }, [activeTab, strategicCount, inventoryCount]);
+  }, [activeTab]);
   
   // Filters
   const [filters, setFilters] = useState({
@@ -159,8 +146,24 @@ export default function ImprovedUseCaseExplorer({
   const strategicCount = useCases.filter(uc => (uc as any).librarySource !== 'ai_inventory').length;
   const inventoryCount = useCases.filter(uc => (uc as any).librarySource === 'ai_inventory').length;
   
-  // Light telemetry for filter usage
+  // Light telemetry effects
   useEffect(() => {
+    // Tab switch telemetry
+    const telemetryData = {
+      action: 'tab_switch',
+      tab: activeTab,
+      timestamp: new Date().toISOString(),
+      useCaseCount: {
+        strategic: strategicCount,
+        inventory: inventoryCount,
+        total: strategicCount + inventoryCount
+      }
+    };
+    console.log('[RSA-AI-Telemetry]', telemetryData);
+  }, [activeTab, strategicCount, inventoryCount]);
+  
+  useEffect(() => {
+    // Filter usage telemetry
     const activeFilters = Object.entries(filters).filter(([key, value]) => value !== '').length;
     if (activeFilters > 0) {
       const telemetryData = {
