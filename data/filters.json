@@ -44,9 +44,7 @@
   ],
   "sourceTypes": [
     "rsa_internal",
-    "industry_standard", 
-    "imported",
-    "consolidated_database",
+    "industry_standard",
     "ai_inventory"
   ]
 }

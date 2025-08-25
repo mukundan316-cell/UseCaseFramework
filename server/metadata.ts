@@ -49,7 +49,7 @@ function getDefaultMetadata(): MetadataConfig {
     geographies: ["UK", "Europe", "Global", "North America"],
     useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"],
     activities: [],
-    sourceTypes: ["rsa_internal", "industry_standard", "imported", "consolidated_database", "ai_inventory"],
+    sourceTypes: ["rsa_internal", "industry_standard", "ai_inventory"],
     // RSA AI Value Matrix quadrants
     quadrants: ["Quick Win", "Strategic Bet", "Experimental", "Watchlist"],
     // Assessment and questionnaire LOVs

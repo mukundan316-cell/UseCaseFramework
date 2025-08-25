@@ -15,8 +15,6 @@ export default function SourceLegend({ className = '', showTitle = true }: Sourc
   const iconMapping: Record<string, any> = {
     'rsa_internal': Building2,
     'industry_standard': Users,
-    'imported': Download,
-    'consolidated_database': Database,
     'ai_inventory': Users
   };
 

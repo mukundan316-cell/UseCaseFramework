@@ -29,24 +29,6 @@ export const getSourceConfig = (librarySource: string): SourceStyleConfig => {
         label: 'Industry Standard',
         description: 'Industry best practice use cases'
       };
-    case 'imported':
-      return {
-        borderColor: '#6b21a8', // purple-800
-        badgeColor: '#9333ea',
-        badgeBackground: '#e9d5ff', // purple-100
-        iconColor: '#a855f7', // purple-500
-        label: 'Imported',
-        description: 'Imported from external sources'
-      };
-    case 'consolidated_database':
-      return {
-        borderColor: '#4338ca', // indigo-700
-        badgeColor: '#4f46e5',
-        badgeBackground: '#e0e7ff', // indigo-100
-        iconColor: '#6366f1', // indigo-500
-        label: 'Consolidated',
-        description: 'Consolidated from database migration'
-      };
     case 'ai_inventory':
       return {
         borderColor: '#7c3aed', // purple-600
@@ -75,10 +57,6 @@ export const getSourceBackgroundTint = (librarySource: string): string => {
       return 'bg-blue-50/30'; // Very subtle blue tint
     case 'industry_standard':
       return 'bg-green-50/30'; // Very subtle green tint
-    case 'imported':
-      return 'bg-purple-50/30'; // Very subtle purple tint
-    case 'consolidated_database':
-      return 'bg-indigo-50/30'; // Very subtle indigo tint
     case 'ai_inventory':
       return 'bg-purple-50/30'; // Very subtle purple tint
     default:
@@ -89,7 +67,5 @@ export const getSourceBackgroundTint = (librarySource: string): string => {
 export const getAllSourceTypes = () => [
   'rsa_internal', 
   'industry_standard',
-  'imported',
-  'consolidated_database',
   'ai_inventory'
 ];
