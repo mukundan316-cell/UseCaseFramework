@@ -44,7 +44,7 @@ interface AssessmentStatsLegoBlockProps {
 }
 
 export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> = ({
-  questionnaireId = '91684df8-9700-4605-bc3e-2320120e5e1b', // RSA Assessment ID
+  questionnaireId, // Will be set dynamically from available questionnaires
   showActions = true,
   onRefresh,
   className = ""
@@ -52,14 +52,36 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
   const [stats, setStats] = useState<AssessmentStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [availableQuestionnaires, setAvailableQuestionnaires] = useState<any[]>([]);
+  const [selectedQuestionnaireId, setSelectedQuestionnaireId] = useState<string>(questionnaireId || '');
 
-  const loadStats = async () => {
+  const loadAvailableQuestionnaires = async () => {
+    try {
+      const response = await fetch('/api/questionnaire/sections');
+      if (response.ok) {
+        const questionnaires = await response.json();
+        setAvailableQuestionnaires(questionnaires);
+        
+        // Set first questionnaire as default if none selected
+        if (!selectedQuestionnaireId && questionnaires.length > 0) {
+          setSelectedQuestionnaireId(questionnaires[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load questionnaires:', error);
+    }
+  };
+
+  const loadStats = async (targetQuestionnaireId?: string) => {
+    const currentId = targetQuestionnaireId || selectedQuestionnaireId;
+    if (!currentId) return;
+    
     setLoading(true);
     setError(null);
     
     try {
       // Load questionnaire structure
-      const questResponse = await fetch(`/api/questionnaires/${questionnaireId}`);
+      const questResponse = await fetch(`/api/questionnaire/${currentId}`);
       if (!questResponse.ok) throw new Error('Failed to load questionnaire');
       const questData = await questResponse.json();
 
@@ -70,7 +92,7 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
       const estimatedTime = questData.sections?.reduce((sum: number, section: any) => 
         sum + (section.estimatedTime || 5), 0) || 0;
 
-      // Try to load usage statistics (optional)
+      // Try to load usage statistics from the actual available endpoint
       let usageStats = {
         totalResponses: 0,
         completionRate: 0,
@@ -79,12 +101,20 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
       };
 
       try {
-        const statsResponse = await fetch('/api/assessment-stats');
+        // Use the actual questionnaire stats endpoint
+        const statsResponse = await fetch('/api/questionnaire/stats');
         if (statsResponse.ok) {
-          usageStats = await statsResponse.json();
+          const questStats = await statsResponse.json();
+          // Map the real questionnaire stats to our expected format
+          usageStats = {
+            totalResponses: questStats.totalResponses || 0,
+            completionRate: questStats.completionRate || 0,
+            averageScore: questStats.averageScore || 0,
+            sectionPerformance: questStats.sectionPerformance || {}
+          };
         }
       } catch {
-        // Usage stats are optional - continue without them
+        // Stats are optional - continue without them
       }
 
       setStats({
@@ -102,13 +132,25 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
     }
   };
 
+  // Load questionnaires when component mounts
   useEffect(() => {
-    loadStats();
-  }, [questionnaireId]);
+    loadAvailableQuestionnaires();
+  }, []);
+
+  // Load stats when questionnaire selection changes
+  useEffect(() => {
+    if (selectedQuestionnaireId) {
+      loadStats();
+    }
+  }, [selectedQuestionnaireId]);
 
   const handleRefresh = () => {
     loadStats();
     onRefresh?.();
+  };
+
+  const handleQuestionnaireChange = (newId: string) => {
+    setSelectedQuestionnaireId(newId);
   };
 
   if (loading) {
@@ -185,22 +227,45 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Header with Actions */}
+      {/* Header with Questionnaire Selector and Actions */}
       {showActions && (
-        <div className="flex justify-between items-center">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Assessment Statistics</h3>
-            <p className="text-sm text-gray-600">RSA AI Maturity Assessment overview</p>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Assessment Statistics</h3>
+              <p className="text-sm text-gray-600">Real-time statistics from questionnaire responses</p>
+            </div>
+            <ReusableButton
+              onClick={handleRefresh}
+              variant="outline"
+              size="sm"
+              icon={RefreshCw}
+              loading={loading}
+            >
+              Refresh
+            </ReusableButton>
           </div>
-          <ReusableButton
-            onClick={handleRefresh}
-            variant="outline"
-            size="sm"
-            icon={RefreshCw}
-            loading={loading}
-          >
-            Refresh
-          </ReusableButton>
+          
+          {/* Questionnaire Selector */}
+          {availableQuestionnaires.length > 0 && (
+            <div className="flex items-center space-x-4">
+              <label htmlFor="questionnaire-select" className="text-sm font-medium text-gray-700">
+                Questionnaire:
+              </label>
+              <select
+                id="questionnaire-select"
+                value={selectedQuestionnaireId}
+                onChange={(e) => handleQuestionnaireChange(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {availableQuestionnaires.map((questionnaire) => (
+                  <option key={questionnaire.id} value={questionnaire.id}>
+                    {questionnaire.title} ({questionnaire.questions} questions)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       )}
 

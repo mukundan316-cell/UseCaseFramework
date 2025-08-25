@@ -36,7 +36,7 @@ interface QuestionConfigurationLegoBlockProps {
 
 export default function QuestionConfigurationLegoBlock({
   className = '',
-  questionnaireId = '91684df8-9700-4605-bc3e-2320120e5e1b'
+  questionnaireId
 }: QuestionConfigurationLegoBlockProps) {
   const [questions, setQuestions] = useState<QuestionConfig[]>([]);
   const [loading, setLoading] = useState(false);

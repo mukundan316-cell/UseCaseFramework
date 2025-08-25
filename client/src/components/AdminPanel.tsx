@@ -24,6 +24,88 @@ export default function AdminPanel() {
   
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Question Template Library handlers - using available questionnaire APIs
+  const handleAddQuestionTemplate = async (template: any) => {
+    try {
+      // For now, show what would be added since we don't have a template storage API
+      toast({
+        title: "Template Action",
+        description: `Would add template: "${template.title}" (Type: ${template.questionType})`,
+      });
+      console.log('Template to add:', template);
+    } catch (error) {
+      toast({
+        title: "Error adding template",
+        description: "Template management requires questionnaire definition updates.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkImportTemplates = async (templates: any[]) => {
+    try {
+      toast({
+        title: "Bulk Import",
+        description: `Would import ${templates.length} templates. Feature requires backend storage.`,
+      });
+      console.log('Templates to import:', templates);
+    } catch (error) {
+      toast({
+        title: "Error importing templates",
+        description: "Bulk import requires additional backend implementation.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreateCustomQuestion = async (question: any) => {
+    try {
+      toast({
+        title: "Custom Question",
+        description: `Would create question: "${question.questionText}"`,
+      });
+      console.log('Custom question to create:', question);
+    } catch (error) {
+      toast({
+        title: "Error creating question",
+        description: "Custom question creation requires questionnaire API updates.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateQuestionTemplate = async (id: string, updates: any) => {
+    try {
+      toast({
+        title: "Template Update",
+        description: `Would update template ${id} with changes.`,
+      });
+      console.log('Template update:', id, updates);
+    } catch (error) {
+      toast({
+        title: "Error updating template",
+        description: "Template updates require questionnaire definition modifications.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteQuestionTemplate = async (id: string) => {
+    try {
+      toast({
+        title: "Template Deletion",
+        description: `Would delete template ${id}. Requires confirmation in production.`,
+      });
+      console.log('Template to delete:', id);
+    } catch (error) {
+      toast({
+        title: "Error deleting template",
+        description: "Template deletion requires backend API implementation.",
+        variant: "destructive",
+      });
+    }
+  };
   
   // Loading state while metadata is being fetched (database-first compliance)
   if (!metadata) {
@@ -305,15 +387,18 @@ export default function AdminPanel() {
                 <AssessmentStatsLegoBlock />
                 
                 {/* Question Configuration */}
-                <QuestionConfigurationLegoBlock className="w-full" />
+                <QuestionConfigurationLegoBlock 
+                  className="w-full"
+                  questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b"
+                />
                 
                 {/* Question Template Library */}
                 <QuestionTemplateLibraryLegoBlock
-                  onAddQuestion={async (template) => console.log('Add question:', template)}
-                  onBulkImport={async (templates) => console.log('Bulk import:', templates)}
-                  onCreateCustom={async (question) => console.log('Create custom:', question)}
-                  onUpdateTemplate={async (id, updates) => console.log('Update template:', id, updates)}
-                  onDeleteTemplate={async (id) => console.log('Delete template:', id)}
+                  onAddQuestion={handleAddQuestionTemplate}
+                  onBulkImport={handleBulkImportTemplates}
+                  onCreateCustom={handleCreateCustomQuestion}
+                  onUpdateTemplate={handleUpdateQuestionTemplate}
+                  onDeleteTemplate={handleDeleteQuestionTemplate}
                   className="w-full"
                 />
               </div>
