@@ -1,8 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { X, Edit, FileText, Building2, Users, ExternalLink, Target, AlertTriangle, Eye, GitCompare, FolderPlus, History, ChevronUp, Bot, Shield, Database, Briefcase } from 'lucide-react';
+import { X, Edit, FileText, Building2, Users, ExternalLink, Target, AlertTriangle, Eye, GitCompare, FolderPlus, History, ChevronUp, Bot, Shield, Database, Briefcase, Calendar, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { UseCase } from '../../types';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
 import { getSourceConfig } from '../../utils/sourceColors';
@@ -23,7 +29,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
     overview: useRef<HTMLDivElement>(null),
     'strategic-scoring': useRef<HTMLDivElement>(null),
     'business-context': useRef<HTMLDivElement>(null),
-    'implementation-details': useRef<HTMLDivElement>(null)
+    'implementation-details': useRef<HTMLDivElement>(null),
+    'rsa-portfolio': useRef<HTMLDivElement>(null)
   };
 
   // Mini-map sections
@@ -31,7 +38,8 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
     { id: 'overview', label: 'Overview', ref: sectionRefs.overview },
     { id: 'strategic-scoring', label: 'Strategic Scoring', ref: sectionRefs['strategic-scoring'] },
     { id: 'business-context', label: 'Business Context', ref: sectionRefs['business-context'] },
-    { id: 'implementation-details', label: 'Implementation Details', ref: sectionRefs['implementation-details'] }
+    { id: 'implementation-details', label: 'Implementation & Governance', ref: sectionRefs['implementation-details'] },
+    { id: 'rsa-portfolio', label: 'RSA Portfolio Selection', ref: useRef<HTMLDivElement>(null) }
   ];
 
   // Track current section based on scroll position
@@ -85,6 +93,49 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
   };
 
   if (!useCase) return null;
+
+  // Form state for editable fields
+  const [formData, setFormData] = useState({
+    process: useCase.process || '',
+    linesOfBusiness: useCase.linesOfBusiness || [useCase.lineOfBusiness].filter(Boolean),
+    businessSegments: useCase.businessSegments || [useCase.businessSegment].filter(Boolean),
+    geographies: useCase.geographies || [useCase.geography].filter(Boolean),
+    primaryBusinessOwner: (useCase as any).primaryBusinessOwner || '',
+    useCaseStatus: (useCase as any).useCaseStatus || '',
+    keyDependencies: (useCase as any).keyDependencies || '',
+    implementationTimeline: (useCase as any).implementationTimeline || '',
+    successMetrics: (useCase as any).successMetrics || '',
+    estimatedValue: (useCase as any).estimatedValue || '',
+    valueMeasurementApproach: (useCase as any).valueMeasurementApproach || '',
+    technicalImplementation: (useCase as any).technicalImplementation || '',
+    isActiveForRsa: useCase.isActiveForRsa === 'true' || useCase.isActiveForRsa === true,
+    isDashboardVisible: useCase.isDashboardVisible === 'true' || useCase.isDashboardVisible === true,
+    activationReason: (useCase as any).activationReason || '',
+    deactivationReason: (useCase as any).deactivationReason || ''
+  });
+
+  // Sample data for dropdowns
+  const processOptions = [
+    'Underwriting', 'Claims Processing', 'Customer Service', 'Risk Assessment', 
+    'Portfolio Management', 'Fraud Detection', 'Policy Administration', 'Marketing'
+  ];
+
+  const lobOptions = [
+    'Commercial', 'Personal', 'Specialty', 'International', 'Reinsurance'
+  ];
+
+  const segmentOptions = [
+    'Small Commercial', 'Middle Market', 'Large Commercial', 'Personal Lines', 
+    'High Net Worth', 'Specialty Lines'
+  ];
+
+  const geographyOptions = [
+    'UK', 'Europe', 'North America', 'Asia Pacific', 'Global'
+  ];
+
+  const statusOptions = [
+    'Discovery', 'Development', 'Testing', 'Implementation', 'Live', 'On Hold', 'Cancelled'
+  ];
 
   // Get effective scores (manual overrides take precedence)
   const effectiveImpact = getEffectiveImpactScore(useCase as any);
@@ -418,160 +469,346 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
                 </AccordionContent>
               </AccordionItem>
 
-              {/* Business Context Section */}
+              {/* 1. Business Context Section (collapsed by default) */}
               <AccordionItem value="business-context" ref={sectionRefs['business-context']}>
                 <AccordionTrigger className="text-lg font-semibold">
                   Business Context
                 </AccordionTrigger>
-                <AccordionContent className="space-y-4">
-                  {/* Primary Context as Tag Pills */}
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Process</h4>
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                        {useCase.process}
-                      </Badge>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Lines of Business</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {useCase.linesOfBusiness && useCase.linesOfBusiness.length > 0 ? 
-                          useCase.linesOfBusiness.map((lob, index) => (
-                            <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
-                              {lob}
-                            </Badge>
-                          )) :
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
-                            {useCase.lineOfBusiness}
-                          </Badge>
-                        }
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Business Segments</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {useCase.businessSegments && useCase.businessSegments.length > 0 ?
-                          useCase.businessSegments.map((segment, index) => (
-                            <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-800">
-                              {segment}
-                            </Badge>
-                          )) :
-                          <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                            {useCase.businessSegment}
-                          </Badge>
-                        }
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Geographies</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {useCase.geographies && useCase.geographies.length > 0 ?
-                          useCase.geographies.map((geo, index) => (
-                            <Badge key={index} variant="secondary" className="bg-orange-100 text-orange-800">
-                              {geo}
-                            </Badge>
-                          )) :
-                          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-                            {useCase.geography}
-                          </Badge>
-                        }
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Use Case Type</h4>
-                      <Badge variant="secondary" className="bg-indigo-100 text-indigo-800">
-                        {useCase.useCaseType}
-                      </Badge>
-                    </div>
+                <AccordionContent className="space-y-6">
+                  {/* Process Dropdown */}
+                  <div>
+                    <Label className="text-base font-semibold text-gray-900">Process</Label>
+                    <Select value={formData.process} onValueChange={(value) => setFormData({...formData, process: value})}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder="Select process" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {processOptions.map((process) => (
+                          <SelectItem key={process} value={process}>
+                            {process}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Process Activities if available */}
-                  {(useCase as any).activities && (useCase as any).activities.length > 0 && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Process Activities</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {(useCase as any).activities.map((activity: string, index: number) => (
-                          <Badge key={index} variant="outline" className="border-gray-300">
-                            {activity}
+                  {/* Lines of Business multi-select checkboxes in 2 columns */}
+                  <div>
+                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Lines of Business</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {lobOptions.map((lob) => (
+                        <div key={lob} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`lob-${lob}`}
+                            checked={formData.linesOfBusiness.includes(lob)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({...formData, linesOfBusiness: [...formData.linesOfBusiness, lob]});
+                              } else {
+                                setFormData({...formData, linesOfBusiness: formData.linesOfBusiness.filter(l => l !== lob)});
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`lob-${lob}`} className="text-sm text-gray-700">
+                            {lob}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Selected LOB tags */}
+                    {formData.linesOfBusiness.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {formData.linesOfBusiness.map((lob) => (
+                          <Badge key={lob} variant="secondary" className="bg-green-100 text-green-800">
+                            {lob}
                           </Badge>
                         ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Business Segments multi-select checkboxes */}
+                  <div>
+                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Business Segments</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {segmentOptions.map((segment) => (
+                        <div key={segment} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`segment-${segment}`}
+                            checked={formData.businessSegments.includes(segment)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({...formData, businessSegments: [...formData.businessSegments, segment]});
+                              } else {
+                                setFormData({...formData, businessSegments: formData.businessSegments.filter(s => s !== segment)});
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`segment-${segment}`} className="text-sm text-gray-700">
+                            {segment}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Selected segment tags */}
+                    {formData.businessSegments.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {formData.businessSegments.map((segment) => (
+                          <Badge key={segment} variant="secondary" className="bg-purple-100 text-purple-800">
+                            {segment}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Geographies multi-select checkboxes */}
+                  <div>
+                    <Label className="text-base font-semibold text-gray-900 mb-3 block">Geographies</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {geographyOptions.map((geo) => (
+                        <div key={geo} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`geo-${geo}`}
+                            checked={formData.geographies.includes(geo)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({...formData, geographies: [...formData.geographies, geo]});
+                              } else {
+                                setFormData({...formData, geographies: formData.geographies.filter(g => g !== geo)});
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`geo-${geo}`} className="text-sm text-gray-700">
+                            {geo}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Selected geography tags */}
+                    {formData.geographies.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {formData.geographies.map((geo) => (
+                          <Badge key={geo} variant="secondary" className="bg-orange-100 text-orange-800">
+                            {geo}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Process Activities filtered by selected Process */}
+                  {formData.process && (
+                    <div>
+                      <Label className="text-base font-semibold text-gray-900">Process Activities</Label>
+                      <p className="text-sm text-gray-500 mt-1">Activities filtered by selected process: {formData.process}</p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <Badge variant="outline" className="border-blue-300 text-blue-800">Sample Activity 1</Badge>
+                        <Badge variant="outline" className="border-blue-300 text-blue-800">Sample Activity 2</Badge>
                       </div>
                     </div>
                   )}
                 </AccordionContent>
               </AccordionItem>
 
-              {/* Implementation Details Section */}
+              {/* 2. Implementation & Governance Section (collapsed) */}
               <AccordionItem value="implementation-details" ref={sectionRefs['implementation-details']}>
                 <AccordionTrigger className="text-lg font-semibold">
-                  Implementation Details
+                  Implementation & Governance
                 </AccordionTrigger>
-                <AccordionContent className="space-y-4">
-                  {/* Project Management */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {(useCase as any).primaryBusinessOwner && (
+                <AccordionContent className="space-y-6">
+                  {/* Project Management subsection */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <User className="h-5 w-5 text-blue-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Project Management</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Primary Business Owner */}
                       <div>
-                        <h4 className="font-medium text-gray-900 mb-1">Primary Business Owner</h4>
-                        <p className="text-gray-700">{(useCase as any).primaryBusinessOwner}</p>
+                        <Label className="text-base font-semibold text-gray-900">Primary Business Owner</Label>
+                        <Input
+                          value={formData.primaryBusinessOwner}
+                          onChange={(e) => setFormData({...formData, primaryBusinessOwner: e.target.value})}
+                          placeholder="Enter business owner name"
+                          className="mt-2"
+                        />
                       </div>
-                    )}
-                    {(useCase as any).useCaseStatus && (
+
+                      {/* Use Case Status */}
                       <div>
-                        <h4 className="font-medium text-gray-900 mb-1">Status</h4>
-                        <Badge variant="secondary">{(useCase as any).useCaseStatus}</Badge>
+                        <Label className="text-base font-semibold text-gray-900">Use Case Status</Label>
+                        <Select value={formData.useCaseStatus} onValueChange={(value) => setFormData({...formData, useCaseStatus: value})}>
+                          <SelectTrigger className="mt-2">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statusOptions.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {status}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    )}
+
+                      {/* Key Dependencies */}
+                      <div>
+                        <Label className="text-base font-semibold text-gray-900">Key Dependencies</Label>
+                        <Textarea
+                          value={formData.keyDependencies}
+                          onChange={(e) => setFormData({...formData, keyDependencies: e.target.value})}
+                          placeholder="Describe key dependencies and requirements"
+                          className="mt-2"
+                          rows={3}
+                        />
+                      </div>
+
+                      {/* Implementation Timeline */}
+                      <div>
+                        <Label className="text-base font-semibold text-gray-900">Implementation Timeline</Label>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Calendar className="h-4 w-4 text-gray-500" />
+                          <Input
+                            value={formData.implementationTimeline}
+                            onChange={(e) => setFormData({...formData, implementationTimeline: e.target.value})}
+                            placeholder="e.g., Q1 2024 - Q3 2024"
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Timeline and Dependencies */}
-                  {(useCase as any).implementationTimeline && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Implementation Timeline</h4>
-                      <p className="text-gray-700">{(useCase as any).implementationTimeline}</p>
+                  {/* Value Realization subsection */}
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Target className="h-5 w-5 text-green-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Value Realization</h3>
                     </div>
-                  )}
+                    
+                    <div className="space-y-4">
+                      {/* Success Metrics/KPIs */}
+                      <div>
+                        <Label className="text-base font-semibold text-gray-900">Success Metrics/KPIs</Label>
+                        <Textarea
+                          value={formData.successMetrics}
+                          onChange={(e) => setFormData({...formData, successMetrics: e.target.value})}
+                          placeholder="Define success metrics and key performance indicators"
+                          className="mt-2"
+                          rows={3}
+                        />
+                      </div>
 
-                  {(useCase as any).keyDependencies && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Key Dependencies</h4>
-                      <p className="text-gray-700">{(useCase as any).keyDependencies}</p>
+                      {/* Estimated Value */}
+                      <div>
+                        <Label className="text-base font-semibold text-gray-900">Estimated Value</Label>
+                        <Input
+                          value={formData.estimatedValue}
+                          onChange={(e) => setFormData({...formData, estimatedValue: e.target.value})}
+                          placeholder="e.g., £2.5M annual savings"
+                          className="mt-2"
+                        />
+                      </div>
+
+                      {/* Value Measurement Approach */}
+                      <div>
+                        <Label className="text-base font-semibold text-gray-900">Value Measurement Approach</Label>
+                        <Textarea
+                          value={formData.valueMeasurementApproach}
+                          onChange={(e) => setFormData({...formData, valueMeasurementApproach: e.target.value})}
+                          placeholder="Describe how value will be measured and tracked"
+                          className="mt-2"
+                          rows={3}
+                        />
+                      </div>
                     </div>
-                  )}
-
-                  {/* Value Metrics */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {(useCase as any).estimatedValue && (
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-1">Estimated Value</h4>
-                        <p className="text-gray-700">{(useCase as any).estimatedValue}</p>
-                      </div>
-                    )}
-                    {(useCase as any).successMetrics && (
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-1">Success Metrics</h4>
-                        <p className="text-gray-700">{(useCase as any).successMetrics}</p>
-                      </div>
-                    )}
                   </div>
 
-                  {(useCase as any).valueMeasurementApproach && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Value Measurement Approach</h4>
-                      <p className="text-gray-700">{(useCase as any).valueMeasurementApproach}</p>
-                    </div>
-                  )}
+                  {/* Technical Implementation */}
+                  <div>
+                    <Label className="text-base font-semibold text-gray-900">Technical Implementation</Label>
+                    <Textarea
+                      value={formData.technicalImplementation}
+                      onChange={(e) => setFormData({...formData, technicalImplementation: e.target.value})}
+                      placeholder="Describe technical approach, architecture, and implementation details"
+                      className="mt-2"
+                      rows={4}
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
 
-                  {/* Integration Requirements */}
-                  {(useCase as any).integrationRequirements && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Integration Requirements</h4>
-                      <p className="text-gray-700">{(useCase as any).integrationRequirements}</p>
+              {/* 3. RSA Portfolio Selection Section (collapsed) */}
+              <AccordionItem value="rsa-portfolio" ref={sectionRefs['rsa-portfolio']}>
+                <AccordionTrigger className="text-lg font-semibold">
+                  RSA Portfolio Selection
+                </AccordionTrigger>
+                <AccordionContent className="space-y-6">
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Settings className="h-5 w-5 text-blue-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Portfolio Controls</h3>
                     </div>
-                  )}
+                    
+                    <div className="space-y-4">
+                      {/* Active & Visible toggle */}
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <Label className="text-base font-semibold text-gray-900">Active for RSA</Label>
+                          <p className="text-sm text-gray-600">Include this use case in RSA's active portfolio</p>
+                        </div>
+                        <Switch
+                          checked={formData.isActiveForRsa}
+                          onCheckedChange={(checked) => setFormData({...formData, isActiveForRsa: checked})}
+                        />
+                      </div>
+
+                      {/* Dashboard Visibility toggle */}
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <Label className="text-base font-semibold text-gray-900">Dashboard Visibility</Label>
+                          <p className="text-sm text-gray-600">Show this use case on executive dashboards</p>
+                        </div>
+                        <Switch
+                          checked={formData.isDashboardVisible}
+                          onCheckedChange={(checked) => setFormData({...formData, isDashboardVisible: checked})}
+                        />
+                      </div>
+
+                      {/* Activation Reason - required if active */}
+                      {formData.isActiveForRsa && (
+                        <div>
+                          <Label className="text-base font-semibold text-gray-900">
+                            Activation Reason <span className="text-red-500">*</span>
+                          </Label>
+                          <Textarea
+                            value={formData.activationReason}
+                            onChange={(e) => setFormData({...formData, activationReason: e.target.value})}
+                            placeholder="Explain why this use case is being activated (required)"
+                            className="mt-2"
+                            rows={3}
+                            required
+                          />
+                        </div>
+                      )}
+
+                      {/* Deactivation Reason - shows if inactive */}
+                      {!formData.isActiveForRsa && (
+                        <div>
+                          <Label className="text-base font-semibold text-gray-900">Deactivation Reason</Label>
+                          <Textarea
+                            value={formData.deactivationReason}
+                            onChange={(e) => setFormData({...formData, deactivationReason: e.target.value})}
+                            placeholder="Explain why this use case is inactive (optional)"
+                            className="mt-2"
+                            rows={3}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
