@@ -1360,7 +1360,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-          ) : useCase.librarySource === 'sharepoint_import' || useCase.librarySource === 'ai_inventory' ? (
+          ) : useCase?.librarySource === 'sharepoint_import' || useCase?.librarySource === 'ai_inventory' ? (
             /* AI Inventory sections */
             <Accordion type="multiple" defaultValue={["ai-tool-overview", "governance-risk"]} className="w-full">
               {/* 1. AI Tool Overview (expanded) */}
@@ -1372,12 +1372,12 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
                   {/* Title & Description */}
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Title</h4>
-                    <p className="text-gray-700 leading-relaxed font-semibold">{useCase.title}</p>
+                    <p className="text-gray-700 leading-relaxed font-semibold">{useCase?.title}</p>
                   </div>
                   
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                    <p className="text-gray-700 leading-relaxed">{useCase.description}</p>
+                    <p className="text-gray-700 leading-relaxed">{useCase?.description}</p>
                   </div>
 
                   {/* AI or Model type with icon */}
