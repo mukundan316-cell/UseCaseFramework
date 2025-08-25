@@ -10,6 +10,12 @@ export async function migrateToEnhancedFramework() {
   console.log('🔄 Starting enhanced framework migration...');
   
   try {
+    // Check if migration already completed - prevent re-running quadrant calculation
+    const testUseCase = await db.select().from(useCases).limit(1);
+    if (testUseCase.length > 0 && testUseCase[0].brokerPartnerExperience !== null) {
+      console.log('✅ Enhanced framework migration already completed, skipping...');
+      return;
+    }
     // Add new columns to use_cases table
     await db.execute(sql`
       ALTER TABLE use_cases 
@@ -78,13 +84,13 @@ export async function migrateToEnhancedFramework() {
         useCase.adoptionReadiness
       ) * 0.2;
       
-      // Update quadrant based on new scoring
+      // Update quadrant based on RSA Framework thresholds (3.0, not 4.0)
       let quadrant: string;
-      if (impactScore >= 4 && effortScore <= 2.5) {
+      if (impactScore >= 3.0 && effortScore < 3.0) {
         quadrant = "Quick Win";
-      } else if (impactScore >= 4) {
+      } else if (impactScore >= 3.0 && effortScore >= 3.0) {
         quadrant = "Strategic Bet";
-      } else if (effortScore <= 2.5) {
+      } else if (impactScore < 3.0 && effortScore < 3.0) {
         quadrant = "Experimental";
       } else {
         quadrant = "Watchlist";
