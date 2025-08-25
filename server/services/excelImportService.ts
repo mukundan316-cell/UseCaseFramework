@@ -41,6 +41,7 @@ export class ExcelImportService {
       // Parse Excel file
       const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
       
+      
       // Process different worksheets
       const strategicData = this.parseStrategicUseCasesSheet(workbook);
       const aiInventoryData = this.parseAIInventorySheet(workbook);
@@ -56,10 +57,15 @@ export class ExcelImportService {
         )
       ];
 
+
       // Validate data
       const validatedUseCases = await this.validateUseCases(allUseCases, result);
 
       if (options.validateOnly) {
+        // Track use case types in validation-only mode
+        for (const useCaseData of allUseCases) {
+          this.trackUseCaseType(useCaseData, result.summary);
+        }
         result.success = true;
         return result;
       }
@@ -246,7 +252,7 @@ export class ExcelImportService {
       useCaseType: getValue('Use Case Type') || 'Process',
       useCaseStatus: getValue('Use Case Status') || 'Reference',
       librarySource: getValue('Library Source') || 'rsa_internal',
-      isActiveForRsa: (getValue('Portfolio Status')?.toLowerCase().includes('active') || false) ? 'true' : 'false',
+      isActiveForRsa: getValue('Portfolio Status')?.toLowerCase().includes('active') ? 'true' : 'false',
       isDashboardVisible: (getValue('Dashboard Visible') === 'Yes' || getValue('Dashboard Visible') === true) ? 'true' : 'false',
       activationReason: getValue('Activation Reason') || null,
     };
@@ -370,12 +376,24 @@ export class ExcelImportService {
    * Track use case type in summary
    */
   private static trackUseCaseType(useCase: Partial<InsertUseCase>, summary: ImportResult['summary']): void {
-    const hasScoring = useCase.finalImpactScore !== undefined || useCase.finalEffortScore !== undefined;
-    const hasAIInventory = useCase.aiInventoryStatus !== undefined;
     
-    if (hasAIInventory) {
+    // Check if this is an AI Inventory item (based on library source or AI inventory fields)
+    const isAIInventory = useCase.librarySource === 'ai_inventory' || 
+                         (useCase.aiInventoryStatus !== null && useCase.aiInventoryStatus !== undefined) || 
+                         (useCase.deploymentStatus !== null && useCase.deploymentStatus !== undefined) ||
+                         (useCase.businessFunction !== null && useCase.businessFunction !== undefined);
+    
+    // Check if this is a Strategic use case (RSA Internal with scoring or active status)
+    const isStrategic = useCase.librarySource === 'rsa_internal' || 
+                       useCase.isActiveForRsa === 'true' ||
+                       useCase.libraryTier === 'active' ||
+                       (useCase.finalImpactScore !== null && useCase.finalImpactScore !== undefined) ||
+                       (useCase.finalEffortScore !== null && useCase.finalEffortScore !== undefined);
+    
+    // Categorize based on improved logic
+    if (isAIInventory) {
       summary.aiInventory++;
-    } else if (hasScoring || useCase.useCaseStatus === 'Active') {
+    } else if (isStrategic) {
       summary.strategic++;
     } else {
       summary.industry++;
