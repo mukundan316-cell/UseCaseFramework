@@ -115,7 +115,7 @@ interface CRUDUseCaseModalProps {
  * Reusable modal component supporting both create and edit operations
  * Follows database-first architecture with full RSA framework compliance
  */
-export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, context = 'active' }: CRUDUseCaseModalProps) {
+export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, context = 'active' as 'reference' | 'active' | 'dashboard' }: CRUDUseCaseModalProps) {
   const { addUseCase, updateUseCase, metadata } = useUseCases();
   const { toast } = useToast();
 
