@@ -305,7 +305,20 @@ export class ExcelImportService {
       // AI Inventory specific fields
       useCase.businessFunction = getValue('Business Function') || null;
       useCase.aiInventoryStatus = getValue('AI Inventory Status') || null;
-      useCase.deploymentStatus = getValue('Deployment Status') || null;
+      
+      // Handle deployment status with case normalization
+      const deploymentStatus = getValue('Deployment Status');
+      if (deploymentStatus) {
+        // Normalize case for known values
+        const normalizedStatus = deploymentStatus.toLowerCase();
+        if (normalizedStatus === 'poc') useCase.deploymentStatus = 'PoC';
+        else if (normalizedStatus === 'pilot') useCase.deploymentStatus = 'Pilot';
+        else if (normalizedStatus === 'production') useCase.deploymentStatus = 'Production';
+        else if (normalizedStatus === 'decommissioned') useCase.deploymentStatus = 'Decommissioned';
+        else useCase.deploymentStatus = deploymentStatus; // Keep original if not recognized
+      } else {
+        useCase.deploymentStatus = null;
+      }
       useCase.riskToCustomers = getValue('Risk to Customers') || null;
       useCase.riskToRsa = getValue('Risk to RSA') || null;
       useCase.dataUsed = getValue('Data Used') || null;

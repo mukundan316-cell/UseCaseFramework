@@ -140,8 +140,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   isDashboardVisible: z.enum(['true', 'false']).default('false'),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
   librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory']).default('rsa_internal'),
-  activationReason: z.string().optional(),
-  deactivationReason: z.string().optional(),
+  activationReason: z.union([z.string(), z.null()]).optional(),
+  deactivationReason: z.union([z.string(), z.null()]).optional(),
   // Manual override fields (accept null values for optional operation)
   manualImpactScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
   manualEffortScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
@@ -172,7 +172,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   thirdPartyProvidedModel: z.union([z.string(), z.null()]).optional(),
   // AI Inventory specific fields (optional for backward compatibility)
   aiInventoryStatus: z.enum(['Active', 'Proof_of_Concept', 'Pending_Closure', 'Obsolete', 'Inactive']).optional(),
-  deploymentStatus: z.enum(['PoC', 'Pilot', 'Production', 'Decommissioned']).optional(),
+  deploymentStatus: z.union([z.enum(['PoC', 'Pilot', 'Production', 'Decommissioned']), z.null()]).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
