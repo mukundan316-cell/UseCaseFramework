@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2, Library, Plus, Settings, Building2, Tag, AlertTriangle, Users, ExternalLink } from 'lucide-react';
+import { Edit, Trash2, Library, Plus, Settings, Building2, Tag, AlertTriangle, Users, ExternalLink, Eye } from 'lucide-react';
 import { UseCase } from '../../types';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
@@ -11,6 +11,7 @@ interface CleanUseCaseCardProps {
   onEdit?: (useCase: UseCase) => void;
   onDelete?: (useCase: UseCase) => void;
   onMoveToLibrary?: (useCase: UseCase) => void;
+  onView?: (useCase: UseCase) => void;
   showRSAActions?: boolean;
 }
 
@@ -20,6 +21,7 @@ export default function CleanUseCaseCard({
   onEdit,
   onDelete,
   onMoveToLibrary,
+  onView,
   showRSAActions = false
 }: CleanUseCaseCardProps) {
   
@@ -311,9 +313,20 @@ export default function CleanUseCaseCard({
         {/* Action Buttons */}
         <div className="flex justify-between items-center gap-2 pt-3 border-t border-gray-100">
           <div className="flex gap-1">
+            {onView && (
+              <button
+                onClick={() => onView(useCase)}
+                className="inline-flex items-center px-2 py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded border-none bg-transparent transition-colors"
+                data-testid="button-view"
+              >
+                <Eye className="h-3 w-3 mr-1" />
+                View
+              </button>
+            )}
             <button
               onClick={() => onEdit?.(useCase)}
               className="inline-flex items-center px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded border-none bg-transparent transition-colors"
+              data-testid="button-edit"
             >
               <Edit className="h-3 w-3 mr-1" />
               Edit
@@ -321,6 +334,7 @@ export default function CleanUseCaseCard({
             <button
               onClick={() => onDelete?.(useCase)}
               className="inline-flex items-center px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded border-none bg-transparent transition-colors"
+              data-testid="button-delete"
             >
               <Trash2 className="h-3 w-3 mr-1" />
               Delete

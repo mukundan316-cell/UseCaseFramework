@@ -9,6 +9,7 @@ import { UseCase } from '../../types';
 import CleanUseCaseCard from './CleanUseCaseCard';
 import CRUDUseCaseModal from './CRUDUseCaseModal';
 import SourceLegend from './SourceLegend';
+import UseCaseDetailDrawer from './UseCaseDetailDrawer';
 
 interface ImprovedUseCaseExplorerProps {
   useCases: UseCase[];
@@ -42,6 +43,10 @@ export default function ImprovedUseCaseExplorer({
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedUseCase, setSelectedUseCase] = useState<UseCase | undefined>();
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Detail drawer state
+  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
+  const [selectedDetailUseCase, setSelectedDetailUseCase] = useState<UseCase | null>(null);
   
   // Filters
   const [filters, setFilters] = useState({
@@ -100,6 +105,17 @@ export default function ImprovedUseCaseExplorer({
     if (onDelete) {
       await onDelete(useCase);
     }
+  };
+
+  // Detail drawer handlers
+  const handleView = (useCase: UseCase) => {
+    setSelectedDetailUseCase(useCase);
+    setIsDetailDrawerOpen(true);
+  };
+
+  const handleCloseDetailDrawer = () => {
+    setIsDetailDrawerOpen(false);
+    setSelectedDetailUseCase(null);
   };
 
   const handleMoveToLibrary = async (useCase: UseCase) => {
@@ -316,6 +332,7 @@ export default function ImprovedUseCaseExplorer({
               onEdit={handleEdit}
               onDelete={handleDelete}
               onMoveToLibrary={showRSASelection ? handleMoveToLibrary : undefined}
+              onView={handleView}
               showRSAActions={showRSASelection}
             />
           ))}
@@ -328,6 +345,15 @@ export default function ImprovedUseCaseExplorer({
         onClose={() => setIsModalOpen(false)}
         mode={modalMode}
         useCase={selectedUseCase}
+      />
+
+      {/* Detail Drawer */}
+      <UseCaseDetailDrawer
+        isOpen={isDetailDrawerOpen}
+        onClose={handleCloseDetailDrawer}
+        useCase={selectedDetailUseCase}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
     </div>
   );
