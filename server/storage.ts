@@ -93,7 +93,10 @@ export class DatabaseStorage implements IStorage {
 
   async getReferenceLibraryUseCases(): Promise<UseCase[]> {
     return await db.select().from(useCases)
-      .where(eq(useCases.libraryTier, 'reference'))
+      .where(and(
+        eq(useCases.isActiveForRsa, 'false'),
+        eq(useCases.libraryTier, 'reference')
+      ))
       .orderBy(sql`created_at DESC`);
   }
 

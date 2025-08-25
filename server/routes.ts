@@ -81,15 +81,15 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
 export async function registerRoutes(app: Express): Promise<Server> {
   const questionnaireService = questionnaireServiceInstance;
   
-  // Use Case routes - RSA Active Portfolio (only RSA-active use cases)
+  // Use Case routes - All Use Cases (for library browsing)
   app.get("/api/use-cases", async (req, res) => {
     try {
-      const useCases = await storage.getActiveUseCases();
+      const useCases = await storage.getAllUseCases();
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
       res.json(mappedUseCases);
     } catch (error) {
-      console.error("Error fetching active use cases:", error);
-      res.status(500).json({ error: "Failed to fetch active use cases" });
+      console.error("Error fetching all use cases:", error);
+      res.status(500).json({ error: "Failed to fetch use cases" });
     }
   });
 
