@@ -3,21 +3,25 @@ import { UseCase } from '../schema';
 /**
  * Gets the effective impact score (manual override or calculated)
  */
-export function getEffectiveImpactScore(useCase: UseCase): number {
+export function getEffectiveImpactScore(useCase: UseCase | null | undefined): number {
+  if (!useCase) return 0;
   return useCase.manualImpactScore ?? useCase.impactScore ?? 0;
 }
 
 /**
  * Gets the effective effort score (manual override or calculated)
  */
-export function getEffectiveEffortScore(useCase: UseCase): number {
+export function getEffectiveEffortScore(useCase: UseCase | null | undefined): number {
+  if (!useCase) return 0;
   return useCase.manualEffortScore ?? useCase.effortScore ?? 0;
 }
 
 /**
  * Gets the effective quadrant (manual override or stored database value)
  */
-export function getEffectiveQuadrant(useCase: UseCase): string {
+export function getEffectiveQuadrant(useCase: UseCase | null | undefined): string {
+  if (!useCase) return 'Unassigned';
+  
   // First check if there's a manual quadrant override
   if (useCase.manualQuadrant) {
     return useCase.manualQuadrant;
@@ -31,15 +35,27 @@ export function getEffectiveQuadrant(useCase: UseCase): string {
 /**
  * Checks if any manual overrides are active
  */
-export function hasManualOverrides(useCase: UseCase): boolean {
+export function hasManualOverrides(useCase: UseCase | null | undefined): boolean {
+  if (!useCase) return false;
   return !!(useCase.manualImpactScore || useCase.manualEffortScore || useCase.manualQuadrant);
 }
 
 /**
  * Gets override status information for display
  */
-export function getOverrideStatus(useCase: UseCase) {
+export function getOverrideStatus(useCase: UseCase | null | undefined) {
   const hasOverrides = hasManualOverrides(useCase);
+  
+  if (!useCase) {
+    return {
+      hasOverrides: false,
+      overrideCount: 0,
+      reason: '',
+      effectiveImpact: 0,
+      effectiveEffort: 0,
+      effectiveQuadrant: 'Unassigned'
+    };
+  }
   
   return {
     hasOverrides,

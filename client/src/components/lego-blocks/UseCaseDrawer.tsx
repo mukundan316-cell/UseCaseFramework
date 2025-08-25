@@ -219,7 +219,7 @@ export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdi
       explainabilityBias: useCase?.explainabilityBias || 3,
       regulatoryCompliance: useCase?.regulatoryCompliance || 3,
       // Additional form state
-      enableManualOverrides: hasManualOverrides(useCase as any),
+      enableManualOverrides: hasManualOverrides(useCase),
       manualImpactScore: (useCase as any)?.manualImpactScore || '',
       manualEffortScore: (useCase as any)?.manualEffortScore || '',
       manualQuadrant: (useCase as any)?.manualQuadrant || '',
