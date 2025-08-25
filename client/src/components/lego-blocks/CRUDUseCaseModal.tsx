@@ -96,6 +96,8 @@ const formSchema = z.object({
   thirdPartyProvidedModel: z.string().optional(),
   aiInventoryStatus: z.string().optional(),
   deploymentStatus: z.string().optional(),
+  deactivationReason: z.string().optional(),
+  regulatoryCompliance: z.number().min(1).max(5).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -122,6 +124,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
     isDashboardVisible: false,
     libraryTier: 'reference' as 'active' | 'reference',
     activationReason: '',
+    deactivationReason: '',
   });
 
   const [scores, setScores] = useState({
@@ -214,6 +217,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
   const handleActivationReasonChange = (reason: string) => {
     setRsaSelection(prev => ({ ...prev, activationReason: reason }));
     form.setValue('activationReason', reason);
+  };
+
+  const handleDeactivationReasonChange = (reason: string) => {
+    setRsaSelection(prev => ({ ...prev, deactivationReason: reason }));
+    form.setValue('deactivationReason', reason);
   };
 
   // Get current values from form for real-time calculations
@@ -313,6 +321,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         isDashboardVisible: dashboardVisible,
         libraryTier: (useCase as any).libraryTier || (rsaActive ? 'active' : 'reference'),
         activationReason: (useCase as any).activationReason || '',
+        deactivationReason: (useCase as any).deactivationReason || '',
       });
 
       const formData = {
@@ -363,6 +372,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         rsaPolicyGovernance: (useCase as any).rsaPolicyGovernance || undefined,
         validationResponsibility: (useCase as any).validationResponsibility || undefined,
         informedBy: (useCase as any).informedBy || undefined,
+        businessFunction: (useCase as any).businessFunction || '',
+        thirdPartyProvidedModel: (useCase as any).thirdPartyProvidedModel || '',
+        aiInventoryStatus: (useCase as any).aiInventoryStatus || '',
+        deploymentStatus: (useCase as any).deploymentStatus || '',
+        deactivationReason: (useCase as any).deactivationReason || '',
+        regulatoryCompliance: (useCase as any).regulatoryCompliance ?? 3,
         // Manual override fields
         manualImpactScore: (useCase as any).manualImpactScore,
         manualEffortScore: (useCase as any).manualEffortScore,
@@ -406,6 +421,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
         isDashboardVisible: false,
         libraryTier: 'reference',
         activationReason: '',
+        deactivationReason: '',
       });
 
       const defaultData = {
@@ -675,10 +691,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                     isActiveForRsa={rsaSelection.isActiveForRsa}
                     isDashboardVisible={rsaSelection.isDashboardVisible}
                     activationReason={rsaSelection.activationReason}
+                    deactivationReason={rsaSelection.deactivationReason}
                     libraryTier={rsaSelection.libraryTier}
                     onRSAToggle={handleRSAToggle}
                     onDashboardToggle={handleDashboardToggle}
                     onActivationReasonChange={handleActivationReasonChange}
+                    onDeactivationReasonChange={handleDeactivationReasonChange}
                     className="mb-6"
                   />
                 )}
@@ -1014,6 +1032,34 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="regulatoryCompliance"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Regulatory Compliance Score</FormLabel>
+                          <FormControl>
+                            <ScoreSliderLegoBlock
+                              label="Regulatory Compliance"
+                              field="regulatoryCompliance"
+                              value={field.value ?? 3}
+                              onChange={(fieldName, value) => {
+                                form.setValue('regulatoryCompliance', value);
+                              }}
+                              tooltip="Level of compliance with regulatory requirements"
+                              leftLabel="Low Compliance"
+                              rightLabel="High Compliance"
+                              minValue={1}
+                              maxValue={5}
+                              disabled={false}
+                              showTooltip={true}
+                              valueDisplay="inline"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
 
@@ -1195,6 +1241,29 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                                 <SelectItem value="Yes">Yes</SelectItem>
                                 <SelectItem value="No">No</SelectItem>
                                 <SelectItem value="Select">Select</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="deploymentStatus"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Deployment Status</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select deployment status..." />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="production">Production</SelectItem>
+                                <SelectItem value="staging">Staging</SelectItem>
+                                <SelectItem value="development">Development</SelectItem>
+                                <SelectItem value="local">Local</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />

@@ -11,10 +11,12 @@ interface RSASelectionToggleLegoBlockProps {
   isActiveForRsa: boolean;
   isDashboardVisible: boolean;
   activationReason?: string;
+  deactivationReason?: string;
   libraryTier?: string;
   onRSAToggle: (active: boolean) => void;
   onDashboardToggle: (visible: boolean) => void;
   onActivationReasonChange: (reason: string) => void;
+  onDeactivationReasonChange?: (reason: string) => void;
   className?: string;
 }
 
@@ -35,10 +37,12 @@ export default function RSASelectionToggleLegoBlock({
   isActiveForRsa,
   isDashboardVisible,
   activationReason = '',
+  deactivationReason = '',
   libraryTier = 'reference',
   onRSAToggle,
   onDashboardToggle,
   onActivationReasonChange,
+  onDeactivationReasonChange,
   className = ''
 }: RSASelectionToggleLegoBlockProps) {
   
@@ -165,6 +169,28 @@ export default function RSASelectionToggleLegoBlock({
                 </AlertDescription>
               </Alert>
             )}
+          </div>
+        )}
+
+        {/* Deactivation Reason - Only show when RSA is inactive */}
+        {!isActiveForRsa && onDeactivationReasonChange && (
+          <div className="ml-6 space-y-4 border-l-3 border-gray-300 pl-6">
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-gray-900">
+                Deactivation Reason
+              </Label>
+              <Textarea 
+                placeholder="Explain why this use case was removed from RSA portfolio..."
+                value={deactivationReason}
+                onChange={(e) => onDeactivationReasonChange!(e.target.value)}
+                className="min-h-[80px] resize-none"
+                maxLength={500}
+              />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Optional - explains portfolio removal</span>
+                <span>{deactivationReason.length}/500</span>
+              </div>
+            </div>
           </div>
         )}
 
