@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2, Library, Plus, Settings, Building2, Tag, AlertTriangle, Users, ExternalLink, Eye } from 'lucide-react';
+import { Edit, Trash2, Library, Plus, Settings, Building2, Tag, AlertTriangle, Users, ExternalLink, Eye, FolderOpen, Circle } from 'lucide-react';
 import { UseCase } from '../../types';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
@@ -55,8 +55,51 @@ export default function CleanUseCaseCard({
     ? `${getQuadrantBgClass(effectiveQuadrant)} ${sourceBgTint}` 
     : sourceBgTint;
   
-  // Use source color for border if no quadrant scores available
-  const borderColor = hasScores ? quadrantBorder : sourceConfig.borderColor;
+  // Use gray border for AI Inventory, source color for others
+  const borderColor = hasScores ? quadrantBorder : 
+    useCase.librarySource === 'ai_inventory' ? '#6b7280' : sourceConfig.borderColor;
+
+  // Helper function to get status pill styling
+  const getStatusPillStyle = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return { 
+          background: '#059669', 
+          color: 'white',
+          icon: Circle
+        };
+      case 'Proof_of_Concept':
+        return { 
+          background: '#2563eb', 
+          color: 'white',
+          icon: Circle
+        };
+      case 'Pending_Closure':
+        return { 
+          background: '#ea580c', 
+          color: 'white',
+          icon: Circle
+        };
+      case 'Obsolete':
+        return { 
+          background: '#6b7280', 
+          color: 'white',
+          icon: Circle
+        };
+      case 'Inactive':
+        return { 
+          background: '#9ca3af', 
+          color: 'white',
+          icon: Circle
+        };
+      default:
+        return { 
+          background: '#f3f4f6', 
+          color: '#374151',
+          icon: Circle
+        };
+    }
+  };
   
   return (
     <div 
@@ -72,23 +115,53 @@ export default function CleanUseCaseCard({
             <h3 className="text-lg font-semibold text-gray-900 flex-1">
               {useCase.title}
             </h3>
-            <div className="ml-2 flex items-center">
+            <div className="ml-2 flex items-center gap-2">
+              {/* Source Badge */}
               <span 
                 className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                 style={{ 
-                  backgroundColor: sourceConfig.badgeBackground, 
-                  color: sourceConfig.badgeColor 
+                  backgroundColor: useCase.librarySource === 'ai_inventory' ? '#f3f4f6' : sourceConfig.badgeBackground, 
+                  color: useCase.librarySource === 'ai_inventory' ? '#374151' : sourceConfig.badgeColor 
                 }}
               >
-                {(useCase.librarySource || 'rsa_internal') === 'rsa_internal' ? (
+                {useCase.librarySource === 'ai_inventory' ? (
+                  <FolderOpen className="w-3 h-3 mr-1" />
+                ) : (useCase.librarySource || 'rsa_internal') === 'rsa_internal' ? (
                   <Building2 className="w-3 h-3 mr-1" />
                 ) : (useCase.librarySource || 'rsa_internal') === 'hexaware_external' ? (
                   <ExternalLink className="w-3 h-3 mr-1" />
                 ) : (
                   <Users className="w-3 h-3 mr-1" />
                 )}
-                {sourceConfig.label}
+                {useCase.librarySource === 'ai_inventory' ? 'INVENTORY' : sourceConfig.label}
               </span>
+              
+              {/* AI Inventory Status Pills */}
+              {useCase.librarySource === 'ai_inventory' && (useCase as any).aiInventoryStatus && (
+                <span 
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                  style={getStatusPillStyle((useCase as any).aiInventoryStatus)}
+                  title={`Status: ${(useCase as any).aiInventoryStatus.replace('_', ' ')}`}
+                >
+                  <Circle className="w-2 h-2 mr-1 fill-current" />
+                  {(useCase as any).aiInventoryStatus.replace('_', ' ')}
+                </span>
+              )}
+              
+              {/* Deployment Status Pill */}
+              {useCase.librarySource === 'ai_inventory' && (useCase as any).deploymentStatus && (
+                <span 
+                  className="inline-flex items-center px-1.5 py-0.5 rounded text-xs border"
+                  style={{ 
+                    backgroundColor: '#f9fafb',
+                    borderColor: '#d1d5db',
+                    color: '#374151'
+                  }}
+                  title={`Deployment: ${(useCase as any).deploymentStatus}`}
+                >
+                  {(useCase as any).deploymentStatus}
+                </span>
+              )}
             </div>
           </div>
           <p className="text-sm text-gray-600 line-clamp-2">

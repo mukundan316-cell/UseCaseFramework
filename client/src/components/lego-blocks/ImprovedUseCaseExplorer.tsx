@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Filter, Plus, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Plus, Download, FolderOpen, Building2 } from 'lucide-react';
 import ExportButton from './ExportButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -48,6 +48,51 @@ export default function ImprovedUseCaseExplorer({
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const [selectedDetailUseCase, setSelectedDetailUseCase] = useState<UseCase | null>(null);
   
+  // Tab state with localStorage memory
+  const [activeTab, setActiveTab] = useState<'strategic' | 'inventory' | 'both'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('usecase-explorer-tab') as 'strategic' | 'inventory' | 'both') || 'both';
+    }
+    return 'both';
+  });
+  
+  // Save tab selection to localStorage and reset incompatible filters
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('usecase-explorer-tab', activeTab);
+    }
+    
+    // Light telemetry for post-launch validation
+    const telemetryData = {
+      action: 'tab_switch',
+      tab: activeTab,
+      timestamp: new Date().toISOString(),
+      useCaseCount: {
+        strategic: strategicCount,
+        inventory: inventoryCount,
+        total: strategicCount + inventoryCount
+      }
+    };
+    console.log('[RSA-AI-Telemetry]', telemetryData);
+    
+    // Reset filters that don't apply to the new tab context
+    if (activeTab === 'inventory') {
+      // Reset strategic-only filters
+      setFilters(prev => ({
+        ...prev,
+        activity: '',
+        quadrant: ''
+      }));
+    } else if (activeTab === 'strategic') {
+      // Reset inventory-only filters
+      setFilters(prev => ({
+        ...prev,
+        aiInventoryStatus: '',
+        deploymentStatus: ''
+      }));
+    }
+  }, [activeTab, strategicCount, inventoryCount]);
+  
   // Filters
   const [filters, setFilters] = useState({
     process: '',
@@ -57,11 +102,22 @@ export default function ImprovedUseCaseExplorer({
     geography: '',
     useCaseType: '',
     quadrant: '',
-    librarySource: '' // New filter for source differentiation
+    librarySource: '', // New filter for source differentiation
+    // AI Inventory specific filters
+    aiInventoryStatus: '',
+    deploymentStatus: ''
   });
 
-  // Filter use cases
+  // Filter use cases with tab-aware logic
   const filteredUseCases = useCases.filter((useCase) => {
+    // Tab-based filtering
+    const isAiInventory = (useCase as any).librarySource === 'ai_inventory';
+    const isStrategic = !isAiInventory;
+    
+    if (activeTab === 'strategic' && isAiInventory) return false;
+    if (activeTab === 'inventory' && isStrategic) return false;
+    // 'both' tab shows everything
+    
     // Text search
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
@@ -75,18 +131,49 @@ export default function ImprovedUseCaseExplorer({
       if (!matchesSearch) return false;
     }
 
-    // Dropdown filters
+    // Common filters
     if (filters.process && useCase.process !== filters.process) return false;
-    if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
     if (filters.lineOfBusiness && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
     if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
-    if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+    
+    // Strategic use case specific filters
+    if (isStrategic) {
+      if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
+      if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+    }
+    
+    // AI Inventory specific filters
+    if (isAiInventory) {
+      if (filters.aiInventoryStatus && (useCase as any).aiInventoryStatus !== filters.aiInventoryStatus) return false;
+      if (filters.deploymentStatus && (useCase as any).deploymentStatus !== filters.deploymentStatus) return false;
+    }
+    
     if (filters.librarySource && (useCase as any).librarySource !== filters.librarySource) return false;
 
     return true;
   });
+  
+  // Get counts for each tab
+  const strategicCount = useCases.filter(uc => (uc as any).librarySource !== 'ai_inventory').length;
+  const inventoryCount = useCases.filter(uc => (uc as any).librarySource === 'ai_inventory').length;
+  
+  // Light telemetry for filter usage
+  useEffect(() => {
+    const activeFilters = Object.entries(filters).filter(([key, value]) => value !== '').length;
+    if (activeFilters > 0) {
+      const telemetryData = {
+        action: 'filter_applied',
+        currentTab: activeTab,
+        activeFilters: Object.fromEntries(Object.entries(filters).filter(([key, value]) => value !== '')),
+        filterCount: activeFilters,
+        filteredResultCount: filteredUseCases.length,
+        timestamp: new Date().toISOString()
+      };
+      console.log('[RSA-AI-Telemetry]', telemetryData);
+    }
+  }, [filters, activeTab, filteredUseCases.length]);
 
   const handleCreate = () => {
     setModalMode('create');
@@ -109,6 +196,16 @@ export default function ImprovedUseCaseExplorer({
 
   // Detail drawer handlers
   const handleView = (useCase: UseCase) => {
+    // Light telemetry for detail view interactions
+    const telemetryData = {
+      action: 'detail_view_open',
+      useCaseType: (useCase as any).librarySource || 'rsa_internal',
+      hasScores: useCase.impactScore !== undefined && useCase.effortScore !== undefined,
+      currentTab: activeTab,
+      timestamp: new Date().toISOString()
+    };
+    console.log('[RSA-AI-Telemetry]', telemetryData);
+    
     setSelectedDetailUseCase(useCase);
     setIsDetailDrawerOpen(true);
   };
@@ -130,8 +227,54 @@ export default function ImprovedUseCaseExplorer({
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
         <p className="text-gray-600">{description}</p>
-        <p className="text-sm text-gray-500 mt-1">
-          Showing {filteredUseCases.length} use case{filteredUseCases.length !== 1 ? 's' : ''}
+        
+        {/* Tab Navigation */}
+        <div className="flex items-center space-x-1 mt-4 bg-gray-100 p-1 rounded-lg w-fit">
+          <button
+            onClick={() => setActiveTab('strategic')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
+              activeTab === 'strategic' 
+                ? 'bg-white text-blue-600 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            <span>Strategic Use Cases</span>
+            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
+              {strategicCount}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('inventory')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
+              activeTab === 'inventory' 
+                ? 'bg-white text-emerald-600 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <FolderOpen className="w-4 h-4" />
+            <span>AI Tool Registry</span>
+            <span className="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">
+              {inventoryCount}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('both')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'both' 
+                ? 'bg-white text-gray-900 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            All Items
+            <span className="ml-2 bg-gray-200 text-gray-800 text-xs px-2 py-0.5 rounded-full">
+              {strategicCount + inventoryCount}
+            </span>
+          </button>
+        </div>
+        
+        <p className="text-sm text-gray-500 mt-3">
+          Showing {filteredUseCases.length} of {strategicCount + inventoryCount} total items
         </p>
       </div>
 
@@ -206,8 +349,12 @@ export default function ImprovedUseCaseExplorer({
         </Button>
       </div>
 
-      {/* Filter Dropdowns Row - Enhanced with source filter */}
-      <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+      {/* Context-Aware Filter Dropdowns */}
+      <div className={`grid gap-4 ${
+        activeTab === 'inventory' 
+          ? 'grid-cols-2 md:grid-cols-5' // Fewer columns for inventory
+          : 'grid-cols-2 md:grid-cols-7'  // Full columns for strategic/both
+      }`}>
         <Select value={filters.process} onValueChange={(value) => setFilters(prev => ({ ...prev, process: value === 'all' ? '' : value }))}>
           <SelectTrigger>
             <SelectValue placeholder="All Processes" />
@@ -220,17 +367,20 @@ export default function ImprovedUseCaseExplorer({
           </SelectContent>
         </Select>
 
-        <Select value={filters.activity || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, activity: value === 'all' ? '' : value }))}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Activities" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Activities</SelectItem>
-            {metadata?.activities?.map((activity) => (
-              <SelectItem key={activity} value={activity}>{activity}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Activity filter - Strategic only */}
+        {activeTab !== 'inventory' && (
+          <Select value={filters.activity || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, activity: value === 'all' ? '' : value }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Activities" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Activities</SelectItem>
+              {metadata?.activities?.map((activity) => (
+                <SelectItem key={activity} value={activity}>{activity}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         <Select value={filters.lineOfBusiness} onValueChange={(value) => setFilters(prev => ({ ...prev, lineOfBusiness: value === 'all' ? '' : value }))}>
           <SelectTrigger>
@@ -280,19 +430,53 @@ export default function ImprovedUseCaseExplorer({
           </SelectContent>
         </Select>
 
-        <Select value={filters.librarySource} onValueChange={(value) => setFilters(prev => ({ ...prev, librarySource: value === 'all' ? '' : value }))}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Sources" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Sources</SelectItem>
-            {metadata?.sourceTypes?.map((sourceType) => (
-              <SelectItem key={sourceType} value={sourceType}>
-                {sourceType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* AI Inventory Status - Inventory only */}
+        {activeTab === 'inventory' && (
+          <Select value={filters.aiInventoryStatus || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, aiInventoryStatus: value === 'all' ? '' : value }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="development">Development</SelectItem>
+              <SelectItem value="testing">Testing</SelectItem>
+              <SelectItem value="deprecated">Deprecated</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        
+        {/* Deployment Status - Inventory only */}
+        {activeTab === 'inventory' && (
+          <Select value={filters.deploymentStatus || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, deploymentStatus: value === 'all' ? '' : value }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Deployments" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Deployments</SelectItem>
+              <SelectItem value="production">Production</SelectItem>
+              <SelectItem value="staging">Staging</SelectItem>
+              <SelectItem value="development">Development</SelectItem>
+              <SelectItem value="local">Local</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        
+        {/* Source filter - Show only on "both" tab */}
+        {activeTab === 'both' && (
+          <Select value={filters.librarySource} onValueChange={(value) => setFilters(prev => ({ ...prev, librarySource: value === 'all' ? '' : value }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Sources" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sources</SelectItem>
+              <SelectItem value="rsa_internal">RSA Internal</SelectItem>
+              <SelectItem value="hexaware_external">Hexaware External</SelectItem>
+              <SelectItem value="industry_standard">Industry Standard</SelectItem>
+              <SelectItem value="ai_inventory">AI Inventory</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Source Legend */}

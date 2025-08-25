@@ -48,6 +48,37 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 - **PDF**: PDFKit (for report generation), Survey.js (for client-side PDF export functionality)
 - **Planned Integration**: Google Cloud Storage (for production blob storage)
 
+## AI Inventory Status & Deployment Semantics
+
+### AI Inventory Status Values
+The `aiInventoryStatus` field tracks the operational lifecycle of AI tools and models:
+
+- **`active`**: Tool is operational and in regular use by business users
+- **`development`**: Tool is being developed or enhanced, not yet ready for production use
+- **`testing`**: Tool is undergoing testing, validation, or pilot deployment
+- **`deprecated`**: Tool is being phased out, legacy support only, discouraged for new projects
+
+### Deployment Status Values  
+The `deploymentStatus` field indicates the technical deployment environment:
+
+- **`production`**: Live system serving business operations
+- **`staging`**: Pre-production environment for final testing and validation
+- **`development`**: Development environment for ongoing engineering work
+- **`local`**: Local development or sandbox environment
+
+### Status Combination Guidelines
+- **Active + Production**: Fully operational business-critical tool
+- **Development + Development**: New tool under active development
+- **Testing + Staging**: Tool ready for final validation before production
+- **Deprecated + Production**: Legacy tool scheduled for retirement
+- **Active + Local**: Personal/team productivity tool not enterprise-deployed
+
+### Data Validation Rules
+- Status fields use TEXT constraints with application-level validation
+- All status values are lowercase with underscores for consistency
+- Invalid statuses fall back to default display without breaking functionality
+- Empty/null statuses are handled gracefully with appropriate empty states
+
 ## Current Implementation Status (August 25, 2025)
 
 ### ✅ **Completed Features**
@@ -61,6 +92,9 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 8. **HTTP Cache Prevention**: No-cache headers implemented for real-time session data
 9. **Comprehensive Use Case Detail View**: Full accordion-style detail drawer with 5 expandable sections showing complete use case information
 10. **Intuitive Card Navigation**: Clickable use case cards with preserved action button functionality for seamless user experience
+11. **Enhanced AI Inventory Integration**: Complete support for three distinct use case types (RSA Internal, Industry Standard, AI Inventory) with unified interface and conditional rendering
+12. **Tab-Based Filtering System**: Context-aware filtering with localStorage memory supporting "Strategic Use Cases" and "AI Tool Registry" views
+13. **Accessibility Compliance**: WCAG AA compliant status indicators with non-color accessibility cues (icons, patterns, high contrast)
 
 ### 🏗️ **Technical Achievements**
 - **API Optimization**: `/api/responses/user-sessions` and `/api/responses/check-session` with cache prevention headers
@@ -69,6 +103,9 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 - **Database Performance**: Lightweight PostgreSQL session tracking with JSON blob storage for questionnaire data
 - **UX Improvements**: Eliminated "no active session" fallback screens, replaced with loading states during automatic session creation
 - **Detail View Architecture**: Progressive disclosure pattern with conditional content rendering and appropriate empty states for missing data
+- **Enhanced Database Schema**: Added AI Inventory fields (`aiInventoryStatus`, `deploymentStatus`, `lastStatusUpdate`) with TEXT constraints for flexible migrations
+- **LEGO Component Evolution**: Extended existing CleanUseCaseCard and UseCaseDetailDrawer components following "Build Once, Reuse Everywhere" principle
+- **Smart Filtering Logic**: Context-aware filters that adapt based on active tab (strategic vs inventory vs both) with automatic filter reset on tab changes
 
 ### 🎯 **User Experience**
 - **Seamless Navigation**: Users can switch between questionnaires without losing progress and access detailed use case information with single clicks
@@ -77,3 +114,6 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 - **Save Confirmation**: Toast notifications confirm successful saves and questionnaire switches
 - **Comprehensive Detail Access**: Single-page accordion interface displaying all available use case data with expandable sections
 - **Intelligent Empty States**: Graceful handling of missing data with informative empty state messages rather than hidden sections
+- **Unified Multi-Type Interface**: Single interface serving both strategic use cases and AI inventory items with clear visual differentiation
+- **Context-Aware Filtering**: Smart tab system that remembers user preference and shows relevant filters for each use case type
+- **Enhanced Status Communication**: Clear status pills and deployment indicators with full accessibility support for users with visual impairments

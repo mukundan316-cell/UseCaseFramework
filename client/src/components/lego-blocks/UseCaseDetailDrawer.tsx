@@ -35,7 +35,11 @@ import {
   Shield,
   Database,
   Cpu,
-  Network
+  Network,
+  FolderOpen,
+  Circle,
+  Activity,
+  Calendar
 } from 'lucide-react';
 import { UseCase } from '../../types';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
@@ -78,12 +82,21 @@ export default function UseCaseDetailDrawer({
   
   // Check data availability for conditional rendering
   const extendedUseCase = useCase as any; // Cast to access extended fields
+  const isAiInventory = useCase.librarySource === 'ai_inventory';
+  
   const hasImplementationData = !!(
     extendedUseCase.primaryBusinessOwner || 
     extendedUseCase.keyDependencies || 
     extendedUseCase.successMetrics ||
     extendedUseCase.implementationTimeline ||
     extendedUseCase.estimatedValue
+  );
+  
+  const hasAiInventoryData = !!(
+    extendedUseCase.aiInventoryStatus ||
+    extendedUseCase.deploymentStatus ||
+    extendedUseCase.modelOwner ||
+    extendedUseCase.lastStatusUpdate
   );
   
   const hasGovernanceData = !!(
@@ -159,18 +172,20 @@ export default function UseCaseDetailDrawer({
                 <span 
                   className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                   style={{ 
-                    backgroundColor: sourceConfig.badgeBackground, 
-                    color: sourceConfig.badgeColor 
+                    backgroundColor: isAiInventory ? '#f3f4f6' : sourceConfig.badgeBackground, 
+                    color: isAiInventory ? '#374151' : sourceConfig.badgeColor 
                   }}
                 >
-                  {useCase.librarySource === 'rsa_internal' ? (
+                  {isAiInventory ? (
+                    <FolderOpen className="w-3 h-3 mr-1" />
+                  ) : useCase.librarySource === 'rsa_internal' ? (
                     <Building2 className="w-3 h-3 mr-1" />
                   ) : useCase.librarySource === 'hexaware_external' ? (
                     <ExternalLink className="w-3 h-3 mr-1" />
                   ) : (
                     <Users className="w-3 h-3 mr-1" />
                   )}
-                  {sourceConfig.label}
+                  {isAiInventory ? 'INVENTORY' : sourceConfig.label}
                 </span>
                 {hasOverrides && (
                   <Badge variant="outline" className="text-xs">
@@ -204,7 +219,96 @@ export default function UseCaseDetailDrawer({
           </div>
         </SheetHeader>
 
-        <Accordion type="multiple" defaultValue={["overview", "business"]} className="space-y-2">
+        <Accordion type="multiple" defaultValue={isAiInventory ? ["lifecycle", "business"] : ["overview", "business"]} className="space-y-2">
+          
+          {/* AI Inventory Lifecycle Panel (AI Inventory Only) */}
+          {isAiInventory && (
+            <AccordionItem value="lifecycle" className="border border-gray-200 rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center">
+                  <Activity className="w-4 h-4 mr-2 text-emerald-600" />
+                  <span className="font-semibold text-gray-900">Lifecycle & Status</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4 space-y-4">
+                {/* Status Information */}
+                <div className="grid grid-cols-2 gap-4">
+                  {extendedUseCase.aiInventoryStatus && (
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Circle className="w-4 h-4 text-emerald-600" />
+                        <span className="text-sm font-medium text-gray-700">Status</span>
+                      </div>
+                      <div className="p-2 bg-emerald-50 rounded border border-emerald-200">
+                        <span className="text-sm font-medium text-emerald-800">
+                          {extendedUseCase.aiInventoryStatus.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {extendedUseCase.deploymentStatus && (
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Settings className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium text-gray-700">Deployment</span>
+                      </div>
+                      <div className="p-2 bg-blue-50 rounded border border-blue-200">
+                        <span className="text-sm font-medium text-blue-800">
+                          {extendedUseCase.deploymentStatus}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Owner and Last Update */}
+                <div className="space-y-3">
+                  <FieldDisplay 
+                    label="Model Owner"
+                    value={extendedUseCase.modelOwner}
+                    icon={Users}
+                  />
+                  
+                  {extendedUseCase.lastStatusUpdate && (
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-700">Last Status Update</span>
+                      </div>
+                      <p className="text-sm text-gray-600 pl-6">
+                        {new Date(extendedUseCase.lastStatusUpdate).toLocaleDateString('en-GB', {
+                          year: 'numeric',
+                          month: 'long', 
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* AI Inventory Description */}
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <FolderOpen className="w-4 h-4 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-700">Operational Registry Item</span>
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    This is an operational AI tool tracked for governance and compliance. 
+                    Not evaluated for strategic business impact.
+                  </p>
+                </div>
+                
+                {/* Empty State for AI Inventory without lifecycle data */}
+                {!hasAiInventoryData && (
+                  <div className="text-center py-4 text-gray-500">
+                    <Activity className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm">No lifecycle information available for this inventory item.</p>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          )}
           
           {/* Overview Section */}
           <AccordionItem value="overview" className="border border-gray-200 rounded-lg">
@@ -215,8 +319,8 @@ export default function UseCaseDetailDrawer({
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 space-y-4">
-              {/* Scoring Section */}
-              {hasScores && (
+              {/* Scoring Section - Hidden for AI Inventory */}
+              {hasScores && !isAiInventory && (
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <ScoreDisplay 

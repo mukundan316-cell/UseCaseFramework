@@ -75,7 +75,12 @@ export const useCases = pgTable("use_cases", {
   activationDate: timestamp("activation_date").defaultNow(),
   activationReason: text("activation_reason"), // Required when isActiveForRsa = 'true'
   deactivationReason: text("deactivation_reason"),
-  librarySource: text("library_source").notNull().default('rsa_internal'), // 'rsa_internal', 'hexaware_external', 'industry_standard', 'imported'
+  librarySource: text("library_source").notNull().default('rsa_internal'), // 'rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory'
+  
+  // AI Inventory specific fields
+  aiInventoryStatus: text("ai_inventory_status"), // 'Active', 'Proof_of_Concept', 'Pending_Closure', 'Obsolete', 'Inactive'
+  deploymentStatus: text("deployment_status"), // 'PoC', 'Pilot', 'Production', 'Decommissioned'
+  lastStatusUpdate: timestamp("last_status_update"),
   
   // Tab 3: Implementation & Governance fields
   primaryBusinessOwner: text("primary_business_owner"),
@@ -105,6 +110,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   quadrant: true,
   createdAt: true,
   activationDate: true,
+  lastStatusUpdate: true, // Auto-managed field
 }).extend({
   linesOfBusiness: z.array(z.string()).optional(),
   processes: z.array(z.string()).optional(),
@@ -114,7 +120,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   isActiveForRsa: z.enum(['true', 'false']).default('false'),
   isDashboardVisible: z.enum(['true', 'false']).default('false'),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
-  librarySource: z.string().default('rsa_internal'), // Now dynamic from metadata
+  librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory']).default('rsa_internal'),
   activationReason: z.string().optional(),
   deactivationReason: z.string().optional(),
   // Manual override fields (accept null values for optional operation)
@@ -143,6 +149,9 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   rsaPolicyGovernance: z.string().optional(),
   validationResponsibility: z.string().optional(),
   informedBy: z.string().optional(),
+  // AI Inventory specific fields (optional for backward compatibility)
+  aiInventoryStatus: z.enum(['Active', 'Proof_of_Concept', 'Pending_Closure', 'Obsolete', 'Inactive']).optional(),
+  deploymentStatus: z.enum(['PoC', 'Pilot', 'Production', 'Decommissioned']).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
