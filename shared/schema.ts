@@ -46,6 +46,17 @@ export const useCases = pgTable("use_cases", {
   dataOutsideUkEu: text("data_outside_uk_eu"),
   thirdPartyModel: text("third_party_model"),
   humanAccountability: text("human_accountability"),
+  
+  // AI Inventory Governance Fields
+  aiOrModel: text("ai_or_model"), // 'AI' or 'Model'
+  riskToCustomers: text("risk_to_customers"), // risk assessment text
+  riskToRsa: text("risk_to_rsa"), // RSA-specific risk assessment
+  dataUsed: text("data_used"), // data sources description
+  modelOwner: text("model_owner"), // owner contact information
+  rsaPolicyGovernance: text("rsa_policy_governance"), // governance framework reference
+  validationResponsibility: text("validation_responsibility"), // 'Internal' or 'Third Party'
+  informedBy: text("informed_by"), // stakeholder information
+  
   impactScore: real("impact_score").notNull(),
   effortScore: real("effort_score").notNull(),
   quadrant: text("quadrant").notNull(),
@@ -123,6 +134,15 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   aiMlTechnologies: z.array(z.string()).optional(),
   dataSources: z.array(z.string()).optional(),
   stakeholderGroups: z.array(z.string()).optional(),
+  // AI Inventory Governance Fields (all optional for backward compatibility)
+  aiOrModel: z.string().optional(),
+  riskToCustomers: z.string().optional(),
+  riskToRsa: z.string().optional(),
+  dataUsed: z.string().optional(),
+  modelOwner: z.string().optional(),
+  rsaPolicyGovernance: z.string().optional(),
+  validationResponsibility: z.string().optional(),
+  informedBy: z.string().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
