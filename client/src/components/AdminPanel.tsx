@@ -13,6 +13,7 @@ import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibr
 import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationLegoBlock';
 import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
 import LibraryManagementLegoBlock from './lego-blocks/LibraryManagementLegoBlock';
+import ExcelUploadLegoBlock from './lego-blocks/ExcelUploadLegoBlock';
 
 export default function AdminPanel() {
   const { 
@@ -368,6 +369,15 @@ export default function AdminPanel() {
               {/* Library Management LEGO Block */}
               <div className="space-y-6">
                 <LibraryManagementLegoBlock />
+                
+                {/* Excel Upload LEGO Block */}
+                <ExcelUploadLegoBlock 
+                  onImportComplete={(result) => {
+                    console.log('Import completed:', result);
+                    // Force refresh of use cases if needed
+                    window.location.reload();
+                  }}
+                />
               </div>
             </TabsContent>
 

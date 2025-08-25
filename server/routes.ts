@@ -6,6 +6,7 @@ import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@
 import { mapUseCaseToFrontend } from "@shared/mappers";
 import recommendationRoutes from "./routes/recommendations";
 import exportRoutes from "./routes/export.routes";
+import importRoutes from "./routes/import.routes";
 import { questionnaireServiceInstance } from './services/questionnaireService';
 import { db } from './db';
 import { responseSessions } from '@shared/schema';
@@ -749,6 +750,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register export routes
   app.use('/api/export', exportRoutes);
+  app.use('/api/import', importRoutes);
   
   // Register recommendation routes
   app.use('/api/recommendations', recommendationRoutes);
