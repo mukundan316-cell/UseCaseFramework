@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { X, Edit, FileText, Building2, Users, ExternalLink, Target, AlertTriangle, Eye, GitCompare, FolderPlus, History, ChevronUp } from 'lucide-react';
+import { X, Edit, FileText, Building2, Users, ExternalLink, Target, AlertTriangle, Eye, GitCompare, FolderPlus, History, ChevronUp, Bot, Shield, Database, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -575,8 +575,205 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
+          ) : useCase.librarySource === 'sharepoint_import' || useCase.librarySource === 'ai_inventory' ? (
+            /* AI Inventory sections */
+            <Accordion type="multiple" defaultValue={["ai-tool-overview", "governance-risk"]} className="w-full">
+              {/* 1. AI Tool Overview (expanded) */}
+              <AccordionItem value="ai-tool-overview" ref={sectionRefs.overview}>
+                <AccordionTrigger className="text-lg font-semibold">
+                  AI Tool Overview
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4">
+                  {/* Title & Description */}
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Title</h4>
+                    <p className="text-gray-700 leading-relaxed font-semibold">{useCase.title}</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Description</h4>
+                    <p className="text-gray-700 leading-relaxed">{useCase.description}</p>
+                  </div>
+
+                  {/* AI or Model type with icon */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(useCase as any).aiModelType && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">AI/Model Type</h4>
+                        <div className="flex items-center gap-2">
+                          <Bot className="h-4 w-4 text-purple-600" />
+                          <span className="text-gray-700">{(useCase as any).aiModelType}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Purpose of Use field */}
+                    {(useCase as any).purposeOfUse && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">Purpose of Use</h4>
+                        <p className="text-gray-700">{(useCase as any).purposeOfUse}</p>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* 2. Governance & Risk (expanded) */}
+              <AccordionItem value="governance-risk" ref={sectionRefs['strategic-scoring']}>
+                <AccordionTrigger className="text-lg font-semibold">
+                  Governance & Risk
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4">
+                  {/* Risk indicators with color coding */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Risk to Customers */}
+                    {(useCase as any).riskToCustomers && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">Risk to Customers</h4>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full ${
+                            (useCase as any).riskToCustomers?.toLowerCase() === 'high' ? 'bg-red-500' :
+                            (useCase as any).riskToCustomers?.toLowerCase() === 'medium' ? 'bg-yellow-500' :
+                            'bg-green-500'
+                          }`} />
+                          <span className="text-gray-700">{(useCase as any).riskToCustomers}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Risk to RSA */}
+                    {(useCase as any).riskToRSA && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">Risk to RSA</h4>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full ${
+                            (useCase as any).riskToRSA?.toLowerCase() === 'high' ? 'bg-red-500' :
+                            (useCase as any).riskToRSA?.toLowerCase() === 'medium' ? 'bg-yellow-500' :
+                            'bg-green-500'
+                          }`} />
+                          <span className="text-gray-700">{(useCase as any).riskToRSA}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Model Owner and Governance */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(useCase as any).modelOwner && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">Model Owner</h4>
+                        <p className="text-gray-700">{(useCase as any).modelOwner}</p>
+                      </div>
+                    )}
+
+                    {(useCase as any).rsaPolicyGovernance && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">RSA Policy Governance</h4>
+                        <p className="text-gray-700">{(useCase as any).rsaPolicyGovernance}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Third Party Model */}
+                  {(useCase as any).thirdPartyModel !== undefined && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Third Party Model</h4>
+                      <Badge 
+                        variant={
+                          (useCase as any).thirdPartyModel === 'Yes' || (useCase as any).thirdPartyModel === true 
+                            ? "destructive" 
+                            : "secondary"
+                        }
+                      >
+                        {typeof (useCase as any).thirdPartyModel === 'boolean' 
+                          ? ((useCase as any).thirdPartyModel ? 'Yes' : 'No')
+                          : (useCase as any).thirdPartyModel
+                        }
+                      </Badge>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* 3. Data & Validation (collapsed) */}
+              <AccordionItem value="data-validation" ref={sectionRefs['business-context']}>
+                <AccordionTrigger className="text-lg font-semibold">
+                  Data & Validation
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4">
+                  {/* Data Used */}
+                  {(useCase as any).dataUsed && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Data Used</h4>
+                      <p className="text-gray-700">{(useCase as any).dataUsed}</p>
+                    </div>
+                  )}
+
+                  {/* Validation Responsibility */}
+                  {(useCase as any).validationResponsibility && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Validation Responsibility</h4>
+                      <p className="text-gray-700">{(useCase as any).validationResponsibility}</p>
+                    </div>
+                  )}
+
+                  {/* Informed By */}
+                  {(useCase as any).informedBy && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Informed By</h4>
+                      <p className="text-gray-700">{(useCase as any).informedBy}</p>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* 4. Business Application (collapsed) */}
+              <AccordionItem value="business-application" ref={sectionRefs['implementation-details']}>
+                <AccordionTrigger className="text-lg font-semibold">
+                  Business Application
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4">
+                  {/* Process, Function */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Process</h4>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                        {useCase.process}
+                      </Badge>
+                    </div>
+
+                    {(useCase as any).functionArea && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">Function</h4>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          {(useCase as any).functionArea}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Risk areas impacted */}
+                  {(useCase as any).riskAreasImpacted && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Risk Areas Impacted</h4>
+                      {Array.isArray((useCase as any).riskAreasImpacted) ? (
+                        <div className="flex flex-wrap gap-2">
+                          {(useCase as any).riskAreasImpacted.map((risk: string, index: number) => (
+                            <Badge key={index} variant="outline" className="border-red-300 text-red-700">
+                              {risk}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700">{(useCase as any).riskAreasImpacted}</p>
+                      )}
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           ) : (
-            /* Fallback for non-strategic use cases */
+            /* Fallback for other non-strategic use cases */
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
