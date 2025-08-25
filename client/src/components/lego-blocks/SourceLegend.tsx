@@ -17,7 +17,8 @@ export default function SourceLegend({ className = '', showTitle = true }: Sourc
     'hexaware_external': ExternalLink,
     'industry_standard': Users,
     'imported': Download,
-    'consolidated_database': Database
+    'consolidated_database': Database,
+    'sharepoint_import': Users
   };
 
   // Generate dynamic source types from metadata
