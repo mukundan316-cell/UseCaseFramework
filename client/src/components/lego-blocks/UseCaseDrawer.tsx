@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { X, Edit, FileText, Building2, Users, ExternalLink, Target, AlertTriangle, Eye, GitCompare, FolderPlus, History, ChevronUp, Bot, Shield, Database, Briefcase, Calendar, User, Settings } from 'lucide-react';
+import { X, Edit, Save, Trash2, FileText, Building2, Users, ExternalLink, Target, AlertTriangle, Eye, GitCompare, FolderPlus, History, ChevronUp, Bot, Shield, Database, Briefcase, Calendar, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
 import { UseCase } from '../../types';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
 import { getSourceConfig } from '../../utils/sourceColors';
@@ -18,11 +19,14 @@ import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 interface UseCaseDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onEdit?: () => void;
+  onSave?: (useCase: UseCase) => Promise<void>;
+  onDelete?: (useCase: UseCase) => Promise<void>;
+  onEdit?: (useCase: UseCase) => void;
   useCase: UseCase | null;
+  mode?: 'view' | 'edit' | 'create';
 }
 
-export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseCaseDrawerProps) {
+export default function UseCaseDrawer({ isOpen, onClose, onSave, onDelete, onEdit, useCase, mode = 'view' }: UseCaseDrawerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentSection, setCurrentSection] = useState<string>('overview');
   const sectionRefs = {
@@ -94,6 +98,9 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
 
   // Form state for editable fields - must be before early return to avoid hook count issues
   const [formData, setFormData] = useState({
+    title: useCase?.title || '',
+    description: useCase?.description || '',
+    problemStatement: useCase?.problemStatement || '',
     process: useCase?.process || '',
     linesOfBusiness: useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean),
     businessSegments: useCase?.businessSegments || [useCase?.businessSegment].filter(Boolean),
@@ -118,7 +125,57 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
     overrideReason: (useCase as any)?.overrideReason || ''
   });
 
-  if (!useCase) return null;
+  const { toast } = useToast();
+  
+  // CRUD handlers
+  const handleSave = async () => {
+    try {
+      if (onSave) {
+        const updatedUseCase = {
+          ...(useCase || {}),
+          ...formData,
+          // Convert arrays back to appropriate format
+          linesOfBusiness: formData.linesOfBusiness.length > 0 ? formData.linesOfBusiness : undefined,
+          businessSegments: formData.businessSegments.length > 0 ? formData.businessSegments : undefined,
+          geographies: formData.geographies.length > 0 ? formData.geographies : undefined,
+        } as UseCase;
+        
+        await onSave(updatedUseCase);
+        toast({
+          title: "Success",
+          description: `Use case ${mode === 'create' ? 'created' : 'updated'} successfully`,
+        });
+        onClose();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${mode === 'create' ? 'create' : 'update'} use case`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (useCase && onDelete) {
+      try {
+        await onDelete(useCase);
+        toast({
+          title: "Success",
+          description: "Use case deleted successfully",
+        });
+        onClose();
+      } catch (error) {
+        toast({
+          title: "Error", 
+          description: "Failed to delete use case",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+  
+  if (!useCase && mode !== 'create') return null;
 
   // Sample data for dropdowns
   const processOptions = [
@@ -260,9 +317,18 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
               </div>
 
               {/* Title */}
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                {useCase.title}
-              </h2>
+              {mode === 'edit' || mode === 'create' ? (
+                <Input
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  className="text-2xl font-semibold mb-2 border-0 p-0 focus:ring-0 bg-transparent"
+                  placeholder="Enter use case title..."
+                />
+              ) : (
+                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                  {useCase?.title || 'New Use Case'}
+                </h2>
+              )}
 
               {/* Subtitle with Impact/Effort for strategic cases */}
               {hasScores && ['Strategic Bet', 'Watchlist', 'Experimental', 'Quick Win'].includes(effectiveQuadrant) && (
@@ -274,16 +340,39 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2 ml-4">
-              {onEdit && (
+              {mode === 'view' ? (
                 <Button
-                  onClick={onEdit}
+                  onClick={() => useCase && onEdit?.(useCase)}
                   variant="outline"
                   size="sm"
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50"
                 >
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Button>
+              ) : (
+                <>
+                  <Button
+                    onClick={handleSave}
+                    variant="default"
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <Save className="h-4 w-4 mr-1" />
+                    Save
+                  </Button>
+                  {mode === 'edit' && onDelete && (
+                    <Button
+                      onClick={handleDelete}
+                      variant="outline"
+                      size="sm"
+                      className="border-red-300 text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  )}
+                </>
               )}
 
               <ExportButton
@@ -323,16 +412,34 @@ export default function UseCaseDrawer({ isOpen, onClose, onEdit, useCase }: UseC
                   {/* Description */}
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                    <p className="text-gray-700 leading-relaxed">{useCase.description}</p>
+                    {mode === 'edit' || mode === 'create' ? (
+                      <Textarea
+                        value={formData.description || useCase?.description || ''}
+                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                        placeholder="Enter use case description..."
+                        className="min-h-[80px]"
+                      />
+                    ) : (
+                      <p className="text-gray-700 leading-relaxed">{useCase?.description}</p>
+                    )}
                   </div>
 
                   {/* Problem Statement */}
-                  {useCase.problemStatement && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Problem Statement</h4>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Problem Statement</h4>
+                    {mode === 'edit' || mode === 'create' ? (
+                      <Textarea
+                        value={formData.problemStatement || useCase?.problemStatement || ''}
+                        onChange={(e) => setFormData({...formData, problemStatement: e.target.value})}
+                        placeholder="Describe the problem this use case solves..."
+                        className="min-h-[80px]"
+                      />
+                    ) : useCase?.problemStatement ? (
                       <p className="text-gray-700 leading-relaxed">{useCase.problemStatement}</p>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-gray-500 italic">No problem statement defined</p>
+                    )}
+                  </div>
 
                   {/* Current Quadrant Placement */}
                   {hasScores && effectiveQuadrant && (
