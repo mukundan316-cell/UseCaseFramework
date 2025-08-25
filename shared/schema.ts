@@ -56,6 +56,8 @@ export const useCases = pgTable("use_cases", {
   rsaPolicyGovernance: text("rsa_policy_governance"), // governance framework reference
   validationResponsibility: text("validation_responsibility"), // 'Internal' or 'Third Party'
   informedBy: text("informed_by"), // stakeholder information
+  businessFunction: text("business_function"), // Business function (Marketing, CIO, Claims, etc.)
+  thirdPartyProvidedModel: text("third_party_provided_model"), // Whether it's a third-party provided model
   
   impactScore: real("impact_score").notNull(),
   effortScore: real("effort_score").notNull(),
@@ -149,6 +151,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   rsaPolicyGovernance: z.string().optional(),
   validationResponsibility: z.string().optional(),
   informedBy: z.string().optional(),
+  businessFunction: z.string().optional(),
+  thirdPartyProvidedModel: z.string().optional(),
   // AI Inventory specific fields (optional for backward compatibility)
   aiInventoryStatus: z.enum(['Active', 'Proof_of_Concept', 'Pending_Closure', 'Obsolete', 'Inactive']).optional(),
   deploymentStatus: z.enum(['PoC', 'Pilot', 'Production', 'Decommissioned']).optional(),

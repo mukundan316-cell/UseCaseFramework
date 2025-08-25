@@ -44,6 +44,19 @@ export interface UseCase {
   manualEffortScore?: number;
   manualQuadrant?: QuadrantType;
   overrideReason?: string;
+  // AI Inventory specific fields
+  aiOrModel?: string;
+  riskToCustomers?: string;
+  riskToRsa?: string;
+  dataUsed?: string;
+  modelOwner?: string;
+  rsaPolicyGovernance?: string;
+  validationResponsibility?: string;
+  informedBy?: string;
+  businessFunction?: string;
+  thirdPartyProvidedModel?: string;
+  aiInventoryStatus?: string;
+  deploymentStatus?: string;
 }
 
 export type QuadrantType = "Quick Win" | "Strategic Bet" | "Experimental" | "Watchlist";

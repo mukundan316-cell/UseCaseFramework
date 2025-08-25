@@ -92,6 +92,10 @@ const formSchema = z.object({
   manualEffortScore: z.union([z.number().min(1).max(5), z.string(), z.null()]).optional(),
   manualQuadrant: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
   overrideReason: z.union([z.string(), z.null()]).optional(),
+  businessFunction: z.string().optional(),
+  thirdPartyProvidedModel: z.string().optional(),
+  aiInventoryStatus: z.string().optional(),
+  deploymentStatus: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -1155,6 +1159,44 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase }: CRU
                                 {...field}
                               />
                             </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="businessFunction"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Business Function</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., Marketing, CIO, Claims, CFU..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="thirdPartyProvidedModel"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold text-gray-900">Third Party Provided Model</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select..." />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Yes">Yes</SelectItem>
+                                <SelectItem value="No">No</SelectItem>
+                                <SelectItem value="Select">Select</SelectItem>
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
