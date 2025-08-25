@@ -6,13 +6,13 @@ import { getQuadrantColor } from '../utils/calculations';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 
 export default function MatrixPlot() {
-  const { useCases, getQuadrantCounts, getAverageImpact, filters, setFilters } = useUseCases();
+  const { useCases, dashboardUseCases, getQuadrantCounts, getAverageImpact, filters, setFilters } = useUseCases();
 
   const quadrantCounts = getQuadrantCounts();
   const averageImpact = getAverageImpact();
 
   // Transform data for scatter plot - properly balanced coordinates
-  const chartData = useCases.map(useCase => {
+  const chartData = dashboardUseCases.map(useCase => {
     const effectiveQuadrant = getEffectiveQuadrant(useCase as any);
     const effectiveImpact = getEffectiveImpactScore(useCase as any);
     const effectiveEffort = getEffectiveEffortScore(useCase as any);
