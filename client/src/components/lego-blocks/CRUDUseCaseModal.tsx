@@ -521,6 +521,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           changedData.overrideReason = (data.overrideReason === '' || data.overrideReason === null) ? null : data.overrideReason;
         }
         
+        // Auto-promote to active tier if marked for dashboard visibility
+        if (data.isDashboardVisible === 'true' || data.isActiveForRsa === 'true') {
+          changedData.libraryTier = 'active';
+        }
+        
         // Validation constraints removed to allow free form submission
         
         console.log('Sending data for update:', changedData);
