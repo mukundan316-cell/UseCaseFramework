@@ -105,9 +105,7 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     // Convert null to undefined for proper frontend handling
     problemStatement: dbUseCase.problemStatement || undefined,
     processes: dbUseCase.processes || undefined,
-    activities: dbUseCase.activities || undefined,
-    businessSegments: dbUseCase.businessSegments || undefined,
-    geographies: dbUseCase.geographies || undefined
+    activities: dbUseCase.activities || undefined
   };
 }
 
