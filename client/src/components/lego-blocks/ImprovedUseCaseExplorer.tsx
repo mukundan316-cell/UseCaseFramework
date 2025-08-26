@@ -10,6 +10,7 @@ import CleanUseCaseCard from './CleanUseCaseCard';
 import CRUDUseCaseModal from './CRUDUseCaseModal';
 import SourceLegend from './SourceLegend';
 import UseCaseDetailDrawer from './UseCaseDetailDrawer';
+import { getSourceConfig } from '../../utils/sourceColors';
 
 interface ImprovedUseCaseExplorerProps {
   useCases: UseCase[];
@@ -475,10 +476,15 @@ export default function ImprovedUseCaseExplorer({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Sources</SelectItem>
-              <SelectItem value="rsa_internal">RSA Internal</SelectItem>
-              <SelectItem value="hexaware_external">Hexaware External</SelectItem>
-              <SelectItem value="industry_standard">Industry Standard</SelectItem>
-              <SelectItem value="ai_inventory">AI Inventory</SelectItem>
+              {metadata?.sourceTypes?.map((sourceType) => {
+                // Get display label from sourceColors utility
+                const sourceConfig = getSourceConfig(sourceType);
+                return (
+                  <SelectItem key={sourceType} value={sourceType}>
+                    {sourceConfig.label}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         )}
