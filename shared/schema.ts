@@ -46,7 +46,6 @@ export const useCases = pgTable("use_cases", {
   dataOutsideUkEu: text("data_outside_uk_eu"),
   thirdPartyModel: text("third_party_model"),
   humanAccountability: text("human_accountability"),
-  regulatoryCompliance: integer("regulatory_compliance"), // 1-5 scale for regulatory compliance score
   
   // AI Inventory Governance Fields
   aiOrModel: text("ai_or_model"), // 'AI' or 'Model'
@@ -174,13 +173,6 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   // AI Inventory specific fields (flexible for import - allow any string values)
   aiInventoryStatus: z.union([z.string(), z.null()]).optional(),
   deploymentStatus: z.union([z.string(), z.null()]).optional(),
-  // RSA Ethical Principles fields - optional for import
-  explainabilityRequired: z.union([z.string(), z.null()]).optional(),
-  customerHarmRisk: z.union([z.string(), z.null()]).optional(),
-  dataOutsideUkEu: z.union([z.string(), z.null()]).optional(),
-  thirdPartyModel: z.union([z.string(), z.null()]).optional(),
-  humanAccountability: z.union([z.string(), z.null()]).optional(),
-  regulatoryCompliance: z.union([z.number().min(1).max(5), z.null()]).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
