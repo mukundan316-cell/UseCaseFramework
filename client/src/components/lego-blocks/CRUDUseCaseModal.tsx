@@ -18,6 +18,7 @@ import { UseCase } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
+import { useQueryClient } from '@tanstack/react-query';
 import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -118,6 +119,7 @@ interface CRUDUseCaseModalProps {
 export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, context = 'active' }: CRUDUseCaseModalProps) {
   const { addUseCase, updateUseCase, metadata } = useUseCases();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // RSA Portfolio state management
   const [rsaSelection, setRsaSelection] = useState({
@@ -515,6 +517,23 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           quadrant: currentQuadrant
         };
         
+        console.log('Current calculated scores:');
+        console.log('- Impact:', currentImpactScore);
+        console.log('- Effort:', currentEffortScore);
+        console.log('- Quadrant:', currentQuadrant);
+        console.log('Form values for scoring:', {
+          revenueImpact: formValues.revenueImpact,
+          costSavings: formValues.costSavings,
+          riskReduction: formValues.riskReduction,
+          brokerPartnerExperience: formValues.brokerPartnerExperience,
+          strategicFit: formValues.strategicFit,
+          dataReadiness: formValues.dataReadiness,
+          technicalComplexity: formValues.technicalComplexity,
+          changeImpact: formValues.changeImpact,
+          modelRisk: formValues.modelRisk,
+          adoptionReadiness: formValues.adoptionReadiness
+        });
+        
         // Handle manual override fields - convert empty strings to null
         if (data.manualImpactScore !== undefined) {
           changedData.manualImpactScore = (data.manualImpactScore === '' || data.manualImpactScore === null) ? null : Number(data.manualImpactScore);
@@ -540,9 +559,16 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         console.log('Calling updateUseCase with ID:', useCase.id);
         const result = await updateUseCase(useCase.id, changedData);
         console.log('Update successful:', result);
+        
+        // Force refresh of all queries to ensure UI updates
+        console.log('Forcing cache refresh...');
+        await queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+        await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
+        await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+        
         toast({
           title: "Use case updated successfully",
-          description: `"${data.title}" has been updated.`,
+          description: `"${data.title}" has been updated. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
       } else {
         console.log('Calling addUseCase...');
