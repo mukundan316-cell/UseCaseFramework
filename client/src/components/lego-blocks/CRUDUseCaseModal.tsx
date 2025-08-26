@@ -183,14 +183,17 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       isDashboardVisible: 'false',
       libraryTier: 'reference',
       activationReason: '',
-      ...scores,
+      // Do NOT include scores in form defaults - they should only be calculated, not saved
+      // unless they are manual overrides (which are handled separately)
     },
   });
 
   const handleSliderChange = (field: keyof typeof scores, value: number) => {
     const newScores = { ...scores, [field]: value };
     setScores(newScores);
-    form.setValue(field, value);
+    // IMPORTANT: Do NOT update form values here!
+    // Calculated scores should only be used for real-time display, not saved to database
+    // Only manual override values (handled by ScoreOverrideLegoBlock) should be saved
   };
 
   // RSA Selection handlers
@@ -459,7 +462,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         aiMlTechnologies: [],
         dataSources: [],
         stakeholderGroups: [],
-        ...scores,
+        // Do NOT include scores in form defaults - they should only be calculated, not saved
+        // unless they are manual overrides (which are handled separately)
       };
       form.reset(defaultData);
     }
