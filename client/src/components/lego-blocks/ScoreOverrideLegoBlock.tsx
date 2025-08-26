@@ -46,10 +46,13 @@ export default function ScoreOverrideLegoBlock({
     
     // If disabling overrides, clear all manual override fields
     if (!enabled) {
-      form.setValue('manualImpactScore', undefined);
-      form.setValue('manualEffortScore', undefined);
-      form.setValue('manualQuadrant', undefined);
+      form.setValue('manualImpactScore', null);
+      form.setValue('manualEffortScore', null);
+      form.setValue('manualQuadrant', null);
       form.setValue('overrideReason', '');
+      
+      // Force form to trigger re-render to clear displayed values
+      form.trigger(['manualImpactScore', 'manualEffortScore', 'manualQuadrant', 'overrideReason']);
     }
     
     // Notify parent component of toggle state change
@@ -110,6 +113,9 @@ export default function ScoreOverrideLegoBlock({
                 </div>
               </div>
             </div>
+            <div className="mt-2 text-xs text-gray-500 italic">
+              Manual override fields are empty when using calculated scores
+            </div>
           </div>
         )}
 
@@ -155,14 +161,14 @@ export default function ScoreOverrideLegoBlock({
                     <FormLabel className="text-xs">Override Impact Score</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
                         type="number"
                         min="1"
                         max="5"
                         step="0.1"
                         placeholder="1.0 - 5.0"
                         className="text-xs"
-                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -178,14 +184,14 @@ export default function ScoreOverrideLegoBlock({
                     <FormLabel className="text-xs">Override Effort Score</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
                         type="number"
                         min="1"
                         max="5"
                         step="0.1"
                         placeholder="1.0 - 5.0"
                         className="text-xs"
-                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -200,7 +206,7 @@ export default function ScoreOverrideLegoBlock({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs">Override Quadrant</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ''}>
                     <FormControl>
                       <SelectTrigger className="text-xs">
                         <SelectValue placeholder="Select quadrant override" />
