@@ -471,7 +471,46 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     try {
       console.log('Form submission triggered');
       console.log('Form validation errors:', form.formState.errors);
-      console.log('Submitting form data:', data);
+      
+      // Convert any null values to appropriate defaults for submission
+      const sanitizedData = {
+        ...data,
+        // Convert null values to empty strings for text fields
+        title: data.title || '',
+        description: data.description || '',
+        problemStatement: data.problemStatement || '',
+        process: data.process || '',
+        lineOfBusiness: data.lineOfBusiness || '',
+        businessSegment: data.businessSegment || '',
+        geography: data.geography || '',
+        useCaseType: data.useCaseType || '',
+        activity: data.activity || '',
+        primaryBusinessOwner: data.primaryBusinessOwner || '',
+        useCaseStatus: data.useCaseStatus || '',
+        keyDependencies: data.keyDependencies || '',
+        implementationTimeline: data.implementationTimeline || '',
+        successMetrics: data.successMetrics || '',
+        estimatedValue: data.estimatedValue || '',
+        valueMeasurementApproach: data.valueMeasurementApproach || '',
+        integrationRequirements: data.integrationRequirements || '',
+        activationReason: data.activationReason || '',
+        customerHarmRisk: data.customerHarmRisk || '',
+        aiOrModel: data.aiOrModel || '',
+        riskToCustomers: data.riskToCustomers || '',
+        riskToRsa: data.riskToRsa || '',
+        dataUsed: data.dataUsed || '',
+        modelOwner: data.modelOwner || '',
+        rsaPolicyGovernance: data.rsaPolicyGovernance || '',
+        informedBy: data.informedBy || '',
+        businessFunction: data.businessFunction || '',
+        thirdPartyProvidedModel: data.thirdPartyProvidedModel || '',
+        aiInventoryStatus: data.aiInventoryStatus || '',
+        deploymentStatus: data.deploymentStatus || '',
+        deactivationReason: data.deactivationReason || '',
+        overrideReason: data.overrideReason || '',
+      };
+      
+      console.log('Submitting sanitized form data:', sanitizedData);
       
       if (mode === 'edit' && useCase) {
         // For edit mode, only send changed fields to prevent overwriting unchanged values
@@ -510,7 +549,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         // Include real-time calculated scores in the submission
         // These are calculated on the frontend and need to be sent to the server
         const changedData: any = { 
-          ...data,
+          ...sanitizedData,
           // Include current calculated scores (these will trigger recalculation on server)
           impactScore: currentImpactScore,
           effortScore: currentEffortScore,
@@ -562,7 +601,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         });
         
         // Auto-promote to active tier if marked for dashboard visibility
-        if (data.isDashboardVisible === 'true' || data.isActiveForRsa === 'true') {
+        if (sanitizedData.isDashboardVisible === 'true' || sanitizedData.isActiveForRsa === 'true') {
           changedData.libraryTier = 'active';
         }
         
@@ -581,13 +620,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         
         toast({
           title: "Use case updated successfully",
-          description: `"${data.title}" has been updated. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
+          description: `"${sanitizedData.title}" has been updated. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
       } else {
         console.log('Calling addUseCase...');
         
         // Apply same data transformations for create mode
-        const createData: any = { ...data };
+        const createData: any = { ...sanitizedData };
         
         // Include calculated scores for new use cases
         createData.impactScore = currentImpactScore;
@@ -629,7 +668,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         
         toast({
           title: "Use case created successfully",
-          description: `"${data.title}" has been added. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
+          description: `"${sanitizedData.title}" has been added. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
       }
       console.log('About to call onClose...');
