@@ -1029,7 +1029,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Is explainability required?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={String(field.value || '')}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
@@ -1073,7 +1073,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Data processing outside UK/EU?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={String(field.value || '')}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
@@ -1094,7 +1094,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Third party model?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={String(field.value || '')}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
@@ -1115,7 +1115,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Human accountability required?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={String(field.value || '')}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
