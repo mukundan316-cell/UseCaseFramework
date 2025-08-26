@@ -103,7 +103,9 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     // Ensure arrays exist for backward compatibility
     linesOfBusiness: dbUseCase.linesOfBusiness || [dbUseCase.lineOfBusiness].filter(Boolean),
     // Convert null to undefined for proper frontend handling
-    problemStatement: dbUseCase.problemStatement || undefined
+    problemStatement: dbUseCase.problemStatement || undefined,
+    processes: dbUseCase.processes || undefined,
+    activities: dbUseCase.activities || undefined
   };
 }
 

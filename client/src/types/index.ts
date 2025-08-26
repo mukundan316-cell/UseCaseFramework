@@ -33,8 +33,8 @@ export interface UseCase {
   valueChainComponent?: string; // Compatibility alias for process
   createdAt?: Date;
   // Two-tier library management fields
-  isActiveForRsa?: string;
-  isDashboardVisible?: string;
+  isActiveForRsa?: boolean;
+  isDashboardVisible?: boolean;
   libraryTier?: string;
   activationDate?: Date;
   deactivationReason?: string;
