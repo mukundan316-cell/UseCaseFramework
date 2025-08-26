@@ -100,14 +100,15 @@ export default function ImprovedUseCaseExplorer({
 
   // Filter use cases with tab-aware logic
   const filteredUseCases = useCases.filter((useCase) => {
+    // Define AI inventory status for all contexts
+    const isAiInventory = (useCase as any).librarySource === 'ai_inventory';
+    const isStrategic = !isAiInventory;
+    
     // Skip internal tab filtering for active portfolio context since it's already pre-filtered
     if (context === 'active') {
       // Skip tab-based filtering - active portfolio is already filtered by API
     } else {
       // Tab-based filtering for reference library only
-      const isAiInventory = (useCase as any).librarySource === 'ai_inventory';
-      const isStrategic = !isAiInventory;
-      
       if (activeTab === 'strategic' && isAiInventory) return false;
       if (activeTab === 'inventory' && isStrategic) return false;
       // 'both' tab shows everything
