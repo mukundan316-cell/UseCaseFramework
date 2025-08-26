@@ -31,7 +31,7 @@ export default function ImprovedUseCaseExplorer({
   useCases,
   title,
   description,
-  showQuadrantFilters = false,
+  showQuadrantFilters = true,
   showRSASelection = false,
   onEdit,
   onDelete,
