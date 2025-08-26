@@ -3,6 +3,7 @@ import {
   type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig,
   type ResponseSession, type InsertResponseSession
 } from "@shared/schema";
+import type { QuestionAnswer } from "@shared/questionnaireTypes";
 import { db } from "./db";
 import { eq, sql, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -98,9 +99,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUseCase(insertUseCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase> {
+    // Clean null values to avoid type issues
+    const cleanData = Object.fromEntries(
+      Object.entries(insertUseCase).map(([key, value]) => [
+        key, 
+        value === null ? undefined : value
+      ])
+    ) as InsertUseCase & { impactScore: number; effortScore: number; quadrant: string };
+    
     const [useCase] = await db
       .insert(useCases)
-      .values(insertUseCase)
+      .values(cleanData)
       .returning();
     return useCase;
   }
@@ -302,7 +311,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // ==================================================================================
-  // QUESTION ANSWER MANAGEMENT
+  // QUESTION ANSWER MANAGEMENT - Using blob storage, not database tables
   // ==================================================================================
 
   async saveQuestionAnswer(
@@ -310,51 +319,19 @@ export class DatabaseStorage implements IStorage {
     questionId: string, 
     answerValue: any
   ): Promise<QuestionAnswer> {
-    // Check if answer already exists
-    const existing = await db
-      .select()
-      .from(questionAnswers)
-      .where(
-        and(
-          eq(questionAnswers.responseId, responseId),
-          eq(questionAnswers.questionId, questionId)
-        )
-      );
-
-    const answerData = {
-      responseId,
+    // This is handled by blob storage in the questionnaire service
+    // Return a mock response for interface compatibility
+    return {
       questionId,
-      answerValue: typeof answerValue === 'string' ? answerValue : JSON.stringify(answerValue)
+      answerValue,
+      answeredAt: new Date().toISOString()
     };
-
-    if (existing.length > 0) {
-      // Update existing answer
-      const [updated] = await db
-        .update(questionAnswers)
-        .set(answerData)
-        .where(
-          and(
-            eq(questionAnswers.responseId, responseId),
-            eq(questionAnswers.questionId, questionId)
-          )
-        )
-        .returning();
-      return updated;
-    } else {
-      // Create new answer
-      const [created] = await db
-        .insert(questionAnswers)
-        .values(answerData)
-        .returning();
-      return created;
-    }
   }
 
   async getQuestionAnswersByResponse(responseId: string): Promise<QuestionAnswer[]> {
-    return await db
-      .select()
-      .from(questionAnswers)
-      .where(eq(questionAnswers.responseId, responseId));
+    // This is handled by blob storage in the questionnaire service
+    // Return empty array for interface compatibility
+    return [];
   }
 
   async getSavedAssessmentProgress(): Promise<any[]> {
