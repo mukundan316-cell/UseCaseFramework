@@ -289,6 +289,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           validatedData.dataReadiness !== undefined ||
           validatedData.technicalComplexity !== undefined ||
           validatedData.changeImpact !== undefined ||
+          validatedData.modelRisk !== undefined ||
           validatedData.adoptionReadiness !== undefined) {
         
         // Get current use case to fill in missing values
@@ -300,6 +301,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ error: "Use case not found" });
         }
         
+        // Get current metadata for weights
+        const metadata = await storage.getMetadataConfig();
+        const businessValueWeights = metadata?.scoringModel?.businessValue || {
+          revenueImpact: 20,
+          costSavings: 20,
+          riskReduction: 20,
+          brokerPartnerExperience: 20,
+          strategicFit: 20
+        };
+        const feasibilityWeights = metadata?.scoringModel?.feasibility || {
+          dataReadiness: 20,
+          technicalComplexity: 20,
+          changeImpact: 20,
+          modelRisk: 20,
+          adoptionReadiness: 20
+        };
+        const threshold = metadata?.scoringModel?.quadrantThreshold || 3.0;
+        
         // Merge current values with updates for complete scoring
         const completeData = {
           revenueImpact: validatedData.revenueImpact ?? currentUseCase.revenueImpact,
@@ -310,6 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           dataReadiness: validatedData.dataReadiness ?? currentUseCase.dataReadiness,
           technicalComplexity: validatedData.technicalComplexity ?? currentUseCase.technicalComplexity,
           changeImpact: validatedData.changeImpact ?? currentUseCase.changeImpact,
+          modelRisk: validatedData.modelRisk ?? currentUseCase.modelRisk, // Include modelRisk in merge
           adoptionReadiness: validatedData.adoptionReadiness ?? currentUseCase.adoptionReadiness,
         };
         
@@ -318,18 +338,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           completeData.costSavings || 0,
           completeData.riskReduction || 0,
           completeData.brokerPartnerExperience || 0,
-          completeData.strategicFit || 0
+          completeData.strategicFit || 0,
+          businessValueWeights
         );
         
         const effortScore = calculateEffortScore(
           completeData.dataReadiness || 0,
           completeData.technicalComplexity || 0,
           completeData.changeImpact || 0,
-          currentUseCase.modelRisk || 0, // Include modelRisk for effort calculation
-          completeData.adoptionReadiness || 0
+          completeData.modelRisk || 0, // Use merged modelRisk value
+          completeData.adoptionReadiness || 0,
+          feasibilityWeights
         );
         
-        const quadrant = calculateQuadrant(impactScore, effortScore);
+        const quadrant = calculateQuadrant(impactScore, effortScore, threshold);
         
         updatesWithScores = {
           ...validatedData,
