@@ -3,8 +3,10 @@ import MatrixPlot from './MatrixPlot';
 import SummaryMetricsLegoBlock from './lego-blocks/SummaryMetricsLegoBlock';
 import ReportsTabLegoBlock from './lego-blocks/ReportsTabLegoBlock';
 import ExportButton from './lego-blocks/ExportButton';
+import ImprovedUseCaseExplorer from './lego-blocks/ImprovedUseCaseExplorer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Target, Download } from 'lucide-react';
+import { useUseCases } from '../contexts/UseCaseContext';
 
 
 /**
@@ -14,6 +16,7 @@ import { BarChart3, Target, Download } from 'lucide-react';
  * Enhanced with SummaryMetricsLegoBlock for clickable portfolio overview
  */
 export default function DashboardView() {
+  const { dashboardUseCases } = useUseCases();
 
   return (
     <div className="space-y-6">
@@ -33,17 +36,34 @@ export default function DashboardView() {
       </div>
       
       {/* Dashboard Tabs */}
-      <Tabs defaultValue="matrix" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs defaultValue="portfolio" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="portfolio" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Active Portfolio
+          </TabsTrigger>
           <TabsTrigger value="matrix" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
-            RSA AI Value Matrix
+            Value Matrix
           </TabsTrigger>
           <TabsTrigger value="reports" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Analytics & Reports
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="portfolio">
+          <ImprovedUseCaseExplorer
+            useCases={dashboardUseCases}
+            title="Enterprise Platform - Active Portfolio"
+            description="Active use cases currently deployed or in development for RSA's strategic AI initiatives"
+            showQuadrantFilters={true}
+            showRSASelection={false}
+            showCreateButton={true}
+            context="dashboard"
+            emptyStateMessage="No active use cases in your portfolio. Add use cases from the Reference Library to start building your AI strategy."
+          />
+        </TabsContent>
 
         <TabsContent value="matrix">
           <MatrixPlot />
