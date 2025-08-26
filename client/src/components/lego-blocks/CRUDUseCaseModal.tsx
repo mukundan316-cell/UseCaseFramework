@@ -610,7 +610,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={(e) => {
+            console.log('Form submission started');
+            console.log('Form errors:', form.formState.errors);
+            console.log('Form is valid:', form.formState.isValid);
+            console.log('Form values:', form.getValues());
+            form.handleSubmit(onSubmit)(e);
+          }} className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="basic" className="flex items-center gap-2">
