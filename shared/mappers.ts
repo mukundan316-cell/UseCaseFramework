@@ -101,7 +101,9 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     // Add process as valueChainComponent alias for backward compatibility
     valueChainComponent: dbUseCase.process,
     // Ensure arrays exist for backward compatibility
-    linesOfBusiness: dbUseCase.linesOfBusiness || [dbUseCase.lineOfBusiness].filter(Boolean)
+    linesOfBusiness: dbUseCase.linesOfBusiness || [dbUseCase.lineOfBusiness].filter(Boolean),
+    // Convert null to undefined for proper frontend handling
+    problemStatement: dbUseCase.problemStatement || undefined
   };
 }
 
