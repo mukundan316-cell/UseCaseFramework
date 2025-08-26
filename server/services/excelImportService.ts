@@ -464,7 +464,7 @@ export class ExcelImportService {
   /**
    * Normalize library source values to match schema enum
    */
-  private static normalizeLibrarySource(value: any): 'rsa_internal' | 'hexaware_external' | 'industry_standard' | 'imported' | 'ai_inventory' {
+  private static normalizeLibrarySource(value: any): 'rsa_internal' | 'industry_standard' | 'ai_inventory' {
     if (!value) return 'rsa_internal';
     
     const normalized = String(value).toLowerCase().replace(/\s+/g, '_');
@@ -475,22 +475,16 @@ export class ExcelImportService {
       case 'rsa':
       case 'internal':
         return 'rsa_internal';
-      case 'hexaware_external':
-      case 'hexaware':
-      case 'external':
-        return 'hexaware_external';
       case 'industry_standard':
       case 'industry':
       case 'standard':
         return 'industry_standard';
-      case 'imported':
-        return 'imported';
       case 'ai_inventory':
       case 'ai':
       case 'inventory':
         return 'ai_inventory';
       default:
-        return 'imported'; // Default fallback for unknown values
+        return 'rsa_internal'; // Default fallback for unknown values
     }
   }
 

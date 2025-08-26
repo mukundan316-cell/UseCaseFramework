@@ -198,8 +198,6 @@ export default function UseCaseDetailDrawer({
                     <FolderOpen className="w-3 h-3 mr-1" />
                   ) : useCase.librarySource === 'rsa_internal' ? (
                     <Building2 className="w-3 h-3 mr-1" />
-                  ) : useCase.librarySource === 'hexaware_external' ? (
-                    <ExternalLink className="w-3 h-3 mr-1" />
                   ) : (
                     <Users className="w-3 h-3 mr-1" />
                   )}

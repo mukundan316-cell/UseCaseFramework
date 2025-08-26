@@ -26,7 +26,7 @@ export default function CleanUseCaseCard({
 }: CleanUseCaseCardProps) {
   
   // Get quadrant-based styling for RSA cases with scores
-  const hasScores = showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined && useCase.isActiveForRsa === true;
+  const hasScores = showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined && useCase.isActiveForRsa === 'true';
   
   // Get effective scores (manual overrides take precedence)
   const effectiveImpact = hasScores ? getEffectiveImpactScore(useCase as any) : undefined;
@@ -128,8 +128,6 @@ export default function CleanUseCaseCard({
                   <FolderOpen className="w-3 h-3 mr-1" />
                 ) : (useCase.librarySource || 'rsa_internal') === 'rsa_internal' ? (
                   <Building2 className="w-3 h-3 mr-1" />
-                ) : (useCase.librarySource || 'rsa_internal') === 'hexaware_external' ? (
-                  <ExternalLink className="w-3 h-3 mr-1" />
                 ) : (
                   <Users className="w-3 h-3 mr-1" />
                 )}

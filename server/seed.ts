@@ -210,7 +210,7 @@ async function seedMetadataConfig() {
       businessSegments: ["Mid-Market", "Large Commercial", "SME", "E&S"],
       geographies: ["UK", "Europe", "Global", "North America"],
       useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"],
-      sourceTypes: ["rsa_internal", "hexaware_external", "industry_standard", "imported", "consolidated_database"]
+      sourceTypes: ["rsa_internal", "industry_standard", "ai_inventory"]
     });
     
     console.log("Seeded metadata configuration successfully");

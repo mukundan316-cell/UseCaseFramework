@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, ExternalLink, Users, Download, Database } from 'lucide-react';
+import { Building2, ExternalLink, Users, Download, Database, FolderOpen } from 'lucide-react';
 import { getSourceConfig } from '../../utils/sourceColors';
 import { useUseCases } from '../../contexts/UseCaseContext';
 
@@ -15,7 +15,7 @@ export default function SourceLegend({ className = '', showTitle = true }: Sourc
   const iconMapping: Record<string, any> = {
     'rsa_internal': Building2,
     'industry_standard': Users,
-    'ai_inventory': Users
+    'ai_inventory': FolderOpen
   };
 
   // Generate dynamic source types from metadata
