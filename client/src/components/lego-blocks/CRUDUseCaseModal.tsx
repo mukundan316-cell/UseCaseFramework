@@ -74,19 +74,19 @@ const formSchema = z.object({
   modelRisk: z.number().optional(),
   adoptionReadiness: z.number().optional(),
   // RSA Ethical Principles (all optional) - moved to Tab 3
-  explainabilityRequired: z.enum(['yes', 'no']).optional(),
-  customerHarmRisk: z.enum(['none', 'low', 'medium', 'high']).optional(),
-  dataOutsideUkEu: z.enum(['yes', 'no']).optional(),
-  thirdPartyModel: z.enum(['yes', 'no']).optional(),
-  humanAccountability: z.enum(['yes', 'no']).optional(),
+  explainabilityRequired: z.union([z.boolean(), z.string(), z.null()]).optional(),
+  customerHarmRisk: z.string().optional(),
+  dataOutsideUkEu: z.union([z.boolean(), z.string(), z.null()]).optional(),
+  thirdPartyModel: z.union([z.boolean(), z.string(), z.null()]).optional(),
+  humanAccountability: z.union([z.boolean(), z.string(), z.null()]).optional(),
   // AI Inventory Governance Fields (all optional)
-  aiOrModel: z.enum(['AI', 'Model']).optional(),
+  aiOrModel: z.string().optional(),
   riskToCustomers: z.string().optional(),
   riskToRsa: z.string().optional(),
   dataUsed: z.string().optional(),
   modelOwner: z.string().optional(),
   rsaPolicyGovernance: z.string().optional(),
-  validationResponsibility: z.enum(['Internal', 'Third Party']).optional(),
+  validationResponsibility: z.string().optional(),
   informedBy: z.string().optional(),
   // Manual Score Override fields (completely optional, no validation when empty)
   manualImpactScore: z.union([z.number(), z.string(), z.null()]).optional(),
@@ -98,7 +98,7 @@ const formSchema = z.object({
   aiInventoryStatus: z.string().optional(),
   deploymentStatus: z.string().optional(),
   deactivationReason: z.string().optional(),
-  regulatoryCompliance: z.number().min(1).max(5).optional(),
+  regulatoryCompliance: z.number().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -534,19 +534,32 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           adoptionReadiness: formValues.adoptionReadiness
         });
         
-        // Handle manual override fields - convert empty strings to null
-        if (data.manualImpactScore !== undefined) {
-          changedData.manualImpactScore = (data.manualImpactScore === '' || data.manualImpactScore === null) ? null : Number(data.manualImpactScore);
-        }
-        if (data.manualEffortScore !== undefined) {
-          changedData.manualEffortScore = (data.manualEffortScore === '' || data.manualEffortScore === null) ? null : Number(data.manualEffortScore);
-        }
-        if (data.manualQuadrant !== undefined) {
-          changedData.manualQuadrant = (data.manualQuadrant === '' || data.manualQuadrant === null) ? null : data.manualQuadrant;
-        }
-        if (data.overrideReason !== undefined) {
-          changedData.overrideReason = (data.overrideReason === '' || data.overrideReason === null) ? null : data.overrideReason;
-        }
+        // Handle data type conversions and null values for robust persistence
+        Object.keys(changedData).forEach(key => {
+          const value = changedData[key];
+          
+          // Convert empty strings to null for nullable database fields
+          if (value === '' || value === 'null' || value === 'undefined') {
+            changedData[key] = null;
+          }
+          
+          // Handle boolean fields stored as text in database
+          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability'].includes(key)) {
+            if (typeof value === 'boolean') {
+              changedData[key] = value.toString();
+            } else if (value === 'true' || value === true) {
+              changedData[key] = 'true';
+            } else if (value === 'false' || value === false) {
+              changedData[key] = 'false';
+            }
+          }
+          
+          // Handle numeric fields that might come as strings
+          if (['manualImpactScore', 'manualEffortScore', 'regulatoryCompliance'].includes(key) && value !== null && value !== undefined) {
+            const numValue = Number(value);
+            changedData[key] = isNaN(numValue) ? null : numValue;
+          }
+        });
         
         // Auto-promote to active tier if marked for dashboard visibility
         if (data.isDashboardVisible === 'true' || data.isActiveForRsa === 'true') {
@@ -572,11 +585,51 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         });
       } else {
         console.log('Calling addUseCase...');
-        const result = await addUseCase(data as any);
+        
+        // Apply same data transformations for create mode
+        const createData: any = { ...data };
+        
+        // Include calculated scores for new use cases
+        createData.impactScore = currentImpactScore;
+        createData.effortScore = currentEffortScore;
+        createData.quadrant = currentQuadrant;
+        
+        // Handle data type conversions for create
+        Object.keys(createData).forEach(key => {
+          const value = createData[key];
+          
+          if (value === '' || value === 'null' || value === 'undefined') {
+            createData[key] = null;
+          }
+          
+          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability'].includes(key)) {
+            if (typeof value === 'boolean') {
+              createData[key] = value.toString();
+            } else if (value === 'true' || value === true) {
+              createData[key] = 'true';
+            } else if (value === 'false' || value === false) {
+              createData[key] = 'false';
+            }
+          }
+          
+          if (['manualImpactScore', 'manualEffortScore', 'regulatoryCompliance'].includes(key) && value !== null && value !== undefined) {
+            const numValue = Number(value);
+            createData[key] = isNaN(numValue) ? null : numValue;
+          }
+        });
+        
+        console.log('Sending data for create:', createData);
+        const result = await addUseCase(createData);
         console.log('Add successful:', result);
+        
+        // Force refresh for create operations too
+        await queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+        await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
+        await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+        
         toast({
           title: "Use case created successfully",
-          description: `"${data.title}" has been added to the database.`,
+          description: `"${data.title}" has been added. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
       }
       console.log('About to call onClose...');
