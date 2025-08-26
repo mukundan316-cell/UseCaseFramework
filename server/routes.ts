@@ -210,20 +210,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Calculate scores with weights
       const impactScore = calculateImpactScore(
-        validatedData.revenueImpact,
-        validatedData.costSavings,
-        validatedData.riskReduction,
-        validatedData.brokerPartnerExperience,
-        validatedData.strategicFit,
+        validatedData.revenueImpact || 0,
+        validatedData.costSavings || 0,
+        validatedData.riskReduction || 0,
+        validatedData.brokerPartnerExperience || 0,
+        validatedData.strategicFit || 0,
         businessValueWeights
       );
       
       const effortScore = calculateEffortScore(
-        validatedData.dataReadiness,
-        validatedData.technicalComplexity,
-        validatedData.changeImpact,
-        validatedData.modelRisk,
-        validatedData.adoptionReadiness,
+        validatedData.dataReadiness || 0,
+        validatedData.technicalComplexity || 0,
+        validatedData.changeImpact || 0,
+        validatedData.modelRisk || 0,
+        validatedData.adoptionReadiness || 0,
         feasibilityWeights
       );
       
@@ -314,19 +314,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         
         const impactScore = calculateImpactScore(
-          completeData.revenueImpact,
-          completeData.costSavings,
-          completeData.riskReduction,
-          completeData.brokerPartnerExperience,
-          completeData.strategicFit
+          completeData.revenueImpact || 0,
+          completeData.costSavings || 0,
+          completeData.riskReduction || 0,
+          completeData.brokerPartnerExperience || 0,
+          completeData.strategicFit || 0
         );
         
         const effortScore = calculateEffortScore(
-          completeData.dataReadiness,
-          completeData.technicalComplexity,
-          completeData.changeImpact,
-          currentUseCase.modelRisk, // Include modelRisk for effort calculation
-          completeData.adoptionReadiness
+          completeData.dataReadiness || 0,
+          completeData.technicalComplexity || 0,
+          completeData.changeImpact || 0,
+          currentUseCase.modelRisk || 0, // Include modelRisk for effort calculation
+          completeData.adoptionReadiness || 0
         );
         
         const quadrant = calculateQuadrant(impactScore, effortScore);
@@ -354,7 +354,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as any;
       }
       
-      const updatedUseCase = await storage.updateUseCase(id, updatesWithScores);
+      // Clean up null values that should be undefined for database compatibility
+      const cleanUpdates = Object.fromEntries(
+        Object.entries(updatesWithScores).map(([key, value]) => [
+          key, 
+          value === null ? undefined : value
+        ])
+      );
+      
+      const updatedUseCase = await storage.updateUseCase(id, cleanUpdates);
       if (!updatedUseCase) {
         return res.status(404).json({ error: "Use case not found" });
       }
