@@ -505,7 +505,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         console.log('Original data:', originalData);
         console.log('New data:', data);
         
-        const changedData: any = { ...data };
+        // Include real-time calculated scores in the submission
+        // These are calculated on the frontend and need to be sent to the server
+        const changedData: any = { 
+          ...data,
+          // Include current calculated scores (these will trigger recalculation on server)
+          impactScore: currentImpactScore,
+          effortScore: currentEffortScore,
+          quadrant: currentQuadrant
+        };
         
         // Handle manual override fields - convert empty strings to null
         if (data.manualImpactScore !== undefined) {
