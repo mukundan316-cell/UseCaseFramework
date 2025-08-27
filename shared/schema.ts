@@ -159,11 +159,11 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory']).default('rsa_internal'),
   activationReason: z.union([z.string(), z.null()]).optional(),
   deactivationReason: z.union([z.string(), z.null()]).optional(),
-  // Manual override fields - simplified per replit.md
-  manualImpactScore: z.number().min(1).max(5).optional(),
-  manualEffortScore: z.number().min(1).max(5).optional(),
-  manualQuadrant: z.string().optional(),
-  overrideReason: z.string().optional(),
+  // Manual override fields - simplified per replit.md, allow null for clearing
+  manualImpactScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  manualEffortScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  manualQuadrant: z.union([z.string(), z.null()]).optional(),
+  overrideReason: z.union([z.string(), z.null()]).optional(),
   // Tab 3: Implementation & Governance fields - allow null for import compatibility
   primaryBusinessOwner: z.union([z.string(), z.null()]).optional(),
   useCaseStatus: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata

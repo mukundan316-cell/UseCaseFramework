@@ -377,12 +377,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as any;
       }
       
-      // Clean up null values that should be undefined for database compatibility
+      // Handle null values properly - allow nulls for manual override fields to clear them
+      const allowNullFields = ['manualImpactScore', 'manualEffortScore', 'manualQuadrant', 'overrideReason'];
       const cleanUpdates = Object.fromEntries(
-        Object.entries(updatesWithScores).map(([key, value]) => [
-          key, 
-          value === null ? undefined : value
-        ])
+        Object.entries(updatesWithScores).map(([key, value]) => {
+          // Allow null values for manual override fields to clear database values
+          if (allowNullFields.includes(key)) {
+            return [key, value]; // Keep null as-is for these fields
+          }
+          // Convert null to undefined for other fields
+          return [key, value === null ? undefined : value];
+        })
       );
       
       const updatedUseCase = await storage.updateUseCase(id, cleanUpdates);
@@ -400,6 +405,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/use-cases/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      
+      // Get use case first to access presentation files
+      const useCase = await storage.getAllUseCases().then(cases => 
+        cases.find(c => c.id === id)
+      );
+      
+      if (!useCase) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      
+      // Delete presentation files if they exist
+      if (useCase.presentationUrl || useCase.presentationPdfUrl) {
+        try {
+          const { presentationService } = await import('./services/presentationService');
+          await presentationService.deletePresentationFiles(
+            useCase.presentationUrl || undefined,
+            useCase.presentationPdfUrl || undefined
+          );
+          console.log(`🗑️ Cleaned up presentation files for use case: ${useCase.title}`);
+        } catch (fileDeleteError) {
+          console.error('Warning: Failed to delete presentation files:', fileDeleteError);
+          // Continue with use case deletion even if file cleanup fails
+        }
+      }
+      
       const deleted = await storage.deleteUseCase(id);
       if (!deleted) {
         return res.status(404).json({ error: "Use case not found" });

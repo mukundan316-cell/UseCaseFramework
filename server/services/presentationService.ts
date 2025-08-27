@@ -225,6 +225,40 @@ export class PresentationService {
   }
 
   /**
+   * Delete presentation files from object storage
+   */
+  async deletePresentationFiles(presentationUrl?: string, presentationPdfUrl?: string): Promise<void> {
+    const filesToDelete: string[] = [];
+    
+    if (presentationUrl) {
+      filesToDelete.push(presentationUrl);
+    }
+    
+    if (presentationPdfUrl && presentationPdfUrl !== presentationUrl) {
+      filesToDelete.push(presentationPdfUrl);
+    }
+    
+    for (const fileUrl of filesToDelete) {
+      try {
+        // Extract the file path from the URL
+        const urlParts = fileUrl.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        const filePath = `presentations/${fileName}`;
+        
+        console.log(`🗑️ Deleting presentation file: ${filePath}`);
+        
+        const file = bucket.file(filePath);
+        await file.delete();
+        
+        console.log(`✅ Successfully deleted: ${filePath}`);
+      } catch (error) {
+        console.error(`❌ Failed to delete presentation file ${fileUrl}:`, error);
+        // Don't throw - continue with other deletions
+      }
+    }
+  }
+
+  /**
    * Validate presentation file
    */
   validatePresentationFile(file: Express.Multer.File): void {
