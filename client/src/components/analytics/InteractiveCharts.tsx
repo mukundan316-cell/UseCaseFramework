@@ -201,7 +201,7 @@ export const InteractiveCharts: React.FC<InteractiveChartsProps> = ({
                     
                     <Scatter dataKey="y" fill="#3B82F6">
                       {portfolioMatrix.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} r={entry.z / 3} />
+                        <Cell key={`cell-${index}`} fill={entry.color} r={Math.max(15, Math.min(35, entry.z / 1.5))} />
                       ))}
                     </Scatter>
                   </ScatterChart>

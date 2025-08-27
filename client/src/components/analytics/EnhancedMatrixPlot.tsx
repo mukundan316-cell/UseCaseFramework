@@ -323,7 +323,7 @@ export default function EnhancedMatrixPlot() {
                         <Cell 
                           key={`cell-${index}`} 
                           fill={`url(#bubble-gradient-${chartData.findIndex(d => d.name === entry.name)})`}
-                          r={Math.max(8, Math.min(20, entry.size / 3))}
+                          r={Math.max(15, Math.min(35, entry.size / 1.5))}
                           stroke="white"
                           strokeWidth={2}
                         />
