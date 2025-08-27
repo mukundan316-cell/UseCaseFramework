@@ -142,38 +142,38 @@ export default function EnhancedMatrixPlot() {
     recommendation: string;
   }) => (
     <Card 
-      className={`cursor-pointer transition-all duration-300 ${
+      className={`cursor-pointer transition-all duration-300 border-0 shadow-sm ${
         selectedQuadrant === name 
           ? 'ring-2 ring-blue-500 bg-blue-50 shadow-lg' 
-          : 'hover:shadow-md hover:scale-105'
+          : 'hover:shadow-md hover:scale-[1.02]'
       }`}
       onClick={() => setSelectedQuadrant(selectedQuadrant === name ? null : name)}
     >
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
             <div 
-              className="w-4 h-4 rounded-full shadow-lg"
+              className="w-5 h-5 rounded-full shadow-md"
               style={{ backgroundColor: color }}
             />
-            <h4 className="font-semibold text-gray-900">{name}</h4>
+            <h4 className="font-semibold text-gray-900 text-base">{name}</h4>
           </div>
-          <div className="text-2xl font-bold" style={{ color }}>
+          <div className="text-3xl font-bold" style={{ color }}>
             {count}
           </div>
         </div>
-        <p className="text-sm text-gray-600 mb-2">{description}</p>
-        <div className="text-xs text-gray-500 italic">
+        <p className="text-sm text-gray-600 mb-3 leading-relaxed">{description}</p>
+        <div className="text-xs text-gray-500 italic mb-3">
           {recommendation}
         </div>
-        <div className="mt-2">
-          <div className="flex justify-between text-xs text-gray-500 mb-1">
-            <span>Portfolio %</span>
-            <span>{((count / totalUseCases) * 100).toFixed(0)}%</span>
+        <div className="mt-3">
+          <div className="flex justify-between text-xs text-gray-500 mb-2">
+            <span className="font-medium">Portfolio %</span>
+            <span className="font-bold">{((count / totalUseCases) * 100).toFixed(0)}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
-              className="h-1.5 rounded-full transition-all duration-300"
+              className="h-2 rounded-full transition-all duration-500"
               style={{ 
                 width: `${(count / totalUseCases) * 100}%`,
                 backgroundColor: color 
@@ -276,15 +276,15 @@ export default function EnhancedMatrixPlot() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <CardContent className="p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Matrix Chart */}
-            <div className="lg:col-span-3">
-              <div className="relative bg-white rounded-lg border border-gray-200 p-4">
-                <ResponsiveContainer width="100%" height={520}>
+            <div className="lg:col-span-2">
+              <div className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <ResponsiveContainer width="100%" height={560}>
                   <ScatterChart 
                     data={filteredData}
-                    margin={{ top: 40, right: 60, bottom: 60, left: 60 }}
+                    margin={{ top: 50, right: 70, bottom: 70, left: 80 }}
                   >
                     <defs>
                       {chartData.map((entry, index) => (
@@ -324,20 +324,20 @@ export default function EnhancedMatrixPlot() {
                       name="Implementation Effort"
                       tickCount={5}
                       tick={{ 
-                        fontSize: 11, 
+                        fontSize: 12, 
                         fill: '#6B7280', 
                         fontWeight: 500,
-                        dy: 8
+                        dy: 10
                       }}
-                      axisLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
+                      axisLine={{ stroke: '#D1D5DB', strokeWidth: 1.5 }}
                       tickLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
                       label={{ 
                         value: 'Implementation Effort', 
                         position: 'insideBottom', 
-                        offset: -15,
+                        offset: -20,
                         style: { 
                           textAnchor: 'middle',
-                          fontSize: '13px', 
+                          fontSize: '14px', 
                           fontWeight: '600', 
                           fill: '#374151' 
                         } 
@@ -350,21 +350,21 @@ export default function EnhancedMatrixPlot() {
                       name="Business Impact"
                       tickCount={5}
                       tick={{ 
-                        fontSize: 11, 
+                        fontSize: 12, 
                         fill: '#6B7280', 
                         fontWeight: 500,
-                        dx: -8
+                        dx: -10
                       }}
-                      axisLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
+                      axisLine={{ stroke: '#D1D5DB', strokeWidth: 1.5 }}
                       tickLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
                       label={{ 
                         value: 'Business Impact', 
                         angle: -90, 
                         position: 'insideLeft',
-                        offset: 10,
+                        offset: 15,
                         style: { 
                           textAnchor: 'middle',
-                          fontSize: '13px', 
+                          fontSize: '14px', 
                           fontWeight: '600', 
                           fill: '#374151' 
                         } 
@@ -397,24 +397,27 @@ export default function EnhancedMatrixPlot() {
                 </ResponsiveContainer>
                 
                 {/* Modernized Quadrant Labels with Better Positioning */}
-                <div className="absolute top-8 left-16 bg-emerald-500 text-white px-4 py-2 rounded-md font-semibold text-xs tracking-wide shadow-md uppercase">
+                <div className="absolute top-12 left-20 bg-emerald-500 text-white px-4 py-2.5 rounded-lg font-semibold text-sm tracking-wide shadow-lg uppercase">
                   Quick Win
                 </div>
-                <div className="absolute top-8 right-16 bg-blue-500 text-white px-4 py-2 rounded-md font-semibold text-xs tracking-wide shadow-md uppercase">
+                <div className="absolute top-12 right-20 bg-blue-500 text-white px-4 py-2.5 rounded-lg font-semibold text-sm tracking-wide shadow-lg uppercase">
                   Strategic Bet
                 </div>
-                <div className="absolute bottom-20 left-16 bg-amber-500 text-white px-4 py-2 rounded-md font-semibold text-xs tracking-wide shadow-md uppercase">
+                <div className="absolute bottom-24 left-20 bg-amber-500 text-white px-4 py-2.5 rounded-lg font-semibold text-sm tracking-wide shadow-lg uppercase">
                   Experimental
                 </div>
-                <div className="absolute bottom-20 right-16 bg-red-500 text-white px-4 py-2 rounded-md font-semibold text-xs tracking-wide shadow-md uppercase">
+                <div className="absolute bottom-24 right-20 bg-red-500 text-white px-4 py-2.5 rounded-lg font-semibold text-sm tracking-wide shadow-lg uppercase">
                   Watchlist
                 </div>
               </div>
             </div>
 
             {/* Quadrant Filter & Insights Panel */}
-            <div className="space-y-4">
-              <h4 className="font-bold text-gray-900 text-lg">Strategic Quadrants</h4>
+            <div className="space-y-5">
+              <div className="border-b border-gray-200 pb-4">
+                <h4 className="font-bold text-gray-900 text-xl">Strategic Quadrants</h4>
+                <p className="text-sm text-gray-600 mt-1">Portfolio distribution and insights</p>
+              </div>
               
               <QuadrantCard
                 name="Quick Win"
@@ -449,26 +452,29 @@ export default function EnhancedMatrixPlot() {
               />
               
               {/* Executive Action Items */}
-              <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-200">
-                <CardContent className="p-4">
-                  <h5 className="font-bold text-indigo-900 mb-3 flex items-center">
-                    <DollarSign className="w-4 h-4 mr-2" />
+              <Card className="bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200 border-0 shadow-sm">
+                <CardContent className="p-5">
+                  <h5 className="font-bold text-indigo-900 mb-4 flex items-center text-base">
+                    <DollarSign className="w-5 h-5 mr-2" />
                     Executive Actions
                   </h5>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-3 text-sm">
                     {quadrantStats['Quick Win'] > 0 && (
-                      <div className="text-emerald-700">
-                        • Execute {quadrantStats['Quick Win']} Quick Wins immediately
+                      <div className="flex items-center text-emerald-700 font-medium">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full mr-3"></div>
+                        Execute {quadrantStats['Quick Win']} Quick Wins immediately
                       </div>
                     )}
                     {quadrantStats['Strategic Bet'] > 0 && (
-                      <div className="text-blue-700">
-                        • Secure funding for {quadrantStats['Strategic Bet']} strategic bets
+                      <div className="flex items-center text-blue-700 font-medium">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                        Secure funding for {quadrantStats['Strategic Bet']} strategic bets
                       </div>
                     )}
                     {quadrantStats['Watchlist'] > 0 && (
-                      <div className="text-red-700">
-                        • Review {quadrantStats['Watchlist']} underperforming initiatives
+                      <div className="flex items-center text-red-700 font-medium">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>
+                        Review {quadrantStats['Watchlist']} underperforming initiatives
                       </div>
                     )}
                   </div>
