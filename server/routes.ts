@@ -808,8 +808,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-  
   // Register export routes
   app.use('/api/export', exportRoutes);
   app.use('/api/import', importRoutes);
@@ -819,6 +817,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register presentation routes
   app.use('/api/presentations', presentationRoutes);
+
+  // Presentation file proxy endpoint - serves files through authenticated GCS client  
+  app.get('/api/presentations/proxy/:encodedUrl(*)', async (req, res) => {
+    try {
+      const { encodedUrl } = req.params;
+      const url = decodeURIComponent(encodedUrl);
+      
+      console.log(`📄 Proxying file: ${url}`);
+      
+      // Parse the Google Cloud Storage URL to extract bucket and object path
+      if (!url.startsWith('https://storage.googleapis.com/')) {
+        return res.status(400).json({ error: 'Invalid file URL - must be a Google Cloud Storage URL' });
+      }
+      
+      const urlParts = url.replace('https://storage.googleapis.com/', '').split('/');
+      if (urlParts.length < 2) {
+        return res.status(400).json({ error: 'Invalid file URL format' });
+      }
+      
+      const bucketName = urlParts[0];
+      const objectPath = urlParts.slice(1).join('/');
+      
+      console.log(`📄 Accessing bucket: ${bucketName}, object: ${objectPath}`);
+      
+      // Use the same authenticated Storage configuration
+      
+      // Use the same Storage client configuration from presentation service
+      const { Storage } = await import('@google-cloud/storage');
+      const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+      
+      const storage = new Storage({
+        credentials: {
+          audience: "replit",
+          subject_token_type: "access_token",
+          token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
+          type: "external_account",
+          credential_source: {
+            url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
+            format: {
+              type: "json",
+              subject_token_field_name: "access_token",
+            },
+          },
+          universe_domain: "googleapis.com",
+        },
+        projectId: "",
+      });
+      
+      const bucket = storage.bucket(bucketName);
+      const file = bucket.file(objectPath);
+      
+      // Check if file exists
+      const [exists] = await file.exists();
+      if (!exists) {
+        console.error(`File not found: ${bucketName}/${objectPath}`);
+        return res.status(404).json({ error: 'File not found' });
+      }
+      
+      // Get file metadata for proper headers
+      const [metadata] = await file.getMetadata();
+      
+      console.log(`📄 Serving file: ${metadata.contentType}, size: ${metadata.size}`);
+      
+      // Set appropriate headers for file streaming
+      res.set({
+        'Content-Type': metadata.contentType || 'application/octet-stream',
+        'Content-Length': metadata.size || '',
+        'Cache-Control': 'public, max-age=3600',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
+        'Content-Disposition': 'inline'
+      });
+      
+      // Create read stream and pipe to response
+      const stream = file.createReadStream();
+      
+      stream.on('error', (streamError: Error) => {
+        console.error('Stream error:', streamError);
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Failed to stream file' });
+        }
+      });
+      
+      stream.pipe(res);
+      
+    } catch (error) {
+      console.error('Error proxying file:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to serve file', details: error instanceof Error ? error.message : 'Unknown error' });
+      }
+    }
+  });
 
   // Add saved progress endpoints
   app.get('/api/saved-progress', async (req, res) => {
@@ -842,5 +932,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  const httpServer = createServer(app);
   return httpServer;
 }

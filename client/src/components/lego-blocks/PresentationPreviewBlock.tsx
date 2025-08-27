@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Eye, Calendar, ExternalLink } from "lucide-react";
+import { FileText, Download, Eye, Calendar, ExternalLink, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface PresentationPreviewBlockProps {
@@ -25,6 +25,7 @@ export default function PresentationPreviewBlock({
   className = ""
 }: PresentationPreviewBlockProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [proxyUrl, setProxyUrl] = useState<string | null>(null);
 
   // Don't render if no presentation exists
   if (hasPresentation !== 'true' || !presentationFileName) {
@@ -48,9 +49,26 @@ export default function PresentationPreviewBlock({
     }
   };
 
-  const handlePreview = () => {
-    setIsPreviewOpen(true);
+  const getProxyUrl = (url: string): string => {
+    const encodedUrl = encodeURIComponent(url);
+    return `/api/presentations/proxy/${encodedUrl}`;
   };
+
+  const handlePreview = () => {
+    if (!presentationPdfUrl) return;
+    
+    setIsPreviewOpen(true);
+    // Set the proxy URL directly
+    const url = getProxyUrl(presentationPdfUrl);
+    setProxyUrl(url);
+  };
+
+  // Reset proxy URL when dialog closes
+  useEffect(() => {
+    if (!isPreviewOpen) {
+      setProxyUrl(null);
+    }
+  }, [isPreviewOpen]);
 
   return (
     <>
@@ -134,13 +152,20 @@ export default function PresentationPreviewBlock({
           </DialogHeader>
           
           <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden">
-            {presentationPdfUrl ? (
+            {proxyUrl ? (
               <iframe
-                src={`/api/proxy/presentation/${encodeURIComponent(presentationPdfUrl)}#toolbar=1&navpanes=1&scrollbar=1`}
+                src={`${proxyUrl}#toolbar=1&navpanes=1&scrollbar=1`}
                 className="w-full h-full border-0"
                 title="Presentation Preview"
                 data-testid="presentation-pdf-viewer"
               />
+            ) : presentationPdfUrl ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">Click "Preview" to load the PDF</p>
+                </div>
+              </div>
             ) : (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
