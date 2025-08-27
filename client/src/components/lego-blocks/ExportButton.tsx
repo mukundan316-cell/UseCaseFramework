@@ -37,7 +37,7 @@ export default function ExportButton({
   const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
 
-  const getExportUrl = (format: 'pdf' | 'excel' = 'pdf'): string => {
+  const getExportUrl = (format: 'pdf' | 'excel' = 'pdf', pdfFormat?: 'tabular' | 'compact' | 'enhanced'): string => {
     const baseUrl = format === 'excel' ? '/api/export/excel' : '/api/export';
     
     switch (exportType) {
@@ -49,14 +49,19 @@ export default function ExportButton({
         const params = new URLSearchParams();
         if (filters?.category) params.append('category', filters.category);
         if (filters?.status) params.append('status', filters.status);
+        if (format === 'pdf' && pdfFormat) params.append('format', pdfFormat);
         return `${baseUrl}/library${params.toString() ? `?${params.toString()}` : ''}`;
       
       case 'portfolio':
-        return `${baseUrl}/portfolio`;
+        const portfolioParams = new URLSearchParams();
+        if (format === 'pdf' && pdfFormat) portfolioParams.append('format', pdfFormat);
+        return `${baseUrl}/portfolio${portfolioParams.toString() ? `?${portfolioParams.toString()}` : ''}`;
       
       case 'use-case':
         if (!exportId) throw new Error('Use case export requires use case id');
-        return `${baseUrl}/use-case/${exportId}`;
+        const useCaseParams = new URLSearchParams();
+        if (format === 'pdf' && pdfFormat) useCaseParams.append('format', pdfFormat);
+        return `${baseUrl}/use-case/${exportId}${useCaseParams.toString() ? `?${useCaseParams.toString()}` : ''}`;
       
       default:
         throw new Error(`Unsupported export type: ${exportType}`);
@@ -93,11 +98,11 @@ export default function ExportButton({
     }
   };
 
-  const handleExport = async (format: 'pdf' | 'excel' = 'pdf') => {
+  const handleExport = async (format: 'pdf' | 'excel' = 'pdf', pdfFormat?: 'tabular' | 'compact' | 'enhanced') => {
     try {
       setIsExporting(true);
       
-      const exportUrl = getExportUrl(format);
+      const exportUrl = getExportUrl(format, pdfFormat);
       
       // Create download link
       const link = document.createElement('a');
@@ -109,9 +114,10 @@ export default function ExportButton({
       link.click();
       document.body.removeChild(link);
       
+      const formatName = format === 'pdf' && pdfFormat ? `${pdfFormat} PDF` : format.toUpperCase();
       toast({
         title: "Export Started",
-        description: `Your ${format.toUpperCase()} report is being generated. Download will begin shortly.`,
+        description: `Your ${formatName} report is being generated. Download will begin shortly.`,
       });
       
     } catch (error) {
@@ -166,15 +172,35 @@ export default function ExportButton({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuItem 
-            onClick={() => handleExport('pdf')}
+            onClick={() => handleExport('pdf', 'tabular')}
             className="flex items-center gap-2"
           >
             <FileText className="h-4 w-4" />
             <div className="flex flex-col">
-              <span className="font-medium">Export PDF</span>
-              <span className="text-xs text-gray-500">Professional report</span>
+              <span className="font-medium">Export Tabular PDF</span>
+              <span className="text-xs text-gray-500">Comprehensive table view</span>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => handleExport('pdf', 'compact')}
+            className="flex items-center gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            <div className="flex flex-col">
+              <span className="font-medium">Export Compact PDF</span>
+              <span className="text-xs text-gray-500">Efficient overview</span>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => handleExport('pdf', 'enhanced')}
+            className="flex items-center gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            <div className="flex flex-col">
+              <span className="font-medium">Export Detailed PDF</span>
+              <span className="text-xs text-gray-500">Complete analysis</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem 

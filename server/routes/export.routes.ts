@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { UseCasePdfService } from '../services/useCasePdfService';
 import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
 import { CompactPdfService } from '../services/compactPdfService';
+import { TabularPdfService } from '../services/tabularPdfService';
 import { ExcelExportService } from '../services/excelExportService';
 import { questionnaireServiceInstance } from '../services/questionnaireService';
 // PDF services removed - using client-side Survey.js PDF export instead
@@ -25,14 +26,19 @@ router.get('/assessment/:responseId', async (req, res) => {
 });
 
 /**
- * Export use case library as PDF (Compact & Enhanced Versions)
- * GET /api/export/library?category=all&status=active&format=compact
+ * Export use case library as PDF (Tabular, Compact & Enhanced Versions)
+ * GET /api/export/library?category=all&status=active&format=tabular
  */
 router.get('/library', async (req, res) => {
   try {
     const { category = 'all', status = 'all', format = 'compact' } = req.query;
     
-    if (format === 'compact') {
+    if (format === 'tabular') {
+      await TabularPdfService.generateTabularLibraryPdf(res, {
+        category: category as string,
+        status: status as string,
+      });
+    } else if (format === 'compact') {
       await CompactPdfService.generateCompactLibraryPdf(res, {
         category: category as string,
         status: status as string,
