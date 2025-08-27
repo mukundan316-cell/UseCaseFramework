@@ -199,8 +199,8 @@ export class UseCaseDataExtractor {
 
     // Portfolio Status
     const portfolioStatus = {
-      isActiveForRsa: useCase.isActiveForRsa,
-      isDashboardVisible: useCase.isDashboardVisible,
+      isActiveForRsa: useCase.isActiveForRsa === 'true',
+      isDashboardVisible: useCase.isDashboardVisible === 'true',
       libraryTier: useCase.libraryTier || 'reference',
       librarySource: useCase.librarySource || 'rsa_internal',
       activationReason: useCase.activationReason || null,

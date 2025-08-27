@@ -8,30 +8,25 @@ import { sql } from 'drizzle-orm';
  */
 export async function migrateToEnhancedFramework() {
   console.log('🔄 Starting enhanced framework migration...');
-
+  
   try {
-    // First, ensure all required columns exist in the use_cases table
-    await db.execute(sql`
-      ALTER TABLE use_cases 
-      ADD COLUMN IF NOT EXISTS value_chain_component TEXT,
-      ADD COLUMN IF NOT EXISTS broker_partner_experience INTEGER DEFAULT 3,
-      ADD COLUMN IF NOT EXISTS model_risk INTEGER DEFAULT 3,
-      ADD COLUMN IF NOT EXISTS explainability_required TEXT,
-      ADD COLUMN IF NOT EXISTS customer_harm_risk TEXT,
-      ADD COLUMN IF NOT EXISTS data_outside_uk_eu TEXT,
-      ADD COLUMN IF NOT EXISTS third_party_model TEXT,
-      ADD COLUMN IF NOT EXISTS human_accountability TEXT;
-    `);
-
     // Check if migration already completed - prevent re-running quadrant calculation
     const testUseCase = await db.select().from(useCases).limit(1);
     if (testUseCase.length > 0 && testUseCase[0].brokerPartnerExperience !== null) {
       console.log('✅ Enhanced framework migration already completed, skipping...');
       return;
     }
-
+    // Add new columns to use_cases table
+    await db.execute(sql`
+      ALTER TABLE use_cases 
+      ADD COLUMN IF NOT EXISTS broker_partner_experience INTEGER DEFAULT 3,
+      ADD COLUMN IF NOT EXISTS model_risk INTEGER DEFAULT 3,
+      ADD COLUMN IF NOT EXISTS explainability_bias INTEGER DEFAULT 3,
+      ADD COLUMN IF NOT EXISTS regulatory_compliance INTEGER DEFAULT 3;
+    `);
+    
     console.log('✅ Successfully added new framework columns');
-
+    
     // Update existing records with reasonable default values based on process
     await db.execute(sql`
       UPDATE use_cases SET 
@@ -64,12 +59,12 @@ export async function migrateToEnhancedFramework() {
          OR explainability_bias IS NULL 
          OR regulatory_compliance IS NULL;
     `);
-
+    
     console.log('✅ Updated existing records with enhanced framework values');
-
+    
     // Recalculate scores using new comprehensive framework
     const allUseCases = await db.select().from(useCases);
-
+    
     for (const useCase of allUseCases) {
       // New weighted impact score (5 dimensions × 20%)
       const impactScore = (
@@ -79,7 +74,7 @@ export async function migrateToEnhancedFramework() {
         (useCase.brokerPartnerExperience || 3) + 
         useCase.strategicFit
       ) * 0.2;
-
+      
       // New weighted effort score (5 dimensions × 20%)
       const effortScore = (
         useCase.dataReadiness + 
@@ -88,7 +83,7 @@ export async function migrateToEnhancedFramework() {
         (useCase.modelRisk || 3) + 
         useCase.adoptionReadiness
       ) * 0.2;
-
+      
       // Update quadrant based on RSA Framework thresholds (3.0, not 4.0)
       let quadrant: string;
       if (impactScore >= 3.0 && effortScore < 3.0) {
@@ -100,7 +95,7 @@ export async function migrateToEnhancedFramework() {
       } else {
         quadrant = "Watchlist";
       }
-
+      
       await db.execute(sql`
         UPDATE use_cases 
         SET 
@@ -110,10 +105,10 @@ export async function migrateToEnhancedFramework() {
         WHERE id = ${useCase.id}
       `);
     }
-
+    
     console.log('✅ Recalculated all scores using enhanced framework');
     console.log('🎉 Enhanced framework migration completed successfully');
-
+    
   } catch (error) {
     console.error('❌ Migration failed:', error);
     throw error;

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, real, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, real, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -15,7 +15,6 @@ export const useCases = pgTable("use_cases", {
   description: text("description").notNull(),
   problemStatement: text("problem_statement"),
   process: text("process").notNull(),
-  valueChainComponent: text("value_chain_component"), // Added for UI compatibility
   lineOfBusiness: text("line_of_business").notNull(),
   linesOfBusiness: text("lines_of_business").array(),
   businessSegment: text("business_segment").notNull(),
@@ -72,8 +71,8 @@ export const useCases = pgTable("use_cases", {
   overrideReason: text("override_reason"), // Reason for manual override
   
   // Two-tier library system
-  isActiveForRsa: boolean("is_active_for_rsa").notNull().default(false),
-  isDashboardVisible: boolean("is_dashboard_visible").notNull().default(false),
+  isActiveForRsa: text("is_active_for_rsa").notNull().default('false'), // 'true' or 'false'
+  isDashboardVisible: text("is_dashboard_visible").notNull().default('false'), // 'true' or 'false'
   libraryTier: text("library_tier").notNull().default('reference'), // 'active' or 'reference'
   activationDate: timestamp("activation_date").defaultNow(),
   activationReason: text("activation_reason"), // Required when isActiveForRsa = 'true'
@@ -137,8 +136,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
   geographies: z.array(z.string()).optional(),
-  isActiveForRsa: z.boolean().default(false),
-  isDashboardVisible: z.boolean().default(false),
+  isActiveForRsa: z.enum(['true', 'false']).default('false'),
+  isDashboardVisible: z.enum(['true', 'false']).default('false'),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
   librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory']).default('rsa_internal'),
   activationReason: z.union([z.string(), z.null()]).optional(),

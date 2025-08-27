@@ -75,12 +75,10 @@ export class UseCaseStore {
   }
 
   addUseCase(formData: UseCaseFormData): UseCase {
-    // Calculate scores
     const impactScore = calculateImpactScore(
       formData.revenueImpact,
-      formData.costSavings, 
+      formData.costSavings,
       formData.riskReduction,
-      formData.brokerPartnerExperience,
       formData.strategicFit
     );
 
@@ -105,7 +103,7 @@ export class UseCaseStore {
     this.useCases.push(newUseCase);
     this.saveToStorage();
     this.notifyListeners();
-
+    
     return newUseCase;
   }
 
@@ -117,7 +115,6 @@ export class UseCaseStore {
       formData.revenueImpact,
       formData.costSavings,
       formData.riskReduction,
-      formData.brokerPartnerExperience,
       formData.strategicFit
     );
 
@@ -141,7 +138,7 @@ export class UseCaseStore {
     this.useCases[index] = updatedUseCase;
     this.saveToStorage();
     this.notifyListeners();
-
+    
     return updatedUseCase;
   }
 
@@ -152,7 +149,7 @@ export class UseCaseStore {
     this.useCases.splice(index, 1);
     this.saveToStorage();
     this.notifyListeners();
-
+    
     return true;
   }
 

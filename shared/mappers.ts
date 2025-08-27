@@ -95,9 +95,9 @@ export interface UseCaseFrontend {
 export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
   return {
     ...dbUseCase,
-    // Boolean fields are now properly typed
-    isActiveForRsa: dbUseCase.isActiveForRsa,
-    isDashboardVisible: dbUseCase.isDashboardVisible,
+    // Convert string booleans to actual booleans for UI
+    isActiveForRsa: dbUseCase.isActiveForRsa === 'true',
+    isDashboardVisible: dbUseCase.isDashboardVisible === 'true',
     // Add process as valueChainComponent alias for backward compatibility
     valueChainComponent: dbUseCase.process,
     // Ensure arrays exist for backward compatibility
@@ -117,8 +117,8 @@ export function mapUseCaseToDatabase(frontendUseCase: Partial<UseCaseFrontend>):
   const { valueChainComponent, ...rest } = frontendUseCase;
   return {
     ...rest,
-    // Boolean fields are now properly typed
-    isActiveForRsa: frontendUseCase.isActiveForRsa,
-    isDashboardVisible: frontendUseCase.isDashboardVisible
+    // Convert boolean back to string for database storage
+    isActiveForRsa: frontendUseCase.isActiveForRsa ? 'true' : 'false',
+    isDashboardVisible: frontendUseCase.isDashboardVisible ? 'true' : 'false'
   } as Partial<UseCase>;
 }

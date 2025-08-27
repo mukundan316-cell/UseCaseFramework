@@ -151,58 +151,34 @@ export async function seedDatabase() {
     await seedMetadataConfig();
 
     console.log('Seeding database with sample use cases...');
-
+    
     for (const sampleUseCase of sampleUseCases) {
       const impactScore = calculateImpactScore(
         sampleUseCase.revenueImpact,
         sampleUseCase.costSavings,
         sampleUseCase.riskReduction,
-        sampleUseCase.brokerPartnerExperience || 3,
+        sampleUseCase.brokerPartnerExperience,
         sampleUseCase.strategicFit
       );
-
+      
       const effortScore = calculateEffortScore(
         sampleUseCase.dataReadiness,
         sampleUseCase.technicalComplexity,
         sampleUseCase.changeImpact,
-        sampleUseCase.modelRisk || 3,
+        sampleUseCase.modelRisk,
         sampleUseCase.adoptionReadiness
       );
-
+      
       const quadrant = calculateQuadrant(impactScore, effortScore);
-
-      // Map to correct database schema fields
-      const useCaseData = {
-        title: sampleUseCase.title,
-        description: sampleUseCase.description,
-        valueChainComponent: sampleUseCase.valueChainComponent,
-        process: sampleUseCase.process,
-        lineOfBusiness: sampleUseCase.lineOfBusiness,
-        businessSegment: sampleUseCase.businessSegment,
-        geography: sampleUseCase.geography,
-        useCaseType: sampleUseCase.useCaseType,
-        revenueImpact: sampleUseCase.revenueImpact,
-        costSavings: sampleUseCase.costSavings,
-        riskReduction: sampleUseCase.riskReduction,
-        brokerPartnerExperience: sampleUseCase.brokerPartnerExperience || 3,
-        strategicFit: sampleUseCase.strategicFit,
-        dataReadiness: sampleUseCase.dataReadiness,
-        technicalComplexity: sampleUseCase.technicalComplexity,
-        changeImpact: sampleUseCase.changeImpact,
-        modelRisk: sampleUseCase.modelRisk || 3,
-        adoptionReadiness: sampleUseCase.adoptionReadiness,
+      
+      await db.insert(useCases).values({
+        ...sampleUseCase,
         impactScore,
         effortScore,
-        quadrant,
-        isActiveForRsa: false,
-        isDashboardVisible: false,
-        libraryTier: 'reference' as const,
-        librarySource: 'rsa_internal' as const
-      };
-
-      await db.insert(useCases).values(useCaseData);
+        quadrant
+      });
     }
-
+    
     console.log(`Successfully seeded ${sampleUseCases.length} use cases`);
   } catch (error) {
     console.error('Error seeding database:', error);
@@ -236,7 +212,7 @@ async function seedMetadataConfig() {
       useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"],
       sourceTypes: ["rsa_internal", "industry_standard", "ai_inventory"]
     });
-
+    
     console.log("Seeded metadata configuration successfully");
   } catch (error) {
     console.error('Error seeding metadata config:', error);

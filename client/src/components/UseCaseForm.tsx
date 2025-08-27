@@ -40,23 +40,6 @@ const formSchema = z.object({
   // AI Governance Levers
   explainabilityBias: z.number().min(1).max(5),
   regulatoryCompliance: z.number().min(1).max(5),
-  // AI Inventory Governance Fields
-  aiOrModel: z.string().optional(),
-  businessFunction: z.string().optional(),
-  riskToCustomers: z.string().optional(),
-  riskToRsa: z.string().optional(),
-  dataUsed: z.string().optional(),
-  modelOwner: z.string().optional(),
-  rsaPolicyGovernance: z.string().optional(),
-  validationResponsibility: z.string().optional(),
-  informedBy: z.string().optional(),
-  thirdPartyProvidedModel: z.string().optional(),
-  // RSA Ethical Principles
-  explainabilityRequired: z.string().optional(),
-  customerHarmRisk: z.string().optional(),
-  dataOutsideUkEu: z.string().optional(),
-  thirdPartyModel: z.string().optional(),
-  humanAccountability: z.string().optional(),
 });
 
 export default function UseCaseForm() {
@@ -90,22 +73,6 @@ export default function UseCaseForm() {
       geography: '',
       useCaseType: '',
       ...scores,
-      // AI governance fields
-      aiOrModel: '',
-      businessFunction: '',
-      riskToCustomers: '',
-      riskToRsa: '',
-      dataUsed: '',
-      modelOwner: '',
-      rsaPolicyGovernance: '',
-      validationResponsibility: '',
-      informedBy: '',
-      thirdPartyProvidedModel: '',
-      explainabilityRequired: '',
-      customerHarmRisk: '',
-      dataOutsideUkEu: '',
-      thirdPartyModel: '',
-      humanAccountability: '',
     },
   });
   
