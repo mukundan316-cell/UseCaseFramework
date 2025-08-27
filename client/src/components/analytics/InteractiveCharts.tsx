@@ -39,7 +39,7 @@ export const InteractiveCharts: React.FC<InteractiveChartsProps> = ({
   const portfolioMatrix = activeUseCases.map(uc => ({
     x: uc.manualEffortScore || uc.effortScore || 0,
     y: uc.manualImpactScore || uc.impactScore || 0,
-    z: 20 + ((uc.manualImpactScore || uc.impactScore || 0) * 5), // Bubble size
+    z: 60 + ((uc.manualImpactScore || uc.impactScore || 0) * 15), // Bubble size - increased for better visibility
     name: uc.title,
     quadrant: uc.quadrant,
     lob: uc.lineOfBusiness,
@@ -201,7 +201,7 @@ export const InteractiveCharts: React.FC<InteractiveChartsProps> = ({
                     
                     <Scatter dataKey="y" fill="#3B82F6">
                       {portfolioMatrix.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} r={Math.max(15, Math.min(35, entry.z / 1.5))} />
+                        <Cell key={`cell-${index}`} fill={entry.color} r={Math.max(25, Math.min(50, entry.z / 2.5))} />
                       ))}
                     </Scatter>
                   </ScatterChart>
