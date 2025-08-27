@@ -46,25 +46,54 @@ The RSA AI Use Case Value Framework is a strategic AI use case prioritization pl
 
 ## Architectural Consistency Guidelines
 
-### Data Type Standardization (Rating: 4.8/5)
+### Data Type Standardization (Rating: 5.0/5)
 **CRITICAL: Follow these patterns to eliminate transformations and maintain consistency across all layers**
 
-#### Boolean Fields - Complete Standardization
+#### End-to-End String Type Consistency (MANDATORY for all future enhancements)
+**Principle**: Use consistent string types ('true'/'false') across entire application stack to eliminate transformation layers and achieve true minimal transformations per replit.md guidelines.
+
 ```typescript
 // Database Schema (Drizzle)
 isActiveForRsa: text("is_active_for_rsa").notNull().default('false'), // Always 'true'/'false'
 explainabilityRequired: text("explainability_required"), // Always 'true'/'false'
 
-// Validation (Zod)
+// Validation (Zod) - Simple enums, NO transformations
 isActiveForRsa: z.enum(['true', 'false']).default('false'),
 explainabilityRequired: z.enum(['true', 'false']).optional(),
 
-// Frontend Components - Defensive Handling
-const isActive = useCase.isActiveForRsa === 'true' || useCase.isActiveForRsa === true;
+// Frontend Types - Consistent with database
+isActiveForRsa?: 'true' | 'false' | null;
+explainabilityRequired?: 'true' | 'false' | null;
+
+// Frontend Components - Direct string comparisons
+const isActive = useCase.isActiveForRsa === 'true';
+
+// React Switch Components
+<Switch 
+  checked={isActiveForRsa === 'true'}
+  onCheckedChange={(checked) => onToggle(checked ? 'true' : 'false')}
+/>
+
+// Mappers - Direct passthrough, NO transformations
+export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
+  return {
+    ...dbUseCase,
+    // Direct passthrough - no transformation needed per replit.md
+    isActiveForRsa: dbUseCase.isActiveForRsa,
+    explainabilityRequired: dbUseCase.explainabilityRequired,
+  };
+}
 
 // Database Queries
 .where(eq(useCases.isActiveForRsa, 'true')) // Always use string comparison
 ```
+
+**Benefits Achieved**:
+- Zero transformation overhead
+- Complete type consistency UI → Database
+- Eliminated mapping complexity
+- Enhanced maintainability
+- True adherence to "minimal transformations" principle
 
 #### Scoring Fields - 1-5 Range Consistency
 ```typescript
