@@ -153,7 +153,7 @@ export default function PresentationPreviewBlock({
 
       {/* PDF Preview Dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-4xl w-full h-[80vh]">
+        <DialogContent className="max-w-[95vw] w-full h-[90vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -161,10 +161,10 @@ export default function PresentationPreviewBlock({
             </DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden">
+          <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden" style={{ height: 'calc(90vh - 120px)' }}>
             {proxyUrl ? (
               <iframe
-                src={`${proxyUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+                src={`${proxyUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                 className="w-full h-full border-0"
                 title="Presentation Preview"
                 data-testid="presentation-pdf-viewer"
