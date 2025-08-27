@@ -52,11 +52,14 @@ export default function ImprovedUseCaseExplorer({
   const [selectedDetailUseCase, setSelectedDetailUseCase] = useState<UseCase | null>(null);
   
   // Tab state with localStorage memory
-  const [activeTab, setActiveTab] = useState<'strategic' | 'inventory' | 'both'>(() => {
+  const [activeTab, setActiveTab] = useState<'rsa_internal' | 'industry_standard' | 'inventory' | 'both'>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('usecase-explorer-tab') as 'strategic' | 'inventory' | 'both') || 'both';
+      const stored = localStorage.getItem('usecase-explorer-tab');
+      // Map old 'strategic' tab to 'rsa_internal' for backwards compatibility
+      if (stored === 'strategic') return 'rsa_internal';
+      return (stored as 'rsa_internal' | 'industry_standard' | 'inventory' | 'both') || 'rsa_internal';
     }
-    return 'both';
+    return 'rsa_internal';
   });
   
   // Save tab selection to localStorage and reset incompatible filters
@@ -67,13 +70,13 @@ export default function ImprovedUseCaseExplorer({
     
     // Reset filters that don't apply to the new tab context
     if (activeTab === 'inventory') {
-      // Reset strategic-only filters
+      // Reset non-inventory filters
       setFilters(prev => ({
         ...prev,
         activity: '',
         quadrant: ''
       }));
-    } else if (activeTab === 'strategic') {
+    } else if (activeTab === 'rsa_internal' || activeTab === 'industry_standard') {
       // Reset inventory-only filters
       setFilters(prev => ({
         ...prev,
@@ -100,17 +103,20 @@ export default function ImprovedUseCaseExplorer({
 
   // Filter use cases with tab-aware logic
   const filteredUseCases = useCases.filter((useCase) => {
-    // Define AI inventory status for all contexts
-    const isAiInventory = (useCase as any).librarySource === 'ai_inventory';
-    const isStrategic = !isAiInventory;
+    // Define library source types
+    const librarySource = (useCase as any).librarySource;
+    const isAiInventory = librarySource === 'ai_inventory';
+    const isRsaInternal = librarySource === 'rsa_internal';
+    const isIndustryStandard = librarySource === 'industry_standard';
     
     // Skip internal tab filtering for active portfolio context since it's already pre-filtered
     if (context === 'active') {
       // Skip tab-based filtering - active portfolio is already filtered by API
     } else {
       // Tab-based filtering for reference library only
-      if (activeTab === 'strategic' && isAiInventory) return false;
-      if (activeTab === 'inventory' && isStrategic) return false;
+      if (activeTab === 'rsa_internal' && !isRsaInternal) return false;
+      if (activeTab === 'industry_standard' && !isIndustryStandard) return false;
+      if (activeTab === 'inventory' && !isAiInventory) return false;
       // 'both' tab shows everything
     }
     
@@ -134,8 +140,8 @@ export default function ImprovedUseCaseExplorer({
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
     
-    // Strategic use case specific filters
-    if (isStrategic) {
+    // Non-AI inventory specific filters (RSA Internal and Industry Standard)
+    if (!isAiInventory) {
       if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
       if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
     }
@@ -152,7 +158,8 @@ export default function ImprovedUseCaseExplorer({
   });
   
   // Get counts for each tab
-  const strategicCount = useCases.filter(uc => (uc as any).librarySource !== 'ai_inventory').length;
+  const rsaInternalCount = useCases.filter(uc => (uc as any).librarySource === 'rsa_internal').length;
+  const industryStandardCount = useCases.filter(uc => (uc as any).librarySource === 'industry_standard').length;
   const inventoryCount = useCases.filter(uc => (uc as any).librarySource === 'ai_inventory').length;
   
   // Light telemetry effects
@@ -163,13 +170,14 @@ export default function ImprovedUseCaseExplorer({
       tab: activeTab,
       timestamp: new Date().toISOString(),
       useCaseCount: {
-        strategic: strategicCount,
+        rsaInternal: rsaInternalCount,
+        industryStandard: industryStandardCount,
         inventory: inventoryCount,
-        total: strategicCount + inventoryCount
+        total: rsaInternalCount + industryStandardCount + inventoryCount
       }
     };
     console.log('[RSA-AI-Telemetry]', telemetryData);
-  }, [activeTab, strategicCount, inventoryCount]);
+  }, [activeTab, rsaInternalCount, industryStandardCount, inventoryCount]);
   
   useEffect(() => {
     // Filter usage telemetry
@@ -243,17 +251,31 @@ export default function ImprovedUseCaseExplorer({
         {/* Tab Navigation */}
         <div className="flex items-center space-x-1 mt-4 bg-gray-100 p-1 rounded-lg w-fit">
           <button
-            onClick={() => setActiveTab('strategic')}
+            onClick={() => setActiveTab('rsa_internal')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
-              activeTab === 'strategic' 
+              activeTab === 'rsa_internal' 
                 ? 'bg-white text-blue-600 shadow-sm' 
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>Strategic Use Cases</span>
+            <span>RSA Internal</span>
             <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
-              {strategicCount}
+              {rsaInternalCount}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('industry_standard')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
+              activeTab === 'industry_standard' 
+                ? 'bg-white text-green-600 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            <span>Industry Standard</span>
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+              {industryStandardCount}
             </span>
           </button>
           <button
@@ -280,13 +302,13 @@ export default function ImprovedUseCaseExplorer({
           >
             All Items
             <span className="ml-2 bg-gray-200 text-gray-800 text-xs px-2 py-0.5 rounded-full">
-              {strategicCount + inventoryCount}
+              {rsaInternalCount + industryStandardCount + inventoryCount}
             </span>
           </button>
         </div>
         
         <p className="text-sm text-gray-500 mt-3">
-          Showing {filteredUseCases.length} of {strategicCount + inventoryCount} total items
+          Showing {filteredUseCases.length} of {rsaInternalCount + industryStandardCount + inventoryCount} total items
         </p>
       </div>
 
