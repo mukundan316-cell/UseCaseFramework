@@ -508,15 +508,15 @@ export class ExcelImportService {
   }
 
   /**
-   * Parse boolean from Yes/No or true/false strings
+   * Parse boolean from Yes/No or true/false strings - returns 'true'/'false' strings per replit.md
    */
-  private static parseBoolean(value: any): boolean | null {
+  private static parseBoolean(value: any): 'true' | 'false' | null {
     if (value === null || value === undefined || value === '') return null;
-    if (typeof value === 'boolean') return value;
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
     if (typeof value === 'string') {
       const lower = value.toLowerCase().trim();
-      if (lower === 'yes' || lower === 'true' || lower === '1') return true;
-      if (lower === 'no' || lower === 'false' || lower === '0') return false;
+      if (lower === 'yes' || lower === 'true' || lower === '1') return 'true';
+      if (lower === 'no' || lower === 'false' || lower === '0') return 'false';
     }
     return null;
   }

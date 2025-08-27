@@ -214,12 +214,12 @@ export class ExcelExportService {
         useCase.multiSelectData.aiMlTechnologies.join(', '),
         useCase.multiSelectData.dataSources.join(', '),
         useCase.multiSelectData.stakeholderGroups.join(', '),
-        // FIXED: RSA Ethical Principles with proper boolean-to-Yes/No conversion
-        useCase.aiInventory.explainabilityRequired !== null ? (useCase.aiInventory.explainabilityRequired ? 'Yes' : 'No') : '',
+        // Export boolean fields as 'true'/'false' strings for import compatibility per replit.md
+        useCase.aiInventory.explainabilityRequired === 'true' ? 'true' : useCase.aiInventory.explainabilityRequired === 'false' ? 'false' : '',
         useCase.aiInventory.customerHarmRisk || '',
-        useCase.aiInventory.dataOutsideUkEu !== null ? (useCase.aiInventory.dataOutsideUkEu ? 'Yes' : 'No') : '',
-        useCase.aiInventory.thirdPartyModel !== null ? (useCase.aiInventory.thirdPartyModel ? 'Yes' : 'No') : '',
-        useCase.aiInventory.humanAccountability !== null ? (useCase.aiInventory.humanAccountability ? 'Yes' : 'No') : '',
+        useCase.aiInventory.dataOutsideUkEu === 'true' ? 'true' : useCase.aiInventory.dataOutsideUkEu === 'false' ? 'false' : '',
+        useCase.aiInventory.thirdPartyModel === 'true' ? 'true' : useCase.aiInventory.thirdPartyModel === 'false' ? 'false' : '',
+        useCase.aiInventory.humanAccountability === 'true' ? 'true' : useCase.aiInventory.humanAccountability === 'false' ? 'false' : '',
         useCase.aiInventory.regulatoryCompliance || '',
         useCase.display.hasScoring && useCase.scoring.manualImpactScore ? 'Yes' : '',
         useCase.display.hasScoring ? (useCase.scoring.overrideReason || '') : '',
