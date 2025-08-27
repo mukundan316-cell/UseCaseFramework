@@ -23,7 +23,7 @@ The RSA AI Use Case Value Framework is a strategic AI use case prioritization pl
 - **Use Case Management**: Complete CRUD operations integrated with the RSA 10-lever scoring framework.
 - **Comprehensive Detail View**: Accordion-style detail drawer with 5 expandable sections (Overview & Scoring, Business Context, Implementation & Governance, Technology & Data, Risk & Compliance).
 - **Intuitive Navigation**: Clickable use case cards for seamless detail access.
-- **Assessment System**: A 6-section questionnaire with 14 advanced question types and a manual override system for score customization.
+- **Assessment System**: A 6-section questionnaire with 14 advanced question types and a manual override system for score customization. Manual override toggle properly clears values when disabled to restore auto-calculated scores.
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts.
 - **Professional PDF Exports**: Executive-grade reports for use cases, library catalogs, active portfolios, and assessment responses.
 - **Real-time Persistence**: Live database synchronization for immediate data updates.

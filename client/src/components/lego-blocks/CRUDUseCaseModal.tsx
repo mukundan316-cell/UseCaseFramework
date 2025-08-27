@@ -145,6 +145,20 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
   // Manual override toggle state
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(false);
+  
+  // Handle manual override toggle with proper cleanup
+  const handleOverrideToggle = (enabled: boolean) => {
+    setIsOverrideEnabled(enabled);
+    
+    // When disabling manual overrides, clear the form values to restore auto-calculated scores
+    if (!enabled) {
+      form.setValue('manualImpactScore', null);
+      form.setValue('manualEffortScore', null);
+      form.setValue('manualQuadrant', null);
+      
+      console.log('Manual overrides disabled - cleared manual score values to restore auto-calculated scores');
+    }
+  };
 
   // Tab state management
   const [activeTab, setActiveTab] = useState('basic');
@@ -1554,7 +1568,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 calculatedImpact={currentImpactScore}
                 calculatedEffort={currentEffortScore}
                 calculatedQuadrant={currentQuadrant}
-                onToggleChange={setIsOverrideEnabled}
+                onToggleChange={handleOverrideToggle}
               />
             )}
                   </div>
