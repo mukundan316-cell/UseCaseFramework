@@ -48,7 +48,17 @@ export default function EnhancedMatrixPlot() {
       // Dynamic bubble sizing based on business impact (aligned with RSA scoring framework)
       const bubbleSize = calculateBubbleSize(effectiveImpact);
       
-      // Dynamic bubble sizing complete - no debug logging needed
+      // DEBUG: Verify quadrant positioning after reference line fix
+      if (useCase.title.includes("Enter-once")) {
+        console.log(`QUADRANT DEBUG - ${useCase.title}:`, {
+          coordinates: `x=${effectiveEffort}, y=${effectiveImpact}`,
+          threshold: 3.0,
+          calculatedQuadrant: effectiveQuadrant,
+          visualQuadrant: effectiveImpact >= 3.0 && effectiveEffort < 3.0 ? "Quick Win (Top-Left)" : 
+                          effectiveImpact >= 3.0 && effectiveEffort >= 3.0 ? "Strategic Bet (Top-Right)" :
+                          effectiveImpact < 3.0 && effectiveEffort < 3.0 ? "Experimental (Bottom-Left)" : "Watchlist (Bottom-Right)"
+        });
+      }
       
       return {
         id: useCase.id, // Add unique id for React key
@@ -272,13 +282,13 @@ export default function EnhancedMatrixPlot() {
                     
                     {/* Enhanced Quadrant Reference Lines */}
                     <ReferenceLine 
-                      x={2.5} 
+                      x={3.0} 
                       stroke="#9CA3AF" 
                       strokeDasharray="6 3" 
                       strokeWidth={1.5}
                     />
                     <ReferenceLine 
-                      y={2.5} 
+                      y={3.0} 
                       stroke="#9CA3AF" 
                       strokeDasharray="6 3" 
                       strokeWidth={1.5}
