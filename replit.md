@@ -77,6 +77,19 @@ The guiding principle is **"Build Once, Reuse Everywhere"**, meaning every compo
 
 ## Recent Changes & Achievements
 
+### 2025-08-27: Manual Override Toggle UI Bug Fix
+**Critical Bug Resolution:**
+1. ✅ **Fixed Toggle State Logic**: Resolved issue where calculated values stored as manual overrides caused UI confusion
+2. ✅ **Enhanced Override Detection**: Only considers values that differ from calculated scores as actual overrides
+3. ✅ **Auto-cleanup Mechanism**: Automatically clears calculated values mistakenly stored in manual override fields
+4. ✅ **Proper UI Behavior**: Toggle OFF shows clean read-only calculated scores; Toggle ON shows input fields
+5. ✅ **Data Integrity**: Prevents calculated values from being incorrectly treated as manual overrides
+
+**Technical Resolution:**
+- **Root Cause**: Form was storing calculated values (4.0, 2.4, "Quick Win") in manual override fields
+- **Detection Logic**: Enhanced to compare manual values against calculated values for true override detection
+- **User Experience**: Clean toggle behavior with proper state management and form field clearing
+
 ### 2025-08-27: Quick Wins Implementation & Bubble Sizing Resolution
 **Quick Wins Delivered (Without Breaking Functionality):**
 1. ✅ **Enhanced Matrix Plot Tooltips**: Added impact/effort level indicators and ROI estimates
