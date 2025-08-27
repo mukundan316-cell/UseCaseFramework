@@ -33,6 +33,20 @@ export default function CleanUseCaseCard({
   // Get effective scores (manual overrides take precedence)
   const effectiveImpact = hasScores ? getEffectiveImpactScore(useCase as any) : undefined;
   const effectiveEffort = hasScores ? getEffectiveEffortScore(useCase as any) : undefined;
+  
+  // DEBUG: Log actual data for troubleshooting
+  if (useCase.title?.includes('Enter-once automation')) {
+    console.log('🐛 CleanUseCaseCard DEBUG:', {
+      title: useCase.title,
+      raw_impactScore: useCase.impactScore,
+      raw_effortScore: useCase.effortScore,
+      raw_manualImpactScore: useCase.manualImpactScore,
+      raw_manualEffortScore: useCase.manualEffortScore,
+      calculated_effectiveImpact: effectiveImpact,
+      calculated_effectiveEffort: effectiveEffort,
+      hasScores
+    });
+  }
   const effectiveQuadrant = hasScores ? getEffectiveQuadrant(useCase as any) : '';
   const hasOverrides = hasManualOverrides(useCase as any);
   const quadrantBorder = hasScores ? getQuadrantColor(effectiveQuadrant as any) : '#3b82f6';
