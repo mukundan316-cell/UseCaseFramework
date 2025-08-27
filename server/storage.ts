@@ -124,7 +124,7 @@ export class DatabaseStorage implements IStorage {
            'impactScore', 'effortScore', 'manualImpactScore', 'manualEffortScore'].includes(key)) {
         const numValue = typeof value === 'number' ? value : parseFloat(value as string);
         if (!isNaN(numValue) && isFinite(numValue)) {
-          cleanData[key] = Math.max(0, Math.min(5, Math.round(numValue * 10) / 10)); // Round to 1 decimal
+          cleanData[key] = Math.max(0, Math.min(5, numValue)); // Preserve full precision
         }
         return;
       }
@@ -185,7 +185,7 @@ export class DatabaseStorage implements IStorage {
            'impactScore', 'effortScore', 'manualImpactScore', 'manualEffortScore'].includes(key)) {
         const numValue = typeof value === 'number' ? value : parseFloat(value as string);
         if (!isNaN(numValue) && isFinite(numValue)) {
-          cleanUpdates[key] = Math.max(0, Math.min(5, Math.round(numValue * 10) / 10));
+          cleanUpdates[key] = Math.max(0, Math.min(5, numValue)); // Preserve full precision
         }
         return;
       }
