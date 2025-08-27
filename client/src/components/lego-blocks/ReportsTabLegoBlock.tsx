@@ -4,8 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUseCases } from '../../hooks/useUseCases';
 import type { UseCase } from '../../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Target, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
+import { TrendingUp, Target, BarChart3, PieChart as PieChartIcon, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import ExecutiveAnalytics from '../analytics/ExecutiveAnalytics';
 
 /**
  * Reports Tab LEGO Block
@@ -42,12 +43,37 @@ export default function ReportsTabLegoBlock() {
     );
   }
 
+  return (
+    <Tabs defaultValue="enhanced" className="space-y-6">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="enhanced" className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4" />
+          Executive Analytics
+        </TabsTrigger>
+        <TabsTrigger value="detailed" className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
+          Detailed Reports
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="enhanced">
+        <ExecutiveAnalytics />
+      </TabsContent>
+
+      <TabsContent value="detailed">
+        <DetailedReportsView useCases={useCases} />
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+function DetailedReportsView({ useCases }: { useCases: UseCase[] }) {
   // Filter use cases with complete scoring data AND active for RSA
   const scoredUseCases = useCases.filter((uc: UseCase) => 
     uc.impactScore !== null && 
     uc.effortScore !== null && 
     uc.quadrant &&
-    uc.isActiveForRsa === 'true'
+    (uc.isActiveForRsa === true || uc.isActiveForRsa === 'true')
   );
 
   // Quadrant summary data
