@@ -5,6 +5,41 @@ import { UseCaseDataExtractor } from './useCaseDataExtractor';
 import { storage } from '../storage';
 
 export class TabularPdfService {
+  
+  /**
+   * Generate individual use case PDF
+   */
+  static async generateIndividualUseCasePdf(id: string, res: Response): Promise<void> {
+    try {
+      const useCase = await storage.getUseCaseById(id);
+      if (!useCase) {
+        return res.status(404).json({ error: 'Use case not found' });
+      }
+
+      const extractedData = UseCaseDataExtractor.extractCompleteData(useCase);
+
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: {
+          top: this.LAYOUT.margin,
+          bottom: this.LAYOUT.margin,
+          left: this.LAYOUT.margin,
+          right: this.LAYOUT.margin
+        }
+      });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="RSA-Use-Case-${extractedData.basicInfo.title.replace(/[^a-zA-Z0-9]/g, '-')}.pdf"`);
+      doc.pipe(res);
+
+      this.addIndividualUseCasePage(doc, extractedData);
+      doc.end();
+
+    } catch (error) {
+      console.error('Error generating individual use case PDF:', error);
+      res.status(500).json({ error: 'Failed to generate PDF' });
+    }
+  }
   private static readonly COLORS = {
     primary: '#005DAA',
     secondary: '#0078D4',
@@ -17,16 +52,16 @@ export class TabularPdfService {
   };
 
   private static readonly FONTS = {
-    title: { size: 16, font: 'Helvetica-Bold' },
-    header: { size: 8, font: 'Helvetica-Bold' },
-    cell: { size: 7, font: 'Helvetica' },
-    small: { size: 6, font: 'Helvetica' }
+    title: { size: 20, font: 'Helvetica-Bold' },
+    header: { size: 10, font: 'Helvetica-Bold' },
+    cell: { size: 9, font: 'Helvetica' },
+    small: { size: 8, font: 'Helvetica' }
   };
 
   private static readonly LAYOUT = {
-    margin: 20,
-    rowHeight: 25,
-    headerHeight: 30,
+    margin: 30,
+    rowHeight: 30,
+    headerHeight: 35,
     pageWidth: 842, // A4 landscape
     pageHeight: 595
   };
@@ -194,41 +229,33 @@ export class TabularPdfService {
   }
 
   /**
-   * Get table columns definition based on type
+   * Get table columns definition - simplified for better readability
    */
   private static getTableColumns(type: string): any[] {
-    const baseColumns = [
-      { key: 'title', header: 'Title', width: 25 },
-      { key: 'description', header: 'Description', width: 30 },
-      { key: 'process', header: 'Process', width: 15 },
-      { key: 'lineOfBusiness', header: 'Line of Business', width: 15 },
-      { key: 'useCaseType', header: 'Type', width: 12 },
-      { key: 'status', header: 'Status', width: 12 }
-    ];
-
     if (type === 'strategic') {
       return [
-        ...baseColumns,
-        { key: 'impactScore', header: 'Impact', width: 8 },
-        { key: 'effortScore', header: 'Effort', width: 8 },
-        { key: 'quadrant', header: 'Quadrant', width: 12 },
-        { key: 'revenueImpact', header: 'Revenue', width: 8 },
-        { key: 'strategicFit', header: 'Strategy', width: 8 }
+        { key: 'title', header: 'Use Case Title', width: 35 },
+        { key: 'process', header: 'Process', width: 20 },
+        { key: 'lineOfBusiness', header: 'Line of Business', width: 20 },
+        { key: 'impactScore', header: 'Impact', width: 10 },
+        { key: 'effortScore', header: 'Effort', width: 10 },
+        { key: 'quadrant', header: 'Quadrant', width: 15 },
+        { key: 'status', header: 'Status', width: 15 }
       ];
     } else if (type === 'inventory') {
       return [
-        ...baseColumns,
-        { key: 'aiInventoryStatus', header: 'AI Status', width: 12 },
-        { key: 'deploymentStatus', header: 'Deployment', width: 12 },
-        { key: 'businessFunction', header: 'Function', width: 15 },
-        { key: 'riskLevel', header: 'Risk Level', width: 10 }
+        { key: 'title', header: 'AI Tool/Model', width: 35 },
+        { key: 'businessFunction', header: 'Function', width: 20 },
+        { key: 'aiInventoryStatus', header: 'AI Status', width: 15 },
+        { key: 'deploymentStatus', header: 'Deployment', width: 15 },
+        { key: 'riskLevel', header: 'Risk Level', width: 20 }
       ];
     } else {
       return [
-        ...baseColumns,
-        { key: 'geography', header: 'Geography', width: 12 },
-        { key: 'businessSegment', header: 'Segment', width: 15 },
-        { key: 'librarySource', header: 'Source', width: 12 }
+        { key: 'title', header: 'Use Case Title', width: 40 },
+        { key: 'process', header: 'Process', width: 25 },
+        { key: 'lineOfBusiness', header: 'Line of Business', width: 25 },
+        { key: 'librarySource', header: 'Source', width: 15 }
       ];
     }
   }
@@ -249,9 +276,9 @@ export class TabularPdfService {
       doc.fontSize(this.FONTS.header.size)
          .fillColor(this.COLORS.text)
          .font(this.FONTS.header.font)
-         .text(col.header, currentX + 2, y + 8, {
-           width: col.actualWidth - 4,
-           height: this.LAYOUT.headerHeight - 4,
+         .text(col.header, currentX + 4, y + 10, {
+           width: col.actualWidth - 8,
+           height: this.LAYOUT.headerHeight - 8,
            ellipsis: true
          });
 
@@ -283,9 +310,9 @@ export class TabularPdfService {
       doc.fontSize(this.FONTS.cell.size)
          .fillColor(this.COLORS.text)
          .font(this.FONTS.cell.font)
-         .text(value, currentX + 2, y + 6, {
-           width: col.actualWidth - 4,
-           height: this.LAYOUT.rowHeight - 4,
+         .text(value, currentX + 4, y + 8, {
+           width: col.actualWidth - 8,
+           height: this.LAYOUT.rowHeight - 8,
            ellipsis: true
          });
 
@@ -363,6 +390,127 @@ export class TabularPdfService {
        .fillColor(this.COLORS.lightGray)
        .font('Helvetica')
        .text(`Page ${doc.bufferedPageRange().count}`, doc.page.width - 80, 30);
+  }
+
+  /**
+   * Add individual use case page
+   */
+  private static addIndividualUseCasePage(doc: any, useCase: any): void {
+    // Header with RSA branding
+    doc.rect(0, 0, doc.page.width, 60).fill(this.COLORS.primary);
+    
+    doc.fontSize(24)
+       .fillColor('#FFFFFF')
+       .font('Helvetica-Bold')
+       .text('RSA', this.LAYOUT.margin, 20);
+
+    doc.fontSize(10)
+       .fillColor('#E8F4FD')
+       .font('Helvetica')
+       .text('AI Use Case Analysis', this.LAYOUT.margin, 45);
+
+    // Title
+    doc.fontSize(18)
+       .fillColor(this.COLORS.text)
+       .font('Helvetica-Bold')
+       .text(useCase.basicInfo.title, this.LAYOUT.margin, 80, {
+         width: doc.page.width - (this.LAYOUT.margin * 2)
+       });
+
+    // Description
+    doc.fontSize(11)
+       .fillColor(this.COLORS.gray)
+       .font('Helvetica')
+       .text(useCase.basicInfo.description, this.LAYOUT.margin, 110, {
+         width: doc.page.width - (this.LAYOUT.margin * 2),
+         lineGap: 4
+       });
+
+    let currentY = 160;
+
+    // Basic Information Section
+    currentY = this.addInfoSection(doc, 'Business Context', [
+      ['Process', useCase.basicInfo.process],
+      ['Line of Business', useCase.basicInfo.lineOfBusiness],
+      ['Business Segment', useCase.basicInfo.businessSegment],
+      ['Geography', useCase.basicInfo.geography],
+      ['Use Case Type', useCase.basicInfo.useCaseType],
+      ['Status', useCase.implementation.useCaseStatus || 'Not Set']
+    ], currentY);
+
+    // Scoring Section (if available)
+    if (useCase.display.hasScoring) {
+      currentY = this.addInfoSection(doc, 'RSA Framework Scoring', [
+        ['Impact Score', `${useCase.scoring.finalImpactScore}/10`],
+        ['Effort Score', `${useCase.scoring.finalEffortScore}/10`],
+        ['Strategic Quadrant', useCase.scoring.finalQuadrant],
+        ['Revenue Impact', `${useCase.businessValue.revenueImpact}/5`],
+        ['Cost Savings', `${useCase.businessValue.costSavings}/5`],
+        ['Risk Reduction', `${useCase.businessValue.riskReduction}/5`],
+        ['Strategic Fit', `${useCase.businessValue.strategicFit}/5`]
+      ], currentY);
+    }
+
+    // AI Inventory Section (if available)
+    if (useCase.display.isAiInventory) {
+      const aiFields = [
+        ['AI Inventory Status', useCase.aiInventory.aiInventoryStatus],
+        ['Deployment Status', useCase.aiInventory.deploymentStatus],
+        ['Business Function', useCase.aiInventory.businessFunction],
+        ['Risk to RSA', useCase.aiInventory.riskToRsa],
+        ['Risk to Customers', useCase.aiInventory.riskToCustomers],
+        ['Model Owner', useCase.aiInventory.modelOwner]
+      ].filter(([_, value]) => value);
+
+      if (aiFields.length > 0) {
+        currentY = this.addInfoSection(doc, 'AI Governance', aiFields, currentY);
+      }
+    }
+
+    // Implementation Details
+    const implFields = [
+      ['Primary Business Owner', useCase.implementation.primaryBusinessOwner],
+      ['Implementation Timeline', useCase.implementation.implementationTimeline],
+      ['Estimated Value', useCase.implementation.estimatedValue],
+      ['Success Metrics', useCase.implementation.successMetrics],
+      ['Key Dependencies', useCase.implementation.keyDependencies]
+    ].filter(([_, value]) => value);
+
+    if (implFields.length > 0) {
+      this.addInfoSection(doc, 'Implementation Details', implFields, currentY);
+    }
+  }
+
+  /**
+   * Add information section with key-value pairs
+   */
+  private static addInfoSection(doc: any, title: string, items: string[][], startY: number): number {
+    let currentY = startY + 20;
+
+    // Section title
+    doc.fontSize(14)
+       .fillColor(this.COLORS.primary)
+       .font('Helvetica-Bold')
+       .text(title, this.LAYOUT.margin, currentY);
+
+    currentY += 25;
+
+    // Items
+    items.forEach(([key, value]) => {
+      if (value) {
+        doc.fontSize(10)
+           .fillColor(this.COLORS.text)
+           .font('Helvetica-Bold')
+           .text(`${key}:`, this.LAYOUT.margin, currentY, { continued: true })
+           .font('Helvetica')
+           .fillColor(this.COLORS.gray)
+           .text(` ${value}`, { width: doc.page.width - (this.LAYOUT.margin * 2) });
+        
+        currentY += 18;
+      }
+    });
+
+    return currentY;
   }
 
   /**
