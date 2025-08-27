@@ -128,6 +128,7 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     dataOutsideUkEu: dbUseCase.dataOutsideUkEu !== null ? dbUseCase.dataOutsideUkEu : undefined,
     thirdPartyModel: dbUseCase.thirdPartyModel !== null ? dbUseCase.thirdPartyModel : undefined,
     humanAccountability: dbUseCase.humanAccountability !== null ? dbUseCase.humanAccountability : undefined,
+    regulatoryCompliance: dbUseCase.regulatoryCompliance !== null ? dbUseCase.regulatoryCompliance : undefined,
     aiOrModel: dbUseCase.aiOrModel || undefined,
     riskToCustomers: dbUseCase.riskToCustomers || undefined,
     riskToRsa: dbUseCase.riskToRsa || undefined,
@@ -136,6 +137,7 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     rsaPolicyGovernance: dbUseCase.rsaPolicyGovernance || undefined,
     validationResponsibility: dbUseCase.validationResponsibility || undefined,
     informedBy: dbUseCase.informedBy || undefined,
+    businessFunction: dbUseCase.businessFunction || undefined,
     // Manual override fields - preserve null values for proper type compatibility
     manualImpactScore: dbUseCase.manualImpactScore,
     manualEffortScore: dbUseCase.manualEffortScore,

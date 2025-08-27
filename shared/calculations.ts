@@ -17,6 +17,13 @@ export function calculateImpactScore(
     strategicFit: number;
   }
 ): number {
+  // Add null safety for numeric inputs
+  const safeRevenueImpact = revenueImpact ?? 0;
+  const safeCostSavings = costSavings ?? 0;
+  const safeRiskReduction = riskReduction ?? 0;
+  const safeBrokerPartnerExperience = brokerPartnerExperience ?? 0;
+  const safeStrategicFit = strategicFit ?? 0;
+
   // Use provided weights or default to equal weighting (20% each)
   const w = weights || {
     revenueImpact: 20,
@@ -28,14 +35,14 @@ export function calculateImpactScore(
 
   // Apply weighted calculation: (lever × weight) / 100, then sum
   const weightedScore = (
-    (revenueImpact * w.revenueImpact / 100) +
-    (costSavings * w.costSavings / 100) +
-    (riskReduction * w.riskReduction / 100) +
-    (brokerPartnerExperience * w.brokerPartnerExperience / 100) +
-    (strategicFit * w.strategicFit / 100)
+    (safeRevenueImpact * w.revenueImpact / 100) +
+    (safeCostSavings * w.costSavings / 100) +
+    (safeRiskReduction * w.riskReduction / 100) +
+    (safeBrokerPartnerExperience * w.brokerPartnerExperience / 100) +
+    (safeStrategicFit * w.strategicFit / 100)
   );
 
-  return weightedScore;
+  return Math.max(0, Math.min(5, weightedScore)); // Ensure result is within 0-5 range
 }
 
 /**
@@ -57,6 +64,13 @@ export function calculateEffortScore(
     adoptionReadiness: number;
   }
 ): number {
+  // Add null safety for numeric inputs
+  const safeDataReadiness = dataReadiness ?? 0;
+  const safeTechnicalComplexity = technicalComplexity ?? 0;
+  const safeChangeImpact = changeImpact ?? 0;
+  const safeModelRisk = modelRisk ?? 0;
+  const safeAdoptionReadiness = adoptionReadiness ?? 0;
+
   // Use provided weights or default to equal weighting (20% each)
   const w = weights || {
     dataReadiness: 20,
@@ -68,14 +82,14 @@ export function calculateEffortScore(
 
   // Apply weighted calculation: (lever × weight) / 100, then sum
   const weightedScore = (
-    (dataReadiness * w.dataReadiness / 100) +
-    (technicalComplexity * w.technicalComplexity / 100) +
-    (changeImpact * w.changeImpact / 100) +
-    (modelRisk * w.modelRisk / 100) +
-    (adoptionReadiness * w.adoptionReadiness / 100)
+    (safeDataReadiness * w.dataReadiness / 100) +
+    (safeTechnicalComplexity * w.technicalComplexity / 100) +
+    (safeChangeImpact * w.changeImpact / 100) +
+    (safeModelRisk * w.modelRisk / 100) +
+    (safeAdoptionReadiness * w.adoptionReadiness / 100)
   );
 
-  return weightedScore;
+  return Math.max(0, Math.min(5, weightedScore)); // Ensure result is within 0-5 range
 }
 
 

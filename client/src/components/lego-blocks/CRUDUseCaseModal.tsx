@@ -26,9 +26,9 @@ import MultiSelectField from './MultiSelectField';
 
 
 const formSchema = z.object({
-  // All fields optional for maximum flexibility - user can override anything
-  title: z.string().optional(),
-  description: z.string().optional(),
+  // Core required fields for data integrity
+  title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
+  description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
   problemStatement: z.string().optional(),
   process: z.string().optional(),
   lineOfBusiness: z.string().optional(),

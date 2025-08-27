@@ -115,18 +115,26 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activationDate: true,
   lastStatusUpdate: true, // Auto-managed field
 }).extend({
-  // Business Value Levers (Impact Score) - optional for import - no constraints
-  revenueImpact: z.union([z.number(), z.null()]).optional(),
-  costSavings: z.union([z.number(), z.null()]).optional(),
-  riskReduction: z.union([z.number(), z.null()]).optional(),
-  brokerPartnerExperience: z.union([z.number(), z.null()]).optional(),
-  strategicFit: z.union([z.number(), z.null()]).optional(),
-  // Feasibility Levers (Effort Score) - optional for import - no constraints
-  dataReadiness: z.union([z.number(), z.null()]).optional(),
-  technicalComplexity: z.union([z.number(), z.null()]).optional(),
-  changeImpact: z.union([z.number(), z.null()]).optional(),
-  modelRisk: z.union([z.number(), z.null()]).optional(),
-  adoptionReadiness: z.union([z.number(), z.null()]).optional(),
+  // Core required fields for data integrity
+  title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
+  description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
+  process: z.string().min(1, "Process is required"),
+  lineOfBusiness: z.string().min(1, "Line of Business is required"),
+  businessSegment: z.string().min(1, "Business Segment is required"),
+  geography: z.string().min(1, "Geography is required"),
+  useCaseType: z.string().min(1, "Use Case Type is required"),
+  // Business Value Levers (Impact Score) - with validation constraints
+  revenueImpact: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  costSavings: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  riskReduction: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  brokerPartnerExperience: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  strategicFit: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  // Feasibility Levers (Effort Score) - with validation constraints
+  dataReadiness: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  technicalComplexity: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  changeImpact: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  modelRisk: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  adoptionReadiness: z.union([z.number().min(1).max(5), z.null()]).optional(),
   // Final scoring fields - optional for import - no constraints
   finalImpactScore: z.union([z.number(), z.null()]).optional(),
   finalEffortScore: z.union([z.number(), z.null()]).optional(),
