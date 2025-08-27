@@ -314,7 +314,7 @@ export class ExcelImportService {
       useCase.dataSources = ExcelImportService.parseArray(getValue('Data Sources'));
       useCase.stakeholderGroups = ExcelImportService.parseArray(getValue('Stakeholder Groups'));
       
-      // RSA Ethical Principles - match exact export headers with boolean conversion
+      // RSA Ethical Principles - FIXED: proper boolean string conversion for database storage
       useCase.explainabilityRequired = ExcelImportService.parseBoolean(getValue('Explainability Required'));
       useCase.customerHarmRisk = getValue('Customer Harm Risk') || null;
       useCase.dataOutsideUkEu = ExcelImportService.parseBoolean(getValue('Data Outside UK/EU'));

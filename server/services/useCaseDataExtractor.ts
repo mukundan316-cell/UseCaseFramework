@@ -104,6 +104,13 @@ export interface ExtractedUseCaseData {
     aiInventoryStatus: string | null;
     deploymentStatus: string | null;
     lastStatusUpdate: Date | null;
+    // RSA Ethical Principles - moved here for proper export access
+    explainabilityRequired: boolean | null;
+    customerHarmRisk: string | null;
+    dataOutsideUkEu: boolean | null;
+    thirdPartyModel: boolean | null;
+    humanAccountability: boolean | null;
+    regulatoryCompliance: number | null;
   };
 
   // Display Helpers
@@ -209,7 +216,7 @@ export class UseCaseDataExtractor {
       activationDate: useCase.activationDate || null,
     };
 
-    // AI Inventory (Governance fields)
+    // AI Inventory (Governance fields) - include ALL RSA Ethical Principles
     const aiInventory = {
       aiOrModel: useCase.aiOrModel || null,
       riskToCustomers: useCase.riskToCustomers || null,
@@ -224,13 +231,13 @@ export class UseCaseDataExtractor {
       aiInventoryStatus: useCase.aiInventoryStatus || null,
       deploymentStatus: useCase.deploymentStatus || null,
       lastStatusUpdate: useCase.lastStatusUpdate || null,
-      // RSA Ethical Principles (from use case direct properties)
-      explainabilityRequired: useCase.explainabilityRequired || null,
+      // RSA Ethical Principles - FIXED: proper boolean handling for export
+      explainabilityRequired: useCase.explainabilityRequired !== null ? useCase.explainabilityRequired : null,
       customerHarmRisk: useCase.customerHarmRisk || null,
-      dataOutsideUkEu: useCase.dataOutsideUkEu || null,
-      thirdPartyModel: useCase.thirdPartyModel || null,
-      humanAccountability: useCase.humanAccountability || null,
-      regulatoryCompliance: useCase.regulatoryCompliance || null,
+      dataOutsideUkEu: useCase.dataOutsideUkEu !== null ? useCase.dataOutsideUkEu : null,
+      thirdPartyModel: useCase.thirdPartyModel !== null ? useCase.thirdPartyModel : null,
+      humanAccountability: useCase.humanAccountability !== null ? useCase.humanAccountability : null,
+      regulatoryCompliance: useCase.regulatoryCompliance !== null ? useCase.regulatoryCompliance : null,
     };
 
     // Display Helpers
