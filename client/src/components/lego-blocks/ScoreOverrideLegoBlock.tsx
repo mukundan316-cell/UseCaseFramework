@@ -32,7 +32,7 @@ export default function ScoreOverrideLegoBlock({
   const manualQuadrant = form.watch('manualQuadrant');
   
   // Check if manual overrides are already active (for edit mode)
-  const hasExistingOverrides = manualImpact || manualEffort || manualQuadrant;
+  const hasExistingOverrides = !!(manualImpact || manualEffort || manualQuadrant);
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(hasExistingOverrides);
   
   // Sync toggle state when manual override values change externally

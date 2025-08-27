@@ -4,31 +4,41 @@ import { safeNumber, validateScoreRange } from './safeMath';
 /**
  * Gets the effective impact score (manual override or calculated)
  * Enhanced with null safety and bounds checking
+ * CRITICAL: Only use manual override if it actually exists (not null/undefined)
  */
 export function getEffectiveImpactScore(useCase: UseCase): number {
-  const manualScore = safeNumber(useCase.manualImpactScore);
   const calculatedScore = safeNumber(useCase.impactScore);
   
-  // Use manual override if valid, otherwise calculated score
-  const effectiveScore = manualScore > 0 ? manualScore : calculatedScore;
+  // Only use manual override if it's actually set (not null/undefined)
+  if (useCase.manualImpactScore !== null && useCase.manualImpactScore !== undefined) {
+    const manualScore = safeNumber(useCase.manualImpactScore);
+    if (manualScore > 0) {
+      return validateScoreRange(manualScore);
+    }
+  }
   
-  // Ensure score is within valid range
-  return effectiveScore > 0 ? validateScoreRange(effectiveScore) : 0;
+  // Use calculated score as fallback
+  return calculatedScore > 0 ? validateScoreRange(calculatedScore) : 0;
 }
 
 /**
  * Gets the effective effort score (manual override or calculated)
  * Enhanced with null safety and bounds checking
+ * CRITICAL: Only use manual override if it actually exists (not null/undefined)
  */
 export function getEffectiveEffortScore(useCase: UseCase): number {
-  const manualScore = safeNumber(useCase.manualEffortScore);
   const calculatedScore = safeNumber(useCase.effortScore);
   
-  // Use manual override if valid, otherwise calculated score
-  const effectiveScore = manualScore > 0 ? manualScore : calculatedScore;
+  // Only use manual override if it's actually set (not null/undefined)
+  if (useCase.manualEffortScore !== null && useCase.manualEffortScore !== undefined) {
+    const manualScore = safeNumber(useCase.manualEffortScore);
+    if (manualScore > 0) {
+      return validateScoreRange(manualScore);
+    }
+  }
   
-  // Ensure score is within valid range
-  return effectiveScore > 0 ? validateScoreRange(effectiveScore) : 0;
+  // Use calculated score as fallback
+  return calculatedScore > 0 ? validateScoreRange(calculatedScore) : 0;
 }
 
 /**
@@ -61,9 +71,14 @@ export function getEffectiveQuadrant(useCase: UseCase): string {
 
 /**
  * Checks if any manual overrides are active
+ * Enhanced to properly check for null/undefined values
  */
 export function hasManualOverrides(useCase: UseCase): boolean {
-  return !!(useCase.manualImpactScore || useCase.manualEffortScore || useCase.manualQuadrant);
+  return !!(
+    (useCase.manualImpactScore !== null && useCase.manualImpactScore !== undefined) ||
+    (useCase.manualEffortScore !== null && useCase.manualEffortScore !== undefined) ||
+    (useCase.manualQuadrant !== null && useCase.manualQuadrant !== undefined && useCase.manualQuadrant !== '')
+  );
 }
 
 /**

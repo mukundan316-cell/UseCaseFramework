@@ -492,7 +492,7 @@ export default function ExecutiveAnalytics() {
                                 </div>
                                 <div className="pt-2 border-t border-gray-200">
                                   <span className="text-sm text-gray-600">
-                                    Efficiency Ratio: <strong>{((payload[0]?.value || 0) / (payload[1]?.value || 1)).toFixed(2)}</strong>
+                                    Efficiency Ratio: <strong>{(((payload[0]?.value as number) || 0) / ((payload[1]?.value as number) || 1)).toFixed(2)}</strong>
                                   </span>
                                 </div>
                               </div>
