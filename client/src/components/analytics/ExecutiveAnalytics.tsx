@@ -130,12 +130,44 @@ export default function ExecutiveAnalytics() {
     }
   ];
 
-  // Portfolio Distribution Data for Advanced Charts
+  // Portfolio Distribution Data for Advanced Charts with Enhanced Styling
   const portfolioDistribution = [
-    { name: 'Quick Win', value: analytics.quickWinCount, color: '#22C55E', roi: 'High' },
-    { name: 'Strategic Bet', value: analytics.strategicBetCount, color: '#3B82F6', roi: 'Medium-High' },
-    { name: 'Experimental', value: useCases.filter(uc => uc.quadrant === 'Experimental').length, color: '#F59E0B', roi: 'Low' },
-    { name: 'Watchlist', value: useCases.filter(uc => uc.quadrant === 'Watchlist').length, color: '#EF4444', roi: 'Negative' }
+    { 
+      name: 'Quick Win', 
+      value: analytics.quickWinCount, 
+      color: '#10B981', 
+      gradientColor: 'rgba(16, 185, 129, 0.8)',
+      roi: 'High ROI',
+      description: 'High Impact, Low Effort',
+      percentage: ((analytics.quickWinCount / analytics.totalPortfolioValue) * 100).toFixed(1)
+    },
+    { 
+      name: 'Strategic Bet', 
+      value: analytics.strategicBetCount, 
+      color: '#3B82F6', 
+      gradientColor: 'rgba(59, 130, 246, 0.8)',
+      roi: 'Strategic Value',
+      description: 'High Impact, High Effort',
+      percentage: ((analytics.strategicBetCount / analytics.totalPortfolioValue) * 100).toFixed(1)
+    },
+    { 
+      name: 'Experimental', 
+      value: useCases.filter(uc => uc.quadrant === 'Experimental').length, 
+      color: '#F59E0B', 
+      gradientColor: 'rgba(245, 158, 11, 0.8)',
+      roi: 'Learning Value',
+      description: 'Low Impact, Low Effort',
+      percentage: ((useCases.filter(uc => uc.quadrant === 'Experimental').length / analytics.totalPortfolioValue) * 100).toFixed(1)
+    },
+    { 
+      name: 'Watchlist', 
+      value: useCases.filter(uc => uc.quadrant === 'Watchlist').length, 
+      color: '#EF4444', 
+      gradientColor: 'rgba(239, 68, 68, 0.8)',
+      roi: 'Review Required',
+      description: 'Low Impact, High Effort',
+      percentage: ((useCases.filter(uc => uc.quadrant === 'Watchlist').length / analytics.totalPortfolioValue) * 100).toFixed(1)
+    }
   ];
 
   // Business Segment Analysis
@@ -266,57 +298,243 @@ export default function ExecutiveAnalytics() {
         {/* Portfolio Overview */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Portfolio Distribution */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChartIcon className="h-5 w-5" />
-                  Portfolio Distribution
+            {/* Enhanced Portfolio Distribution */}
+            <Card className="bg-gradient-to-br from-slate-50 to-white shadow-xl border-0">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-3 text-lg">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <PieChartIcon className="h-6 w-6" />
+                  </div>
+                  Strategic Portfolio Distribution
                 </CardTitle>
-                <CardDescription>Strategic allocation across quadrants</CardDescription>
+                <CardDescription className="text-blue-100">
+                  Investment allocation across strategic quadrants • Total: {analytics.totalPortfolioValue} initiatives
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={portfolioDistribution}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
-                    >
-                      {portfolioDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Enhanced Pie Chart */}
+                  <div className="relative">
+                    <ResponsiveContainer width="100%" height={320}>
+                      <PieChart>
+                        <defs>
+                          {portfolioDistribution.map((entry, index) => (
+                            <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stopColor={entry.color} />
+                              <stop offset="100%" stopColor={entry.gradientColor} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        <Pie
+                          data={portfolioDistribution}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={120}
+                          innerRadius={60}
+                          fill="#8884d8"
+                          dataKey="value"
+                          stroke="white"
+                          strokeWidth={3}
+                        >
+                          {portfolioDistribution.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={`url(#gradient-${index})`} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <div className="bg-white p-4 rounded-lg shadow-xl border border-gray-200">
+                                  <h4 className="font-bold text-gray-900 mb-2">{data.name}</h4>
+                                  <div className="space-y-1 text-sm">
+                                    <p><span className="font-medium">Count:</span> {data.value} initiatives</p>
+                                    <p><span className="font-medium">Percentage:</span> {data.percentage}%</p>
+                                    <p><span className="font-medium">ROI Profile:</span> {data.roi}</p>
+                                    <p className="text-gray-600 italic">{data.description}</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    {/* Center Label */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-900">{analytics.totalPortfolioValue}</div>
+                        <div className="text-sm text-gray-600">Total Initiatives</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Strategic Insights Panel */}
+                  <div className="space-y-4">
+                    <h4 className="font-bold text-gray-900 text-lg mb-4">Strategic Insights</h4>
+                    {portfolioDistribution.map((quadrant, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 rounded-lg"
+                           style={{ backgroundColor: `${quadrant.color}10`, border: `2px solid ${quadrant.color}20` }}>
+                        <div className="flex items-center space-x-3">
+                          <div 
+                            className="w-4 h-4 rounded-full shadow-lg"
+                            style={{ backgroundColor: quadrant.color }}
+                          />
+                          <div>
+                            <div className="font-semibold text-gray-900">{quadrant.name}</div>
+                            <div className="text-sm text-gray-600">{quadrant.description}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold" style={{ color: quadrant.color }}>
+                            {quadrant.value}
+                          </div>
+                          <div className="text-sm text-gray-500">{quadrant.percentage}%</div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {/* Executive Recommendation */}
+                    <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                      <h5 className="font-semibold text-blue-900 mb-2">Executive Recommendation</h5>
+                      <p className="text-sm text-blue-800">
+                        {analytics.quickWinCount > 0 ? 
+                          `Prioritize ${analytics.quickWinCount} Quick Wins for immediate ROI while building capabilities for ${analytics.strategicBetCount} Strategic Bets.` :
+                          "Focus on building a balanced portfolio with more Quick Win opportunities."
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            {/* Business Segment Analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Business Segment Performance
+            {/* Enhanced Business Segment Analysis */}
+            <Card className="bg-gradient-to-br from-emerald-50 to-white shadow-xl border-0">
+              <CardHeader className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-3 text-lg">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <BarChart3 className="h-6 w-6" />
+                  </div>
+                  Business Segment Performance Matrix
                 </CardTitle>
-                <CardDescription>Impact vs effort efficiency by segment</CardDescription>
+                <CardDescription className="text-emerald-100">
+                  Strategic value analysis across business segments • ROI efficiency comparison
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={segmentData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="avgImpact" fill="#3B82F6" name="Avg Impact" />
-                    <Bar dataKey="avgEffort" fill="#EF4444" name="Avg Effort" />
+              <CardContent className="p-6">
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart data={segmentData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                    <defs>
+                      <linearGradient id="impactGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10B981" />
+                        <stop offset="100%" stopColor="#059669" />
+                      </linearGradient>
+                      <linearGradient id="effortGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#F59E0B" />
+                        <stop offset="100%" stopColor="#D97706" />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45} 
+                      textAnchor="end" 
+                      height={80}
+                      tick={{ fontSize: 12, fill: '#6B7280' }}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12, fill: '#6B7280' }}
+                      domain={[0, 5]}
+                    />
+                    <Tooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-4 rounded-lg shadow-xl border border-gray-200">
+                              <h4 className="font-bold text-gray-900 mb-2">{label}</h4>
+                              <div className="space-y-2">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-3 h-3 bg-emerald-500 rounded"></div>
+                                  <span className="text-sm">Average Impact: <strong>{payload[0]?.value}</strong>/5</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-3 h-3 bg-amber-500 rounded"></div>
+                                  <span className="text-sm">Average Effort: <strong>{payload[1]?.value}</strong>/5</span>
+                                </div>
+                                <div className="pt-2 border-t border-gray-200">
+                                  <span className="text-sm text-gray-600">
+                                    Efficiency Ratio: <strong>{(payload[0]?.value / payload[1]?.value || 0).toFixed(2)}</strong>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar 
+                      dataKey="avgImpact" 
+                      fill="url(#impactGradient)" 
+                      name="Average Impact Score"
+                      radius={[4, 4, 0, 0]}
+                      stroke="#059669"
+                      strokeWidth={1}
+                    />
+                    <Bar 
+                      dataKey="avgEffort" 
+                      fill="url(#effortGradient)" 
+                      name="Average Effort Score"
+                      radius={[4, 4, 0, 0]}
+                      stroke="#D97706"
+                      strokeWidth={1}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
+                
+                {/* Performance Insights */}
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Award className="w-5 h-5 text-emerald-600" />
+                      <span className="font-semibold text-emerald-800">Top Performer</span>
+                    </div>
+                    <div className="text-sm text-emerald-700">
+                      {segmentData.length > 0 ? 
+                        segmentData.reduce((prev, current) => 
+                          (prev.efficiency > current.efficiency) ? prev : current
+                        ).name : 'No data'}
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Target className="w-5 h-5 text-blue-600" />
+                      <span className="font-semibold text-blue-800">Highest Impact</span>
+                    </div>
+                    <div className="text-sm text-blue-700">
+                      {segmentData.length > 0 ? 
+                        segmentData.reduce((prev, current) => 
+                          (prev.avgImpact > current.avgImpact) ? prev : current
+                        ).name : 'No data'}
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <AlertTriangle className="w-5 h-5 text-amber-600" />
+                      <span className="font-semibold text-amber-800">Needs Attention</span>
+                    </div>
+                    <div className="text-sm text-amber-700">
+                      {segmentData.length > 0 ? 
+                        segmentData.reduce((prev, current) => 
+                          (prev.efficiency < current.efficiency) ? prev : current
+                        ).name : 'No data'}
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

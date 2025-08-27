@@ -1,5 +1,5 @@
 import React from 'react';
-import MatrixPlot from './MatrixPlot';
+import EnhancedMatrixPlot from './analytics/EnhancedMatrixPlot';
 import SummaryMetricsLegoBlock from './lego-blocks/SummaryMetricsLegoBlock';
 import ReportsTabLegoBlock from './lego-blocks/ReportsTabLegoBlock';
 import ExportButton from './lego-blocks/ExportButton';
@@ -46,7 +46,7 @@ export default function DashboardView() {
         </TabsList>
 
         <TabsContent value="matrix">
-          <MatrixPlot />
+          <EnhancedMatrixPlot />
         </TabsContent>
 
         <TabsContent value="reports">
