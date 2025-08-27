@@ -32,25 +32,7 @@ export function safeSum(values: (number | null | undefined)[]): number {
   return Math.max(0, result);
 }
 
-/**
- * Safely converts string boolean to actual boolean (for existing string-based system)
- */
-export function safeBooleanFromString(value: string | boolean | null | undefined): boolean {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') {
-    return value.toLowerCase() === 'true';
-  }
-  return false;
-}
-
-/**
- * Safely converts boolean to string (for existing string-based system)
- */
-export function safeBooleanToString(value: boolean | string | null | undefined): string {
-  if (typeof value === 'string') return value === 'true' ? 'true' : 'false';
-  if (typeof value === 'boolean') return value ? 'true' : 'false';
-  return 'false';
-}
+// Boolean utility functions removed - now using consistent string enums throughout
 
 /**
  * Safe number parsing with default value

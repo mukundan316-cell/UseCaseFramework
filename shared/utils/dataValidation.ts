@@ -5,16 +5,13 @@
  */
 
 import { z } from 'zod';
-import { safeBooleanFromString, safeBooleanToString, safeNumber, validateScoreRange } from './safeMath';
+import { safeNumber, validateScoreRange } from './safeMath';
 
 /**
  * Enhanced boolean validation that works with existing string-based boolean system
  */
-export const enhancedBooleanValidation = z.union([
-  z.boolean(),
-  z.enum(['true', 'false']),
-  z.string().transform(val => safeBooleanFromString(val))
-]).transform(val => safeBooleanToString(val as any));
+// Simplified boolean validation - consistent string enums only
+export const enhancedBooleanValidation = z.enum(['true', 'false']);
 
 /**
  * Enhanced score validation with range constraints
@@ -83,7 +80,7 @@ export function validateUseCaseData(data: any): { isValid: boolean; errors: stri
     }
   });
   
-  // Boolean field validation (works with existing string system)
+  // Boolean field validation - consistent string enum validation
   ['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
    'thirdPartyModel', 'humanAccountability'].forEach(field => {
     if (data[field] != null) {
@@ -137,10 +134,12 @@ export function prepareDataForDatabase(data: any): any {
       return;
     }
     
-    // Handle boolean strings (preserve existing system)
+    // Handle boolean string fields - pass through valid string values
     if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
          'thirdPartyModel', 'humanAccountability'].includes(key)) {
-      cleanData[key] = safeBooleanToString(value as string | boolean);
+      if (typeof value === 'string' && ['true', 'false'].includes(value)) {
+        cleanData[key] = value;
+      }
       return;
     }
     

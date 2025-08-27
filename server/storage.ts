@@ -190,12 +190,10 @@ export class DatabaseStorage implements IStorage {
         return;
       }
       
-      // Handle boolean strings
+      // Handle boolean string fields - simplified validation
       if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
            'thirdPartyModel', 'humanAccountability'].includes(key)) {
-        if (typeof value === 'boolean') {
-          cleanUpdates[key] = value ? 'true' : 'false';
-        } else if (typeof value === 'string' && ['true', 'false'].includes(value)) {
+        if (typeof value === 'string' && ['true', 'false'].includes(value)) {
           cleanUpdates[key] = value;
         }
         return;

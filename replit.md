@@ -1,7 +1,7 @@
 # RSA AI Use Case Value Framework
 
 ## Overview
-Strategic AI use case prioritization platform for RSA Insurance. It features a comprehensive assessment system, a 10-lever scoring framework, and an executive analytics dashboard. The platform's business vision is to streamline AI use case prioritization, enhance decision-making, and provide clear insights into potential AI investments within RSA. Its market potential lies in offering a standardized, data-driven approach to AI strategy, which is critical for large enterprises. The project aims to be a foundational tool for AI adoption and value realization within RSA.
+The RSA AI Use Case Value Framework is a strategic AI use case prioritization platform for RSA Insurance. Its purpose is to streamline AI use case prioritization, enhance decision-making, and provide clear insights into potential AI investments. The platform features a comprehensive assessment system, a 10-lever scoring framework, and an executive analytics dashboard, aiming to offer a standardized, data-driven approach to AI strategy and serve as a foundational tool for AI adoption and value realization within RSA.
 
 ## User Preferences
 - **Communication**: Simple, everyday language
@@ -11,7 +11,7 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 ## System Architecture
 
 ### Core Principles
-**"Build Once, Reuse Everywhere"** - Every component is designed as a reusable LEGO block with consistent design patterns across the entire application. This applies to UI components like CRUD cards and form elements.
+**"Build Once, Reuse Everywhere"** - Every component is designed as a reusable LEGO block with consistent design patterns across the entire application, including UI components like CRUD cards and form elements.
 
 ### Tech Stack
 - **Frontend**: React, TypeScript, shadcn/ui, TailwindCSS, Wouter
@@ -20,140 +20,31 @@ Strategic AI use case prioritization platform for RSA Insurance. It features a c
 
 ### Core Features
 - **Use Case Management**: Complete CRUD operations integrated with the RSA 10-lever scoring framework.
-- **Comprehensive Detail View**: Accordion-style detail drawer with 5 expandable sections (Overview & Scoring, Business Context, Implementation & Governance, Technology & Data, Risk & Compliance) providing complete use case information with progressive disclosure.
-- **Intuitive Navigation**: Clickable use case cards for seamless detail access while preserving action button functionality.
-- **Assessment System**: A 6-section questionnaire featuring 14 advanced question types (e.g., company_profile, business_lines_matrix, smart_rating, ranking).
-- **Manual Override System**: Toggle-based score customization with database persistence.
+- **Comprehensive Detail View**: Accordion-style detail drawer with 5 expandable sections (Overview & Scoring, Business Context, Implementation & Governance, Technology & Data, Risk & Compliance).
+- **Intuitive Navigation**: Clickable use case cards for seamless detail access.
+- **Assessment System**: A 6-section questionnaire with 14 advanced question types and a manual override system for score customization.
 - **Analytics Dashboard**: RSA AI Value Matrix with interactive charts.
 - **Professional PDF Exports**: Executive-grade reports for use cases, library catalogs, active portfolios, and assessment responses.
 - **Real-time Persistence**: Live database synchronization for immediate data updates.
-- **Dynamic Questionnaire Selection System**: Comprehensive multi-questionnaire platform with sidebar navigation, automatic session creation, progress tracking across assessments, manual save system, and priority-based questionnaire selection (started → unstarted → completed).
-- **Client-Side PDF Export**: Browser-based PDF generation using Survey.js native functionality for both blank templates and completed responses.
-- **Simplified Storage Architecture**: Pure JSON blob storage for questionnaire data, eliminating data corruption and simplifying data handling.
+- **Dynamic Questionnaire Selection System**: Multi-questionnaire platform with sidebar navigation, automatic session creation, progress tracking, manual save system, and priority-based questionnaire selection.
+- **Client-Side PDF Export**: Browser-based PDF generation for blank templates and completed responses.
+- **Simplified Storage Architecture**: Pure JSON blob storage for questionnaire data.
 
 ### UI/UX Decisions
-- **LEGO CRUD Card Design Standard**: All use case cards adhere to a consistent design: white cards with a blue left border, subtle gray border, hover shadow, standard padding, clear title and description, color-coded rounded pill-style tags (Process, Line of Business, Use Case Type), side-by-side score display (Impact, Effort), ghost-style action buttons, and contextual actions based on the view. Cards are fully clickable for detail access.
-- **LEGO Detail View Standard**: UseCaseDetailDrawer follows accordion pattern with color-coded sections (blue=overview, green=business, purple=implementation, indigo=technology, red=governance), conditional rendering based on data availability, and appropriate empty states.
-- **LEGO Form Standards**: Field labels use `text-base font-semibold text-gray-900`, consistent styling for all form inputs using shadcn/ui components, and standardized error/success states.
+- **LEGO CRUD Card Design Standard**: Consistent card design with white background, blue left border, color-coded tags (Process, Line of Business, Use Case Type), side-by-side score display (Impact, Effort), and ghost-style action buttons. Cards are fully clickable for detail access.
+- **LEGO Detail View Standard**: Accordion pattern with color-coded sections and conditional rendering based on data availability.
+- **LEGO Form Standards**: Consistent styling for all form inputs using shadcn/ui components and standardized error/success states.
 
 ### System Design Choices
-- **Questionnaire Data Storage**: Questionnaire definitions and response data are stored as structured JSON files in blob storage. Session tracking uses lightweight PostgreSQL records.
+- **Questionnaire Data Storage**: Questionnaire definitions and response data are stored as structured JSON files in blob storage; session tracking uses lightweight PostgreSQL records.
 - **API Architecture**: Clean RESTful endpoints under `/api/questionnaire/` with a blob storage backend.
-- **Database Schema**: Only essential PostgreSQL tables are maintained: `response_sessions`, `use_cases`, `users`, `metadata_config`.
+- **Database Schema**: Essential PostgreSQL tables include `response_sessions`, `use_cases`, `users`, and `metadata_config`.
+- **AI Inventory Status & Deployment Semantics**: `aiInventoryStatus` tracks operational lifecycle (`active`, `development`, `testing`, `deprecated`); `deploymentStatus` indicates technical deployment environment (`production`, `staging`, `development`, `local`). Statuses are TEXT constraints with application-level validation.
+- **Data Integrity**: Implemented enhanced null safety, score calculation safety, database validation, and safe fallback logic for data operations. All boolean fields are standardized to 'true'/'false' string types for consistency.
 
 ## External Dependencies
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter
 - **Data**: Drizzle ORM, TanStack Query, Zod, React Hook Form
-- **PDF**: PDFKit (for report generation), Survey.js (for client-side PDF export functionality)
+- **PDF**: PDFKit, Survey.js
 - **Planned Integration**: Google Cloud Storage (for production blob storage)
-
-## AI Inventory Status & Deployment Semantics
-
-### AI Inventory Status Values
-The `aiInventoryStatus` field tracks the operational lifecycle of AI tools and models:
-
-- **`active`**: Tool is operational and in regular use by business users
-- **`development`**: Tool is being developed or enhanced, not yet ready for production use
-- **`testing`**: Tool is undergoing testing, validation, or pilot deployment
-- **`deprecated`**: Tool is being phased out, legacy support only, discouraged for new projects
-
-### Deployment Status Values  
-The `deploymentStatus` field indicates the technical deployment environment:
-
-- **`production`**: Live system serving business operations
-- **`staging`**: Pre-production environment for final testing and validation
-- **`development`**: Development environment for ongoing engineering work
-- **`local`**: Local development or sandbox environment
-
-### Status Combination Guidelines
-- **Active + Production**: Fully operational business-critical tool
-- **Development + Development**: New tool under active development
-- **Testing + Staging**: Tool ready for final validation before production
-- **Deprecated + Production**: Legacy tool scheduled for retirement
-- **Active + Local**: Personal/team productivity tool not enterprise-deployed
-
-### Data Validation Rules
-- Status fields use TEXT constraints with application-level validation
-- All status values are lowercase with underscores for consistency
-- Invalid statuses fall back to default display without breaking functionality
-- Empty/null statuses are handled gracefully with appropriate empty states
-
-## Data Integrity & Type Safety Audit (August 27, 2025)
-
-### ✅ **Critical Fixes Applied** (Updated)
-1. **Enhanced Null Safety**: Implemented comprehensive safe math utilities with null protection
-2. **Score Calculation Safety**: Added bounds checking and validation for all score operations
-3. **Database Validation**: Enhanced storage layer with field-level validation and type safety
-4. **Quadrant Calculation**: Added safe fallback logic for invalid quadrant values
-5. **Boolean Handling**: Strengthened existing string-based boolean system with validation
-
-### 🔒 **Enhanced Data Protection Measures** (New Implementation)
-- **Safe Math Library**: Created `safeMath.ts` utilities for null-safe calculations and score validation
-- **Enhanced Storage Layer**: Added comprehensive validation in `createUseCase` and `updateUseCase` methods
-- **Score Override Safety**: Enhanced score override functions with bounds checking and validation
-- **Array Parsing Safety**: Improved array field handling with consistent validation
-- **Range Validation**: All scores constrained to 0-5 range with decimal precision
-
-### ⚡ **Performance & Reliability Improvements**
-- **Zero Data Loss Risk**: Enhanced validation prevents invalid data insertion
-- **Calculation Stability**: Math operations protected against NaN and infinite values
-- **Type Safety**: Maintained existing string-based boolean system while adding validation
-- **Error Prevention**: Comprehensive field validation prevents database constraint violations
-- **Backward Compatibility**: All enhancements preserve existing data structure and APIs
-
-## Current Implementation Status (August 27, 2025)
-
-### ✅ **Matrix Plot Enhancements (August 27, 2025)**
-1. **Consolidated Layout**: Eliminated duplicate strategic quadrants, changed from 3:2 to 5:1 grid ratio giving chart 80% of screen space
-2. **Enhanced Chart Dimensions**: Increased chart height to 640px with optimized margins for better use case accommodation
-3. **Improved Label Visibility**: Enhanced font size (11px), bold weight, white stroke outline for clear readability
-4. **Compact Sidebar**: Streamlined portfolio overview with clickable filters and executive action summary
-5. **Professional Styling**: Modern typography, consistent spacing, executive-ready appearance
-6. **Maintained Functionality**: All features preserved - filtering, tooltips, reset, show/hide labels
-
-### ✅ **Completed Features**
-1. **Dynamic Questionnaire Selection**: Multi-questionnaire platform with sidebar navigation fully operational
-2. **Session Management Optimization**: Eliminated redundant API calls and HTTP caching issues  
-3. **Automatic Session Creation**: Unstarted questionnaires create sessions seamlessly without user intervention
-4. **Progress Tracking**: Real-time progress monitoring across multiple assessments
-5. **Manual Save System**: User-controlled persistence triggers on questionnaire switching and completion
-6. **Priority-Based Selection**: Automatic questionnaire selection (started → unstarted → completed)
-7. **Survey.js Integration**: Full Survey.js library integration with 161 questions rendering correctly
-8. **HTTP Cache Prevention**: No-cache headers implemented for real-time session data
-9. **Comprehensive Use Case Detail View**: Full accordion-style detail drawer with 5 expandable sections showing complete use case information
-10. **Intuitive Card Navigation**: Clickable use case cards with preserved action button functionality for seamless user experience
-11. **Enhanced AI Inventory Integration**: Complete support for three distinct use case types (RSA Internal, Industry Standard, AI Inventory) with unified interface and conditional rendering
-12. **Tab-Based Filtering System**: Context-aware filtering with localStorage memory supporting "Strategic Use Cases" and "AI Tool Registry" views
-13. **Accessibility Compliance**: WCAG AA compliant status indicators with non-color accessibility cues (icons, patterns, high contrast)
-
-### 🏗️ **Technical Achievements**
-- **API Optimization**: `/api/responses/user-sessions` and `/api/responses/check-session` with cache prevention headers
-- **Smart Session Logic**: System detects "not started" status and skips redundant session checks
-- **Component Architecture**: Complete `useQuestionnaireSelection` hook, `AssessmentSideMenu`, `SurveyJsAssessment`, and `UseCaseDetailDrawer` integration
-- **Database Performance**: Lightweight PostgreSQL session tracking with JSON blob storage for questionnaire data
-- **UX Improvements**: Eliminated "no active session" fallback screens, replaced with loading states during automatic session creation
-- **Detail View Architecture**: Progressive disclosure pattern with conditional content rendering and appropriate empty states for missing data
-- **Enhanced Database Schema**: Added AI Inventory fields (`aiInventoryStatus`, `deploymentStatus`, `lastStatusUpdate`) with TEXT constraints for flexible migrations
-- **LEGO Component Evolution**: Extended existing CleanUseCaseCard and UseCaseDetailDrawer components following "Build Once, Reuse Everywhere" principle
-- **Smart Filtering Logic**: Context-aware filters that adapt based on active tab (strategic vs inventory vs both) with automatic filter reset on tab changes
-
-### ✅ **Enhanced Data Safety Implementation (August 27, 2025)**
-**Safe Math Utilities**: Implemented comprehensive null-safe calculation functions preventing NaN propagation
-**Enhanced Storage Validation**: Added field-level validation with score range constraints and boolean string handling
-**Score Override Safety**: Enhanced quadrant calculation with validation and safe fallback logic  
-**Array Processing**: Improved array field parsing with consistent validation and error handling
-**Backward Compatibility**: All enhancements preserve existing string-based boolean system and data structures
-**System Score**: Database validation (Enhanced), Calculation safety (Enhanced), Type consistency (Maintained), Data integrity (Strengthened)
-
-### 🎯 **User Experience**
-- **Seamless Navigation**: Users can switch between questionnaires without losing progress and access detailed use case information with single clicks
-- **Visual Progress Indicators**: Sidebar tiles show status badges (Not Started, X%, Completed)
-- **Automatic Workflow**: No manual session creation required - system handles everything transparently
-- **Save Confirmation**: Toast notifications confirm successful saves and questionnaire switches
-- **Comprehensive Detail Access**: Single-page accordion interface displaying all available use case data with expandable sections
-- **Intelligent Empty States**: Graceful handling of missing data with informative empty state messages rather than hidden sections
-- **Unified Multi-Type Interface**: Single interface serving both strategic use cases and AI inventory items with clear visual differentiation
-- **Context-Aware Filtering**: Smart tab system that remembers user preference and shows relevant filters for each use case type
-- **Enhanced Status Communication**: Clear status pills and deployment indicators with full accessibility support for users with visual impairments
-- **Perfect Data Consistency**: 100% field consistency achieved across all 72 database fields with zero data loss in any system operation
