@@ -8,10 +8,9 @@ import { z } from 'zod';
 import { safeNumber, validateScoreRange } from './safeMath';
 
 /**
- * Enhanced boolean validation that works with existing string-based boolean system
+ * Clean boolean validation - consistent string enums (no transformations needed)
  */
-// Simplified boolean validation - consistent string enums only
-export const enhancedBooleanValidation = z.enum(['true', 'false']);
+export const cleanBooleanValidation = z.enum(['true', 'false']);
 
 /**
  * Enhanced score validation with range constraints
