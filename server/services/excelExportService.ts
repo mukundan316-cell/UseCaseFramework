@@ -215,7 +215,7 @@ export class ExcelExportService {
         useCase.aiInventory.dataOutsideUkEu || '',
         useCase.aiInventory.thirdPartyModel || '',
         useCase.aiInventory.humanAccountability || '',
-        useCase.display.hasScoring ? (useCase.scoring.regulatoryCompliance || '') : '',
+        useCase.aiInventory.regulatoryCompliance || '',
         useCase.display.hasScoring && useCase.scoring.manualImpactScore ? 'Yes' : '',
         useCase.display.hasScoring ? (useCase.scoring.overrideReason || '') : '',
         useCase.portfolioStatus.activationReason || '',

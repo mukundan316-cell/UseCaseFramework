@@ -224,12 +224,13 @@ export class UseCaseDataExtractor {
       aiInventoryStatus: useCase.aiInventoryStatus || null,
       deploymentStatus: useCase.deploymentStatus || null,
       lastStatusUpdate: useCase.lastStatusUpdate || null,
-      // RSA Ethical Principles
+      // RSA Ethical Principles (from use case direct properties)
       explainabilityRequired: useCase.explainabilityRequired || null,
       customerHarmRisk: useCase.customerHarmRisk || null,
       dataOutsideUkEu: useCase.dataOutsideUkEu || null,
       thirdPartyModel: useCase.thirdPartyModel || null,
       humanAccountability: useCase.humanAccountability || null,
+      regulatoryCompliance: useCase.regulatoryCompliance || null,
     };
 
     // Display Helpers

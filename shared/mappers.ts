@@ -44,10 +44,10 @@ export interface UseCaseFrontend {
   activationReason?: string;
   activationDate?: Date;
   createdAt?: Date;
-  // Manual Override fields
-  manualImpactScore?: number;
-  manualEffortScore?: number;
-  manualQuadrant?: string;
+  // Manual Override fields - match database nullable types
+  manualImpactScore?: number | null;
+  manualEffortScore?: number | null;
+  manualQuadrant?: string | null;
   overrideReason?: string;
   // AI Inventory specific fields
   aiInventoryStatus?: string;
@@ -76,12 +76,12 @@ export interface UseCaseFrontend {
   aiMlTechnologies?: string[];
   dataSources?: string[];
   stakeholderGroups?: string[];
-  // RSA Ethical Principles
-  explainabilityRequired?: string;
+  // RSA Ethical Principles - align with database boolean/text types 
+  explainabilityRequired?: boolean;
   customerHarmRisk?: string;
-  dataOutsideUkEu?: string;
-  thirdPartyModel?: string;
-  humanAccountability?: string;
+  dataOutsideUkEu?: boolean;
+  thirdPartyModel?: boolean;
+  humanAccountability?: boolean;
   regulatoryCompliance?: number;
   // Missing AI governance field from database
   thirdPartyProvidedModel?: string;
@@ -136,6 +136,11 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     rsaPolicyGovernance: dbUseCase.rsaPolicyGovernance || undefined,
     validationResponsibility: dbUseCase.validationResponsibility || undefined,
     informedBy: dbUseCase.informedBy || undefined,
+    // Manual override fields - preserve null values for proper type compatibility
+    manualImpactScore: dbUseCase.manualImpactScore,
+    manualEffortScore: dbUseCase.manualEffortScore,
+    manualQuadrant: dbUseCase.manualQuadrant || undefined,
+    overrideReason: dbUseCase.overrideReason || undefined,
     // Convert Date fields from null to undefined
     activationDate: dbUseCase.activationDate || undefined,
     lastStatusUpdate: dbUseCase.lastStatusUpdate || undefined,

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, real, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, real, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -40,12 +40,12 @@ export const useCases = pgTable("use_cases", {
   modelRisk: integer("model_risk").notNull(),
   adoptionReadiness: integer("adoption_readiness").notNull(),
   
-  // RSA Ethical Principles
-  explainabilityRequired: text("explainability_required"),
+  // RSA Ethical Principles - align with database types
+  explainabilityRequired: boolean("explainability_required"),
   customerHarmRisk: text("customer_harm_risk"),
-  dataOutsideUkEu: text("data_outside_uk_eu"),
-  thirdPartyModel: text("third_party_model"),
-  humanAccountability: text("human_accountability"),
+  dataOutsideUkEu: boolean("data_outside_uk_eu"),
+  thirdPartyModel: boolean("third_party_model"),
+  humanAccountability: boolean("human_accountability"),
   regulatoryCompliance: integer("regulatory_compliance"),
   
   // AI Inventory Governance Fields
