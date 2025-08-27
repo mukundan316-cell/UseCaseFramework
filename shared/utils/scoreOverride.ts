@@ -1,5 +1,6 @@
 import { UseCase } from '../schema';
 import { safeNumber, validateScoreRange } from './safeMath';
+import { APP_CONFIG } from '../constants/app-config';
 
 /**
  * Gets the effective impact score (manual override or calculated)
@@ -44,8 +45,8 @@ export function getEffectiveEffortScore(useCase: UseCase): number {
 }
 
 /**
- * Gets the effective quadrant (manual override or stored database value)
- * Enhanced with validation and safe fallback
+ * Gets the effective quadrant (manual override or dynamically calculated from current scores)
+ * FIX: Always calculate based on current effective scores to ensure real-time updates
  */
 export function getEffectiveQuadrant(useCase: UseCase): string {
   const validQuadrants = ['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist'];
@@ -55,19 +56,16 @@ export function getEffectiveQuadrant(useCase: UseCase): string {
     return useCase.manualQuadrant;
   }
   
-  // Use the stored quadrant from database as authoritative source
-  const dbQuadrant = useCase.quadrant;
-  if (dbQuadrant && validQuadrants.includes(dbQuadrant)) {
-    return dbQuadrant;
-  }
-  
-  // Safe fallback based on scores if quadrant is invalid
+  // CRITICAL FIX: Always calculate quadrant based on current effective scores
+  // This ensures real-time updates when impact/effort scores change
   const impact = getEffectiveImpactScore(useCase);
   const effort = getEffectiveEffortScore(useCase);
+  const threshold = APP_CONFIG.SCORING.DEFAULT_THRESHOLD;
   
-  if (impact >= 3 && effort <= 3) return 'Quick Win';
-  if (impact >= 3 && effort > 3) return 'Strategic Bet';
-  if (impact < 3 && effort <= 3) return 'Experimental';
+  // Use standard quadrant calculation logic (aligned with shared/calculations.ts)
+  if (impact >= threshold && effort < threshold) return 'Quick Win';
+  if (impact >= threshold && effort >= threshold) return 'Strategic Bet';
+  if (impact < threshold && effort < threshold) return 'Experimental';
   return 'Watchlist';
 }
 

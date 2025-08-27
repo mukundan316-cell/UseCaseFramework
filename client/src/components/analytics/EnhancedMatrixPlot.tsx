@@ -48,6 +48,18 @@ export default function EnhancedMatrixPlot() {
       // Dynamic bubble sizing based on business impact (aligned with RSA scoring framework)
       const bubbleSize = calculateBubbleSize(effectiveImpact);
       
+      // RCA Debug: Track the complete data flow
+      if (useCase.title.includes("Enter-once")) {
+        console.log(`RCA DEBUG - ${useCase.title}:`, {
+          rawImpact: useCase.impactScore,
+          rawEffort: useCase.effortScore, 
+          effectiveImpact,
+          effectiveEffort,
+          calculatedBubbleSize: bubbleSize,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       return {
         id: useCase.id, // Add unique id for React key
         x: effectiveEffort,
