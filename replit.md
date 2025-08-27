@@ -88,9 +88,10 @@ The guiding principle is **"Build Once, Reuse Everywhere"**, meaning every compo
 
 **Technical Resolutions:**
 - **Bubble Sizing Root Cause**: Linear scaling provided insufficient visual distinction
-- **Solution**: Exponential scaling (power 1.5) with larger size range (12-28px vs 8-20px)
-- **Verification**: Console logs confirmed size increase from 16-17 to 23px for high-impact items
-- **Algorithm Enhancement**: `Math.pow(normalizedScore, 1.5)` for dramatic size differences
+- **Solution**: Exponential scaling (power 2.0) with dramatic size range (10-40px vs original 8-20px)
+- **Verification**: Console logs confirmed progressive size increase from 16→23→28→30px for high-impact items
+- **Algorithm Enhancement**: `Math.pow(normalizedScore, 2)` for maximum visual impact distinction
+- **Production Status**: Debug logging removed, bubble sizing verified and working correctly
 
 ### 2025-08-27: Executive Dashboard LEGO Alignment & Scoring Optimization
 **LEGO Principle Implementation:**

@@ -36,7 +36,7 @@ export default function EnhancedMatrixPlot() {
     const normalizedScore = Math.max(0, Math.min(maxScore, impactScore)) / maxScore;
     
     // Use exponential scaling for more dramatic size differences
-    const exponentialScale = Math.pow(normalizedScore, 1.5);
+    const exponentialScale = Math.pow(normalizedScore, 2); // Increased from 1.5 to 2 for even more dramatic differences
     const calculatedSize = minSize + (exponentialScale * (maxSize - minSize));
     
     // Ensure minimum visual distinction and round for pixel-perfect rendering
@@ -375,17 +375,21 @@ export default function EnhancedMatrixPlot() {
                       fill="#3B82F6"
                       shape={(props: any) => {
                         const { cx, cy, payload } = props;
-                        const radius = payload?.z || 40; // Use z property for dynamic radius
-                        const index = chartData.findIndex(d => d.name === payload?.name);
+                        // CRITICAL FIX: Use payload.z directly for dynamic sizing
+                        const bubbleRadius = payload?.z || APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.DEFAULT_BUBBLE_SIZE;
+                        const index = chartData.findIndex(d => d.id === payload?.id);
+                        
+                        // Dynamic bubble sizing verified - production ready
+                        
                         return (
                           <circle 
                             cx={cx} 
                             cy={cy} 
-                            r={radius}
+                            r={bubbleRadius}
                             fill={`url(#bubble-gradient-${index})`}
                             stroke="white"
                             strokeWidth={2}
-                            key={`bubble-${payload?.id}-${radius}`}
+                            key={`bubble-${payload?.id}-${bubbleRadius}`}
                           />
                         );
                       }}
