@@ -143,17 +143,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     adoptionReadiness: 3,
   });
 
-  // Manual override toggle state
+  // Manual override toggle state - managed by ScoreOverrideLegoBlock
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(false);
-  
-  // Handle manual override toggle with proper cleanup
-  const handleOverrideToggle = (enabled: boolean) => {
-    console.log('🎛️ CRUDUseCaseModal: Override toggle changed to:', enabled);
-    setIsOverrideEnabled(enabled);
-    
-    // The actual clearing is handled by ScoreOverrideLegoBlock
-    // This just manages the parent state
-  };
 
   // Tab state management
   const [activeTab, setActiveTab] = useState('basic');
@@ -327,6 +318,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         (useCase as any).manualQuadrant
       );
       setIsOverrideEnabled(hasManualOverrides);
+      console.log('🏁 Edit mode: Initialized override toggle to:', hasManualOverrides);
       
       setRsaSelection({
         isActiveForRsa: rsaActive,
@@ -602,10 +594,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             }
           }
           
-          // Handle numeric fields that might come as strings
-          if (['manualImpactScore', 'manualEffortScore', 'regulatoryCompliance'].includes(key) && value !== null && value !== undefined) {
-            const numValue = Number(value);
-            changedData[key] = isNaN(numValue) ? null : numValue;
+          // Handle numeric fields that might come as strings - ALLOW null values to pass through
+          if (['manualImpactScore', 'manualEffortScore', 'regulatoryCompliance'].includes(key)) {
+            if (value === null || value === undefined) {
+              changedData[key] = null; // Explicitly set null values
+            } else {
+              const numValue = Number(value);
+              changedData[key] = isNaN(numValue) ? null : numValue;
+            }
           }
         });
         
@@ -616,7 +612,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         
         // Validation constraints removed to allow free form submission
         
-        console.log('Sending data for update:', changedData);
+        console.log('🚀 Sending data for update (manual overrides should be null if cleared):', {
+          manualImpactScore: changedData.manualImpactScore,
+          manualEffortScore: changedData.manualEffortScore,
+          manualQuadrant: changedData.manualQuadrant
+        });
+        console.log('Full update data:', changedData);
         console.log('Calling updateUseCase with ID:', useCase.id);
         const result = await updateUseCase(useCase.id, changedData);
         console.log('Update successful:', result);
@@ -660,9 +661,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             }
           }
           
-          if (['manualImpactScore', 'manualEffortScore', 'regulatoryCompliance'].includes(key) && value !== null && value !== undefined) {
-            const numValue = Number(value);
-            createData[key] = isNaN(numValue) ? null : numValue;
+          if (['manualImpactScore', 'manualEffortScore', 'regulatoryCompliance'].includes(key)) {
+            if (value === null || value === undefined) {
+              createData[key] = null; // Explicitly set null values
+            } else {
+              const numValue = Number(value);
+              createData[key] = isNaN(numValue) ? null : numValue;
+            }
           }
         });
         
@@ -1563,7 +1568,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 calculatedImpact={currentImpactScore}
                 calculatedEffort={currentEffortScore}
                 calculatedQuadrant={currentQuadrant}
-                onToggleChange={handleOverrideToggle}
+                onToggleChange={setIsOverrideEnabled}
               />
             )}
                   </div>
