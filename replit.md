@@ -88,8 +88,8 @@ The guiding principle is **"Build Once, Reuse Everywhere"**, meaning every compo
 
 **Technical Resolutions:**
 - **Bubble Sizing Root Cause**: Exponential scaling (power 2.0) was creating oversized bubbles for medium-impact scores
-- **Final Solution**: Moderate exponential scaling (power 1.3) with proportional size range (8-24px)
-- **Verification**: For 3.8/5 impact score, bubble size reduced from 27px→17px (appropriate medium size)
+- **Final Solution**: Moderate exponential scaling (power 1.3) with subtle size range (3-8px for better proportional visibility)
+- **Verification**: For 3.8/5 impact score, bubble size reduced from 27px→19px→6px (appropriate subtle medium size)
 - **Algorithm Enhancement**: `Math.pow(normalizedScore, 1.3)` for realistic proportional scaling
 - **Recharts Compliance**: Custom shape implementation properly uses payload.z for dynamic radius
 - **Production Status**: Bubble sizing calibrated correctly, debug logging removed

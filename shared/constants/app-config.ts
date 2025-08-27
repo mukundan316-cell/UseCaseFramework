@@ -64,9 +64,9 @@ export const APP_CONFIG = {
   // Executive Dashboard (LEGO principle: centralized configuration)
   EXECUTIVE_DASHBOARD: {
     MATRIX_PLOT: {
-      MIN_BUBBLE_SIZE: 8, // Smaller minimum for proper scaling
-      MAX_BUBBLE_SIZE: 24, // Reasonable maximum to avoid oversized bubbles
-      DEFAULT_BUBBLE_SIZE: 14,
+      MIN_BUBBLE_SIZE: 3, // Much smaller minimum for subtle low-impact items
+      MAX_BUBBLE_SIZE: 8, // Much smaller maximum for proportional scaling
+      DEFAULT_BUBBLE_SIZE: 5,
       HIGH_VALUE_THRESHOLD: 4.0,
       LOW_EFFORT_THRESHOLD: 2.0,
     },

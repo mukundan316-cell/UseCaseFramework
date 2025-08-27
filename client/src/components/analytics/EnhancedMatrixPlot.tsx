@@ -379,7 +379,7 @@ export default function EnhancedMatrixPlot() {
                         const bubbleRadius = payload?.z || APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.DEFAULT_BUBBLE_SIZE;
                         const index = chartData.findIndex(d => d.id === payload?.id);
                         
-                        // Bubble sizing correctly calibrated for proportional impact visualization
+                        // Bubble sizing optimized for subtle proportional visualization (3-8px range)
                         
                         return (
                           <circle 
