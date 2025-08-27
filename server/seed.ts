@@ -157,7 +157,7 @@ export async function seedDatabase() {
         sampleUseCase.revenueImpact,
         sampleUseCase.costSavings,
         sampleUseCase.riskReduction,
-        sampleUseCase.brokerPartnerExperience,
+        sampleUseCase.brokerPartnerExperience || 3,
         sampleUseCase.strategicFit
       );
       
@@ -165,18 +165,38 @@ export async function seedDatabase() {
         sampleUseCase.dataReadiness,
         sampleUseCase.technicalComplexity,
         sampleUseCase.changeImpact,
-        sampleUseCase.modelRisk,
+        sampleUseCase.modelRisk || 3,
         sampleUseCase.adoptionReadiness
       );
       
       const quadrant = calculateQuadrant(impactScore, effortScore);
       
-      await db.insert(useCases).values({
-        ...sampleUseCase,
+      // Map old field names to new schema
+      const useCaseData = {
+        title: sampleUseCase.title,
+        description: sampleUseCase.description,
+        valueChainComponent: sampleUseCase.valueChainComponent,
+        process: sampleUseCase.process,
+        lineOfBusiness: sampleUseCase.lineOfBusiness,
+        businessSegment: sampleUseCase.businessSegment,
+        geography: sampleUseCase.geography,
+        useCaseType: sampleUseCase.useCaseType,
+        revenueImpact: sampleUseCase.revenueImpact,
+        costSavings: sampleUseCase.costSavings,
+        riskReduction: sampleUseCase.riskReduction,
+        brokerPartnerExperience: sampleUseCase.brokerPartnerExperience || 3,
+        strategicFit: sampleUseCase.strategicFit,
+        dataReadiness: sampleUseCase.dataReadiness,
+        technicalComplexity: sampleUseCase.technicalComplexity,
+        changeImpact: sampleUseCase.changeImpact,
+        modelRisk: sampleUseCase.modelRisk || 3,
+        adoptionReadiness: sampleUseCase.adoptionReadiness,
         impactScore,
         effortScore,
         quadrant
-      });
+      };
+      
+      await db.insert(useCases).values(useCaseData);
     }
     
     console.log(`Successfully seeded ${sampleUseCases.length} use cases`);

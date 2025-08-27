@@ -10,20 +10,25 @@ export async function migrateToEnhancedFramework() {
   console.log('🔄 Starting enhanced framework migration...');
   
   try {
+    // First, ensure all required columns exist in the use_cases table
+    await db.execute(sql`
+      ALTER TABLE use_cases 
+      ADD COLUMN IF NOT EXISTS value_chain_component TEXT,
+      ADD COLUMN IF NOT EXISTS broker_partner_experience INTEGER DEFAULT 3,
+      ADD COLUMN IF NOT EXISTS model_risk INTEGER DEFAULT 3,
+      ADD COLUMN IF NOT EXISTS explainability_required TEXT,
+      ADD COLUMN IF NOT EXISTS customer_harm_risk TEXT,
+      ADD COLUMN IF NOT EXISTS data_outside_uk_eu TEXT,
+      ADD COLUMN IF NOT EXISTS third_party_model TEXT,
+      ADD COLUMN IF NOT EXISTS human_accountability TEXT;
+    `);
+    
     // Check if migration already completed - prevent re-running quadrant calculation
     const testUseCase = await db.select().from(useCases).limit(1);
     if (testUseCase.length > 0 && testUseCase[0].brokerPartnerExperience !== null) {
       console.log('✅ Enhanced framework migration already completed, skipping...');
       return;
     }
-    // Add new columns to use_cases table
-    await db.execute(sql`
-      ALTER TABLE use_cases 
-      ADD COLUMN IF NOT EXISTS broker_partner_experience INTEGER DEFAULT 3,
-      ADD COLUMN IF NOT EXISTS model_risk INTEGER DEFAULT 3,
-      ADD COLUMN IF NOT EXISTS explainability_bias INTEGER DEFAULT 3,
-      ADD COLUMN IF NOT EXISTS regulatory_compliance INTEGER DEFAULT 3;
-    `);
     
     console.log('✅ Successfully added new framework columns');
     
