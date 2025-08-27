@@ -298,9 +298,10 @@ export default function EnhancedMatrixPlot() {
                     <XAxis 
                       type="number" 
                       dataKey="x" 
-                      domain={[0.2, 4.8]} 
+                      domain={[0.5, 5.5]} 
                       name="Implementation Effort"
-                      tickCount={5}
+                      tickCount={6}
+                      ticks={[1, 2, 3, 4, 5]}
                       tick={{ 
                         fontSize: 12, 
                         fill: '#6B7280', 
@@ -324,9 +325,10 @@ export default function EnhancedMatrixPlot() {
                     <YAxis 
                       type="number" 
                       dataKey="y" 
-                      domain={[0.2, 4.8]} 
+                      domain={[0.5, 5.5]} 
                       name="Business Impact"
-                      tickCount={5}
+                      tickCount={6}
+                      ticks={[1, 2, 3, 4, 5]}
                       tick={{ 
                         fontSize: 12, 
                         fill: '#6B7280', 
