@@ -52,11 +52,11 @@ export default function ImprovedUseCaseExplorer({
   const [selectedDetailUseCase, setSelectedDetailUseCase] = useState<UseCase | null>(null);
   
   // Tab state with localStorage memory
-  const [activeTab, setActiveTab] = useState<'rsa_internal' | 'industry_standard' | 'ai_inventory' | 'all'>(() => {
+  const [activeTab, setActiveTab] = useState<'strategic' | 'inventory' | 'both'>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('usecase-explorer-tab') as 'rsa_internal' | 'industry_standard' | 'ai_inventory' | 'all') || 'all';
+      return (localStorage.getItem('usecase-explorer-tab') as 'strategic' | 'inventory' | 'both') || 'both';
     }
-    return 'all';
+    return 'both';
   });
   
   // Save tab selection to localStorage and reset incompatible filters
@@ -66,14 +66,14 @@ export default function ImprovedUseCaseExplorer({
     }
     
     // Reset filters that don't apply to the new tab context
-    if (activeTab === 'ai_inventory') {
+    if (activeTab === 'inventory') {
       // Reset strategic-only filters
       setFilters(prev => ({
         ...prev,
         activity: '',
         quadrant: ''
       }));
-    } else if (activeTab === 'rsa_internal' || activeTab === 'industry_standard') {
+    } else if (activeTab === 'strategic') {
       // Reset inventory-only filters
       setFilters(prev => ({
         ...prev,
@@ -152,9 +152,8 @@ export default function ImprovedUseCaseExplorer({
   });
   
   // Get counts for each tab
-  const rsaInternalCount = useCases.filter(uc => (uc as any).librarySource === 'rsa_internal').length;
-  const industryStandardCount = useCases.filter(uc => (uc as any).librarySource === 'industry_standard').length;
-  const aiInventoryCount = useCases.filter(uc => (uc as any).librarySource === 'ai_inventory').length;
+  const strategicCount = useCases.filter(uc => (uc as any).librarySource !== 'ai_inventory').length;
+  const inventoryCount = useCases.filter(uc => (uc as any).librarySource === 'ai_inventory').length;
   
   // Light telemetry effects
   useEffect(() => {
