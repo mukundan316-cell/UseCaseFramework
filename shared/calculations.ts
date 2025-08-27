@@ -42,7 +42,7 @@ export function calculateImpactScore(
     (safeStrategicFit * w.strategicFit / 100)
   );
 
-  return Math.max(0, Math.min(5, weightedScore)); // Ensure result is within 0-5 range
+  return Math.max(0, Math.min(5, Math.round(weightedScore * 10) / 10)); // Ensure result is within 0-5 range and rounded to 1 decimal
 }
 
 /**
@@ -89,7 +89,7 @@ export function calculateEffortScore(
     (safeAdoptionReadiness * w.adoptionReadiness / 100)
   );
 
-  return Math.max(0, Math.min(5, weightedScore)); // Ensure result is within 0-5 range
+  return Math.max(0, Math.min(5, Math.round(weightedScore * 10) / 10)); // Ensure result is within 0-5 range and rounded to 1 decimal
 }
 
 
