@@ -77,7 +77,8 @@ The guiding principle is **"Build Once, Reuse Everywhere"**, meaning every compo
 
 ## Recent Changes & Achievements
 
-### 2025-08-27: Manual Override Toggle UI Bug Fix
+### 2025-08-27: LEGO Block Duplication Audit & Manual Override Bug Resolution
+**Manual Override Toggle UI Bug - RESOLVED ✅**
 **Critical Bug Resolution:**
 1. ✅ **Fixed Toggle State Logic**: Resolved issue where calculated values stored as manual overrides caused UI confusion
 2. ✅ **Enhanced Override Detection**: Only considers values that differ from calculated scores as actual overrides
@@ -85,10 +86,25 @@ The guiding principle is **"Build Once, Reuse Everywhere"**, meaning every compo
 4. ✅ **Proper UI Behavior**: Toggle OFF shows clean read-only calculated scores; Toggle ON shows input fields
 5. ✅ **Data Integrity**: Prevents calculated values from being incorrectly treated as manual overrides
 
-**Technical Resolution:**
-- **Root Cause**: Form was storing calculated values (4.0, 2.4, "Quick Win") in manual override fields
-- **Detection Logic**: Enhanced to compare manual values against calculated values for true override detection
-- **User Experience**: Clean toggle behavior with proper state management and form field clearing
+**Final Resolution:**
+- **Root Cause Identified**: Input fields were showing when toggle was OFF due to conditional rendering issue
+- **Fix Applied**: Corrected conditional logic in ScoreOverrideLegoBlock component  
+- **User Verification**: Toggle behavior now works perfectly - fields hidden when OFF, visible when ON
+- **Status**: Bug completely resolved and verified by user testing
+
+**LEGO Block Duplication Audit Completed:**
+1. ✅ **Scoring Components**: Identified 5 overlapping score/rating components - consolidation plan created
+2. ✅ **Percentage Components**: Found 3 duplicate percentage/value input components - merger proposed  
+3. ✅ **Configuration Patterns**: Multiple toggle patterns identified - standardization recommended
+4. ✅ **Database/API Layers**: Clean architecture confirmed - no duplications found
+5. ✅ **Rationalization Plan**: Comprehensive 3-phase plan created to reduce 13→8 components (38% reduction)
+
+**Key Findings:**
+- **38% component reduction possible** without functionality loss
+- **High-impact consolidation** in scoring/rating components (5→2 components)
+- **Medium-impact consolidation** in percentage inputs (3→1 component)
+- **Database/API layers clean** - no rationalization needed
+- **Implementation plan created**: 3-phase rollout with risk mitigation
 
 ### 2025-08-27: Quick Wins Implementation & Bubble Sizing Resolution
 **Quick Wins Delivered (Without Breaking Functionality):**
