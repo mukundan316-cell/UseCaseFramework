@@ -177,11 +177,11 @@ export default function MatrixPlot() {
                           >
                             {/* Enhanced shadow effect for depth */}
                             <circle
-                              cx={cx + 3}
-                              cy={cy + 3}
+                              cx={cx + 4}
+                              cy={cy + 4}
                               r={hoverSize}
-                              fill="rgba(0, 0, 0, 0.25)"
-                              opacity={isHovered ? 0.7 : 0.4}
+                              fill="rgba(0, 0, 0, 0.35)"
+                              opacity={isHovered ? 0.8 : 0.5}
                             />
                             
                             {/* Glow effect for recommended use cases or hover */}
@@ -199,8 +199,8 @@ export default function MatrixPlot() {
                             <circle
                               cx={cx}
                               cy={cy}
-                              r={hoverSize + 2}
-                              fill="rgba(255, 255, 255, 0.95)"
+                              r={hoverSize + 3}
+                              fill="rgba(255, 255, 255, 0.98)"
                               stroke="none"
                             />
                             
@@ -210,8 +210,8 @@ export default function MatrixPlot() {
                               cy={cy}
                               r={hoverSize}
                               fill={entry.color}
-                              stroke={entry.isRecommended ? "#FFD700" : "rgba(255, 255, 255, 0.95)"}
-                              strokeWidth={entry.isRecommended ? 6 : (isHovered ? 5 : 4)}
+                              stroke={entry.isRecommended ? "#FFD700" : "rgba(255, 255, 255, 1.0)"}
+                              strokeWidth={entry.isRecommended ? 7 : (isHovered ? 6 : 5)}
                               style={{
                                 filter: isHovered 
                                   ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' 
