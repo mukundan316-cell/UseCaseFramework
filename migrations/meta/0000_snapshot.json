@@ -1,0 +1,798 @@
+{
+  "id": "ed2ad4f8-79cc-4e8a-8408-b9fd795fee45",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.metadata_config": {
+      "name": "metadata_config",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "'default'"
+        },
+        "value_chain_components": {
+          "name": "value_chain_components",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "processes": {
+          "name": "processes",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lines_of_business": {
+          "name": "lines_of_business",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "business_segments": {
+          "name": "business_segments",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "geographies": {
+          "name": "geographies",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "use_case_types": {
+          "name": "use_case_types",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "activities": {
+          "name": "activities",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "source_types": {
+          "name": "source_types",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"rsa_internal\",\"industry_standard\",\"ai_inventory\"}'"
+        },
+        "use_case_statuses": {
+          "name": "use_case_statuses",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"Discovery\",\"Backlog\",\"In-flight\",\"Implemented\",\"On Hold\"}'"
+        },
+        "ai_ml_technologies": {
+          "name": "ai_ml_technologies",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"Machine Learning\",\"Deep Learning\",\"Natural Language Processing\",\"Computer Vision\",\"Predictive Analytics\",\"Large Language Models\",\"Reinforcement Learning\",\"Rule-based Systems\"}'"
+        },
+        "data_sources": {
+          "name": "data_sources",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"Policy Database\",\"Claims Database\",\"Customer Database\",\"External APIs\",\"Third-party Data\",\"Real-time Feeds\",\"Historical Data\",\"Regulatory Data\"}'"
+        },
+        "stakeholder_groups": {
+          "name": "stakeholder_groups",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"Underwriting Teams\",\"Claims Teams\",\"IT/Technology\",\"Business Analytics\",\"Risk Management\",\"Compliance\",\"Customer Service\",\"External Partners\"}'"
+        },
+        "quadrants": {
+          "name": "quadrants",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"Quick Win\",\"Strategic Bet\",\"Experimental\",\"Watchlist\"}'"
+        },
+        "question_types": {
+          "name": "question_types",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"text\",\"textarea\",\"select\",\"multi_select\",\"radio\",\"checkbox\",\"number\",\"date\",\"email\",\"url\",\"company_profile\",\"business_lines_matrix\",\"smart_rating\",\"multi_rating\",\"percentage_allocation\",\"percentage_target\",\"ranking\",\"currency\",\"department_skills_matrix\",\"business_performance\",\"composite\",\"dynamic_use_case_selector\"}'"
+        },
+        "response_statuses": {
+          "name": "response_statuses",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"started\",\"in_progress\",\"completed\",\"abandoned\"}'"
+        },
+        "company_tiers": {
+          "name": "company_tiers",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"Small (<£100M)\",\"Mid (£100M-£3B)\",\"Large (>£3B)\"}'"
+        },
+        "market_options": {
+          "name": "market_options",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"Personal Lines\",\"Commercial Lines\",\"Specialty Lines\",\"Reinsurance\"}'"
+        },
+        "process_activities": {
+          "name": "process_activities",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scoring_model": {
+          "name": "scoring_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.response_sessions": {
+      "name": "response_sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "questionnaire_id": {
+          "name": "questionnaire_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "respondent_email": {
+          "name": "respondent_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "respondent_name": {
+          "name": "respondent_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'started'"
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "last_updated_at": {
+          "name": "last_updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "progress_percent": {
+          "name": "progress_percent",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "current_section_id": {
+          "name": "current_section_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_question_id": {
+          "name": "current_question_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "questionnaire_definition_path": {
+          "name": "questionnaire_definition_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "response_path": {
+          "name": "response_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_score": {
+          "name": "total_score",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "section_scores": {
+          "name": "section_scores",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "questionnaire_version": {
+          "name": "questionnaire_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_questions": {
+          "name": "total_questions",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "answered_questions": {
+          "name": "answered_questions",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "total_pages": {
+          "name": "total_pages",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "completed_pages": {
+          "name": "completed_pages",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.use_cases": {
+      "name": "use_cases",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "problem_statement": {
+          "name": "problem_statement",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "process": {
+          "name": "process",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value_chain_component": {
+          "name": "value_chain_component",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "line_of_business": {
+          "name": "line_of_business",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lines_of_business": {
+          "name": "lines_of_business",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "business_segment": {
+          "name": "business_segment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "geography": {
+          "name": "geography",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "use_case_type": {
+          "name": "use_case_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "activity": {
+          "name": "activity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "processes": {
+          "name": "processes",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "activities": {
+          "name": "activities",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "business_segments": {
+          "name": "business_segments",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geographies": {
+          "name": "geographies",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revenue_impact": {
+          "name": "revenue_impact",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_savings": {
+          "name": "cost_savings",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "risk_reduction": {
+          "name": "risk_reduction",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "broker_partner_experience": {
+          "name": "broker_partner_experience",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "strategic_fit": {
+          "name": "strategic_fit",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_readiness": {
+          "name": "data_readiness",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_complexity": {
+          "name": "technical_complexity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "change_impact": {
+          "name": "change_impact",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model_risk": {
+          "name": "model_risk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "adoption_readiness": {
+          "name": "adoption_readiness",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "explainability_required": {
+          "name": "explainability_required",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "customer_harm_risk": {
+          "name": "customer_harm_risk",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_outside_uk_eu": {
+          "name": "data_outside_uk_eu",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "third_party_model": {
+          "name": "third_party_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "human_accountability": {
+          "name": "human_accountability",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ai_or_model": {
+          "name": "ai_or_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "risk_to_customers": {
+          "name": "risk_to_customers",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "risk_to_rsa": {
+          "name": "risk_to_rsa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_used": {
+          "name": "data_used",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model_owner": {
+          "name": "model_owner",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rsa_policy_governance": {
+          "name": "rsa_policy_governance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "validation_responsibility": {
+          "name": "validation_responsibility",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "informed_by": {
+          "name": "informed_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "business_function": {
+          "name": "business_function",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "third_party_provided_model": {
+          "name": "third_party_provided_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "impact_score": {
+          "name": "impact_score",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effort_score": {
+          "name": "effort_score",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quadrant": {
+          "name": "quadrant",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recommended_by_assessment": {
+          "name": "recommended_by_assessment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "manual_impact_score": {
+          "name": "manual_impact_score",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "manual_effort_score": {
+          "name": "manual_effort_score",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "manual_quadrant": {
+          "name": "manual_quadrant",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "override_reason": {
+          "name": "override_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active_for_rsa": {
+          "name": "is_active_for_rsa",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_dashboard_visible": {
+          "name": "is_dashboard_visible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "library_tier": {
+          "name": "library_tier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'reference'"
+        },
+        "activation_date": {
+          "name": "activation_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "activation_reason": {
+          "name": "activation_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deactivation_reason": {
+          "name": "deactivation_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "library_source": {
+          "name": "library_source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'rsa_internal'"
+        },
+        "ai_inventory_status": {
+          "name": "ai_inventory_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deployment_status": {
+          "name": "deployment_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_status_update": {
+          "name": "last_status_update",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_business_owner": {
+          "name": "primary_business_owner",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "use_case_status": {
+          "name": "use_case_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Discovery'"
+        },
+        "key_dependencies": {
+          "name": "key_dependencies",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "implementation_timeline": {
+          "name": "implementation_timeline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "success_metrics": {
+          "name": "success_metrics",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estimated_value": {
+          "name": "estimated_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "value_measurement_approach": {
+          "name": "value_measurement_approach",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "integration_requirements": {
+          "name": "integration_requirements",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ai_ml_technologies": {
+          "name": "ai_ml_technologies",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_sources": {
+          "name": "data_sources",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stakeholder_groups": {
+          "name": "stakeholder_groups",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_username_unique": {
+          "name": "users_username_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
