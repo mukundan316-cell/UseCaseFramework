@@ -191,6 +191,7 @@ export class UseCaseDataExtractor {
       manualEffortScore: useCase.manualEffortScore || null,
       manualQuadrant: useCase.manualQuadrant || null,
       overrideReason: useCase.overrideReason || null,
+      regulatoryCompliance: useCase.regulatoryCompliance || null,
       // Final scores (manual override takes precedence)
       finalImpactScore: useCase.manualImpactScore || useCase.impactScore || 0,
       finalEffortScore: useCase.manualEffortScore || useCase.effortScore || 0,
@@ -223,6 +224,12 @@ export class UseCaseDataExtractor {
       aiInventoryStatus: useCase.aiInventoryStatus || null,
       deploymentStatus: useCase.deploymentStatus || null,
       lastStatusUpdate: useCase.lastStatusUpdate || null,
+      // RSA Ethical Principles
+      explainabilityRequired: useCase.explainabilityRequired || null,
+      customerHarmRisk: useCase.customerHarmRisk || null,
+      dataOutsideUkEu: useCase.dataOutsideUkEu || null,
+      thirdPartyModel: useCase.thirdPartyModel || null,
+      humanAccountability: useCase.humanAccountability || null,
     };
 
     // Display Helpers

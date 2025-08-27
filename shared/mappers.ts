@@ -42,7 +42,6 @@ export interface UseCaseFrontend {
   libraryTier?: string;
   librarySource?: string;
   activationReason?: string;
-  deactivationReason?: string;
   activationDate?: Date;
   createdAt?: Date;
   // Manual Override fields
@@ -83,7 +82,6 @@ export interface UseCaseFrontend {
   dataOutsideUkEu?: string;
   thirdPartyModel?: string;
   humanAccountability?: string;
-  explainabilityBias?: string;
   regulatoryCompliance?: number;
   // Missing AI governance field from database
   thirdPartyProvidedModel?: string;
@@ -123,7 +121,6 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     integrationRequirements: dbUseCase.integrationRequirements || undefined,
     // Convert all null values to undefined for frontend compatibility
     activationReason: dbUseCase.activationReason || undefined,
-    deactivationReason: dbUseCase.deactivationReason || undefined,
     thirdPartyProvidedModel: dbUseCase.thirdPartyProvidedModel || undefined,
     // AI governance fields null conversion
     explainabilityRequired: dbUseCase.explainabilityRequired || undefined,
@@ -141,7 +138,6 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     informedBy: dbUseCase.informedBy || undefined,
     // Convert Date fields from null to undefined
     activationDate: dbUseCase.activationDate || undefined,
-    deactivationDate: dbUseCase.deactivationDate || undefined,
     lastStatusUpdate: dbUseCase.lastStatusUpdate || undefined,
     createdAt: dbUseCase.createdAt || undefined
   };

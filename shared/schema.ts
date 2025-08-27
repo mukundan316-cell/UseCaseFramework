@@ -46,6 +46,7 @@ export const useCases = pgTable("use_cases", {
   dataOutsideUkEu: text("data_outside_uk_eu"),
   thirdPartyModel: text("third_party_model"),
   humanAccountability: text("human_accountability"),
+  regulatoryCompliance: integer("regulatory_compliance"),
   
   // AI Inventory Governance Fields
   aiOrModel: text("ai_or_model"), // 'AI' or 'Model'
