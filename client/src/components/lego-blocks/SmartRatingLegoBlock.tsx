@@ -281,6 +281,7 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           onKeyDown={handleKeyDown}
+          data-testid={`button-smart-rating-${question.id}`}
           className={cn(
             "w-full justify-between",
             config.button,

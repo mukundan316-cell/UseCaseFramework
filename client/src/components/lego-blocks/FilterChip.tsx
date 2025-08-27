@@ -51,6 +51,7 @@ export default function FilterChip({
     <button
       onClick={onClick}
       disabled={disabled}
+      data-testid={`button-filter-${label.toLowerCase().replace(/\s+/g, '-')}`}
       className={cn(
         'rounded-xl font-medium transition-all duration-200 border',
         'hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-rsa-blue focus:ring-opacity-50',

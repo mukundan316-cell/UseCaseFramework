@@ -225,6 +225,7 @@ export default function QuestionnaireExportLegoBlock({
             variant={variant}
             size={size}
             disabled={isExporting}
+            data-testid="button-download-questionnaire"
             className={cn(
               "flex items-center space-x-2",
               "hover:bg-[#005DAA] hover:text-white",

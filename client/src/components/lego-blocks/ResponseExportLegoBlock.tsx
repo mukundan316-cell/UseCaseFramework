@@ -168,6 +168,7 @@ export default function ResponseExportLegoBlock({
             variant={variant}
             size={size}
             disabled={isExporting || !responseId}
+            data-testid="button-export-response"
             className={cn(
               "flex items-center space-x-2",
               "hover:bg-[#005DAA] hover:text-white",

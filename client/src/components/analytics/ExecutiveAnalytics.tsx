@@ -44,7 +44,7 @@ export default function ExecutiveAnalytics() {
 
   // Calculate comprehensive analytics from authentic database values
   const calculateAnalytics = () => {
-    const activeUseCases = useCases.filter(uc => uc.isActiveForRsa === true);
+    const activeUseCases = useCases.filter(uc => uc.isActiveForRsa === 'true');
     const totalPortfolioValue = activeUseCases.length;
     
     // ROI Analysis
@@ -198,7 +198,7 @@ export default function ExecutiveAnalytics() {
 
   // Risk vs Value Matrix for Executive Decision Making using authentic database data
   const riskValueMatrix = useCases
-    .filter(uc => uc.isActiveForRsa === true)
+    .filter(uc => uc.isActiveForRsa === 'true')
     .map(uc => ({
       name: uc.title,
       risk: uc.manualEffortScore || uc.effortScore || 0,

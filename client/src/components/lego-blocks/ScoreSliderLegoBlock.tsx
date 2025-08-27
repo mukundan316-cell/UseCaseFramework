@@ -93,6 +93,7 @@ export const ScoreSliderLegoBlock: React.FC<ScoreSliderLegoBlockProps> = ({
         max={maxValue}
         step={1}
         disabled={disabled}
+        data-testid={`slider-${field}`}
         className="w-full"
       />
 

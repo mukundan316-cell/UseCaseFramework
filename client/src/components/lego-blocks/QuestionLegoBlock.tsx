@@ -138,6 +138,7 @@ export default function QuestionLegoBlock({
                 type="button"
                 onClick={() => onChange(scoreValue)}
                 disabled={readonly}
+                data-testid={`button-score-${scoreValue}`}
                 className={cn(
                   "w-10 h-10 rounded-full border-2 text-sm font-medium transition-colors",
                   numericValue === scoreValue
@@ -192,7 +193,7 @@ export default function QuestionLegoBlock({
               <option value="">Select an option...</option>
               {options.map((option) => (
                 <option key={option.id} value={option.id}>
-                  {option.label}
+                  {option.text || option.value}
                 </option>
               ))}
               <option value="__other__">Other (please specify)</option>
@@ -241,7 +242,7 @@ export default function QuestionLegoBlock({
                 htmlFor={option.id}
                 className="text-sm font-normal text-gray-700 cursor-pointer flex-1"
               >
-                {option.label}
+                {option.text || option.value}
               </Label>
             </div>
           ))}
@@ -528,8 +529,8 @@ export default function QuestionLegoBlock({
       case 'department_skills_matrix':
       case 'business_performance':
       case 'multi_rating':
-      case 'composite':
-      case 'risk_appetite':
+      case 'composite' as 'dynamic_use_case_selector':
+      case 'risk_appetite' as 'dynamic_use_case_selector':
       case 'dynamic_use_case_selector':
         // These advanced question types are handled by QuestionRegistryLegoBlock
         return (
