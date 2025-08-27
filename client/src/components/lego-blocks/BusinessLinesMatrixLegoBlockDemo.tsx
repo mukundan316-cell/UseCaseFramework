@@ -104,7 +104,6 @@ export default function BusinessLinesMatrixLegoBlockDemo() {
             onChange={setBusinessLines}
             label="Business Lines Premium Distribution"
             helpText="Distribute your organization's premium allocation across business lines. Total must equal 100%."
-            enforceTotal={true}
             required={true}
             minLines={1}
             maxLines={8}
@@ -185,7 +184,7 @@ export default function BusinessLinesMatrixLegoBlockDemo() {
               <h4 className="font-medium">Props Interface</h4>
               <ul className="space-y-1 text-gray-600">
                 <li>• businessLines: BusinessLineData[]</li>
-                <li>• onChange: (lines) => void</li>
+                <li>• onChange: (lines) =&gt; void</li>
                 <li>• enforceTotal: boolean</li>
                 <li>• Standard form props (label, error, etc.)</li>
               </ul>

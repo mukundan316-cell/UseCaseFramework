@@ -75,12 +75,12 @@ const formSchema = z.object({
   changeImpact: z.number().optional(),
   modelRisk: z.number().optional(),
   adoptionReadiness: z.number().optional(),
-  // RSA Ethical Principles (all optional) - moved to Tab 3
-  explainabilityRequired: z.union([z.boolean(), z.string(), z.null()]).optional(),
+  // RSA Ethical Principles (all optional) - moved to Tab 3, consistent string enums per replit.md
+  explainabilityRequired: z.enum(['true', 'false']).optional(),
   customerHarmRisk: z.string().optional(),
-  dataOutsideUkEu: z.union([z.boolean(), z.string(), z.null()]).optional(),
-  thirdPartyModel: z.union([z.boolean(), z.string(), z.null()]).optional(),
-  humanAccountability: z.union([z.boolean(), z.string(), z.null()]).optional(),
+  dataOutsideUkEu: z.enum(['true', 'false']).optional(),
+  thirdPartyModel: z.enum(['true', 'false']).optional(),
+  humanAccountability: z.enum(['true', 'false']).optional(),
   // AI Inventory Governance Fields (all optional)
   aiOrModel: z.string().optional(),
   riskToCustomers: z.string().optional(),
@@ -1167,8 +1167,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Data processing outside UK/EU?</FormLabel>
                           <Select 
-                            onValueChange={(value) => field.onChange(value === 'yes' ? true : value === 'no' ? false : undefined)} 
-                            value={field.value === true ? 'yes' : field.value === false ? 'no' : undefined}
+                            onValueChange={(value) => field.onChange(value)} 
+                            value={field.value === true ? 'true' : field.value === false ? 'false' : field.value || undefined}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -1176,8 +1176,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
+                              <SelectItem value="true">Yes</SelectItem>
+                              <SelectItem value="false">No</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1191,8 +1191,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Third party model?</FormLabel>
                           <Select 
-                            onValueChange={(value) => field.onChange(value === 'yes' ? true : value === 'no' ? false : undefined)} 
-                            value={field.value === true ? 'yes' : field.value === false ? 'no' : undefined}
+                            onValueChange={(value) => field.onChange(value)} 
+                            value={field.value === true ? 'true' : field.value === false ? 'false' : field.value || undefined}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -1200,8 +1200,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
+                              <SelectItem value="true">Yes</SelectItem>
+                              <SelectItem value="false">No</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1215,8 +1215,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Human accountability required?</FormLabel>
                           <Select 
-                            onValueChange={(value) => field.onChange(value === 'yes' ? true : value === 'no' ? false : undefined)} 
-                            value={field.value === true ? 'yes' : field.value === false ? 'no' : undefined}
+                            onValueChange={(value) => field.onChange(value)} 
+                            value={field.value === true ? 'true' : field.value === false ? 'false' : field.value || undefined}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -1224,8 +1224,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
+                              <SelectItem value="true">Yes</SelectItem>
+                              <SelectItem value="false">No</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
