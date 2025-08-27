@@ -61,6 +61,26 @@ export const APP_CONFIG = {
     },
   },
 
+  // Executive Dashboard (LEGO principle: centralized configuration)
+  EXECUTIVE_DASHBOARD: {
+    MATRIX_PLOT: {
+      MIN_BUBBLE_SIZE: 25,
+      MAX_BUBBLE_SIZE: 60,
+      DEFAULT_BUBBLE_SIZE: 40,
+      HIGH_VALUE_THRESHOLD: 4.0,
+      LOW_EFFORT_THRESHOLD: 2.0,
+    },
+    COLORS: {
+      QUADRANTS: {
+        QUICK_WIN: '#10B981',
+        STRATEGIC_BET: '#3B82F6', 
+        EXPERIMENTAL: '#F59E0B',
+        WATCHLIST: '#EF4444',
+        DEFAULT: '#6B7280',
+      },
+    },
+  },
+
   // File upload limits
   UPLOAD: {
     MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB

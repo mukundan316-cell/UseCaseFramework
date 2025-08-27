@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
+import { APP_CONFIG } from '@shared/constants/app-config';
 
 /**
  * Enhanced Matrix Plot for Executive Dashboard
@@ -24,13 +25,26 @@ export default function EnhancedMatrixPlot() {
   const [showLabels, setShowLabels] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
 
-  // Enhanced chart data with sophisticated styling using authentic database values
+  // Dynamic bubble sizing based on business impact (RSA scoring alignment)
+  function calculateBubbleSize(impactScore: number): number {
+    const config = APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT;
+    const minSize = config.MIN_BUBBLE_SIZE;
+    const maxSize = config.MAX_BUBBLE_SIZE;
+    const maxScore = APP_CONFIG.SCORING.MAX_SCORE;
+    
+    // Linear scaling: higher impact = larger bubble
+    const normalizedScore = Math.max(0, Math.min(maxScore, impactScore)) / maxScore;
+    return Math.round(minSize + (normalizedScore * (maxSize - minSize)));
+  }
+
+  // Enhanced chart data with authentic database values (LEGO principle: reusable configuration)
   const chartData = dashboardUseCases.map(useCase => {
     const effectiveQuadrant = getEffectiveQuadrant(useCase as any);
     const effectiveImpact = getEffectiveImpactScore(useCase as any);
     const effectiveEffort = getEffectiveEffortScore(useCase as any);
     
-    // Simplified bubble sizing for reliable visibility
+    // Dynamic bubble sizing based on business impact (aligned with RSA scoring framework)
+    const bubbleSize = calculateBubbleSize(effectiveImpact);
     
     return {
       x: effectiveEffort,
@@ -39,39 +53,37 @@ export default function EnhancedMatrixPlot() {
       quadrant: effectiveQuadrant,
       color: getQuadrantColor(effectiveQuadrant),
       gradientColor: getQuadrantGradient(effectiveQuadrant),
-      size: 80, // Fixed size for consistent visibility
+      size: bubbleSize,
       useCase: useCase,
       lob: useCase.lineOfBusiness,
       segment: useCase.businessSegment,
-      isHighValue: effectiveImpact >= 4,
-      isLowEffort: effectiveEffort <= 2,
-      priority: calculatePriority(effectiveImpact, effectiveEffort)
+      isHighValue: effectiveImpact >= APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.HIGH_VALUE_THRESHOLD,
+      isLowEffort: effectiveEffort <= APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.LOW_EFFORT_THRESHOLD,
+      impact: effectiveImpact,
+      effort: effectiveEffort
     };
   });
 
+  // LEGO principle: Centralized configuration for consistent styling
   function getQuadrantColor(quadrant: string): string {
+    const colors = APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.QUADRANTS;
     switch (quadrant) {
-      case 'Quick Win': return '#10B981';
-      case 'Strategic Bet': return '#3B82F6';
-      case 'Experimental': return '#F59E0B';
-      case 'Watchlist': return '#EF4444';
-      default: return '#6B7280';
+      case 'Quick Win': return colors.QUICK_WIN;
+      case 'Strategic Bet': return colors.STRATEGIC_BET;
+      case 'Experimental': return colors.EXPERIMENTAL;
+      case 'Watchlist': return colors.WATCHLIST;
+      default: return colors.DEFAULT;
     }
   }
 
   function getQuadrantGradient(quadrant: string): string {
-    switch (quadrant) {
-      case 'Quick Win': return 'rgba(16, 185, 129, 0.7)';
-      case 'Strategic Bet': return 'rgba(59, 130, 246, 0.7)';
-      case 'Experimental': return 'rgba(245, 158, 11, 0.7)';
-      case 'Watchlist': return 'rgba(239, 68, 68, 0.7)';
-      default: return 'rgba(107, 114, 128, 0.7)';
-    }
-  }
-
-  function calculatePriority(impact: number, effort: number): number {
-    // Executive priority algorithm: Higher impact, lower effort = higher priority
-    return (impact * 2) - effort;
+    const baseColor = getQuadrantColor(quadrant);
+    // Convert hex to rgba with transparency
+    const hex = baseColor.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.7)`;
   }
 
   // Quadrant statistics for executive insights
@@ -85,6 +97,7 @@ export default function EnhancedMatrixPlot() {
   const totalUseCases = chartData.length;
   const highValueCount = chartData.filter(d => d.isHighValue).length;
   const lowEffortCount = chartData.filter(d => d.isLowEffort).length;
+  const avgImpact = totalUseCases > 0 ? (chartData.reduce((sum, d) => sum + d.impact, 0) / totalUseCases) : 0;
 
   const filteredData = selectedQuadrant 
     ? chartData.filter(d => d.quadrant === selectedQuadrant)
@@ -116,7 +129,7 @@ export default function EnhancedMatrixPlot() {
             <div className="pt-2 border-t border-gray-200">
               <p><span className="font-medium">Strategic Position:</span> {data.quadrant}</p>
               <p><span className="font-medium">Business Unit:</span> {data.lob}</p>
-              <p><span className="font-medium">Priority Score:</span> {data.priority.toFixed(1)}</p>
+              <p><span className="font-medium">Impact/Effort Ratio:</span> {(data.y / Math.max(data.x, 0.1)).toFixed(1)}</p>
             </div>
             {data.isHighValue && (
               <div className="mt-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full text-center">
@@ -178,9 +191,9 @@ export default function EnhancedMatrixPlot() {
               <TrendingUp className="w-5 h-5 text-purple-600" />
               <div>
                 <div className="text-2xl font-bold text-purple-900">
-                  {(chartData.reduce((sum, d) => sum + d.priority, 0) / chartData.length).toFixed(1)}
+                  {avgImpact.toFixed(1)}
                 </div>
-                <div className="text-sm text-purple-700">Avg Priority Score</div>
+                <div className="text-sm text-purple-700">Avg Impact Score</div>
               </div>
             </div>
           </CardContent>
@@ -199,7 +212,7 @@ export default function EnhancedMatrixPlot() {
                 RSA AI Value Matrix - Executive View
               </CardTitle>
               <CardDescription className="text-slate-200 mt-2">
-                Strategic portfolio positioning • Click quadrants to filter • Bubble size indicates business impact
+                Strategic portfolio positioning • Click quadrants to filter • Bubble size reflects business impact
               </CardDescription>
             </div>
             <div className="flex space-x-2">
@@ -325,7 +338,7 @@ export default function EnhancedMatrixPlot() {
                         <Cell 
                           key={`cell-${index}`} 
                           fill={`url(#bubble-gradient-${chartData.findIndex(d => d.name === entry.name)})`}
-                          r={40}
+                          r={entry.size}
                           stroke="white"
                           strokeWidth={2}
                         />

@@ -76,6 +76,19 @@ The guiding principle is **"Build Once, Reuse Everywhere"**, meaning every compo
 
 ## Recent Changes & Achievements
 
+### 2025-08-27: Executive Dashboard LEGO Alignment & Scoring Optimization
+**LEGO Principle Implementation:**
+1. ✅ **Centralized Configuration**: Executive dashboard now uses APP_CONFIG for all constants (bubble sizes, colors, thresholds)
+2. ✅ **Dynamic Bubble Sizing**: Bubbles now properly scale based on business impact (25-60px range)
+3. ✅ **Scoring Alignment**: Removed non-standard priority scoring, focused on core Impact/Effort metrics
+4. ✅ **Color Standardization**: Quadrant colors centralized with hex-to-rgba conversion utility
+5. ✅ **Single Executive Dashboard**: Confirmed single DashboardView with proper separation from AdminPanel
+
+**Architecture Refinements:**
+- Impact/Effort scoring confirmed as sole metrics (no additional priority calculations)
+- RSA AI Value Matrix properly reflects business impact through bubble sizing
+- LEGO reusable configuration pattern applied to visualization components
+
 ### 2025-08-27: System Audit & UI Restructuring Complete
 **UI Category Restructuring:**
 1. ✅ **RSA Internal Tab**: Blue-colored category for RSA-specific use cases
