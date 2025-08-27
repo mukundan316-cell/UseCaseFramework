@@ -48,27 +48,18 @@ export default function EnhancedMatrixPlot() {
       // Dynamic bubble sizing based on business impact (aligned with RSA scoring framework)
       const bubbleSize = calculateBubbleSize(effectiveImpact);
       
-      // RCA Debug: Track the complete data flow
-      if (useCase.title.includes("Enter-once")) {
-        console.log(`RCA DEBUG - ${useCase.title}:`, {
-          rawImpact: useCase.impactScore,
-          rawEffort: useCase.effortScore, 
-          effectiveImpact,
-          effectiveEffort,
-          calculatedBubbleSize: bubbleSize,
-          timestamp: new Date().toISOString()
-        });
-      }
+      // Dynamic bubble sizing complete - no debug logging needed
       
       return {
         id: useCase.id, // Add unique id for React key
         x: effectiveEffort,
         y: effectiveImpact,
+        z: bubbleSize, // CRITICAL FIX: Use 'z' property instead of 'size' for Recharts ScatterChart
         name: useCase.title,
         quadrant: effectiveQuadrant,
         color: getQuadrantColor(effectiveQuadrant),
         gradientColor: getQuadrantGradient(effectiveQuadrant),
-        size: bubbleSize,
+        size: bubbleSize, // Keep for backward compatibility
         useCase: useCase,
         lob: useCase.lineOfBusiness,
         segment: useCase.businessSegment,
@@ -261,7 +252,7 @@ export default function EnhancedMatrixPlot() {
                   <ScatterChart 
                     data={filteredData}
                     margin={{ top: 50, right: 70, bottom: 70, left: 80 }}
-                    key={`chart-${filteredData.length}-${filteredData.map(d => `${d.id}-${d.size}`).join('-')}`}
+                    key={`chart-${filteredData.length}-${filteredData.map(d => `${d.id}-${d.z}`).join('-')}`}
                   >
                     <defs>
                       {chartData.map((entry, index) => (
@@ -350,16 +341,26 @@ export default function EnhancedMatrixPlot() {
                     
                     <Tooltip content={<CustomTooltip />} />
                     
-                    <Scatter dataKey="y" fill="#3B82F6">
-                      {filteredData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${entry.id}-${entry.size}`} 
-                          fill={`url(#bubble-gradient-${chartData.findIndex(d => d.name === entry.name)})`}
-                          r={entry.size}
-                          stroke="white"
-                          strokeWidth={2}
-                        />
-                      ))}
+                    <Scatter 
+                      dataKey="y" 
+                      fill="#3B82F6"
+                      shape={(props: any) => {
+                        const { cx, cy, payload } = props;
+                        const radius = payload?.z || 40; // Use z property for dynamic radius
+                        const index = chartData.findIndex(d => d.name === payload?.name);
+                        return (
+                          <circle 
+                            cx={cx} 
+                            cy={cy} 
+                            r={radius}
+                            fill={`url(#bubble-gradient-${index})`}
+                            stroke="white"
+                            strokeWidth={2}
+                            key={`bubble-${payload?.id}-${radius}`}
+                          />
+                        );
+                      }}
+                    >
                       {showLabels && (
                         <LabelList 
                           dataKey="name" 
