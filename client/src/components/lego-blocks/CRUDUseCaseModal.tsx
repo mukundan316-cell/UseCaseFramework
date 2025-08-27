@@ -23,6 +23,8 @@ import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import MultiSelectField from './MultiSelectField';
+import PresentationUploadBlock from './PresentationUploadBlock';
+import PresentationPreviewBlock from './PresentationPreviewBlock';
 
 
 const formSchema = z.object({
@@ -99,6 +101,10 @@ const formSchema = z.object({
   deploymentStatus: z.string().optional(),
   deactivationReason: z.string().optional(),
   regulatoryCompliance: z.number().optional(),
+  // Presentation fields
+  presentationUrl: z.string().optional(),
+  presentationPdfUrl: z.string().optional(),
+  presentationFileName: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -123,8 +129,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
   // RSA Portfolio state management
   const [rsaSelection, setRsaSelection] = useState({
-    isActiveForRsa: false,
-    isDashboardVisible: false,
+    isActiveForRsa: 'false' as 'true' | 'false',
+    isDashboardVisible: 'false' as 'true' | 'false',
     libraryTier: 'reference' as 'active' | 'reference',
     activationReason: '',
     deactivationReason: '',
@@ -196,25 +202,25 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   };
 
   // RSA Selection handlers
-  const handleRSAToggle = (active: boolean) => {
+  const handleRSAToggle = (active: 'true' | 'false') => {
     setRsaSelection(prev => ({
       ...prev,
       isActiveForRsa: active,
-      libraryTier: active ? 'active' : 'reference'
+      libraryTier: active === 'true' ? 'active' : 'reference'
     }));
-    form.setValue('isActiveForRsa', active ? 'true' : 'false');
-    form.setValue('libraryTier', active ? 'active' : 'reference');
+    form.setValue('isActiveForRsa', active);
+    form.setValue('libraryTier', active === 'true' ? 'active' : 'reference');
     
     // If deactivating, also disable dashboard visibility
-    if (!active) {
-      setRsaSelection(prev => ({ ...prev, isDashboardVisible: false }));
+    if (active === 'false') {
+      setRsaSelection(prev => ({ ...prev, isDashboardVisible: 'false' }));
       form.setValue('isDashboardVisible', 'false');
     }
   };
 
-  const handleDashboardToggle = (visible: boolean) => {
+  const handleDashboardToggle = (visible: 'true' | 'false') => {
     setRsaSelection(prev => ({ ...prev, isDashboardVisible: visible }));
-    form.setValue('isDashboardVisible', visible ? 'true' : 'false');
+    form.setValue('isDashboardVisible', visible);
   };
 
   const handleActivationReasonChange = (reason: string) => {
@@ -321,8 +327,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       console.log('🏁 Edit mode: Initialized override toggle to:', hasManualOverrides);
       
       setRsaSelection({
-        isActiveForRsa: rsaActive,
-        isDashboardVisible: dashboardVisible,
+        isActiveForRsa: rsaActive ? 'true' : 'false',
+        isDashboardVisible: dashboardVisible ? 'true' : 'false',
         libraryTier: (useCase as any).libraryTier || (rsaActive ? 'active' : 'reference'),
         activationReason: (useCase as any).activationReason || '',
         deactivationReason: (useCase as any).deactivationReason || '',
@@ -399,6 +405,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         aiMlTechnologies: (useCase as any).aiMlTechnologies || [],
         dataSources: (useCase as any).dataSources || [],
         stakeholderGroups: (useCase as any).stakeholderGroups || [],
+        // Presentation fields
+        presentationUrl: (useCase as any).presentationUrl || '',
+        presentationPdfUrl: (useCase as any).presentationPdfUrl || '',
+        presentationFileName: (useCase as any).presentationFileName || '',
       };
       
       // Update scores state first
@@ -421,8 +431,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       // Reset for create mode with default scores and RSA selection
       setIsOverrideEnabled(false);
       setRsaSelection({
-        isActiveForRsa: false,
-        isDashboardVisible: false,
+        isActiveForRsa: 'false',
+        isDashboardVisible: 'false',
         libraryTier: 'reference',
         activationReason: '',
         deactivationReason: '',
@@ -462,6 +472,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         aiMlTechnologies: [],
         dataSources: [],
         stakeholderGroups: [],
+        // Presentation defaults
+        presentationUrl: '',
+        presentationPdfUrl: '',
+        presentationFileName: '',
         ...scores,
       };
       form.reset(defaultData);
@@ -503,6 +517,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         modelOwner: data.modelOwner || '',
         rsaPolicyGovernance: data.rsaPolicyGovernance || '',
         informedBy: data.informedBy || '',
+        // Presentation fields
+        presentationUrl: data.presentationUrl || '',
+        presentationPdfUrl: data.presentationPdfUrl || '',
+        presentationFileName: data.presentationFileName || '',
         businessFunction: data.businessFunction || '',
         thirdPartyProvidedModel: data.thirdPartyProvidedModel || '',
         aiInventoryStatus: data.aiInventoryStatus || '',
@@ -745,7 +763,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             onSubmit(form.getValues() as FormData);
           }} className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="basic" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Basic Information
@@ -757,6 +775,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 <TabsTrigger value="implementation" className="flex items-center gap-2">
                   <Settings className="h-4 w-4" />
                   Implementation & Governance
+                </TabsTrigger>
+                <TabsTrigger value="presentation" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Presentation
                 </TabsTrigger>
                 {/* Hide RSA Framework Assessment for AI Inventory items */}
                 {form.watch('librarySource') !== 'ai_inventory' && (
@@ -1456,7 +1478,45 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 )}
               </TabsContent>
 
-              {/* Tab 4: RSA Framework Assessment - Hidden for AI Inventory and Reference Library */}
+              {/* Tab 4: Presentation */}
+              <TabsContent value="presentation" className="space-y-4 mt-6">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">PowerPoint Presentation</h3>
+                  </div>
+
+                  {/* Upload Component */}
+                  <PresentationUploadBlock
+                    onUploadComplete={(result) => {
+                      // Update form with presentation data
+                      form.setValue('presentationUrl', result.presentationUrl);
+                      form.setValue('presentationPdfUrl', result.presentationPdfUrl);
+                      form.setValue('presentationFileName', result.presentationFileName);
+                    }}
+                  />
+
+                  {/* Preview Component - shown when there's a presentation */}
+                  {(form.watch('presentationPdfUrl') || (useCase as any)?.presentationPdfUrl) && (
+                    <div className="mt-6">
+                      <PresentationPreviewBlock
+                        presentationUrl={form.watch('presentationUrl') || (useCase as any)?.presentationUrl}
+                        presentationPdfUrl={form.watch('presentationPdfUrl') || (useCase as any)?.presentationPdfUrl}
+                        presentationFileName={form.watch('presentationFileName') || (useCase as any)?.presentationFileName}
+                        hasPresentation="true"
+                        showTitle={false}
+                      />
+                    </div>
+                  )}
+
+                  {/* Help text */}
+                  <div className="text-sm text-gray-600 mt-4">
+                    <p>Upload PowerPoint presentations (.pptx, .ppt) or PDF files to provide detailed information about this use case. Files will be automatically converted to PDF for preview.</p>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Tab 5: RSA Framework Assessment - Hidden for AI Inventory and Reference Library */}
               {form.watch('librarySource') !== 'ai_inventory' && (context as string) !== 'reference' && (
                 <TabsContent value="assessment" className="space-y-4 mt-6">
                 {rsaSelection.isActiveForRsa ? (

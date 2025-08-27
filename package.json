@@ -67,6 +67,7 @@
     "framer-motion": "^11.13.1",
     "google-auth-library": "^10.2.1",
     "input-otp": "^1.4.2",
+    "libreoffice": "^0.4.5",
     "lucide-react": "^0.453.0",
     "memorystore": "^1.6.7",
     "multer": "^2.0.2",

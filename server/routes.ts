@@ -7,6 +7,7 @@ import { mapUseCaseToFrontend } from "@shared/mappers";
 import recommendationRoutes from "./routes/recommendations";
 import exportRoutes from "./routes/export.routes";
 import importRoutes from "./routes/import.routes";
+import presentationRoutes from "./routes/presentations";
 import { questionnaireServiceInstance } from './services/questionnaireService';
 import { db } from './db';
 import { responseSessions } from '@shared/schema';
@@ -784,6 +785,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register recommendation routes
   app.use('/api/recommendations', recommendationRoutes);
+  
+  // Register presentation routes
+  app.use('/api/presentations', presentationRoutes);
 
   // Add saved progress endpoints
   app.get('/api/saved-progress', async (req, res) => {

@@ -98,6 +98,13 @@ export const useCases = pgTable("use_cases", {
   dataSources: text("data_sources").array(),
   stakeholderGroups: text("stakeholder_groups").array(),
   
+  // PowerPoint Presentation Integration
+  presentationUrl: text("presentation_url"), // Object storage URL for original PowerPoint
+  presentationPdfUrl: text("presentation_pdf_url"), // Object storage URL for converted PDF
+  presentationFileName: text("presentation_file_name"),
+  presentationUploadedAt: timestamp("presentation_uploaded_at"),
+  hasPresentation: text("has_presentation").default('false'), // 'true' or 'false' following replit.md pattern
+  
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -188,6 +195,12 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   dataOutsideUkEu: z.enum(['true', 'false']).optional(),
   thirdPartyModel: z.enum(['true', 'false']).optional(),
   humanAccountability: z.enum(['true', 'false']).optional(),
+  
+  // PowerPoint Presentation fields - following replit.md patterns
+  presentationUrl: z.string().optional(),
+  presentationPdfUrl: z.string().optional(),
+  presentationFileName: z.string().optional(),
+  hasPresentation: z.enum(['true', 'false']).default('false'),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
