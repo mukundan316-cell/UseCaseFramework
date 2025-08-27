@@ -71,8 +71,8 @@ export const useCases = pgTable("use_cases", {
   overrideReason: text("override_reason"), // Reason for manual override
   
   // Two-tier library system
-  isActiveForRsa: text("is_active_for_rsa").notNull().default('false'), // 'true' or 'false'
-  isDashboardVisible: text("is_dashboard_visible").notNull().default('false'), // 'true' or 'false'
+  isActiveForRsa: boolean("is_active_for_rsa").notNull().default(false),
+  isDashboardVisible: boolean("is_dashboard_visible").notNull().default(false),
   libraryTier: text("library_tier").notNull().default('reference'), // 'active' or 'reference'
   activationDate: timestamp("activation_date").defaultNow(),
   activationReason: text("activation_reason"), // Required when isActiveForRsa = 'true'
