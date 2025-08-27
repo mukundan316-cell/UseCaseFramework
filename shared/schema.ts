@@ -40,7 +40,7 @@ export const useCases = pgTable("use_cases", {
   modelRisk: integer("model_risk").notNull(),
   adoptionReadiness: integer("adoption_readiness").notNull(),
   
-  // RSA Ethical Principles - align with database types
+  // RSA Ethical Principles - align with database types (stored as boolean but handled as strings in validation)
   explainabilityRequired: boolean("explainability_required"),
   customerHarmRisk: text("customer_harm_risk"),
   dataOutsideUkEu: boolean("data_outside_uk_eu"),
@@ -145,8 +145,13 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
   geographies: z.array(z.string()).optional(),
-  isActiveForRsa: z.enum(['true', 'false']).default('false'),
-  isDashboardVisible: z.enum(['true', 'false']).default('false'),
+  // Boolean fields with transformation - accept both boolean and string values
+  isActiveForRsa: z.union([z.boolean(), z.enum(['true', 'false'])])
+    .transform((val) => typeof val === 'boolean' ? (val ? 'true' : 'false') : val)
+    .default('false'),
+  isDashboardVisible: z.union([z.boolean(), z.enum(['true', 'false'])])
+    .transform((val) => typeof val === 'boolean' ? (val ? 'true' : 'false') : val)
+    .default('false'),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
   librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory']).default('rsa_internal'),
   activationReason: z.union([z.string(), z.null()]).optional(),
@@ -182,6 +187,31 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   // AI Inventory specific fields (flexible for import - allow any string values)
   aiInventoryStatus: z.union([z.string(), z.null()]).optional(),
   deploymentStatus: z.union([z.string(), z.null()]).optional(),
+  // RSA Ethical Principles - boolean fields with transformation
+  explainabilityRequired: z.union([z.boolean(), z.enum(['true', 'false']), z.null()])
+    .transform((val) => {
+      if (val === null || val === undefined) return null;
+      return typeof val === 'boolean' ? (val ? 'true' : 'false') : val;
+    })
+    .optional(),
+  dataOutsideUkEu: z.union([z.boolean(), z.enum(['true', 'false']), z.null()])
+    .transform((val) => {
+      if (val === null || val === undefined) return null;
+      return typeof val === 'boolean' ? (val ? 'true' : 'false') : val;
+    })
+    .optional(),
+  thirdPartyModel: z.union([z.boolean(), z.enum(['true', 'false']), z.null()])
+    .transform((val) => {
+      if (val === null || val === undefined) return null;
+      return typeof val === 'boolean' ? (val ? 'true' : 'false') : val;
+    })
+    .optional(),
+  humanAccountability: z.union([z.boolean(), z.enum(['true', 'false']), z.null()])
+    .transform((val) => {
+      if (val === null || val === undefined) return null;
+      return typeof val === 'boolean' ? (val ? 'true' : 'false') : val;
+    })
+    .optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
