@@ -700,15 +700,27 @@ export default function UseCaseDetailDrawer({
           </AccordionItem>
 
           {/* Presentation Documents Section */}
-          {(useCase.presentationUrl || useCase.presentationFileName) && (
+          {(useCase.presentationUrl || useCase.presentationFileName || useCase.presentationPdfUrl) && (
             <AccordionItem value="presentation" className="border border-gray-200 rounded-lg">
               <AccordionTrigger className="px-4 py-3 hover:no-underline">
                 <div className="flex items-center">
                   <FileText className="w-4 h-4 mr-2 text-purple-600" />
                   <span className="font-semibold text-gray-900">Use Case Definition Document</span>
+                  {/* Debug info - remove after testing */}
+                  <span className="ml-2 text-xs text-gray-400">
+                    ({useCase.presentationFileName || 'No filename'})
+                  </span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
+                {/* Debug info - remove after testing */}
+                <div className="mb-2 p-2 bg-gray-50 rounded text-xs text-gray-600">
+                  <div>URL: {useCase.presentationUrl || 'None'}</div>
+                  <div>PDF URL: {useCase.presentationPdfUrl || 'None'}</div>
+                  <div>Filename: {useCase.presentationFileName || 'None'}</div>
+                  <div>Uploaded: {useCase.presentationUploadedAt || 'None'}</div>
+                </div>
+                
                 <PresentationPreviewBlock
                   presentationUrl={useCase.presentationUrl}
                   presentationPdfUrl={useCase.presentationPdfUrl}
