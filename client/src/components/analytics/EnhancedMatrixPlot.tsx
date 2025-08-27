@@ -32,9 +32,17 @@ export default function EnhancedMatrixPlot() {
     const maxSize = config.MAX_BUBBLE_SIZE;
     const maxScore = APP_CONFIG.SCORING.MAX_SCORE;
     
-    // Linear scaling: higher impact = larger bubble
+    // Enhanced scaling with exponential curve for better visual distinction
     const normalizedScore = Math.max(0, Math.min(maxScore, impactScore)) / maxScore;
-    return Math.round(minSize + (normalizedScore * (maxSize - minSize)));
+    
+    // Use exponential scaling for more dramatic size differences
+    const exponentialScale = Math.pow(normalizedScore, 1.5);
+    const calculatedSize = minSize + (exponentialScale * (maxSize - minSize));
+    
+    // Ensure minimum visual distinction and round for pixel-perfect rendering
+    const finalSize = Math.max(minSize, Math.round(calculatedSize));
+    
+    return finalSize;
   }
 
   // Enhanced chart data with authentic database values (LEGO principle: reusable configuration)
@@ -48,17 +56,7 @@ export default function EnhancedMatrixPlot() {
       // Dynamic bubble sizing based on business impact (aligned with RSA scoring framework)
       const bubbleSize = calculateBubbleSize(effectiveImpact);
       
-      // DEBUG: Verify quadrant positioning after reference line fix
-      if (useCase.title.includes("Enter-once")) {
-        console.log(`QUADRANT DEBUG - ${useCase.title}:`, {
-          coordinates: `x=${effectiveEffort}, y=${effectiveImpact}`,
-          threshold: 3.0,
-          calculatedQuadrant: effectiveQuadrant,
-          visualQuadrant: effectiveImpact >= 3.0 && effectiveEffort < 3.0 ? "Quick Win (Top-Left)" : 
-                          effectiveImpact >= 3.0 && effectiveEffort >= 3.0 ? "Strategic Bet (Top-Right)" :
-                          effectiveImpact < 3.0 && effectiveEffort < 3.0 ? "Experimental (Bottom-Left)" : "Watchlist (Bottom-Right)"
-        });
-      }
+      // Production ready - debug logs removed after bubble sizing verification
       
       return {
         id: useCase.id, // Add unique id for React key
