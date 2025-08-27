@@ -157,12 +157,10 @@ export default function MatrixPlot() {
                   // MAXIMUM VISIBILITY - LARGE BUBBLES
                   const baseSize = 45; // VERY LARGE for maximum visibility
                   const recommendedSize = 55; // EXTRA LARGE for recommended items
-                  console.log('Bubble sizes:', { baseSize, recommendedSize, entry: entry.name });
                   const isHovered = hoveredIndex === index;
                   const size = entry.isRecommended ? recommendedSize : baseSize;
                   const hoverSize = isHovered ? size + 10 : size;
                   const color = entry.isRecommended ? "#FFD700" : entry.color;
-                  console.log('Final bubble render:', { hoverSize, color, cx: 'pending', cy: 'pending' });
                   
                   return (
                     <Scatter
