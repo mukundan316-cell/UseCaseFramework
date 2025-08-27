@@ -95,8 +95,8 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
   return {
     ...dbUseCase,
     // Direct passthrough - no transformation needed per replit.md
-    isActiveForRsa: dbUseCase.isActiveForRsa,
-    isDashboardVisible: dbUseCase.isDashboardVisible,
+    isActiveForRsa: dbUseCase.isActiveForRsa as 'true' | 'false' | null,
+    isDashboardVisible: dbUseCase.isDashboardVisible as 'true' | 'false' | null,
     // Add process as valueChainComponent alias for backward compatibility
     valueChainComponent: dbUseCase.process,
     // Ensure arrays exist for backward compatibility - convert null to undefined
@@ -123,11 +123,11 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     activationReason: dbUseCase.activationReason || undefined,
     thirdPartyProvidedModel: dbUseCase.thirdPartyProvidedModel || undefined,
     // AI governance fields - direct passthrough per replit.md
-    explainabilityRequired: dbUseCase.explainabilityRequired,
+    explainabilityRequired: dbUseCase.explainabilityRequired as 'true' | 'false' | null,
     customerHarmRisk: dbUseCase.customerHarmRisk || undefined,
-    dataOutsideUkEu: dbUseCase.dataOutsideUkEu,
-    thirdPartyModel: dbUseCase.thirdPartyModel,
-    humanAccountability: dbUseCase.humanAccountability,
+    dataOutsideUkEu: dbUseCase.dataOutsideUkEu as 'true' | 'false' | null,
+    thirdPartyModel: dbUseCase.thirdPartyModel as 'true' | 'false' | null,
+    humanAccountability: dbUseCase.humanAccountability as 'true' | 'false' | null,
     regulatoryCompliance: dbUseCase.regulatoryCompliance !== null ? dbUseCase.regulatoryCompliance : undefined,
     aiOrModel: dbUseCase.aiOrModel || undefined,
     riskToCustomers: dbUseCase.riskToCustomers || undefined,
