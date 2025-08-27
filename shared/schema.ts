@@ -15,6 +15,7 @@ export const useCases = pgTable("use_cases", {
   description: text("description").notNull(),
   problemStatement: text("problem_statement"),
   process: text("process").notNull(),
+  valueChainComponent: text("value_chain_component"), // Added for UI compatibility
   lineOfBusiness: text("line_of_business").notNull(),
   linesOfBusiness: text("lines_of_business").array(),
   businessSegment: text("business_segment").notNull(),
@@ -136,8 +137,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
   geographies: z.array(z.string()).optional(),
-  isActiveForRsa: z.enum(['true', 'false']).default('false'),
-  isDashboardVisible: z.enum(['true', 'false']).default('false'),
+  isActiveForRsa: z.boolean().default(false),
+  isDashboardVisible: z.boolean().default(false),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
   librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory']).default('rsa_internal'),
   activationReason: z.union([z.string(), z.null()]).optional(),
