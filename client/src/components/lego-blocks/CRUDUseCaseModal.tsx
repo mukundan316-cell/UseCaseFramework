@@ -509,8 +509,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         deploymentStatus: data.deploymentStatus || '',
         deactivationReason: data.deactivationReason || '',
         overrideReason: data.overrideReason || '',
+        // CRITICAL: Preserve manual override null values - DO NOT convert to empty strings
+        manualImpactScore: data.manualImpactScore,
+        manualEffortScore: data.manualEffortScore, 
+        manualQuadrant: data.manualQuadrant
       };
       
+      console.log('🔍 CRITICAL DEBUG - Manual override values in sanitizedData:', {
+        manualImpactScore: sanitizedData.manualImpactScore,
+        manualEffortScore: sanitizedData.manualEffortScore,
+        manualQuadrant: sanitizedData.manualQuadrant,
+        overrideReason: sanitizedData.overrideReason
+      });
       console.log('Submitting sanitized form data:', sanitizedData);
       
       if (mode === 'edit' && useCase) {
@@ -616,6 +626,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           manualImpactScore: changedData.manualImpactScore,
           manualEffortScore: changedData.manualEffortScore,
           manualQuadrant: changedData.manualQuadrant
+        });
+        console.log('🔍 Current form values before save:', {
+          manualImpactScore: form.getValues('manualImpactScore'),
+          manualEffortScore: form.getValues('manualEffortScore'),
+          manualQuadrant: form.getValues('manualQuadrant')
         });
         console.log('Full update data:', changedData);
         console.log('Calling updateUseCase with ID:', useCase.id);
