@@ -360,12 +360,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         changeImpact: (useCase as any).changeImpact ?? 3,
         modelRisk: (useCase as any).modelRisk ?? 3,
         adoptionReadiness: (useCase as any).adoptionReadiness ?? 3,
-        // RSA Ethical Principles
-        explainabilityRequired: (useCase as any).explainabilityRequired || undefined,
+        // RSA Ethical Principles - preserve boolean false values, only default null/undefined
+        explainabilityRequired: (useCase as any).explainabilityRequired !== null && (useCase as any).explainabilityRequired !== undefined ? (useCase as any).explainabilityRequired : undefined,
         customerHarmRisk: (useCase as any).customerHarmRisk || undefined,
-        dataOutsideUkEu: (useCase as any).dataOutsideUkEu || undefined,
-        thirdPartyModel: (useCase as any).thirdPartyModel || undefined,
-        humanAccountability: (useCase as any).humanAccountability || undefined,
+        dataOutsideUkEu: (useCase as any).dataOutsideUkEu !== null && (useCase as any).dataOutsideUkEu !== undefined ? (useCase as any).dataOutsideUkEu : undefined,
+        thirdPartyModel: (useCase as any).thirdPartyModel !== null && (useCase as any).thirdPartyModel !== undefined ? (useCase as any).thirdPartyModel : undefined,
+        humanAccountability: (useCase as any).humanAccountability !== null && (useCase as any).humanAccountability !== undefined ? (useCase as any).humanAccountability : undefined,
         // AI Inventory Governance Fields
         aiOrModel: (useCase as any).aiOrModel || undefined,
         riskToCustomers: (useCase as any).riskToCustomers || undefined,
