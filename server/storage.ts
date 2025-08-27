@@ -99,16 +99,66 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUseCase(insertUseCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase> {
-    // Clean null/undefined values for proper database insertion, ensuring required defaults
+    // Enhanced data cleaning with null safety
     const cleanData: any = {};
     
-    // Process each field individually to ensure proper type handling
+    // Process each field with safe validation
     Object.entries(insertUseCase).forEach(([key, value]) => {
-      // Handle specific numeric fields that need defaults
-      if ((key === 'revenueImpact' || key === 'costSavings' || key === 'riskReduction') && (value === null || value === undefined)) {
-        cleanData[key] = 0; // Default to 0 for numeric fields
-      } else if (value !== null && value !== undefined) {
-        cleanData[key] = value; // Only include non-null, non-undefined values
+      // Skip null/undefined values except for required fields
+      if (value === null || value === undefined) {
+        if (['title', 'description', 'process', 'lineOfBusiness', 'businessSegment', 'geography', 'useCaseType'].includes(key)) {
+          throw new Error(`Required field ${key} cannot be null or undefined`);
+        }
+        return;
+      }
+      
+      // Handle empty strings for required text fields
+      if (typeof value === 'string' && value.trim() === '' && 
+          ['title', 'description', 'process', 'lineOfBusiness', 'businessSegment', 'geography', 'useCaseType'].includes(key)) {
+        throw new Error(`Required field ${key} cannot be empty`);
+      }
+      
+      // Handle scoring fields with range validation
+      if (['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
+           'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness',
+           'impactScore', 'effortScore', 'manualImpactScore', 'manualEffortScore'].includes(key)) {
+        const numValue = typeof value === 'number' ? value : parseFloat(value as string);
+        if (!isNaN(numValue) && isFinite(numValue)) {
+          cleanData[key] = Math.max(0, Math.min(5, Math.round(numValue * 10) / 10)); // Round to 1 decimal
+        }
+        return;
+      }
+      
+      // Handle boolean strings (preserve existing system)
+      if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
+           'thirdPartyModel', 'humanAccountability'].includes(key)) {
+        if (typeof value === 'boolean') {
+          cleanData[key] = value ? 'true' : 'false';
+        } else if (typeof value === 'string' && ['true', 'false'].includes(value)) {
+          cleanData[key] = value;
+        }
+        return;
+      }
+      
+      // Handle arrays
+      if (Array.isArray(value)) {
+        const cleanArray = value.filter(item => item && typeof item === 'string' && item.trim());
+        if (cleanArray.length > 0) {
+          cleanData[key] = cleanArray;
+        }
+        return;
+      }
+      
+      // Include other valid values
+      cleanData[key] = value;
+    });
+    
+    // Set required defaults for scoring fields
+    const scoreFields = ['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
+                         'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness'];
+    scoreFields.forEach(field => {
+      if (cleanData[field] === undefined) {
+        cleanData[field] = 0;
       }
     });
     
@@ -120,9 +170,47 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUseCase(id: string, updates: Partial<UseCase>): Promise<UseCase | undefined> {
+    // Enhanced validation for updates
+    const cleanUpdates: any = {};
+    
+    Object.entries(updates).forEach(([key, value]) => {
+      // Skip null/undefined values
+      if (value === null || value === undefined) {
+        return;
+      }
+      
+      // Handle scoring fields with validation
+      if (['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
+           'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness',
+           'impactScore', 'effortScore', 'manualImpactScore', 'manualEffortScore'].includes(key)) {
+        const numValue = typeof value === 'number' ? value : parseFloat(value as string);
+        if (!isNaN(numValue) && isFinite(numValue)) {
+          cleanUpdates[key] = Math.max(0, Math.min(5, Math.round(numValue * 10) / 10));
+        }
+        return;
+      }
+      
+      // Handle boolean strings
+      if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
+           'thirdPartyModel', 'humanAccountability'].includes(key)) {
+        if (typeof value === 'boolean') {
+          cleanUpdates[key] = value ? 'true' : 'false';
+        } else if (typeof value === 'string' && ['true', 'false'].includes(value)) {
+          cleanUpdates[key] = value;
+        }
+        return;
+      }
+      
+      cleanUpdates[key] = value;
+    });
+    
+    if (Object.keys(cleanUpdates).length === 0) {
+      return undefined; // No valid updates
+    }
+    
     const [useCase] = await db
       .update(useCases)
-      .set(updates)
+      .set(cleanUpdates)
       .where(eq(useCases.id, id))
       .returning();
     return useCase || undefined;
