@@ -171,7 +171,7 @@ export async function seedDatabase() {
 
       const quadrant = calculateQuadrant(impactScore, effortScore);
 
-      // Map old field names to new schema
+      // Map to correct database schema fields
       const useCaseData = {
         title: sampleUseCase.title,
         description: sampleUseCase.description,
@@ -193,7 +193,11 @@ export async function seedDatabase() {
         adoptionReadiness: sampleUseCase.adoptionReadiness,
         impactScore,
         effortScore,
-        quadrant
+        quadrant,
+        isActiveForRsa: false,
+        isDashboardVisible: false,
+        libraryTier: 'reference' as const,
+        librarySource: 'rsa_internal' as const
       };
 
       await db.insert(useCases).values(useCaseData);
