@@ -17,8 +17,10 @@ import {
   Circle,
   AlertCircle
 } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { APP_CONFIG } from '@shared/constants/app-config';
 
-export type SmartRatingVariant = 'descriptive' | 'stars' | 'maturity' | 'capability';
+export type SmartRatingVariant = 'descriptive' | 'stars' | 'maturity' | 'capability' | 'slider';
 export type SmartRatingSize = 'sm' | 'md' | 'lg';
 
 export interface RatingOption {
@@ -63,6 +65,10 @@ export interface SmartRatingLegoBlockProps {
   onAdditionalContextChange?: (value: string) => void;
   /** Label for additional context section */
   additionalContextLabel?: string;
+  /** Left label for slider variant */
+  leftLabel?: string;
+  /** Right label for slider variant */
+  rightLabel?: string;
 }
 
 // Rating configuration for each variant
@@ -97,15 +103,24 @@ const RATING_CONFIGS: Record<SmartRatingVariant, (min: number, max: number) => R
     { value: 3, label: 'Moderate', description: 'Adequate capability for current needs', icon: <CheckCircle2 className="h-4 w-4" />, color: 'text-yellow-600' },
     { value: 4, label: 'Strong', description: 'Well-developed capability with minor gaps', icon: <Zap className="h-4 w-4" />, color: 'text-blue-600' },
     { value: 5, label: 'Advanced', description: 'Leading capability, ready for innovation', icon: <Award className="h-4 w-4" />, color: 'text-green-600' }
-  ].slice(min - 1, max)
+  ].slice(min - 1, max),
+
+  slider: (min, max) => Array.from({ length: max - min + 1 }, (_, i) => ({
+    value: min + i,
+    label: `${min + i}`,
+    description: `Score ${min + i}`,
+    icon: <Circle className="h-4 w-4" />,
+    color: 'text-blue-600'
+  }))
 };
 
 /**
- * SmartRatingLegoBlock - Enhanced dropdown-style rating component
+ * SmartRatingLegoBlock - Universal rating component (LEGO Rationalization Phase 1)
  * 
- * Replaces ScoreSliderLegoBlock with better UX featuring:
- * - Dropdown selector with descriptive labels
- * - 4 variants: descriptive, stars, maturity, capability
+ * Consolidates ScoreSliderLegoBlock functionality with enhanced UX:
+ * - 5 variants: descriptive, stars, maturity, capability, slider
+ * - Dropdown selector with descriptive labels for most variants
+ * - Slider variant provides traditional slider UI
  * - Icons, labels, descriptions, and score values
  * - Mobile-friendly with keyboard navigation
  * - Full accessibility support
@@ -124,7 +139,9 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
   maxValue = 5,
   additionalContext = '',
   onAdditionalContextChange,
-  additionalContextLabel = 'Additional Context'
+  additionalContextLabel = 'Additional Context',
+  leftLabel = 'Low',
+  rightLabel = 'High'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -252,27 +269,74 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
         </div>
       )}
 
-      {/* Rating Component */}
-      <div className="space-y-4">
-        <Label className="text-base font-semibold text-gray-900">
-          Rating Scale
-        </Label>
-        
-        {question.helpText && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-gray-400 cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs">{question.helpText}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </div>
+      {/* Rating Component - Conditional Rendering */}
+      {variant === 'slider' ? (
+        // Slider Variant (ScoreSliderLegoBlock replacement)
+        <div className="space-y-4">
+          <div className="flex items-center justify-between mb-3">
+            <Label className="text-base font-semibold text-gray-900">Rating Scale</Label>
+            <div className="flex items-center space-x-2">
+              {question.helpText && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">{question.helpText}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {showScore && (
+                <span className="font-semibold text-[#005DAA] bg-[#E6F2FF] px-2 py-1 rounded">
+                  {value || minValue}
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="px-3">
+            <Slider
+              value={[value || minValue]}
+              onValueChange={(newValues) => onChange(newValues[0])}
+              min={minValue}
+              max={maxValue}
+              step={1}
+              disabled={disabled}
+              className="w-full"
+              data-testid={`slider-smart-rating-${question.id}`}
+            />
+            <div className="flex justify-between text-sm text-gray-500 mt-2">
+              <span>{leftLabel}</span>
+              <span>{rightLabel}</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        // Dropdown Variants (descriptive, stars, maturity, capability)
+        <div className="space-y-4">
+          <Label className="text-base font-semibold text-gray-900">
+            Rating Scale
+          </Label>
+          
+          {question.helpText && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">{question.helpText}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+      )}
 
-      {/* Dropdown Button */}
+      {/* Dropdown Button - Only for non-slider variants */}
+      {variant !== 'slider' && (
       <div className="relative">
         <Button
           ref={buttonRef}
@@ -366,6 +430,7 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
           </div>
         )}
       </div>
+      )}
 
       {/* Error Message */}
       {error && (

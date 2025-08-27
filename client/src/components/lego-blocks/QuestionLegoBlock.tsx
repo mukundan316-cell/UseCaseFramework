@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
+import { SmartRatingLegoBlock } from './SmartRatingLegoBlock';
 import { InfoTooltipLegoBlock } from './InfoTooltipLegoBlock';
 
 export interface QuestionOption {
@@ -121,39 +121,26 @@ export default function QuestionLegoBlock({
     </div>
   );
 
-  // Score field with button-style rating (1-5 scale)
+  // Score field using SmartRatingLegoBlock with slider variant (LEGO Rationalization Phase 1)
   const renderScoreField = () => {
-    const numericValue = typeof value === 'number' ? value : null;
-    const range = Array.from({ length: maxValue - minValue + 1 }, (_, i) => minValue + i);
-    
     return (
-      <div>
-        {renderQuestionLabel()}
-        <div className="flex items-center justify-center space-x-4">
-          <span className="text-sm text-gray-600 font-medium">{leftLabel}</span>
-          <div className="flex items-center space-x-2">
-            {range.map((scoreValue) => (
-              <button
-                key={scoreValue}
-                type="button"
-                onClick={() => onChange(scoreValue)}
-                disabled={readonly}
-                data-testid={`button-score-${scoreValue}`}
-                className={cn(
-                  "w-10 h-10 rounded-full border-2 text-sm font-medium transition-colors",
-                  numericValue === scoreValue
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50",
-                  readonly && "cursor-not-allowed opacity-50"
-                )}
-              >
-                {scoreValue}
-              </button>
-            ))}
-          </div>
-          <span className="text-sm text-gray-600 font-medium">{rightLabel}</span>
-        </div>
-      </div>
+      <SmartRatingLegoBlock
+        question={{
+          id,
+          questionText,
+          helpText,
+          isRequired
+        }}
+        value={typeof value === 'number' ? value : null}
+        onChange={onChange}
+        variant="slider"
+        minValue={minValue}
+        maxValue={maxValue}
+        leftLabel={leftLabel}
+        rightLabel={rightLabel}
+        disabled={readonly}
+        error={error}
+      />
     );
   };
 
@@ -193,7 +180,7 @@ export default function QuestionLegoBlock({
               <option value="">Select an option...</option>
               {options.map((option) => (
                 <option key={option.id} value={option.id}>
-                  {option.text || option.value}
+                  {option.optionText || option.optionValue}
                 </option>
               ))}
               <option value="__other__">Other (please specify)</option>
@@ -242,7 +229,7 @@ export default function QuestionLegoBlock({
                 htmlFor={option.id}
                 className="text-sm font-normal text-gray-700 cursor-pointer flex-1"
               >
-                {option.text || option.value}
+                {option.optionText || option.optionValue}
               </Label>
             </div>
           ))}
@@ -350,7 +337,7 @@ export default function QuestionLegoBlock({
                   htmlFor={option.id}
                   className="text-sm font-normal text-gray-700 cursor-pointer flex-1"
                 >
-                  {option.label}
+                  {option.optionText || option.optionValue}
                 </Label>
               </div>
             );
