@@ -46,10 +46,17 @@ export default function ScoreOverrideLegoBlock({
     
     // If disabling overrides, clear all manual override fields
     if (!enabled) {
+      console.log('🧹 ScoreOverrideLegoBlock: Clearing manual override values...');
       form.setValue('manualImpactScore', null);
       form.setValue('manualEffortScore', null);
       form.setValue('manualQuadrant', null);
       form.setValue('overrideReason', '');
+      
+      console.log('🧹 Values after clearing:', {
+        manualImpactScore: form.getValues('manualImpactScore'),
+        manualEffortScore: form.getValues('manualEffortScore'),
+        manualQuadrant: form.getValues('manualQuadrant')
+      });
       
       // Force form to trigger re-render to clear displayed values
       form.trigger(['manualImpactScore', 'manualEffortScore', 'manualQuadrant', 'overrideReason']);

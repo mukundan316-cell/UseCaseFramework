@@ -148,16 +148,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   
   // Handle manual override toggle with proper cleanup
   const handleOverrideToggle = (enabled: boolean) => {
+    console.log('🎛️ CRUDUseCaseModal: Override toggle changed to:', enabled);
     setIsOverrideEnabled(enabled);
     
-    // When disabling manual overrides, clear the form values to restore auto-calculated scores
-    if (!enabled) {
-      form.setValue('manualImpactScore', null);
-      form.setValue('manualEffortScore', null);
-      form.setValue('manualQuadrant', null);
-      
-      console.log('Manual overrides disabled - cleared manual score values to restore auto-calculated scores');
-    }
+    // The actual clearing is handled by ScoreOverrideLegoBlock
+    // This just manages the parent state
   };
 
   // Tab state management
