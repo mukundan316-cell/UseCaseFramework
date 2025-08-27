@@ -37,7 +37,7 @@ export default function EnhancedMatrixPlot() {
       quadrant: effectiveQuadrant,
       color: getQuadrantColor(effectiveQuadrant),
       gradientColor: getQuadrantGradient(effectiveQuadrant),
-      size: 25 + (effectiveImpact * 8), // Dynamic sizing based on impact
+      size: 60 + (effectiveImpact * 15), // Dynamic sizing based on impact - increased for better visibility
       useCase: useCase,
       lob: useCase.lineOfBusiness,
       segment: useCase.businessSegment,
@@ -323,7 +323,7 @@ export default function EnhancedMatrixPlot() {
                         <Cell 
                           key={`cell-${index}`} 
                           fill={`url(#bubble-gradient-${chartData.findIndex(d => d.name === entry.name)})`}
-                          r={Math.max(15, Math.min(35, entry.size / 1.5))}
+                          r={Math.max(25, Math.min(50, entry.size / 2.5))}
                           stroke="white"
                           strokeWidth={2}
                         />
