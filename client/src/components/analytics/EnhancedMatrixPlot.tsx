@@ -332,9 +332,12 @@ export default function EnhancedMatrixPlot() {
                         <LabelList 
                           dataKey="name" 
                           position="center" 
-                          fontSize={9}
-                          fill="#374151"
-                          fontWeight="500"
+                          fontSize={11}
+                          fill="#1F2937"
+                          fontWeight="600"
+                          stroke="white"
+                          strokeWidth={2}
+                          paintOrder="stroke"
                         />
                       )}
                     </Scatter>
