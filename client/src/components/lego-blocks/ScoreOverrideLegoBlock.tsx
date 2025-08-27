@@ -33,16 +33,26 @@ export default function ScoreOverrideLegoBlock({
   const manualQuadrant = form.watch('manualQuadrant');
   
   // Check if manual overrides are already active (for edit mode)
-  const hasExistingOverrides = !!(manualImpact || manualEffort || manualQuadrant);
+  // FIXED: Only consider non-null, non-empty values as actual overrides
+  const hasExistingOverrides = !!(
+    (manualImpact !== null && manualImpact !== undefined && manualImpact !== '') || 
+    (manualEffort !== null && manualEffort !== undefined && manualEffort !== '') || 
+    (manualQuadrant !== null && manualQuadrant !== undefined && manualQuadrant !== '')
+  );
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(hasExistingOverrides);
   
   // Sync toggle state when manual override values change externally
   useEffect(() => {
-    const hasOverrides = !!(manualImpact || manualEffort || manualQuadrant);
+    const hasOverrides = !!(
+      (manualImpact !== null && manualImpact !== undefined && manualImpact !== '') || 
+      (manualEffort !== null && manualEffort !== undefined && manualEffort !== '') || 
+      (manualQuadrant !== null && manualQuadrant !== undefined && manualQuadrant !== '')
+    );
     setIsOverrideEnabled(hasOverrides);
   }, [manualImpact, manualEffort, manualQuadrant]);
   
   const handleToggleOverride = (enabled: boolean) => {
+    console.log('🔄 Toggle override:', { enabled, currentValues: { manualImpact, manualEffort, manualQuadrant } });
     setIsOverrideEnabled(enabled);
     
     // If disabling overrides, clear all manual override fields
@@ -94,6 +104,14 @@ export default function ScoreOverrideLegoBlock({
       </CardHeader>
       
       <CardContent className="space-y-4">
+        {/* DEBUG: Current state */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="p-2 bg-gray-100 rounded text-xs">
+            <div>Toggle: {isOverrideEnabled ? 'ON' : 'OFF'}</div>
+            <div>Manual values: Impact={manualImpact}, Effort={manualEffort}, Quadrant={manualQuadrant}</div>
+          </div>
+        )}
+
         {/* Show current effective scores when override is disabled */}
         {!isOverrideEnabled && (calculatedImpact || calculatedEffort) && (
           <div className="bg-white p-3 rounded border">
