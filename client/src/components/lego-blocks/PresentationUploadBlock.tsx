@@ -36,11 +36,17 @@ export default function PresentationUploadBlock({
     const allowedTypes = [
       'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
       'application/vnd.ms-powerpoint', // .ppt
-      'application/pdf' // .pdf
+      'application/pdf', // .pdf
+      'image/jpeg', // .jpg, .jpeg
+      'image/jpg', // .jpg
+      'image/png', // .png
+      'image/gif', // .gif
+      'image/bmp', // .bmp
+      'image/webp' // .webp
     ];
     
     if (!allowedTypes.includes(file.type)) {
-      setError('Please upload a PowerPoint file (.pptx, .ppt) or PDF');
+      setError('Please upload a PowerPoint file (.pptx, .ppt), PDF, or image file (.jpg, .png, .gif, .bmp, .webp)');
       return;
     }
 
@@ -130,7 +136,7 @@ export default function PresentationUploadBlock({
           Presentation Documents
         </CardTitle>
         <CardDescription>
-          Upload PowerPoint presentations (.pptx, .ppt) or PDF files to enhance your use case documentation.
+          Upload PowerPoint presentations (.pptx, .ppt), PDF files, or images (.jpg, .png, .gif, .bmp, .webp) to enhance your use case documentation.
           Files will be automatically converted to PDF for preview.
         </CardDescription>
       </CardHeader>
@@ -182,11 +188,11 @@ export default function PresentationUploadBlock({
               Upload Presentation
             </h3>
             <p className="text-gray-600 mb-4">
-              Drag and drop your PowerPoint file here, or click to browse
+              Drag and drop your PowerPoint file, PDF, or image here, or click to browse
             </p>
             <input
               type="file"
-              accept=".pptx,.ppt,.pdf"
+              accept=".pptx,.ppt,.pdf,.jpg,.jpeg,.png,.gif,.bmp,.webp"
               onChange={handleFileSelect}
               disabled={disabled || isUploading}
               className="hidden"
@@ -202,7 +208,7 @@ export default function PresentationUploadBlock({
               {isUploading ? 'Uploading...' : 'Browse Files'}
             </Button>
             <p className="text-sm text-gray-500 mt-2">
-              Supports .pptx, .ppt, and .pdf files up to 50MB
+              Supports .pptx, .ppt, .pdf, and image files (.jpg, .png, .gif, .bmp, .webp) up to 50MB
             </p>
           </div>
         )}
