@@ -49,9 +49,9 @@ export interface UseCaseFrontend {
   manualEffortScore?: number | null;
   manualQuadrant?: string | null;
   overrideReason?: string;
-  // AI Inventory specific fields
-  aiInventoryStatus?: string;
-  deploymentStatus?: string;
+  // AI Inventory specific fields - match database null types
+  aiInventoryStatus?: string | null;
+  deploymentStatus?: string | null;
   businessFunction?: string;
   modelOwner?: string;
   lastStatusUpdate?: Date;
