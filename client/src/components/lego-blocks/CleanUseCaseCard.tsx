@@ -339,10 +339,11 @@ export default function CleanUseCaseCard({
             <div className="mb-3 text-center">
               <div className="flex items-center justify-center gap-1">
                 <span 
-                  className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                  className="inline-block px-3 py-1.5 rounded-full text-xs font-semibold shadow-md"
                   style={{ 
-                    backgroundColor: quadrantBorder, 
-                    color: 'white' 
+                    background: `linear-gradient(135deg, ${quadrantBorder} 0%, ${quadrantBorder}CC 100%)`,
+                    color: 'white',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
                   }}
                 >
                   {effectiveQuadrant || 'Unassigned'}
@@ -355,19 +356,19 @@ export default function CleanUseCaseCard({
             
             {/* Score Grid */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="text-center bg-green-50 rounded-lg p-3 border border-green-200">
-                <div className="text-2xl font-bold text-green-700">
+              <div className="text-center bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-3 border border-green-200 shadow-sm">
+                <div className="text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">
                   {effectiveImpact.toFixed(1)}
                 </div>
-                <div className="text-xs text-green-600">
+                <div className="text-xs text-green-600 font-medium">
                   Impact {hasOverrides && useCase.manualImpactScore && '(Manual)'}
                 </div>
               </div>
-              <div className="text-center bg-blue-50 rounded-lg p-3 border border-blue-200">
-                <div className="text-2xl font-bold text-blue-700">
+              <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 border border-blue-200 shadow-sm">
+                <div className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
                   {effectiveEffort.toFixed(1)}
                 </div>
-                <div className="text-xs text-blue-600">
+                <div className="text-xs text-blue-600 font-medium">
                   Effort {hasOverrides && useCase.manualEffortScore && '(Manual)'}
                 </div>
               </div>
@@ -391,7 +392,7 @@ export default function CleanUseCaseCard({
                 e.stopPropagation(); // Prevent card click
                 onEdit?.(useCase);
               }}
-              className="inline-flex items-center px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded border-none bg-transparent transition-colors"
+              className="inline-flex items-center px-3 py-2 text-xs text-gray-600 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 rounded-lg border-none bg-transparent transition-all duration-200 hover:shadow-sm"
               data-testid="button-edit"
             >
               <Edit className="h-3 w-3 mr-1" />
@@ -402,7 +403,7 @@ export default function CleanUseCaseCard({
                 e.stopPropagation(); // Prevent card click
                 onDelete?.(useCase);
               }}
-              className="inline-flex items-center px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded border-none bg-transparent transition-colors"
+              className="inline-flex items-center px-3 py-2 text-xs text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 rounded-lg border-none bg-transparent transition-all duration-200 hover:shadow-sm"
               data-testid="button-delete"
             >
               <Trash2 className="h-3 w-3 mr-1" />
@@ -416,7 +417,7 @@ export default function CleanUseCaseCard({
                 e.stopPropagation(); // Prevent card click
                 onMoveToLibrary?.(useCase);
               }}
-              className="inline-flex items-center px-2 py-1.5 text-xs text-orange-600 hover:bg-orange-50 rounded border-none bg-transparent transition-colors"
+              className="inline-flex items-center px-3 py-2 text-xs text-orange-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 rounded-lg border-none bg-transparent transition-all duration-200 hover:shadow-sm"
               data-testid="button-move-to-library"
             >
               <Library className="h-3 w-3 mr-1" />

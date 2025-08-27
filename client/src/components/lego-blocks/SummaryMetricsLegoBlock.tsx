@@ -62,32 +62,36 @@ export default function SummaryMetricsLegoBlock() {
   }) => (
     <Card 
       className={`
-        cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg
-        ${isActive ? 'ring-2 ring-[#005DAA] bg-blue-50' : 'hover:ring-1 hover:ring-[#005DAA]/30'}
-        ${onClick ? 'hover:bg-blue-50/50' : ''}
+        cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl
+        ${isActive ? 'ring-2 ring-[#005DAA] bg-gradient-to-br from-blue-50 to-indigo-50' : 'hover:ring-1 hover:ring-[#005DAA]/30 hover:shadow-lg'}
+        ${onClick ? 'hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-indigo-50/50' : ''}
+        border-0 shadow-md bg-gradient-to-br from-white to-slate-50/50 backdrop-blur-sm
       `}
       onClick={onClick}
       style={{
         background: isActive 
-          ? 'linear-gradient(135deg, #005DAA10 0%, #005DAA05 100%)'
-          : undefined
+          ? 'linear-gradient(135deg, #005DAA15 0%, #3B82F620 50%, #005DAA08 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
       }}
     >
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div 
-              className="p-2 rounded-lg"
+              className="p-2.5 rounded-xl shadow-sm backdrop-blur-sm"
               style={{
-                background: `linear-gradient(135deg, ${color}15 0%, ${color}08 100%)`,
-                border: `1px solid ${color}20`
+                background: `linear-gradient(135deg, ${color}20 0%, ${color}12 100%)`,
+                border: `1px solid ${color}25`,
+                boxShadow: `0 4px 8px ${color}15`
               }}
             >
-              <Icon className="h-5 w-5" style={{ color }} />
+              <Icon className="h-5 w-5 drop-shadow-sm" style={{ color }} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-600">{label}</p>
-              <p className="text-2xl font-bold text-gray-900">{value}</p>
+              <p className="text-sm font-semibold text-gray-700">{label}</p>
+              <p className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                {value}
+              </p>
               {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
             </div>
           </div>
@@ -105,7 +109,9 @@ export default function SummaryMetricsLegoBlock() {
     <div className="mb-8">
       {/* Header Section */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Portfolio Overview</h2>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 bg-clip-text text-transparent mb-2">
+          Portfolio Overview
+        </h2>
         <p className="text-gray-600 mb-3">
           Current metrics across {filteredUseCases.length} use cases
           {filters.quadrant || filters.search || filters.process ? (
