@@ -1547,8 +1547,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               </CardContent>
             </Card>
             
-            {/* Manual Score Override Section - Hidden for Reference Library */}
-            {(context as string) !== 'reference' && (
+            {/* Manual Score Override Section - Show for Active RSA Use Cases */}
+            {rsaSelection.isActiveForRsa && (
               <ScoreOverrideLegoBlock
                 form={form}
                 calculatedImpact={currentImpactScore}
