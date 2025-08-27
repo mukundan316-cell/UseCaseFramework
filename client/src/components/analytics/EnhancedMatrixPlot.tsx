@@ -30,6 +30,14 @@ export default function EnhancedMatrixPlot() {
     const effectiveImpact = getEffectiveImpactScore(useCase as any);
     const effectiveEffort = getEffectiveEffortScore(useCase as any);
     
+    // Debug logging for RCA
+    console.log('EnhancedMatrixPlot Debug:', {
+      title: useCase.title,
+      effectiveImpact,
+      effectiveEffort,
+      calculatedSize: 60 + (effectiveImpact * 15)
+    });
+    
     return {
       x: effectiveEffort,
       y: effectiveImpact,
@@ -37,7 +45,7 @@ export default function EnhancedMatrixPlot() {
       quadrant: effectiveQuadrant,
       color: getQuadrantColor(effectiveQuadrant),
       gradientColor: getQuadrantGradient(effectiveQuadrant),
-      size: 60 + (effectiveImpact * 15), // Dynamic sizing based on impact - increased for better visibility
+      size: Math.max(100, 60 + (effectiveImpact * 15)), // Ensure minimum size of 100 for visibility
       useCase: useCase,
       lob: useCase.lineOfBusiness,
       segment: useCase.businessSegment,
@@ -323,7 +331,7 @@ export default function EnhancedMatrixPlot() {
                         <Cell 
                           key={`cell-${index}`} 
                           fill={`url(#bubble-gradient-${chartData.findIndex(d => d.name === entry.name)})`}
-                          r={Math.max(25, Math.min(50, entry.size / 2.5))}
+                          r={Math.max(40, Math.min(70, entry.size / 2))}
                           stroke="white"
                           strokeWidth={2}
                         />
