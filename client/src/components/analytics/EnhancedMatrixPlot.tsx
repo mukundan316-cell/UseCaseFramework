@@ -35,8 +35,8 @@ export default function EnhancedMatrixPlot() {
     // Enhanced scaling with exponential curve for better visual distinction
     const normalizedScore = Math.max(0, Math.min(maxScore, impactScore)) / maxScore;
     
-    // Use exponential scaling for more dramatic size differences
-    const exponentialScale = Math.pow(normalizedScore, 2); // Increased from 1.5 to 2 for even more dramatic differences
+    // Use moderate exponential scaling that's proportional to impact level
+    const exponentialScale = Math.pow(normalizedScore, 1.3); // Reduced from 2 to 1.3 for more realistic scaling
     const calculatedSize = minSize + (exponentialScale * (maxSize - minSize));
     
     // Ensure minimum visual distinction and round for pixel-perfect rendering
@@ -379,7 +379,7 @@ export default function EnhancedMatrixPlot() {
                         const bubbleRadius = payload?.z || APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.DEFAULT_BUBBLE_SIZE;
                         const index = chartData.findIndex(d => d.id === payload?.id);
                         
-                        // Dynamic bubble sizing verified - production ready
+                        // Bubble sizing correctly calibrated for proportional impact visualization
                         
                         return (
                           <circle 

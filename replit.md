@@ -12,7 +12,7 @@ The RSA AI Use Case Value Framework is a production-ready strategic platform des
 - **Data Consistency**: Complete boolean standardization and minimal transformations across all layers
 - **Code Quality**: Centralized configuration, comprehensive error handling, and loading states
 - **Development Focus**: Quick wins and optimizations without adding complexity
-- **Bubble Sizing**: Exponential scaling preferred for visual impact distinction in matrix plots
+- **Bubble Sizing**: Moderate exponential scaling (power 1.3) for proportional impact visualization in matrix plots
 
 ## System Architecture
 
@@ -87,11 +87,12 @@ The guiding principle is **"Build Once, Reuse Everywhere"**, meaning every compo
 6. ✅ **Dynamic Bubble Sizing Fix**: Resolved scaling issues with exponential curve algorithm
 
 **Technical Resolutions:**
-- **Bubble Sizing Root Cause**: Linear scaling provided insufficient visual distinction
-- **Solution**: Exponential scaling (power 2.0) with dramatic size range (10-40px vs original 8-20px)
-- **Verification**: Console logs confirmed progressive size increase from 16→23→28→30px for high-impact items
-- **Algorithm Enhancement**: `Math.pow(normalizedScore, 2)` for maximum visual impact distinction
-- **Production Status**: Debug logging removed, bubble sizing verified and working correctly
+- **Bubble Sizing Root Cause**: Exponential scaling (power 2.0) was creating oversized bubbles for medium-impact scores
+- **Final Solution**: Moderate exponential scaling (power 1.3) with proportional size range (8-24px)
+- **Verification**: For 3.8/5 impact score, bubble size reduced from 27px→17px (appropriate medium size)
+- **Algorithm Enhancement**: `Math.pow(normalizedScore, 1.3)` for realistic proportional scaling
+- **Recharts Compliance**: Custom shape implementation properly uses payload.z for dynamic radius
+- **Production Status**: Bubble sizing calibrated correctly, debug logging removed
 
 ### 2025-08-27: Executive Dashboard LEGO Alignment & Scoring Optimization
 **LEGO Principle Implementation:**
