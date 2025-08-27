@@ -33,23 +33,31 @@ export default function ScoreOverrideLegoBlock({
   const manualQuadrant = form.watch('manualQuadrant');
   
   // Check if manual overrides are already active (for edit mode)
-  // FIXED: Only consider non-null, non-empty values as actual overrides
+  // FIXED: Only consider values that are different from calculated scores as actual overrides
   const hasExistingOverrides = !!(
-    (manualImpact !== null && manualImpact !== undefined && manualImpact !== '') || 
-    (manualEffort !== null && manualEffort !== undefined && manualEffort !== '') || 
-    (manualQuadrant !== null && manualQuadrant !== undefined && manualQuadrant !== '')
+    (manualImpact !== null && manualImpact !== undefined && manualImpact !== '' && manualImpact !== calculatedImpact) || 
+    (manualEffort !== null && manualEffort !== undefined && manualEffort !== '' && manualEffort !== calculatedEffort) || 
+    (manualQuadrant !== null && manualQuadrant !== undefined && manualQuadrant !== '' && manualQuadrant !== calculatedQuadrant)
   );
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(hasExistingOverrides);
   
   // Sync toggle state when manual override values change externally
   useEffect(() => {
     const hasOverrides = !!(
-      (manualImpact !== null && manualImpact !== undefined && manualImpact !== '') || 
-      (manualEffort !== null && manualEffort !== undefined && manualEffort !== '') || 
-      (manualQuadrant !== null && manualQuadrant !== undefined && manualQuadrant !== '')
+      (manualImpact !== null && manualImpact !== undefined && manualImpact !== '' && manualImpact !== calculatedImpact) || 
+      (manualEffort !== null && manualEffort !== undefined && manualEffort !== '' && manualEffort !== calculatedEffort) || 
+      (manualQuadrant !== null && manualQuadrant !== undefined && manualQuadrant !== '' && manualQuadrant !== calculatedQuadrant)
     );
     setIsOverrideEnabled(hasOverrides);
-  }, [manualImpact, manualEffort, manualQuadrant]);
+    
+    // Auto-clear calculated values that were mistakenly stored as manual overrides
+    if (!hasOverrides && (manualImpact === calculatedImpact || manualEffort === calculatedEffort || manualQuadrant === calculatedQuadrant)) {
+      console.log('🧹 Auto-clearing calculated values stored as manual overrides...');
+      form.setValue('manualImpactScore', null);
+      form.setValue('manualEffortScore', null);
+      form.setValue('manualQuadrant', null);
+    }
+  }, [manualImpact, manualEffort, manualQuadrant, calculatedImpact, calculatedEffort, calculatedQuadrant, form]);
   
   const handleToggleOverride = (enabled: boolean) => {
     console.log('🔄 Toggle override:', { enabled, currentValues: { manualImpact, manualEffort, manualQuadrant } });
@@ -104,13 +112,7 @@ export default function ScoreOverrideLegoBlock({
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* DEBUG: Current state */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="p-2 bg-gray-100 rounded text-xs">
-            <div>Toggle: {isOverrideEnabled ? 'ON' : 'OFF'}</div>
-            <div>Manual values: Impact={manualImpact}, Effort={manualEffort}, Quadrant={manualQuadrant}</div>
-          </div>
-        )}
+
 
         {/* Show current effective scores when override is disabled */}
         {!isOverrideEnabled && (calculatedImpact || calculatedEffort) && (
