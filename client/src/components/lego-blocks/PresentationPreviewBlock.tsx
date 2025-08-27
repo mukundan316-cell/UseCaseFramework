@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Eye, Calendar, ExternalLink, Loader2 } from "lucide-react";
+import { FileText, Download, Eye, Calendar, ExternalLink, Loader2, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface PresentationPreviewBlockProps {
@@ -26,6 +26,9 @@ export default function PresentationPreviewBlock({
 }: PresentationPreviewBlockProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [proxyUrl, setProxyUrl] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Don't render if no presentation exists - check for actual data presence
   if (!presentationFileName && !presentationUrl && !presentationPdfUrl) {
@@ -58,15 +61,37 @@ export default function PresentationPreviewBlock({
     if (!presentationPdfUrl) return;
     
     setIsPreviewOpen(true);
-    // Set the proxy URL directly
+    setCurrentPage(1);
+    setIsLoading(true);
+    // Set the proxy URL directly with page navigation
     const url = getProxyUrl(presentationPdfUrl);
     setProxyUrl(url);
   };
 
-  // Reset proxy URL when dialog closes
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+
+  const handleGoToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  // Reset state when dialog closes
   useEffect(() => {
     if (!isPreviewOpen) {
       setProxyUrl(null);
+      setCurrentPage(1);
+      setIsLoading(true);
     }
   }, [isPreviewOpen]);
 
@@ -151,29 +176,104 @@ export default function PresentationPreviewBlock({
         </CardContent>
       </Card>
 
-      {/* PDF Preview Dialog */}
+      {/* Enhanced PDF Preview Dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-[95vw] w-full h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0">
+          {/* Header with Navigation Controls */}
+          <div className="flex items-center justify-between p-4 border-b bg-white rounded-t-lg">
+            <div className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              {presentationFileName}
-            </DialogTitle>
-          </DialogHeader>
+              <span className="font-semibold truncate max-w-md" title={presentationFileName}>
+                {presentationFileName}
+              </span>
+            </div>
+            
+            {/* Navigation Controls */}
+            <div className="flex items-center gap-3">
+              {/* Page Navigation */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrevPage}
+                  disabled={currentPage <= 1}
+                  data-testid="button-prev-page"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <div className="flex items-center gap-2 px-2 py-1 bg-gray-100 rounded text-sm">
+                  <input
+                    type="number"
+                    value={currentPage}
+                    onChange={(e) => handleGoToPage(parseInt(e.target.value) || 1)}
+                    className="w-12 text-center bg-transparent border-0 outline-0"
+                    min="1"
+                    max={totalPages}
+                    data-testid="input-page-number"
+                  />
+                  <span className="text-gray-500">/ {totalPages}</span>
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNextPage}
+                  disabled={currentPage >= totalPages}
+                  data-testid="button-next-page"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              {/* Additional Controls */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setCurrentPage(1);
+                  setIsLoading(true);
+                }}
+                data-testid="button-reset-view"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownload}
+                data-testid="button-download-from-viewer"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
           
-          <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden" style={{ height: 'calc(90vh - 120px)' }}>
+          {/* PDF Viewer - Full Screen without sidebars */}
+          <div className="flex-1 bg-gray-100 overflow-hidden" style={{ height: 'calc(90vh - 80px)' }}>
             {proxyUrl ? (
               <iframe
-                src={`${proxyUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+                src={`${proxyUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&page=${currentPage}`}
                 className="w-full h-full border-0"
                 title="Presentation Preview"
                 data-testid="presentation-pdf-viewer"
+                onLoad={() => setIsLoading(false)}
               />
             ) : presentationPdfUrl ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">Click "Preview" to load the PDF</p>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-spin" />
+                      <p className="text-gray-600">Loading PDF...</p>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">Click "Preview" to load the PDF</p>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
