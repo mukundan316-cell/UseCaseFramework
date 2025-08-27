@@ -122,12 +122,12 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     // Convert all null values to undefined for frontend compatibility
     activationReason: dbUseCase.activationReason || undefined,
     thirdPartyProvidedModel: dbUseCase.thirdPartyProvidedModel || undefined,
-    // AI governance fields null conversion
-    explainabilityRequired: dbUseCase.explainabilityRequired || undefined,
+    // AI governance fields - preserve boolean false values, only convert null to undefined
+    explainabilityRequired: dbUseCase.explainabilityRequired !== null ? dbUseCase.explainabilityRequired : undefined,
     customerHarmRisk: dbUseCase.customerHarmRisk || undefined,
-    dataOutsideUkEu: dbUseCase.dataOutsideUkEu || undefined,
-    thirdPartyModel: dbUseCase.thirdPartyModel || undefined,
-    humanAccountability: dbUseCase.humanAccountability || undefined,
+    dataOutsideUkEu: dbUseCase.dataOutsideUkEu !== null ? dbUseCase.dataOutsideUkEu : undefined,
+    thirdPartyModel: dbUseCase.thirdPartyModel !== null ? dbUseCase.thirdPartyModel : undefined,
+    humanAccountability: dbUseCase.humanAccountability !== null ? dbUseCase.humanAccountability : undefined,
     aiOrModel: dbUseCase.aiOrModel || undefined,
     riskToCustomers: dbUseCase.riskToCustomers || undefined,
     riskToRsa: dbUseCase.riskToRsa || undefined,
