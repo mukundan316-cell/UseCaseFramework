@@ -9,37 +9,18 @@ import { safeNumber, validateScoreRange } from './safeMath';
 export function getEffectiveImpactScore(useCase: UseCase): number {
   const calculatedScore = safeNumber(useCase.impactScore);
   
-  // DEBUG logging for troubleshooting
-  if ((useCase as any).title?.includes('Enter-once automation')) {
-    console.log('🐛 getEffectiveImpactScore DEBUG:', {
-      title: (useCase as any).title,
-      raw_impactScore: useCase.impactScore,
-      calculatedScore,
-      manualImpactScore: useCase.manualImpactScore,
-      manualImpactScore_type: typeof useCase.manualImpactScore,
-      manualImpactScore_null: useCase.manualImpactScore === null,
-      manualImpactScore_undefined: useCase.manualImpactScore === undefined
-    });
-  }
+  // DEBUG logging removed after identifying root cause
   
   // Only use manual override if it's actually set (not null/undefined)
   if (useCase.manualImpactScore !== null && useCase.manualImpactScore !== undefined) {
     const manualScore = safeNumber(useCase.manualImpactScore);
     if (manualScore > 0) {
-      const result = validateScoreRange(manualScore);
-      if ((useCase as any).title?.includes('Enter-once automation')) {
-        console.log('🐛 Using manual override:', result);
-      }
-      return result;
+      return validateScoreRange(manualScore);
     }
   }
   
   // Use calculated score as fallback
-  const result = calculatedScore > 0 ? validateScoreRange(calculatedScore) : 0;
-  if ((useCase as any).title?.includes('Enter-once automation')) {
-    console.log('🐛 Using calculated score:', result);
-  }
-  return result;
+  return calculatedScore > 0 ? validateScoreRange(calculatedScore) : 0;
 }
 
 /**

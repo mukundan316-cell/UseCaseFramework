@@ -53,10 +53,11 @@ export function safeNumber(value: any, defaultValue: number = 0): number {
 }
 
 /**
- * Validates score is within 1-5 range
+ * Validates score is within 0-5 range with decimal precision
+ * FIXED: Remove Math.round() to preserve calculated score precision (3.8, 2.6 etc.)
  */
 export function validateScoreRange(value: number): number {
-  return Math.max(1, Math.min(5, Math.round(value)));
+  return Math.max(0, Math.min(5, value));
 }
 
 /**
