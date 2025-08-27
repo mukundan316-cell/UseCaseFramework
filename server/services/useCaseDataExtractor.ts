@@ -152,7 +152,7 @@ export class UseCaseDataExtractor {
       stakeholderGroups: this.parseArrayField(useCase.stakeholderGroups),
     };
 
-    // Implementation & Governance
+    // Implementation & Governance - include ALL fields from CRUD tabs
     const implementation = {
       primaryBusinessOwner: useCase.primaryBusinessOwner || null,
       useCaseStatus: useCase.useCaseStatus || null,
