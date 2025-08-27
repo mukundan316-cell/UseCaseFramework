@@ -42,9 +42,9 @@ export default function ExecutiveAnalytics() {
   const [selectedView, setSelectedView] = useState<'overview' | 'performance' | 'risk' | 'investment'>('overview');
   const [drillDownData, setDrillDownData] = useState<any>(null);
 
-  // Calculate comprehensive analytics
+  // Calculate comprehensive analytics from authentic database values
   const calculateAnalytics = () => {
-    const activeUseCases = useCases.filter(uc => uc.isActiveForRsa === true || uc.isActiveForRsa === 'true');
+    const activeUseCases = useCases.filter(uc => uc.isActiveForRsa === true);
     const totalPortfolioValue = activeUseCases.length;
     
     // ROI Analysis
@@ -196,9 +196,9 @@ export default function ExecutiveAnalytics() {
     efficiency: (seg.impact / seg.effort).toFixed(2)
   }));
 
-  // Risk vs Value Matrix for Executive Decision Making
+  // Risk vs Value Matrix for Executive Decision Making using authentic database data
   const riskValueMatrix = useCases
-    .filter(uc => uc.isActiveForRsa === true || uc.isActiveForRsa === 'true')
+    .filter(uc => uc.isActiveForRsa === true)
     .map(uc => ({
       name: uc.title,
       risk: uc.manualEffortScore || uc.effortScore || 0,
@@ -465,7 +465,7 @@ export default function ExecutiveAnalytics() {
                                 </div>
                                 <div className="pt-2 border-t border-gray-200">
                                   <span className="text-sm text-gray-600">
-                                    Efficiency Ratio: <strong>{(payload[0]?.value / payload[1]?.value || 0).toFixed(2)}</strong>
+                                    Efficiency Ratio: <strong>{((payload[0]?.value || 0) / (payload[1]?.value || 1)).toFixed(2)}</strong>
                                   </span>
                                 </div>
                               </div>

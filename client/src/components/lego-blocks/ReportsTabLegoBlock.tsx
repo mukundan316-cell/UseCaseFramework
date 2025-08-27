@@ -73,7 +73,7 @@ function DetailedReportsView({ useCases }: { useCases: UseCase[] }) {
     uc.impactScore !== null && 
     uc.effortScore !== null && 
     uc.quadrant &&
-    (uc.isActiveForRsa === true || uc.isActiveForRsa === 'true')
+    uc.isActiveForRsa === true
   );
 
   // Quadrant summary data

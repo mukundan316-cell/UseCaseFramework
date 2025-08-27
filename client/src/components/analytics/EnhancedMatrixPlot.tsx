@@ -24,7 +24,7 @@ export default function EnhancedMatrixPlot() {
   const [showLabels, setShowLabels] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
 
-  // Enhanced chart data with sophisticated styling
+  // Enhanced chart data with sophisticated styling using authentic database values
   const chartData = dashboardUseCases.map(useCase => {
     const effectiveQuadrant = getEffectiveQuadrant(useCase as any);
     const effectiveImpact = getEffectiveImpactScore(useCase as any);
