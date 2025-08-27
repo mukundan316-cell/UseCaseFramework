@@ -7,6 +7,7 @@ import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore 
 
 export default function MatrixPlot() {
   const { useCases, dashboardUseCases, getQuadrantCounts, getAverageImpact, filters, setFilters } = useUseCases();
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
 
   const quadrantCounts = getQuadrantCounts();
   const averageImpact = getAverageImpact();
@@ -153,7 +154,12 @@ export default function MatrixPlot() {
 
                 <Tooltip content={<CustomTooltip />} />
                 {chartData.map((entry, index) => {
-                  const size = entry.isRecommended ? 10 : 8;
+                  // Improved bubble sizing - larger and more visible
+                  const baseSize = 16; // Increased from 8
+                  const recommendedSize = 20; // Increased from 10
+                  const isHovered = hoveredIndex === index;
+                  const size = entry.isRecommended ? recommendedSize : baseSize;
+                  const hoverSize = isHovered ? size + 4 : size;
                   const color = entry.isRecommended ? "#FFD700" : entry.color;
                   
                   return (
@@ -164,34 +170,77 @@ export default function MatrixPlot() {
                       shape={(props: any) => {
                         const { cx, cy } = props;
                         return (
-                          <g>
-                            {/* Glow effect for recommended use cases */}
-                            {entry.isRecommended && (
+                          <g 
+                            onMouseEnter={() => setHoveredIndex(index)}
+                            onMouseLeave={() => setHoveredIndex(null)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {/* Enhanced shadow effect for depth */}
+                            <circle
+                              cx={cx + 2}
+                              cy={cy + 2}
+                              r={hoverSize}
+                              fill="rgba(0, 0, 0, 0.2)"
+                              opacity={isHovered ? 0.6 : 0.3}
+                            />
+                            
+                            {/* Glow effect for recommended use cases or hover */}
+                            {(entry.isRecommended || isHovered) && (
                               <circle
                                 cx={cx}
                                 cy={cy}
-                                r={size + 3}
-                                fill="#FFD700"
-                                opacity={0.3}
+                                r={hoverSize + 8}
+                                fill={entry.isRecommended ? "#FFD700" : entry.color}
+                                opacity={isHovered ? 0.4 : 0.25}
                               />
                             )}
-                            {/* Main circle */}
+                            
+                            {/* Outer ring for better definition */}
                             <circle
                               cx={cx}
                               cy={cy}
-                              r={size}
-                              fill={entry.color}
-                              stroke={entry.isRecommended ? "#FFD700" : "#fff"}
-                              strokeWidth={entry.isRecommended ? 3 : 2}
+                              r={hoverSize + 1}
+                              fill="rgba(255, 255, 255, 0.9)"
+                              stroke="none"
                             />
-                            {/* Recommendation star */}
+                            
+                            {/* Main circle with improved styling */}
+                            <circle
+                              cx={cx}
+                              cy={cy}
+                              r={hoverSize}
+                              fill={entry.color}
+                              stroke={entry.isRecommended ? "#FFD700" : "rgba(255, 255, 255, 0.95)"}
+                              strokeWidth={entry.isRecommended ? 4 : (isHovered ? 3 : 2)}
+                              style={{
+                                filter: isHovered 
+                                  ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' 
+                                  : 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                                transition: 'all 0.2s ease-in-out'
+                              }}
+                            />
+                            
+                            {/* Inner highlight for glossy effect */}
+                            <circle
+                              cx={cx - hoverSize/4}
+                              cy={cy - hoverSize/4}
+                              r={hoverSize/3}
+                              fill="rgba(255, 255, 255, 0.4)"
+                              stroke="none"
+                            />
+                            
+                            {/* Recommendation star with better positioning */}
                             {entry.isRecommended && (
                               <text
-                                x={cx + size - 3}
-                                y={cy - size + 3}
-                                fontSize="10"
+                                x={cx + hoverSize - 5}
+                                y={cy - hoverSize + 8}
+                                fontSize="14"
                                 fill="#FFD700"
                                 textAnchor="middle"
+                                style={{
+                                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
+                                  fontWeight: 'bold'
+                                }}
                               >
                                 ★
                               </text>
