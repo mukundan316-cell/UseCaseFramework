@@ -136,7 +136,7 @@ export default function PresentationPreviewBlock({
           <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden">
             {presentationPdfUrl ? (
               <iframe
-                src={`${presentationPdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+                src={`/api/proxy/presentation/${encodeURIComponent(presentationPdfUrl)}#toolbar=1&navpanes=1&scrollbar=1`}
                 className="w-full h-full border-0"
                 title="Presentation Preview"
                 data-testid="presentation-pdf-viewer"
