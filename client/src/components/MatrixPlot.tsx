@@ -154,9 +154,9 @@ export default function MatrixPlot() {
 
                 <Tooltip content={<CustomTooltip />} />
                 {chartData.map((entry, index) => {
-                  // MAXIMUM VISIBILITY - LARGE BUBBLES
-                  const baseSize = 45; // VERY LARGE for maximum visibility
-                  const recommendedSize = 55; // EXTRA LARGE for recommended items
+                  // ULTRA PROMINENT BUBBLES - MAXIMUM MATRIX VISIBILITY
+                  const baseSize = 60; // ULTRA LARGE for matrix prominence
+                  const recommendedSize = 70; // MASSIVE for recommended items
                   const isHovered = hoveredIndex === index;
                   const size = entry.isRecommended ? recommendedSize : baseSize;
                   const hoverSize = isHovered ? size + 10 : size;
@@ -204,14 +204,14 @@ export default function MatrixPlot() {
                               stroke="none"
                             />
                             
-                            {/* Main circle with improved styling */}
+                            {/* Main circle with enhanced styling for matrix prominence */}
                             <circle
                               cx={cx}
                               cy={cy}
                               r={hoverSize}
                               fill={entry.color}
-                              stroke={entry.isRecommended ? "#FFD700" : "rgba(255, 255, 255, 1.0)"}
-                              strokeWidth={entry.isRecommended ? 7 : (isHovered ? 6 : 5)}
+                              stroke={entry.isRecommended ? "#FFD700" : "#FFFFFF"}
+                              strokeWidth={entry.isRecommended ? 8 : (isHovered ? 7 : 6)}
                               style={{
                                 filter: isHovered 
                                   ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' 
