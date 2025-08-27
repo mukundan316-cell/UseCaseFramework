@@ -137,22 +137,41 @@ export default function EnhancedMatrixPlot() {
               <div>
                 <span className="font-medium text-gray-600">Business Impact:</span>
                 <div className="text-lg font-bold text-emerald-600">{data.y.toFixed(1)}/5</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {data.y >= 4 ? "High Impact" : data.y >= 3 ? "Medium Impact" : "Low Impact"}
+                </div>
               </div>
               <div>
                 <span className="font-medium text-gray-600">Implementation Effort:</span>
                 <div className="text-lg font-bold text-amber-600">{data.x.toFixed(1)}/5</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {data.x <= 2 ? "Low Effort" : data.x >= 4 ? "High Effort" : "Medium Effort"}
+                </div>
               </div>
             </div>
             <div className="pt-2 border-t border-gray-200">
               <p><span className="font-medium">Strategic Position:</span> {data.quadrant}</p>
               <p><span className="font-medium">Business Unit:</span> {data.lob}</p>
               <p><span className="font-medium">Impact/Effort Ratio:</span> {(data.y / Math.max(data.x, 0.1)).toFixed(1)}</p>
+              <p><span className="font-medium">ROI Estimate:</span> {data.y >= 4 && data.x <= 2 ? "High ROI" : data.y >= 3 && data.x <= 3 ? "Medium ROI" : "Standard ROI"}</p>
             </div>
-            {data.isHighValue && (
-              <div className="mt-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full text-center">
-                High-Value Initiative
-              </div>
-            )}
+            <div className="flex flex-wrap gap-1 mt-2">
+              {data.isHighValue && (
+                <div className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full">
+                  High-Value Initiative
+                </div>
+              )}
+              {data.isLowEffort && (
+                <div className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                  Quick Implementation
+                </div>
+              )}
+              {data.y >= 4 && data.x <= 2 && (
+                <div className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                  Premium ROI
+                </div>
+              )}
+            </div>
           </div>
         </div>
       );

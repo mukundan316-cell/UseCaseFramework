@@ -92,12 +92,20 @@ export const APP_CONFIG = {
     MAX_MULTIPLIER: 4,
   },
 
-  // Validation limits
+  // Validation limits - more user-friendly
   VALIDATION: {
     TEXT_MAX_LENGTH: 1000,
     DESCRIPTION_MAX_LENGTH: 5000,
     TITLE_MAX_LENGTH: 100,
-    DESCRIPTION_MIN_LENGTH: 500,
+    DESCRIPTION_MIN_LENGTH: 10, // Reduced from 500 to be more reasonable
+    SHORT_DESCRIPTION_MAX: 250,
+  },
+
+  // User experience enhancements
+  UX: {
+    DEBOUNCE_DELAY: 300, // ms for search/filter debouncing
+    ANIMATION_DURATION: 200, // ms for smooth transitions
+    TOOLTIP_DELAY: 500, // ms before showing tooltips
   },
 
   // Excel export

@@ -124,7 +124,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
 }).extend({
   // Core required fields for data integrity
   title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
-  description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters").max(500, "Description must be less than 500 characters"),
   process: z.string().min(1, "Process is required"),
   lineOfBusiness: z.string().min(1, "Line of Business is required"),
   businessSegment: z.string().min(1, "Business Segment is required"),

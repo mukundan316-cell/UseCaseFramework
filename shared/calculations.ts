@@ -1,9 +1,18 @@
 import { APP_CONFIG } from './constants/app-config';
+import { performanceMonitor } from './utils/performance';
 
 /**
  * Calculates impact score using comprehensive RSA framework with weighted scoring
  * Applies configurable weights from database configuration
  * Per RSA AI Framework specification
+ * 
+ * @param revenueImpact - Revenue generation potential (1-5)
+ * @param costSavings - Cost reduction opportunity (1-5)
+ * @param riskReduction - Risk mitigation value (1-5)
+ * @param brokerPartnerExperience - Partner experience improvement (1-5)
+ * @param strategicFit - Strategic alignment score (1-5)
+ * @param weights - Optional custom weights (defaults to equal 20% each)
+ * @returns Weighted impact score (0-5 range)
  */
 export function calculateImpactScore(
   revenueImpact: number,
@@ -44,7 +53,17 @@ export function calculateImpactScore(
     (safeStrategicFit * w.strategicFit / 100)
   );
 
-  return Math.max(0, Math.min(5, weightedScore)); // Ensure result is within 0-5 range preserving full precision
+  const result = Math.max(0, Math.min(5, weightedScore));
+  
+  // Log performance for monitoring (only in development)
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    performanceMonitor.timeOperation('calculateImpactScore', () => result, {
+      inputScores: { revenueImpact, costSavings, riskReduction, brokerPartnerExperience, strategicFit },
+      result
+    });
+  }
+  
+  return result;
 }
 
 /**
