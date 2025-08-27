@@ -32,9 +32,9 @@ export interface UseCase {
   recommendedByAssessment?: string | null;
   valueChainComponent?: string; // Compatibility alias for process
   createdAt?: Date;
-  // Two-tier library management fields
-  isActiveForRsa?: boolean;
-  isDashboardVisible?: boolean;
+  // Two-tier library management fields - using consistent string types per replit.md
+  isActiveForRsa?: 'true' | 'false' | null;
+  isDashboardVisible?: 'true' | 'false' | null;
   libraryTier?: string;
   activationDate?: Date;
   deactivationReason?: string;

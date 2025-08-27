@@ -36,9 +36,9 @@ export interface UseCaseFrontend {
   impactScore: number;
   effortScore: number;
   quadrant: string;
-  // RSA Portfolio Selection fields
-  isActiveForRsa?: boolean;
-  isDashboardVisible?: boolean;
+  // RSA Portfolio Selection fields - consistent string types per replit.md
+  isActiveForRsa?: 'true' | 'false' | null;
+  isDashboardVisible?: 'true' | 'false' | null;
   libraryTier?: string;
   librarySource?: string;
   activationReason?: string;
@@ -76,12 +76,12 @@ export interface UseCaseFrontend {
   aiMlTechnologies?: string[];
   dataSources?: string[];
   stakeholderGroups?: string[];
-  // RSA Ethical Principles - align with database boolean/text types 
-  explainabilityRequired?: boolean;
+  // RSA Ethical Principles - consistent string types per replit.md
+  explainabilityRequired?: 'true' | 'false' | null;
   customerHarmRisk?: string;
-  dataOutsideUkEu?: boolean;
-  thirdPartyModel?: boolean;
-  humanAccountability?: boolean;
+  dataOutsideUkEu?: 'true' | 'false' | null;
+  thirdPartyModel?: 'true' | 'false' | null;
+  humanAccountability?: 'true' | 'false' | null;
   regulatoryCompliance?: number;
   // Missing AI governance field from database
   thirdPartyProvidedModel?: string;
@@ -94,9 +94,9 @@ export interface UseCaseFrontend {
 export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
   return {
     ...dbUseCase,
-    // Convert string booleans to actual booleans for UI
-    isActiveForRsa: dbUseCase.isActiveForRsa === 'true',
-    isDashboardVisible: dbUseCase.isDashboardVisible === 'true',
+    // Direct passthrough - no transformation needed per replit.md
+    isActiveForRsa: dbUseCase.isActiveForRsa,
+    isDashboardVisible: dbUseCase.isDashboardVisible,
     // Add process as valueChainComponent alias for backward compatibility
     valueChainComponent: dbUseCase.process,
     // Ensure arrays exist for backward compatibility - convert null to undefined
@@ -122,12 +122,12 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     // Convert all null values to undefined for frontend compatibility
     activationReason: dbUseCase.activationReason || undefined,
     thirdPartyProvidedModel: dbUseCase.thirdPartyProvidedModel || undefined,
-    // AI governance fields - convert string booleans to boolean for frontend consistency
-    explainabilityRequired: dbUseCase.explainabilityRequired === 'true',
+    // AI governance fields - direct passthrough per replit.md
+    explainabilityRequired: dbUseCase.explainabilityRequired,
     customerHarmRisk: dbUseCase.customerHarmRisk || undefined,
-    dataOutsideUkEu: dbUseCase.dataOutsideUkEu === 'true',
-    thirdPartyModel: dbUseCase.thirdPartyModel === 'true',
-    humanAccountability: dbUseCase.humanAccountability === 'true',
+    dataOutsideUkEu: dbUseCase.dataOutsideUkEu,
+    thirdPartyModel: dbUseCase.thirdPartyModel,
+    humanAccountability: dbUseCase.humanAccountability,
     regulatoryCompliance: dbUseCase.regulatoryCompliance !== null ? dbUseCase.regulatoryCompliance : undefined,
     aiOrModel: dbUseCase.aiOrModel || undefined,
     riskToCustomers: dbUseCase.riskToCustomers || undefined,
@@ -158,13 +158,12 @@ export function mapUseCaseToDatabase(frontendUseCase: Partial<UseCaseFrontend>):
   const { valueChainComponent, ...rest } = frontendUseCase;
   return {
     ...rest,
-    // Convert boolean back to string for database storage per replit.md standardization
-    isActiveForRsa: frontendUseCase.isActiveForRsa ? 'true' : 'false',
-    isDashboardVisible: frontendUseCase.isDashboardVisible ? 'true' : 'false',
-    // Convert boolean fields back to string for database
-    explainabilityRequired: frontendUseCase.explainabilityRequired ? 'true' : 'false',
-    dataOutsideUkEu: frontendUseCase.dataOutsideUkEu ? 'true' : 'false',
-    thirdPartyModel: frontendUseCase.thirdPartyModel ? 'true' : 'false',
-    humanAccountability: frontendUseCase.humanAccountability ? 'true' : 'false'
+    // Direct passthrough - no transformation needed per replit.md
+    isActiveForRsa: frontendUseCase.isActiveForRsa,
+    isDashboardVisible: frontendUseCase.isDashboardVisible,
+    explainabilityRequired: frontendUseCase.explainabilityRequired,
+    dataOutsideUkEu: frontendUseCase.dataOutsideUkEu,
+    thirdPartyModel: frontendUseCase.thirdPartyModel,
+    humanAccountability: frontendUseCase.humanAccountability
   } as Partial<UseCase>;
 }
