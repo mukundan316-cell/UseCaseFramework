@@ -1,3 +1,5 @@
+import { APP_CONFIG } from './constants/app-config';
+
 /**
  * Calculates impact score using comprehensive RSA framework with weighted scoring
  * Applies configurable weights from database configuration
@@ -26,11 +28,11 @@ export function calculateImpactScore(
 
   // Use provided weights or default to equal weighting (20% each)
   const w = weights || {
-    revenueImpact: 20,
-    costSavings: 20,
-    riskReduction: 20,
-    brokerPartnerExperience: 20,
-    strategicFit: 20
+    revenueImpact: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.REVENUE_IMPACT,
+    costSavings: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.COST_SAVINGS,
+    riskReduction: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.RISK_REDUCTION,
+    brokerPartnerExperience: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.BROKER_PARTNER_EXPERIENCE,
+    strategicFit: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.STRATEGIC_FIT
   };
 
   // Apply weighted calculation: (lever × weight) / 100, then sum
@@ -73,11 +75,11 @@ export function calculateEffortScore(
 
   // Use provided weights or default to equal weighting (20% each)
   const w = weights || {
-    dataReadiness: 20,
-    technicalComplexity: 20,
-    changeImpact: 20,
-    modelRisk: 20,
-    adoptionReadiness: 20
+    dataReadiness: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.DATA_READINESS,
+    technicalComplexity: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.TECHNICAL_COMPLEXITY,
+    changeImpact: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.CHANGE_IMPACT,
+    modelRisk: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.MODEL_RISK,
+    adoptionReadiness: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.ADOPTION_READINESS
   };
 
   // Apply weighted calculation: (lever × weight) / 100, then sum
@@ -107,7 +109,7 @@ export function calculateEffortScore(
 export function calculateQuadrant(
   impactScore: number, 
   effortScore: number, 
-  threshold: number = 3.0
+  threshold: number = APP_CONFIG.SCORING.DEFAULT_THRESHOLD
 ): string {
   if (impactScore >= threshold && effortScore < threshold) {
     return "Quick Win";

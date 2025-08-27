@@ -350,7 +350,7 @@ export class QuestionnaireService {
         })
         .where(eq(responseSessions.id, responseId));
 
-      console.log(`Reset session ${responseId} successfully`);
+
       return true;
     } catch (error) {
       console.error('Failed to reset response session:', error);
@@ -364,18 +364,15 @@ export class QuestionnaireService {
   async getQuestionnaireDefinition(questionnaireId: string): Promise<QuestionnaireDefinition | null> {
     // Check cache first
     if (this.definitionCache.has(questionnaireId)) {
-      console.log(`Cache hit for questionnaire definition: ${questionnaireId}`);
       return this.definitionCache.get(questionnaireId)!;
     }
 
     // Cache miss - load from storage
-    console.log(`Cache miss for questionnaire definition: ${questionnaireId}, loading from storage`);
     const definition = await this.storageService.getQuestionnaireDefinition(questionnaireId);
     
     // Store in cache if found
     if (definition) {
       this.definitionCache.set(questionnaireId, definition);
-      console.log(`Cached questionnaire definition: ${questionnaireId}`);
     }
     
     return definition;
@@ -386,7 +383,6 @@ export class QuestionnaireService {
    */
   clearDefinitionCache(questionnaireId: string): void {
     this.definitionCache.delete(questionnaireId);
-    console.log(`Cleared cache for questionnaire definition: ${questionnaireId}`);
   }
 
   /**

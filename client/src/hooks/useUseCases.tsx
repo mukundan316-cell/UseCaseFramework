@@ -3,6 +3,7 @@ import { apiRequest, apiDeleteRequest } from '../lib/queryClient';
 import { UseCase, UseCaseFormData } from '../types';
 import { InsertUseCase, MetadataConfig } from '@shared/schema';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '../utils/calculations';
+import { APP_CONFIG } from '@shared/constants/app-config';
 
 export function useUseCases() {
   const queryClient = useQueryClient();
@@ -32,22 +33,22 @@ export function useUseCases() {
       
       // Extract weights from metadata or use defaults
       const businessValueWeights = metadata?.scoringModel?.businessValue || {
-        revenueImpact: 20,
-        costSavings: 20,
-        riskReduction: 20,
-        brokerPartnerExperience: 20,
-        strategicFit: 20
+        revenueImpact: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.REVENUE_IMPACT,
+        costSavings: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.COST_SAVINGS,
+        riskReduction: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.RISK_REDUCTION,
+        brokerPartnerExperience: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.BROKER_PARTNER_EXPERIENCE,
+        strategicFit: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.STRATEGIC_FIT
       };
       
       const feasibilityWeights = metadata?.scoringModel?.feasibility || {
-        dataReadiness: 20,
-        technicalComplexity: 20,
-        changeImpact: 20,
-        modelRisk: 20,
-        adoptionReadiness: 20
+        dataReadiness: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.DATA_READINESS,
+        technicalComplexity: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.TECHNICAL_COMPLEXITY,
+        changeImpact: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.CHANGE_IMPACT,
+        modelRisk: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.MODEL_RISK,
+        adoptionReadiness: APP_CONFIG.SCORING.DEFAULT_WEIGHTS.ADOPTION_READINESS
       };
       
-      const threshold = metadata?.scoringModel?.quadrantThreshold || 3.0;
+      const threshold = metadata?.scoringModel?.quadrantThreshold || APP_CONFIG.SCORING.DEFAULT_THRESHOLD;
       
       const impactScore = calculateImpactScore(
         formData.revenueImpact,

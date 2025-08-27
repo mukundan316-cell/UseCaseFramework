@@ -2,6 +2,7 @@ import PDFDocument from 'pdfkit';
 import QRCode from 'qrcode';
 import { Response } from 'express';
 import { format } from 'date-fns';
+import { APP_CONFIG } from '@shared/constants/app-config';
 
 interface RSABranding {
   primaryColor: string;
@@ -21,16 +22,16 @@ interface ExportOptions {
 
 export class PDFExportService {
   private static readonly RSA_BRANDING: RSABranding = {
-    primaryColor: '#005DAA', // RSA Blue
-    secondaryColor: '#F5F5F5', // Light gray
-    fontFamily: 'Helvetica',
+    primaryColor: APP_CONFIG.PDF.BRAND_COLORS.PRIMARY,
+    secondaryColor: APP_CONFIG.PDF.BRAND_COLORS.SECONDARY,
+    fontFamily: APP_CONFIG.PDF.FONTS.PRIMARY,
   };
 
   private static readonly PAGE_MARGINS = {
-    top: 80,
-    bottom: 80,
-    left: 60,
-    right: 60,
+    top: APP_CONFIG.PDF.MARGINS.TOP,
+    bottom: APP_CONFIG.PDF.MARGINS.BOTTOM,
+    left: APP_CONFIG.PDF.MARGINS.LEFT,
+    right: APP_CONFIG.PDF.MARGINS.RIGHT,
   };
 
   /**

@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { AlertCircle, Calculator, Settings } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { useUseCases } from '../../contexts/UseCaseContext';
+import { APP_CONFIG } from '@shared/constants/app-config';
 // No need to import UseCase type since we're only using form props
 
 interface ScoreOverrideLegoBlockProps {
@@ -169,8 +170,8 @@ export default function ScoreOverrideLegoBlock({
                     <FormControl>
                       <Input
                         type="number"
-                        min="1"
-                        max="5"
+                        min={APP_CONFIG.SCORING.MIN_SCORE}
+                        max={APP_CONFIG.SCORING.MAX_SCORE}
                         step="0.1"
                         placeholder="1.0 - 5.0"
                         className="text-xs"
@@ -192,8 +193,8 @@ export default function ScoreOverrideLegoBlock({
                     <FormControl>
                       <Input
                         type="number"
-                        min="1"
-                        max="5"
+                        min={APP_CONFIG.SCORING.MIN_SCORE}
+                        max={APP_CONFIG.SCORING.MAX_SCORE}
                         step="0.1"
                         placeholder="1.0 - 5.0"
                         className="text-xs"

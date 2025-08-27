@@ -78,8 +78,6 @@ export class QuestionnaireStorageService {
     
     // Store as file
     await fs.promises.writeFile(filePath, jsonContent, 'utf8');
-    
-    console.log(`Questionnaire definition stored: ${filePath}`);
     return filePath;
   }
 
@@ -104,7 +102,9 @@ export class QuestionnaireStorageService {
       const jsonContent = await fs.promises.readFile(filePath, 'utf8');
       return JSON.parse(jsonContent) as QuestionnaireDefinition;
     } catch (error) {
-      console.error('Failed to retrieve questionnaire definition:', error);
+      // Improved error handling with context
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Failed to retrieve questionnaire definition for ID: ${questionnaireId}. Error: ${errorMessage}`);
       return null;
     }
   }
@@ -124,8 +124,6 @@ export class QuestionnaireStorageService {
     
     // Store as file
     await fs.promises.writeFile(filePath, jsonContent, 'utf8');
-    
-    console.log(`Questionnaire response stored: ${filePath}`);
     return filePath;
   }
 
@@ -143,7 +141,9 @@ export class QuestionnaireStorageService {
       const jsonContent = await fs.promises.readFile(filePath, 'utf8');
       return JSON.parse(jsonContent) as QuestionnaireResponse;
     } catch (error) {
-      console.error('Failed to retrieve questionnaire response:', error);
+      // Improved error handling with context
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Failed to retrieve questionnaire response for ID: ${responseId}. Error: ${errorMessage}`);
       return null;
     }
   }

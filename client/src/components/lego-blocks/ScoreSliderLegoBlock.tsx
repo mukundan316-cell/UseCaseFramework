@@ -3,6 +3,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Info } from 'lucide-react';
+import { APP_CONFIG } from '@shared/constants/app-config';
 
 interface ScoreSliderLegoBlockProps {
   label: string;
@@ -28,8 +29,8 @@ export const ScoreSliderLegoBlock: React.FC<ScoreSliderLegoBlockProps> = ({
   tooltip,
   leftLabel = "Low",
   rightLabel = "High", 
-  minValue = 1,
-  maxValue = 5,
+  minValue = APP_CONFIG.SCORING.MIN_SCORE,
+  maxValue = APP_CONFIG.SCORING.MAX_SCORE,
   disabled = false,
   showTooltip = true,
   valueDisplay = 'badge',
