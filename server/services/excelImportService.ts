@@ -167,7 +167,7 @@ export class ExcelImportService {
       const row = data[i];
       if (!row || !row[0]) continue; // Skip empty rows
 
-      const useCase = this.mapRowToUseCase(headers, row, 'strategic');
+      const useCase = ExcelImportService.mapRowToUseCase(headers, row, 'strategic');
       if (useCase) useCases.push(useCase);
     }
 
@@ -193,7 +193,7 @@ export class ExcelImportService {
       const row = data[i];
       if (!row || !row[0]) continue;
 
-      const useCase = this.mapRowToUseCase(headers, row, 'ai_inventory');
+      const useCase = ExcelImportService.mapRowToUseCase(headers, row, 'ai_inventory');
       if (useCase) useCases.push(useCase);
     }
 
@@ -219,7 +219,7 @@ export class ExcelImportService {
       const row = data[i];
       if (!row || !row[0]) continue;
 
-      const useCase = this.mapRowToUseCase(headers, row, 'auto_detect');
+      const useCase = ExcelImportService.mapRowToUseCase(headers, row, 'auto_detect');
       if (useCase) useCases.push(useCase);
     }
 
@@ -256,7 +256,7 @@ export class ExcelImportService {
       geography: getValue('Geography') || '',
       useCaseType: getValue('Use Case Type') || 'Process',
       useCaseStatus: getValue('Use Case Status') || 'Reference',
-      librarySource: this.normalizeLibrarySource(getValue('Library Source')),
+      librarySource: ExcelImportService.normalizeLibrarySource(getValue('Library Source')),
       isActiveForRsa: getValue('Portfolio Status')?.toLowerCase().includes('active') ? 'true' : 'false',
       isDashboardVisible: (getValue('Dashboard Visible') === 'Yes' || getValue('Dashboard Visible') === true) ? 'true' : 'false',
       activationReason: getValue('Activation Reason') || null,
@@ -279,8 +279,8 @@ export class ExcelImportService {
     // Add type-specific data
     if (type === 'strategic') {
       // Scoring data
-      const finalImpactScore = this.parseNumber(getValue('Final Impact Score'));
-      const finalEffortScore = this.parseNumber(getValue('Final Effort Score'));
+      const finalImpactScore = ExcelImportService.parseNumber(getValue('Final Impact Score'));
+      const finalEffortScore = ExcelImportService.parseNumber(getValue('Final Effort Score'));
       
       if (finalImpactScore !== null) useCase.finalImpactScore = finalImpactScore;
       if (finalEffortScore !== null) useCase.finalEffortScore = finalEffortScore;
@@ -289,28 +289,38 @@ export class ExcelImportService {
       useCase.overrideReason = getValue('Override Reason') || null;
       
       // Business value scores (1-5)
-      useCase.revenueImpact = this.parseNumber(getValue('Revenue Impact (1-5)')) || null;
-      useCase.costSavings = this.parseNumber(getValue('Cost Savings (1-5)')) || null;
-      useCase.riskReduction = this.parseNumber(getValue('Risk Reduction (1-5)')) || null;
-      useCase.brokerPartnerExperience = this.parseNumber(getValue('Broker Partner Experience (1-5)')) || null;
-      useCase.strategicFit = this.parseNumber(getValue('Strategic Fit (1-5)')) || null;
+      useCase.revenueImpact = ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')) || null;
+      useCase.costSavings = ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')) || null;
+      useCase.riskReduction = ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')) || null;
+      useCase.brokerPartnerExperience = ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')) || null;
+      useCase.strategicFit = ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')) || null;
       
       // Feasibility scores (1-5)
-      useCase.dataReadiness = this.parseNumber(getValue('Data Readiness (1-5)')) || null;
-      useCase.technicalComplexity = this.parseNumber(getValue('Technical Complexity (1-5)')) || null;
-      useCase.changeImpact = this.parseNumber(getValue('Change Impact (1-5)')) || null;
-      useCase.modelRisk = this.parseNumber(getValue('Model Risk (1-5)')) || null;
-      useCase.adoptionReadiness = this.parseNumber(getValue('Adoption Readiness (1-5)')) || null;
+      useCase.dataReadiness = ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')) || null;
+      useCase.technicalComplexity = ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')) || null;
+      useCase.changeImpact = ExcelImportService.parseNumber(getValue('Change Impact (1-5)')) || null;
+      useCase.modelRisk = ExcelImportService.parseNumber(getValue('Model Risk (1-5)')) || null;
+      useCase.adoptionReadiness = ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')) || null;
       
-      // Implementation details
+      // Implementation details - match exact export headers
       useCase.primaryBusinessOwner = getValue('Primary Business Owner') || null;
+      useCase.keyDependencies = getValue('Key Dependencies') || null;
       useCase.implementationTimeline = getValue('Implementation Timeline') || null;
       useCase.successMetrics = getValue('Success Metrics') || null;
       useCase.estimatedValue = getValue('Estimated Value') || null;
+      useCase.valueMeasurementApproach = getValue('Value Measurement Approach') || null;
       useCase.integrationRequirements = getValue('Integration Requirements') || null;
-      useCase.aiMlTechnologies = this.parseArray(getValue('AI/ML Technologies'));
-      useCase.dataSources = this.parseArray(getValue('Data Sources'));
-      useCase.stakeholderGroups = this.parseArray(getValue('Stakeholder Groups'));
+      useCase.aiMlTechnologies = ExcelImportService.parseArray(getValue('AI/ML Technologies'));
+      useCase.dataSources = ExcelImportService.parseArray(getValue('Data Sources'));
+      useCase.stakeholderGroups = ExcelImportService.parseArray(getValue('Stakeholder Groups'));
+      
+      // RSA Ethical Principles - match exact export headers with boolean conversion
+      useCase.explainabilityRequired = ExcelImportService.parseBoolean(getValue('Explainability Required'));
+      useCase.customerHarmRisk = getValue('Customer Harm Risk') || null;
+      useCase.dataOutsideUkEu = ExcelImportService.parseBoolean(getValue('Data Outside UK/EU'));
+      useCase.thirdPartyModel = ExcelImportService.parseBoolean(getValue('Third Party Model'));
+      useCase.humanAccountability = ExcelImportService.parseBoolean(getValue('Human Accountability'));
+      useCase.regulatoryCompliance = ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) || null;
 
     } else if (type === 'ai_inventory') {
       // AI Inventory specific fields - map to exact column names from user's Excel
@@ -495,6 +505,20 @@ export class ExcelImportService {
     if (value === null || value === undefined || value === '') return null;
     const num = Number(value);
     return isNaN(num) ? null : num;
+  }
+
+  /**
+   * Parse boolean from Yes/No or true/false strings
+   */
+  private static parseBoolean(value: any): boolean | null {
+    if (value === null || value === undefined || value === '') return null;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      const lower = value.toLowerCase().trim();
+      if (lower === 'yes' || lower === 'true' || lower === '1') return true;
+      if (lower === 'no' || lower === 'false' || lower === '0') return false;
+    }
+    return null;
   }
 
   /**
