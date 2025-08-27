@@ -315,7 +315,7 @@ export default function ExecutiveAnalytics() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Enhanced Pie Chart */}
                   <div className="relative">
-                    <ResponsiveContainer width="100%" height={320}>
+                    <ResponsiveContainer width="100%" height={340}>
                       <PieChart>
                         <defs>
                           {portfolioDistribution.map((entry, index) => (
@@ -329,8 +329,8 @@ export default function ExecutiveAnalytics() {
                           data={portfolioDistribution}
                           cx="50%"
                           cy="50%"
-                          outerRadius={120}
-                          innerRadius={60}
+                          outerRadius={130}
+                          innerRadius={65}
                           fill="#8884d8"
                           dataKey="value"
                           stroke="white"
@@ -424,8 +424,8 @@ export default function ExecutiveAnalytics() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
-                <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={segmentData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                <ResponsiveContainer width="100%" height={380}>
+                  <BarChart data={segmentData} margin={{ top: 30, right: 40, left: 30, bottom: 70 }}>
                     <defs>
                       <linearGradient id="impactGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#10B981" />
@@ -436,17 +436,44 @@ export default function ExecutiveAnalytics() {
                         <stop offset="100%" stopColor="#D97706" />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <CartesianGrid 
+                      strokeDasharray="2 2" 
+                      stroke="#F3F4F6" 
+                      strokeWidth={1}
+                    />
                     <XAxis 
                       dataKey="name" 
                       angle={-45} 
                       textAnchor="end" 
-                      height={80}
-                      tick={{ fontSize: 12, fill: '#6B7280' }}
+                      height={90}
+                      tick={{ 
+                        fontSize: 11, 
+                        fill: '#6B7280', 
+                        fontWeight: 500 
+                      }}
+                      axisLine={{ stroke: '#D1D5DB', strokeWidth: 1.5 }}
+                      tickLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
                     />
                     <YAxis 
-                      tick={{ fontSize: 12, fill: '#6B7280' }}
+                      tick={{ 
+                        fontSize: 11, 
+                        fill: '#6B7280', 
+                        fontWeight: 500 
+                      }}
                       domain={[0, 5]}
+                      axisLine={{ stroke: '#D1D5DB', strokeWidth: 1.5 }}
+                      tickLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
+                      label={{ 
+                        value: 'Score (0-5)', 
+                        angle: -90, 
+                        position: 'insideLeft',
+                        style: { 
+                          textAnchor: 'middle',
+                          fontSize: '12px', 
+                          fontWeight: '600', 
+                          fill: '#374151' 
+                        } 
+                      }}
                     />
                     <Tooltip 
                       content={({ active, payload, label }) => {
@@ -479,17 +506,17 @@ export default function ExecutiveAnalytics() {
                       dataKey="avgImpact" 
                       fill="url(#impactGradient)" 
                       name="Average Impact Score"
-                      radius={[4, 4, 0, 0]}
-                      stroke="#059669"
-                      strokeWidth={1}
+                      radius={[6, 6, 0, 0]}
+                      stroke="white"
+                      strokeWidth={2}
                     />
                     <Bar 
                       dataKey="avgEffort" 
                       fill="url(#effortGradient)" 
                       name="Average Effort Score"
-                      radius={[4, 4, 0, 0]}
-                      stroke="#D97706"
-                      strokeWidth={1}
+                      radius={[6, 6, 0, 0]}
+                      stroke="white"
+                      strokeWidth={2}
                     />
                   </BarChart>
                 </ResponsiveContainer>
