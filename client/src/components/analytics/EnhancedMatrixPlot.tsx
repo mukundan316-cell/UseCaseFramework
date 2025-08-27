@@ -38,31 +38,35 @@ export default function EnhancedMatrixPlot() {
   }
 
   // Enhanced chart data with authentic database values (LEGO principle: reusable configuration)
-  const chartData = dashboardUseCases.map(useCase => {
-    const effectiveQuadrant = getEffectiveQuadrant(useCase as any);
-    const effectiveImpact = getEffectiveImpactScore(useCase as any);
-    const effectiveEffort = getEffectiveEffortScore(useCase as any);
-    
-    // Dynamic bubble sizing based on business impact (aligned with RSA scoring framework)
-    const bubbleSize = calculateBubbleSize(effectiveImpact);
-    
-    return {
-      x: effectiveEffort,
-      y: effectiveImpact,
-      name: useCase.title,
-      quadrant: effectiveQuadrant,
-      color: getQuadrantColor(effectiveQuadrant),
-      gradientColor: getQuadrantGradient(effectiveQuadrant),
-      size: bubbleSize,
-      useCase: useCase,
-      lob: useCase.lineOfBusiness,
-      segment: useCase.businessSegment,
-      isHighValue: effectiveImpact >= APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.HIGH_VALUE_THRESHOLD,
-      isLowEffort: effectiveEffort <= APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.LOW_EFFORT_THRESHOLD,
-      impact: effectiveImpact,
-      effort: effectiveEffort
-    };
-  });
+  // useMemo to ensure proper recalculation when dashboardUseCases change
+  const chartData = React.useMemo(() => {
+    return dashboardUseCases.map(useCase => {
+      const effectiveQuadrant = getEffectiveQuadrant(useCase as any);
+      const effectiveImpact = getEffectiveImpactScore(useCase as any);
+      const effectiveEffort = getEffectiveEffortScore(useCase as any);
+      
+      // Dynamic bubble sizing based on business impact (aligned with RSA scoring framework)
+      const bubbleSize = calculateBubbleSize(effectiveImpact);
+      
+      return {
+        id: useCase.id, // Add unique id for React key
+        x: effectiveEffort,
+        y: effectiveImpact,
+        name: useCase.title,
+        quadrant: effectiveQuadrant,
+        color: getQuadrantColor(effectiveQuadrant),
+        gradientColor: getQuadrantGradient(effectiveQuadrant),
+        size: bubbleSize,
+        useCase: useCase,
+        lob: useCase.lineOfBusiness,
+        segment: useCase.businessSegment,
+        isHighValue: effectiveImpact >= APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.HIGH_VALUE_THRESHOLD,
+        isLowEffort: effectiveEffort <= APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.LOW_EFFORT_THRESHOLD,
+        impact: effectiveImpact,
+        effort: effectiveEffort
+      };
+    });
+  }, [dashboardUseCases]);
 
   // LEGO principle: Centralized configuration for consistent styling
   function getQuadrantColor(quadrant: string): string {
@@ -245,6 +249,7 @@ export default function EnhancedMatrixPlot() {
                   <ScatterChart 
                     data={filteredData}
                     margin={{ top: 50, right: 70, bottom: 70, left: 80 }}
+                    key={`chart-${filteredData.length}-${filteredData.map(d => `${d.id}-${d.size}`).join('-')}`}
                   >
                     <defs>
                       {chartData.map((entry, index) => (
@@ -336,7 +341,7 @@ export default function EnhancedMatrixPlot() {
                     <Scatter dataKey="y" fill="#3B82F6">
                       {filteredData.map((entry, index) => (
                         <Cell 
-                          key={`cell-${index}`} 
+                          key={`cell-${entry.id}-${entry.size}`} 
                           fill={`url(#bubble-gradient-${chartData.findIndex(d => d.name === entry.name)})`}
                           r={entry.size}
                           stroke="white"
