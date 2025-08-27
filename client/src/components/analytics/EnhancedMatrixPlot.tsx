@@ -30,7 +30,7 @@ export default function EnhancedMatrixPlot() {
     const effectiveImpact = getEffectiveImpactScore(useCase as any);
     const effectiveEffort = getEffectiveEffortScore(useCase as any);
     
-    // RCA Complete - ensuring prominent bubble visibility
+    // Simplified bubble sizing for reliable visibility
     
     return {
       x: effectiveEffort,
@@ -39,7 +39,7 @@ export default function EnhancedMatrixPlot() {
       quadrant: effectiveQuadrant,
       color: getQuadrantColor(effectiveQuadrant),
       gradientColor: getQuadrantGradient(effectiveQuadrant),
-      size: Math.max(150, 80 + (effectiveImpact * 20)), // Prominent bubble sizing for portfolio visibility
+      size: 80, // Fixed size for consistent visibility
       useCase: useCase,
       lob: useCase.lineOfBusiness,
       segment: useCase.businessSegment,
@@ -325,7 +325,7 @@ export default function EnhancedMatrixPlot() {
                         <Cell 
                           key={`cell-${index}`} 
                           fill={`url(#bubble-gradient-${chartData.findIndex(d => d.name === entry.name)})`}
-                          r={Math.max(60, Math.min(90, entry.size / 2.2))}
+                          r={40}
                           stroke="white"
                           strokeWidth={2}
                         />
