@@ -154,12 +154,12 @@ export default function MatrixPlot() {
 
                 <Tooltip content={<CustomTooltip />} />
                 {chartData.map((entry, index) => {
-                  // Improved bubble sizing - larger and more visible
-                  const baseSize = 16; // Increased from 8
-                  const recommendedSize = 20; // Increased from 10
+                  // Further improved bubble sizing - even more prominent
+                  const baseSize = 24; // Increased from 16 for better visibility
+                  const recommendedSize = 28; // Increased from 20
                   const isHovered = hoveredIndex === index;
                   const size = entry.isRecommended ? recommendedSize : baseSize;
-                  const hoverSize = isHovered ? size + 4 : size;
+                  const hoverSize = isHovered ? size + 6 : size;
                   const color = entry.isRecommended ? "#FFD700" : entry.color;
                   
                   return (
@@ -177,11 +177,11 @@ export default function MatrixPlot() {
                           >
                             {/* Enhanced shadow effect for depth */}
                             <circle
-                              cx={cx + 2}
-                              cy={cy + 2}
+                              cx={cx + 3}
+                              cy={cy + 3}
                               r={hoverSize}
-                              fill="rgba(0, 0, 0, 0.2)"
-                              opacity={isHovered ? 0.6 : 0.3}
+                              fill="rgba(0, 0, 0, 0.25)"
+                              opacity={isHovered ? 0.7 : 0.4}
                             />
                             
                             {/* Glow effect for recommended use cases or hover */}
@@ -189,9 +189,9 @@ export default function MatrixPlot() {
                               <circle
                                 cx={cx}
                                 cy={cy}
-                                r={hoverSize + 8}
+                                r={hoverSize + 12}
                                 fill={entry.isRecommended ? "#FFD700" : entry.color}
-                                opacity={isHovered ? 0.4 : 0.25}
+                                opacity={isHovered ? 0.5 : 0.3}
                               />
                             )}
                             
@@ -199,8 +199,8 @@ export default function MatrixPlot() {
                             <circle
                               cx={cx}
                               cy={cy}
-                              r={hoverSize + 1}
-                              fill="rgba(255, 255, 255, 0.9)"
+                              r={hoverSize + 2}
+                              fill="rgba(255, 255, 255, 0.95)"
                               stroke="none"
                             />
                             
@@ -211,7 +211,7 @@ export default function MatrixPlot() {
                               r={hoverSize}
                               fill={entry.color}
                               stroke={entry.isRecommended ? "#FFD700" : "rgba(255, 255, 255, 0.95)"}
-                              strokeWidth={entry.isRecommended ? 4 : (isHovered ? 3 : 2)}
+                              strokeWidth={entry.isRecommended ? 5 : (isHovered ? 4 : 3)}
                               style={{
                                 filter: isHovered 
                                   ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' 
@@ -234,7 +234,7 @@ export default function MatrixPlot() {
                               <text
                                 x={cx + hoverSize - 5}
                                 y={cy - hoverSize + 8}
-                                fontSize="14"
+                                fontSize="16"
                                 fill="#FFD700"
                                 textAnchor="middle"
                                 style={{
