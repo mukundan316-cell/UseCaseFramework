@@ -154,12 +154,12 @@ export default function MatrixPlot() {
 
                 <Tooltip content={<CustomTooltip />} />
                 {chartData.map((entry, index) => {
-                  // Further improved bubble sizing - even more prominent
-                  const baseSize = 24; // Increased from 16 for better visibility
-                  const recommendedSize = 28; // Increased from 20
+                  // Dramatically increased bubble sizing - maximum visibility
+                  const baseSize = 40; // Dramatically increased for clear visibility
+                  const recommendedSize = 50; // Much larger for recommended items
                   const isHovered = hoveredIndex === index;
                   const size = entry.isRecommended ? recommendedSize : baseSize;
-                  const hoverSize = isHovered ? size + 6 : size;
+                  const hoverSize = isHovered ? size + 8 : size;
                   const color = entry.isRecommended ? "#FFD700" : entry.color;
                   
                   return (
@@ -189,7 +189,7 @@ export default function MatrixPlot() {
                               <circle
                                 cx={cx}
                                 cy={cy}
-                                r={hoverSize + 12}
+                                r={hoverSize + 16}
                                 fill={entry.isRecommended ? "#FFD700" : entry.color}
                                 opacity={isHovered ? 0.5 : 0.3}
                               />
@@ -211,7 +211,7 @@ export default function MatrixPlot() {
                               r={hoverSize}
                               fill={entry.color}
                               stroke={entry.isRecommended ? "#FFD700" : "rgba(255, 255, 255, 0.95)"}
-                              strokeWidth={entry.isRecommended ? 5 : (isHovered ? 4 : 3)}
+                              strokeWidth={entry.isRecommended ? 6 : (isHovered ? 5 : 4)}
                               style={{
                                 filter: isHovered 
                                   ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' 
@@ -222,19 +222,19 @@ export default function MatrixPlot() {
                             
                             {/* Inner highlight for glossy effect */}
                             <circle
-                              cx={cx - hoverSize/4}
-                              cy={cy - hoverSize/4}
-                              r={hoverSize/3}
-                              fill="rgba(255, 255, 255, 0.4)"
+                              cx={cx - hoverSize/3}
+                              cy={cy - hoverSize/3}
+                              r={hoverSize/2.5}
+                              fill="rgba(255, 255, 255, 0.5)"
                               stroke="none"
                             />
                             
                             {/* Recommendation star with better positioning */}
                             {entry.isRecommended && (
                               <text
-                                x={cx + hoverSize - 5}
-                                y={cy - hoverSize + 8}
-                                fontSize="16"
+                                x={cx + hoverSize - 8}
+                                y={cy - hoverSize + 12}
+                                fontSize="20"
                                 fill="#FFD700"
                                 textAnchor="middle"
                                 style={{
