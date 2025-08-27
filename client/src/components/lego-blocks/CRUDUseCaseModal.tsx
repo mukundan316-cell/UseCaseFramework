@@ -778,7 +778,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 </TabsTrigger>
                 <TabsTrigger value="presentation" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Presentation
+                  Use case definition
                 </TabsTrigger>
                 {/* Hide RSA Framework Assessment for AI Inventory items */}
                 {form.watch('librarySource') !== 'ai_inventory' && (
@@ -1478,12 +1478,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 )}
               </TabsContent>
 
-              {/* Tab 4: Presentation */}
+              {/* Tab 4: Use case definition */}
               <TabsContent value="presentation" className="space-y-4 mt-6">
                 <div className="space-y-6">
                   <div className="flex items-center gap-2 mb-4">
                     <FileText className="h-5 w-5 text-blue-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">PowerPoint Presentation</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Use Case Definition Document</h3>
                   </div>
 
                   {/* Upload Component */}
