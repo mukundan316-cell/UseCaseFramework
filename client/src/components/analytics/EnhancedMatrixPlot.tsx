@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
-  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
   ReferenceLine, Cell, LabelList
 } from 'recharts';
 import { 
   Target, Filter, ZoomIn, RotateCcw, TrendingUp, Award,
-  AlertTriangle, Sparkles, Users, DollarSign
+  AlertTriangle, Sparkles, Users, DollarSign, HelpCircle, Info
 } from 'lucide-react';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
@@ -180,59 +181,100 @@ export default function EnhancedMatrixPlot() {
 
 
   return (
-    <div className="space-y-8">
-      {/* Executive Summary Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Target className="w-5 h-5 text-blue-600" />
-              <div>
-                <div className="text-2xl font-bold text-blue-900">{totalUseCases}</div>
-                <div className="text-sm text-blue-700">Total Initiatives</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Award className="w-5 h-5 text-emerald-600" />
-              <div>
-                <div className="text-2xl font-bold text-emerald-900">{highValueCount}</div>
-                <div className="text-sm text-emerald-700">High-Value Projects</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="w-5 h-5 text-amber-600" />
-              <div>
-                <div className="text-2xl font-bold text-amber-900">{lowEffortCount}</div>
-                <div className="text-sm text-amber-700">Low-Effort Wins</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-5 h-5 text-purple-600" />
-              <div>
-                <div className="text-2xl font-bold text-purple-900">
-                  {avgImpact.toFixed(1)}
+    <TooltipProvider>
+      <div className="space-y-8">
+        {/* Executive Summary Dashboard with Help Tooltips */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Target className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <div className="text-2xl font-bold text-blue-900">{totalUseCases}</div>
+                    <div className="text-sm text-blue-700">Total Initiatives</div>
+                  </div>
                 </div>
-                <div className="text-sm text-purple-700">Avg Impact Score</div>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="w-4 h-4 text-blue-400 hover:text-blue-600 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p>Total number of AI use cases in your active portfolio. These represent all initiatives being evaluated for RSA implementation.</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        
+          <Card className="bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Award className="w-5 h-5 text-emerald-600" />
+                  <div>
+                    <div className="text-2xl font-bold text-emerald-900">{highValueCount}</div>
+                    <div className="text-sm text-emerald-700">High-Value Projects</div>
+                  </div>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="w-4 h-4 text-emerald-400 hover:text-emerald-600 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p>Initiatives with Impact Score ≥ 4.0. These represent high business value opportunities that should be prioritized for implementation.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </CardContent>
+          </Card>
+        
+          <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="w-5 h-5 text-amber-600" />
+                  <div>
+                    <div className="text-2xl font-bold text-amber-900">{lowEffortCount}</div>
+                    <div className="text-sm text-amber-700">Low-Effort Wins</div>
+                  </div>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="w-4 h-4 text-amber-400 hover:text-amber-600 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p>Initiatives with Effort Score ≤ 2.0. These are quick wins requiring minimal resources and can deliver fast results.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </CardContent>
+          </Card>
+        
+          <Card className="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <div className="text-2xl font-bold text-purple-900">
+                      {avgImpact.toFixed(1)}
+                    </div>
+                    <div className="text-sm text-purple-700">Avg Impact Score</div>
+                  </div>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="w-4 h-4 text-purple-400 hover:text-purple-600 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p>Average business impact across your portfolio (1-5 scale). Higher scores indicate greater potential business value and ROI.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
       {/* Enhanced Matrix Visualization */}
       <Card className="bg-gradient-to-br from-slate-50 to-white shadow-2xl border-0">
@@ -244,6 +286,20 @@ export default function EnhancedMatrixPlot() {
                   <Target className="h-6 w-6" />
                 </div>
                 RSA AI Value Matrix - Executive View
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="w-5 h-5 text-slate-300 hover:text-white cursor-help ml-2" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-md">
+                    <div className="space-y-2">
+                      <p className="font-semibold">Interactive Matrix Guide:</p>
+                      <p>• <strong>X-axis:</strong> Implementation Effort (1-5 scale)</p>
+                      <p>• <strong>Y-axis:</strong> Business Impact (1-5 scale)</p>
+                      <p>• <strong>Bubble Size:</strong> Reflects impact magnitude</p>
+                      <p>• <strong>ROI Categories:</strong> High (Impact≥4 & Effort≤2), Medium (Impact≥3 & Effort≤3), Standard (others)</p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               </CardTitle>
               <CardDescription className="text-slate-200 mt-2">
                 Strategic portfolio positioning • Click quadrants to filter • Bubble size reflects business impact
@@ -368,7 +424,7 @@ export default function EnhancedMatrixPlot() {
                       }}
                     />
                     
-                    <Tooltip content={<CustomTooltip />} />
+                    <RechartsTooltip content={<CustomTooltip />} />
                     
                     <Scatter 
                       dataKey="y" 
@@ -429,8 +485,26 @@ export default function EnhancedMatrixPlot() {
             {/* Compact Quadrant Summary Panel */}
             <div className="space-y-4">
               <div className="border-b border-gray-200 pb-3">
-                <h4 className="font-bold text-gray-900 text-lg">Portfolio</h4>
-                <p className="text-xs text-gray-600 mt-1">Click to filter</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-lg">Portfolio</h4>
+                    <p className="text-xs text-gray-600 mt-1">Click to filter</p>
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-md">
+                      <div className="space-y-2">
+                        <p className="font-semibold">Portfolio Quadrants:</p>
+                        <p>• <strong className="text-emerald-600">Quick Win:</strong> High Impact, Low Effort - Execute immediately</p>
+                        <p>• <strong className="text-blue-600">Strategic Bet:</strong> High Impact, High Effort - Long-term investment</p>
+                        <p>• <strong className="text-amber-600">Experimental:</strong> Low Impact, Low Effort - Learning opportunities</p>
+                        <p>• <strong className="text-red-600">Watchlist:</strong> Low Impact, High Effort - Deprioritize or redesign</p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
               
               {/* Compact Quadrant Indicators */}
@@ -460,6 +534,19 @@ export default function EnhancedMatrixPlot() {
                             style={{ backgroundColor: color }}
                           />
                           <span className="text-sm font-medium text-gray-900">{name}</span>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="w-3 h-3 text-gray-300 hover:text-gray-500 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              <p>
+                                {name === 'Quick Win' && 'High impact, low effort initiatives. Perfect for immediate execution and quick ROI.'}
+                                {name === 'Strategic Bet' && 'High impact, high effort initiatives. Major investments requiring significant resources but delivering substantial value.'}
+                                {name === 'Experimental' && 'Low impact, low effort initiatives. Good for learning, prototyping, and building capabilities.'}
+                                {name === 'Watchlist' && 'Low impact, high effort initiatives. Consider deprioritizing or redesigning to improve the value proposition.'}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
                         <div className="text-xl font-bold" style={{ color }}>
                           {count}
@@ -525,5 +612,6 @@ export default function EnhancedMatrixPlot() {
         </CardContent>
       </Card>
     </div>
+    </TooltipProvider>
   );
 }
