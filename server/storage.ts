@@ -174,19 +174,41 @@ export class DatabaseStorage implements IStorage {
     const cleanUpdates: any = {};
     
     Object.entries(updates).forEach(([key, value]) => {
-      // Skip null/undefined values
-      if (value === null || value === undefined) {
+      // Allow null values for manual override fields to clear them
+      const allowNullFields = ['manualImpactScore', 'manualEffortScore', 'manualQuadrant', 'overrideReason'];
+      
+      // Skip null/undefined values except for fields that need to be cleared
+      if ((value === null || value === undefined) && !allowNullFields.includes(key)) {
         return;
       }
       
       // Handle scoring fields with validation
       if (['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
            'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness',
-           'impactScore', 'effortScore', 'manualImpactScore', 'manualEffortScore'].includes(key)) {
+           'impactScore', 'effortScore'].includes(key)) {
         const numValue = typeof value === 'number' ? value : parseFloat(value as string);
         if (!isNaN(numValue) && isFinite(numValue)) {
           cleanUpdates[key] = Math.max(0, Math.min(5, numValue)); // Preserve full precision
         }
+        return;
+      }
+      
+      // Handle manual override fields - allow null to clear values
+      if (['manualImpactScore', 'manualEffortScore'].includes(key)) {
+        if (value === null || value === undefined) {
+          cleanUpdates[key] = null; // Explicitly set to null to clear
+        } else {
+          const numValue = typeof value === 'number' ? value : parseFloat(value as string);
+          if (!isNaN(numValue) && isFinite(numValue)) {
+            cleanUpdates[key] = Math.max(0, Math.min(5, numValue));
+          }
+        }
+        return;
+      }
+      
+      // Handle manual quadrant field - allow null to clear
+      if (key === 'manualQuadrant') {
+        cleanUpdates[key] = value; // Allow null or string value
         return;
       }
       
