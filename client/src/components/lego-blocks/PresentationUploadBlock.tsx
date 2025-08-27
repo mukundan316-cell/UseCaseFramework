@@ -133,11 +133,11 @@ export default function PresentationUploadBlock({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Presentation Documents
+          Use Case Definition Documents
         </CardTitle>
         <CardDescription>
-          Upload PowerPoint presentations (.pptx, .ppt), PDF files, or images (.jpg, .png, .gif, .bmp, .webp) to enhance your use case documentation.
-          Files will be automatically converted to PDF for preview.
+          Upload PDF documents (recommended), PowerPoint presentations (.pptx, .ppt), or images (.jpg, .png, .gif, .bmp, .webp) to provide detailed use case documentation.
+          Non-PDF files will be automatically converted to PDF for consistent preview.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -185,10 +185,10 @@ export default function PresentationUploadBlock({
           >
             <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Upload Presentation
+              Upload Document
             </h3>
             <p className="text-gray-600 mb-4">
-              Drag and drop your PowerPoint file, PDF, or image here, or click to browse
+              Drag and drop your PDF, PowerPoint file, or image here, or click to browse
             </p>
             <input
               type="file"

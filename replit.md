@@ -30,6 +30,7 @@ The RSA AI Use Case Value Framework is a strategic AI use case prioritization pl
 - **Dynamic Questionnaire Selection System**: Multi-questionnaire platform with sidebar navigation, automatic session creation, progress tracking, manual save system, and priority-based questionnaire selection.
 - **Client-Side PDF Export**: Browser-based PDF generation for blank templates and completed responses.
 - **Simplified Storage Architecture**: Pure JSON blob storage for questionnaire data.
+- **File Upload System**: "Use case definition" tab in CRUD modal supporting PDF (default), PowerPoint (.pptx, .ppt), and images (.jpg, .png, .gif, .bmp, .webp) with automatic PDF conversion for consistent preview. Uses object storage with LibreOffice for PowerPoint conversion and ImageMagick for image conversion.
 
 ### UI/UX Decisions
 - **LEGO CRUD Card Design Standard**: Consistent card design with white background, blue left border, color-coded tags (Process, Line of Business, Use Case Type), side-by-side score display (Impact, Effort), and ghost-style action buttons. Cards are fully clickable for detail access.
