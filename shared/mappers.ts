@@ -56,7 +56,6 @@ export interface UseCaseFrontend {
   businessFunction?: string;
   modelOwner?: string;
   lastStatusUpdate?: Date;
-  thirdPartyProvidedModel?: string;
   // AI Governance fields
   aiOrModel?: string;
   riskToCustomers?: string;
@@ -86,6 +85,8 @@ export interface UseCaseFrontend {
   humanAccountability?: string;
   explainabilityBias?: string;
   regulatoryCompliance?: number;
+  // Missing AI governance field from database
+  thirdPartyProvidedModel?: string;
 }
 
 /**
@@ -100,12 +101,49 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     isDashboardVisible: dbUseCase.isDashboardVisible === 'true',
     // Add process as valueChainComponent alias for backward compatibility
     valueChainComponent: dbUseCase.process,
-    // Ensure arrays exist for backward compatibility
+    // Ensure arrays exist for backward compatibility - convert null to undefined
     linesOfBusiness: dbUseCase.linesOfBusiness || [dbUseCase.lineOfBusiness].filter(Boolean),
+    businessSegments: dbUseCase.businessSegments || undefined,
+    geographies: dbUseCase.geographies || undefined,
+    processes: dbUseCase.processes || undefined,
+    activities: dbUseCase.activities || undefined,
+    aiMlTechnologies: dbUseCase.aiMlTechnologies || undefined,
+    dataSources: dbUseCase.dataSources || undefined,
+    stakeholderGroups: dbUseCase.stakeholderGroups || undefined,
     // Convert null to undefined for proper frontend handling
     problemStatement: dbUseCase.problemStatement || undefined,
-    processes: dbUseCase.processes || undefined,
-    activities: dbUseCase.activities || undefined
+    // Ensure all optional fields are properly mapped - convert null to undefined
+    primaryBusinessOwner: dbUseCase.primaryBusinessOwner || undefined,
+    useCaseStatus: dbUseCase.useCaseStatus || undefined,
+    keyDependencies: dbUseCase.keyDependencies || undefined,
+    implementationTimeline: dbUseCase.implementationTimeline || undefined,
+    successMetrics: dbUseCase.successMetrics || undefined,
+    estimatedValue: dbUseCase.estimatedValue || undefined,
+    valueMeasurementApproach: dbUseCase.valueMeasurementApproach || undefined,
+    integrationRequirements: dbUseCase.integrationRequirements || undefined,
+    // Convert all null values to undefined for frontend compatibility
+    activationReason: dbUseCase.activationReason || undefined,
+    deactivationReason: dbUseCase.deactivationReason || undefined,
+    thirdPartyProvidedModel: dbUseCase.thirdPartyProvidedModel || undefined,
+    // AI governance fields null conversion
+    explainabilityRequired: dbUseCase.explainabilityRequired || undefined,
+    customerHarmRisk: dbUseCase.customerHarmRisk || undefined,
+    dataOutsideUkEu: dbUseCase.dataOutsideUkEu || undefined,
+    thirdPartyModel: dbUseCase.thirdPartyModel || undefined,
+    humanAccountability: dbUseCase.humanAccountability || undefined,
+    aiOrModel: dbUseCase.aiOrModel || undefined,
+    riskToCustomers: dbUseCase.riskToCustomers || undefined,
+    riskToRsa: dbUseCase.riskToRsa || undefined,
+    dataUsed: dbUseCase.dataUsed || undefined,
+    modelOwner: dbUseCase.modelOwner || undefined,
+    rsaPolicyGovernance: dbUseCase.rsaPolicyGovernance || undefined,
+    validationResponsibility: dbUseCase.validationResponsibility || undefined,
+    informedBy: dbUseCase.informedBy || undefined,
+    // Convert Date fields from null to undefined
+    activationDate: dbUseCase.activationDate || undefined,
+    deactivationDate: dbUseCase.deactivationDate || undefined,
+    lastStatusUpdate: dbUseCase.lastStatusUpdate || undefined,
+    createdAt: dbUseCase.createdAt || undefined
   };
 }
 

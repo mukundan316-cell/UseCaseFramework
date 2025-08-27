@@ -1068,7 +1068,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Is explainability required?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || undefined}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
@@ -1089,7 +1089,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Customer harm risk?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || undefined}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
@@ -1112,7 +1112,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Data processing outside UK/EU?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || undefined}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
@@ -1133,7 +1133,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Third party model?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || undefined}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
@@ -1154,7 +1154,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold text-gray-900">Human accountability required?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || undefined}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
@@ -1214,7 +1214,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold text-gray-900">AI or Model Classification</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || undefined}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select classification..." />
@@ -1235,7 +1235,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold text-gray-900">Validation Responsibility</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || undefined}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select responsibility..." />
@@ -1371,7 +1371,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold text-gray-900">Third Party Provided Model</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || undefined}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select..." />
@@ -1393,7 +1393,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold text-gray-900">Deployment Status</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || undefined}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select deployment status..." />

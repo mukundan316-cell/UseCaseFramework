@@ -99,17 +99,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUseCase(insertUseCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase> {
-    // Clean null values to avoid type issues
+    // Clean null/undefined values for proper database insertion, ensuring required defaults
     const cleanData = Object.fromEntries(
-      Object.entries(insertUseCase).map(([key, value]) => [
-        key, 
-        value === null ? undefined : value
-      ])
+      Object.entries(insertUseCase).map(([key, value]) => {
+        // Handle specific numeric fields that need defaults
+        if ((key === 'revenueImpact' || key === 'costSavings' || key === 'riskReduction') && (value === null || value === undefined)) {
+          return [key, 0]; // Default to 0 for numeric fields
+        }
+        // Convert null to undefined for all other fields
+        return [key, value === null ? undefined : value];
+      })
     ) as InsertUseCase & { impactScore: number; effortScore: number; quadrant: string };
     
     const [useCase] = await db
       .insert(useCases)
-      .values(cleanData)
+      .values(cleanData)  // Remove array wrapper - Drizzle expects single object for single insert
       .returning();
     return useCase;
   }
