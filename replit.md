@@ -42,6 +42,7 @@ The RSA AI Use Case Value Framework is a strategic AI use case prioritization pl
 - **Database Schema**: Essential PostgreSQL tables include `response_sessions`, `use_cases`, `users`, and `metadata_config`.
 - **AI Inventory Status & Deployment Semantics**: `aiInventoryStatus` tracks operational lifecycle (`active`, `development`, `testing`, `deprecated`); `deploymentStatus` indicates technical deployment environment (`production`, `staging`, `development`, `local`). Statuses are TEXT constraints with application-level validation.
 - **Data Integrity**: Implemented enhanced null safety, score calculation safety, database validation, and safe fallback logic for data operations. All boolean fields are standardized to 'true'/'false' string types for consistency.
+- **Manual Override Architecture**: Fixed critical null value handling for toggle components that clear form fields. Server-side `updateUseCase` method now explicitly allows null values for manual override fields (`manualImpactScore`, `manualEffortScore`, `manualQuadrant`, `overrideReason`) to enable proper database clearing when toggles are disabled.
 
 ## Architectural Consistency Guidelines
 
@@ -171,6 +172,35 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
 - ✅ **No enum value mismatches** - Use exact enum values across layers
 - ✅ **No null/undefined inconsistencies** - Handle with safe defaults
 - ✅ **No ID type changes** - Preserve existing primary key patterns
+
+### Toggle Component Null Value Handling (Rating: 5/5)
+**CRITICAL: Server-side null value handling for toggle components that clear form fields**
+
+```typescript
+// Server-side (storage.ts) - Allow null values for clearing fields
+const allowNullFields = ['manualImpactScore', 'manualEffortScore', 'manualQuadrant', 'overrideReason'];
+
+// Skip null/undefined values except for fields that need to be cleared
+if ((value === null || value === undefined) && !allowNullFields.includes(key)) {
+  return; // Skip processing
+}
+
+// Handle manual override fields - allow null to clear values
+if (['manualImpactScore', 'manualEffortScore'].includes(key)) {
+  if (value === null || value === undefined) {
+    cleanUpdates[key] = null; // Explicitly set to null to clear database
+  }
+}
+
+// Client-side (Form component) - Preserve null values in form submission
+const sanitizedData = {
+  ...data,
+  // CRITICAL: Preserve manual override null values - DO NOT convert to empty strings
+  manualImpactScore: data.manualImpactScore,
+  manualEffortScore: data.manualEffortScore, 
+  manualQuadrant: data.manualQuadrant
+};
+```
 
 ### Database Migration Safety Protocol
 **CRITICAL: Never change primary key ID column types - breaks existing data**
