@@ -7,6 +7,7 @@ The RSA AI Use Case Value Framework is a production-ready strategic platform des
 - **Communication**: Simple, everyday language
 - **Architecture**: LEGO-style reusable components following "Build Once, Reuse Everywhere" principle
 - **Database**: Consistent camelCase field naming between Drizzle schema and queries
+- **Boolean Strategy**: Use string booleans ('true'/'false') consistently across UI to DB - no native boolean types
 - **Data Consistency**: Complete boolean standardization and minimal transformations across all layers
 - **Code Quality**: Centralized configuration, comprehensive error handling, and loading states
 - **Development Focus**: Quick wins and optimizations without adding complexity
