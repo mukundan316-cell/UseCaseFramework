@@ -148,6 +148,7 @@ export default function ScoreOverrideLegoBlock({
         )}
 
         {/* Override Fields - Only show when toggle is enabled */}
+        {/* DEBUG: isOverrideEnabled = ${isOverrideEnabled} */}
         {isOverrideEnabled && (
           <>
             {/* Show comparison when override is enabled */}
