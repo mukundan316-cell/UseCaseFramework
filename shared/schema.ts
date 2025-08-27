@@ -123,22 +123,22 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   businessSegment: z.string().min(1, "Business Segment is required"),
   geography: z.string().min(1, "Geography is required"),
   useCaseType: z.string().min(1, "Use Case Type is required"),
-  // Business Value Levers (Impact Score) - with validation constraints
-  revenueImpact: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  costSavings: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  riskReduction: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  brokerPartnerExperience: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  strategicFit: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  // Feasibility Levers (Effort Score) - with validation constraints
-  dataReadiness: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  technicalComplexity: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  changeImpact: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  modelRisk: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  adoptionReadiness: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  // Final scoring fields - optional for import - no constraints
-  finalImpactScore: z.union([z.number(), z.null()]).optional(),
-  finalEffortScore: z.union([z.number(), z.null()]).optional(),
-  finalQuadrant: z.union([z.string(), z.null()]).optional(),
+  // Business Value Levers (Impact Score) - simplified validation per replit.md
+  revenueImpact: z.number().min(1).max(5).optional(),
+  costSavings: z.number().min(1).max(5).optional(),
+  riskReduction: z.number().min(1).max(5).optional(),
+  brokerPartnerExperience: z.number().min(1).max(5).optional(),
+  strategicFit: z.number().min(1).max(5).optional(),
+  // Feasibility Levers (Effort Score) - simplified validation per replit.md
+  dataReadiness: z.number().min(1).max(5).optional(),
+  technicalComplexity: z.number().min(1).max(5).optional(),
+  changeImpact: z.number().min(1).max(5).optional(),
+  modelRisk: z.number().min(1).max(5).optional(),
+  adoptionReadiness: z.number().min(1).max(5).optional(),
+  // Final scoring fields - simplified per replit.md
+  finalImpactScore: z.number().optional(),
+  finalEffortScore: z.number().optional(),
+  finalQuadrant: z.string().optional(),
   
   linesOfBusiness: z.array(z.string()).optional(),
   processes: z.array(z.string()).optional(),
@@ -152,11 +152,11 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory']).default('rsa_internal'),
   activationReason: z.union([z.string(), z.null()]).optional(),
   deactivationReason: z.union([z.string(), z.null()]).optional(),
-  // Manual override fields (accept null values for optional operation)
-  manualImpactScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  manualEffortScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  manualQuadrant: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
-  overrideReason: z.union([z.string(), z.null()]).optional(),
+  // Manual override fields - simplified per replit.md
+  manualImpactScore: z.number().min(1).max(5).optional(),
+  manualEffortScore: z.number().min(1).max(5).optional(),
+  manualQuadrant: z.string().optional(),
+  overrideReason: z.string().optional(),
   // Tab 3: Implementation & Governance fields - allow null for import compatibility
   primaryBusinessOwner: z.union([z.string(), z.null()]).optional(),
   useCaseStatus: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
@@ -183,11 +183,11 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   // AI Inventory specific fields (flexible for import - allow any string values)
   aiInventoryStatus: z.union([z.string(), z.null()]).optional(),
   deploymentStatus: z.union([z.string(), z.null()]).optional(),
-  // RSA Ethical Principles - simplified to consistent string enums
-  explainabilityRequired: z.union([z.enum(['true', 'false']), z.null()]).optional(),
-  dataOutsideUkEu: z.union([z.enum(['true', 'false']), z.null()]).optional(),
-  thirdPartyModel: z.union([z.enum(['true', 'false']), z.null()]).optional(),
-  humanAccountability: z.union([z.enum(['true', 'false']), z.null()]).optional(),
+  // RSA Ethical Principles - simplified to consistent string enums per replit.md
+  explainabilityRequired: z.enum(['true', 'false']).optional(),
+  dataOutsideUkEu: z.enum(['true', 'false']).optional(),
+  thirdPartyModel: z.enum(['true', 'false']).optional(),
+  humanAccountability: z.enum(['true', 'false']).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

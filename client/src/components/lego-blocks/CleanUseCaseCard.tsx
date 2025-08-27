@@ -26,8 +26,8 @@ export default function CleanUseCaseCard({
 }: CleanUseCaseCardProps) {
   
   // Get quadrant-based styling for RSA cases with scores
-  // Handle both boolean and string types for isActiveForRsa (clean boolean architecture)
-  const isActiveForRsa = useCase.isActiveForRsa === true || useCase.isActiveForRsa === 'true';
+  // Following replit.md boolean standardization - database stores 'true'/'false' strings
+  const isActiveForRsa = useCase.isActiveForRsa === true;
   const hasScores = showScores && useCase.impactScore !== undefined && useCase.effortScore !== undefined && isActiveForRsa;
   
   // Get effective scores (manual overrides take precedence)

@@ -100,11 +100,8 @@ export const scaleAnswerSchema = z.string().transform((val) => {
 /**
  * Validation schema for boolean answers
  */
-export const booleanAnswerSchema = z.string().transform((val) => {
-  if (val === 'true') return true;
-  if (val === 'false') return false;
-  throw new Error('Boolean answer must be "true" or "false"');
-});
+// Simplified boolean validation per replit.md - no transformations needed
+export const booleanAnswerSchema = z.enum(['true', 'false']);
 
 /**
  * Validation schema for smart rating answers

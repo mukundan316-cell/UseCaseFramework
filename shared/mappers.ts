@@ -122,12 +122,12 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     // Convert all null values to undefined for frontend compatibility
     activationReason: dbUseCase.activationReason || undefined,
     thirdPartyProvidedModel: dbUseCase.thirdPartyProvidedModel || undefined,
-    // AI governance fields - preserve boolean false values, only convert null to undefined
-    explainabilityRequired: dbUseCase.explainabilityRequired !== null ? dbUseCase.explainabilityRequired : undefined,
+    // AI governance fields - convert string booleans to boolean for frontend consistency
+    explainabilityRequired: dbUseCase.explainabilityRequired === 'true',
     customerHarmRisk: dbUseCase.customerHarmRisk || undefined,
-    dataOutsideUkEu: dbUseCase.dataOutsideUkEu !== null ? dbUseCase.dataOutsideUkEu : undefined,
-    thirdPartyModel: dbUseCase.thirdPartyModel !== null ? dbUseCase.thirdPartyModel : undefined,
-    humanAccountability: dbUseCase.humanAccountability !== null ? dbUseCase.humanAccountability : undefined,
+    dataOutsideUkEu: dbUseCase.dataOutsideUkEu === 'true',
+    thirdPartyModel: dbUseCase.thirdPartyModel === 'true',
+    humanAccountability: dbUseCase.humanAccountability === 'true',
     regulatoryCompliance: dbUseCase.regulatoryCompliance !== null ? dbUseCase.regulatoryCompliance : undefined,
     aiOrModel: dbUseCase.aiOrModel || undefined,
     riskToCustomers: dbUseCase.riskToCustomers || undefined,
@@ -158,8 +158,13 @@ export function mapUseCaseToDatabase(frontendUseCase: Partial<UseCaseFrontend>):
   const { valueChainComponent, ...rest } = frontendUseCase;
   return {
     ...rest,
-    // Convert boolean back to string for database storage
+    // Convert boolean back to string for database storage per replit.md standardization
     isActiveForRsa: frontendUseCase.isActiveForRsa ? 'true' : 'false',
-    isDashboardVisible: frontendUseCase.isDashboardVisible ? 'true' : 'false'
+    isDashboardVisible: frontendUseCase.isDashboardVisible ? 'true' : 'false',
+    // Convert boolean fields back to string for database
+    explainabilityRequired: frontendUseCase.explainabilityRequired ? 'true' : 'false',
+    dataOutsideUkEu: frontendUseCase.dataOutsideUkEu ? 'true' : 'false',
+    thirdPartyModel: frontendUseCase.thirdPartyModel ? 'true' : 'false',
+    humanAccountability: frontendUseCase.humanAccountability ? 'true' : 'false'
   } as Partial<UseCase>;
 }
