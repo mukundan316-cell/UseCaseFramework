@@ -280,52 +280,95 @@ export default function EnhancedMatrixPlot() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Main Matrix Chart */}
             <div className="lg:col-span-3">
-              <div className="relative">
-                <ResponsiveContainer width="100%" height={500}>
-                  <ScatterChart data={filteredData}>
+              <div className="relative bg-white rounded-lg border border-gray-200 p-4">
+                <ResponsiveContainer width="100%" height={520}>
+                  <ScatterChart 
+                    data={filteredData}
+                    margin={{ top: 40, right: 60, bottom: 60, left: 60 }}
+                  >
                     <defs>
                       {chartData.map((entry, index) => (
                         <radialGradient key={`gradient-${index}`} id={`bubble-gradient-${index}`}>
-                          <stop offset="0%" stopColor={entry.color} />
-                          <stop offset="70%" stopColor={entry.gradientColor} />
-                          <stop offset="100%" stopColor={entry.color} />
+                          <stop offset="0%" stopColor={entry.color} stopOpacity={0.9} />
+                          <stop offset="70%" stopColor={entry.gradientColor} stopOpacity={0.7} />
+                          <stop offset="100%" stopColor={entry.color} stopOpacity={0.8} />
                         </radialGradient>
                       ))}
                     </defs>
                     
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <CartesianGrid 
+                      strokeDasharray="2 2" 
+                      stroke="#F3F4F6" 
+                      strokeWidth={1}
+                    />
                     
-                    {/* Quadrant Reference Lines */}
+                    {/* Enhanced Quadrant Reference Lines */}
                     <ReferenceLine 
                       x={2.5} 
-                      stroke="#6B7280" 
-                      strokeDasharray="8 4" 
-                      strokeWidth={2}
+                      stroke="#9CA3AF" 
+                      strokeDasharray="6 3" 
+                      strokeWidth={1.5}
                     />
                     <ReferenceLine 
                       y={2.5} 
-                      stroke="#6B7280" 
-                      strokeDasharray="8 4" 
-                      strokeWidth={2}
+                      stroke="#9CA3AF" 
+                      strokeDasharray="6 3" 
+                      strokeWidth={1.5}
                     />
                     
+                    {/* Enhanced Axes with Better Typography */}
                     <XAxis 
                       type="number" 
                       dataKey="x" 
-                      domain={[0, 5]} 
+                      domain={[0.2, 4.8]} 
                       name="Implementation Effort"
-                      tickCount={6}
-                      tick={{ fontSize: 12, fill: '#6B7280' }}
-                      label={{ value: 'Implementation Effort →', position: 'insideBottom', offset: -10, style: { fontSize: '14px', fontWeight: 'bold', fill: '#374151' } }}
+                      tickCount={5}
+                      tick={{ 
+                        fontSize: 11, 
+                        fill: '#6B7280', 
+                        fontWeight: 500,
+                        dy: 8
+                      }}
+                      axisLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
+                      tickLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
+                      label={{ 
+                        value: 'Implementation Effort', 
+                        position: 'insideBottom', 
+                        offset: -15,
+                        style: { 
+                          textAnchor: 'middle',
+                          fontSize: '13px', 
+                          fontWeight: '600', 
+                          fill: '#374151' 
+                        } 
+                      }}
                     />
                     <YAxis 
                       type="number" 
                       dataKey="y" 
-                      domain={[0, 5]} 
+                      domain={[0.2, 4.8]} 
                       name="Business Impact"
-                      tickCount={6}
-                      tick={{ fontSize: 12, fill: '#6B7280' }}
-                      label={{ value: '← Business Impact', angle: -90, position: 'insideLeft', style: { fontSize: '14px', fontWeight: 'bold', fill: '#374151' } }}
+                      tickCount={5}
+                      tick={{ 
+                        fontSize: 11, 
+                        fill: '#6B7280', 
+                        fontWeight: 500,
+                        dx: -8
+                      }}
+                      axisLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
+                      tickLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
+                      label={{ 
+                        value: 'Business Impact', 
+                        angle: -90, 
+                        position: 'insideLeft',
+                        offset: 10,
+                        style: { 
+                          textAnchor: 'middle',
+                          fontSize: '13px', 
+                          fontWeight: '600', 
+                          fill: '#374151' 
+                        } 
+                      }}
                     />
                     
                     <Tooltip content={<CustomTooltip />} />
@@ -335,26 +378,36 @@ export default function EnhancedMatrixPlot() {
                         <Cell 
                           key={`cell-${index}`} 
                           fill={`url(#bubble-gradient-${chartData.findIndex(d => d.name === entry.name)})`}
-                          r={entry.size / 2}
+                          r={Math.max(8, Math.min(20, entry.size / 3))}
+                          stroke="white"
+                          strokeWidth={2}
                         />
                       ))}
-                      {showLabels && <LabelList dataKey="name" position="center" fontSize={10} />}
+                      {showLabels && (
+                        <LabelList 
+                          dataKey="name" 
+                          position="center" 
+                          fontSize={9}
+                          fill="#374151"
+                          fontWeight="500"
+                        />
+                      )}
                     </Scatter>
                   </ScatterChart>
                 </ResponsiveContainer>
                 
-                {/* Quadrant Labels */}
-                <div className="absolute top-4 left-4 bg-emerald-600 text-white px-3 py-2 rounded-lg font-bold text-sm shadow-lg">
-                  QUICK WIN
+                {/* Modernized Quadrant Labels with Better Positioning */}
+                <div className="absolute top-8 left-16 bg-emerald-500 text-white px-4 py-2 rounded-md font-semibold text-xs tracking-wide shadow-md uppercase">
+                  Quick Win
                 </div>
-                <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-2 rounded-lg font-bold text-sm shadow-lg">
-                  STRATEGIC BET
+                <div className="absolute top-8 right-16 bg-blue-500 text-white px-4 py-2 rounded-md font-semibold text-xs tracking-wide shadow-md uppercase">
+                  Strategic Bet
                 </div>
-                <div className="absolute bottom-4 left-4 bg-amber-600 text-white px-3 py-2 rounded-lg font-bold text-sm shadow-lg">
-                  EXPERIMENTAL
+                <div className="absolute bottom-20 left-16 bg-amber-500 text-white px-4 py-2 rounded-md font-semibold text-xs tracking-wide shadow-md uppercase">
+                  Experimental
                 </div>
-                <div className="absolute bottom-4 right-4 bg-red-600 text-white px-3 py-2 rounded-lg font-bold text-sm shadow-lg">
-                  WATCHLIST
+                <div className="absolute bottom-20 right-16 bg-red-500 text-white px-4 py-2 rounded-md font-semibold text-xs tracking-wide shadow-md uppercase">
+                  Watchlist
                 </div>
               </div>
             </div>
