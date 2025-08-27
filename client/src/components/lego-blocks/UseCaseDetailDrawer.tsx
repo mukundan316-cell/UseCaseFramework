@@ -462,6 +462,28 @@ export default function UseCaseDetailDrawer({
             </AccordionContent>
           </AccordionItem>
 
+          {/* Presentation Documents Section */}
+          {(useCase.presentationUrl || useCase.presentationFileName || useCase.presentationPdfUrl) && (
+            <AccordionItem value="presentation" className="border border-gray-200 rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center">
+                  <FileText className="w-4 h-4 mr-2 text-purple-600" />
+                  <span className="font-semibold text-gray-900">Use Case Definition Document</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <PresentationPreviewBlock
+                  presentationUrl={useCase.presentationUrl}
+                  presentationPdfUrl={useCase.presentationPdfUrl}
+                  presentationFileName={useCase.presentationFileName}
+                  presentationUploadedAt={useCase.presentationUploadedAt}
+                  showTitle={false}
+                  className="border-0 bg-transparent p-0"
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
           {/* Implementation & Governance Section */}
           <AccordionItem value="implementation" className="border border-gray-200 rounded-lg">
             <AccordionTrigger className="px-4 py-3 hover:no-underline">
@@ -699,27 +721,7 @@ export default function UseCaseDetailDrawer({
             </AccordionContent>
           </AccordionItem>
 
-          {/* Presentation Documents Section */}
-          {(useCase.presentationUrl || useCase.presentationFileName || useCase.presentationPdfUrl) && (
-            <AccordionItem value="presentation" className="border border-gray-200 rounded-lg">
-              <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                <div className="flex items-center">
-                  <FileText className="w-4 h-4 mr-2 text-purple-600" />
-                  <span className="font-semibold text-gray-900">Use Case Definition Document</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
-                <PresentationPreviewBlock
-                  presentationUrl={useCase.presentationUrl}
-                  presentationPdfUrl={useCase.presentationPdfUrl}
-                  presentationFileName={useCase.presentationFileName}
-                  presentationUploadedAt={useCase.presentationUploadedAt}
-                  showTitle={false}
-                  className="border-0 bg-transparent p-0"
-                />
-              </AccordionContent>
-            </AccordionItem>
-          )}
+
         </Accordion>
       </SheetContent>
     </Sheet>

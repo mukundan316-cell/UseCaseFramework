@@ -27,8 +27,8 @@ export default function PresentationPreviewBlock({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [proxyUrl, setProxyUrl] = useState<string | null>(null);
 
-  // Don't render if no presentation exists
-  if (hasPresentation !== 'true' || !presentationFileName) {
+  // Don't render if no presentation exists - check for actual data presence
+  if (!presentationFileName && !presentationUrl && !presentationPdfUrl) {
     return null;
   }
 
