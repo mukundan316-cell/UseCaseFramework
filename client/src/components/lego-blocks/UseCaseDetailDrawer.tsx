@@ -39,13 +39,15 @@ import {
   FolderOpen,
   Circle,
   Activity,
-  Calendar
+  Calendar,
+  FileText
 } from 'lucide-react';
 import { UseCase } from '../../types';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
 import { getSourceConfig, getSourceBackgroundTint } from '../../utils/sourceColors';
 import { getQuadrantColor } from '../../utils/calculations';
 import ReusableButton from './ReusableButton';
+import PresentationPreviewBlock from './PresentationPreviewBlock';
 
 interface UseCaseDetailDrawerProps {
   isOpen: boolean;
@@ -696,6 +698,28 @@ export default function UseCaseDetailDrawer({
               )}
             </AccordionContent>
           </AccordionItem>
+
+          {/* Presentation Documents Section */}
+          {(useCase.presentationUrl || useCase.presentationFileName) && (
+            <AccordionItem value="presentation" className="border border-gray-200 rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center">
+                  <FileText className="w-4 h-4 mr-2 text-purple-600" />
+                  <span className="font-semibold text-gray-900">Use Case Definition Document</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <PresentationPreviewBlock
+                  presentationUrl={useCase.presentationUrl}
+                  presentationPdfUrl={useCase.presentationPdfUrl}
+                  presentationFileName={useCase.presentationFileName}
+                  presentationUploadedAt={useCase.presentationUploadedAt}
+                  showTitle={false}
+                  className="border-0 bg-transparent p-0"
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )}
         </Accordion>
       </SheetContent>
     </Sheet>

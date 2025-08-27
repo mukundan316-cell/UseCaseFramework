@@ -57,6 +57,11 @@ export interface UseCase {
   thirdPartyProvidedModel?: string;
   aiInventoryStatus?: string;
   deploymentStatus?: string;
+  // Presentation document fields
+  presentationUrl?: string;
+  presentationPdfUrl?: string;
+  presentationFileName?: string;
+  presentationUploadedAt?: string;
 }
 
 export type QuadrantType = "Quick Win" | "Strategic Bet" | "Experimental" | "Watchlist";

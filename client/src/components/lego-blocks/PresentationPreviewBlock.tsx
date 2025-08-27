@@ -117,9 +117,14 @@ export default function PresentationPreviewBlock({
             <div className="flex items-center gap-2 ml-4">
               {presentationPdfUrl && (
                 <Button
+                  type="button"
                   variant="outline"
                   size="sm"
-                  onClick={handlePreview}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handlePreview();
+                  }}
                   data-testid="button-preview-presentation"
                 >
                   <Eye className="h-4 w-4 mr-1" />
@@ -128,9 +133,14 @@ export default function PresentationPreviewBlock({
               )}
               
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
-                onClick={handleDownload}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDownload();
+                }}
                 data-testid="button-download-presentation"
               >
                 <Download className="h-4 w-4 mr-1" />
