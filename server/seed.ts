@@ -151,7 +151,7 @@ export async function seedDatabase() {
     await seedMetadataConfig();
 
     console.log('Seeding database with sample use cases...');
-    
+
     for (const sampleUseCase of sampleUseCases) {
       const impactScore = calculateImpactScore(
         sampleUseCase.revenueImpact,
@@ -160,7 +160,7 @@ export async function seedDatabase() {
         sampleUseCase.brokerPartnerExperience || 3,
         sampleUseCase.strategicFit
       );
-      
+
       const effortScore = calculateEffortScore(
         sampleUseCase.dataReadiness,
         sampleUseCase.technicalComplexity,
@@ -168,9 +168,9 @@ export async function seedDatabase() {
         sampleUseCase.modelRisk || 3,
         sampleUseCase.adoptionReadiness
       );
-      
+
       const quadrant = calculateQuadrant(impactScore, effortScore);
-      
+
       // Map old field names to new schema
       const useCaseData = {
         title: sampleUseCase.title,
@@ -195,10 +195,10 @@ export async function seedDatabase() {
         effortScore,
         quadrant
       };
-      
+
       await db.insert(useCases).values(useCaseData);
     }
-    
+
     console.log(`Successfully seeded ${sampleUseCases.length} use cases`);
   } catch (error) {
     console.error('Error seeding database:', error);
@@ -232,7 +232,7 @@ async function seedMetadataConfig() {
       useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"],
       sourceTypes: ["rsa_internal", "industry_standard", "ai_inventory"]
     });
-    
+
     console.log("Seeded metadata configuration successfully");
   } catch (error) {
     console.error('Error seeding metadata config:', error);
