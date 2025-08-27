@@ -112,17 +112,7 @@ export default function ScoreOverrideLegoBlock({
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* DEBUG: Current state */}
-        <div className="p-2 bg-red-100 rounded text-xs border-2 border-red-400">
-          <div><strong>DEBUG INFO:</strong></div>
-          <div>Toggle State: {isOverrideEnabled ? 'ON' : 'OFF'}</div>
-          <div>Manual Impact: {JSON.stringify(manualImpact)}</div>
-          <div>Manual Effort: {JSON.stringify(manualEffort)}</div>
-          <div>Manual Quadrant: {JSON.stringify(manualQuadrant)}</div>
-          <div>Calculated Impact: {calculatedImpact}</div>
-          <div>Calculated Effort: {calculatedEffort}</div>
-          <div>hasExistingOverrides: {hasExistingOverrides ? 'TRUE' : 'FALSE'}</div>
-        </div>
+
 
         {/* Show current effective scores when override is disabled */}
         {!isOverrideEnabled && (calculatedImpact || calculatedEffort) && (
