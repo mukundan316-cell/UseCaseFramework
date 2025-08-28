@@ -15,7 +15,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Bubble Sizing**: Moderate exponential scaling (power 1.3) for proportional impact visualization in matrix plots
 
 ## Current Status
-**Application Rating: 4.9/5** - Production-ready with zero LSP errors and optimal user experience. Recent enhancements: minimized validation requirements (only title and description required), enhanced user-friendly error messages with meaningful feedback, updated database constraints to support optional fields, and added clear required field indicators (*) throughout all forms. Core features demonstrate mature LEGO patterns with exceptional usability and minimal technical debt.
+**Application Rating: 4.9/5** - Production-ready with zero LSP errors and optimal user experience. Recent enhancements: minimized validation requirements (only title and description required), enhanced user-friendly error messages with meaningful feedback, updated database constraints to support optional fields, added clear required field indicators (*) throughout all forms, and implemented comprehensive ROI explanation system with contextual help text, tooltips, and detailed scoring rationale. Core features demonstrate mature LEGO patterns with exceptional usability and minimal technical debt.
 
 ## System Architecture
 ### Architecture
@@ -33,6 +33,8 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **File Integration**: PDF/PowerPoint uploads with full-screen viewer
 - **Enhanced Excel Export/Import**: Comprehensive import guide with data validation guidelines
 - **User-Centric Validation**: Minimal requirements (title + description only) with contextual error messaging
+- **ROI Explanation System**: Contextual help text, tooltips, and detailed scoring rationale explaining why ROI is rated High/Medium/Poor
+- **Interactive ROI Guidance**: Built-in explanations in scoring configuration, use case cards, and admin interfaces
 - **Comprehensive Null Handling**: All 100+ fields properly support null values with consistent validation
 - **Multi-Source Support**: RSA Internal, Industry Standard, AI Inventory categories
 

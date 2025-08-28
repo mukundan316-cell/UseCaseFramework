@@ -146,6 +146,12 @@ export default function ScoringModelManagementBlock() {
             Configure weights for each scoring lever and define calculation formulas. 
             All changes affect how use cases are scored and positioned in the prioritization matrix.
           </p>
+          <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>ROI Impact:</strong> Higher weights on Revenue Impact and Cost Savings increase ROI ratings. 
+              Lower weights on Technical Complexity and Change Impact make implementation appear easier, boosting ROI potential.
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 mb-6">
@@ -187,7 +193,10 @@ export default function ScoringModelManagementBlock() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <Label className="text-sm font-medium">Revenue Impact</Label>
-                        <span className="text-sm font-mono">{revenueWeight}%</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm font-mono">{revenueWeight}%</span>
+                          <span className="text-xs text-gray-500" title="Higher weight = Revenue generation becomes more important for ROI calculations">ⓘ</span>
+                        </div>
                       </div>
                       <input
                         type="range"
@@ -203,7 +212,10 @@ export default function ScoringModelManagementBlock() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <Label className="text-sm font-medium">Cost Savings</Label>
-                        <span className="text-sm font-mono">{costWeight}%</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm font-mono">{costWeight}%</span>
+                          <span className="text-xs text-gray-500" title="Higher weight = Cost reduction becomes more important for ROI calculations">ⓘ</span>
+                        </div>
                       </div>
                       <input
                         type="range"
@@ -394,11 +406,24 @@ export default function ScoringModelManagementBlock() {
                     </div>
                   </div>
 
+                  {/* ROI Explanation */}
+                  <div className="p-4 bg-indigo-50 rounded-lg border">
+                    <h4 className="font-medium text-indigo-800 mb-2">ROI Calculation Logic</h4>
+                    <p className="text-sm text-indigo-700 mb-3">
+                      ROI potential is determined by the ratio of Impact Score to Effort Score, combined with quadrant position
+                    </p>
+                    <div className="space-y-2 text-sm text-indigo-600">
+                      <div>• <strong>High ROI:</strong> Quick Win (high impact, low effort) or Strategic Bet (high impact, high effort)</div>
+                      <div>• <strong>Medium ROI:</strong> Experimental (low impact, low effort) - good for learning</div>
+                      <div>• <strong>Poor ROI:</strong> Watchlist (low impact, high effort) - avoid or redesign</div>
+                    </div>
+                  </div>
+
                   {/* Quadrant Threshold */}
                   <div className="p-4 bg-purple-50 rounded-lg border">
                     <h4 className="font-medium text-purple-800 mb-2">Quadrant Classification</h4>
                     <p className="text-sm text-purple-700 mb-3">
-                      Threshold value that determines quadrant boundaries (1-5 scale)
+                      Threshold value that determines quadrant boundaries and ROI categorization (1-5 scale)
                     </p>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">

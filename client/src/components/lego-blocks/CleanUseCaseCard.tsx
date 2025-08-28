@@ -378,6 +378,35 @@ export default function CleanUseCaseCard({
               </div>
             </div>
             
+            {/* ROI Explanation */}
+            <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-blue-700">ROI Assessment</span>
+                <div className="flex items-center gap-1">
+                  <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                    effectiveQuadrant === 'Quick Win' || effectiveQuadrant === 'Strategic Bet' 
+                      ? 'bg-green-100 text-green-800'
+                      : effectiveQuadrant === 'Experimental'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {effectiveQuadrant === 'Quick Win' || effectiveQuadrant === 'Strategic Bet' ? 'High ROI' :
+                     effectiveQuadrant === 'Experimental' ? 'Medium ROI' : 'Poor ROI'}
+                  </span>
+                </div>
+              </div>
+              <p className="text-xs text-blue-600">
+                {effectiveQuadrant === 'Quick Win' && 
+                  'High business value with manageable effort - excellent return potential with quick payback.'}
+                {effectiveQuadrant === 'Strategic Bet' && 
+                  'Significant long-term value justifies higher investment - strong ROI over extended timeframe.'}
+                {effectiveQuadrant === 'Experimental' && 
+                  'Lower impact but manageable cost - suitable for learning and capability building.'}
+                {effectiveQuadrant === 'Watchlist' && 
+                  'Low value relative to effort required - consider redesigning or deferring this initiative.'}
+              </p>
+            </div>
+            
             {/* Override Reason Display */}
             {hasOverrides && useCase.overrideReason && (
               <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs">
