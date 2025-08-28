@@ -33,17 +33,17 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
   description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
   problemStatement: z.string().optional(),
-  process: z.string().optional(),
-  lineOfBusiness: z.string().optional(),
+  process: z.string().min(1, "Process is required"),
+  lineOfBusiness: z.string().min(1, "Line of Business is required"),
   // Multi-select arrays (optional)
   processes: z.array(z.string()).optional(),
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
   geographies: z.array(z.string()).optional(),
   linesOfBusiness: z.array(z.string()).optional(),
-  businessSegment: z.string().optional(),
-  geography: z.string().optional(),
-  useCaseType: z.string().optional(),
+  businessSegment: z.string().min(1, "Business Segment is required"),
+  geography: z.string().min(1, "Geography is required"),
+  useCaseType: z.string().min(1, "Use Case Type is required"),
   activity: z.string().optional(),
   // Source type selection
   librarySource: z.string().default('rsa_internal'), // Now dynamic from metadata

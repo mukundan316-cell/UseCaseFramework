@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUseCaseSchema } from "@shared/schema";
+import { z } from "zod";
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@shared/calculations";
 import { mapUseCaseToFrontend } from "@shared/mappers";
 import recommendationRoutes from "./routes/recommendations";
@@ -190,6 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/use-cases", async (req, res) => {
     try {
+      console.log('Received use case data:', JSON.stringify(req.body, null, 2));
       const validatedData = insertUseCaseSchema.parse(req.body);
       
       // Get current metadata for weights
@@ -252,7 +254,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(mapUseCaseToFrontend(newUseCase));
     } catch (error) {
       console.error("Error creating use case:", error);
-      res.status(400).json({ error: "Failed to create use case" });
+      if (error instanceof z.ZodError) {
+        console.error("Validation errors:", error.issues);
+        res.status(400).json({ 
+          error: "Validation failed", 
+          issues: error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`)
+        });
+      } else {
+        res.status(500).json({ error: "Failed to create use case" });
+      }
     }
   });
 
