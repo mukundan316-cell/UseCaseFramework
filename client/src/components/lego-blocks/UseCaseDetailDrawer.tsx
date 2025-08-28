@@ -86,6 +86,21 @@ export default function UseCaseDetailDrawer({
   // Check data availability for conditional rendering
   const extendedUseCase = useCase as any; // Cast to access extended fields
   const isAiInventory = useCase.librarySource === 'ai_inventory';
+  
+  // Debug logging for AI Inventory
+  if (isAiInventory) {
+    console.log('[AI Inventory Debug] Full useCase object:', useCase);
+    console.log('[AI Inventory Debug] Key fields:', {
+      description: useCase.description,
+      riskToCustomers: extendedUseCase.riskToCustomers,
+      riskToRsa: extendedUseCase.riskToRsa,
+      dataUsed: extendedUseCase.dataUsed,
+      modelOwner: extendedUseCase.modelOwner,
+      businessFunction: extendedUseCase.businessFunction,
+      process: useCase.process,
+      lineOfBusiness: useCase.lineOfBusiness
+    });
+  }
   const isActiveForRsa = extendedUseCase.isActiveForRsa === 'true' || extendedUseCase.isActiveForRsa === true;
   
   const hasImplementationData = !!(
@@ -159,6 +174,11 @@ export default function UseCaseDetailDrawer({
     value: string | string[] | null | undefined; 
     icon?: any;
   }) => {
+    // Debug logging for AI Inventory use cases
+    if (isAiInventory && (label.includes('Risk') || label.includes('Data') || label.includes('Model'))) {
+      console.log(`[AI Inventory Debug] ${label}:`, value, typeof value);
+    }
+    
     if (!value || (Array.isArray(value) && value.length === 0)) return null;
     
     return (
