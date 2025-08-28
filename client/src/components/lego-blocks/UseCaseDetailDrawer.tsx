@@ -237,7 +237,7 @@ export default function UseCaseDetailDrawer({
           </div>
         </SheetHeader>
 
-        <Accordion type="multiple" defaultValue={isAiInventory ? ["lifecycle", "business"] : ["overview", "business"]} className="space-y-2">
+        <Accordion type="multiple" defaultValue={isAiInventory ? ["lifecycle", "overview", "business", "governance", "implementation"] : ["overview", "business"]} className="space-y-2">
           
           {/* AI Inventory Lifecycle Panel (AI Inventory Only) */}
           {isAiInventory && (
