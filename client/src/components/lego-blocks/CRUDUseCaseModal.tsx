@@ -29,21 +29,22 @@ import LoadingState from '@/components/ui/loading-state';
 
 
 const formSchema = z.object({
-  // Core required fields for data integrity
-  title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
-  description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
+  // Minimal validation - only title and description are required
+  title: z.string().min(1, "Please enter a title for this use case").max(100, "Title must be shorter than 100 characters"),
+  description: z.string().min(1, "Please provide a brief description").max(500, "Description must be shorter than 500 characters"),
+  // All other fields are optional to minimize validation barriers
   problemStatement: z.string().optional(),
-  process: z.string().min(1, "Process is required"),
-  lineOfBusiness: z.string().min(1, "Line of Business is required"),
+  process: z.string().optional(),
+  lineOfBusiness: z.string().optional(),
   // Multi-select arrays (optional)
   processes: z.array(z.string()).optional(),
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
   geographies: z.array(z.string()).optional(),
   linesOfBusiness: z.array(z.string()).optional(),
-  businessSegment: z.string().min(1, "Business Segment is required"),
-  geography: z.string().min(1, "Geography is required"),
-  useCaseType: z.string().min(1, "Use Case Type is required"),
+  businessSegment: z.string().optional(),
+  geography: z.string().optional(),
+  useCaseType: z.string().optional(),
   activity: z.string().optional(),
   // Source type selection
   librarySource: z.string().default('rsa_internal'), // Now dynamic from metadata
@@ -607,9 +608,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         Object.keys(changedData).forEach(key => {
           const value = changedData[key];
           
-          // Convert empty strings to null for nullable database fields
+          // IMPORTANT: Do not convert empty strings to null for required fields (title, description)
           if (value === '' || value === 'null' || value === 'undefined') {
-            changedData[key] = null;
+            // Keep empty strings for required fields to avoid validation errors
+            if (['title', 'description'].includes(key)) {
+              changedData[key] = '';
+            } else {
+              changedData[key] = null;
+            }
           }
           
           // Handle boolean fields stored as text in database
@@ -682,7 +688,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           const value = createData[key];
           
           if (value === '' || value === 'null' || value === 'undefined') {
-            createData[key] = null;
+            // Keep empty strings for required fields to avoid validation errors
+            if (['title', 'description'].includes(key)) {
+              createData[key] = '';
+            } else {
+              createData[key] = null;
+            }
           }
           
           if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability'].includes(key)) {
@@ -724,9 +735,62 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       console.log('onClose called');
     } catch (error) {
       console.error('Submit error:', error);
+      
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      let errorTitle = `Error ${mode === 'edit' ? 'updating' : 'creating'} use case`;
+      
+      // Handle different error types with user-friendly messages
+      if (error instanceof Error) {
+        const errorText = error.message.toLowerCase();
+        
+        if (errorText.includes('validation')) {
+          errorTitle = "Please check your entries";
+          if (errorText.includes('title')) {
+            errorMessage = "Please enter a title for your use case.";
+          } else if (errorText.includes('description')) {
+            errorMessage = "Please provide a description for your use case.";
+          } else if (errorText.includes('process')) {
+            errorMessage = "Please select a process from the dropdown.";
+          } else if (errorText.includes('line of business')) {
+            errorMessage = "Please select a line of business from the dropdown.";
+          } else {
+            errorMessage = "Please fill in the required fields and try again.";
+          }
+        } else if (errorText.includes('network') || errorText.includes('fetch')) {
+          errorTitle = "Connection issue";
+          errorMessage = "Unable to save changes. Please check your connection and try again.";
+        } else if (errorText.includes('duplicate') || errorText.includes('already exists')) {
+          errorTitle = "Duplicate entry";
+          errorMessage = "A use case with this title already exists. Please choose a different title.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      // Handle API response errors with validation details
+      if ((error as any)?.response?.data) {
+        const responseData = (error as any).response.data;
+        if (responseData.type === 'validation' && responseData.issues) {
+          errorTitle = responseData.error || "Please fix the following";
+          errorMessage = Array.isArray(responseData.issues) ? responseData.issues.join('\n') : responseData.message;
+        } else if (responseData.error) {
+          errorTitle = responseData.error;
+          errorMessage = responseData.message || "Please try again.";
+        }
+      }
+      
+      // Show validation errors if available from backend
+      if ((error as any)?.issues) {
+        const validationIssues = (error as any).issues;
+        if (Array.isArray(validationIssues) && validationIssues.length > 0) {
+          errorTitle = "Please fix the following";
+          errorMessage = validationIssues.join('\n');
+        }
+      }
+      
       toast({
-        title: `Error ${mode === 'edit' ? 'updating' : 'creating'} use case`,
-        description: `Please try again. ${error instanceof Error ? error.message : 'Unknown error'}`,
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -751,16 +815,24 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
         <Form {...form}>
           <form onSubmit={(e) => {
-            console.log('Form submission started');
-            console.log('Form errors:', form.formState.errors);
-            console.log('Form is valid:', form.formState.isValid);
-            console.log('Form values:', form.getValues());
-            console.log('Form dirty fields:', form.formState.dirtyFields);
-            console.log('Form touched fields:', form.formState.touchedFields);
-            
-            // Force submission even if form validation is blocking
-            console.log('Forcing form submission...');
             e.preventDefault();
+            
+            // Check for form validation errors and provide user feedback
+            const errors = form.formState.errors;
+            if (Object.keys(errors).length > 0) {
+              const errorMessages = Object.entries(errors).map(([field, error]) => {
+                const fieldLabel = field === 'title' ? 'Title' : field === 'description' ? 'Description' : field;
+                return `${fieldLabel}: ${error?.message || 'Invalid value'}`;
+              });
+              
+              toast({
+                title: "Please fix the following issues",
+                description: errorMessages.join('\n'),
+                variant: "destructive",
+              });
+              return;
+            }
+            
             onSubmit(form.getValues() as FormData);
           }} className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -794,15 +866,20 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               <TabsContent value="basic" className="space-y-4 mt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="title">Use Case Title</Label>
+                    <Label htmlFor="title" className="text-sm font-medium">
+                      Use Case Title <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       id="title"
                       placeholder="e.g., Automated Claims Triage"
                       className="mt-1"
                       {...form.register('title')}
+                      data-testid="input-title"
                     />
                     {form.formState.errors.title && (
-                      <p className="text-sm text-red-600 mt-1">{form.formState.errors.title.message}</p>
+                      <p className="text-sm text-red-600 mt-1" data-testid="error-title">
+                        {form.formState.errors.title.message}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -848,16 +925,21 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description" className="text-sm font-medium">
+                    Description <span className="text-red-500">*</span>
+                  </Label>
                   <Textarea
                     id="description"
                     rows={3}
-                    placeholder="Detailed description of the use case..."
+                    placeholder="Brief description of what this use case does..."
                     className="mt-1"
                     {...form.register('description')}
+                    data-testid="textarea-description"
                   />
                   {form.formState.errors.description && (
-                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
+                    <p className="text-sm text-red-600 mt-1" data-testid="error-description">
+                      {form.formState.errors.description.message}
+                    </p>
                   )}
                 </div>
                 <div>

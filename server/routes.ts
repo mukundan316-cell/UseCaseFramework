@@ -256,12 +256,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error creating use case:", error);
       if (error instanceof z.ZodError) {
         console.error("Validation errors:", error.issues);
+        
+        // Create user-friendly validation messages
+        const friendlyMessages = error.issues.map(issue => {
+          const field = issue.path.join('.');
+          const message = issue.message;
+          
+          // Convert technical field names to user-friendly labels
+          const fieldLabels: { [key: string]: string } = {
+            'title': 'Title',
+            'description': 'Description', 
+            'process': 'Process',
+            'lineOfBusiness': 'Line of Business',
+            'businessSegment': 'Business Segment',
+            'geography': 'Geography',
+            'useCaseType': 'Use Case Type'
+          };
+          
+          const friendlyField = fieldLabels[field] || field;
+          return `${friendlyField}: ${message}`;
+        });
+        
         res.status(400).json({ 
-          error: "Validation failed", 
-          issues: error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`)
+          error: "Please check your entries", 
+          issues: friendlyMessages,
+          type: "validation"
         });
       } else {
-        res.status(500).json({ error: "Failed to create use case" });
+        console.error("Unexpected error:", error);
+        res.status(500).json({ 
+          error: "Unable to save use case", 
+          message: "Please try again. If the problem continues, contact support.",
+          type: "server"
+        });
       }
     }
   });

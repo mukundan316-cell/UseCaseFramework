@@ -102,20 +102,19 @@ export class DatabaseStorage implements IStorage {
     // Enhanced data cleaning with null safety
     const cleanData: any = {};
     
-    // Process each field with safe validation
+    // Process each field with minimal validation - only title and description are essential
     Object.entries(insertUseCase).forEach(([key, value]) => {
-      // Skip null/undefined values except for required fields
+      // Only require title and description - all other fields are optional
       if (value === null || value === undefined) {
-        if (['title', 'description', 'process', 'lineOfBusiness', 'businessSegment', 'geography', 'useCaseType'].includes(key)) {
-          throw new Error(`Required field ${key} cannot be null or undefined`);
+        if (['title', 'description'].includes(key)) {
+          throw new Error(`${key === 'title' ? 'Title' : 'Description'} is required`);
         }
         return;
       }
       
-      // Handle empty strings for required text fields
-      if (typeof value === 'string' && value.trim() === '' && 
-          ['title', 'description', 'process', 'lineOfBusiness', 'businessSegment', 'geography', 'useCaseType'].includes(key)) {
-        throw new Error(`Required field ${key} cannot be empty`);
+      // Handle empty strings only for essential fields
+      if (typeof value === 'string' && value.trim() === '' && ['title', 'description'].includes(key)) {
+        throw new Error(`${key === 'title' ? 'Please enter a title' : 'Please provide a description'}`);
       }
       
       // Handle scoring fields with range validation

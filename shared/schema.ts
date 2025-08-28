@@ -14,12 +14,12 @@ export const useCases = pgTable("use_cases", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   problemStatement: text("problem_statement"),
-  process: text("process").notNull(),
-  lineOfBusiness: text("line_of_business").notNull(),
+  process: text("process"), // Made optional to minimize validation barriers
+  lineOfBusiness: text("line_of_business"), // Made optional to minimize validation barriers
   linesOfBusiness: text("lines_of_business").array(),
-  businessSegment: text("business_segment").notNull(),
-  geography: text("geography").notNull(),
-  useCaseType: text("use_case_type").notNull(),
+  businessSegment: text("business_segment"), // Made optional to minimize validation barriers
+  geography: text("geography"), // Made optional to minimize validation barriers
+  useCaseType: text("use_case_type"), // Made optional to minimize validation barriers
   activity: text("activity"), // Optional field for granular process classification
   // Multi-select array fields for enhanced flexibility
   processes: text("processes").array(), // Multiple processes support
@@ -122,14 +122,15 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activationDate: true,
   lastStatusUpdate: true, // Auto-managed field
 }).extend({
-  // Core required fields for data integrity
-  title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters").max(500, "Description must be less than 500 characters"),
-  process: z.string().min(1, "Process is required"),
-  lineOfBusiness: z.string().min(1, "Line of Business is required"),
-  businessSegment: z.string().min(1, "Business Segment is required"),
-  geography: z.string().min(1, "Geography is required"),
-  useCaseType: z.string().min(1, "Use Case Type is required"),
+  // Minimal required fields - only title and description are essential
+  title: z.string().min(1, "Please enter a title for this use case").max(100, "Title must be shorter than 100 characters"),
+  description: z.string().min(1, "Please provide a brief description").max(500, "Description must be shorter than 500 characters"),
+  // All other fields are optional to minimize validation barriers
+  process: z.union([z.string(), z.null()]).optional(),
+  lineOfBusiness: z.union([z.string(), z.null()]).optional(),
+  businessSegment: z.union([z.string(), z.null()]).optional(),
+  geography: z.union([z.string(), z.null()]).optional(),
+  useCaseType: z.union([z.string(), z.null()]).optional(),
   // Business Value Levers (Impact Score) - simplified validation per replit.md
   revenueImpact: z.number().min(1).max(5).optional(),
   costSavings: z.number().min(1).max(5).optional(),
