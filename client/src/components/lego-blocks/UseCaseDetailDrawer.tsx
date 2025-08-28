@@ -87,20 +87,7 @@ export default function UseCaseDetailDrawer({
   const extendedUseCase = useCase as any; // Cast to access extended fields
   const isAiInventory = useCase.librarySource === 'ai_inventory';
   
-  // Debug logging for AI Inventory
-  if (isAiInventory) {
-    console.log('[AI Inventory Debug] Full useCase object:', useCase);
-    console.log('[AI Inventory Debug] Key fields:', {
-      description: useCase.description,
-      riskToCustomers: extendedUseCase.riskToCustomers,
-      riskToRsa: extendedUseCase.riskToRsa,
-      dataUsed: extendedUseCase.dataUsed,
-      modelOwner: extendedUseCase.modelOwner,
-      businessFunction: extendedUseCase.businessFunction,
-      process: useCase.process,
-      lineOfBusiness: useCase.lineOfBusiness
-    });
-  }
+
   const isActiveForRsa = extendedUseCase.isActiveForRsa === 'true' || extendedUseCase.isActiveForRsa === true;
   
   const hasImplementationData = !!(
@@ -119,15 +106,7 @@ export default function UseCaseDetailDrawer({
     ))
   );
   
-  // Debug the implementation data check for AI Inventory
-  if (isAiInventory) {
-    console.log('[AI Inventory Debug] hasImplementationData:', hasImplementationData);
-    console.log('[AI Inventory Debug] Implementation checks:', {
-      aiInventoryStatus: !!extendedUseCase.aiInventoryStatus,
-      deploymentStatus: !!extendedUseCase.deploymentStatus,
-      businessFunction: !!extendedUseCase.businessFunction
-    });
-  }
+
   
   const hasAiInventoryData = !!(
     extendedUseCase.aiInventoryStatus ||
@@ -152,17 +131,7 @@ export default function UseCaseDetailDrawer({
     extendedUseCase.humanAccountability
   );
   
-  // Debug the governance data check for AI Inventory
-  if (isAiInventory) {
-    console.log('[AI Inventory Debug] hasGovernanceData:', hasGovernanceData);
-    console.log('[AI Inventory Debug] Individual governance checks:', {
-      aiOrModel: !!extendedUseCase.aiOrModel,
-      riskToCustomers: !!extendedUseCase.riskToCustomers,
-      riskToRsa: !!extendedUseCase.riskToRsa,
-      dataUsed: !!extendedUseCase.dataUsed,
-      modelOwner: !!extendedUseCase.modelOwner
-    });
-  }
+
   
   const hasTechData = !!(
     extendedUseCase.aiMlTechnologies?.length ||
@@ -196,10 +165,7 @@ export default function UseCaseDetailDrawer({
     value: string | string[] | null | undefined; 
     icon?: any;
   }) => {
-    // Debug logging for AI Inventory use cases
-    if (isAiInventory && (label.includes('Risk') || label.includes('Data') || label.includes('Model'))) {
-      console.log(`[AI Inventory Debug] ${label}:`, value, typeof value);
-    }
+
     
     // Handle null/undefined values - but allow empty strings for AI Inventory
     if (value === null || value === undefined || (Array.isArray(value) && value.length === 0)) return null;
