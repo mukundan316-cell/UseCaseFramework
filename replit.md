@@ -1,62 +1,44 @@
 # RSA AI Use Case Value Framework
 
 ## Overview
-Production-ready strategic platform for AI use case prioritization at RSA Insurance. Features comprehensive scoring framework, executive analytics dashboard, and full CRUD management system. Enables data-driven AI investment decisions with standardized assessment workflows and portfolio visualization.
+Production-ready strategic platform for AI use case prioritization at RSA Insurance. Features comprehensive scoring framework, executive analytics dashboard, and full CRUD management system.
 
 ## User Preferences
 - **Communication**: Simple, everyday language
-- **Architecture**: LEGO-style reusable components following "Build Once, Reuse Everywhere" principle
-- **Database**: Consistent camelCase field naming between Drizzle schema and queries
-- **Boolean Strategy**: Use string booleans ('true'/'false') consistently across UI to DB - no native boolean types
-- **Data Consistency**: Complete boolean standardization and minimal transformations across all layers
-- **Code Quality**: Centralized configuration, comprehensive error handling, loading states, and user-friendly validation
-- **Required Fields**: Clear asterisk (*) indicators for mandatory fields with minimal validation barriers
-- **Development Focus**: Quick wins and optimizations without adding complexity
-- **Bubble Sizing**: Moderate exponential scaling (power 1.3) for proportional impact visualization in matrix plots
+- **Architecture**: LEGO-style reusable components 
+- **Database**: camelCase field naming, string booleans ('true'/'false')
+- **Code Quality**: Centralized config, comprehensive error handling, minimal validation
+- **Development Focus**: Quick wins without complexity
+- **Bubble Sizing**: Moderate exponential scaling (power 1.3)
 
 ## Current Status
-**Application Rating: 4.9/5** - Production-ready with zero LSP errors and optimal user experience. Recent enhancements: minimized validation requirements (only title and description required), enhanced user-friendly error messages with meaningful feedback, updated database constraints to support optional fields, added clear required field indicators (*) throughout all forms, and implemented comprehensive ROI explanation system with contextual help text, tooltips, and detailed scoring rationale. Core features demonstrate mature LEGO patterns with exceptional usability and minimal technical debt.
+**Application Rating: 4.9/5** - Production-ready with zero LSP errors. Features minimized validation (title + description only), user-friendly error messages, clear required field indicators (*), and comprehensive ROI explanation system with contextual help.
 
-## System Architecture
-### Architecture
-- **Core Principle**: "Build Once, Reuse Everywhere" - LEGO block component system
-- **Data Strategy**: PostgreSQL + JSON blob storage hybrid approach
-- **Frontend**: React/TypeScript with shadcn/ui and TailwindCSS
-- **Backend**: Node.js/Express with Drizzle ORM and Zod validation
+## Architecture
+- **Stack**: React/TypeScript, Node.js/Express, PostgreSQL, Drizzle ORM
+- **Data**: PostgreSQL metadata + JSON blob storage, string booleans throughout
+- **UI**: shadcn/ui + TailwindCSS, RSA #005DAA blue branding
 
-### Core Features
-- **Use Case Management**: Full CRUD with RSA 10-lever scoring framework
-- **Analytics Dashboard**: Interactive matrix plots with quadrant-based prioritization
+## Core Features
+- **Use Case Management**: Full CRUD with 10-lever scoring framework
+- **Analytics Dashboard**: Interactive matrix plots with quadrant prioritization
 - **Portfolio Management**: Active/reference library with bulk operations
 - **Assessment System**: Multi-questionnaire platform with dynamic workflows
-- **Executive Reporting**: Professional PDF exports and executive-grade visualizations
-- **File Integration**: PDF/PowerPoint uploads with full-screen viewer
-- **Enhanced Excel Export/Import**: Comprehensive import guide with data validation guidelines
-- **User-Centric Validation**: Minimal requirements (title + description only) with contextual error messaging
-- **ROI Explanation System**: Contextual help text, tooltips, and detailed scoring rationale explaining why ROI is rated High/Medium/Poor
-- **Interactive ROI Guidance**: Built-in explanations in scoring configuration, use case cards, and admin interfaces
-- **Comprehensive Null Handling**: All 100+ fields properly support null values with consistent validation
+- **Executive Reporting**: Professional PDF exports and visualizations
+- **ROI Explanation System**: Contextual help, tooltips, and detailed scoring rationale
+- **Excel Import/Export**: Multi-worksheet structure with validation guidance
 - **Multi-Source Support**: RSA Internal, Industry Standard, AI Inventory categories
 
-### Design Standards
-- **LEGO Cards**: White background, blue borders, color-coded tags, fully clickable
-- **Detail Views**: Accordion pattern with conditional rendering
-- **Forms**: Consistent shadcn/ui styling with standardized states
-- **Branding**: RSA #005DAA blue throughout, quadrant-based color coding
-
-### Architecture Decisions
-- **Data Storage**: PostgreSQL for metadata/sessions, JSON blob storage for questionnaire data
-- **Boolean Strategy**: String booleans ('true'/'false') across entire stack - no transformations
-- **Field Naming**: Database `snake_case` → Frontend `camelCase` via Drizzle mapping
-- **Manual Overrides**: Null values supported for score clearing when toggles disabled
-- **Configuration**: Centralized constants in `shared/constants/app-config.ts`
-- **Error Handling**: Contextual messages with graceful degradation
-- **Loading States**: Standardized `LoadingSpinner` and `LoadingState` components
-- **Excel Import/Export**: Multi-worksheet structure with comprehensive user guidance
+## Key Decisions
+- **LEGO Components**: "Build Once, Reuse Everywhere" principle
+- **Boolean Strategy**: String 'true'/'false' across entire stack
+- **Field Naming**: Database `snake_case` → Frontend `camelCase` 
+- **Validation**: Minimal requirements (title + description only)
+- **Configuration**: Centralized in `shared/constants/app-config.ts`
 
 ## Tech Stack
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter  
-- **Data**: Drizzle ORM, TanStack Query, Zod, React Hook Form
-- **Files**: PDFKit, Survey.js, LibreOffice, ImageMagick
-- **Cloud**: Google Cloud Storage (production)
+- **Data**: Drizzle ORM, TanStack Query, Zod
+- **Files**: PDFKit, Survey.js, LibreOffice
+- **Cloud**: Google Cloud Storage
