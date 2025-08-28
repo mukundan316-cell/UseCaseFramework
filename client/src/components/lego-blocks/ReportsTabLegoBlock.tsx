@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useUseCases } from '../../hooks/useUseCases';
+import { useUseCases } from '../../contexts/UseCaseContext';
 import type { UseCase } from '../../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter, PieChart, Pie, Cell } from 'recharts';
 import { TrendingUp, Target, BarChart3, PieChart as PieChartIcon, Sparkles } from 'lucide-react';
@@ -21,7 +21,8 @@ import ExecutiveAnalytics from '../analytics/ExecutiveAnalytics';
  * - All data sourced from database with no hardcoding
  */
 export default function ReportsTabLegoBlock() {
-  const { useCases, isLoading } = useUseCases();
+  const { useCases } = useUseCases();
+  const isLoading = !useCases;
 
   if (isLoading) {
     return (
@@ -73,7 +74,7 @@ function DetailedReportsView({ useCases }: { useCases: UseCase[] }) {
     uc.impactScore !== null && 
     uc.effortScore !== null && 
     uc.quadrant &&
-    uc.isActiveForRsa === true
+    (uc.isActiveForRsa === 'true' || uc.isActiveForRsa === true)
   );
 
   // Quadrant summary data
