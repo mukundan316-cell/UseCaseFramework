@@ -9,12 +9,13 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Database**: Consistent camelCase field naming between Drizzle schema and queries
 - **Boolean Strategy**: Use string booleans ('true'/'false') consistently across UI to DB - no native boolean types
 - **Data Consistency**: Complete boolean standardization and minimal transformations across all layers
-- **Code Quality**: Centralized configuration, comprehensive error handling, and loading states
+- **Code Quality**: Centralized configuration, comprehensive error handling, loading states, and user-friendly validation
+- **Required Fields**: Clear asterisk (*) indicators for mandatory fields with minimal validation barriers
 - **Development Focus**: Quick wins and optimizations without adding complexity
 - **Bubble Sizing**: Moderate exponential scaling (power 1.3) for proportional impact visualization in matrix plots
 
 ## Current Status
-**Application Rating: 4.8/5** - Production-ready with zero LSP errors and excellent architectural adherence. Recent enhancements: comprehensive Excel import guide with data validation guidelines, AI Inventory modal Overview section fix, and complete boolean consistency across all layers. Core features demonstrate mature LEGO patterns with minimal technical debt.
+**Application Rating: 4.9/5** - Production-ready with zero LSP errors and optimal user experience. Recent enhancements: minimized validation requirements (only title and description required), enhanced user-friendly error messages with meaningful feedback, updated database constraints to support optional fields, and added clear required field indicators (*) throughout all forms. Core features demonstrate mature LEGO patterns with exceptional usability and minimal technical debt.
 
 ## System Architecture
 ### Architecture

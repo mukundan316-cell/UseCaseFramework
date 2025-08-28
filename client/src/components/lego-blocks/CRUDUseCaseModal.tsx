@@ -813,6 +813,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           </DialogDescription>
         </DialogHeader>
 
+        {/* Form Requirements Guide */}
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <span className="font-medium">Quick start:</span> Only <span className="text-red-500">*</span> required fields need to be filled to create a use case. All other fields are optional and can be added later.
+          </p>
+        </div>
+
         <Form {...form}>
           <form onSubmit={(e) => {
             e.preventDefault();
