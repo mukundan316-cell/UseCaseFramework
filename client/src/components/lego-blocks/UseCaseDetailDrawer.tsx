@@ -119,6 +119,16 @@ export default function UseCaseDetailDrawer({
     ))
   );
   
+  // Debug the implementation data check for AI Inventory
+  if (isAiInventory) {
+    console.log('[AI Inventory Debug] hasImplementationData:', hasImplementationData);
+    console.log('[AI Inventory Debug] Implementation checks:', {
+      aiInventoryStatus: !!extendedUseCase.aiInventoryStatus,
+      deploymentStatus: !!extendedUseCase.deploymentStatus,
+      businessFunction: !!extendedUseCase.businessFunction
+    });
+  }
+  
   const hasAiInventoryData = !!(
     extendedUseCase.aiInventoryStatus ||
     extendedUseCase.deploymentStatus ||
@@ -141,6 +151,18 @@ export default function UseCaseDetailDrawer({
     extendedUseCase.thirdPartyModel ||
     extendedUseCase.humanAccountability
   );
+  
+  // Debug the governance data check for AI Inventory
+  if (isAiInventory) {
+    console.log('[AI Inventory Debug] hasGovernanceData:', hasGovernanceData);
+    console.log('[AI Inventory Debug] Individual governance checks:', {
+      aiOrModel: !!extendedUseCase.aiOrModel,
+      riskToCustomers: !!extendedUseCase.riskToCustomers,
+      riskToRsa: !!extendedUseCase.riskToRsa,
+      dataUsed: !!extendedUseCase.dataUsed,
+      modelOwner: !!extendedUseCase.modelOwner
+    });
+  }
   
   const hasTechData = !!(
     extendedUseCase.aiMlTechnologies?.length ||
@@ -179,7 +201,9 @@ export default function UseCaseDetailDrawer({
       console.log(`[AI Inventory Debug] ${label}:`, value, typeof value);
     }
     
-    if (!value || (Array.isArray(value) && value.length === 0)) return null;
+    // Handle null/undefined values - but allow empty strings for AI Inventory
+    if (value === null || value === undefined || (Array.isArray(value) && value.length === 0)) return null;
+    if (typeof value === 'string' && value.trim() === '') return null;
     
     return (
       <div className="space-y-1">
