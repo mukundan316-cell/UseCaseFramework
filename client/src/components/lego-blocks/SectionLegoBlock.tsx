@@ -9,18 +9,6 @@ import QuestionLegoBlock, { QuestionData } from './QuestionLegoBlock';
 import QuestionRegistryLegoBlock, { QuestionMetadata, QuestionType } from './QuestionRegistryLegoBlock';
 import SubsectionLegoBlock, { SubsectionData } from './SubsectionLegoBlock';
 
-export interface SubsectionData {
-  id: string;
-  title: string;
-  subsectionNumber: string;
-  subsectionOrder: number;
-  estimatedTime?: number;
-  description?: string;
-  isCollapsible: boolean;
-  defaultExpanded: boolean;
-  questions: QuestionData[];
-}
-
 export interface SectionData {
   id: string;
   title: string;
