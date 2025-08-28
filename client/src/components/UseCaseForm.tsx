@@ -137,7 +137,7 @@ export default function UseCaseForm() {
         regulatoryCompliance: 3,
       });
       // Switch to matrix view to see the new use case
-      setActiveTab('matrix');
+      setActiveTab('matrix' as any);
     } catch (error) {
       toast({
         title: "Error saving use case",

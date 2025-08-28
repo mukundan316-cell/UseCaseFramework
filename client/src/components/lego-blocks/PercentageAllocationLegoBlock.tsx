@@ -52,6 +52,8 @@ export interface PercentageAllocationLegoBlockProps {
   disabled?: boolean;
   /** Allow partial allocation (less than 100%) */
   allowPartial?: boolean;
+  /** Show remaining percentage */
+  showRemaining?: boolean;
   /** Additional CSS classes */
   className?: string;
   /** Optional label for the entire allocation */
@@ -83,6 +85,14 @@ export const allocationUtils = {
   },
 
 
+
+  /**
+   * Calculate remaining percentage to reach 100%
+   */
+  calculateRemaining: (values: AllocationValues): number => {
+    const total = Object.values(values).reduce((sum, value) => sum + (value || 0), 0);
+    return Math.max(0, 100 - total);
+  },
 
   /**
    * Validate allocation values (simplified - no 100% requirement)
