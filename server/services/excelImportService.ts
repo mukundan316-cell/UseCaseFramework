@@ -282,8 +282,8 @@ export class ExcelImportService {
       const finalImpactScore = ExcelImportService.parseNumber(getValue('Final Impact Score'));
       const finalEffortScore = ExcelImportService.parseNumber(getValue('Final Effort Score'));
       
-      if (finalImpactScore !== null) useCase.finalImpactScore = finalImpactScore;
-      if (finalEffortScore !== null) useCase.finalEffortScore = finalEffortScore;
+      if (finalImpactScore !== null && finalImpactScore !== undefined) useCase.finalImpactScore = finalImpactScore;
+      if (finalEffortScore !== null && finalEffortScore !== undefined) useCase.finalEffortScore = finalEffortScore;
       
       useCase.finalQuadrant = getValue('Final Quadrant') || null;
       useCase.overrideReason = getValue('Override Reason') || null;
@@ -323,6 +323,12 @@ export class ExcelImportService {
       useCase.regulatoryCompliance = ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) || null;
 
     } else if (type === 'ai_inventory') {
+      // Business Context fields for AI Inventory
+      useCase.process = getValue('Process') || '';
+      useCase.lineOfBusiness = getValue('Lines of Business') || getValue('Line of Business') || '';
+      useCase.businessSegment = getValue('Business Segments') || getValue('Business Segment') || '';
+      useCase.geography = getValue('Geographies') || getValue('Geography') || '';
+      
       // AI Inventory specific fields - map to exact column names from user's Excel
       useCase.aiOrModel = getValue('Is your application a Model or AI?') || getValue('AI or Model') || null;
       useCase.businessFunction = getValue('Function') || getValue('Business Function') || null;

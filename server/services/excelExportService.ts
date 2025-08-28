@@ -262,6 +262,10 @@ export class ExcelExportService {
     const headers = [
       'Title',
       'Description',
+      'Process',
+      'Lines of Business',
+      'Business Segments',
+      'Geographies',
       'Business Function',
       'AI Inventory Status',
       'Deployment Status',
@@ -286,6 +290,10 @@ export class ExcelExportService {
       return [
         useCase.basicInfo.title,
         useCase.basicInfo.description,
+        useCase.basicInfo.process || '',
+        Array.isArray(useCase.multiSelectData.linesOfBusiness) ? useCase.multiSelectData.linesOfBusiness.join('; ') : (useCase.basicInfo.lineOfBusiness || ''),
+        Array.isArray(useCase.multiSelectData.businessSegments) ? useCase.multiSelectData.businessSegments.join('; ') : (useCase.basicInfo.businessSegment || ''),
+        Array.isArray(useCase.multiSelectData.geographies) ? useCase.multiSelectData.geographies.join('; ') : (useCase.basicInfo.geography || ''),
         useCase.aiInventory.businessFunction || '',
         useCase.aiInventory.aiInventoryStatus || '',
         useCase.aiInventory.deploymentStatus || '',
