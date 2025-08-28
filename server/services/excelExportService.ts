@@ -43,26 +43,30 @@ export class ExcelExportService {
       // Create new workbook
       const workbook = XLSX.utils.book_new();
       
-      // WORKSHEET 1: Summary Overview
+      // WORKSHEET 1: Import Guide (Help for users)
+      const importGuideSheet = this.createImportGuideSheet();
+      XLSX.utils.book_append_sheet(workbook, importGuideSheet, 'Import Guide');
+      
+      // WORKSHEET 2: Summary Overview
       const summaryData = UseCaseDataExtractor.getSummaryStats(allUseCases);
       const summarySheet = this.createSummarySheet(summaryData);
       XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
       
-      // WORKSHEET 2: Strategic Use Cases (scored)
+      // WORKSHEET 3: Strategic Use Cases (scored)
       const strategicUseCases = allUseCases.filter(uc => uc.librarySource !== 'ai_inventory');
       if (strategicUseCases.length > 0) {
         const strategicSheet = this.createStrategicUseCasesSheet(strategicUseCases);
         XLSX.utils.book_append_sheet(workbook, strategicSheet, 'Strategic Use Cases');
       }
       
-      // WORKSHEET 3: AI Inventory (governance)
+      // WORKSHEET 4: AI Inventory (governance)
       const aiInventoryItems = allUseCases.filter(uc => uc.librarySource === 'ai_inventory');
       if (aiInventoryItems.length > 0) {
         const aiInventorySheet = this.createAiInventorySheet(aiInventoryItems);
         XLSX.utils.book_append_sheet(workbook, aiInventorySheet, 'AI Inventory');
       }
       
-      // WORKSHEET 4: Complete Raw Data
+      // WORKSHEET 5: Complete Raw Data
       const rawDataSheet = this.createRawDataSheet(allUseCases);
       XLSX.utils.book_append_sheet(workbook, rawDataSheet, 'Raw Data');
       
@@ -87,6 +91,171 @@ export class ExcelExportService {
     }
   }
   
+  /**
+   * Create import guide worksheet with comprehensive help
+   */
+  private static createImportGuideSheet(): XLSX.WorkSheet {
+    const data = [
+      ['RSA AI Use Case Framework - Import Guide'],
+      ['Last Updated: ' + format(new Date(), 'MMMM d, yyyy')],
+      [''],
+      ['OVERVIEW'],
+      ['This guide helps you prepare Excel data for import into the RSA AI Use Case Framework.'],
+      ['Follow these guidelines to avoid data type errors and maintain system consistency.'],
+      [''],
+      ['WORKSHEET STRUCTURE'],
+      ['• Import Guide: This help sheet'],
+      ['• Summary: Portfolio overview (read-only)'],
+      ['• Strategic Use Cases: Scored business use cases (editable)'],
+      ['• AI Inventory: Governance tracking items (editable)'],
+      ['• Raw Data: Complete database dump (advanced users only)'],
+      [''],
+      ['CRITICAL DO\'S'],
+      ['✓ Keep column headers unchanged - system relies on exact header names'],
+      ['✓ Use dropdown values where available (see Valid Values section below)'],
+      ['✓ Enter scores as numbers 1-5 only (not text like "high" or "3 out of 5")'],
+      ['✓ Use only \'true\' or \'false\' for Yes/No fields (lowercase, quotes optional)'],
+      ['✓ Leave cells empty rather than using "N/A", "NULL", or "-"'],
+      ['✓ Use semicolon (;) to separate multiple values in array fields'],
+      ['✓ Keep dates in YYYY-MM-DD format (e.g., 2025-01-15)'],
+      ['✓ Test import with small batch first'],
+      [''],
+      ['CRITICAL DON\'TS'],
+      ['✗ Don\'t add/remove/rename column headers'],
+      ['✗ Don\'t use text like "High" for numeric scores (use 1-5 numbers)'],
+      ['✗ Don\'t use "Yes/No", "Y/N", "1/0" for boolean fields'],
+      ['✗ Don\'t merge cells or add formatting that affects data structure'],
+      ['✗ Don\'t leave required fields empty (Title, Description, Process)'],
+      ['✗ Don\'t use commas in array fields (use semicolons instead)'],
+      ['✗ Don\'t change Portfolio Status without proper authority'],
+      [''],
+      ['FIELD TYPES & EXAMPLES'],
+      [''],
+      ['TEXT FIELDS (most common)'],
+      ['Examples: "Claims automation using AI", "Reduce manual processing time"'],
+      ['Required: Title, Description, Process'],
+      [''],
+      ['NUMERIC SCORES (1-5 scale)'],
+      ['Examples: 3, 5, 1 (not "High", "Medium", "Low")'],
+      ['Used for: All business value and feasibility scores'],
+      [''],
+      ['BOOLEAN FIELDS (true/false)'],
+      ['Examples: true, false (not "Yes", "No", "Y", "N")'],
+      ['Used for: Explainability Required, Data Outside UK/EU, etc.'],
+      [''],
+      ['ARRAY FIELDS (semicolon-separated)'],
+      ['Examples: "Machine Learning; Natural Language Processing"'],
+      ['Used for: AI/ML Technologies, Data Sources, Stakeholder Groups'],
+      [''],
+      ['DATE FIELDS'],
+      ['Examples: 2025-01-15, 2024-12-31'],
+      ['Used for: Created Date, Last Status Update'],
+      [''],
+      ['VALID VALUES FOR DROPDOWNS'],
+      [''],
+      ['Use Case Type: Business Process, Customer Experience, Risk Management, Data & Analytics'],
+      [''],
+      ['Library Source: rsa_internal, industry_standard, ai_inventory'],
+      [''],
+      ['Portfolio Status: Active Portfolio, Reference Library'],
+      [''],
+      ['AI Inventory Status: Active, Proof_of_Concept, Pending_Closure, Obsolete, Inactive'],
+      [''],
+      ['Deployment Status: PoC, Pilot, Production, Decommissioned'],
+      [''],
+      ['Use Case Status: Discovery, Backlog, In-flight, Implemented, On Hold'],
+      [''],
+      ['Lines of Business: Personal Lines, Commercial Lines, International, London Market, etc.'],
+      [''],
+      ['Business Segments: Motor, Property, Liability, Marine, Aviation, etc.'],
+      [''],
+      ['Geographies: UK, Europe, North America, Asia Pacific, Global'],
+      [''],
+      ['COMMON IMPORT ERRORS & SOLUTIONS'],
+      [''],
+      ['Error: "Invalid score value"'],
+      ['Solution: Use numbers 1-5, not text descriptions'],
+      [''],
+      ['Error: "Boolean field validation failed"'],
+      ['Solution: Use \'true\' or \'false\', not Yes/No'],
+      [''],
+      ['Error: "Required field missing"'],
+      ['Solution: Ensure Title, Description, Process are not empty'],
+      [''],
+      ['Error: "Invalid array format"'],
+      ['Solution: Use semicolons (;) to separate multiple values'],
+      [''],
+      ['Error: "Date format invalid"'],
+      ['Solution: Use YYYY-MM-DD format (2025-01-15)'],
+      [''],
+      ['WORKFLOW RECOMMENDATIONS'],
+      [''],
+      ['1. PREPARATION'],
+      ['• Export current data first as backup'],
+      ['• Make changes in small batches (10-20 rows)'],
+      ['• Validate data locally before import'],
+      [''],
+      ['2. EDITING'],
+      ['• Work on one worksheet at a time'],
+      ['• Use Excel\'s data validation features'],
+      ['• Double-check required fields are populated'],
+      [''],
+      ['3. IMPORT'],
+      ['• Test with a few rows first'],
+      ['• Check system immediately after import'],
+      ['• Report any data discrepancies promptly'],
+      [''],
+      ['AUTHORIZATION LEVELS'],
+      [''],
+      ['Standard Users Can Edit:'],
+      ['• Basic information (Title, Description, Process)'],
+      ['• Implementation details (Timeline, Dependencies)'],
+      ['• Technology arrays (AI/ML Tools, Data Sources)'],
+      [''],
+      ['Admin Users Can Edit:'],
+      ['• Portfolio Status (Active/Reference)'],
+      ['• Scoring overrides and manual adjustments'],
+      ['• Library Source classification'],
+      [''],
+      ['SUPPORT CONTACT'],
+      ['For technical issues or data validation questions:'],
+      ['Contact: RSA AI Framework Support Team'],
+      [''],
+      ['VERSION CONTROL'],
+      ['Framework Version: 2.0'],
+      ['Schema Version: Compatible with database schema 109+ fields'],
+      ['Last Updated: ' + format(new Date(), 'MMMM d, yyyy')]
+    ];
+    
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Style the header
+    if (ws['A1']) {
+      ws['A1'].s = { 
+        font: { bold: true, sz: 16, color: { rgb: "FFFFFF" } }, 
+        fill: { fgColor: { rgb: "005DAA" } },
+        alignment: { horizontal: "center" }
+      };
+    }
+    
+    // Style section headers
+    const sectionHeaders = [4, 8, 16, 26, 32, 56, 69, 79, 90, 96, 107, 115];
+    sectionHeaders.forEach(row => {
+      const cell = ws[XLSX.utils.encode_cell({r: row - 1, c: 0})];
+      if (cell) {
+        cell.s = { 
+          font: { bold: true, sz: 12 }, 
+          fill: { fgColor: { rgb: "E3F2FD" } }
+        };
+      }
+    });
+    
+    // Set column widths
+    ws['!cols'] = [{ width: 80 }];
+    
+    return ws;
+  }
+
   /**
    * Create summary overview worksheet
    */
