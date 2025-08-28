@@ -197,10 +197,10 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   thirdPartyModel: z.enum(['true', 'false']).optional(),
   humanAccountability: z.enum(['true', 'false']).optional(),
   
-  // PowerPoint Presentation fields - following replit.md patterns
-  presentationUrl: z.string().optional(),
-  presentationPdfUrl: z.string().optional(),
-  presentationFileName: z.string().optional(),
+  // PowerPoint Presentation fields - following replit.md patterns (allow null for compatibility)
+  presentationUrl: z.union([z.string(), z.null()]).optional(),
+  presentationPdfUrl: z.union([z.string(), z.null()]).optional(),
+  presentationFileName: z.union([z.string(), z.null()]).optional(),
   hasPresentation: z.enum(['true', 'false']).default('false'),
 });
 

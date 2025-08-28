@@ -235,7 +235,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const useCaseWithScores = {
         ...validatedData,
-        linesOfBusiness: validatedData.linesOfBusiness || [validatedData.lineOfBusiness].filter(Boolean),
+        linesOfBusiness: validatedData.linesOfBusiness?.filter((item): item is string => item != null) || 
+                         [validatedData.lineOfBusiness].filter((item): item is string => item != null),
         // Handle multi-select arrays with backward compatibility
         processes: validatedData.processes || (validatedData.process ? [validatedData.process] : undefined),
         activities: validatedData.activities || (validatedData.activity ? [validatedData.activity] : undefined),
@@ -270,11 +271,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             'lineOfBusiness': 'Line of Business',
             'businessSegment': 'Business Segment',
             'geography': 'Geography',
-            'useCaseType': 'Use Case Type'
+            'useCaseType': 'Use Case Type',
+            'presentationUrl': 'Presentation file',
+            'presentationPdfUrl': 'Presentation file',
+            'presentationFileName': 'Presentation file'
           };
           
           const friendlyField = fieldLabels[field] || field;
-          return `${friendlyField}: ${message}`;
+          
+          // Provide context-specific error messages
+          if (field.includes('presentation')) {
+            return `There was an issue with the uploaded file. Please try uploading again.`;
+          } else if (message.includes('Expected string, received null')) {
+            return `${friendlyField} cannot be empty.`;
+          } else {
+            return `${friendlyField}: ${message}`;
+          }
         });
         
         res.status(400).json({ 

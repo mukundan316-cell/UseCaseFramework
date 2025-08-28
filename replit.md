@@ -32,6 +32,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Executive Reporting**: Professional PDF exports and executive-grade visualizations
 - **File Integration**: PDF/PowerPoint uploads with full-screen viewer
 - **Enhanced Excel Export/Import**: Comprehensive import guide with data validation guidelines
+- **User-Centric Validation**: Minimal requirements (title + description only) with contextual error messaging
 - **Multi-Source Support**: RSA Internal, Industry Standard, AI Inventory categories
 
 ### Design Standards

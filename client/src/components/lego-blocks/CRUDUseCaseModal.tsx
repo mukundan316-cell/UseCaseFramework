@@ -771,11 +771,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       if ((error as any)?.response?.data) {
         const responseData = (error as any).response.data;
         if (responseData.type === 'validation' && responseData.issues) {
-          errorTitle = responseData.error || "Please fix the following";
-          errorMessage = Array.isArray(responseData.issues) ? responseData.issues.join('\n') : responseData.message;
+          errorTitle = responseData.error || "Please check the following";
+          // Display user-friendly error messages with better formatting
+          errorMessage = Array.isArray(responseData.issues) 
+            ? responseData.issues.join('\n• ') 
+            : responseData.message || "Please check your entries and try again.";
+          // Add bullet point to first item if multiple issues
+          if (Array.isArray(responseData.issues) && responseData.issues.length > 1) {
+            errorMessage = '• ' + errorMessage;
+          }
         } else if (responseData.error) {
           errorTitle = responseData.error;
-          errorMessage = responseData.message || "Please try again.";
+          errorMessage = responseData.message || "Something went wrong. Please try again.";
         }
       }
       
