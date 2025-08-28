@@ -329,14 +329,22 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   const getAverageImpact = (): number => {
     const filteredUseCases = getFilteredUseCases();
     if (filteredUseCases.length === 0) return 0;
-    const totalImpact = filteredUseCases.reduce((sum, useCase) => sum + useCase.impactScore, 0);
+    const totalImpact = filteredUseCases.reduce((sum, useCase) => {
+      // Use effective impact score (manual override or calculated)
+      const effectiveScore = (useCase as any).manualImpactScore ?? useCase.impactScore ?? 0;
+      return sum + effectiveScore;
+    }, 0);
     return totalImpact / filteredUseCases.length;
   };
 
   const getAverageEffort = (): number => {
     const filteredUseCases = getFilteredUseCases();
     if (filteredUseCases.length === 0) return 0;
-    const totalEffort = filteredUseCases.reduce((sum, useCase) => sum + useCase.effortScore, 0);
+    const totalEffort = filteredUseCases.reduce((sum, useCase) => {
+      // Use effective effort score (manual override or calculated)
+      const effectiveScore = (useCase as any).manualEffortScore ?? useCase.effortScore ?? 0;
+      return sum + effectiveScore;
+    }, 0);
     return totalEffort / filteredUseCases.length;
   };
 

@@ -78,7 +78,7 @@ export const AdvancedMetrics: React.FC<AdvancedMetricsProps> = ({
 
   // Calculate advanced metrics from authentic database data  
   const activeUseCases = useCases.filter(uc => 
-    uc.isActiveForRsa === true
+    uc.isActiveForRsa === 'true' || uc.isActiveForRsa === true
   );
   
   const totalValue = activeUseCases.length;
