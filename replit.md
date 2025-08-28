@@ -33,6 +33,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **File Integration**: PDF/PowerPoint uploads with full-screen viewer
 - **Enhanced Excel Export/Import**: Comprehensive import guide with data validation guidelines
 - **User-Centric Validation**: Minimal requirements (title + description only) with contextual error messaging
+- **Comprehensive Null Handling**: All 100+ fields properly support null values with consistent validation
 - **Multi-Source Support**: RSA Internal, Industry Standard, AI Inventory categories
 
 ### Design Standards

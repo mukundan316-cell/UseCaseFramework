@@ -126,11 +126,14 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   title: z.string().min(1, "Please enter a title for this use case").max(100, "Title must be shorter than 100 characters"),
   description: z.string().min(1, "Please provide a brief description").max(500, "Description must be shorter than 500 characters"),
   // All other fields are optional to minimize validation barriers
+  problemStatement: z.union([z.string(), z.null()]).optional(),
   process: z.union([z.string(), z.null()]).optional(),
   lineOfBusiness: z.union([z.string(), z.null()]).optional(),
   businessSegment: z.union([z.string(), z.null()]).optional(),
   geography: z.union([z.string(), z.null()]).optional(),
   useCaseType: z.union([z.string(), z.null()]).optional(),
+  activity: z.union([z.string(), z.null()]).optional(),
+  valueChainComponent: z.union([z.string(), z.null()]).optional(),
   // Business Value Levers (Impact Score) - simplified validation per replit.md
   revenueImpact: z.number().min(1).max(5).optional(),
   costSavings: z.number().min(1).max(5).optional(),
@@ -143,6 +146,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   changeImpact: z.number().min(1).max(5).optional(),
   modelRisk: z.number().min(1).max(5).optional(),
   adoptionReadiness: z.number().min(1).max(5).optional(),
+  // Additional scoring fields
+  regulatoryCompliance: z.number().min(1).max(5).optional(),
   // Final scoring fields - simplified per replit.md
   finalImpactScore: z.number().optional(),
   finalEffortScore: z.number().optional(),
@@ -178,6 +183,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   dataSources: z.array(z.string()).optional(),
   stakeholderGroups: z.array(z.string()).optional(),
   // AI Inventory Governance Fields - allow null for import compatibility
+  customerHarmRisk: z.union([z.string(), z.null()]).optional(),
   aiOrModel: z.union([z.string(), z.null()]).optional(),
   riskToCustomers: z.union([z.string(), z.null()]).optional(),
   riskToRsa: z.union([z.string(), z.null()]).optional(),
