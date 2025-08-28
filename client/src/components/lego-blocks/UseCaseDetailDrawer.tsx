@@ -384,8 +384,17 @@ export default function UseCaseDetailDrawer({
                 </div>
               )}
 
-              {/* Problem Statement */}
-              {useCase.problemStatement && (
+              {/* AI Inventory Description - Show in Overview for AI Inventory items */}
+              {isAiInventory && useCase.description && (
+                <FieldDisplay 
+                  label="Description"
+                  value={useCase.description}
+                  icon={FileText}
+                />
+              )}
+
+              {/* Problem Statement - For Strategic use cases only */}
+              {!isAiInventory && useCase.problemStatement && (
                 <>
                   <Separator />
                   <FieldDisplay 
