@@ -882,7 +882,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register presentation routes
   app.use('/api/presentations', presentationRoutes);
 
-  // Presentation file proxy endpoint - serves files through authenticated GCS client  
+  // Presentation file proxy endpoint - handles both GCS and database files  
   app.get('/api/presentations/proxy/:encodedUrl(*)', async (req, res) => {
     try {
       const { encodedUrl } = req.params;
@@ -890,9 +890,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`📄 Proxying file: ${url}`);
       
-      // Parse the Google Cloud Storage URL to extract bucket and object path
+      // Check if this is a database file URL
+      if (url.startsWith('/api/presentations/files/')) {
+        // Extract file ID from the database URL
+        const fileId = url.replace('/api/presentations/files/', '');
+        console.log(`📄 Database file request: ${fileId}`);
+        
+        // Forward to database file service
+        const { databaseFileService } = await import('./services/databaseFileService');
+        const fileData = await databaseFileService.getFileFromDatabase(fileId);
+        
+        if (!fileData) {
+          console.error(`Database file not found: ${fileId}`);
+          return res.status(404).json({ error: 'File not found' });
+        }
+        
+        console.log(`📄 Serving database file: ${fileData.mimeType}, size: ${fileData.fileSize}`);
+        
+        // Set appropriate headers for file streaming
+        res.set({
+          'Content-Type': fileData.mimeType || 'application/octet-stream',
+          'Content-Length': fileData.fileSize.toString(),
+          'Cache-Control': 'public, max-age=3600',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET',
+          'Content-Disposition': 'inline'
+        });
+        
+        // Send the file buffer
+        return res.send(fileData.buffer);
+      }
+      
+      // Handle legacy Google Cloud Storage URLs
       if (!url.startsWith('https://storage.googleapis.com/')) {
-        return res.status(400).json({ error: 'Invalid file URL - must be a Google Cloud Storage URL' });
+        return res.status(400).json({ error: 'Invalid file URL - must be a Google Cloud Storage URL or database file URL' });
       }
       
       const urlParts = url.replace('https://storage.googleapis.com/', '').split('/');
