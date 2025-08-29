@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { presentationService } from '../services/presentationService';
+import { databaseFileService } from '../services/databaseFileService';
 
 const router = express.Router();
 
@@ -12,8 +12,8 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     try {
-      // Use presentation service validation
-      presentationService.validatePresentationFile(file);
+      // Use database file service validation
+      databaseFileService.validatePresentationFile(file);
       cb(null, true);
     } catch (error) {
       cb(error instanceof Error ? error : new Error('File validation failed'));
@@ -34,15 +34,15 @@ router.post('/upload', upload.single('presentation'), async (req, res) => {
     console.log(`📁 Processing presentation upload: ${file.originalname}`);
     
     try {
-      // Process presentation using service
-      const result = await presentationService.processPresentation(
+      // Process presentation using database file service
+      const result = await databaseFileService.processPresentation(
         file.path,
         file.originalname,
         file.mimetype
       );
       
       // Clean up temporary file
-      await presentationService.cleanupTempFile(file.path);
+      await databaseFileService.cleanupTempFile(file.path);
       
       res.json({
         success: true,
@@ -53,7 +53,7 @@ router.post('/upload', upload.single('presentation'), async (req, res) => {
       console.error('Upload/conversion error:', processingError);
       
       // Clean up temporary file on error
-      await presentationService.cleanupTempFile(file.path);
+      await databaseFileService.cleanupTempFile(file.path);
       
       throw processingError;
     }
@@ -63,6 +63,45 @@ router.post('/upload', upload.single('presentation'), async (req, res) => {
     res.status(500).json({ 
       error: error instanceof Error ? error.message : 'Upload failed' 
     });
+  }
+});
+
+/**
+ * Serve file from database by file ID
+ */
+router.get('/files/:fileId', async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    
+    console.log(`📄 Serving file from database: ${fileId}`);
+    
+    const fileData = await databaseFileService.getFileFromDatabase(fileId);
+    
+    if (!fileData) {
+      console.error(`File not found: ${fileId}`);
+      return res.status(404).json({ error: 'File not found' });
+    }
+    
+    console.log(`📄 Serving file: ${fileData.mimeType}, size: ${fileData.fileSize}`);
+    
+    // Set appropriate headers for file streaming
+    res.set({
+      'Content-Type': fileData.mimeType || 'application/octet-stream',
+      'Content-Length': fileData.fileSize.toString(),
+      'Cache-Control': 'public, max-age=3600',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Content-Disposition': 'inline'
+    });
+    
+    // Send the file buffer
+    res.send(fileData.buffer);
+    
+  } catch (error) {
+    console.error('Error serving file from database:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to serve file', details: error instanceof Error ? error.message : 'Unknown error' });
+    }
   }
 });
 

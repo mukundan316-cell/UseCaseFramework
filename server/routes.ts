@@ -465,14 +465,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Use case not found" });
       }
       
-      // Delete presentation files if they exist
-      if (useCase.presentationUrl || useCase.presentationPdfUrl) {
+      // Delete presentation files if they exist (supports both legacy URLs and new database file IDs)
+      if (useCase.presentationUrl || useCase.presentationPdfUrl || useCase.presentationFileId || useCase.presentationPdfFileId) {
         try {
-          const { presentationService } = await import('./services/presentationService');
-          await presentationService.deletePresentationFiles(
-            useCase.presentationUrl || undefined,
-            useCase.presentationPdfUrl || undefined
-          );
+          // Handle legacy URL-based files
+          if (useCase.presentationUrl || useCase.presentationPdfUrl) {
+            const { presentationService } = await import('./services/presentationService');
+            await presentationService.deletePresentationFiles(
+              useCase.presentationUrl || undefined,
+              useCase.presentationPdfUrl || undefined
+            );
+          }
+          
+          // Handle new database-stored files
+          const fileIdsToDelete = [
+            useCase.presentationFileId,
+            useCase.presentationPdfFileId
+          ].filter(Boolean);
+          
+          if (fileIdsToDelete.length > 0) {
+            const { databaseFileService } = await import('./services/databaseFileService');
+            await databaseFileService.deleteFiles(fileIdsToDelete);
+          }
+          
           console.log(`🗑️ Cleaned up presentation files for use case: ${useCase.title}`);
         } catch (fileDeleteError) {
           console.error('Warning: Failed to delete presentation files:', fileDeleteError);

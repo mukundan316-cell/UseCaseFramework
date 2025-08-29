@@ -85,6 +85,11 @@ export interface UseCaseFrontend {
   regulatoryCompliance?: number;
   // Missing AI governance field from database
   thirdPartyProvidedModel?: string;
+  // Presentation fields - support both legacy URLs and new database storage
+  presentationUrl?: string;
+  presentationPdfUrl?: string;
+  presentationFileName?: string;
+  hasPresentation?: 'true' | 'false';
 }
 
 /**
@@ -146,7 +151,16 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     // Convert Date fields from null to undefined
     activationDate: dbUseCase.activationDate || undefined,
     lastStatusUpdate: dbUseCase.lastStatusUpdate || undefined,
-    createdAt: dbUseCase.createdAt || undefined
+    createdAt: dbUseCase.createdAt || undefined,
+    // Presentation fields - handle both legacy URLs and new database file IDs
+    presentationUrl: dbUseCase.presentationFileId 
+      ? `/api/presentations/files/${dbUseCase.presentationFileId}` 
+      : (dbUseCase.presentationUrl || undefined),
+    presentationPdfUrl: dbUseCase.presentationPdfFileId 
+      ? `/api/presentations/files/${dbUseCase.presentationPdfFileId}` 
+      : (dbUseCase.presentationPdfUrl || undefined),
+    presentationFileName: dbUseCase.presentationFileName || undefined,
+    hasPresentation: dbUseCase.hasPresentation as 'true' | 'false' || 'false'
   };
 }
 

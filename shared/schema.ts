@@ -98,14 +98,31 @@ export const useCases = pgTable("use_cases", {
   dataSources: text("data_sources").array(),
   stakeholderGroups: text("stakeholder_groups").array(),
   
-  // PowerPoint Presentation Integration
-  presentationUrl: text("presentation_url"), // Object storage URL for original PowerPoint
-  presentationPdfUrl: text("presentation_pdf_url"), // Object storage URL for converted PDF
+  // PowerPoint Presentation Integration - Database Storage
+  presentationFileId: varchar("presentation_file_id").references(() => fileAttachments.id), // Reference to original file
+  presentationPdfFileId: varchar("presentation_pdf_file_id").references(() => fileAttachments.id), // Reference to PDF version
   presentationFileName: text("presentation_file_name"),
   presentationUploadedAt: timestamp("presentation_uploaded_at"),
   hasPresentation: text("has_presentation").default('false'), // 'true' or 'false' following replit.md pattern
   
+  // Legacy URL fields - kept for backward compatibility and migration
+  presentationUrl: text("presentation_url"), // Will be deprecated after migration
+  presentationPdfUrl: text("presentation_pdf_url"), // Will be deprecated after migration
+  
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// File attachments table for storing binary data in database
+export const fileAttachments = pgTable("file_attachments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  useCaseId: varchar("use_case_id").references(() => useCases.id),
+  fileName: text("file_name").notNull(),
+  originalName: text("original_name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  fileSize: integer("file_size").notNull(),
+  fileData: text("file_data").notNull(), // Base64 encoded binary data
+  fileType: text("file_type").notNull().default('presentation'), // 'presentation', 'pdf'
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -214,6 +231,15 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type UseCase = typeof useCases.$inferSelect;
 export type InsertUseCase = z.infer<typeof insertUseCaseSchema>;
+
+// File attachment schema and types
+export const insertFileAttachmentSchema = createInsertSchema(fileAttachments).omit({
+  id: true,
+  uploadedAt: true,
+});
+
+export type FileAttachment = typeof fileAttachments.$inferSelect;
+export type InsertFileAttachment = z.infer<typeof insertFileAttachmentSchema>;
 
 // Metadata configuration schema for database persistence
 export const metadataConfig = pgTable('metadata_config', {
