@@ -17,9 +17,9 @@ function createCategoryCode(valueChainComponent?: string, lineOfBusiness?: strin
   return lobCode ? `${componentCode}-${lobCode}` : componentCode;
 }
 
-async function getNextSequenceNumber(prefix: string, category: string): Promise<number> {
-  // Find the highest sequence number for this prefix-category combination
-  const pattern = `${prefix}-${category}-%`;
+async function getNextSequenceNumberSimple(prefix: string): Promise<number> {
+  // Find the highest sequence number for this prefix
+  const pattern = `${prefix}_%`;
   const result = await db.execute(sql`
     SELECT meaningful_id FROM use_cases 
     WHERE meaningful_id LIKE ${pattern}
@@ -30,12 +30,12 @@ async function getNextSequenceNumber(prefix: string, category: string): Promise<
   const rows: any[] = Array.isArray(result) ? result : (result as any).rows || [];
   
   if (rows.length === 0) {
-    return 1; // First use case for this category
+    return 1; // First use case for this prefix
   }
   
-  // Extract sequence number from the last ID (e.g., RSA-CLA-005 → 5)
+  // Extract sequence number from the last ID (e.g., RSA_INT_005 → 5)
   const lastId = rows[0].meaningful_id;
-  const sequencePart = lastId.split('-').pop();
+  const sequencePart = lastId.split('_').pop();
   const lastSequence = parseInt(sequencePart || '0', 10);
   
   return lastSequence + 1;
@@ -43,16 +43,13 @@ async function getNextSequenceNumber(prefix: string, category: string): Promise<
 
 async function generateMeaningfulId(useCase: any): Promise<string> {
   // Determine prefix based on librarySource
-  const prefix = useCase.librarySource === 'rsa_internal' ? 'RSA' : 
-                useCase.librarySource === 'industry_standard' ? 'IND' : 'INV';
+  const prefix = useCase.librarySource === 'rsa_internal' ? 'RSA_INT' : 
+                useCase.librarySource === 'industry_standard' ? 'RSA_IND' : 'RSA_AITOOL';
   
-  // Create category from valueChainComponent + lineOfBusiness
-  const category = createCategoryCode(useCase.valueChainComponent || useCase.process, useCase.lineOfBusiness);
+  // Get next sequence number for this prefix (no category needed)
+  const sequence = await getNextSequenceNumberSimple(prefix);
   
-  // Get next sequence number for this category
-  const sequence = await getNextSequenceNumber(prefix, category);
-  
-  return `${prefix}-${category}-${sequence.toString().padStart(3, '0')}`;
+  return `${prefix}_${sequence.toString().padStart(3, '0')}`;
 }
 
 // Storage interface with metadata management for database-first compliance
