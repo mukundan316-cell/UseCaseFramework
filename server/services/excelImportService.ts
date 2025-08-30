@@ -372,17 +372,16 @@ export class ExcelImportService {
         humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
         regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) ?? undefined,
         
-        // Additional newer fields from enhanced export
-        activity: getValue('Activity') || null,
+        // Multi-select array fields
         linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business (Multi)')),
         processes: ExcelImportService.parseArray(getValue('Processes (Multi)')),
-        activities: ExcelImportService.parseArray(getValue('Activities (Multi)')),
+        activities: ExcelImportService.parseArray(getValue('Process Activities (Multi)') || getValue('Activities (Multi)')),
         businessSegments: ExcelImportService.parseArray(getValue('Business Segments (Multi)')),
         geographies: ExcelImportService.parseArray(getValue('Geographies (Multi)')),
         presentationFileName: getValue('Presentation File Name') || null,
         hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')) || 'false',
-        deactivationReason: getValue('Deactivation Reason') || null,
-        valueChainComponent: getValue('Value Chain Component') || null
+        deactivationReason: getValue('Deactivation Reason') || null
+        // Removed legacy fields: activity (single), valueChainComponent, lastStatusUpdate, createdDate
       });
 
     } else if (type === 'ai_inventory') {

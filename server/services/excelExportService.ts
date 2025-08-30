@@ -357,7 +357,6 @@ export class ExcelExportService {
       'Manual Override?',
       'Override Reason',
       'Activation Reason',
-      'Activity (Legacy Single)',
       'Lines of Business (Multi)',
       'Processes (Multi)',
       'Process Activities (Multi)',
@@ -366,10 +365,7 @@ export class ExcelExportService {
       'Presentation File Name',
       'Has Presentation',
       'Meaningful ID',
-      'Deactivation Reason',
-      'Value Chain Component',
-      'Last Status Update',
-      'Created Date'
+      'Deactivation Reason'
     ];
     
     const rows = useCases.map(rawUseCase => {
@@ -424,7 +420,6 @@ export class ExcelExportService {
         useCase.display.hasScoring && useCase.scoring.manualImpactScore ? 'Yes' : '',
         useCase.display.hasScoring ? (useCase.scoring.overrideReason || '') : '',
         useCase.portfolioStatus.activationReason || '',
-        useCase.basicInfo.activity || '',
         Array.isArray(useCase.multiSelectData.linesOfBusiness) ? useCase.multiSelectData.linesOfBusiness.join('; ') : '',
         Array.isArray(useCase.multiSelectData.processes) ? useCase.multiSelectData.processes.join('; ') : '',
         Array.isArray(useCase.multiSelectData.activities) ? useCase.multiSelectData.activities.join('; ') : '',
@@ -433,10 +428,7 @@ export class ExcelExportService {
         rawUseCase.presentationFileName || '',
         rawUseCase.hasPresentation === 'true' ? 'Yes' : 'No',
         rawUseCase.meaningfulId || '',
-        useCase.portfolioStatus.deactivationReason || '',
-        rawUseCase.valueChainComponent || '',
-        rawUseCase.lastStatusUpdate ? format(new Date(rawUseCase.lastStatusUpdate), 'yyyy-MM-dd') : '',
-        useCase.basicInfo.createdAt ? format(useCase.basicInfo.createdAt, 'yyyy-MM-dd') : ''
+        useCase.portfolioStatus.deactivationReason || ''
       ];
     });
     
