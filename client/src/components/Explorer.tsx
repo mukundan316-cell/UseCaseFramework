@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUseCases } from '../contexts/UseCaseContext';
-import ImprovedUseCaseExplorer from './lego-blocks/management/ImprovedUseCaseExplorer';
+import ImprovedUseCaseExplorer from './lego-blocks/ImprovedUseCaseExplorer';
 
 export default function ExplorerEnhanced() {
   const { 

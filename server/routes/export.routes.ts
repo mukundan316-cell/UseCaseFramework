@@ -1,10 +1,29 @@
 import { Router } from 'express';
+import { UseCasePdfService } from '../services/useCasePdfService';
+import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService';
+import { CompactPdfService } from '../services/compactPdfService';
 import { TabularPdfService } from '../services/tabularPdfService';
 import { ExcelExportService } from '../services/excelExportService';
+import { questionnaireServiceInstance } from '../services/questionnaireService';
 // PDF services removed - using client-side Survey.js PDF export instead
 
 const router = Router();
 
+/**
+ * Export assessment report as PDF (Enhanced Professional Version)
+ * GET /api/export/assessment/:responseId
+ */
+router.get('/assessment/:responseId', async (req, res) => {
+  try {
+    res.status(501).json({ 
+      error: 'Assessment PDF export temporarily disabled during blob migration',
+      message: 'This feature will be re-implemented with the new Survey.js questionnaire system'
+    });
+  } catch (error) {
+    console.error('Assessment PDF export error:', error);
+    res.status(500).json({ error: 'Failed to export assessment report' });
+  }
+});
 
 /**
  * Export use case library as Tabular PDF

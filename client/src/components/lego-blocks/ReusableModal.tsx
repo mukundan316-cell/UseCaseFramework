@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-// import ReusableButton from '../ReusableButton';
+// import ReusableButton from './ReusableButton';
 import { X } from 'lucide-react';
 
 interface ReusableModalProps {

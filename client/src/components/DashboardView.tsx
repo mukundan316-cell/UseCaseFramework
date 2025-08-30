@@ -1,8 +1,8 @@
 import React from 'react';
 import EnhancedMatrixPlot from './analytics/EnhancedMatrixPlot';
-import SummaryMetricsLegoBlock from './lego-blocks/analytics/SummaryMetricsLegoBlock';
-import ReportsTabLegoBlock from './lego-blocks/analytics/ReportsTabLegoBlock';
-import ExportButton from './lego-blocks/navigation/ExportButton';
+import SummaryMetricsLegoBlock from './lego-blocks/SummaryMetricsLegoBlock';
+import ReportsTabLegoBlock from './lego-blocks/ReportsTabLegoBlock';
+import ExportButton from './lego-blocks/ExportButton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Target, Download } from 'lucide-react';
 

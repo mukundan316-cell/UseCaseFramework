@@ -6,14 +6,14 @@ import DataActionCard from './lego-blocks/DataActionCard';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
-import ProcessActivityManagementBlock from './lego-blocks/management/ProcessActivityManagementBlock';
-import ProcessManagementBlock from './lego-blocks/management/ProcessManagementBlock';
-import ScoringModelManagementBlock from './lego-blocks/management/ScoringModelManagementSimple';
-import QuestionTemplateLibraryLegoBlock from './lego-blocks/assessment/QuestionTemplateLibraryLegoBlock';
-import QuestionConfigurationLegoBlock from './lego-blocks/assessment/QuestionConfigurationLegoBlock';
-import AssessmentStatsLegoBlock from './lego-blocks/assessment/AssessmentStatsLegoBlock';
-import LibraryManagementLegoBlock from './lego-blocks/management/LibraryManagementLegoBlock';
-import ExcelUploadLegoBlock from './lego-blocks/management/ExcelUploadLegoBlock';
+import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagementBlock';
+import ProcessManagementBlock from './lego-blocks/ProcessManagementBlock';
+import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSimple';
+import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibraryLegoBlock';
+import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationLegoBlock';
+import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
+import LibraryManagementLegoBlock from './lego-blocks/LibraryManagementLegoBlock';
+import ExcelUploadLegoBlock from './lego-blocks/ExcelUploadLegoBlock';
 
 export default function AdminPanel() {
   const { 
