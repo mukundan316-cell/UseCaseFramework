@@ -140,11 +140,9 @@ export default function ImprovedUseCaseExplorer({
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
     
-    // Non-AI inventory specific filters (RSA Internal and Industry Standard)
-    if (!isAiInventory) {
-      if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
-      if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
-    }
+    // Universal filters for all source types (LEGO principle: identical functionality)
+    if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
+    if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
     
     // AI Inventory specific filters
     if (isAiInventory) {
