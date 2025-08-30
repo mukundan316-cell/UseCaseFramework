@@ -489,6 +489,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     }
   }, [mode, useCase, form]);
 
+  // Handle tab switching when library source changes to AI Inventory
+  useEffect(() => {
+    const currentLibrarySource = form.watch('librarySource');
+    // If AI Inventory is selected and current tab is assessment (which is hidden), switch to basic tab
+    if (currentLibrarySource === 'ai_inventory' && activeTab === 'assessment') {
+      setActiveTab('basic');
+    }
+  }, [form.watch('librarySource'), activeTab]);
+
   const onSubmit = async (data: FormData) => {
     try {
       
