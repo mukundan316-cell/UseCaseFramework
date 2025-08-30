@@ -1,5 +1,6 @@
 export interface UseCase {
   id: string;
+  meaningfulId?: string; // Human-readable ID like RSA-CLA-001
   title: string;
   description: string;
   problemStatement?: string;
@@ -69,6 +70,7 @@ export type QuadrantType = "Quick Win" | "Strategic Bet" | "Experimental" | "Wat
 
 
 export interface UseCaseFormData {
+  meaningfulId?: string; // Optional for manual entry during imports
   title: string;
   description: string;
   problemStatement?: string;

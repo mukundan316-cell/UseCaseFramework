@@ -72,7 +72,8 @@ export default function UseCaseExplorerLegoBlock({
         useCase.description.toLowerCase().includes(searchLower) ||
         useCase.process.toLowerCase().includes(searchLower) ||
         useCase.lineOfBusiness.toLowerCase().includes(searchLower) ||
-        useCase.useCaseType.toLowerCase().includes(searchLower)
+        useCase.useCaseType.toLowerCase().includes(searchLower) ||
+        (useCase.meaningfulId && useCase.meaningfulId.toLowerCase().includes(searchLower))
       );
       if (!matchesSearch) return false;
     }

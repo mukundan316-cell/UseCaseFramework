@@ -32,6 +32,8 @@ const formSchema = z.object({
   // Minimal validation - only title and description are required
   title: z.string().min(1, "Please enter a title for this use case").max(100, "Title must be shorter than 100 characters"),
   description: z.string().min(1, "Please provide a brief description").max(500, "Description must be shorter than 500 characters"),
+  // Meaningful ID field - auto-generated if empty
+  meaningfulId: z.string().optional(),
   // All other fields are optional to minimize validation barriers
   problemStatement: z.string().optional(),
   process: z.string().optional(),
@@ -896,6 +898,25 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       </p>
                     )}
                   </div>
+                  
+                  {/* Meaningful ID Field */}
+                  <div>
+                    <Label htmlFor="meaningfulId" className="text-sm font-medium">
+                      Use Case ID 
+                      <span className="text-gray-500 text-xs ml-1">(auto-generated if empty)</span>
+                    </Label>
+                    <Input
+                      id="meaningfulId"
+                      placeholder="e.g., RSA-CLA-001 (leave empty for auto-generation)"
+                      className="mt-1 font-mono text-sm"
+                      {...form.register('meaningfulId')}
+                      data-testid="input-meaningful-id"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Format: {'{'}PREFIX{'}'}&#8209;{'{'}CATEGORY{'}'}&#8209;{'{'}NUMBER{'}'} (e.g., RSA-CLA-001, IND-FRA-002)
+                    </p>
+                  </div>
+                  
                   <div>
                     <Label>Use Case Type</Label>
                     <Select key={`useCaseType-${mode}-${useCase?.id}`} value={form.watch('useCaseType') || ''} onValueChange={(value) => form.setValue('useCaseType', value)}>

@@ -8,6 +8,53 @@ import { db } from "./db";
 import { eq, sql, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
+// Meaningful ID generation helpers
+function createCategoryCode(valueChainComponent?: string, lineOfBusiness?: string): string {
+  // Create short codes from valueChainComponent and lineOfBusiness
+  const componentCode = valueChainComponent?.substring(0, 3).toUpperCase() || 'GEN';
+  const lobCode = lineOfBusiness?.substring(0, 4).toUpperCase() || '';
+  
+  return lobCode ? `${componentCode}-${lobCode}` : componentCode;
+}
+
+async function getNextSequenceNumber(prefix: string, category: string): Promise<number> {
+  // Find the highest sequence number for this prefix-category combination
+  const pattern = `${prefix}-${category}-%`;
+  const result = await db.execute(sql`
+    SELECT meaningful_id FROM use_cases 
+    WHERE meaningful_id LIKE ${pattern}
+    ORDER BY meaningful_id DESC
+    LIMIT 1
+  `);
+  
+  const rows: any[] = Array.isArray(result) ? result : (result as any).rows || [];
+  
+  if (rows.length === 0) {
+    return 1; // First use case for this category
+  }
+  
+  // Extract sequence number from the last ID (e.g., RSA-CLA-005 → 5)
+  const lastId = rows[0].meaningful_id;
+  const sequencePart = lastId.split('-').pop();
+  const lastSequence = parseInt(sequencePart || '0', 10);
+  
+  return lastSequence + 1;
+}
+
+async function generateMeaningfulId(useCase: any): Promise<string> {
+  // Determine prefix based on librarySource
+  const prefix = useCase.librarySource === 'rsa_internal' ? 'RSA' : 
+                useCase.librarySource === 'industry_standard' ? 'IND' : 'INV';
+  
+  // Create category from valueChainComponent + lineOfBusiness
+  const category = createCategoryCode(useCase.valueChainComponent || useCase.process, useCase.lineOfBusiness);
+  
+  // Get next sequence number for this category
+  const sequence = await getNextSequenceNumber(prefix, category);
+  
+  return `${prefix}-${category}-${sequence.toString().padStart(3, '0')}`;
+}
+
 // Storage interface with metadata management for database-first compliance
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -153,6 +200,11 @@ export class DatabaseStorage implements IStorage {
       // Include other valid values
       cleanData[key] = value;
     });
+    
+    // Generate meaningful ID if not provided
+    if (!cleanData.meaningfulId) {
+      cleanData.meaningfulId = await generateMeaningfulId(cleanData);
+    }
     
     // Set required defaults for scoring fields
     const scoreFields = ['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',

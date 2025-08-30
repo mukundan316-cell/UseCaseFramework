@@ -11,6 +11,7 @@ export const users = pgTable("users", {
 
 export const useCases: any = pgTable("use_cases", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  meaningfulId: varchar("meaningful_id").unique(), // Human-readable ID like RSA-CLA-001
   title: text("title").notNull(),
   description: text("description").notNull(),
   problemStatement: text("problem_statement"),

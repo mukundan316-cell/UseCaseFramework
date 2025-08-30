@@ -249,6 +249,7 @@ export class ExcelImportService {
     const useCase: Partial<InsertUseCase> = {
       title: title,
       description: getValue('Description') || '',
+      meaningfulId: getValue('Use Case ID'), // Support meaningful ID from Excel
       problemStatement: getValue('Problem Statement'),
       process: getValue('Process') || '',
       lineOfBusiness: getValue('Line of Business') || '',

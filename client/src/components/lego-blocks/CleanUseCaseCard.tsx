@@ -116,9 +116,16 @@ export default function CleanUseCaseCard({
         {/* Source Badge */}
         <div className="mb-3">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 flex-1">
-              {useCase.title}
-            </h3>
+            <div className="flex-1">
+              {useCase.meaningfulId && (
+                <div className="text-xs font-mono text-rsa-blue bg-blue-50 px-2 py-1 rounded mb-2 inline-block">
+                  {useCase.meaningfulId}
+                </div>
+              )}
+              <h3 className="text-lg font-semibold text-gray-900">
+                {useCase.title}
+              </h3>
+            </div>
             <div className="ml-2 flex items-center gap-2">
               {/* Source Badge */}
               <span 

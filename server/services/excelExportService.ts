@@ -308,6 +308,7 @@ export class ExcelExportService {
    */
   private static createStrategicUseCasesSheet(useCases: any[]): XLSX.WorkSheet {
     const headers = [
+      'Use Case ID',
       'Title',
       'Description',
       'Problem Statement',
@@ -359,6 +360,7 @@ export class ExcelExportService {
       const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
       
       return [
+        rawUseCase.meaningfulId || rawUseCase.id, // Use meaningful ID or fallback to UUID
         useCase.basicInfo.title,
         useCase.basicInfo.description,
         useCase.basicInfo.problemStatement || '',
@@ -440,6 +442,7 @@ export class ExcelExportService {
    */
   private static createAiInventorySheet(useCases: any[]): XLSX.WorkSheet {
     const headers = [
+      'Use Case ID',
       'Title',
       'Description',
       'Process',
@@ -468,6 +471,7 @@ export class ExcelExportService {
       const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
       
       return [
+        rawUseCase.meaningfulId || rawUseCase.id, // Use meaningful ID or fallback to UUID
         useCase.basicInfo.title,
         useCase.basicInfo.description,
         useCase.basicInfo.process || '',
@@ -531,6 +535,13 @@ export class ExcelExportService {
     // Get all field names from the first use case
     const firstUseCase = useCases[0];
     const headers = Object.keys(firstUseCase).filter(key => key !== 'id');
+    
+    // Reorder headers to put meaningful ID first if it exists
+    if (headers.includes('meaningfulId')) {
+      const meaningfulIdIndex = headers.indexOf('meaningfulId');
+      headers.splice(meaningfulIdIndex, 1);
+      headers.unshift('meaningfulId');
+    }
     
     const rows = useCases.map(useCase => {
       return headers.map(header => {
