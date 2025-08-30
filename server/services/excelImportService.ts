@@ -2,6 +2,7 @@ import * as XLSX from 'xlsx';
 import { storage } from '../storage';
 import { insertUseCaseSchema, type InsertUseCase } from '../../shared/schema';
 import { z } from 'zod';
+import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '../../shared/calculations';
 
 interface ImportResult {
   success: boolean;
@@ -112,7 +113,7 @@ export class ExcelImportService {
             await storage.updateUseCase(existingUseCase.id, updateData);
             result.updatedCount++;
           } else {
-            // Create new - clean data before passing to storage layer
+            // Create new - calculate scores and clean data before passing to storage layer
             const cleanedUseCase = { ...useCaseData };
             
             // Remove null/undefined values to let storage layer apply defaults exactly like UI
@@ -122,6 +123,42 @@ export class ExcelImportService {
                 delete cleanedUseCase[key];
               }
             });
+            
+            // Calculate required scores just like UI does - get metadata for weights
+            const metadata = await storage.getMetadataConfig();
+            const businessImpactWeights = (metadata?.scoringModel?.businessValue as any) || {
+              revenueImpact: 20, costSavings: 20, riskReduction: 20, brokerPartnerExperience: 20, strategicFit: 20
+            };
+            const implementationEffortWeights = (metadata?.scoringModel?.feasibility as any) || {
+              dataReadiness: 20, technicalComplexity: 20, changeImpact: 20, modelRisk: 20, adoptionReadiness: 20
+            };
+            const threshold = (metadata?.scoringModel?.quadrantThreshold as number) || 3.0;
+            
+            // Calculate scores using same logic as UI
+            const impactScore = calculateImpactScore(
+              Number(cleanedUseCase.revenueImpact) || 0,
+              Number(cleanedUseCase.costSavings) || 0,
+              Number(cleanedUseCase.riskReduction) || 0,
+              Number(cleanedUseCase.brokerPartnerExperience) || 0,
+              Number(cleanedUseCase.strategicFit) || 0,
+              businessImpactWeights
+            );
+            
+            const effortScore = calculateEffortScore(
+              Number(cleanedUseCase.dataReadiness) || 0,
+              Number(cleanedUseCase.technicalComplexity) || 0,
+              Number(cleanedUseCase.changeImpact) || 0,
+              Number(cleanedUseCase.modelRisk) || 0,
+              Number(cleanedUseCase.adoptionReadiness) || 0,
+              implementationEffortWeights
+            );
+            
+            const quadrant = calculateQuadrant(impactScore, effortScore, threshold);
+            
+            // Add calculated scores to the use case with proper type casting
+            (cleanedUseCase as any).impactScore = impactScore;
+            (cleanedUseCase as any).effortScore = effortScore;
+            (cleanedUseCase as any).quadrant = quadrant;
             
             await storage.createUseCase(cleanedUseCase as any);
             result.importedCount++;
