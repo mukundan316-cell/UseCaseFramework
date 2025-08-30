@@ -352,10 +352,28 @@ export class ExcelImportService {
     } else if (type === 'ai_inventory') {
       // Business Context fields for AI Inventory
       Object.assign(useCase, {
+        librarySource: 'ai_inventory', // Force AI Inventory source
         process: getValue('Process') || '',
         lineOfBusiness: getValue('Lines of Business') || getValue('Line of Business') || '',
         businessSegment: getValue('Business Segments') || getValue('Business Segment') || '',
         geography: getValue('Geographies') || getValue('Geography') || '',
+        
+        // Set defaults for required scoring fields to prevent validation errors
+        revenueImpact: null,
+        costSavings: null,
+        riskReduction: null,
+        brokerPartnerExperience: null,
+        strategicFit: null,
+        dataReadiness: null,
+        technicalComplexity: null,
+        changeImpact: null,
+        modelRisk: null,
+        adoptionReadiness: null,
+        explainabilityRequired: 'false',
+        dataOutsideUkEu: 'false',
+        thirdPartyModel: 'false',
+        humanAccountability: 'false',
+        finalQuadrant: 'Not Scored',
         
         // AI Inventory specific fields
         aiOrModel: getValue('Is your application a Model or AI?') || getValue('AI or Model') || null,
