@@ -75,10 +75,14 @@ export default function PresentationUploadBlock({
 
       const result = await response.json();
       
+      // Convert file IDs to URLs for database storage
+      const presentationUrl = result.presentationFileId ? `/api/presentations/files/${result.presentationFileId}` : '';
+      const presentationPdfUrl = result.presentationPdfFileId ? `/api/presentations/files/${result.presentationPdfFileId}` : '';
+      
       onUploadComplete({
-        presentationUrl: result.presentationUrl,
-        presentationPdfUrl: result.presentationPdfUrl,
-        presentationFileName: file.name,
+        presentationUrl,
+        presentationPdfUrl,
+        presentationFileName: result.presentationFileName || file.name,
       });
 
       toast({
