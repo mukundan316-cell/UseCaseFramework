@@ -192,6 +192,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/use-cases", async (req, res) => {
     try {
       console.log('Received use case data:', JSON.stringify(req.body, null, 2));
+      
+      // Handle date conversion before validation
+      if (req.body.presentationUploadedAt && typeof req.body.presentationUploadedAt === 'string') {
+        try {
+          req.body.presentationUploadedAt = new Date(req.body.presentationUploadedAt);
+        } catch (dateError) {
+          console.error('Date conversion error:', dateError);
+          req.body.presentationUploadedAt = null;
+        }
+      }
+      
       const validatedData = insertUseCaseSchema.parse(req.body);
       
       // Get current metadata for weights
@@ -308,6 +319,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/use-cases/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      
+      // Handle date conversion before validation
+      if (req.body.presentationUploadedAt && typeof req.body.presentationUploadedAt === 'string') {
+        try {
+          req.body.presentationUploadedAt = new Date(req.body.presentationUploadedAt);
+        } catch (dateError) {
+          console.error('Date conversion error:', dateError);
+          req.body.presentationUploadedAt = null;
+        }
+      }
+      
       // Create a partial schema for updates by making all fields optional
       const updateSchema = insertUseCaseSchema.partial();
       const validatedData = updateSchema.parse(req.body);
