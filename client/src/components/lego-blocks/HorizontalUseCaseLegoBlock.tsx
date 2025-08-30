@@ -85,21 +85,21 @@ export default function HorizontalUseCaseLegoBlock({
           </CardHeader>
           <CardContent className="space-y-4 max-h-64 overflow-y-auto">
             {availableTypes.length > 0 ? (
-              <div className="space-y-2">
+              <div className="flex flex-wrap gap-3">
                 {availableTypes.map((type) => {
                   const isSelected = selectedTypes.includes(type);
                   return (
-                    <div key={type} className="flex items-center space-x-2">
+                    <div key={type} className="flex items-center space-x-2 whitespace-nowrap">
                       <Checkbox
                         id={`horizontal-type-${type}`}
                         checked={isSelected}
                         onCheckedChange={(checked) => handleTypeToggle(type, !!checked)}
-                        className="w-4 h-4"
+                        className="w-4 h-4 flex-shrink-0"
                         data-testid={`checkbox-horizontal-type-${type.replace(/\s+/g, '-').toLowerCase()}`}
                       />
                       <Label 
                         htmlFor={`horizontal-type-${type}`}
-                        className="text-sm text-gray-700 cursor-pointer flex-1"
+                        className="text-sm text-gray-700 cursor-pointer"
                       >
                         {type}
                       </Label>
