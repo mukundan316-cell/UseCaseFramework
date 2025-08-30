@@ -412,6 +412,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         aiMlTechnologies: (useCase as any).aiMlTechnologies || [],
         dataSources: (useCase as any).dataSources || [],
         stakeholderGroups: (useCase as any).stakeholderGroups || [],
+        // Horizontal Use Case fields
+        horizontalUseCase: ((useCase as any).horizontalUseCase === 'true' ? 'true' : 'false') as 'true' | 'false',
+        horizontalUseCaseTypes: (useCase as any).horizontalUseCaseTypes || [],
         // Presentation fields
         presentationUrl: (useCase as any).presentationUrl || '',
         presentationPdfUrl: (useCase as any).presentationPdfUrl || '',
@@ -479,6 +482,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         aiMlTechnologies: [],
         dataSources: [],
         stakeholderGroups: [],
+        // Horizontal Use Case defaults
+        horizontalUseCase: 'false' as 'true' | 'false',
+        horizontalUseCaseTypes: [],
         // Presentation defaults
         presentationUrl: '',
         presentationPdfUrl: '',
