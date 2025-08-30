@@ -357,6 +357,18 @@ export class ExcelExportService {
       'Manual Override?',
       'Override Reason',
       'Activation Reason',
+      'Activity',
+      'Lines of Business (Multi)',
+      'Processes (Multi)',
+      'Activities (Multi)',
+      'Business Segments (Multi)',
+      'Geographies (Multi)',
+      'Presentation File Name',
+      'Has Presentation',
+      'Meaningful ID',
+      'Deactivation Reason',
+      'Value Chain Component',
+      'Last Status Update',
       'Created Date'
     ];
     
@@ -412,6 +424,18 @@ export class ExcelExportService {
         useCase.display.hasScoring && useCase.scoring.manualImpactScore ? 'Yes' : '',
         useCase.display.hasScoring ? (useCase.scoring.overrideReason || '') : '',
         useCase.portfolioStatus.activationReason || '',
+        useCase.basicInfo.activity || '',
+        Array.isArray(useCase.multiSelectData.linesOfBusiness) ? useCase.multiSelectData.linesOfBusiness.join('; ') : '',
+        Array.isArray(useCase.multiSelectData.processes) ? useCase.multiSelectData.processes.join('; ') : '',
+        Array.isArray(useCase.multiSelectData.activities) ? useCase.multiSelectData.activities.join('; ') : '',
+        Array.isArray(useCase.multiSelectData.businessSegments) ? useCase.multiSelectData.businessSegments.join('; ') : '',
+        Array.isArray(useCase.multiSelectData.geographies) ? useCase.multiSelectData.geographies.join('; ') : '',
+        rawUseCase.presentationFileName || '',
+        rawUseCase.hasPresentation === 'true' ? 'Yes' : 'No',
+        rawUseCase.meaningfulId || '',
+        useCase.portfolioStatus.deactivationReason || '',
+        rawUseCase.valueChainComponent || '',
+        rawUseCase.lastStatusUpdate ? format(new Date(rawUseCase.lastStatusUpdate), 'yyyy-MM-dd') : '',
         useCase.basicInfo.createdAt ? format(useCase.basicInfo.createdAt, 'yyyy-MM-dd') : ''
       ];
     });

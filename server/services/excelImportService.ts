@@ -112,22 +112,19 @@ export class ExcelImportService {
             // Create new - add required scoring fields for new use cases
             const useCaseWithScoring = {
               ...useCaseData,
-              impactScore: useCaseData.finalImpactScore || 0,
-              effortScore: useCaseData.finalEffortScore || 0,
-              quadrant: useCaseData.finalQuadrant || 'Low Impact, High Effort',
               // Ensure scoring fields have default values if null
-              revenueImpact: useCaseData.revenueImpact || 0,
-              costSavings: useCaseData.costSavings || 0,
-              riskReduction: useCaseData.riskReduction || 0,
-              brokerPartnerExperience: useCaseData.brokerPartnerExperience || 0,
-              strategicFit: useCaseData.strategicFit || 0,
-              dataReadiness: useCaseData.dataReadiness || 0,
-              technicalComplexity: useCaseData.technicalComplexity || 0,
-              changeImpact: useCaseData.changeImpact || 0,
-              modelRisk: useCaseData.modelRisk || 0,
-              adoptionReadiness: useCaseData.adoptionReadiness || 0
+              revenueImpact: useCaseData.revenueImpact || 3,
+              costSavings: useCaseData.costSavings || 3,
+              riskReduction: useCaseData.riskReduction || 3,
+              brokerPartnerExperience: useCaseData.brokerPartnerExperience || 3,
+              strategicFit: useCaseData.strategicFit || 3,
+              dataReadiness: useCaseData.dataReadiness || 3,
+              technicalComplexity: useCaseData.technicalComplexity || 3,
+              changeImpact: useCaseData.changeImpact || 3,
+              modelRisk: useCaseData.modelRisk || 3,
+              adoptionReadiness: useCaseData.adoptionReadiness || 3
             };
-            await storage.createUseCase(useCaseWithScoring);
+            await storage.createUseCase(useCaseWithScoring as any);
             result.importedCount++;
           }
 
@@ -151,7 +148,7 @@ export class ExcelImportService {
   /**
    * Parse Strategic Use Cases worksheet (matches export format)
    */
-  private static parseStrategicUseCasesSheet(workbook: XLSX.WorkBook): Partial<InsertUseCase>[] {
+  private static parseStrategicUseCasesSheet(workbook: XLSX.WorkBook): any[] {
     const sheetName = 'Strategic Use Cases';
     if (!workbook.Sheets[sheetName]) return [];
 
@@ -161,7 +158,7 @@ export class ExcelImportService {
     if (data.length < 2) return []; // No data rows
 
     const headers = data[0] as string[];
-    const useCases: Partial<InsertUseCase>[] = [];
+    const useCases: any[] = [];
 
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
@@ -177,7 +174,7 @@ export class ExcelImportService {
   /**
    * Parse AI Inventory worksheet (matches export format)
    */
-  private static parseAIInventorySheet(workbook: XLSX.WorkBook): Partial<InsertUseCase>[] {
+  private static parseAIInventorySheet(workbook: XLSX.WorkBook): any[] {
     const sheetName = 'AI Inventory';
     if (!workbook.Sheets[sheetName]) return [];
 
@@ -187,7 +184,7 @@ export class ExcelImportService {
     if (data.length < 2) return [];
 
     const headers = data[0] as string[];
-    const useCases: Partial<InsertUseCase>[] = [];
+    const useCases: any[] = [];
 
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
@@ -203,7 +200,7 @@ export class ExcelImportService {
   /**
    * Parse Raw Data worksheet (fallback for complete data)
    */
-  private static parseRawDataSheet(workbook: XLSX.WorkBook): Partial<InsertUseCase>[] {
+  private static parseRawDataSheet(workbook: XLSX.WorkBook): any[] {
     const sheetName = 'Raw Data';
     if (!workbook.Sheets[sheetName]) return [];
 
@@ -213,7 +210,7 @@ export class ExcelImportService {
     if (data.length < 2) return [];
 
     const headers = data[0] as string[];
-    const useCases: Partial<InsertUseCase>[] = [];
+    const useCases: any[] = [];
 
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
@@ -233,7 +230,7 @@ export class ExcelImportService {
     headers: string[], 
     row: any[], 
     type: 'strategic' | 'ai_inventory' | 'auto_detect'
-  ): Partial<InsertUseCase> | null {
+  ): any | null {
     
     const getValue = (columnName: string): any => {
       const index = headers.findIndex(h => h === columnName);
@@ -246,7 +243,7 @@ export class ExcelImportService {
     if (!title) return null;
 
     // Base use case data - handle empty strings properly
-    const useCase: Partial<InsertUseCase> = {
+    const useCase = {
       title: title,
       description: getValue('Description') || '',
       meaningfulId: getValue('Use Case ID'), // Support meaningful ID from Excel
@@ -283,80 +280,85 @@ export class ExcelImportService {
       const finalImpactScore = ExcelImportService.parseNumber(getValue('Final Impact Score'));
       const finalEffortScore = ExcelImportService.parseNumber(getValue('Final Effort Score'));
       
-      if (finalImpactScore !== null && finalImpactScore !== undefined) useCase.finalImpactScore = finalImpactScore;
-      if (finalEffortScore !== null && finalEffortScore !== undefined) useCase.finalEffortScore = finalEffortScore;
-      
-      useCase.finalQuadrant = getValue('Final Quadrant') || null;
-      useCase.overrideReason = getValue('Override Reason') || null;
-      
-      // Business impact scores (1-5)
-      useCase.revenueImpact = ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')) || null;
-      useCase.costSavings = ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')) || null;
-      useCase.riskReduction = ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')) || null;
-      useCase.brokerPartnerExperience = ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')) || null;
-      useCase.strategicFit = ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')) || null;
-      
-      // Implementation effort scores (1-5)
-      useCase.dataReadiness = ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')) || null;
-      useCase.technicalComplexity = ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')) || null;
-      useCase.changeImpact = ExcelImportService.parseNumber(getValue('Change Impact (1-5)')) || null;
-      useCase.modelRisk = ExcelImportService.parseNumber(getValue('Model Risk (1-5)')) || null;
-      useCase.adoptionReadiness = ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')) || null;
-      
-      // Implementation details - match exact export headers
-      useCase.primaryBusinessOwner = getValue('Primary Business Owner') || null;
-      useCase.keyDependencies = getValue('Key Dependencies') || null;
-      useCase.implementationTimeline = getValue('Implementation Timeline') || null;
-      useCase.successMetrics = getValue('Success Metrics') || null;
-      useCase.estimatedValue = getValue('Estimated Value') || null;
-      useCase.valueMeasurementApproach = getValue('Value Measurement Approach') || null;
-      useCase.integrationRequirements = getValue('Integration Requirements') || null;
-      useCase.aiMlTechnologies = ExcelImportService.parseArray(getValue('AI/ML Technologies'));
-      useCase.dataSources = ExcelImportService.parseArray(getValue('Data Sources'));
-      useCase.stakeholderGroups = ExcelImportService.parseArray(getValue('Stakeholder Groups'));
-      
-      // Horizontal Use Case fields - new mapping for Excel import/export
-      useCase.horizontalUseCase = ExcelImportService.parseBoolean(getValue('Horizontal Use Case'));
-      useCase.horizontalUseCaseTypes = ExcelImportService.parseArray(getValue('Horizontal Use Case Types'));
-      
-      // RSA Ethical Principles - FIXED: proper boolean string conversion for database storage
-      useCase.explainabilityRequired = ExcelImportService.parseBoolean(getValue('Explainability Required'));
-      useCase.customerHarmRisk = getValue('Customer Harm Risk') || null;
-      useCase.dataOutsideUkEu = ExcelImportService.parseBoolean(getValue('Data Outside UK/EU'));
-      useCase.thirdPartyModel = ExcelImportService.parseBoolean(getValue('Third Party Model'));
-      useCase.humanAccountability = ExcelImportService.parseBoolean(getValue('Human Accountability'));
-      useCase.regulatoryCompliance = ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) || null;
+      Object.assign(useCase, {
+        finalImpactScore: finalImpactScore !== null ? finalImpactScore : undefined,
+        finalEffortScore: finalEffortScore !== null ? finalEffortScore : undefined,
+        finalQuadrant: getValue('Final Quadrant') || null,
+        overrideReason: getValue('Override Reason') || null,
+        
+        // Business impact scores (1-5)
+        revenueImpact: ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')) || null,
+        costSavings: ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')) || null,
+        riskReduction: ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')) || null,
+        brokerPartnerExperience: ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')) || null,
+        strategicFit: ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')) || null,
+        
+        // Implementation effort scores (1-5)
+        dataReadiness: ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')) || null,
+        technicalComplexity: ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')) || null,
+        changeImpact: ExcelImportService.parseNumber(getValue('Change Impact (1-5)')) || null,
+        modelRisk: ExcelImportService.parseNumber(getValue('Model Risk (1-5)')) || null,
+        adoptionReadiness: ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')) || null,
+        
+        // Implementation details
+        primaryBusinessOwner: getValue('Primary Business Owner') || null,
+        keyDependencies: getValue('Key Dependencies') || null,
+        implementationTimeline: getValue('Implementation Timeline') || null,
+        successMetrics: getValue('Success Metrics') || null,
+        estimatedValue: getValue('Estimated Value') || null,
+        valueMeasurementApproach: getValue('Value Measurement Approach') || null,
+        integrationRequirements: getValue('Integration Requirements') || null,
+        aiMlTechnologies: ExcelImportService.parseArray(getValue('AI/ML Technologies')),
+        dataSources: ExcelImportService.parseArray(getValue('Data Sources')),
+        stakeholderGroups: ExcelImportService.parseArray(getValue('Stakeholder Groups')),
+        
+        // Horizontal Use Case fields
+        horizontalUseCase: ExcelImportService.parseBoolean(getValue('Horizontal Use Case')),
+        horizontalUseCaseTypes: ExcelImportService.parseArray(getValue('Horizontal Use Case Types')),
+        
+        // RSA Ethical Principles
+        explainabilityRequired: ExcelImportService.parseBoolean(getValue('Explainability Required')),
+        customerHarmRisk: getValue('Customer Harm Risk') || null,
+        dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')),
+        thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')),
+        humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')),
+        regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) || null,
+        
+        // Additional newer fields from enhanced export
+        activity: getValue('Activity') || null,
+        linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business (Multi)')),
+        processes: ExcelImportService.parseArray(getValue('Processes (Multi)')),
+        activities: ExcelImportService.parseArray(getValue('Activities (Multi)')),
+        businessSegments: ExcelImportService.parseArray(getValue('Business Segments (Multi)')),
+        geographies: ExcelImportService.parseArray(getValue('Geographies (Multi)')),
+        presentationFileName: getValue('Presentation File Name') || null,
+        hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')),
+        deactivationReason: getValue('Deactivation Reason') || null,
+        valueChainComponent: getValue('Value Chain Component') || null
+      });
 
     } else if (type === 'ai_inventory') {
       // Business Context fields for AI Inventory
-      useCase.process = getValue('Process') || '';
-      useCase.lineOfBusiness = getValue('Lines of Business') || getValue('Line of Business') || '';
-      useCase.businessSegment = getValue('Business Segments') || getValue('Business Segment') || '';
-      useCase.geography = getValue('Geographies') || getValue('Geography') || '';
-      
-      // AI Inventory specific fields - map to exact column names from user's Excel
-      useCase.aiOrModel = getValue('Is your application a Model or AI?') || getValue('AI or Model') || null;
-      useCase.businessFunction = getValue('Function') || getValue('Business Function') || null;
-      
-      // Handle deployment status - preserve original values for AI inventory
-      const deploymentStatus = getValue('Deployment Status');
-      useCase.deploymentStatus = deploymentStatus || null;
-      
-      // Handle AI inventory status - preserve original values
-      const aiInventoryStatus = getValue('AI Inventory Status');
-      useCase.aiInventoryStatus = aiInventoryStatus || null;
-      
-      // Risk fields
-      useCase.riskToCustomers = getValue('Risk(s) to Customers, third parties, staff') || getValue('Risk to Customers') || null;
-      useCase.riskToRsa = getValue('Risk(s) to RSA') || getValue('Risk to RSA') || null;
-      
-      // Data and governance fields
-      useCase.dataUsed = getValue('What data is used in this AI?') || getValue('Data Used') || null;
-      useCase.modelOwner = getValue('Model Owner (day-to-day maintenance)') || getValue('Model Owner') || getValue('Model Ownership') || null;
-      useCase.rsaPolicyGovernance = getValue('RSA Policy Governance') || null;
-      useCase.thirdPartyProvidedModel = getValue('Third Party Provided Model') || null;
-      useCase.validationResponsibility = getValue('Are you responsible for validation / testing, or is a Third Party?') || getValue('Validation Process') || null;
-      useCase.informedBy = getValue('Informed By') || null;
+      Object.assign(useCase, {
+        process: getValue('Process') || '',
+        lineOfBusiness: getValue('Lines of Business') || getValue('Line of Business') || '',
+        businessSegment: getValue('Business Segments') || getValue('Business Segment') || '',
+        geography: getValue('Geographies') || getValue('Geography') || '',
+        
+        // AI Inventory specific fields
+        aiOrModel: getValue('Is your application a Model or AI?') || getValue('AI or Model') || null,
+        businessFunction: getValue('Function') || getValue('Business Function') || null,
+        deploymentStatus: getValue('Deployment Status') || null,
+        aiInventoryStatus: getValue('AI Inventory Status') || null,
+        riskToCustomers: getValue('Risk(s) to Customers, third parties, staff') || getValue('Risk to Customers') || null,
+        riskToRsa: getValue('Risk(s) to RSA') || getValue('Risk to RSA') || null,
+        dataUsed: getValue('What data is used in this AI?') || getValue('Data Used') || null,
+        modelOwner: getValue('Model Owner (day-to-day maintenance)') || getValue('Model Owner') || getValue('Model Ownership') || null,
+        rsaPolicyGovernance: getValue('RSA Policy Governance') || null,
+        thirdPartyProvidedModel: getValue('Third Party Provided Model') || null,
+        validationResponsibility: getValue('Are you responsible for validation / testing, or is a Third Party?') || getValue('Validation Process') || null,
+        informedBy: getValue('Informed By') || null
+      });
       
       // Map Purpose of Use to description if not already set
       if (!useCase.description || useCase.description === '') {
@@ -376,7 +378,7 @@ export class ExcelImportService {
    * Validate use cases against schema
    */
   private static async validateUseCases(
-    useCases: Partial<InsertUseCase>[], 
+    useCases: any[], 
     result: ImportResult
   ): Promise<InsertUseCase[]> {
     const validated: InsertUseCase[] = [];
@@ -457,7 +459,7 @@ export class ExcelImportService {
   /**
    * Track use case type in summary
    */
-  private static trackUseCaseType(useCase: Partial<InsertUseCase>, summary: ImportResult['summary']): void {
+  private static trackUseCaseType(useCase: any, summary: ImportResult['summary']): void {
     
     // Check if this is an AI Inventory item (based on library source or AI inventory fields)
     const isAIInventory = useCase.librarySource === 'ai_inventory' || 
@@ -533,11 +535,13 @@ export class ExcelImportService {
   }
 
   /**
-   * Parse array from string (comma-separated)
+   * Parse array from string (semicolon or comma-separated)
    */
   private static parseArray(value: any): string[] {
     if (!value) return [];
     if (Array.isArray(value)) return value;
-    return String(value).split(',').map(s => s.trim()).filter(s => s.length > 0);
+    // Try semicolon first (export format), then comma fallback
+    const separator = String(value).includes(';') ? ';' : ',';
+    return String(value).split(separator).map(s => s.trim()).filter(s => s.length > 0);
   }
 }
