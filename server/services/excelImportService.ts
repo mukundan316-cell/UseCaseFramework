@@ -452,9 +452,19 @@ export class ExcelImportService {
 
     for (const useCaseData of useCases) {
       try {
+        // Remove auto-calculated fields that shouldn't come from Excel
+        // These will be calculated during the import process
+        const cleanedData = { ...useCaseData };
+        delete cleanedData.finalQuadrant;
+        delete cleanedData.finalImpactScore;
+        delete cleanedData.finalEffortScore;
+        delete cleanedData.impactScore;
+        delete cleanedData.effortScore;
+        delete cleanedData.quadrant;
+        
         // Use the same insertUseCaseSchema as storage layer for consistency
         // This follows replit.md principles: "Schema Reuse: Never duplicate validation logic"
-        const validatedUseCase = insertUseCaseSchema.parse(useCaseData);
+        const validatedUseCase = insertUseCaseSchema.parse(cleanedData);
         validated.push(validatedUseCase);
       } catch (error) {
         if (error instanceof z.ZodError) {
