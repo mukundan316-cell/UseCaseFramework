@@ -1043,21 +1043,19 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   )}
                 </div>
 
-                {/* RSA Portfolio Selection - Only for strategic use cases, not AI Inventory */}
-                {form.watch('librarySource') !== 'ai_inventory' && (
-                  <RSASelectionToggleLegoBlock
-                    isActiveForRsa={rsaSelection.isActiveForRsa}
-                    isDashboardVisible={rsaSelection.isDashboardVisible}
-                    activationReason={rsaSelection.activationReason}
-                    deactivationReason={rsaSelection.deactivationReason}
-                    libraryTier={rsaSelection.libraryTier}
-                    onRSAToggle={handleRSAToggle}
-                    onDashboardToggle={handleDashboardToggle}
-                    onActivationReasonChange={handleActivationReasonChange}
-                    onDeactivationReasonChange={handleDeactivationReasonChange}
-                    className="mb-6"
-                  />
-                )}
+                {/* RSA Portfolio Selection - Available for all source types for consistency */}
+                <RSASelectionToggleLegoBlock
+                  isActiveForRsa={rsaSelection.isActiveForRsa}
+                  isDashboardVisible={rsaSelection.isDashboardVisible}
+                  activationReason={rsaSelection.activationReason}
+                  deactivationReason={rsaSelection.deactivationReason}
+                  libraryTier={rsaSelection.libraryTier}
+                  onRSAToggle={handleRSAToggle}
+                  onDashboardToggle={handleDashboardToggle}
+                  onActivationReasonChange={handleActivationReasonChange}
+                  onDeactivationReasonChange={handleDeactivationReasonChange}
+                  className="mb-6"
+                />
               </TabsContent>
 
               {/* Tab 2: Business Context */}
@@ -1711,8 +1709,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 </div>
               </TabsContent>
 
-              {/* Tab 5: RSA Framework Assessment - Hidden for AI Inventory and Reference Library */}
-              {form.watch('librarySource') !== 'ai_inventory' && (context as string) !== 'reference' && (
+              {/* Tab 5: RSA Framework Assessment - Available for all source types except Reference Library context */}
+              {(context as string) !== 'reference' && (
                 <TabsContent value="assessment" className="space-y-4 mt-6">
                 {rsaSelection.isActiveForRsa ? (
                   <div className="space-y-6">
@@ -1720,25 +1718,23 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               {/* Business Impact Levers */}
               <div className="space-y-6">
                 <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Impact Levers</h4>
-                {/* Hide strategic scoring fields for AI inventory items */}
-                {form.watch('librarySource') !== 'ai_inventory' && (
-                  <>
-                    <SliderField
-                      field="revenueImpact"
-                      label="Revenue Impact"
-                      tooltip={sliderTooltips.revenueImpact}
-                      leftLabel="Low"
-                      rightLabel="High"
-                    />
-                    <SliderField
-                      field="costSavings"
-                      label="Cost Savings"
-                      tooltip={sliderTooltips.costSavings}
-                      leftLabel="Low"
-                      rightLabel="High"
-                    />
-                  </>
-                )}
+                {/* Strategic scoring fields available for all source types */}
+                <>
+                  <SliderField
+                    field="revenueImpact"
+                    label="Revenue Impact"
+                    tooltip={sliderTooltips.revenueImpact}
+                    leftLabel="Low"
+                    rightLabel="High"
+                  />
+                  <SliderField
+                    field="costSavings"
+                    label="Cost Savings"
+                    tooltip={sliderTooltips.costSavings}
+                    leftLabel="Low"
+                    rightLabel="High"
+                  />
+                </>
                 <SliderField
                   field="riskReduction"
                   label="Risk Reduction"
