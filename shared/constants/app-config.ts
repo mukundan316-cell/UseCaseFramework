@@ -42,7 +42,7 @@ export const APP_CONFIG = {
     LINE_HEIGHT: 15,
   },
 
-  // Scoring system
+  // Scoring system - RSA Framework configuration\n  // Defines weights, thresholds and validation rules for use case assessment
   SCORING: {
     MIN_SCORE: 1,
     MAX_SCORE: 5,

@@ -245,6 +245,7 @@ export default function UseCaseForm() {
                     placeholder="e.g., Automated FNOL Summarization"
                     className="mt-2"
                     {...form.register('title')}
+                    data-testid="input-title"
                   />
                   {form.formState.errors.title && (
                     <p className="text-sm text-red-600 mt-1">{form.formState.errors.title.message}</p>
@@ -252,7 +253,7 @@ export default function UseCaseForm() {
                 </div>
                 <div>
                   <Label htmlFor="useCaseType">Use Case Type</Label>
-                  <Select onValueChange={(value) => form.setValue('useCaseType', value)}>
+                  <Select onValueChange={(value) => form.setValue('useCaseType', value)} data-testid="select-use-case-type">
                     <SelectTrigger className="mt-2">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
@@ -275,6 +276,7 @@ export default function UseCaseForm() {
                   placeholder="Detailed description of the use case..."
                   className="mt-2"
                   {...form.register('description')}
+                  data-testid="textarea-description"
                 />
                 {form.formState.errors.description && (
                   <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
@@ -492,6 +494,7 @@ export default function UseCaseForm() {
               resetType="button"
               saveType="submit"
               isLoading={form.formState.isSubmitting}
+              data-testid="form-action-buttons"
             />
           </form>
         </CardContent>

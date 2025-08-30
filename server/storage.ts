@@ -99,7 +99,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUseCase(insertUseCase: InsertUseCase & { impactScore: number; effortScore: number; quadrant: string }): Promise<UseCase> {
-    // Enhanced data cleaning with null safety
+    // Enhanced data cleaning with null safety\n    // Implements minimal validation approach per replit.md - only title/description required
     const cleanData: any = {};
     
     // Process each field with minimal validation - only title and description are essential
@@ -118,6 +118,7 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Handle scoring fields with range validation
+      // Ensures all scores stay within 0-5 range per RSA framework requirements
       if (['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
            'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness',
            'impactScore', 'effortScore', 'manualImpactScore', 'manualEffortScore'].includes(key)) {
@@ -129,6 +130,7 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Handle boolean strings (preserve existing system)
+      // Uses string 'true'/'false' instead of boolean for consistency per replit.md
       if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
            'thirdPartyModel', 'humanAccountability'].includes(key)) {
         if (typeof value === 'boolean') {
@@ -139,7 +141,7 @@ export class DatabaseStorage implements IStorage {
         return;
       }
       
-      // Handle arrays
+      // Handle arrays - serialize multi-select field data for database storage
       if (Array.isArray(value)) {
         const cleanArray = value.filter(item => item && typeof item === 'string' && item.trim());
         if (cleanArray.length > 0) {
@@ -454,7 +456,7 @@ export class DatabaseStorage implements IStorage {
         LIMIT 20
       `);
 
-      const rows = Array.isArray(result) ? result : (result as any).rows || [];
+      const rows: any[] = Array.isArray(result) ? result : (result as any).rows || [];
       
       return rows.map((row: any) => ({
         responseId: row.responseId,

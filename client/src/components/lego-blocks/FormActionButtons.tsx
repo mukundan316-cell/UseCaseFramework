@@ -38,6 +38,7 @@ export default function FormActionButtons({
           onClick={onReset}
           icon={RotateCcw}
           disabled={disabled || isLoading}
+          data-testid="button-reset"
         >
           {resetLabel}
         </ReusableButton>
@@ -51,6 +52,7 @@ export default function FormActionButtons({
           icon={Save}
           loading={isLoading}
           disabled={disabled}
+          data-testid="button-save"
         >
           {saveLabel}
         </ReusableButton>

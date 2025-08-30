@@ -96,6 +96,11 @@ export interface UseCaseFrontend {
  * Maps database UseCase to frontend format with minimal transformation
  * Drizzle automatically handles snake_case ↔ camelCase conversion
  */
+/**
+ * Maps database UseCase (snake_case) to frontend format (camelCase)
+ * Handles array serialization and null safety for form population
+ * Essential for CRUD operations and data consistency
+ */
 export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
   return {
     ...dbUseCase,
@@ -167,6 +172,11 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
 /**
  * Maps frontend UseCase data to database format for API calls
  * Drizzle automatically handles camelCase ↔ snake_case conversion
+ */
+/**
+ * Maps frontend form data (camelCase) to database format (snake_case)
+ * Serializes arrays to JSON and handles boolean string conversion
+ * Used for create/update operations
  */
 export function mapUseCaseToDatabase(frontendUseCase: Partial<UseCaseFrontend>): Partial<UseCase> {
   const { valueChainComponent, ...rest } = frontendUseCase;

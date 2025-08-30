@@ -1770,10 +1770,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             </Tabs>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose} data-testid="button-cancel">
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" data-testid="button-submit">
                 {mode === 'edit' ? 'Update Use Case' : 'Create Use Case'}
               </Button>
             </DialogFooter>
