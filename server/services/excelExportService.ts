@@ -44,7 +44,7 @@ export class ExcelExportService {
       const workbook = XLSX.utils.book_new();
       
       // WORKSHEET 1: Import Guide (Help for users)
-      const importGuideSheet = this.createImportGuideSheet();
+      const importGuideSheet = await this.createImportGuideSheet();
       XLSX.utils.book_append_sheet(workbook, importGuideSheet, 'Import Guide');
       
       // WORKSHEET 2: Summary Overview
@@ -94,7 +94,10 @@ export class ExcelExportService {
   /**
    * Create import guide worksheet with comprehensive help
    */
-  private static createImportGuideSheet(): XLSX.WorkSheet {
+  private static async createImportGuideSheet(): Promise<XLSX.WorkSheet> {
+    // Import storage to get current metadata
+    const { storage } = await import('../storage');
+    const metadata = await storage.getMetadataConfig();
     const data = [
       ['RSA AI Use Case Framework - Import Guide'],
       ['Last Updated: ' + format(new Date(), 'MMMM d, yyyy')],
@@ -153,23 +156,31 @@ export class ExcelExportService {
       [''],
       ['VALID VALUES FOR DROPDOWNS'],
       [''],
-      ['Use Case Type: Business Process, Customer Experience, Risk Management, Data & Analytics'],
+      ['Use Case Type: ' + (metadata?.useCaseTypes?.join(', ') || 'Business Process, Customer Experience, Risk Management, Data & Analytics')],
       [''],
-      ['Library Source: rsa_internal, industry_standard, ai_inventory'],
+      ['Library Source: ' + (metadata?.sourceTypes?.join(', ') || 'rsa_internal, industry_standard, ai_inventory')],
       [''],
       ['Portfolio Status: Active Portfolio, Reference Library'],
       [''],
-      ['AI Inventory Status: Active, Proof_of_Concept, Pending_Closure, Obsolete, Inactive'],
+      ['AI Inventory Status: ' + (metadata?.useCaseStatuses?.join(', ') || 'Active, Proof_of_Concept, Pending_Closure, Obsolete, Inactive')],
       [''],
       ['Deployment Status: PoC, Pilot, Production, Decommissioned'],
       [''],
-      ['Use Case Status: Discovery, Backlog, In-flight, Implemented, On Hold'],
+      ['Use Case Status: ' + (metadata?.useCaseStatuses?.join(', ') || 'Discovery, Backlog, In-flight, Implemented, On Hold')],
       [''],
-      ['Lines of Business: Personal Lines, Commercial Lines, International, London Market, etc.'],
+      ['Lines of Business: ' + (metadata?.linesOfBusiness?.join(', ') || 'Personal Lines, Commercial Lines, International, London Market, etc.')],
       [''],
-      ['Business Segments: Motor, Property, Liability, Marine, Aviation, etc.'],
+      ['Business Segments: ' + (metadata?.businessSegments?.join(', ') || 'Motor, Property, Liability, Marine, Aviation, etc.')],
       [''],
-      ['Geographies: UK, Europe, North America, Asia Pacific, Global'],
+      ['Geographies: ' + (metadata?.geographies?.join(', ') || 'UK, Europe, North America, Asia Pacific, Global')],
+      [''],
+      ['Processes: ' + (metadata?.processes?.join(', ') || 'FNOL, Quote & Bind, Pricing, Renewal, Subrogation')],
+      [''],
+      ['AI/ML Technologies: ' + (metadata?.aiMlTechnologies?.join(', ') || 'Machine Learning, Deep Learning, Natural Language Processing, Computer Vision')],
+      [''],
+      ['Data Sources: ' + (metadata?.dataSources?.join(', ') || 'Policy Database, Claims Database, Customer Database, External APIs')],
+      [''],
+      ['Stakeholder Groups: ' + (metadata?.stakeholderGroups?.join(', ') || 'Underwriting Teams, Claims Teams, IT/Technology, Business Analytics')],
       [''],
       ['COMMON IMPORT ERRORS & SOLUTIONS'],
       [''],

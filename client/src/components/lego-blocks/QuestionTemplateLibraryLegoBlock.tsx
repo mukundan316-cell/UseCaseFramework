@@ -121,15 +121,8 @@ const QUESTION_TYPE_CONFIG = {
   department_skills_matrix: { icon: Users, label: 'Department Skills Matrix', color: 'bg-indigo-600' }
 };
 
-// RSA Question Categories
-const RSA_CATEGORIES = [
-  'Strategic Foundation',
-  'AI Capabilities',
-  'Use Case Discovery', 
-  'Technology Infrastructure',
-  'Organizational Readiness',
-  'Risk & Compliance'
-];
+// Import hooks to get dynamic categories from metadata
+import { useUseCases } from '@/contexts/UseCaseContext';
 
 /**
  * QuestionTemplateLibraryLegoBlock - Comprehensive question template management
@@ -153,6 +146,17 @@ export default function QuestionTemplateLibraryLegoBlock({
   className = '',
   readOnly = false
 }: QuestionTemplateLibraryLegoBlockProps) {
+  
+  // Get dynamic categories from metadata
+  const { metadata } = useUseCases();
+  const RSA_CATEGORIES = metadata?.questionCategories || [
+    'Strategic Foundation',
+    'AI Capabilities', 
+    'Use Case Discovery',
+    'Technology Infrastructure',
+    'Organizational Readiness',
+    'Risk & Compliance'
+  ];
   
   const [templates, setTemplates] = useState<QuestionTemplate[]>([]);
   const [filters, setFilters] = useState<TemplateFilters>({

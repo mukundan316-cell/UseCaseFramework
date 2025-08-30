@@ -262,6 +262,7 @@ export const metadataConfig = pgTable('metadata_config', {
   // Assessment and questionnaire LOVs
   questionTypes: text('question_types').array().notNull().default(sql`'{"text","textarea","select","multi_select","radio","checkbox","number","date","email","url","company_profile","business_lines_matrix","smart_rating","multi_rating","percentage_allocation","percentage_target","ranking","currency","department_skills_matrix","business_performance","composite","dynamic_use_case_selector"}'`),
   responseStatuses: text('response_statuses').array().notNull().default(sql`'{"started","in_progress","completed","abandoned"}'`),
+  questionCategories: text('question_categories').array().notNull().default(sql`'{"Strategic Foundation","AI Capabilities","Use Case Discovery","Technology Infrastructure","Organizational Readiness","Risk & Compliance"}'`),
   // Company profile options
   companyTiers: text('company_tiers').array().notNull().default(sql`'{"Small (<£100M)","Mid (£100M-£3B)","Large (>£3B)"}'`),
   marketOptions: text('market_options').array().notNull().default(sql`'{"Personal Lines","Commercial Lines","Specialty Lines","Reinsurance"}'`),

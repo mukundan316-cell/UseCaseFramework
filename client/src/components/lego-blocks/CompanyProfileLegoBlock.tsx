@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, DollarSign, Target, Globe, FileText } from "lucide-react";
+import { useUseCases } from '@/contexts/UseCaseContext';
 
 interface CompanyProfileData {
   companyName?: string;
@@ -68,6 +69,9 @@ export default function CompanyProfileLegoBlock({
   onChange,
   disabled = false
 }: CompanyProfileLegoBlockProps) {
+  
+  // Get metadata for dynamic default values
+  const { metadata } = useUseCases();
   // Initialize formData with default values from field configuration
   const initializeWithDefaults = (initialValue: CompanyProfileData): CompanyProfileData => {
     const result = { ...initialValue };
@@ -126,20 +130,21 @@ export default function CompanyProfileLegoBlock({
     }
   };
 
-  // Default tier options if not provided in questionData
-  const defaultTierOptions = [
-    { value: 'small', label: 'Small (<£100M)' },
-    { value: 'mid', label: 'Mid (£100M-£3B)' },
-    { value: 'large', label: 'Large (>£3B)' }
-  ];
+  // Dynamic tier options from metadata or fallback defaults
+  const defaultTierOptions = (metadata?.companyTiers || [
+    'Small (<£100M)', 'Mid (£100M-£3B)', 'Large (>£3B)'
+  ]).map(tier => ({
+    value: tier.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+    label: tier
+  }));
   
-  // Default market options if not provided in questionData
-  const defaultMarketOptions = [
-    { value: 'personal_lines', label: 'Personal Lines' },
-    { value: 'commercial_lines', label: 'Commercial Lines' },
-    { value: 'specialty_lines', label: 'Specialty Lines' },
-    { value: 'reinsurance', label: 'Reinsurance' }
-  ];
+  // Dynamic market options from metadata or fallback defaults
+  const defaultMarketOptions = (metadata?.marketOptions || [
+    'Personal Lines', 'Commercial Lines', 'Specialty Lines', 'Reinsurance'
+  ]).map(market => ({
+    value: market.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+    label: market
+  }));
 
   const tierOptions = questionData.companyTier?.options || defaultTierOptions;
   const marketOptions = questionData.primaryMarkets?.options || defaultMarketOptions;

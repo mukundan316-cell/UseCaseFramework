@@ -138,7 +138,7 @@ export interface LegacyAnswerData {
   answeredAt: Date;
 }
 
-// Validation schemas
+// Validation schemas - Use these when metadata is not available
 export const QuestionTypes = [
   'text', 'textarea', 'select', 'multi_select', 'radio', 'checkbox',
   'number', 'date', 'email', 'url', 'company_profile', 'business_lines_matrix',
@@ -148,6 +148,15 @@ export const QuestionTypes = [
 ] as const;
 
 export const ResponseStatuses = ['started', 'in_progress', 'completed', 'abandoned'] as const;
+
+// Helper functions to get dynamic values from metadata when available
+export function getQuestionTypes(metadata?: any): string[] {
+  return metadata?.questionTypes || QuestionTypes.slice();
+}
+
+export function getResponseStatuses(metadata?: any): string[] {
+  return metadata?.responseStatuses || ResponseStatuses.slice();
+}
 
 // Survey.js utility functions
 export function getSurveyDataValue(response: QuestionnaireResponse, fieldName: string): any {
