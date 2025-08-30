@@ -169,6 +169,7 @@ export default function PresentationUploadBlock({
             </div>
             {!disabled && (
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
                 onClick={removePresentation}
@@ -210,6 +211,7 @@ export default function PresentationUploadBlock({
               data-testid="input-presentation-file"
             />
             <Button
+              type="button"
               variant="outline"
               disabled={disabled || isUploading}
               onClick={() => document.getElementById('presentation-upload')?.click()}
