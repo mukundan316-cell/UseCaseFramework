@@ -162,7 +162,11 @@ export class ExcelImportService {
 
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
-      if (!row || !row[0]) continue; // Skip empty rows
+      if (!row) continue; // Skip completely empty rows
+      
+      // Check if Title column has content (not first column)
+      const titleIndex = headers.findIndex(h => h === 'Title');
+      if (titleIndex < 0 || !row[titleIndex]) continue; // Skip rows without title
 
       const useCase = ExcelImportService.mapRowToUseCase(headers, row, 'strategic');
       if (useCase) useCases.push(useCase);
@@ -188,7 +192,11 @@ export class ExcelImportService {
 
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
-      if (!row || !row[0]) continue;
+      if (!row) continue; // Skip completely empty rows
+      
+      // Check if Title column has content (not first column)
+      const titleIndex = headers.findIndex(h => h === 'Title');
+      if (titleIndex < 0 || !row[titleIndex]) continue; // Skip rows without title
 
       const useCase = ExcelImportService.mapRowToUseCase(headers, row, 'ai_inventory');
       if (useCase) useCases.push(useCase);
@@ -214,7 +222,11 @@ export class ExcelImportService {
 
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
-      if (!row || !row[0]) continue;
+      if (!row) continue; // Skip completely empty rows
+      
+      // Check if Title column has content (not first column)
+      const titleIndex = headers.findIndex(h => h === 'Title');
+      if (titleIndex < 0 || !row[titleIndex]) continue; // Skip rows without title
 
       const useCase = ExcelImportService.mapRowToUseCase(headers, row, 'auto_detect');
       if (useCase) useCases.push(useCase);
