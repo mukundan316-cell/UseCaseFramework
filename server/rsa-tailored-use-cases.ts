@@ -15,13 +15,13 @@ const rsaTailoredUseCases = [
     businessSegment: "All Segments", 
     geography: "UK",
     useCaseType: "Customer Experience",
-    // Business Value Levers (Impact Score)
+    // Business Impact Levers (Impact Score)
     revenueImpact: 3, // Indirect revenue through better broker relationships
     costSavings: 5, // High - reduces staff time answering repetitive questions
     riskReduction: 2, // Low operational risk
     brokerPartnerExperience: 5, // Very High - faster responses to brokers
     strategicFit: 4, // High - aligns with RSA's broker-focused model
-    // Feasibility Levers (Effort Score)  
+    // Implementation Effort Levers (Effort Score)  
     dataReadiness: 5, // Very High - internal FAQs and documents readily available
     technicalComplexity: 2, // Low - established GPT technology
     changeImpact: 1, // Very Low - internal tool, minimal process change
@@ -40,13 +40,13 @@ const rsaTailoredUseCases = [
     businessSegment: "Large Commercial",
     geography: "UK",
     useCaseType: "Decision Support",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 4, // High - enables better pricing and risk assessment
     costSavings: 4, // High - reduces manual comparison time
     riskReduction: 4, // High - reduces underwriting errors
     brokerPartnerExperience: 4, // High - provides clearer policy insights
     strategicFit: 4, // High - supports complex commercial focus
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 3, // Medium - policy documents need standardization
     technicalComplexity: 4, // High - complex NLP and document analysis
     changeImpact: 3, // Medium - requires underwriter workflow changes
@@ -65,13 +65,13 @@ const rsaTailoredUseCases = [
     businessSegment: "Mass Market",
     geography: "UK",
     useCaseType: "Content Generation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 3, // Medium - supports partner sales
     costSavings: 4, // High - eliminates manual summary creation
     riskReduction: 3, // Medium - consistent messaging reduces confusion
     brokerPartnerExperience: 5, // Very High - clear, consistent product info
     strategicFit: 4, // High - critical for delegated model
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 4, // High - product information is structured
     technicalComplexity: 2, // Low - text generation is mature technology
     changeImpact: 2, // Low - partners receive better materials
@@ -90,13 +90,13 @@ const rsaTailoredUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Regulatory Compliance",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 2, // Low - mainly compliance focused
     costSavings: 3, // Medium - reduces manual explanation time
     riskReduction: 5, // Very High - critical for regulatory compliance
     brokerPartnerExperience: 3, // Medium - helps broker understanding
     strategicFit: 3, // Medium - important but not core business
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 2, // Low - requires comprehensive decision audit trails
     technicalComplexity: 5, // Very High - explainable AI is complex
     changeImpact: 4, // High - requires significant process changes
@@ -115,13 +115,13 @@ const rsaTailoredUseCases = [
     businessSegment: "Small Commercial",
     geography: "UK",
     useCaseType: "Product Innovation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 5, // Very High - direct revenue impact from better conversion
     costSavings: 3, // Medium - automated quoting saves time
     riskReduction: 3, // Medium - better risk assessment
     brokerPartnerExperience: 4, // High - faster, more accurate quotes
     strategicFit: 5, // Very High - aligns with small business focus
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 3, // Medium - need comprehensive small business data
     technicalComplexity: 4, // High - real-time personalization is complex
     changeImpact: 3, // Medium - changes quoting processes
@@ -140,13 +140,13 @@ const rsaTailoredUseCases = [
     businessSegment: "Mass Market",
     geography: "UK",
     useCaseType: "Process Automation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 3, // Medium - faster claims processing improves retention
     costSavings: 5, // Very High - significant automation savings
     riskReduction: 4, // High - reduces processing errors
     brokerPartnerExperience: 5, // Very High - faster claims for their customers
     strategicFit: 4, // High - critical for delegated model efficiency
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 4, // High - claims data is structured
     technicalComplexity: 2, // Low - FNOL automation is proven
     changeImpact: 2, // Low - improves existing process
@@ -165,13 +165,13 @@ const rsaTailoredUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Risk Assessment",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 2, // Low - mainly cost and risk focused
     costSavings: 4, // High - reduces manual audit time
     riskReduction: 5, // Very High - critical for delegated oversight
     brokerPartnerExperience: 3, // Medium - faster feedback on submissions
     strategicFit: 4, // High - essential for delegated model
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 4, // High - MI data is structured
     technicalComplexity: 2, // Low - pattern recognition in data
     changeImpact: 2, // Low - enhances existing audit process
@@ -190,13 +190,13 @@ const rsaTailoredUseCases = [
     businessSegment: "Mass Market",
     geography: "UK",
     useCaseType: "Process Automation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 1, // Very Low - efficiency focused
     costSavings: 3, // Medium - saves transcription time
     riskReduction: 2, // Low - mainly administrative
     brokerPartnerExperience: 2, // Low - limited direct impact
     strategicFit: 2, // Low - nice to have but not strategic
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 3, // Medium - voice data needs processing
     technicalComplexity: 3, // Medium - speech-to-text + NLP
     changeImpact: 2, // Low - optional tool for claims handlers

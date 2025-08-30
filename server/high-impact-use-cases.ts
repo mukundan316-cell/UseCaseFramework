@@ -16,13 +16,13 @@ const highImpactUseCases = [
     businessSegment: "Mid Market",
     geography: "UK",
     useCaseType: "Customer Experience",
-    // Business Value Levers (Impact Score)
+    // Business Impact Levers (Impact Score)
     revenueImpact: 4, // High - faster quotes increase conversion
     costSavings: 3, // Medium - reduces broker support calls
     riskReduction: 3, // Medium - consistent pricing guidance
     brokerPartnerExperience: 5, // Very High - core broker support tool
     strategicFit: 4, // High - supports broker-centric model
-    // Feasibility Levers (Effort Score)
+    // Implementation Effort Levers (Effort Score)
     dataReadiness: 4, // High - pricing data is structured
     technicalComplexity: 3, // Medium - chatbot integration with rating engines
     changeImpact: 2, // Low - enhances existing broker interactions
@@ -41,13 +41,13 @@ const highImpactUseCases = [
     businessSegment: "Small Commercial",
     geography: "UK",
     useCaseType: "Product Innovation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 5, // Very High - direct impact on new business acquisition
     costSavings: 4, // High - automated campaign management
     riskReduction: 2, // Low - marketing focus
     brokerPartnerExperience: 3, // Medium - supports broker lead generation
     strategicFit: 4, // High - growth-focused strategy
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 3, // Medium - requires customer behavior data integration
     technicalComplexity: 3, // Medium - ML personalization algorithms
     changeImpact: 3, // Medium - new marketing approach
@@ -66,13 +66,13 @@ const highImpactUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Process Automation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 2, // Low - cost-focused rather than revenue
     costSavings: 5, // Very High - direct vendor cost optimization
     riskReduction: 4, // High - better vendor oversight
     brokerPartnerExperience: 2, // Low - internal process
     strategicFit: 3, // Medium - operational efficiency focus
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 4, // High - contract documents available
     technicalComplexity: 3, // Medium - document analysis and NLP
     changeImpact: 2, // Low - enhances existing vendor management
@@ -91,13 +91,13 @@ const highImpactUseCases = [
     businessSegment: "Large Commercial",
     geography: "UK",
     useCaseType: "Decision Support",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 5, // Very High - optimized pricing drives profitability
     costSavings: 3, // Medium - automated market analysis
     riskReduction: 4, // High - better pricing reduces underwriting risk
     brokerPartnerExperience: 3, // Medium - competitive pricing benefits brokers
     strategicFit: 5, // Very High - core competitive advantage
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 2, // Low - requires external market data feeds
     technicalComplexity: 4, // High - real-time data processing and analysis
     changeImpact: 3, // Medium - changes pricing processes
@@ -116,13 +116,13 @@ const highImpactUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Process Automation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 3, // Medium - faster applications increase throughput
     costSavings: 4, // High - reduces data entry time
     riskReduction: 3, // Medium - reduces data entry errors
     brokerPartnerExperience: 5, // Very High - significantly reduces broker workload
     strategicFit: 4, // High - supports broker efficiency
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 3, // Medium - requires data integration from multiple sources
     technicalComplexity: 2, // Low - form filling automation is mature
     changeImpact: 2, // Low - improves existing process
@@ -141,13 +141,13 @@ const highImpactUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Decision Support",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 3, // Medium - faster settlements improve customer retention
     costSavings: 5, // Very High - automates initial claims assessment
     riskReduction: 4, // High - early fraud detection and risk assessment
     brokerPartnerExperience: 4, // High - faster claims processing for their clients
     strategicFit: 4, // High - claims efficiency is strategic priority
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 4, // High - claims data is well-structured
     technicalComplexity: 3, // Medium - ML models for claims assessment
     changeImpact: 2, // Low - enhances existing FNOL process
@@ -166,13 +166,13 @@ const highImpactUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Decision Support",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 2, // Low - primarily cost and efficiency focused
     costSavings: 4, // High - reduces adjuster time per claim
     riskReduction: 4, // High - consistent decision support reduces errors
     brokerPartnerExperience: 3, // Medium - faster, more consistent claims handling
     strategicFit: 3, // Medium - operational excellence focus
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 4, // High - claims workflow data available
     technicalComplexity: 3, // Medium - AI assistant with domain knowledge
     changeImpact: 2, // Low - assists existing adjusters
@@ -191,13 +191,13 @@ const highImpactUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Process Automation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 2, // Low - process efficiency focused
     costSavings: 4, // High - reduces back-and-forth information requests
     riskReduction: 4, // High - ensures complete information gathering
     brokerPartnerExperience: 4, // High - reduces multiple information requests
     strategicFit: 3, // Medium - process optimization
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 4, // High - claims process data available
     technicalComplexity: 3, // Medium - dynamic workflow management
     changeImpact: 3, // Medium - changes information collection process
@@ -216,13 +216,13 @@ const highImpactUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Risk Assessment",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 3, // Medium - fraud prevention protects profitability
     costSavings: 4, // High - automated fraud detection
     riskReduction: 5, // Very High - core fraud prevention capability
     brokerPartnerExperience: 3, // Medium - protects broker reputation
     strategicFit: 4, // High - fraud prevention is strategic priority
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 2, // Low - requires external social media and market data
     technicalComplexity: 4, // High - advanced ML and sentiment analysis
     changeImpact: 3, // Medium - enhances existing fraud processes
@@ -241,13 +241,13 @@ const highImpactUseCases = [
     businessSegment: "All Segments",
     geography: "UK",
     useCaseType: "Process Automation",
-    // Business Value Levers
+    // Business Impact Levers
     revenueImpact: 2, // Low - cost control focused
     costSavings: 5, // Very High - reduces medical costs and admin time
     riskReduction: 4, // High - better cost control and provider oversight
     brokerPartnerExperience: 3, // Medium - faster claim resolution
     strategicFit: 3, // Medium - operational efficiency
-    // Feasibility Levers
+    // Implementation Effort Levers
     dataReadiness: 3, // Medium - medical authorization data available
     technicalComplexity: 3, // Medium - predictive models for authorization
     changeImpact: 3, // Medium - changes authorization workflow

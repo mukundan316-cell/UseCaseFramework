@@ -182,7 +182,7 @@ export default function ScoringModelManagementBlock() {
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        Business Value Levers
+                        Business Impact Levers
                       </Badge>
                     </div>
                     <span className="text-sm">Total: {businessTotal}%</span>
@@ -285,7 +285,7 @@ export default function ScoringModelManagementBlock() {
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                        Feasibility Levers
+                        Implementation Effort Levers
                       </Badge>
                     </div>
                     <span className="text-sm">Total: {feasibilityTotal}%</span>

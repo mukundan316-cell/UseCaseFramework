@@ -1619,7 +1619,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 {rsaSelection.isActiveForRsa ? (
                   <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Business Value Levers */}
+              {/* Business Impact Levers */}
               <div className="space-y-6">
                 <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Impact Levers</h4>
                 {/* Hide strategic scoring fields for AI inventory items */}
@@ -1663,7 +1663,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   rightLabel="High"
                 />
               </div>
-              {/* Feasibility Levers */}
+              {/* Implementation Effort Levers */}
               <div className="space-y-6">
                 <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Implementation Effort Levers</h4>
                 <SliderField

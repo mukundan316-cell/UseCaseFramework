@@ -25,13 +25,13 @@ const formSchema = z.object({
   businessSegment: z.string().min(1, 'Business segment is required'),
   geography: z.string().min(1, 'Geography is required'),
   useCaseType: z.string().min(1, 'Use case type is required'),
-  // Business Value Levers
+  // Business Impact Levers
   revenueImpact: z.number().min(1).max(5),
   costSavings: z.number().min(1).max(5),
   riskReduction: z.number().min(1).max(5),
   brokerPartnerExperience: z.number().min(1).max(5),
   strategicFit: z.number().min(1).max(5),
-  // Feasibility Levers
+  // Implementation Effort Levers
   dataReadiness: z.number().min(1).max(5),
   technicalComplexity: z.number().min(1).max(5),
   changeImpact: z.number().min(1).max(5),
@@ -360,7 +360,7 @@ export default function UseCaseForm() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Business Value Levers */}
                 <div className="space-y-6">
-                  <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Value Levers</h4>
+                  <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Impact Levers</h4>
                   <SliderField
                     field="revenueImpact"
                     label="Revenue Impact"
@@ -399,7 +399,7 @@ export default function UseCaseForm() {
                 </div>
                 {/* Feasibility Levers */}
                 <div className="space-y-6">
-                  <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Feasibility Levers</h4>
+                  <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Implementation Effort Levers</h4>
                   <SliderField
                     field="dataReadiness"
                     label="Data Readiness"
