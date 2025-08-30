@@ -529,6 +529,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         presentationUrl: data.presentationUrl || '',
         presentationPdfUrl: data.presentationPdfUrl || '',
         presentationFileName: data.presentationFileName || '',
+        // Additional presentation fields from upload (these might not be in form schema)
+        presentationFileId: (data as any).presentationFileId || (window as any).pendingPresentationData?.presentationFileId || '',
+        presentationPdfFileId: (data as any).presentationPdfFileId || (window as any).pendingPresentationData?.presentationPdfFileId || '',
+        hasPresentation: (data as any).hasPresentation || (window as any).pendingPresentationData?.hasPresentation || 'false',
+        presentationUploadedAt: (data as any).presentationUploadedAt || (window as any).pendingPresentationData?.presentationUploadedAt || '',
         businessFunction: data.businessFunction || '',
         thirdPartyProvidedModel: data.thirdPartyProvidedModel || '',
         aiInventoryStatus: data.aiInventoryStatus || '',
@@ -677,6 +682,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
         
+        // Clear pending presentation data after successful save
+        delete (window as any).pendingPresentationData;
+        
         toast({
           title: "Use case updated successfully",
           description: `"${sanitizedData.title}" has been updated. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
@@ -736,6 +744,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+        
+        // Clear pending presentation data after successful save
+        delete (window as any).pendingPresentationData;
         
         toast({
           title: "Use case created successfully",
@@ -1632,12 +1643,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       form.setValue('presentationUrl', result.presentationUrl);
                       form.setValue('presentationPdfUrl', result.presentationPdfUrl);
                       form.setValue('presentationFileName', result.presentationFileName);
-                      // Set additional fields using type assertion for fields not in form schema
-                      const formData = form.getValues();
-                      (formData as any).presentationFileId = result.presentationFileId;
-                      (formData as any).presentationPdfFileId = result.presentationPdfFileId;
-                      (formData as any).hasPresentation = result.hasPresentation || 'true';
-                      (formData as any).presentationUploadedAt = new Date().toISOString();
+                      
+                      // Store additional fields in a way that will be accessible during form submission
+                      // Using a ref or state would be better, but for now we'll store in window temporarily
+                      (window as any).pendingPresentationData = {
+                        presentationFileId: result.presentationFileId,
+                        presentationPdfFileId: result.presentationPdfFileId,
+                        hasPresentation: result.hasPresentation || 'true',
+                        presentationUploadedAt: new Date().toISOString()
+                      };
                       
                       // Show success message and keep modal open so user can see preview
                       toast({
