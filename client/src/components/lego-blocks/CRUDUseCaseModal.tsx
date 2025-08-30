@@ -30,9 +30,9 @@ import LoadingState from '@/components/ui/loading-state';
 
 
 const formSchema = z.object({
-  // Minimal validation - only title and description are required
-  title: z.string().min(1, "Please enter a title for this use case").max(100, "Title must be shorter than 100 characters"),
-  description: z.string().min(1, "Please provide a brief description").max(500, "Description must be shorter than 500 characters"),
+  // Minimal validation - only title and description are required, relaxed character limits
+  title: z.string().min(1, "Please enter a title for this use case").max(200, "Title must be shorter than 200 characters"),
+  description: z.string().min(1, "Please provide a brief description").max(2000, "Description must be shorter than 2000 characters"),
   // Meaningful ID field - auto-generated if empty
   meaningfulId: z.string().optional(),
   // All other fields are optional to minimize validation barriers

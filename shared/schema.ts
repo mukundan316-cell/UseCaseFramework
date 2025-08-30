@@ -144,9 +144,9 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activationDate: true,
   lastStatusUpdate: true, // Auto-managed field
 }).extend({
-  // Minimal required fields - only title and description are essential
-  title: z.string().min(1, "Please enter a title for this use case").max(100, "Title must be shorter than 100 characters"),
-  description: z.string().min(1, "Please provide a brief description").max(500, "Description must be shorter than 500 characters"),
+  // Minimal required fields - only title and description are essential, relaxed character limits
+  title: z.string().min(1, "Please enter a title for this use case").max(200, "Title must be shorter than 200 characters"),
+  description: z.string().min(1, "Please provide a brief description").max(2000, "Description must be shorter than 2000 characters"),
   // All other fields are optional to minimize validation barriers
   problemStatement: z.union([z.string(), z.null()]).optional(),
   process: z.union([z.string(), z.null()]).optional(),
