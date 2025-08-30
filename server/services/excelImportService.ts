@@ -297,19 +297,19 @@ export class ExcelImportService {
         finalQuadrant: getValue('Final Quadrant') || null,
         overrideReason: getValue('Override Reason') || null,
         
-        // Business impact scores (1-5)
-        revenueImpact: ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')),
-        costSavings: ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')),
-        riskReduction: ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')),
-        brokerPartnerExperience: ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')),
-        strategicFit: ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')),
+        // Business impact scores (1-5) - convert null to undefined for schema compatibility
+        revenueImpact: ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')) ?? undefined,
+        costSavings: ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')) ?? undefined,
+        riskReduction: ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')) ?? undefined,
+        brokerPartnerExperience: ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')) ?? undefined,
+        strategicFit: ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')) ?? undefined,
         
-        // Implementation effort scores (1-5)
-        dataReadiness: ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')),
-        technicalComplexity: ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')),
-        changeImpact: ExcelImportService.parseNumber(getValue('Change Impact (1-5)')),
-        modelRisk: ExcelImportService.parseNumber(getValue('Model Risk (1-5)')),
-        adoptionReadiness: ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')),
+        // Implementation effort scores (1-5) - convert null to undefined for schema compatibility
+        dataReadiness: ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')) ?? undefined,
+        technicalComplexity: ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')) ?? undefined,
+        changeImpact: ExcelImportService.parseNumber(getValue('Change Impact (1-5)')) ?? undefined,
+        modelRisk: ExcelImportService.parseNumber(getValue('Model Risk (1-5)')) ?? undefined,
+        adoptionReadiness: ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')) ?? undefined,
         
         // Implementation details
         primaryBusinessOwner: getValue('Primary Business Owner') || null,
@@ -333,7 +333,7 @@ export class ExcelImportService {
         dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')) || 'false',
         thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')) || 'false',
         humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
-        regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) || null,
+        regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) ?? undefined,
         
         // Additional newer fields from enhanced export
         activity: getValue('Activity') || null,
@@ -357,17 +357,17 @@ export class ExcelImportService {
         businessSegment: getValue('Business Segments') || getValue('Business Segment') || null,
         geography: getValue('Geographies') || getValue('Geography') || null,
         
-        // Set defaults for required scoring fields to prevent validation errors
-        revenueImpact: null,
-        costSavings: null,
-        riskReduction: null,
-        brokerPartnerExperience: null,
-        strategicFit: null,
-        dataReadiness: null,
-        technicalComplexity: null,
-        changeImpact: null,
-        modelRisk: null,
-        adoptionReadiness: null,
+        // Set undefined for scoring fields to let schema defaults apply
+        revenueImpact: undefined,
+        costSavings: undefined,
+        riskReduction: undefined,
+        brokerPartnerExperience: undefined,
+        strategicFit: undefined,
+        dataReadiness: undefined,
+        technicalComplexity: undefined,
+        changeImpact: undefined,
+        modelRisk: undefined,
+        adoptionReadiness: undefined,
         explainabilityRequired: 'false',
         dataOutsideUkEu: 'false',
         thirdPartyModel: 'false',
