@@ -112,23 +112,14 @@ export class ExcelImportService {
             await storage.updateUseCase(existingUseCase.id, updateData);
             result.updatedCount++;
           } else {
-            // Create new - remove null values to let storage layer apply defaults exactly like UI
+            // Create new - clean data before passing to storage layer
             const cleanedUseCase = { ...useCaseData };
             
-            // Remove null values for scoring fields to let storage apply defaults (0 as per storage logic)
-            const scoringFields = ['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
-                                   'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness'];
-            scoringFields.forEach(field => {
-              if (cleanedUseCase[field] === null || cleanedUseCase[field] === undefined) {
-                delete cleanedUseCase[field]; // Remove to let storage apply defaults
-              }
-            });
-            
-            // Remove null values for boolean fields to let storage apply defaults
-            const booleanFields = ['explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability'];
-            booleanFields.forEach(field => {
-              if (cleanedUseCase[field] === null || cleanedUseCase[field] === undefined) {
-                delete cleanedUseCase[field]; // Remove to let storage apply defaults
+            // Remove null/undefined values to let storage layer apply defaults exactly like UI
+            // This follows replit.md: "Remove null/undefined values to let storage layer apply same defaults as UI"
+            Object.keys(cleanedUseCase).forEach(key => {
+              if (cleanedUseCase[key] === null || cleanedUseCase[key] === undefined) {
+                delete cleanedUseCase[key];
               }
             });
             
@@ -332,16 +323,16 @@ export class ExcelImportService {
         dataSources: ExcelImportService.parseArray(getValue('Data Sources')),
         stakeholderGroups: ExcelImportService.parseArray(getValue('Stakeholder Groups')),
         
-        // Horizontal Use Case fields
-        horizontalUseCase: ExcelImportService.parseBoolean(getValue('Horizontal Use Case')),
+        // Horizontal Use Case fields - use default instead of null to match schema requirements
+        horizontalUseCase: ExcelImportService.parseBoolean(getValue('Horizontal Use Case')) || 'false',
         horizontalUseCaseTypes: ExcelImportService.parseArray(getValue('Horizontal Use Case Types')),
         
-        // RSA Ethical Principles
-        explainabilityRequired: ExcelImportService.parseBoolean(getValue('Explainability Required')),
+        // RSA Ethical Principles - use defaults instead of null to match schema requirements
+        explainabilityRequired: ExcelImportService.parseBoolean(getValue('Explainability Required')) || 'false',
         customerHarmRisk: getValue('Customer Harm Risk') || null,
-        dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')),
-        thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')),
-        humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')),
+        dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')) || 'false',
+        thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')) || 'false',
+        humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
         regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) || null,
         
         // Additional newer fields from enhanced export
@@ -352,7 +343,7 @@ export class ExcelImportService {
         businessSegments: ExcelImportService.parseArray(getValue('Business Segments (Multi)')),
         geographies: ExcelImportService.parseArray(getValue('Geographies (Multi)')),
         presentationFileName: getValue('Presentation File Name') || null,
-        hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')),
+        hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')) || 'false',
         deactivationReason: getValue('Deactivation Reason') || null,
         valueChainComponent: getValue('Value Chain Component') || null
       });
@@ -413,18 +404,8 @@ export class ExcelImportService {
   }
 
   /**
-   * Ultra-minimal validation schema for Excel imports - matches UI formSchema exactly
-   * Only title and description are required, everything else is completely optional
-   */
-  private static minimalValidationSchema = z.object({
-    // Only title and description are required - exactly like UI formSchema
-    title: z.string().min(1, "Please enter a title for this use case").max(100, "Title must be shorter than 100 characters"),
-    description: z.string().min(1, "Please provide a brief description").max(500, "Description must be shorter than 500 characters"),
-    // Everything else is completely optional - no type restrictions
-  }).passthrough(); // Allow all other fields to pass through without validation
-
-  /**
-   * Validate use cases against minimal schema (matches UI validation)
+   * Validate use cases against the same schema used by storage layer
+   * Ensures consistency between Excel validation and actual storage requirements
    */
   private static async validateUseCases(
     useCases: any[], 
@@ -434,9 +415,10 @@ export class ExcelImportService {
 
     for (const useCaseData of useCases) {
       try {
-        // Use minimal validation schema for Excel imports
-        const validatedUseCase = ExcelImportService.minimalValidationSchema.parse(useCaseData);
-        validated.push(validatedUseCase as InsertUseCase);
+        // Use the same insertUseCaseSchema as storage layer for consistency
+        // This follows replit.md principles: "Schema Reuse: Never duplicate validation logic"
+        const validatedUseCase = insertUseCaseSchema.parse(useCaseData);
+        validated.push(validatedUseCase);
       } catch (error) {
         if (error instanceof z.ZodError) {
           const title = useCaseData.title || 'Unknown';
