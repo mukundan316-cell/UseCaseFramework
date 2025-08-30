@@ -192,12 +192,17 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     }
     
     if (!currentArray.includes(item)) {
-      const updatedMetadata: MetadataConfig = {
-        ...metadata,
-        [category]: [...currentArray, item],
-        updatedAt: new Date()
-      };
-      await updateMetadata(updatedMetadata);
+      // Use the backend API endpoint for adding metadata items
+      const response = await apiRequest(`/api/metadata/${encodeURIComponent(category)}`, {
+        method: 'POST',
+        body: JSON.stringify({ item }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      // Invalidate and refetch metadata after addition
+      queryClient.invalidateQueries({ queryKey: ['/api/metadata'] });
     }
   };
 
@@ -212,12 +217,13 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       throw new Error(`Invalid category: ${category} is not an array`);
     }
     
-    const updatedMetadata: MetadataConfig = {
-      ...metadata,
-      [category]: currentArray.filter(i => i !== item),
-      updatedAt: new Date()
-    };
-    await updateMetadata(updatedMetadata);
+    // Use the backend API endpoint for removing metadata items
+    const response = await apiRequest(`/api/metadata/${encodeURIComponent(category)}/${encodeURIComponent(item)}`, {
+      method: 'DELETE',
+    });
+    
+    // Invalidate and refetch metadata after removal
+    queryClient.invalidateQueries({ queryKey: ['/api/metadata'] });
   };
 
   const editMetadataItem = async (category: string, oldItem: string, newItem: string): Promise<void> => {
