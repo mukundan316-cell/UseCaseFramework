@@ -169,7 +169,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   modelRisk: z.number().min(1).max(5).optional(),
   adoptionReadiness: z.number().min(1).max(5).optional(),
   // Additional scoring fields
-  regulatoryCompliance: z.number().min(1).max(5).optional(),
+  regulatoryCompliance: z.union([z.number().min(1).max(5), z.null()]).optional(),
   // Final scoring fields - simplified per replit.md
   finalImpactScore: z.number().optional(),
   finalEffortScore: z.number().optional(),

@@ -52,7 +52,7 @@ const HORIZONTAL_USE_CASE_OPTIONS = [
 interface HorizontalUseCaseLegoBlockProps {
   isHorizontalUseCase: string; // 'true' or 'false' following replit.md pattern
   selectedTypes: string[];
-  onHorizontalUseCaseChange: (value: string) => void; // 'true' or 'false'
+  onHorizontalUseCaseChange: (value: 'true' | 'false') => void; // 'true' or 'false'
   onTypesChange: (types: string[]) => void;
   className?: string;
 }
@@ -74,7 +74,7 @@ export default function HorizontalUseCaseLegoBlock({
   const isEnabled = isHorizontalUseCase === 'true';
 
   const handleMainCheckboxChange = (checked: boolean) => {
-    const newValue = checked ? 'true' : 'false';
+    const newValue: 'true' | 'false' = checked ? 'true' : 'false';
     onHorizontalUseCaseChange(newValue);
     
     // Clear selected types if disabling

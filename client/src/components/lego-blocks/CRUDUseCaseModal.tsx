@@ -105,7 +105,7 @@ const formSchema = z.object({
   aiInventoryStatus: z.string().optional(),
   deploymentStatus: z.string().optional(),
   deactivationReason: z.string().optional(),
-  regulatoryCompliance: z.number().optional(),
+  regulatoryCompliance: z.union([z.number(), z.null()]).optional(),
   // Horizontal Use Case fields - following replit.md string boolean pattern
   horizontalUseCase: z.enum(['true', 'false']).default('false'),
   horizontalUseCaseTypes: z.array(z.string()).optional(),
