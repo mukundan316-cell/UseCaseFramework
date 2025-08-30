@@ -1632,10 +1632,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       form.setValue('presentationUrl', result.presentationUrl);
                       form.setValue('presentationPdfUrl', result.presentationPdfUrl);
                       form.setValue('presentationFileName', result.presentationFileName);
-                      form.setValue('presentationFileId', result.presentationFileId);
-                      form.setValue('presentationPdfFileId', result.presentationPdfFileId);
-                      form.setValue('hasPresentation', result.hasPresentation || 'true');
-                      form.setValue('presentationUploadedAt', new Date().toISOString());
+                      // Set additional fields using type assertion for fields not in form schema
+                      const formData = form.getValues();
+                      (formData as any).presentationFileId = result.presentationFileId;
+                      (formData as any).presentationPdfFileId = result.presentationPdfFileId;
+                      (formData as any).hasPresentation = result.hasPresentation || 'true';
+                      (formData as any).presentationUploadedAt = new Date().toISOString();
+                      
+                      // Show success message and keep modal open so user can see preview
+                      toast({
+                        title: "File uploaded successfully",
+                        description: "Your presentation is now available for preview below. You can save when ready.",
+                      });
                     }}
                   />
 
