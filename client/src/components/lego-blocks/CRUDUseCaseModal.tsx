@@ -552,6 +552,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         manualQuadrant: sanitizedData.manualQuadrant,
         overrideReason: sanitizedData.overrideReason
       });
+      console.log('📁 PRESENTATION DEBUG - Checking presentation data:', {
+        presentationUrl: sanitizedData.presentationUrl,
+        presentationPdfUrl: sanitizedData.presentationPdfUrl,
+        presentationFileName: sanitizedData.presentationFileName,
+        presentationFileId: sanitizedData.presentationFileId,
+        presentationPdfFileId: sanitizedData.presentationPdfFileId,
+        hasPresentation: sanitizedData.hasPresentation,
+        pendingData: (window as any).pendingPresentationData
+      });
       console.log('Submitting sanitized form data:', sanitizedData);
       
       if (mode === 'edit' && useCase) {
@@ -753,9 +762,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           description: `"${sanitizedData.title}" has been added. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
       }
-      console.log('About to call onClose...');
-      onClose();
-      console.log('onClose called');
+      // Don't automatically close the modal to allow users to see the preview
+      // They can manually close it when they're done
+      console.log('Form submitted successfully - keeping modal open for user review');
     } catch (error) {
       console.error('Submit error:', error);
       
