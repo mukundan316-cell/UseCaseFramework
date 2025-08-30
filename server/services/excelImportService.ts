@@ -260,10 +260,10 @@ export class ExcelImportService {
       description: getValue('Description') || '',
       meaningfulId: getValue('Use Case ID'), // Support meaningful ID from Excel
       problemStatement: getValue('Problem Statement'),
-      process: getValue('Process') || '',
-      lineOfBusiness: getValue('Line of Business') || '',
-      businessSegment: getValue('Business Segment') || '',
-      geography: getValue('Geography') || '',
+      process: getValue('Process') || null,
+      lineOfBusiness: getValue('Line of Business') || null,
+      businessSegment: getValue('Business Segment') || null,
+      geography: getValue('Geography') || null,
       useCaseType: getValue('Use Case Type') || 'Process',
       useCaseStatus: getValue('Use Case Status') || 'Reference',
       librarySource: ExcelImportService.normalizeLibrarySource(getValue('Library Source')),
@@ -299,18 +299,18 @@ export class ExcelImportService {
         overrideReason: getValue('Override Reason') || null,
         
         // Business impact scores (1-5)
-        revenueImpact: ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')) || null,
-        costSavings: ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')) || null,
-        riskReduction: ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')) || null,
-        brokerPartnerExperience: ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')) || null,
-        strategicFit: ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')) || null,
+        revenueImpact: ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')),
+        costSavings: ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')),
+        riskReduction: ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')),
+        brokerPartnerExperience: ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')),
+        strategicFit: ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')),
         
         // Implementation effort scores (1-5)
-        dataReadiness: ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')) || null,
-        technicalComplexity: ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')) || null,
-        changeImpact: ExcelImportService.parseNumber(getValue('Change Impact (1-5)')) || null,
-        modelRisk: ExcelImportService.parseNumber(getValue('Model Risk (1-5)')) || null,
-        adoptionReadiness: ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')) || null,
+        dataReadiness: ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')),
+        technicalComplexity: ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')),
+        changeImpact: ExcelImportService.parseNumber(getValue('Change Impact (1-5)')),
+        modelRisk: ExcelImportService.parseNumber(getValue('Model Risk (1-5)')),
+        adoptionReadiness: ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')),
         
         // Implementation details
         primaryBusinessOwner: getValue('Primary Business Owner') || null,
@@ -353,10 +353,10 @@ export class ExcelImportService {
       // Business Context fields for AI Inventory
       Object.assign(useCase, {
         librarySource: 'ai_inventory', // Force AI Inventory source
-        process: getValue('Process') || '',
-        lineOfBusiness: getValue('Lines of Business') || getValue('Line of Business') || '',
-        businessSegment: getValue('Business Segments') || getValue('Business Segment') || '',
-        geography: getValue('Geographies') || getValue('Geography') || '',
+        process: getValue('Process') || null,
+        lineOfBusiness: getValue('Lines of Business') || getValue('Line of Business') || null,
+        businessSegment: getValue('Business Segments') || getValue('Business Segment') || null,
+        geography: getValue('Geographies') || getValue('Geography') || null,
         
         // Set defaults for required scoring fields to prevent validation errors
         revenueImpact: null,
@@ -411,25 +411,31 @@ export class ExcelImportService {
     // Only title and description are required - matches UI formSchema
     title: z.string().min(1, "Title is required"),
     description: z.string().min(1, "Description is required"),
-    // All other fields are optional
-    meaningfulId: z.string().optional(),
-    librarySource: z.string().optional(),
-    // Make all scoring and boolean fields optional for imports
-    revenueImpact: z.number().optional(),
-    costSavings: z.number().optional(),
-    riskReduction: z.number().optional(),
-    brokerPartnerExperience: z.number().optional(),
-    strategicFit: z.number().optional(),
-    dataReadiness: z.number().optional(),
-    technicalComplexity: z.number().optional(),
-    changeImpact: z.number().optional(),
-    modelRisk: z.number().optional(),
-    adoptionReadiness: z.number().optional(),
-    explainabilityRequired: z.enum(['true', 'false']).optional(),
-    dataOutsideUkEu: z.enum(['true', 'false']).optional(),
-    thirdPartyModel: z.enum(['true', 'false']).optional(),
-    humanAccountability: z.enum(['true', 'false']).optional(),
-    finalQuadrant: z.string().optional(),
+    // All other fields are optional and can handle null values
+    meaningfulId: z.union([z.string(), z.null()]).optional(),
+    librarySource: z.union([z.string(), z.null()]).optional(),
+    // Make all scoring fields optional and allow null
+    revenueImpact: z.union([z.number(), z.null()]).optional(),
+    costSavings: z.union([z.number(), z.null()]).optional(),
+    riskReduction: z.union([z.number(), z.null()]).optional(),
+    brokerPartnerExperience: z.union([z.number(), z.null()]).optional(),
+    strategicFit: z.union([z.number(), z.null()]).optional(),
+    dataReadiness: z.union([z.number(), z.null()]).optional(),
+    technicalComplexity: z.union([z.number(), z.null()]).optional(),
+    changeImpact: z.union([z.number(), z.null()]).optional(),
+    modelRisk: z.union([z.number(), z.null()]).optional(),
+    adoptionReadiness: z.union([z.number(), z.null()]).optional(),
+    // Boolean fields should allow null and string enum values
+    explainabilityRequired: z.union([z.enum(['true', 'false']), z.null()]).optional(),
+    dataOutsideUkEu: z.union([z.enum(['true', 'false']), z.null()]).optional(),
+    thirdPartyModel: z.union([z.enum(['true', 'false']), z.null()]).optional(),
+    humanAccountability: z.union([z.enum(['true', 'false']), z.null()]).optional(),
+    finalQuadrant: z.union([z.string(), z.null()]).optional(),
+    // Additional common fields that may be null
+    process: z.union([z.string(), z.null()]).optional(),
+    lineOfBusiness: z.union([z.string(), z.null()]).optional(),
+    businessSegment: z.union([z.string(), z.null()]).optional(),
+    geography: z.union([z.string(), z.null()]).optional(),
     // Allow any other fields to pass through
   }).passthrough(); // Allow additional fields not in schema
 
