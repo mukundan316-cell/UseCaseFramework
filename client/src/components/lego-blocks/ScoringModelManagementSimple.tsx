@@ -181,7 +181,7 @@ export default function ScoringModelManagementBlock() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 px-3 py-1 text-sm font-medium">
                         Business Impact Levers
                       </Badge>
                     </div>
@@ -284,7 +284,7 @@ export default function ScoringModelManagementBlock() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 px-3 py-1 text-sm font-medium">
                         Implementation Effort Levers
                       </Badge>
                     </div>
