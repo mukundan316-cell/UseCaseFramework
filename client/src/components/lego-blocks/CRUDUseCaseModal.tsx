@@ -1382,6 +1382,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                               field="regulatoryCompliance"
                               value={field.value ?? 3}
                               onChange={(fieldName, value) => {
+                                field.onChange(value);
                                 form.setValue('regulatoryCompliance', value);
                               }}
                               tooltip="Level of compliance with regulatory requirements"
