@@ -27,9 +27,9 @@ export function generateROIExplanation(
     case 'Quick Win':
       return {
         level: 'High ROI',
-        summary: 'High business value with relatively low implementation effort creates excellent return potential.',
+        summary: 'High business impact with relatively low implementation effort creates excellent return potential.'
         factors: [
-          `Strong impact score (${impactScore.toFixed(1)}/5) indicates significant business value`,
+          `Strong impact score (${impactScore.toFixed(1)}/5) indicates significant business impact`,
           `Lower effort score (${effortScore.toFixed(1)}/5) means faster, cheaper implementation`,
           'Minimal risk with quick payback period',
           'Resources can be deployed efficiently'
@@ -69,9 +69,9 @@ export function generateROIExplanation(
     case 'Watchlist':
       return {
         level: 'Poor ROI',
-        summary: 'Low business value combined with high implementation effort creates poor return prospects.',
+        summary: 'Low business impact combined with high implementation effort creates poor return prospects.'
         factors: [
-          `Lower impact score (${impactScore.toFixed(1)}/5) limits business value creation`,
+          `Lower impact score (${impactScore.toFixed(1)}/5) limits business impact creation`,
           `High effort score (${effortScore.toFixed(1)}/5) requires significant resources`,
           'Risk of resource drain with minimal benefit',
           'Opportunity cost of not pursuing better alternatives'
@@ -85,7 +85,7 @@ export function generateROIExplanation(
         level: 'Medium ROI',
         summary: 'Balanced scores suggest moderate return potential requiring careful evaluation.',
         factors: [
-          `Impact score of ${impactScore.toFixed(1)}/5 indicates moderate business value`,
+          `Impact score of ${impactScore.toFixed(1)}/5 indicates moderate business impact`,
           `Effort score of ${effortScore.toFixed(1)}/5 suggests manageable complexity`,
           'Consider specific business context and strategic priorities'
         ],
@@ -164,9 +164,9 @@ export function getScoringFormulaExplanation(): {
   roiConcept: string;
 } {
   return {
-    impactFormula: 'Impact Score = Weighted average of 5 business value factors (Revenue, Cost Savings, Risk Reduction, Partner Experience, Strategic Fit). Higher scores mean greater business value potential.',
+    impactFormula: 'Impact Score = Weighted average of 5 business impact factors (Revenue, Cost Savings, Risk Reduction, Partner Experience, Strategic Fit). Higher scores mean greater business impact potential.',
     
-    effortFormula: 'Effort Score = Weighted average of 5 feasibility factors (Data Readiness, Technical Complexity, Change Impact, Model Risk, Adoption Readiness). Higher scores mean easier implementation.',
+    effortFormula: 'Effort Score = Weighted average of 5 implementation effort factors (Data Readiness, Technical Complexity, Change Impact, Model Risk, Adoption Readiness). Higher scores mean easier implementation.',
     
     roiConcept: 'ROI Potential = Impact ÷ Effort ratio. High impact with lower effort = High ROI (Quick Win). High impact with high effort = High ROI but longer timeframe (Strategic Bet).'
   };

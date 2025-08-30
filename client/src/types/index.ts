@@ -83,13 +83,13 @@ export interface UseCaseFormData {
   activities?: string[];
   businessSegments?: string[];
   geographies?: string[];
-  // Business Value Levers (Impact Score)
+  // Business Impact Levers (Impact Score)
   revenueImpact: number;
   costSavings: number;
   riskReduction: number;
   brokerPartnerExperience: number;
   strategicFit: number;
-  // Feasibility Levers (Effort Score)
+  // Implementation Effort Levers (Effort Score)
   dataReadiness: number;
   technicalComplexity: number;
   changeImpact: number;

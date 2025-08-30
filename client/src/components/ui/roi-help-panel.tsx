@@ -37,7 +37,7 @@ export function ROIHelpPanel() {
                 </div>
                 <h4 className="font-medium text-green-800 mb-2">Quick Win & Strategic Bet</h4>
                 <p className="text-sm text-green-700 mb-3">
-                  High business value potential justifies investment and resource allocation
+                  High business impact potential justifies investment and resource allocation
                 </p>
                 <div className="space-y-1 text-xs text-green-600">
                   <div>• <strong>Quick Win:</strong> High impact, low effort (3-9 months)</div>
@@ -70,7 +70,7 @@ export function ROIHelpPanel() {
                 </div>
                 <h4 className="font-medium text-red-800 mb-2">Watchlist</h4>
                 <p className="text-sm text-red-700 mb-3">
-                  Low business value combined with high effort creates poor return prospects
+                  Low business impact combined with high effort creates poor return prospects
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-red-600">
                   <div>
@@ -90,7 +90,7 @@ export function ROIHelpPanel() {
               <div className="p-4 bg-green-50 rounded-lg border">
                 <h4 className="font-medium text-green-800 mb-2 flex items-center gap-2">
                   <Calculator className="h-4 w-4" />
-                  Impact Score (Business Value)
+                  Impact Score (Business Impact)
                 </h4>
                 <p className="text-sm text-green-700 mb-3">{formulas.impactFormula}</p>
                 <div className="bg-white p-3 rounded border font-mono text-sm">
@@ -105,7 +105,7 @@ export function ROIHelpPanel() {
               <div className="p-4 bg-blue-50 rounded-lg border">
                 <h4 className="font-medium text-blue-800 mb-2 flex items-center gap-2">
                   <Calculator className="h-4 w-4" />
-                  Effort Score (Implementation Feasibility)
+                  Effort Score (Implementation Effort)
                 </h4>
                 <p className="text-sm text-blue-700 mb-3">{formulas.effortFormula}</p>
                 <div className="bg-white p-3 rounded border font-mono text-sm">
@@ -144,7 +144,7 @@ export function ROIHelpPanel() {
                   <Badge className="bg-green-100 text-green-800">High ROI</Badge>
                 </div>
                 <p className="text-xs text-gray-600 mt-2">
-                  <strong>Why High ROI:</strong> Significant business value with reasonable implementation effort creates excellent return potential
+                  <strong>Why High ROI:</strong> Significant business impact with reasonable implementation effort creates excellent return potential
                 </p>
               </div>
 

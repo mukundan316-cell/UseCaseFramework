@@ -288,14 +288,14 @@ export class ExcelImportService {
       useCase.finalQuadrant = getValue('Final Quadrant') || null;
       useCase.overrideReason = getValue('Override Reason') || null;
       
-      // Business value scores (1-5)
+      // Business impact scores (1-5)
       useCase.revenueImpact = ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')) || null;
       useCase.costSavings = ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')) || null;
       useCase.riskReduction = ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')) || null;
       useCase.brokerPartnerExperience = ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')) || null;
       useCase.strategicFit = ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')) || null;
       
-      // Feasibility scores (1-5)
+      // Implementation effort scores (1-5)
       useCase.dataReadiness = ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')) || null;
       useCase.technicalComplexity = ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')) || null;
       useCase.changeImpact = ExcelImportService.parseNumber(getValue('Change Impact (1-5)')) || null;

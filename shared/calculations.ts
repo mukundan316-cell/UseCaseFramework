@@ -116,14 +116,14 @@ export function calculateEffortScore(
 
 /**
  * Determines quadrant based on impact and effort scores with configurable threshold
- * Y-axis = Business Value (Impact) - Higher is better
- * X-axis = Implementation Complexity (Effort) - Lower is better (left = easy, right = hard)
+ * Y-axis = Business Impact (Impact) - Higher is better
+ * X-axis = Implementation Effort (Effort) - Lower is better (left = easy, right = hard)
  * 
  * Quadrant Mapping (RSA Framework):
- * - Quick Win: impact >= threshold && effort < threshold (Top Left - High Value, Low Complexity - Easy + Valuable)
- * - Strategic Bet: impact >= threshold && effort >= threshold (Top Right - High Value, High Complexity - Hard + Valuable)  
- * - Experimental: impact < threshold && effort < threshold (Bottom Left - Low Value, Low Complexity - Easy + Low Value)
- * - Watchlist: impact < threshold && effort >= threshold (Bottom Right - Low Value, High Complexity - Hard + Low Value)
+ * - Quick Win: impact >= threshold && effort < threshold (Top Left - High Impact, Low Effort - Easy + Valuable)
+ * - Strategic Bet: impact >= threshold && effort >= threshold (Top Right - High Impact, High Effort - Hard + Valuable)  
+ * - Experimental: impact < threshold && effort < threshold (Bottom Left - Low Impact, Low Effort - Easy + Low Impact)
+ * - Watchlist: impact < threshold && effort >= threshold (Bottom Right - Low Impact, High Effort - Hard + Low Impact)
  */
 export function calculateQuadrant(
   impactScore: number, 

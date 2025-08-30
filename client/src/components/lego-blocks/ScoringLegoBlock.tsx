@@ -18,16 +18,16 @@ interface ScoringLegoBlockProps {
 
 /**
  * Reusable LEGO block for comprehensive RSA framework scoring sections
- * Supports Business Value, Feasibility, and AI Governance categories
+ * Supports Business Impact, Implementation Effort, and AI Governance categories
  * Implements 1-5 scale scoring with descriptive labels
  */
 export default function ScoringLegoBlock({ form, category, fields }: ScoringLegoBlockProps) {
   const getCategoryTitle = () => {
     switch (category) {
       case 'business-value':
-        return 'Business Value Levers';
+        return 'Business Impact Levers';
       case 'feasibility':
-        return 'Feasibility Levers';
+        return 'Implementation Effort Levers';
       case 'ai-governance':
         return 'AI Governance Levers';
       default:

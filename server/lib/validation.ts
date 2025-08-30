@@ -315,7 +315,7 @@ export const createQuestionSchema = z.object({
   isRequired: z.enum(['true', 'false']).default('false'),
   questionOrder: z.number().int().min(1),
   helpText: z.string().optional(),
-  scoringCategory: z.enum(['business_value', 'feasibility', 'ai_governance', 'general']).optional(),
+  scoringCategory: z.enum(['business_impact', 'implementation_effort', 'ai_governance', 'general']).optional(),
   // Additional validation for specific question types
   questionData: z.record(z.any()).optional(), // For storing type-specific configuration
 });

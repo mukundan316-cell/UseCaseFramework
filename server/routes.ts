@@ -30,7 +30,7 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
     }
   }
   
-  const businessValueWeights = parsedScoringModel?.businessValue || {
+  const businessImpactWeights = parsedScoringModel?.businessValue || { // Note: keeping 'businessValue' key for API compatibility
     revenueImpact: 20,
     costSavings: 20,
     riskReduction: 20,
@@ -38,7 +38,7 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
     strategicFit: 20
   };
   
-  const feasibilityWeights = parsedScoringModel?.feasibility || {
+  const implementationEffortWeights = parsedScoringModel?.feasibility || { // Note: keeping 'feasibility' key for API compatibility
     dataReadiness: 20,
     technicalComplexity: 20,
     changeImpact: 20,
@@ -48,7 +48,7 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
   
   const threshold = parsedScoringModel?.quadrantThreshold || 3.0;
   
-  console.log('Recalculation using weights:', { businessValueWeights, feasibilityWeights, threshold });
+  console.log('Recalculation using weights:', { businessImpactWeights, implementationEffortWeights, threshold });
   
   for (const useCase of useCases) {
     const impactScore = calculateImpactScore(
@@ -57,7 +57,7 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
       useCase.riskReduction,
       useCase.brokerPartnerExperience,
       useCase.strategicFit,
-      businessValueWeights
+      businessImpactWeights
     );
     
     const effortScore = calculateEffortScore(
@@ -66,7 +66,7 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
       useCase.changeImpact,
       useCase.modelRisk,
       useCase.adoptionReadiness,
-      feasibilityWeights
+      implementationEffortWeights
     );
     
     const quadrant = calculateQuadrant(impactScore, effortScore, threshold);
@@ -196,14 +196,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get current metadata for weights
       const metadata = await storage.getMetadataConfig();
-      const businessValueWeights = metadata?.scoringModel?.businessValue || {
+      const businessImpactWeights = metadata?.scoringModel?.businessValue || { // Note: keeping 'businessValue' key for API compatibility
         revenueImpact: 20,
         costSavings: 20,
         riskReduction: 20,
         brokerPartnerExperience: 20,
         strategicFit: 20
       };
-      const feasibilityWeights = metadata?.scoringModel?.feasibility || {
+      const implementationEffortWeights = metadata?.scoringModel?.feasibility || { // Note: keeping 'feasibility' key for API compatibility
         dataReadiness: 20,
         technicalComplexity: 20,
         changeImpact: 20,
@@ -219,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.riskReduction || 0,
         validatedData.brokerPartnerExperience || 0,
         validatedData.strategicFit || 0,
-        businessValueWeights
+        businessImpactWeights
       );
       
       const effortScore = calculateEffortScore(
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.changeImpact || 0,
         validatedData.modelRisk || 0,
         validatedData.adoptionReadiness || 0,
-        feasibilityWeights
+        implementationEffortWeights
       );
       
       const quadrant = calculateQuadrant(impactScore, effortScore, threshold);
@@ -354,14 +354,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Get current metadata for weights
         const metadata = await storage.getMetadataConfig();
-        const businessValueWeights = metadata?.scoringModel?.businessValue || {
+        const businessImpactWeights = metadata?.scoringModel?.businessValue || { // Note: keeping 'businessValue' key for API compatibility
           revenueImpact: 20,
           costSavings: 20,
           riskReduction: 20,
           brokerPartnerExperience: 20,
           strategicFit: 20
         };
-        const feasibilityWeights = metadata?.scoringModel?.feasibility || {
+        const implementationEffortWeights = metadata?.scoringModel?.feasibility || { // Note: keeping 'feasibility' key for API compatibility
           dataReadiness: 20,
           technicalComplexity: 20,
           changeImpact: 20,
@@ -390,7 +390,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           completeData.riskReduction || 0,
           completeData.brokerPartnerExperience || 0,
           completeData.strategicFit || 0,
-          businessValueWeights
+          businessImpactWeights
         );
         
         const effortScore = calculateEffortScore(
@@ -399,7 +399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           completeData.changeImpact || 0,
           completeData.modelRisk || 0, // Use merged modelRisk value
           completeData.adoptionReadiness || 0,
-          feasibilityWeights
+          implementationEffortWeights
         );
         
         const quadrant = calculateQuadrant(impactScore, effortScore, threshold);

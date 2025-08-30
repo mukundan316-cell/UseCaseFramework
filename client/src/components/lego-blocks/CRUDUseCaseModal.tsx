@@ -65,13 +65,13 @@ const formSchema = z.object({
   isDashboardVisible: z.union([z.literal('true'), z.literal('false'), z.string()]).default('false'),
   libraryTier: z.union([z.literal('active'), z.literal('reference'), z.string()]).default('reference'),
   activationReason: z.string().optional(),
-  // Enhanced RSA Framework - Business Value Levers (all optional - no validation restrictions)
+  // Enhanced RSA Framework - Business Impact Levers (all optional - no validation restrictions)
   revenueImpact: z.number().optional(),
   costSavings: z.number().optional(),
   riskReduction: z.number().optional(),
   brokerPartnerExperience: z.number().optional(),
   strategicFit: z.number().optional(),
-  // Feasibility Levers (all optional)
+  // Implementation Effort Levers (all optional)
   dataReadiness: z.number().optional(),
   technicalComplexity: z.number().optional(),
   changeImpact: z.number().optional(),
@@ -239,7 +239,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const formValues = form.watch();
   
   // Extract weights from metadata or use defaults for real-time calculations
-  const businessValueWeights = metadata?.scoringModel?.businessValue || {
+  const businessImpactWeights = metadata?.scoringModel?.businessValue || { // Note: keeping 'businessValue' key for API compatibility
     revenueImpact: 20,
     costSavings: 20,
     riskReduction: 20,
@@ -247,7 +247,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     strategicFit: 20
   };
   
-  const feasibilityWeights = metadata?.scoringModel?.feasibility || {
+  const implementationEffortWeights = metadata?.scoringModel?.feasibility || { // Note: keeping 'feasibility' key for API compatibility
     dataReadiness: 20,
     technicalComplexity: 20,
     changeImpact: 20,
@@ -263,7 +263,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     formValues.riskReduction ?? scores.riskReduction,
     formValues.brokerPartnerExperience ?? scores.brokerPartnerExperience,
     formValues.strategicFit ?? scores.strategicFit,
-    businessValueWeights
+    businessImpactWeights
   );
 
   const currentEffortScore = calculateEffortScore(
@@ -272,7 +272,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     formValues.changeImpact ?? scores.changeImpact,
     formValues.modelRisk ?? scores.modelRisk,
     formValues.adoptionReadiness ?? scores.adoptionReadiness,
-    feasibilityWeights
+    implementationEffortWeights
   );
 
   const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore, threshold);
@@ -1621,7 +1621,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Business Value Levers */}
               <div className="space-y-6">
-                <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Value Levers</h4>
+                <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Impact Levers</h4>
                 {/* Hide strategic scoring fields for AI inventory items */}
                 {form.watch('librarySource') !== 'ai_inventory' && (
                   <>
@@ -1665,7 +1665,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               </div>
               {/* Feasibility Levers */}
               <div className="space-y-6">
-                <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Feasibility Levers</h4>
+                <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Implementation Effort Levers</h4>
                 <SliderField
                   field="dataReadiness"
                   label="Data Readiness"

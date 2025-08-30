@@ -45,7 +45,7 @@ export function generateRecommendations(
     'risk_management': ['Risk Assessment', 'Fraud Detection', 'Compliance']
   };
 
-  // Business value categories for matching
+  // Business impact categories for matching
   const businessValueCategories = {
     'Revenue Generation': ['Revenue', 'Growth', 'Sales'],
     'Cost Optimization': ['Cost', 'Efficiency', 'Automation'],

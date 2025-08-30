@@ -26,14 +26,14 @@ export const useCases = pgTable("use_cases", {
   activities: text("activities").array(), // Multiple activities support  
   businessSegments: text("business_segments").array(), // Multiple segments support
   geographies: text("geographies").array(), // Multiple geographies support
-  // Business Value Levers (Impact Score)
+  // Business Impact Levers (Impact Score)
   revenueImpact: integer("revenue_impact").notNull(),
   costSavings: integer("cost_savings").notNull(),
   riskReduction: integer("risk_reduction").notNull(),
   brokerPartnerExperience: integer("broker_partner_experience").notNull(),
   strategicFit: integer("strategic_fit").notNull(),
   
-  // Feasibility Levers (Effort Score)
+  // Implementation Effort Levers (Effort Score)
   dataReadiness: integer("data_readiness").notNull(),
   technicalComplexity: integer("technical_complexity").notNull(),
   changeImpact: integer("change_impact").notNull(),
@@ -151,13 +151,13 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   useCaseType: z.union([z.string(), z.null()]).optional(),
   activity: z.union([z.string(), z.null()]).optional(),
   valueChainComponent: z.union([z.string(), z.null()]).optional(),
-  // Business Value Levers (Impact Score) - simplified validation per replit.md
+  // Business Impact Levers (Impact Score) - simplified validation per replit.md
   revenueImpact: z.number().min(1).max(5).optional(),
   costSavings: z.number().min(1).max(5).optional(),
   riskReduction: z.number().min(1).max(5).optional(),
   brokerPartnerExperience: z.number().min(1).max(5).optional(),
   strategicFit: z.number().min(1).max(5).optional(),
-  // Feasibility Levers (Effort Score) - simplified validation per replit.md
+  // Implementation Effort Levers (Effort Score) - simplified validation per replit.md
   dataReadiness: z.number().min(1).max(5).optional(),
   technicalComplexity: z.number().min(1).max(5).optional(),
   changeImpact: z.number().min(1).max(5).optional(),
