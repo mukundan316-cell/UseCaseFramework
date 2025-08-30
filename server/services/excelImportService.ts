@@ -66,7 +66,8 @@ export class ExcelImportService {
         for (const useCaseData of allUseCases) {
           this.trackUseCaseType(useCaseData, result.summary);
         }
-        result.success = true;
+        // Success depends on whether there are validation errors
+        result.success = result.errors.length === 0;
         return result;
       }
 
@@ -428,7 +429,7 @@ export class ExcelImportService {
     changeImpact: z.union([z.number(), z.null()]).optional(),
     modelRisk: z.union([z.number(), z.null()]).optional(),
     adoptionReadiness: z.union([z.number(), z.null()]).optional(),
-    // Boolean fields should allow null and string enum values
+    // Boolean fields should allow null, undefined and string enum values
     explainabilityRequired: z.union([z.enum(['true', 'false']), z.null()]).optional(),
     dataOutsideUkEu: z.union([z.enum(['true', 'false']), z.null()]).optional(),
     thirdPartyModel: z.union([z.enum(['true', 'false']), z.null()]).optional(),
@@ -439,6 +440,7 @@ export class ExcelImportService {
     lineOfBusiness: z.union([z.string(), z.null()]).optional(),
     businessSegment: z.union([z.string(), z.null()]).optional(),
     geography: z.union([z.string(), z.null()]).optional(),
+    overrideReason: z.union([z.string(), z.null()]).optional(),
     // Allow any other fields to pass through
   }).passthrough(); // Allow additional fields not in schema
 
