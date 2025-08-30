@@ -43,6 +43,17 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **File Storage**: Database storage (Base64) over external services for reliability and simplicity
 - **Assessment Data Format**: Survey.js questionnaire structure (`pages` → `elements` → `panels` → `elements`)
 - **API Consistency**: Single endpoint pattern `/api/questionnaire/` for questionnaire data access
+- **UI/Excel Consistency**: Excel import must follow exact same validation and flow as UI creation
+
+## Excel Import Principles (Critical - Must Maintain)
+- **Validation Consistency**: Excel validation schema must match UI form validation exactly
+- **Minimal Requirements**: Only title and description required, all other fields optional
+- **Default Value Handling**: Remove null/undefined values to let storage layer apply same defaults as UI
+- **ID Generation**: Auto-generate meaningful IDs based on librarySource category (RSA_INT_001, RSA_IND_001, RSA_AITOOL_001)
+- **Schema Reuse**: Never duplicate validation logic - reuse existing UI validation patterns
+- **Error Handling**: Same user-friendly error messages for both UI and Excel flows
+- **Boolean Fields**: Handle null values consistently with UI, apply storage layer defaults
+- **LEGO Principle**: Excel import should reuse existing storage and validation components, not duplicate logic
 
 ## Tech Stack
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL
