@@ -487,6 +487,26 @@ export default function UseCaseDetailDrawer({
                   icon={Network}
                 />
               )}
+
+              {/* Horizontal Use Case Section - New Fields */}
+              {(extendedUseCase.horizontalUseCase === 'true' || extendedUseCase.horizontalUseCaseTypes?.length > 0) && (
+                <>
+                  <Separator />
+                  <FieldDisplay 
+                    label="Horizontal Use Case"
+                    value={extendedUseCase.horizontalUseCase === 'true' ? 'Yes' : 'No'}
+                    icon={Activity}
+                  />
+                  
+                  {extendedUseCase.horizontalUseCaseTypes && extendedUseCase.horizontalUseCaseTypes.length > 0 && (
+                    <FieldDisplay 
+                      label="Horizontal Use Case Types"
+                      value={extendedUseCase.horizontalUseCaseTypes}
+                      icon={Tag}
+                    />
+                  )}
+                </>
+              )}
             </AccordionContent>
           </AccordionItem>
 

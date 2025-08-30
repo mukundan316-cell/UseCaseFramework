@@ -340,6 +340,12 @@ export default function AdminPanel() {
                     items={metadata.processes || []}
                     placeholder="Add new business process..."
                   />
+                  <MetadataLegoBlock
+                    category="horizontalUseCaseTypes"
+                    title="Horizontal Use Case Types"
+                    items={metadata.horizontalUseCaseTypes || []}
+                    placeholder="Add new horizontal use case type..."
+                  />
                 </div>
                 
                 {/* Process-Activity Relationships */}

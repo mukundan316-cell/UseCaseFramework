@@ -315,6 +315,10 @@ export class ExcelImportService {
       useCase.dataSources = ExcelImportService.parseArray(getValue('Data Sources'));
       useCase.stakeholderGroups = ExcelImportService.parseArray(getValue('Stakeholder Groups'));
       
+      // Horizontal Use Case fields - new mapping for Excel import/export
+      useCase.horizontalUseCase = ExcelImportService.parseBoolean(getValue('Horizontal Use Case'));
+      useCase.horizontalUseCaseTypes = ExcelImportService.parseArray(getValue('Horizontal Use Case Types'));
+      
       // RSA Ethical Principles - FIXED: proper boolean string conversion for database storage
       useCase.explainabilityRequired = ExcelImportService.parseBoolean(getValue('Explainability Required'));
       useCase.customerHarmRisk = getValue('Customer Harm Risk') || null;

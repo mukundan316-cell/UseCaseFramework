@@ -266,6 +266,8 @@ export const metadataConfig = pgTable('metadata_config', {
   aiMlTechnologies: text('ai_ml_technologies').array().notNull().default(sql`'{"Machine Learning","Deep Learning","Natural Language Processing","Computer Vision","Predictive Analytics","Large Language Models","Reinforcement Learning","Rule-based Systems"}'`),
   dataSources: text('data_sources').array().notNull().default(sql`'{"Policy Database","Claims Database","Customer Database","External APIs","Third-party Data","Real-time Feeds","Historical Data","Regulatory Data"}'`),
   stakeholderGroups: text('stakeholder_groups').array().notNull().default(sql`'{"Underwriting Teams","Claims Teams","IT/Technology","Business Analytics","Risk Management","Compliance","Customer Service","External Partners"}'`),
+  // Horizontal Use Case Types - new field for categorization
+  horizontalUseCaseTypes: text('horizontal_use_case_types').array().notNull().default(sql`'{"Document drafting","report generation","Categorization","tagging","curation","Research assistant","information retrieval","Autofill","next-best action suggestions","autonomous agents","Debugging","refactoring","coding","Synthesis","summarization","Augmentation","visualization","Text versions for analysis","time series data generation","scenario generation","Suggestions for workflow amendments","automated changes to workflows","Errors","fraud","problem-solving"}'`),
   // Quadrant definitions for RSA AI Value Matrix
   quadrants: text('quadrants').array().notNull().default(sql`'{"Quick Win","Strategic Bet","Experimental","Watchlist"}'`),
   // Assessment and questionnaire LOVs
