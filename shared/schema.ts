@@ -156,20 +156,20 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   useCaseType: z.union([z.string(), z.null()]).optional(),
   activity: z.union([z.string(), z.null()]).optional(),
   valueChainComponent: z.union([z.string(), z.null()]).optional(),
-  // Business Impact Levers (Impact Score) - simplified validation per replit.md
-  revenueImpact: z.number().min(1).max(5).optional(),
-  costSavings: z.number().min(1).max(5).optional(),
-  riskReduction: z.number().min(1).max(5).optional(),
-  brokerPartnerExperience: z.number().min(1).max(5).optional(),
-  strategicFit: z.number().min(1).max(5).optional(),
-  // Implementation Effort Levers (Effort Score) - simplified validation per replit.md
-  dataReadiness: z.number().min(1).max(5).optional(),
-  technicalComplexity: z.number().min(1).max(5).optional(),
-  changeImpact: z.number().min(1).max(5).optional(),
-  modelRisk: z.number().min(1).max(5).optional(),
-  adoptionReadiness: z.number().min(1).max(5).optional(),
+  // Business Impact Levers (Impact Score) - truly optional per replit.md minimal validation
+  revenueImpact: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  costSavings: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  riskReduction: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  brokerPartnerExperience: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  strategicFit: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  // Implementation Effort Levers (Effort Score) - truly optional per replit.md minimal validation
+  dataReadiness: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  technicalComplexity: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  changeImpact: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  modelRisk: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  adoptionReadiness: z.union([z.number().min(0).max(5), z.null()]).optional(),
   // Additional scoring fields
-  regulatoryCompliance: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  regulatoryCompliance: z.union([z.number().min(0).max(5), z.null()]).optional(),
   // Final scoring fields - simplified per replit.md
   finalImpactScore: z.number().optional(),
   finalEffortScore: z.number().optional(),
@@ -188,8 +188,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   activationReason: z.union([z.string(), z.null()]).optional(),
   deactivationReason: z.union([z.string(), z.null()]).optional(),
   // Manual override fields - simplified per replit.md, allow null for clearing
-  manualImpactScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
-  manualEffortScore: z.union([z.number().min(1).max(5), z.null()]).optional(),
+  manualImpactScore: z.union([z.number().min(0).max(5), z.null()]).optional(),
+  manualEffortScore: z.union([z.number().min(0).max(5), z.null()]).optional(),
   manualQuadrant: z.union([z.string(), z.null()]).optional(),
   overrideReason: z.union([z.string(), z.null()]).optional(),
   // Tab 3: Implementation & Governance fields - allow null for import compatibility
