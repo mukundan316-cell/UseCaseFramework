@@ -9,7 +9,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
-export const useCases = pgTable("use_cases", {
+export const useCases: any = pgTable("use_cases", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -113,7 +113,7 @@ export const useCases = pgTable("use_cases", {
 });
 
 // File attachments table for storing binary data in database
-export const fileAttachments = pgTable("file_attachments", {
+export const fileAttachments: any = pgTable("file_attachments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   useCaseId: varchar("use_case_id").references(() => useCases.id),
   fileName: text("file_name").notNull(),

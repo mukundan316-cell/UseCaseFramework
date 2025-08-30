@@ -214,20 +214,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Calculate scores with weights
       const impactScore = calculateImpactScore(
-        validatedData.revenueImpact || 0,
-        validatedData.costSavings || 0,
-        validatedData.riskReduction || 0,
-        validatedData.brokerPartnerExperience || 0,
-        validatedData.strategicFit || 0,
+        (validatedData.revenueImpact as number) || 0,
+        (validatedData.costSavings as number) || 0,
+        (validatedData.riskReduction as number) || 0,
+        (validatedData.brokerPartnerExperience as number) || 0,
+        (validatedData.strategicFit as number) || 0,
         businessImpactWeights
       );
       
       const effortScore = calculateEffortScore(
-        validatedData.dataReadiness || 0,
-        validatedData.technicalComplexity || 0,
-        validatedData.changeImpact || 0,
-        validatedData.modelRisk || 0,
-        validatedData.adoptionReadiness || 0,
+        (validatedData.dataReadiness as number) || 0,
+        (validatedData.technicalComplexity as number) || 0,
+        (validatedData.changeImpact as number) || 0,
+        (validatedData.modelRisk as number) || 0,
+        (validatedData.adoptionReadiness as number) || 0,
         implementationEffortWeights
       );
       
@@ -235,23 +235,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const useCaseWithScores = {
         ...validatedData,
-        linesOfBusiness: validatedData.linesOfBusiness?.filter((item): item is string => item != null) || 
+        linesOfBusiness: (validatedData.linesOfBusiness as string[])?.filter((item): item is string => item != null) || 
                          [validatedData.lineOfBusiness].filter((item): item is string => item != null),
         // Handle multi-select arrays with backward compatibility
-        processes: validatedData.processes || (validatedData.process ? [validatedData.process] : undefined),
-        activities: validatedData.activities || (validatedData.activity ? [validatedData.activity] : undefined),
-        businessSegments: validatedData.businessSegments || (validatedData.businessSegment ? [validatedData.businessSegment] : undefined),
-        geographies: validatedData.geographies || (validatedData.geography ? [validatedData.geography] : undefined),
+        processes: (validatedData.processes as string[]) || (validatedData.process ? [validatedData.process] : undefined),
+        activities: (validatedData.activities as string[]) || (validatedData.activity ? [validatedData.activity] : undefined),
+        businessSegments: (validatedData.businessSegments as string[]) || (validatedData.businessSegment ? [validatedData.businessSegment] : undefined),
+        geographies: (validatedData.geographies as string[]) || (validatedData.geography ? [validatedData.geography] : undefined),
         // Ensure new use cases go to reference library by default
-        isActiveForRsa: validatedData.isActiveForRsa || 'false',
-        isDashboardVisible: validatedData.isDashboardVisible || 'false',
-        libraryTier: validatedData.libraryTier || 'reference',
+        isActiveForRsa: (validatedData.isActiveForRsa as string) || 'false',
+        isDashboardVisible: (validatedData.isDashboardVisible as string) || 'false',
+        libraryTier: (validatedData.libraryTier as string) || 'reference',
         impactScore,
         effortScore,
         quadrant
       };
       
-      const newUseCase = await storage.createUseCase(useCaseWithScores);
+      const newUseCase = await storage.createUseCase(useCaseWithScores as any);
       res.status(201).json(mapUseCaseToFrontend(newUseCase));
     } catch (error) {
       console.error("Error creating use case:", error);
@@ -314,18 +314,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle multi-select arrays for updates
       if (validatedData.linesOfBusiness) {
-        validatedData.linesOfBusiness = validatedData.linesOfBusiness.length > 0 ? validatedData.linesOfBusiness : [validatedData.lineOfBusiness].filter(Boolean) as string[];
+        validatedData.linesOfBusiness = (validatedData.linesOfBusiness as string[]).length > 0 ? validatedData.linesOfBusiness : [validatedData.lineOfBusiness].filter(Boolean) as string[];
       }
-      if (validatedData.processes && validatedData.processes.length === 0) {
+      if (validatedData.processes && (validatedData.processes as string[]).length === 0) {
         validatedData.processes = validatedData.process ? [validatedData.process] : undefined;
       }
-      if (validatedData.activities && validatedData.activities.length === 0) {
+      if (validatedData.activities && (validatedData.activities as string[]).length === 0) {
         validatedData.activities = validatedData.activity ? [validatedData.activity] : undefined;
       }
-      if (validatedData.businessSegments && validatedData.businessSegments.length === 0) {
+      if (validatedData.businessSegments && (validatedData.businessSegments as string[]).length === 0) {
         validatedData.businessSegments = validatedData.businessSegment ? [validatedData.businessSegment] : undefined;
       }
-      if (validatedData.geographies && validatedData.geographies.length === 0) {
+      if (validatedData.geographies && (validatedData.geographies as string[]).length === 0) {
         validatedData.geographies = validatedData.geography ? [validatedData.geography] : undefined;
       }
 
