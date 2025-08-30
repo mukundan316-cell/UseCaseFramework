@@ -365,3 +365,35 @@ body {
     outline: none;
   }
 }
+
+/* Text Wrapping Utilities - Global fixes for overflow issues */
+.text-wrap-anywhere {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.text-wrap-break-word {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Ensure all card content wraps properly */
+[data-testid="card-usecase"] p,
+[data-testid="card-usecase"] span,
+[data-testid="card-usecase"] div {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Fix for long URLs and email addresses */
+.break-all {
+  word-break: break-all;
+}
+
+/* Utility for text that should never overflow container */
+.no-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

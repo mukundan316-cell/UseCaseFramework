@@ -173,7 +173,7 @@ export default function CleanUseCaseCard({
               )}
             </div>
           </div>
-          <p className="text-sm text-gray-600 line-clamp-2">
+          <p className="text-sm text-gray-600 line-clamp-2 break-words overflow-hidden">
             {useCase.description}
           </p>
         </div>
@@ -219,13 +219,13 @@ export default function CleanUseCaseCard({
               {(useCase as any).modelOwner && (
                 <div className="flex items-center text-xs text-violet-700 mb-1">
                   <Users className="w-3 h-3 mr-1.5 text-violet-600" />
-                  <span className="font-medium">Owner: {(useCase as any).modelOwner}</span>
+                  <span className="font-medium break-words">Owner: {(useCase as any).modelOwner}</span>
                 </div>
               )}
               {(useCase as any).dataUsed && (
                 <div className="flex items-center text-xs text-teal-700 mb-1">
                   <Tag className="w-3 h-3 mr-1.5 text-teal-600" />
-                  <span className="font-medium">Data: {(useCase as any).dataUsed}</span>
+                  <span className="font-medium break-words">Data: {(useCase as any).dataUsed}</span>
                 </div>
               )}
 
@@ -237,12 +237,12 @@ export default function CleanUseCaseCard({
                     <span className="font-semibold">Risk Assessment</span>
                   </div>
                   {(useCase as any).riskToCustomers && (
-                    <div className="text-xs text-amber-700 mb-1">
+                    <div className="text-xs text-amber-700 mb-1 break-words">
                       <span className="font-medium">Customer:</span> {(useCase as any).riskToCustomers}
                     </div>
                   )}
                   {(useCase as any).riskToRsa && (
-                    <div className="text-xs text-amber-700">
+                    <div className="text-xs text-amber-700 break-words">
                       <span className="font-medium">RSA:</span> {(useCase as any).riskToRsa}
                     </div>
                   )}
@@ -254,7 +254,7 @@ export default function CleanUseCaseCard({
                 {(useCase as any).rsaPolicyGovernance && (
                   <div className="flex items-center text-xs text-purple-700">
                     <Settings className="w-3 h-3 mr-1.5 text-purple-600" />
-                    <span className="font-medium">Policy: {(useCase as any).rsaPolicyGovernance}</span>
+                    <span className="font-medium break-words">Policy: {(useCase as any).rsaPolicyGovernance}</span>
                   </div>
                 )}
                 {(useCase as any).thirdPartyModel && (
