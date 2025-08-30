@@ -7,8 +7,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { SmartRatingLegoBlock } from '../SmartRatingLegoBlock';
-import { InfoTooltipLegoBlock } from '../InfoTooltipLegoBlock';
+import { SmartRatingLegoBlock } from './SmartRatingLegoBlock';
+import { InfoTooltipLegoBlock } from './InfoTooltipLegoBlock';
 
 export interface QuestionOption {
   id: string;
