@@ -11,6 +11,9 @@ interface PresentationUploadBlockProps {
     presentationUrl: string;
     presentationPdfUrl: string;
     presentationFileName: string;
+    presentationFileId?: string;
+    presentationPdfFileId?: string;
+    hasPresentation?: string;
   }) => void;
   currentFileName?: string;
   disabled?: boolean;
@@ -83,6 +86,9 @@ export default function PresentationUploadBlock({
         presentationUrl,
         presentationPdfUrl,
         presentationFileName: result.presentationFileName || file.name,
+        presentationFileId: result.presentationFileId,
+        presentationPdfFileId: result.presentationPdfFileId,
+        hasPresentation: 'true'
       });
 
       toast({

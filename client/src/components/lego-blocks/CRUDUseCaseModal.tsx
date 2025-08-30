@@ -1632,6 +1632,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       form.setValue('presentationUrl', result.presentationUrl);
                       form.setValue('presentationPdfUrl', result.presentationPdfUrl);
                       form.setValue('presentationFileName', result.presentationFileName);
+                      form.setValue('presentationFileId', result.presentationFileId);
+                      form.setValue('presentationPdfFileId', result.presentationPdfFileId);
+                      form.setValue('hasPresentation', result.hasPresentation || 'true');
+                      form.setValue('presentationUploadedAt', new Date().toISOString());
                     }}
                   />
 
