@@ -623,7 +623,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           }
           
           // Handle boolean fields stored as text in database
-          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability', 'horizontalUseCase'].includes(key)) {
+          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability', 'horizontalUseCase', 'hasPresentation'].includes(key)) {
             if (typeof value === 'boolean') {
               changedData[key] = value.toString();
             } else if (value === 'true' || value === true) {
@@ -700,7 +700,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             }
           }
           
-          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability', 'horizontalUseCase'].includes(key)) {
+          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability', 'horizontalUseCase', 'hasPresentation'].includes(key)) {
             if (typeof value === 'boolean') {
               createData[key] = value.toString();
             } else if (value === 'true' || value === true) {
