@@ -988,19 +988,21 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   )}
                 </div>
 
-                {/* RSA Portfolio Selection - Available for all source types for consistency */}
-                <RSASelectionToggleLegoBlock
-                  isActiveForRsa={rsaSelection.isActiveForRsa}
-                  isDashboardVisible={rsaSelection.isDashboardVisible}
-                  activationReason={rsaSelection.activationReason}
-                  deactivationReason={rsaSelection.deactivationReason}
-                  libraryTier={rsaSelection.libraryTier}
-                  onRSAToggle={handleRSAToggle}
-                  onDashboardToggle={handleDashboardToggle}
-                  onActivationReasonChange={handleActivationReasonChange}
-                  onDeactivationReasonChange={handleDeactivationReasonChange}
-                  className="mb-6"
-                />
+                {/* RSA Portfolio Selection - Hidden for AI Inventory types */}
+                {form.watch('librarySource') !== 'ai_inventory' && (
+                  <RSASelectionToggleLegoBlock
+                    isActiveForRsa={rsaSelection.isActiveForRsa}
+                    isDashboardVisible={rsaSelection.isDashboardVisible}
+                    activationReason={rsaSelection.activationReason}
+                    deactivationReason={rsaSelection.deactivationReason}
+                    libraryTier={rsaSelection.libraryTier}
+                    onRSAToggle={handleRSAToggle}
+                    onDashboardToggle={handleDashboardToggle}
+                    onActivationReasonChange={handleActivationReasonChange}
+                    onDeactivationReasonChange={handleDeactivationReasonChange}
+                    className="mb-6"
+                  />
+                )}
               </TabsContent>
 
               {/* Tab 2: Business Context */}
