@@ -606,6 +606,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           adoptionReadiness: formValues.adoptionReadiness
         });
         
+        // Remove meaningfulId from submission data - it's auto-generated server-side
+        delete changedData.meaningfulId;
+        
         // Handle data type conversions and null values for robust persistence
         Object.keys(changedData).forEach(key => {
           const value = changedData[key];
@@ -684,6 +687,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         createData.impactScore = currentImpactScore;
         createData.effortScore = currentEffortScore;
         createData.quadrant = currentQuadrant;
+        
+        // Remove meaningfulId from submission data - it's auto-generated server-side  
+        delete createData.meaningfulId;
         
         // Handle data type conversions for create
         Object.keys(createData).forEach(key => {
@@ -899,23 +905,24 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     )}
                   </div>
                   
-                  {/* Meaningful ID Field */}
-                  <div>
-                    <Label htmlFor="meaningfulId" className="text-sm font-medium">
-                      Use Case ID 
-                      <span className="text-gray-500 text-xs ml-1">(auto-generated if empty)</span>
-                    </Label>
-                    <Input
-                      id="meaningfulId"
-                      placeholder="e.g., RSA-CLA-001 (leave empty for auto-generation)"
-                      className="mt-1 font-mono text-sm"
-                      {...form.register('meaningfulId')}
-                      data-testid="input-meaningful-id"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Format: {'{'}PREFIX{'}'}&#8209;{'{'}CATEGORY{'}'}&#8209;{'{'}NUMBER{'}'} (e.g., RSA-CLA-001, IND-FRA-002)
-                    </p>
-                  </div>
+                  {/* Meaningful ID Field - Read-only for existing use cases with IDs */}
+                  {mode === 'edit' && useCase?.meaningfulId && (
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Use Case ID
+                      </Label>
+                      <div className="mt-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
+                        <span className="font-mono text-sm text-rsa-blue font-medium">
+                          {useCase.meaningfulId}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        This ID is automatically assigned and cannot be changed
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* For new use cases, ID field is hidden - auto-generated after creation */}
                   
                   <div>
                     <Label>Use Case Type</Label>
