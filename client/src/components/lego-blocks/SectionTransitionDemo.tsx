@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import SectionTransitionLegoBlock, { SectionData, TransitionState } from './SectionTransitionLegoBlock';
 import ReusableButton from './ReusableButton';
 import { 
@@ -12,8 +14,6 @@ import {
   Clock,
   AlertTriangle,
   Sparkles,
-  ToggleLeft,
-  ToggleRight,
   ArrowUpDown
 } from 'lucide-react';
 
@@ -347,42 +347,36 @@ export default function SectionTransitionDemo() {
               <Settings className="h-4 w-4 mr-1" />
               Demo Settings
             </h4>
-            <div className="flex flex-wrap gap-4">
-              <button
-                onClick={() => setAutoAdvance(!autoAdvance)}
-                className="flex items-center space-x-2 text-sm"
-              >
-                {autoAdvance ? (
-                  <ToggleRight className="h-4 w-4 text-blue-600" />
-                ) : (
-                  <ToggleLeft className="h-4 w-4 text-gray-400" />
-                )}
-                <span>Auto-advance sections</span>
-              </button>
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center justify-between space-x-3">
+                <Label htmlFor="auto-advance" className="text-sm font-medium">Auto-advance sections</Label>
+                <Switch
+                  id="auto-advance"
+                  checked={autoAdvance}
+                  onCheckedChange={setAutoAdvance}
+                  data-testid="switch-auto-advance"
+                />
+              </div>
               
-              <button
-                onClick={() => setSimulateValidation(!simulateValidation)}
-                className="flex items-center space-x-2 text-sm"
-              >
-                {simulateValidation ? (
-                  <ToggleRight className="h-4 w-4 text-blue-600" />
-                ) : (
-                  <ToggleLeft className="h-4 w-4 text-gray-400" />
-                )}
-                <span>Simulate validation</span>
-              </button>
+              <div className="flex items-center justify-between space-x-3">
+                <Label htmlFor="simulate-validation" className="text-sm font-medium">Simulate validation</Label>
+                <Switch
+                  id="simulate-validation"
+                  checked={simulateValidation}
+                  onCheckedChange={setSimulateValidation}
+                  data-testid="switch-simulate-validation"
+                />
+              </div>
               
-              <button
-                onClick={() => setHasUnsavedChanges(!hasUnsavedChanges)}
-                className="flex items-center space-x-2 text-sm"
-              >
-                {hasUnsavedChanges ? (
-                  <ToggleRight className="h-4 w-4 text-blue-600" />
-                ) : (
-                  <ToggleLeft className="h-4 w-4 text-gray-400" />
-                )}
-                <span>Unsaved changes</span>
-              </button>
+              <div className="flex items-center justify-between space-x-3">
+                <Label htmlFor="unsaved-changes" className="text-sm font-medium">Unsaved changes</Label>
+                <Switch
+                  id="unsaved-changes"
+                  checked={hasUnsavedChanges}
+                  onCheckedChange={setHasUnsavedChanges}
+                  data-testid="switch-unsaved-changes"
+                />
+              </div>
             </div>
           </div>
 
