@@ -25,6 +25,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import MultiSelectField from './MultiSelectField';
 import PresentationUploadBlock from './PresentationUploadBlock';
 import PresentationPreviewBlock from './PresentationPreviewBlock';
+import HorizontalUseCaseLegoBlock from './HorizontalUseCaseLegoBlock';
 import LoadingState from '@/components/ui/loading-state';
 
 
@@ -105,6 +106,9 @@ const formSchema = z.object({
   deploymentStatus: z.string().optional(),
   deactivationReason: z.string().optional(),
   regulatoryCompliance: z.number().optional(),
+  // Horizontal Use Case fields - following replit.md string boolean pattern
+  horizontalUseCase: z.enum(['true', 'false']).default('false'),
+  horizontalUseCaseTypes: z.array(z.string()).optional(),
   // Presentation fields
   presentationUrl: z.string().optional(),
   presentationPdfUrl: z.string().optional(),
@@ -1104,6 +1108,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 }}
                 helpText={form.watch('process') ? "Activities filtered by selected process" : "Select process first to enable activities"}
                 placeholder={!form.watch('process') ? "Select process first" : "Select activities..."}
+              />
+
+              {/* Horizontal Use Case Selection - LEGO Component */}
+              <HorizontalUseCaseLegoBlock
+                isHorizontalUseCase={form.watch('horizontalUseCase') || 'false'}
+                selectedTypes={(form.watch('horizontalUseCaseTypes') as string[]) || []}
+                onHorizontalUseCaseChange={(value: 'true' | 'false') => form.setValue('horizontalUseCase', value)}
+                onTypesChange={(types) => form.setValue('horizontalUseCaseTypes', types)}
+                className="w-full"
               />
             </div>
               </TabsContent>

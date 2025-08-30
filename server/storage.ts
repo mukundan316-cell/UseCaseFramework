@@ -176,11 +176,22 @@ export class DatabaseStorage implements IStorage {
       // Handle boolean strings (preserve existing system)
       // Uses string 'true'/'false' instead of boolean for consistency per replit.md
       if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
-           'thirdPartyModel', 'humanAccountability'].includes(key)) {
+           'thirdPartyModel', 'humanAccountability', 'horizontalUseCase', 'hasPresentation'].includes(key)) {
         if (typeof value === 'boolean') {
           cleanData[key] = value ? 'true' : 'false';
         } else if (typeof value === 'string' && ['true', 'false'].includes(value)) {
           cleanData[key] = value;
+        }
+        return;
+      }
+      
+      // Handle horizontal use case types array
+      if (key === 'horizontalUseCaseTypes') {
+        if (Array.isArray(value)) {
+          const cleanArray = value.filter(item => item && typeof item === 'string' && item.trim());
+          if (cleanArray.length > 0) {
+            cleanData[key] = cleanArray;
+          }
         }
         return;
       }
@@ -264,9 +275,18 @@ export class DatabaseStorage implements IStorage {
       
       // Handle boolean string fields - simplified validation
       if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
-           'thirdPartyModel', 'humanAccountability'].includes(key)) {
+           'thirdPartyModel', 'humanAccountability', 'horizontalUseCase', 'hasPresentation'].includes(key)) {
         if (typeof value === 'string' && ['true', 'false'].includes(value)) {
           cleanUpdates[key] = value;
+        }
+        return;
+      }
+      
+      // Handle horizontal use case types array
+      if (key === 'horizontalUseCaseTypes') {
+        if (Array.isArray(value)) {
+          const cleanArray = value.filter(item => item && typeof item === 'string' && item.trim());
+          cleanUpdates[key] = cleanArray;
         }
         return;
       }

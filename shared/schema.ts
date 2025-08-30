@@ -99,6 +99,10 @@ export const useCases: any = pgTable("use_cases", {
   dataSources: text("data_sources").array(),
   stakeholderGroups: text("stakeholder_groups").array(),
   
+  // Horizontal Use Case feature - following replit.md string boolean pattern
+  horizontalUseCase: text("horizontal_use_case").default('false'), // 'true' or 'false'
+  horizontalUseCaseTypes: text("horizontal_use_case_types").array(), // Array of selected horizontal use case types
+  
   // PowerPoint Presentation Integration - Database Storage
   presentationFileId: varchar("presentation_file_id").references(() => fileAttachments.id), // Reference to original file
   presentationPdfFileId: varchar("presentation_pdf_file_id").references(() => fileAttachments.id), // Reference to PDF version
@@ -220,6 +224,10 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   dataOutsideUkEu: z.enum(['true', 'false']).optional(),
   thirdPartyModel: z.enum(['true', 'false']).optional(),
   humanAccountability: z.enum(['true', 'false']).optional(),
+  
+  // Horizontal Use Case fields - following replit.md string boolean pattern
+  horizontalUseCase: z.enum(['true', 'false']).default('false'),
+  horizontalUseCaseTypes: z.array(z.string()).optional(),
   
   // PowerPoint Presentation fields - following replit.md patterns (allow null for compatibility)
   presentationUrl: z.union([z.string(), z.null()]).optional(),
