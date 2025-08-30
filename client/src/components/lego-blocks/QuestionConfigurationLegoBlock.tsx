@@ -55,28 +55,56 @@ export default function QuestionConfigurationLegoBlock({
       
       const data = await response.json();
       
-      // Extract percentage_target questions from all sections
+      // Extract percentage_target questions from Survey.js format (pages instead of sections)
       const percentageTargetQuestions: QuestionConfig[] = [];
       
-      data.sections?.forEach((section: any) => {
-        section.questions?.forEach((question: any) => {
-          if (question.questionType === 'percentage_target') {
-            // Extract question number from question ID (e.g., "q3-distribution" -> 3)
-            const questionNumber = question.id.match(/^q(\d+)-/)?.[1] || question.questionOrder;
-            
-            percentageTargetQuestions.push({
-              id: question.id,
-              questionText: question.questionText,
-              questionType: question.questionType,
-              questionOrder: parseInt(questionNumber as string) || question.questionOrder || 0,
-              showTotal: question.questionData?.showTotal !== false, // Default to true
-              precision: question.questionData?.precision || 1,
-              additionalContextLabel: question.questionData?.additionalContextLabel || 'Additional Context',
-              placeholder: question.questionData?.placeholder || '0.0'
+      // Handle Survey.js format (pages > elements > panels > elements)
+      if (data.pages && Array.isArray(data.pages)) {
+        data.pages.forEach((page: any) => {
+          if (page.elements && Array.isArray(page.elements)) {
+            page.elements.forEach((element: any) => {
+              if (element.type === 'panel' && element.elements) {
+                element.elements.forEach((question: any) => {
+                  if (question.name && question.name.includes('percentage') || question.type === 'percentage_target') {
+                    percentageTargetQuestions.push({
+                      id: question.name || question.id,
+                      questionText: question.title || question.questionText || question.name,
+                      questionType: 'percentage_target',
+                      questionOrder: percentageTargetQuestions.length + 1,
+                      showTotal: true,
+                      precision: 1,
+                      additionalContextLabel: 'Additional Context',
+                      placeholder: '0.0'
+                    });
+                  }
+                });
+              }
             });
           }
         });
-      });
+      }
+      
+      // Fallback: Check original sections format for compatibility
+      if (percentageTargetQuestions.length === 0 && data.sections) {
+        data.sections.forEach((section: any) => {
+          section.questions?.forEach((question: any) => {
+            if (question.questionType === 'percentage_target') {
+              const questionNumber = question.id.match(/^q(\d+)-/)?.[1] || question.questionOrder;
+              
+              percentageTargetQuestions.push({
+                id: question.id,
+                questionText: question.questionText,
+                questionType: question.questionType,
+                questionOrder: parseInt(questionNumber as string) || question.questionOrder || 0,
+                showTotal: question.questionData?.showTotal !== false,
+                precision: question.questionData?.precision || 1,
+                additionalContextLabel: question.questionData?.additionalContextLabel || 'Additional Context',
+                placeholder: question.questionData?.placeholder || '0.0'
+              });
+            }
+          });
+        });
+      }
       
       // Sort by question order
       percentageTargetQuestions.sort((a, b) => a.questionOrder - b.questionOrder);

@@ -62,9 +62,12 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
         const questionnaires = await response.json();
         setAvailableQuestionnaires(questionnaires);
         
-        // Set first questionnaire as default if none selected
+        // Set first questionnaire as default if none selected and immediately load its stats
         if (!selectedQuestionnaireId && questionnaires.length > 0) {
-          setSelectedQuestionnaireId(questionnaires[0].id);
+          const firstId = questionnaires[0].id;
+          setSelectedQuestionnaireId(firstId);
+          // Load stats immediately for the first questionnaire
+          loadStats(firstId);
         }
       }
     } catch (error) {
@@ -85,12 +88,37 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
       if (!questResponse.ok) throw new Error('Failed to load questionnaire');
       const questData = await questResponse.json();
 
-      // Calculate basic stats
-      const totalQuestions = questData.sections?.reduce((sum: number, section: any) => 
-        sum + (section.questions?.length || 0), 0) || 0;
-      const totalSections = questData.sections?.length || 0;
-      const estimatedTime = questData.sections?.reduce((sum: number, section: any) => 
-        sum + (section.estimatedTime || 5), 0) || 0;
+      // Calculate basic stats from Survey.js format (pages instead of sections)
+      let totalQuestions = 0;
+      let totalSections = 0;
+      let estimatedTime = 0;
+
+      if (questData.pages && Array.isArray(questData.pages)) {
+        questData.pages.forEach((page: any) => {
+          if (page.elements && Array.isArray(page.elements)) {
+            page.elements.forEach((element: any) => {
+              if (element.type === 'panel' && element.elements) {
+                totalSections++;
+                totalQuestions += element.elements.length;
+                // Estimate 2 minutes per question
+                estimatedTime += element.elements.length * 2;
+              } else if (element.type !== 'html') {
+                totalQuestions++;
+                estimatedTime += 2;
+              }
+            });
+          }
+        });
+      }
+
+      // Use fallback if no pages structure found
+      if (totalQuestions === 0 && questData.sections) {
+        totalQuestions = questData.sections.reduce((sum: number, section: any) => 
+          sum + (section.questions?.length || 0), 0) || 0;
+        totalSections = questData.sections.length || 0;
+        estimatedTime = questData.sections.reduce((sum: number, section: any) => 
+          sum + (section.estimatedTime || 5), 0) || 0;
+      }
 
       // Try to load usage statistics from the actual available endpoint
       let usageStats = {
