@@ -405,7 +405,36 @@ export class ExcelImportService {
   }
 
   /**
-   * Validate use cases against schema
+   * Minimal validation schema for Excel imports - matches UI validation approach
+   */
+  private static minimalValidationSchema = z.object({
+    // Only title and description are required - matches UI formSchema
+    title: z.string().min(1, "Title is required"),
+    description: z.string().min(1, "Description is required"),
+    // All other fields are optional
+    meaningfulId: z.string().optional(),
+    librarySource: z.string().optional(),
+    // Make all scoring and boolean fields optional for imports
+    revenueImpact: z.number().optional(),
+    costSavings: z.number().optional(),
+    riskReduction: z.number().optional(),
+    brokerPartnerExperience: z.number().optional(),
+    strategicFit: z.number().optional(),
+    dataReadiness: z.number().optional(),
+    technicalComplexity: z.number().optional(),
+    changeImpact: z.number().optional(),
+    modelRisk: z.number().optional(),
+    adoptionReadiness: z.number().optional(),
+    explainabilityRequired: z.enum(['true', 'false']).optional(),
+    dataOutsideUkEu: z.enum(['true', 'false']).optional(),
+    thirdPartyModel: z.enum(['true', 'false']).optional(),
+    humanAccountability: z.enum(['true', 'false']).optional(),
+    finalQuadrant: z.string().optional(),
+    // Allow any other fields to pass through
+  }).passthrough(); // Allow additional fields not in schema
+
+  /**
+   * Validate use cases against minimal schema (matches UI validation)
    */
   private static async validateUseCases(
     useCases: any[], 
@@ -415,9 +444,9 @@ export class ExcelImportService {
 
     for (const useCaseData of useCases) {
       try {
-        // Use insert schema for validation (excludes auto-generated fields)
-        const validatedUseCase = insertUseCaseSchema.parse(useCaseData);
-        validated.push(validatedUseCase);
+        // Use minimal validation schema for Excel imports
+        const validatedUseCase = ExcelImportService.minimalValidationSchema.parse(useCaseData);
+        validated.push(validatedUseCase as InsertUseCase);
       } catch (error) {
         if (error instanceof z.ZodError) {
           const title = useCaseData.title || 'Unknown';
