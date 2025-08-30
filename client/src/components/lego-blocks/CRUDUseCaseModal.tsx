@@ -887,6 +887,23 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               {/* Tab 1: Basic Information */}
               <TabsContent value="basic" className="space-y-4 mt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Meaningful ID Field - Read-only for existing use cases with IDs */}
+                  {mode === 'edit' && useCase?.meaningfulId && (
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Use Case ID
+                      </Label>
+                      <div className="mt-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
+                        <span className="font-mono text-sm text-rsa-blue font-medium">
+                          {useCase.meaningfulId}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        This ID is automatically assigned and cannot be changed
+                      </p>
+                    </div>
+                  )}
+                  
                   <div>
                     <Label htmlFor="title" className="text-sm font-medium">
                       Use Case Title <span className="text-red-500">*</span>
@@ -904,23 +921,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       </p>
                     )}
                   </div>
-                  
-                  {/* Meaningful ID Field - Read-only for existing use cases with IDs */}
-                  {mode === 'edit' && useCase?.meaningfulId && (
-                    <div>
-                      <Label className="text-sm font-medium">
-                        Use Case ID
-                      </Label>
-                      <div className="mt-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
-                        <span className="font-mono text-sm text-rsa-blue font-medium">
-                          {useCase.meaningfulId}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        This ID is automatically assigned and cannot be changed
-                      </p>
-                    </div>
-                  )}
                   
                   {/* For new use cases, ID field is hidden - auto-generated after creation */}
                   
