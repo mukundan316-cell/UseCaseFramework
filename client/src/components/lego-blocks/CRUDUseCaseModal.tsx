@@ -783,9 +783,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           description: `"${sanitizedData.title}" has been added. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
       }
-      // Don't automatically close the modal to allow users to see the preview
-      // They can manually close it when they're done
-      console.log('Form submitted successfully - keeping modal open for user review');
+      // Close modal after successful save
+      console.log('Form submitted successfully - closing modal');
+      onClose();
     } catch (error) {
       console.error('Submit error:', error);
       
