@@ -41,40 +41,7 @@ app.use((req, res, next) => {
   // MINIMAL SETUP: Only seed if database is completely empty
   await seedDatabase();
   
-  // DISABLED: Comprehensive use cases seeding - user data only
-  // const { seedComprehensiveUseCases } = await import('./comprehensive-seed');
-  
-  // DISABLED: Enhanced framework migration - preserves user data integrity
-  // const { migrateToEnhancedFramework } = await import('./enhanced-framework-migration');
-  
-  // DISABLED: Process-Activity migration - was overwriting user-entered processes/activities
-  // const { migrateProcessActivities } = await import('./migrations/updateProcessActivities');
-  
-  // Load consolidated use cases to reference library - TEMPORARILY DISABLED TO FIX QUADRANT ISSUES
-  // try {
-  //   const { seedConsolidatedUseCases } = await import('./seeders/consolidated-use-cases');
-  //   await seedConsolidatedUseCases();
-  // } catch (error) {
-  //   console.log('Consolidated use cases seeding skipped - already exists or error:', error instanceof Error ? error.message : 'Unknown error');
-  // }
-  
-  // Seed RSA Assessment if needed - DISABLED to preserve advanced question types
-  /* 
-  try {
-    const { seedRSAQuestionnaire } = await import('./seeders/rsa-questionnaire-seeder');
-    const { seedRSASections } = await import('./seeders/rsa-sections-seeder');  
-    const { seedRSAQuestions } = await import('./seeders/rsa-questions-seeder');
-    
-    console.log('🔄 Starting RSA Assessment seeding...');
-    const questionnaire = await seedRSAQuestionnaire();
-    const sections = await seedRSASections(questionnaire.id);
-    await seedRSAQuestions(sections);
-    console.log('✅ RSA Assessment seeded successfully');
-  } catch (error) {
-    console.log('RSA Assessment seeding skipped - already exists or error:', error instanceof Error ? error.message : 'Unknown error');
-  }
-  */
-  console.log('✅ RSA Assessment seeding disabled - using advanced question types');
+  console.log('✅ Database initialization complete - ready for user data');
   
   const server = await registerRoutes(app);
 
