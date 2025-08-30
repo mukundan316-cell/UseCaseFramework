@@ -242,13 +242,13 @@ export class UseCaseDataExtractor {
 
     // Display Helpers
     const isAiInventory = useCase.librarySource === 'ai_inventory';
-    const hasScoring = portfolioStatus.isActiveForRsa; // LEGO principle: identical functionality for all source types
+    const hasScoring = !isAiInventory && portfolioStatus.isActiveForRsa; // AI Inventory is for governance tracking, not scoring
     
     const display = {
       statusBadge: portfolioStatus.isActiveForRsa ? 'ACTIVE PORTFOLIO' : 'REFERENCE LIBRARY',
       statusColor: portfolioStatus.isActiveForRsa ? '#22C55E' : '#6B7280',
       quadrantDisplay: scoring.finalQuadrant,
-      scoresSummary: hasScoring ? `Impact: ${scoring.finalImpactScore.toFixed(1)} | Effort: ${scoring.finalEffortScore.toFixed(1)}` : 'Not Activated for RSA Portfolio',
+      scoresSummary: hasScoring ? `Impact: ${scoring.finalImpactScore.toFixed(1)} | Effort: ${scoring.finalEffortScore.toFixed(1)}` : (isAiInventory ? 'AI Governance Tracking' : 'Not Activated for RSA Portfolio'),
       tagsFormatted: this.formatTags(useCase),
       isAiInventory,
       hasScoring,

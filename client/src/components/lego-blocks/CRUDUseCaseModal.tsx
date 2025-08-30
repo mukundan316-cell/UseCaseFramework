@@ -865,11 +865,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   <FileText className="h-4 w-4" />
                   Use case definition
                 </TabsTrigger>
-                {/* RSA Framework Assessment - Available for all source types per LEGO principle */}
-                <TabsTrigger value="assessment" className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4" />
-                  RSA Framework Assessment
-                </TabsTrigger>
+                {/* RSA Framework Assessment - Hidden for AI Inventory per user request */}
+                {form.watch('librarySource') !== 'ai_inventory' && (
+                  <TabsTrigger value="assessment" className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    RSA Framework Assessment
+                  </TabsTrigger>
+                )}
               </TabsList>
 
               {/* Tab 1: Basic Information */}

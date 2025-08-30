@@ -140,9 +140,11 @@ export default function ImprovedUseCaseExplorer({
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
     
-    // Universal filters for all source types (LEGO principle: identical functionality)
+    // Universal activity filter for all source types
     if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
-    if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+    
+    // Quadrant filter only for scored items (excludes AI Inventory)
+    if (!isAiInventory && filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
     
     // AI Inventory specific filters
     if (isAiInventory) {
