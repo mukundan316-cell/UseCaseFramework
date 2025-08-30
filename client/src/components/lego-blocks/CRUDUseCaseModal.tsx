@@ -533,7 +533,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         presentationFileId: (data as any).presentationFileId || (window as any).pendingPresentationData?.presentationFileId || '',
         presentationPdfFileId: (data as any).presentationPdfFileId || (window as any).pendingPresentationData?.presentationPdfFileId || '',
         hasPresentation: (data as any).hasPresentation || (window as any).pendingPresentationData?.hasPresentation || 'false',
-        presentationUploadedAt: (data as any).presentationUploadedAt || (window as any).pendingPresentationData?.presentationUploadedAt || '',
+        presentationUploadedAt: (data as any).presentationUploadedAt || (window as any).pendingPresentationData?.presentationUploadedAt || null,
         businessFunction: data.businessFunction || '',
         thirdPartyProvidedModel: data.thirdPartyProvidedModel || '',
         aiInventoryStatus: data.aiInventoryStatus || '',
@@ -543,7 +543,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         // CRITICAL: Preserve manual override null values - DO NOT convert to empty strings
         manualImpactScore: data.manualImpactScore,
         manualEffortScore: data.manualEffortScore, 
-        manualQuadrant: data.manualQuadrant
+        manualQuadrant: data.manualQuadrant,
+        // Horizontal Use Case fields
+        horizontalUseCase: data.horizontalUseCase || 'false',
+        horizontalUseCaseTypes: data.horizontalUseCaseTypes || []
       };
       
       console.log('🔍 CRITICAL DEBUG - Manual override values in sanitizedData:', {
@@ -642,7 +645,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           }
           
           // Handle boolean fields stored as text in database
-          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability'].includes(key)) {
+          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability', 'horizontalUseCase'].includes(key)) {
             if (typeof value === 'boolean') {
               changedData[key] = value.toString();
             } else if (value === 'true' || value === true) {
@@ -659,6 +662,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             } else {
               const numValue = Number(value);
               changedData[key] = isNaN(numValue) ? null : numValue;
+            }
+          }
+          
+          // Handle timestamp fields that need proper Date conversion
+          if (['presentationUploadedAt'].includes(key)) {
+            if (value === null || value === undefined || value === '') {
+              changedData[key] = null;
+            } else if (typeof value === 'string') {
+              changedData[key] = new Date(value);
             }
           }
         });
@@ -725,7 +737,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             }
           }
           
-          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability'].includes(key)) {
+          if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability', 'horizontalUseCase'].includes(key)) {
             if (typeof value === 'boolean') {
               createData[key] = value.toString();
             } else if (value === 'true' || value === true) {
@@ -741,6 +753,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             } else {
               const numValue = Number(value);
               createData[key] = isNaN(numValue) ? null : numValue;
+            }
+          }
+          
+          // Handle timestamp fields that need proper Date conversion
+          if (['presentationUploadedAt'].includes(key)) {
+            if (value === null || value === undefined || value === '') {
+              createData[key] = null;
+            } else if (typeof value === 'string') {
+              createData[key] = new Date(value);
             }
           }
         });
