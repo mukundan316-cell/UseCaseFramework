@@ -166,7 +166,7 @@ export default function LibraryManagementLegoBlock() {
             <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
               {useCase.title}
             </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+            <p className="text-sm text-gray-600 dark:text-gray-400 break-words line-clamp-2">
               {useCase.description}
             </p>
             <div className="flex items-center space-x-2 mt-1">
