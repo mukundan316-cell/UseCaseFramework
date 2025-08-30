@@ -16,6 +16,8 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 
 **Recent Progress (Aug 2025)**: Completed comprehensive boolean string handling audit ensuring 100% consistency across entire UI→DB→UI flow. All 8 boolean fields (isActiveForRsa, isDashboardVisible, explainabilityRequired, dataOutsideUkEu, thirdPartyModel, humanAccountability, horizontalUseCase, hasPresentation) now properly convert between UI boolean states and database string storage. Fixed missing field initialization and preserved all category-specific context for RSA Internal, Industry Standard, and AI Inventory sources.
 
+**Admin Interface Alignment (Aug 2025)**: Successfully aligned admin interface with assessment overview functionality. Fixed AssessmentStatsLegoBlock to properly parse Survey.js questionnaire format (pages structure), corrected API endpoint inconsistencies that caused DOCTYPE errors, and enhanced percentage target question detection. Admin interface now displays accurate statistics: 153 questions, 306 minutes estimated time, with proper questionnaire configuration management.
+
 ## Architecture
 - **Stack**: React/TypeScript, Node.js/Express, PostgreSQL, Drizzle ORM
 - **Data**: PostgreSQL metadata + JSON blob storage, string booleans throughout
@@ -26,7 +28,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Use Case Management**: Full CRUD with 10-lever scoring framework
 - **Analytics Dashboard**: Interactive matrix plots with quadrant prioritization
 - **Portfolio Management**: Active/reference library with bulk operations
-- **Assessment System**: Multi-questionnaire platform with dynamic workflows
+- **Assessment System**: Multi-questionnaire platform with dynamic workflows and admin configuration interface
 - **Executive Reporting**: Professional PDF exports and visualizations
 - **ROI Explanation System**: Contextual help, tooltips, and detailed scoring rationale
 - **Excel Import/Export**: Multi-worksheet structure with validation guidance
@@ -39,6 +41,8 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Validation**: Minimal requirements (title + description only)
 - **Configuration**: Centralized in `shared/constants/app-config.ts`
 - **File Storage**: Database storage (Base64) over external services for reliability and simplicity
+- **Assessment Data Format**: Survey.js questionnaire structure (`pages` → `elements` → `panels` → `elements`)
+- **API Consistency**: Single endpoint pattern `/api/questionnaire/` for questionnaire data access
 
 ## Tech Stack
 - **Core**: React, TypeScript, Node.js, Express, PostgreSQL
