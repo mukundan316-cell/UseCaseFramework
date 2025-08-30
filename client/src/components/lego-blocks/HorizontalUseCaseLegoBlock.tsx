@@ -4,50 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Network, Lightbulb } from 'lucide-react';
-
-// Horizontal Use Case Types as defined in requirements
-const HORIZONTAL_USE_CASE_OPTIONS = [
-  {
-    category: "Content Generation",
-    items: ["Document drafting", "report generation"]
-  },
-  {
-    category: "Content Management", 
-    items: ["Categorization", "tagging", "curation"]
-  },
-  {
-    category: "AI Assistant—Knowledge Source",
-    items: ["Research assistant", "information retrieval"]
-  },
-  {
-    category: "AI Assistant—Automation",
-    items: ["Autofill", "next-best action suggestions", "autonomous agents"]
-  },
-  {
-    category: "Code Development",
-    items: ["Debugging", "refactoring", "coding"]
-  },
-  {
-    category: "Information Analysis",
-    items: ["Synthesis", "summarization"]
-  },
-  {
-    category: "Data Analysis",
-    items: ["Augmentation", "visualization"]
-  },
-  {
-    category: "Synthetic Data Generation",
-    items: ["Text versions for analysis", "time series data generation", "scenario generation"]
-  },
-  {
-    category: "Workflow Improvements",
-    items: ["Suggestions for workflow amendments", "automated changes to workflows"]
-  },
-  {
-    category: "Detection Models",
-    items: ["Errors", "fraud", "problem-solving"]
-  }
-];
+import { useUseCases } from '@/contexts/UseCaseContext';
 
 interface HorizontalUseCaseLegoBlockProps {
   isHorizontalUseCase: string; // 'true' or 'false' following replit.md pattern
@@ -72,6 +29,10 @@ export default function HorizontalUseCaseLegoBlock({
 }: HorizontalUseCaseLegoBlockProps) {
   
   const isEnabled = isHorizontalUseCase === 'true';
+  const { metadata } = useUseCases();
+  
+  // Get horizontal use case types from metadata, fallback to empty array if deleted
+  const availableTypes = metadata?.horizontalUseCaseTypes || [];
 
   const handleMainCheckboxChange = (checked: boolean) => {
     const newValue: 'true' | 'false' = checked ? 'true' : 'false';
@@ -123,35 +84,36 @@ export default function HorizontalUseCaseLegoBlock({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 max-h-64 overflow-y-auto">
-            {HORIZONTAL_USE_CASE_OPTIONS.map((category) => (
-              <div key={category.category} className="space-y-2">
-                <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                  {category.category}
-                </h4>
-                <div className="space-y-2 pl-2">
-                  {category.items.map((item) => {
-                    const isSelected = selectedTypes.includes(item);
-                    return (
-                      <div key={item} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`horizontal-type-${item}`}
-                          checked={isSelected}
-                          onCheckedChange={(checked) => handleTypeToggle(item, !!checked)}
-                          className="w-4 h-4"
-                          data-testid={`checkbox-horizontal-type-${item.replace(/\s+/g, '-').toLowerCase()}`}
-                        />
-                        <Label 
-                          htmlFor={`horizontal-type-${item}`}
-                          className="text-sm text-gray-700 cursor-pointer flex-1"
-                        >
-                          {item}
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </div>
+            {availableTypes.length > 0 ? (
+              <div className="space-y-2">
+                {availableTypes.map((type) => {
+                  const isSelected = selectedTypes.includes(type);
+                  return (
+                    <div key={type} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`horizontal-type-${type}`}
+                        checked={isSelected}
+                        onCheckedChange={(checked) => handleTypeToggle(type, !!checked)}
+                        className="w-4 h-4"
+                        data-testid={`checkbox-horizontal-type-${type.replace(/\s+/g, '-').toLowerCase()}`}
+                      />
+                      <Label 
+                        htmlFor={`horizontal-type-${type}`}
+                        className="text-sm text-gray-700 cursor-pointer flex-1"
+                      >
+                        {type}
+                      </Label>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            ) : (
+              <div className="text-center py-6 text-gray-500">
+                <div className="text-2xl mb-2">📝</div>
+                <p className="text-sm">No horizontal use case types configured.</p>
+                <p className="text-xs mt-1">Add types in the Admin Panel → Data Management tab.</p>
+              </div>
+            )}
           </CardContent>
           
           {/* Selected Types Summary */}
