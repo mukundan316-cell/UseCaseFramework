@@ -178,7 +178,11 @@ export default function PresentationPreviewBlock({
 
       {/* Enhanced PDF Preview Dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0">
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0" aria-describedby="presentation-preview-description">
+          {/* Hidden description for accessibility */}
+          <div id="presentation-preview-description" className="sr-only">
+            Preview of uploaded presentation document with navigation controls
+          </div>
           {/* Header with Navigation Controls */}
           <div className="flex items-center justify-between p-4 border-b bg-white rounded-t-lg">
             <div className="flex items-center gap-2">
