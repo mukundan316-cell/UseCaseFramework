@@ -140,15 +140,23 @@ const sampleUseCases = [
 
 export async function seedDatabase() {
   try {
-    // Check if data already exists
+    // Check if data already exists - both use cases AND metadata
     const existingUseCases = await db.select().from(useCases);
+    const existingMetadata = await db.select().from(metadataConfig);
+    
     if (existingUseCases.length > 0) {
       console.log('Database already seeded, skipping...');
       return;
     }
 
-    // Seed metadata configuration first (database-first compliance)
-    await seedMetadataConfig();
+    // Only seed if NO metadata exists (completely fresh database)
+    if (existingMetadata.length === 0) {
+      console.log('Fresh database detected, seeding minimal metadata...');
+      await seedMetadataConfig();
+    } else {
+      console.log('Existing metadata found, preserving user data...');
+      return;
+    }
 
     console.log('Seeding database with sample use cases...');
     
@@ -191,26 +199,29 @@ export async function seedDatabase() {
  */
 async function seedMetadataConfig() {
   try {
-    // Check if metadata already exists
-    const [existingConfig] = await db.select().from(metadataConfig).where(eq(metadataConfig.id, 'default'));
-    if (existingConfig) {
-      console.log("Metadata config already exists, skipping...");
-      return;
-    }
+    // MINIMAL metadata seeding - only essential structure for app to function
+    console.log("Creating minimal metadata structure for fresh database...");
 
-    // Insert default metadata configuration
+    // Insert minimal default metadata configuration - user will customize via UI
     await db.insert(metadataConfig).values({
       id: 'default',
       valueChainComponents: [
-        "Claims", "Underwriting", "Policy Servicing", "Distribution", 
-        "Product Development", "IT Operations", "Fraud/Compliance", "Customer Service"
+        "Risk Assessment & Underwriting",
+        "Customer Experience & Distribution", 
+        "Claims Management & Settlement",
+        "Risk Consulting & Prevention",
+        "Portfolio Management & Analytics"
       ],
-      processes: ["FNOL", "Quote & Bind", "Pricing", "Renewal", "Subrogation"],
-      linesOfBusiness: ["Auto", "Property", "Marine", "Life", "Cyber", "Specialty"],
-      businessSegments: ["Mid-Market", "Large Commercial", "SME", "E&S"],
-      geographies: ["UK", "Europe", "Global", "North America"],
-      useCaseTypes: ["GenAI", "Predictive ML", "NLP", "RPA"],
-      sourceTypes: ["rsa_internal", "industry_standard", "ai_inventory"]
+      processes: [], // Empty - user will add via UI
+      activities: [], // Empty - user will add via UI
+      processActivities: {}, // Empty - user will add via UI
+      linesOfBusiness: ["All Commercial", "Property & Casualty", "Specialty"],
+      businessSegments: ["SME", "Mid-Market", "Large Commercial"],
+      geographies: ["UK", "Europe", "Global"],
+      useCaseTypes: ["Analytics & Insights", "Process Automation", "GenAI", "Predictive ML"],
+      sourceTypes: ["rsa_internal", "industry_standard", "ai_inventory"],
+      quadrants: ["Quick Win", "Strategic Bet", "Experimental", "Watchlist"],
+      useCaseStatuses: ["Discovery", "Backlog", "In-flight", "Implemented", "On Hold"]
     });
     
     console.log("Seeded metadata configuration successfully");

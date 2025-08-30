@@ -38,20 +38,17 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Seed the database with sample data
+  // MINIMAL SETUP: Only seed if database is completely empty
   await seedDatabase();
   
-  // Check if we need to add comprehensive use cases
-  const { seedComprehensiveUseCases } = await import('./comprehensive-seed');
-  // await seedComprehensiveUseCases(); // Temporarily disabled to fix constraint
+  // DISABLED: Comprehensive use cases seeding - user data only
+  // const { seedComprehensiveUseCases } = await import('./comprehensive-seed');
   
-  // Migrate to enhanced framework if needed
-  const { migrateToEnhancedFramework } = await import('./enhanced-framework-migration');
-  await migrateToEnhancedFramework();
+  // DISABLED: Enhanced framework migration - preserves user data integrity
+  // const { migrateToEnhancedFramework } = await import('./enhanced-framework-migration');
   
-  // Process-Activity LEGO Migration (Jan 2025)
-  const { migrateProcessActivities } = await import('./migrations/updateProcessActivities');
-  await migrateProcessActivities();
+  // DISABLED: Process-Activity migration - was overwriting user-entered processes/activities
+  // const { migrateProcessActivities } = await import('./migrations/updateProcessActivities');
   
   // Load consolidated use cases to reference library - TEMPORARILY DISABLED TO FIX QUADRANT ISSUES
   // try {
