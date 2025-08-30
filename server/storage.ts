@@ -215,7 +215,7 @@ export class DatabaseStorage implements IStorage {
     const [useCase] = await db
       .insert(useCases)
       .values(cleanData)
-      .returning();
+      .returning() as UseCase[];
     return useCase;
   }
 
