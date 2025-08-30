@@ -84,6 +84,9 @@ export interface UseCaseFrontend {
   thirdPartyModel?: 'true' | 'false' | null;
   humanAccountability?: 'true' | 'false' | null;
   regulatoryCompliance?: number;
+  // Horizontal Use Case fields - following replit.md string boolean pattern
+  horizontalUseCase?: 'true' | 'false';
+  horizontalUseCaseTypes?: string[];
   // Missing AI governance field from database
   thirdPartyProvidedModel?: string;
   // Presentation fields - support both legacy URLs and new database storage
@@ -119,6 +122,9 @@ export function mapUseCaseToFrontend(dbUseCase: UseCase): UseCaseFrontend {
     aiMlTechnologies: dbUseCase.aiMlTechnologies || undefined,
     dataSources: dbUseCase.dataSources || undefined,
     stakeholderGroups: dbUseCase.stakeholderGroups || undefined,
+    // Horizontal Use Case fields - handle string booleans and arrays per replit.md
+    horizontalUseCase: dbUseCase.horizontalUseCase as 'true' | 'false' || 'false',
+    horizontalUseCaseTypes: dbUseCase.horizontalUseCaseTypes || undefined,
     // Convert null to undefined for proper frontend handling
     problemStatement: dbUseCase.problemStatement || undefined,
     // Ensure all optional fields are properly mapped - convert null to undefined
@@ -189,6 +195,9 @@ export function mapUseCaseToDatabase(frontendUseCase: Partial<UseCaseFrontend>):
     explainabilityRequired: frontendUseCase.explainabilityRequired,
     dataOutsideUkEu: frontendUseCase.dataOutsideUkEu,
     thirdPartyModel: frontendUseCase.thirdPartyModel,
-    humanAccountability: frontendUseCase.humanAccountability
+    humanAccountability: frontendUseCase.humanAccountability,
+    // Horizontal Use Case fields - following replit.md string boolean pattern
+    horizontalUseCase: frontendUseCase.horizontalUseCase,
+    horizontalUseCaseTypes: frontendUseCase.horizontalUseCaseTypes
   } as Partial<UseCase>;
 }
