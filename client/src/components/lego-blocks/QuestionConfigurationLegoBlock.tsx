@@ -46,12 +46,22 @@ export default function QuestionConfigurationLegoBlock({
 
   // Load percentage_target questions
   const loadQuestions = async () => {
+    if (!questionnaireId) {
+      setError('No questionnaire ID provided');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`/api/questionnaires/${questionnaireId}`);
+      const response = await fetch(`/api/questionnaire/${questionnaireId}`);
       if (!response.ok) throw new Error('Failed to load questionnaire');
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Invalid response format - expected JSON');
+      }
       
       const data = await response.json();
       
@@ -65,7 +75,11 @@ export default function QuestionConfigurationLegoBlock({
             page.elements.forEach((element: any) => {
               if (element.type === 'panel' && element.elements) {
                 element.elements.forEach((question: any) => {
-                  if (question.name && question.name.includes('percentage') || question.type === 'percentage_target') {
+                  if (question.name && (
+                    question.name.toLowerCase().includes('percentage') || 
+                    question.name.toLowerCase().includes('target') ||
+                    question.type === 'percentage_target'
+                  )) {
                     percentageTargetQuestions.push({
                       id: question.name || question.id,
                       questionText: question.title || question.questionText || question.name,
