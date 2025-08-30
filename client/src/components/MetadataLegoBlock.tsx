@@ -20,7 +20,7 @@ export default function MetadataLegoBlock({
   items, 
   placeholder = "Add new item..." 
 }: MetadataLegoBlockProps) {
-  const { addMetadataItem, removeMetadataItem } = useUseCases();
+  const { addMetadataItem, removeMetadataItem, editMetadataItem } = useUseCases();
   const { toast } = useToast();
   
   const [newItem, setNewItem] = useState('');
@@ -81,9 +81,8 @@ export default function MetadataLegoBlock({
     }
 
     try {
-      // Remove old item and add new one
-      await removeMetadataItem(category, oldValue);
-      await addMetadataItem(category, editingValue.trim());
+      // Use the new edit function that updates in place
+      await editMetadataItem(category, oldValue, editingValue.trim());
       
       setEditingIndex(null);
       setEditingValue('');

@@ -19,6 +19,7 @@ interface UseCaseContextType {
   updateMetadata: (metadata: MetadataConfig) => Promise<void>;
   addMetadataItem: (category: keyof MetadataConfig, item: string) => Promise<void>;
   removeMetadataItem: (category: keyof MetadataConfig, item: string) => Promise<void>;
+  editMetadataItem: (category: keyof MetadataConfig, oldItem: string, newItem: string) => Promise<void>;
   exportData: () => any;
   importData: (data: any) => Promise<void>;
   resetToDefaults: () => Promise<void>;
@@ -217,6 +218,24 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       updatedAt: new Date()
     };
     await updateMetadata(updatedMetadata);
+  };
+
+  const editMetadataItem = async (category: string, oldItem: string, newItem: string): Promise<void> => {
+    if (!metadata) throw new Error('Metadata not loaded');
+    
+    // Skip 'id' and 'updatedAt' fields for metadata updates
+    if (category === 'id' || category === 'updatedAt') return;
+    
+    const response = await apiRequest(`/api/metadata/${encodeURIComponent(category)}/${encodeURIComponent(oldItem)}`, {
+      method: 'PUT',
+      body: JSON.stringify({ newItem }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    // Invalidate and refetch metadata after edit
+    queryClient.invalidateQueries({ queryKey: ['/api/metadata'] });
   };
 
   const exportData = () => {
@@ -471,6 +490,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     updateMetadata,
     addMetadataItem,
     removeMetadataItem,
+    editMetadataItem,
     exportData,
     importData,
     resetToDefaults,

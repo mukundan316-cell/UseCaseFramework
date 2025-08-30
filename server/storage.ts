@@ -80,6 +80,7 @@ export interface IStorage {
   // Individual metadata item CRUD operations
   addMetadataItem(category: string, item: string): Promise<MetadataConfig>;
   removeMetadataItem(category: string, item: string): Promise<MetadataConfig>;
+  editMetadataItem(category: string, oldItem: string, newItem: string): Promise<MetadataConfig>;
   
   // Response session management (blob storage questionnaires)
   getResponseSessions(): Promise<ResponseSession[]>;
@@ -428,11 +429,31 @@ export class DatabaseStorage implements IStorage {
     // Add new item if it doesn't already exist
     if (!currentItems.includes(item)) {
       const updatedItems = [...currentItems, item];
-      // Preserve all existing metadata to avoid null constraint violations
-      const updatedConfig = {
+      
+      let updatedConfig = {
         ...currentConfig,
         [category]: updatedItems
       };
+
+      // Auto-suggestion for new processes: Add logical activities based on RSA patterns
+      if (category === 'processes') {
+        const { processActivityMap } = await import('@shared/processActivityMap');
+        const currentProcessActivities = currentConfig.processActivities 
+          ? (typeof currentConfig.processActivities === 'string' 
+             ? JSON.parse(currentConfig.processActivities) 
+             : currentConfig.processActivities)
+          : {};
+
+        // Auto-suggest activities for new process based on predefined mapping
+        if (processActivityMap[item] && !currentProcessActivities[item]) {
+          updatedConfig.processActivities = {
+            ...currentProcessActivities,
+            [item]: processActivityMap[item]
+          };
+          console.log(`✅ Auto-suggested activities for new process "${item}":`, processActivityMap[item]);
+        }
+      }
+
       return await this.updateMetadataConfig(updatedConfig);
     }
     
@@ -456,6 +477,47 @@ export class DatabaseStorage implements IStorage {
       ...currentConfig,
       [category]: updatedItems
     };
+    
+    return await this.updateMetadataConfig(updatedConfig);
+  }
+
+  async editMetadataItem(category: string, oldItem: string, newItem: string): Promise<MetadataConfig> {
+    const currentConfig = await this.getMetadataConfig();
+    
+    if (!currentConfig) {
+      throw new Error('Metadata config not found');
+    }
+
+    // Get current items for the category
+    const currentItems = (currentConfig as any)[category] || [];
+    
+    // Replace the old item with the new item
+    const updatedItems = currentItems.map((item: string) => 
+      item === oldItem ? newItem : item
+    );
+
+    // Handle process-activity mapping updates if editing processes
+    let updatedConfig = {
+      ...currentConfig,
+      [category]: updatedItems
+    };
+
+    if (category === 'processes') {
+      const currentProcessActivities = currentConfig.processActivities 
+        ? (typeof currentConfig.processActivities === 'string' 
+           ? JSON.parse(currentConfig.processActivities) 
+           : currentConfig.processActivities)
+        : {};
+
+      // Update the process name in process-activity mapping
+      if (currentProcessActivities[oldItem]) {
+        const { [oldItem]: activities, ...rest } = currentProcessActivities;
+        updatedConfig.processActivities = {
+          ...rest,
+          [newItem]: activities
+        };
+      }
+    }
     
     return await this.updateMetadataConfig(updatedConfig);
   }
