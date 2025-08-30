@@ -23,6 +23,8 @@ export interface QuestionnaireDefinition {
   description: string;
   version: string;
   createdAt: string;
+  estimatedTimeMinutes?: number;
+  sections?: any[];
   // Survey.js format only
   pages: Array<any>;
 }
