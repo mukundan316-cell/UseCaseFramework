@@ -249,59 +249,59 @@ export default function ImprovedUseCaseExplorer({
         <p className="text-gray-600">{description}</p>
         
         {/* Tab Navigation */}
-        <div className="flex items-center space-x-1 mt-4 bg-gray-100 p-1 rounded-lg w-fit">
+        <div className="flex items-center space-x-2 mt-4 bg-gray-100 p-2 rounded-lg w-fit border-2 border-gray-200 shadow-sm">
           <button
             onClick={() => setActiveTab('rsa_internal')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
+            className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 border-2 ${
               activeTab === 'rsa_internal' 
-                ? 'bg-white text-blue-600 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-blue-600 shadow-md border-blue-200 ring-2 ring-blue-100' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 border-transparent'
             }`}
           >
             <Building2 className="w-4 h-4" />
             <span>RSA Internal</span>
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-medium">
               {rsaInternalCount}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('industry_standard')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
+            className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 border-2 ${
               activeTab === 'industry_standard' 
-                ? 'bg-white text-green-600 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-green-600 shadow-md border-green-200 ring-2 ring-green-100' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 border-transparent'
             }`}
           >
             <Building2 className="w-4 h-4" />
             <span>Industry Standard</span>
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium">
               {industryStandardCount}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
+            className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 border-2 ${
               activeTab === 'inventory' 
-                ? 'bg-white text-emerald-600 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-purple-600 shadow-md border-purple-200 ring-2 ring-purple-100' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 border-transparent'
             }`}
           >
             <FolderOpen className="w-4 h-4" />
             <span>AI Tool Registry</span>
-            <span className="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full font-medium">
               {inventoryCount}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('both')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all border-2 ${
               activeTab === 'both' 
-                ? 'bg-white text-gray-900 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-gray-900 shadow-md border-gray-300 ring-2 ring-gray-100' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 border-transparent'
             }`}
           >
             All Items
-            <span className="ml-2 bg-gray-200 text-gray-800 text-xs px-2 py-0.5 rounded-full">
+            <span className="ml-2 bg-gray-200 text-gray-800 text-xs px-2 py-0.5 rounded-full font-medium">
               {rsaInternalCount + industryStandardCount + inventoryCount}
             </span>
           </button>
