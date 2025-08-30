@@ -62,9 +62,7 @@ router.get('/sections', async (req, res) => {
  */
 router.get('/definitions', async (req, res) => {
   try {
-    console.log('=== GET /definitions endpoint called ===');
     const definitions = await questionnaireService.getAllDefinitions();
-    console.log(`=== Endpoint returning ${definitions.length} definitions ===`);
     res.json(definitions);
   } catch (error) {
     console.error('Failed to fetch definitions:', error);

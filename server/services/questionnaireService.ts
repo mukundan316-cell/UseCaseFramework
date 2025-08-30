@@ -33,7 +33,6 @@ export class QuestionnaireService {
 
     // Cache the newly created questionnaire
     this.definitionCache.set(questionnaireWithId.id, questionnaireWithId);
-    console.log(`Cached newly created questionnaire definition: ${questionnaireWithId.id}`);
 
     return {
       questionnaire: questionnaireWithId,

@@ -332,7 +332,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         (useCase as any).manualQuadrant
       );
       setIsOverrideEnabled(hasManualOverrides);
-      console.log('🏁 Edit mode: Initialized override toggle to:', hasManualOverrides);
       
       setRsaSelection({
         isActiveForRsa: rsaActive ? 'true' : 'false',
@@ -492,8 +491,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log('Form submission triggered');
-      console.log('Form validation errors:', form.formState.errors);
       
       // Convert any null values to appropriate defaults for submission
       const sanitizedData = {
@@ -549,22 +546,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         horizontalUseCaseTypes: data.horizontalUseCaseTypes || []
       };
       
-      console.log('🔍 CRITICAL DEBUG - Manual override values in sanitizedData:', {
-        manualImpactScore: sanitizedData.manualImpactScore,
-        manualEffortScore: sanitizedData.manualEffortScore,
-        manualQuadrant: sanitizedData.manualQuadrant,
-        overrideReason: sanitizedData.overrideReason
-      });
-      console.log('📁 PRESENTATION DEBUG - Checking presentation data:', {
-        presentationUrl: sanitizedData.presentationUrl,
-        presentationPdfUrl: sanitizedData.presentationPdfUrl,
-        presentationFileName: sanitizedData.presentationFileName,
-        presentationFileId: sanitizedData.presentationFileId,
-        presentationPdfFileId: sanitizedData.presentationPdfFileId,
-        hasPresentation: sanitizedData.hasPresentation,
-        pendingData: (window as any).pendingPresentationData
-      });
-      console.log('Submitting sanitized form data:', sanitizedData);
       
       if (mode === 'edit' && useCase) {
         // For edit mode, only send changed fields to prevent overwriting unchanged values
@@ -597,8 +578,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         
         // For now, send all data to avoid change detection issues
         // TODO: Optimize to only send changed fields once working
-        console.log('Original data:', originalData);
-        console.log('New data:', data);
         
         // Include real-time calculated scores in the submission
         // These are calculated on the frontend and need to be sent to the server
@@ -610,22 +589,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           quadrant: currentQuadrant
         };
         
-        console.log('Current calculated scores:');
-        console.log('- Impact:', currentImpactScore);
-        console.log('- Effort:', currentEffortScore);
-        console.log('- Quadrant:', currentQuadrant);
-        console.log('Form values for scoring:', {
-          revenueImpact: formValues.revenueImpact,
-          costSavings: formValues.costSavings,
-          riskReduction: formValues.riskReduction,
-          brokerPartnerExperience: formValues.brokerPartnerExperience,
-          strategicFit: formValues.strategicFit,
-          dataReadiness: formValues.dataReadiness,
-          technicalComplexity: formValues.technicalComplexity,
-          changeImpact: formValues.changeImpact,
-          modelRisk: formValues.modelRisk,
-          adoptionReadiness: formValues.adoptionReadiness
-        });
         
         // Remove meaningfulId from submission data - it's auto-generated server-side
         delete changedData.meaningfulId;
@@ -682,23 +645,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         
         // Validation constraints removed to allow free form submission
         
-        console.log('🚀 Sending data for update (manual overrides should be null if cleared):', {
-          manualImpactScore: changedData.manualImpactScore,
-          manualEffortScore: changedData.manualEffortScore,
-          manualQuadrant: changedData.manualQuadrant
-        });
-        console.log('🔍 Current form values before save:', {
-          manualImpactScore: form.getValues('manualImpactScore'),
-          manualEffortScore: form.getValues('manualEffortScore'),
-          manualQuadrant: form.getValues('manualQuadrant')
-        });
-        console.log('Full update data:', changedData);
-        console.log('Calling updateUseCase with ID:', useCase.id);
         const result = await updateUseCase(useCase.id, changedData);
-        console.log('Update successful:', result);
         
         // Force refresh of all queries to ensure UI updates
-        console.log('Forcing cache refresh...');
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
@@ -711,7 +660,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           description: `"${sanitizedData.title}" has been updated. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
       } else {
-        console.log('Calling addUseCase...');
         
         // Apply same data transformations for create mode
         const createData: any = { ...sanitizedData };
@@ -766,9 +714,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           }
         });
         
-        console.log('Sending data for create:', createData);
         const result = await addUseCase(createData);
-        console.log('Add successful:', result);
         
         // Force refresh for create operations too
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
@@ -784,7 +730,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         });
       }
       // Close modal after successful save
-      console.log('Form submitted successfully - closing modal');
       onClose();
     } catch (error) {
       console.error('Submit error:', error);

@@ -48,7 +48,6 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
   
   const threshold = parsedScoringModel?.quadrantThreshold || 3.0;
   
-  console.log('Recalculation using weights:', { businessImpactWeights, implementationEffortWeights, threshold });
   
   for (const useCase of useCases) {
     const impactScore = calculateImpactScore(
@@ -71,7 +70,6 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
     
     const quadrant = calculateQuadrant(impactScore, effortScore, threshold);
     
-    console.log(`${useCase.title}: impact=${impactScore.toFixed(1)}, effort=${effortScore.toFixed(1)}, quadrant=${quadrant}`);
     
     await storage.updateUseCase(useCase.id, {
       impactScore,
@@ -191,7 +189,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/use-cases", async (req, res) => {
     try {
-      console.log('Received use case data:', JSON.stringify(req.body, null, 2));
       
       // Handle date conversion before validation
       if (req.body.presentationUploadedAt && typeof req.body.presentationUploadedAt === 'string') {
@@ -549,7 +546,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const currentMetadata = await storage.getMetadataConfig();
         await recalculateAllUseCaseScores(currentMetadata?.scoringModel || metadata.scoringModel);
-        console.log('✅ Recalculated all use case scores after metadata update');
       } catch (recalcError) {
         console.error('⚠️ Error recalculating scores after metadata update:', recalcError);
         // Continue - don't fail the metadata update if recalculation fails
@@ -567,7 +563,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const metadata = await storage.getMetadataConfig();
       await recalculateAllUseCaseScores(metadata?.scoringModel);
-      console.log('✅ Manual recalculation completed');
       res.json({ success: true, message: "All use case scores recalculated successfully" });
     } catch (error) {
       console.error("Error during manual recalculation:", error);
@@ -640,14 +635,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
     
-    console.log('=== GET /api/responses/user-sessions called ===');
     try {
       const userEmail = 'antonm1@hexaware.com'; // TODO: Get from session/auth
-      console.log(`Querying for user: ${userEmail}`);
       
       // Get all questionnaire definitions
       const definitions = await questionnaireServiceInstance.getAllDefinitions();
-      console.log(`Found ${definitions.length} questionnaire definitions`);
       
       // Get all sessions for this user from database
       const userSessions = await db.select()
@@ -655,20 +647,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(responseSessions.respondentEmail, userEmail))
         .orderBy(desc(responseSessions.lastUpdatedAt));
       
-      console.log(`Found ${userSessions.length} sessions for user ${userEmail}`);
       
       if (userSessions.length === 0) {
         // Check what emails are in the database
         const allEmails = await db.select({
           email: responseSessions.respondentEmail
         }).from(responseSessions).limit(10);
-        console.log(`Sample emails in database:`, allEmails.map(s => s.email));
       }
       
       // Create a map of the MOST RECENT session by questionnaire ID (first in array = most recent due to ORDER BY)
       const existingSessionsMap = new Map();
       userSessions.forEach(session => {
-        console.log(`Session: ${session.id}, questionnaire: ${session.questionnaireId}, status: ${session.status}`);
         // Only set if we haven't seen this questionnaire yet (so we keep the most recent one)
         if (!existingSessionsMap.has(session.questionnaireId)) {
           existingSessionsMap.set(session.questionnaireId, session);
@@ -678,7 +667,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Build sessions with progress for all available questionnaires
       const sessionsWithProgress = definitions.map(definition => {
         const existingSession = existingSessionsMap.get(definition.id);
-        console.log(`Processing ${definition.title} (${definition.id}), existing session: ${existingSession ? existingSession.id : 'none'}`);
         
         let status: string;
         let progressPercent = 0;
@@ -707,7 +695,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       });
       
-      console.log(`Returning ${sessionsWithProgress.length} sessions with progress`);
       res.json(sessionsWithProgress);
     } catch (error) {
       console.error('Error fetching user sessions:', error);
