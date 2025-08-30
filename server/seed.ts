@@ -1,205 +1,37 @@
 import { db } from './db';
-import { useCases, metadataConfig } from '@shared/schema';
-import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
+import { metadataConfig } from '@shared/schema';
 import { eq } from "drizzle-orm";
 
-const sampleUseCases = [
-  {
-    title: "Automated Claims Triage",
-    description: "AI-powered system to automatically classify and prioritize incoming claims based on complexity, urgency, and potential fraud indicators.",
-    valueChainComponent: "Claims",
-    process: "FNOL",
-    lineOfBusiness: "Auto",
-    businessSegment: "Mid-Market",
-    geography: "UK",
-    useCaseType: "GenAI",
-    revenueImpact: 3,
-    costSavings: 4,
-    riskReduction: 5,
-    brokerPartnerExperience: 3,
-    strategicFit: 4,
-    dataReadiness: 4,
-    technicalComplexity: 3,
-    changeImpact: 2,
-    modelRisk: 3,
-    adoptionReadiness: 3,
-    explainabilityBias: 4,
-    regulatoryCompliance: 4
-  },
-  {
-    title: "Predictive Risk Scoring",
-    description: "Machine learning model to predict policy risk levels during underwriting, improving pricing accuracy and reducing losses.",
-    valueChainComponent: "Underwriting",
-    process: "Pricing",
-    lineOfBusiness: "Property",
-    businessSegment: "Large Commercial",
-    geography: "Europe",
-    useCaseType: "Predictive ML",
-    revenueImpact: 5,
-    costSavings: 3,
-    riskReduction: 5,
-    brokerPartnerExperience: 4,
-    strategicFit: 5,
-    dataReadiness: 3,
-    technicalComplexity: 4,
-    changeImpact: 4,
-    modelRisk: 4,
-    adoptionReadiness: 2,
-    explainabilityBias: 3,
-    regulatoryCompliance: 5
-  },
-  {
-    title: "Document Processing Automation",
-    description: "OCR and NLP solution to extract key information from policy documents, reducing manual data entry errors and processing time.",
-    valueChainComponent: "Policy Servicing",
-    process: "Quote & Bind",
-    lineOfBusiness: "Marine",
-    businessSegment: "SME",
-    geography: "Global",
-    useCaseType: "RPA",
-    revenueImpact: 2,
-    costSavings: 5,
-    riskReduction: 3,
-    brokerPartnerExperience: 3,
-    strategicFit: 3,
-    dataReadiness: 5,
-    technicalComplexity: 2,
-    changeImpact: 2,
-    modelRisk: 2,
-    adoptionReadiness: 4,
-    explainabilityBias: 2,
-    regulatoryCompliance: 3
-  },
-  {
-    title: "Customer Sentiment Analysis",
-    description: "NLP tool to analyze customer communications and social media mentions to identify satisfaction trends and potential churn risks.",
-    valueChainComponent: "Customer Service",
-    process: "Renewal",
-    lineOfBusiness: "Life",
-    businessSegment: "E&S",
-    geography: "North America",
-    useCaseType: "NLP",
-    revenueImpact: 3,
-    costSavings: 2,
-    riskReduction: 4,
-    brokerPartnerExperience: 4,
-    strategicFit: 3,
-    dataReadiness: 2,
-    technicalComplexity: 3,
-    changeImpact: 3,
-    modelRisk: 2,
-    adoptionReadiness: 2,
-    explainabilityBias: 3,
-    regulatoryCompliance: 3
-  },
-  {
-    title: "Cyber Risk Assessment AI",
-    description: "Advanced AI system to evaluate cyber risk exposure for commercial clients using external threat intelligence and internal data.",
-    valueChainComponent: "Underwriting",
-    process: "Pricing",
-    lineOfBusiness: "Cyber",
-    businessSegment: "Large Commercial",
-    geography: "Global",
-    useCaseType: "GenAI",
-    revenueImpact: 5,
-    costSavings: 3,
-    riskReduction: 5,
-    brokerPartnerExperience: 4,
-    strategicFit: 5,
-    dataReadiness: 2,
-    technicalComplexity: 5,
-    changeImpact: 5,
-    modelRisk: 4,
-    adoptionReadiness: 2,
-    explainabilityBias: 3,
-    regulatoryCompliance: 5
-  },
-  {
-    title: "Fraud Detection Engine",
-    description: "Real-time machine learning system to identify potentially fraudulent claims using pattern recognition and anomaly detection.",
-    valueChainComponent: "Fraud/Compliance",
-    process: "FNOL",
-    lineOfBusiness: "Specialty",
-    businessSegment: "Mid-Market",
-    geography: "UK",
-    useCaseType: "Predictive ML",
-    revenueImpact: 4,
-    costSavings: 4,
-    riskReduction: 5,
-    brokerPartnerExperience: 3,
-    strategicFit: 4,
-    dataReadiness: 3,
-    technicalComplexity: 4,
-    changeImpact: 3,
-    modelRisk: 3,
-    adoptionReadiness: 3,
-    explainabilityBias: 4,
-    regulatoryCompliance: 5
-  }
-];
-
+/**
+ * Minimal seeding for pristine database - metadata structure only
+ * No automatic use case seeding - user will add via UI/Excel import
+ */
 export async function seedDatabase() {
   try {
-    // Check if data already exists - both use cases AND metadata
-    const existingUseCases = await db.select().from(useCases);
+    // Check if metadata exists
     const existingMetadata = await db.select().from(metadataConfig);
     
-    if (existingUseCases.length > 0) {
-      console.log('Database already seeded, skipping...');
-      return;
-    }
-
-    // Only seed if NO metadata exists (completely fresh database)
+    // Only seed metadata if NO metadata exists (completely fresh database)
     if (existingMetadata.length === 0) {
       console.log('Fresh database detected, seeding minimal metadata...');
       await seedMetadataConfig();
     } else {
       console.log('Existing metadata found, preserving user data...');
-      return;
-    }
-
-    console.log('Seeding database with sample use cases...');
-    
-    for (const sampleUseCase of sampleUseCases) {
-      const impactScore = calculateImpactScore(
-        sampleUseCase.revenueImpact,
-        sampleUseCase.costSavings,
-        sampleUseCase.riskReduction,
-        sampleUseCase.brokerPartnerExperience,
-        sampleUseCase.strategicFit
-      );
-      
-      const effortScore = calculateEffortScore(
-        sampleUseCase.dataReadiness,
-        sampleUseCase.technicalComplexity,
-        sampleUseCase.changeImpact,
-        sampleUseCase.modelRisk,
-        sampleUseCase.adoptionReadiness
-      );
-      
-      const quadrant = calculateQuadrant(impactScore, effortScore);
-      
-      await db.insert(useCases).values({
-        ...sampleUseCase,
-        impactScore,
-        effortScore,
-        quadrant
-      });
     }
     
-    console.log(`Successfully seeded ${sampleUseCases.length} use cases`);
+    // NO automatic use case seeding - user will add via UI/Excel import
+    console.log('Use case database ready for user input');
   } catch (error) {
     console.error('Error seeding database:', error);
   }
 }
 
 /**
- * Seeds metadata configuration to database for REFERENCE.md compliance
- * Ensures all filter data is database-persisted, not hardcoded
+ * Seeds minimal metadata configuration for app structure only
+ * User will customize processes, activities, and other metadata via UI
  */
 async function seedMetadataConfig() {
   try {
-    // MINIMAL metadata seeding - only essential structure for app to function
     console.log("Creating minimal metadata structure for fresh database...");
 
     // Insert minimal default metadata configuration - user will customize via UI
@@ -221,10 +53,104 @@ async function seedMetadataConfig() {
       useCaseTypes: ["Analytics & Insights", "Process Automation", "GenAI", "Predictive ML"],
       sourceTypes: ["rsa_internal", "industry_standard", "ai_inventory"],
       quadrants: ["Quick Win", "Strategic Bet", "Experimental", "Watchlist"],
-      useCaseStatuses: ["Discovery", "Backlog", "In-flight", "Implemented", "On Hold"]
+      useCaseStatuses: ["Discovery", "Backlog", "In-flight", "Implemented", "On Hold"],
+      aiMlTechnologies: [
+        "Machine Learning",
+        "Deep Learning", 
+        "Natural Language Processing",
+        "Computer Vision",
+        "Predictive Analytics",
+        "Large Language Models",
+        "Reinforcement Learning",
+        "Rule-based Systems"
+      ],
+      dataSources: [
+        "Policy Database",
+        "Claims Database", 
+        "Customer Database",
+        "External APIs",
+        "Third-party Data",
+        "Real-time Feeds",
+        "Historical Data",
+        "Regulatory Data",
+        "Broker Data & Feeds"
+      ],
+      stakeholderGroups: [
+        "Underwriting Teams",
+        "Claims Teams",
+        "IT/Technology",
+        "Business Analytics",
+        "Risk Management",
+        "Product Management",
+        "Customer Service",
+        "Sales & Distribution",
+        "Executive Leadership",
+        "Regulatory & Compliance"
+      ],
+      horizontalUseCaseTypes: [
+        "Customer Experience Enhancement",
+        "Operational Efficiency",
+        "Risk & Compliance Management", 
+        "Revenue & Growth Optimization",
+        "Data & Analytics Enablement"
+      ],
+      questionTypes: [
+        "text",
+        "textarea", 
+        "select",
+        "multi_select",
+        "radio",
+        "checkbox",
+        "number",
+        "date",
+        "email",
+        "url"
+      ],
+      responseStatuses: [
+        "started",
+        "in_progress", 
+        "completed",
+        "abandoned"
+      ],
+      questionCategories: [
+        "Strategic Foundation",
+        "AI Capabilities",
+        "Use Case Discovery",
+        "Technology Infrastructure", 
+        "Organizational Readiness",
+        "Risk & Compliance"
+      ],
+      companyTiers: [
+        "Small (<£100M)",
+        "Mid (£100M-£3B)",
+        "Large (>£3B)"
+      ],
+      marketOptions: [
+        "Personal Lines",
+        "Commercial Lines",
+        "Specialty Lines",
+        "Reinsurance"
+      ],
+      scoringModel: {
+        businessValue: {
+          revenueImpact: 20,
+          costSavings: 20,
+          riskReduction: 20,
+          brokerPartnerExperience: 20,
+          strategicFit: 20
+        },
+        feasibility: {
+          dataReadiness: 20,
+          technicalComplexity: 20,
+          changeImpact: 20,
+          modelRisk: 20,
+          adoptionReadiness: 20
+        },
+        quadrantThreshold: 3.0
+      }
     });
     
-    console.log("Seeded metadata configuration successfully");
+    console.log("✅ Minimal metadata configuration seeded - ready for user customization");
   } catch (error) {
     console.error('Error seeding metadata config:', error);
   }
