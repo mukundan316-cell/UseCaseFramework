@@ -113,30 +113,6 @@ export interface ResponseSession {
   answeredQuestions: number;
 }
 
-// Migration helpers
-export interface LegacyQuestionData {
-  id: string;
-  sectionId: string;
-  subsectionId?: string;
-  questionText: string;
-  questionType: string;
-  isRequired: string; // 'true' | 'false'
-  questionOrder: number;
-  helpText?: string;
-  questionData?: Record<string, any>;
-  subQuestions?: string;
-  displayCondition?: string;
-  scoringCategory?: string;
-}
-
-export interface LegacyAnswerData {
-  id: string;
-  responseId: string;
-  questionId: string;
-  answerValue?: string;
-  answerData?: Record<string, any>;
-  answeredAt: Date;
-}
 
 // Validation schemas - Use these when metadata is not available
 export const QuestionTypes = [

@@ -1,6 +1,6 @@
 import React from 'react';
 import { RotateCcw, Save } from 'lucide-react';
-import ReusableButton from './ReusableButton';
+import ReusableButton from '../ReusableButton';
 
 interface FormActionButtonsProps {
   onReset?: () => void;

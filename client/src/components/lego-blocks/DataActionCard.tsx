@@ -1,6 +1,6 @@
 import React from 'react';
 import { type LucideIcon } from 'lucide-react';
-import ReusableButton from './ReusableButton';
+import ReusableButton from '../ReusableButton';
 
 interface DataActionCardProps {
   title: string;
