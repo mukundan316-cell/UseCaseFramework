@@ -120,15 +120,15 @@ export default function ImprovedUseCaseExplorer({
       // 'both' tab shows everything
     }
     
-    // Text search
+    // Text search with null safety
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = (
-        useCase.title.toLowerCase().includes(searchLower) ||
-        useCase.description.toLowerCase().includes(searchLower) ||
-        useCase.process.toLowerCase().includes(searchLower) ||
-        useCase.lineOfBusiness.toLowerCase().includes(searchLower) ||
-        useCase.useCaseType.toLowerCase().includes(searchLower)
+        (useCase.title?.toLowerCase() || '').includes(searchLower) ||
+        (useCase.description?.toLowerCase() || '').includes(searchLower) ||
+        (useCase.process?.toLowerCase() || '').includes(searchLower) ||
+        (useCase.lineOfBusiness?.toLowerCase() || '').includes(searchLower) ||
+        (useCase.useCaseType?.toLowerCase() || '').includes(searchLower)
       );
       if (!matchesSearch) return false;
     }
