@@ -39,6 +39,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **ROI Explanation System**: Contextual help, tooltips, and detailed scoring rationale
 - **Excel Import/Export**: Multi-worksheet structure with validation guidance
 - **Multi-Source Support**: RSA Internal, Industry Standard, AI Inventory categories
+- **Dropdown Reordering**: Drag-and-drop admin interface for customizing dropdown order in forms
 
 ## Key Decisions
 - **LEGO Components**: "Build Once, Reuse Everywhere" principle
@@ -50,6 +51,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Assessment Data Format**: Survey.js questionnaire structure (`pages` → `elements` → `panels` → `elements`)
 - **API Consistency**: Single endpoint pattern `/api/questionnaire/` for questionnaire data access
 - **UI/Excel Consistency**: Excel import must follow exact same validation and flow as UI creation
+- **Dropdown Ordering**: Custom sort order storage in JSONB fields with backwards compatibility to alphabetical sorting
 
 ## Excel Import Principles (Critical - Must Maintain)
 - **Validation Consistency**: Excel validation schema must match UI form validation exactly

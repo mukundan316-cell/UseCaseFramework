@@ -81,6 +81,7 @@ export interface IStorage {
   addMetadataItem(category: string, item: string): Promise<MetadataConfig>;
   removeMetadataItem(category: string, item: string): Promise<MetadataConfig>;
   editMetadataItem(category: string, oldItem: string, newItem: string): Promise<MetadataConfig>;
+  updateMetadataSortOrder(category: string, orderedItems: string[]): Promise<MetadataConfig>;
   
   // Response session management (blob storage questionnaires)
   getResponseSessions(): Promise<ResponseSession[]>;
@@ -518,6 +519,44 @@ export class DatabaseStorage implements IStorage {
         };
       }
     }
+    
+    return await this.updateMetadataConfig(updatedConfig);
+  }
+
+  async updateMetadataSortOrder(category: string, orderedItems: string[]): Promise<MetadataConfig> {
+    const currentConfig = await this.getMetadataConfig();
+    
+    if (!currentConfig) {
+      throw new Error('Metadata config not found');
+    }
+
+    // Create sort order mapping: item name -> index
+    const sortOrder: Record<string, number> = {};
+    orderedItems.forEach((item, index) => {
+      sortOrder[item] = index;
+    });
+
+    // Determine the sort order field name
+    const sortOrderFieldMap: Record<string, string> = {
+      'activities': 'activitiesSortOrder',
+      'processes': 'processesSortOrder',
+      'linesOfBusiness': 'linesOfBusinessSortOrder',
+      'businessSegments': 'businessSegmentsSortOrder',
+      'geographies': 'geographiesSortOrder',
+      'useCaseTypes': 'useCaseTypesSortOrder',
+      'valueChainComponents': 'valueChainComponentsSortOrder'
+    };
+
+    const sortOrderField = sortOrderFieldMap[category];
+    if (!sortOrderField) {
+      throw new Error(`Category ${category} does not support custom sorting`);
+    }
+
+    // Update the configuration with new sort order
+    const updatedConfig = {
+      ...currentConfig,
+      [sortOrderField]: sortOrder
+    };
     
     return await this.updateMetadataConfig(updatedConfig);
   }

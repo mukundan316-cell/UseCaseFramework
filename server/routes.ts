@@ -620,6 +620,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PUT /api/metadata/:category/reorder - Update custom sort order for metadata category
+  app.put("/api/metadata/:category/reorder", async (req, res) => {
+    try {
+      const { category } = req.params;
+      const { orderedItems } = req.body;
+      
+      // Validation
+      if (!Array.isArray(orderedItems)) {
+        return res.status(400).json({ error: "orderedItems must be an array" });
+      }
+
+      // Validate category is reorderable
+      const reorderableCategories = [
+        'activities', 'processes', 'linesOfBusiness', 'businessSegments', 
+        'geographies', 'useCaseTypes', 'valueChainComponents'
+      ];
+      
+      if (!reorderableCategories.includes(category)) {
+        return res.status(400).json({ error: `Category ${category} does not support reordering` });
+      }
+      
+      const updated = await storage.updateMetadataSortOrder(category, orderedItems);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating sort order:", error);
+      res.status(500).json({ error: "Failed to update sort order" });
+    }
+  });
+
   // Section progress tracking is handled by the blob storage system via questionnaire routes
 
   // Register questionnaire routes (blob storage based)

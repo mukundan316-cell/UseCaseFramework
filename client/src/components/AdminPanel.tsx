@@ -6,6 +6,7 @@ import DataActionCard from './lego-blocks/DataActionCard';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
+import ReorderableMetadataBlock from './lego-blocks/ReorderableMetadataBlock';
 import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagementBlock';
 import ProcessManagementBlock from './lego-blocks/ProcessManagementBlock';
 import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSimple';
@@ -274,17 +275,17 @@ export default function AdminPanel() {
                 
                 {/* Metadata Categories */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="linesOfBusiness"
                     title="Lines of Business"
                     items={metadata.linesOfBusiness}
-                    placeholder="Add new line of business..."
+                    sortOrder={metadata.linesOfBusinessSortOrder || undefined}
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="businessSegments"
                     title="Business Segments"
                     items={metadata.businessSegments}
-                    placeholder="Add new business segment..."
+                    sortOrder={metadata.businessSegmentsSortOrder || undefined}
                   />
                   <MetadataLegoBlock
                     category="geographies"
@@ -334,11 +335,17 @@ export default function AdminPanel() {
                     items={metadata.quadrants || []}
                     placeholder="Add new quadrant..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="processes"
                     title="Business Processes"
                     items={metadata.processes || []}
-                    placeholder="Add new business process..."
+                    sortOrder={metadata.processesSortOrder || undefined}
+                  />
+                  <ReorderableMetadataBlock
+                    category="activities"
+                    title="Process Activities"
+                    items={metadata.activities || []}
+                    sortOrder={metadata.activitiesSortOrder || undefined}
                   />
                   <MetadataLegoBlock
                     category="horizontalUseCaseTypes"

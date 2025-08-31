@@ -279,6 +279,14 @@ export const metadataConfig = pgTable('metadata_config', {
   marketOptions: text('market_options').array().notNull().default(sql`'{"Personal Lines","Commercial Lines","Specialty Lines","Reinsurance"}'`),
   processActivities: text('process_activities').$type<Record<string, string[]> | string>(),
   scoringModel: text('scoring_model').$type<any>(),
+  // Custom sort order storage - maps item names to display order indices
+  activitiesSortOrder: jsonb('activities_sort_order').$type<Record<string, number>>(),
+  processesSortOrder: jsonb('processes_sort_order').$type<Record<string, number>>(),
+  linesOfBusinessSortOrder: jsonb('lines_of_business_sort_order').$type<Record<string, number>>(),
+  businessSegmentsSortOrder: jsonb('business_segments_sort_order').$type<Record<string, number>>(),
+  geographiesSortOrder: jsonb('geographies_sort_order').$type<Record<string, number>>(),
+  useCaseTypesSortOrder: jsonb('use_case_types_sort_order').$type<Record<string, number>>(),
+  valueChainComponentsSortOrder: jsonb('value_chain_components_sort_order').$type<Record<string, number>>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 

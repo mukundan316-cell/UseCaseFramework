@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MetadataConfig } from '@shared/schema';
+import { useSortedMetadata } from '@/hooks/useSortedMetadata';
 
 /**
  * LEGO Block: Process Activity Manager
@@ -11,6 +12,7 @@ export function useProcessActivityManager() {
   const { data: metadata } = useQuery<MetadataConfig>({
     queryKey: ['/api/metadata'],
   });
+  const sortedMetadata = useSortedMetadata();
 
   /**
    * Gets activities for a specific process from database metadata
@@ -40,7 +42,7 @@ export function useProcessActivityManager() {
    * @returns Array of all business processes
    */
   const getAllProcesses = (): string[] => {
-    return metadata?.processes || [];
+    return sortedMetadata.getSortedProcesses();
   };
 
   /**
@@ -48,19 +50,25 @@ export function useProcessActivityManager() {
    * @returns Array of all available activities
    */
   const getAllActivities = (): string[] => {
-    if (!metadata?.processActivities) return metadata?.activities || [];
+    if (!metadata?.processActivities) return sortedMetadata.getSortedActivities();
     
-    // Handle both parsed object and JSON string formats
+    // Handle both parsed object and JSON string formats - get flat list then sort
     let processActivitiesMap: Record<string, string[]>;
     if (typeof metadata.processActivities === 'string') {
       try {
         processActivitiesMap = JSON.parse(metadata.processActivities);
-        return Object.values(processActivitiesMap).flat();
+        const flatActivities = Object.values(processActivitiesMap).flat();
+        // Remove duplicates and return sorted
+        const uniqueActivities = Array.from(new Set(flatActivities));
+        return sortedMetadata.getSortedItems('activities', uniqueActivities);
       } catch {
-        return metadata?.activities || [];
+        return sortedMetadata.getSortedActivities();
       }
     } else {
-      return Object.values(metadata.processActivities).flat();
+      const flatActivities = Object.values(metadata.processActivities).flat();
+      // Remove duplicates and return sorted
+      const uniqueActivities = Array.from(new Set(flatActivities));
+      return sortedMetadata.getSortedItems('activities', uniqueActivities);
     }
   };
 

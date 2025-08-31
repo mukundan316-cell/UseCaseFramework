@@ -23,6 +23,7 @@ import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import MultiSelectField from './MultiSelectField';
+import { useSortedMetadata } from '@/hooks/useSortedMetadata';
 import PresentationUploadBlock from './PresentationUploadBlock';
 import PresentationPreviewBlock from './PresentationPreviewBlock';
 import HorizontalUseCaseLegoBlock from './HorizontalUseCaseLegoBlock';
@@ -134,6 +135,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const { addUseCase, updateUseCase, metadata } = useUseCases();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const sortedMetadata = useSortedMetadata();
 
   // RSA Portfolio state management
   const [rsaSelection, setRsaSelection] = useState({
@@ -1030,7 +1032,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     <SelectValue placeholder="Select process" />
                   </SelectTrigger>
                   <SelectContent>
-                    {metadata.processes.filter(process => process && process.trim()).map(process => (
+                    {sortedMetadata.getSortedProcesses().filter(process => process && process.trim()).map(process => (
                       <SelectItem key={process} value={process}>{process}</SelectItem>
                     ))}
                   </SelectContent>
@@ -1046,7 +1048,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               {/* Lines of Business Multi-Select */}
               <MultiSelectField
                 label="Lines of Business"
-                items={metadata.linesOfBusiness}
+                items={sortedMetadata.getSortedLinesOfBusiness()}
                 selectedItems={form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean) as string[])}
                 onSelectionChange={(newItems) => {
                   form.setValue('linesOfBusiness', newItems);
@@ -1063,7 +1065,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               {/* Business Segments Multi-Select */}
               <MultiSelectField
                 label="Business Segments"
-                items={metadata.businessSegments}
+                items={sortedMetadata.getSortedBusinessSegments()}
                 selectedItems={(form.watch('businessSegments') as string[]) || [form.watch('businessSegment')].filter(Boolean)}
                 onSelectionChange={(newItems) => {
                   form.setValue('businessSegments', newItems);
@@ -1080,7 +1082,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               {/* Geographies Multi-Select */}
               <MultiSelectField
                 label="Geographies"
-                items={metadata.geographies}
+                items={sortedMetadata.getSortedGeographies()}
                 selectedItems={(form.watch('geographies') as string[]) || [form.watch('geography')].filter(Boolean)}
                 onSelectionChange={(newItems) => {
                   form.setValue('geographies', newItems);
