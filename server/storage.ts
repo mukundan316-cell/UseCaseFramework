@@ -544,7 +544,13 @@ export class DatabaseStorage implements IStorage {
       'businessSegments': 'businessSegmentsSortOrder',
       'geographies': 'geographiesSortOrder',
       'useCaseTypes': 'useCaseTypesSortOrder',
-      'valueChainComponents': 'valueChainComponentsSortOrder'
+      'valueChainComponents': 'valueChainComponentsSortOrder',
+      'sourceTypes': 'sourceTypesSortOrder',
+      'useCaseStatuses': 'useCaseStatusesSortOrder',
+      'aiMlTechnologies': 'aiMlTechnologiesSortOrder',
+      'dataSources': 'dataSourcesSortOrder',
+      'stakeholderGroups': 'stakeholderGroupsSortOrder',
+      'quadrants': 'quadrantsSortOrder'
     };
 
     const sortOrderField = sortOrderFieldMap[category];

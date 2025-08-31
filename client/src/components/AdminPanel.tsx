@@ -289,52 +289,60 @@ export default function AdminPanel() {
                     sortOrder={metadata.businessSegmentsSortOrder || undefined}
                     placeholder="Add new business segment..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="geographies"
                     title="Geographies"
                     items={metadata.geographies}
+                    sortOrder={metadata.geographiesSortOrder || undefined}
                     placeholder="Add new geography..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="useCaseTypes"
                     title="Use Case Types"
                     items={metadata.useCaseTypes}
+                    sortOrder={metadata.useCaseTypesSortOrder || undefined}
                     placeholder="Add new use case type..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="sourceTypes"
                     title="Source Types"
                     items={metadata.sourceTypes || []}
+                    sortOrder={metadata.sourceTypesSortOrder || undefined}
                     placeholder="Add new source type..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="useCaseStatuses"
                     title="Use Case Statuses"
                     items={metadata.useCaseStatuses || []}
+                    sortOrder={metadata.useCaseStatusesSortOrder || undefined}
                     placeholder="Add new use case status..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="aiMlTechnologies"
                     title="AI/ML Technologies"
                     items={metadata.aiMlTechnologies || []}
+                    sortOrder={metadata.aiMlTechnologiesSortOrder || undefined}
                     placeholder="Add new AI/ML technology..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="dataSources"
                     title="Data Sources"
                     items={metadata.dataSources || []}
+                    sortOrder={metadata.dataSourcesSortOrder || undefined}
                     placeholder="Add new data source..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="stakeholderGroups"
                     title="Stakeholder Groups"
                     items={metadata.stakeholderGroups || []}
+                    sortOrder={metadata.stakeholderGroupsSortOrder || undefined}
                     placeholder="Add new stakeholder group..."
                   />
-                  <MetadataLegoBlock
+                  <ReorderableMetadataBlock
                     category="quadrants"
                     title="Matrix Quadrants"
                     items={metadata.quadrants || []}
+                    sortOrder={metadata.quadrantsSortOrder || undefined}
                     placeholder="Add new quadrant..."
                   />
                   <ReorderableMetadataBlock

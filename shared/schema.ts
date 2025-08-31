@@ -287,6 +287,12 @@ export const metadataConfig = pgTable('metadata_config', {
   geographiesSortOrder: jsonb('geographies_sort_order').$type<Record<string, number>>(),
   useCaseTypesSortOrder: jsonb('use_case_types_sort_order').$type<Record<string, number>>(),
   valueChainComponentsSortOrder: jsonb('value_chain_components_sort_order').$type<Record<string, number>>(),
+  sourceTypesSortOrder: jsonb('source_types_sort_order').$type<Record<string, number>>(),
+  useCaseStatusesSortOrder: jsonb('use_case_statuses_sort_order').$type<Record<string, number>>(),
+  aiMlTechnologiesSortOrder: jsonb('ai_ml_technologies_sort_order').$type<Record<string, number>>(),
+  dataSourcesSortOrder: jsonb('data_sources_sort_order').$type<Record<string, number>>(),
+  stakeholderGroupsSortOrder: jsonb('stakeholder_groups_sort_order').$type<Record<string, number>>(),
+  quadrantsSortOrder: jsonb('quadrants_sort_order').$type<Record<string, number>>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 

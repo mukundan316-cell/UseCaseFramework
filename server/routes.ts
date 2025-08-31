@@ -616,7 +616,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate category is reorderable
       const reorderableCategories = [
         'activities', 'processes', 'linesOfBusiness', 'businessSegments', 
-        'geographies', 'useCaseTypes', 'valueChainComponents'
+        'geographies', 'useCaseTypes', 'valueChainComponents', 'sourceTypes',
+        'useCaseStatuses', 'aiMlTechnologies', 'dataSources', 'stakeholderGroups', 
+        'quadrants'
       ];
       
       if (!reorderableCategories.includes(category)) {

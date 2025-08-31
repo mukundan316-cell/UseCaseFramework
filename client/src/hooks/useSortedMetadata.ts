@@ -58,6 +58,12 @@ export function useSortedMetadata() {
         geographies: metadata?.geographiesSortOrder,
         useCaseTypes: metadata?.useCaseTypesSortOrder,
         valueChainComponents: metadata?.valueChainComponentsSortOrder,
+        sourceTypes: metadata?.sourceTypesSortOrder,
+        useCaseStatuses: metadata?.useCaseStatusesSortOrder,
+        aiMlTechnologies: metadata?.aiMlTechnologiesSortOrder,
+        dataSources: metadata?.dataSourcesSortOrder,
+        stakeholderGroups: metadata?.stakeholderGroupsSortOrder,
+        quadrants: metadata?.quadrantsSortOrder,
       };
       
       return getSortedItems(category, items, sortOrderMap[category]);
