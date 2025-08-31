@@ -280,12 +280,14 @@ export default function AdminPanel() {
                     title="Lines of Business"
                     items={metadata.linesOfBusiness}
                     sortOrder={metadata.linesOfBusinessSortOrder || undefined}
+                    placeholder="Add new line of business..."
                   />
                   <ReorderableMetadataBlock
                     category="businessSegments"
                     title="Business Segments"
                     items={metadata.businessSegments}
                     sortOrder={metadata.businessSegmentsSortOrder || undefined}
+                    placeholder="Add new business segment..."
                   />
                   <MetadataLegoBlock
                     category="geographies"
@@ -340,12 +342,14 @@ export default function AdminPanel() {
                     title="Business Processes"
                     items={metadata.processes || []}
                     sortOrder={metadata.processesSortOrder || undefined}
+                    placeholder="Add new business process..."
                   />
                   <ReorderableMetadataBlock
                     category="activities"
                     title="Process Activities"
                     items={metadata.activities || []}
                     sortOrder={metadata.activitiesSortOrder || undefined}
+                    placeholder="Add new process activity..."
                   />
                   <MetadataLegoBlock
                     category="horizontalUseCaseTypes"
