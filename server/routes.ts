@@ -601,26 +601,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // PUT /api/metadata/:category/:oldItem - Edit metadata item in place
-  app.put("/api/metadata/:category/:oldItem", async (req, res) => {
-    try {
-      const { category, oldItem } = req.params;
-      const { newItem } = req.body;
-      
-      if (!newItem || newItem.trim() === '') {
-        return res.status(400).json({ error: "New item value is required" });
-      }
-
-      const decodedOldItem = decodeURIComponent(oldItem);
-      const updated = await storage.editMetadataItem(category, decodedOldItem, newItem.trim());
-      res.json(updated);
-    } catch (error) {
-      console.error("Error editing metadata item:", error);
-      res.status(500).json({ error: "Failed to edit metadata item" });
-    }
-  });
-
   // PUT /api/metadata/:category/reorder - Update custom sort order for metadata category
+  // NOTE: This route must come BEFORE the generic /:category/:oldItem route to avoid conflicts
   app.put("/api/metadata/:category/reorder", async (req, res) => {
     try {
       const { category } = req.params;
@@ -646,6 +628,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating sort order:", error);
       res.status(500).json({ error: "Failed to update sort order" });
+    }
+  });
+
+  // PUT /api/metadata/:category/:oldItem - Edit metadata item in place
+  app.put("/api/metadata/:category/:oldItem", async (req, res) => {
+    try {
+      const { category, oldItem } = req.params;
+      const { newItem } = req.body;
+      
+      if (!newItem || newItem.trim() === '') {
+        return res.status(400).json({ error: "New item value is required" });
+      }
+
+      const decodedOldItem = decodeURIComponent(oldItem);
+      const updated = await storage.editMetadataItem(category, decodedOldItem, newItem.trim());
+      res.json(updated);
+    } catch (error) {
+      console.error("Error editing metadata item:", error);
+      res.status(500).json({ error: "Failed to edit metadata item" });
     }
   });
 

@@ -300,7 +300,7 @@ export default function ReorderableMetadataBlock({
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className={`space-y-2 min-h-[100px] p-2 rounded-lg border-2 border-dashed transition-colors ${
+                  className={`space-y-2 min-h-[100px] max-h-96 overflow-y-auto p-2 rounded-lg border-2 border-dashed transition-colors ${
                     snapshot.isDraggingOver 
                       ? 'border-rsa-blue bg-blue-50' 
                       : 'border-gray-200 bg-gray-50'
