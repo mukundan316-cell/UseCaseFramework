@@ -397,3 +397,27 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Ensure scrollbars are visible when needed for metadata lists */
+.max-h-96 {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E0 #F7FAFC;
+}
+
+.max-h-96::-webkit-scrollbar {
+  width: 8px;
+}
+
+.max-h-96::-webkit-scrollbar-track {
+  background: #F7FAFC;
+  border-radius: 4px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb {
+  background: #CBD5E0;
+  border-radius: 4px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb:hover {
+  background: #A0AEC0;
+}
