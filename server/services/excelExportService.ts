@@ -128,15 +128,36 @@ export class ExcelExportService {
       ['✗ Don\'t use text like "High" for numeric scores (use 1-5 numbers)'],
       ['✗ Don\'t use "Yes/No", "Y/N", "1/0" for boolean fields'],
       ['✗ Don\'t merge cells or add formatting that affects data structure'],
-      ['✗ Don\'t leave required fields empty (Title, Description, Process)'],
+      ['✗ Don\'t leave required fields empty (Title, Description only)'],
       ['✗ Don\'t use commas in array fields (use semicolons instead)'],
       ['✗ Don\'t change Portfolio Status without proper authority'],
+      [''],
+      ['FIELD CATEGORIES (Important!)'],
+      [''],
+      ['🔵 USER-EDITABLE FIELDS (You can modify these)'],
+      ['• Basic Information: Title, Description, Problem Statement'],
+      ['• Scoring Inputs: Revenue Impact (1-5), Cost Savings (1-5), etc.'],
+      ['• Business Details: Lines of Business, Business Segments, etc.'],
+      ['• Implementation: Primary Business Owner, Timeline, Dependencies'],
+      [''],
+      ['❌ CALCULATED FIELDS (Auto-generated - DO NOT EDIT)'],
+      ['• Final Impact Score (calculated from your scoring inputs)'],
+      ['• Final Effort Score (calculated from your scoring inputs)'],
+      ['• Final Quadrant (derived from impact/effort scores)'],
+      ['⚠️  These will be IGNORED during import and recalculated automatically'],
+      [''],
+      ['⚙️  SYSTEM-MANAGED FIELDS (Auto-generated - DO NOT EDIT)'],
+      ['• Use Case ID (database identifier)'],
+      ['• Meaningful ID (auto-generated based on category)'],
+      ['• Created Date, Last Status Update (timestamps)'],
+      ['• Manual Override flags and reasons'],
+      ['⚠️  These will be IGNORED during import to prevent data corruption'],
       [''],
       ['FIELD TYPES & EXAMPLES'],
       [''],
       ['TEXT FIELDS (most common)'],
       ['Examples: "Claims automation using AI", "Reduce manual processing time"'],
-      ['Required: Title, Description, Process'],
+      ['Required: Title, Description only (minimal validation per replit.md)'],
       [''],
       ['NUMERIC SCORES (1-5 scale)'],
       ['Examples: 3, 5, 1 (not "High", "Medium", "Low")'],
@@ -184,6 +205,13 @@ export class ExcelExportService {
       [''],
       ['Horizontal Use Case Types: ' + (metadata?.horizontalUseCaseTypes?.join(', ') || 'Document drafting, report generation, Categorization, tagging, curation, Research assistant, information retrieval, Autofill, next-best action suggestions, autonomous agents, Debugging, refactoring, coding, Synthesis, summarization, Augmentation, visualization, Text versions for analysis, time series data generation, scenario generation, Suggestions for workflow amendments, automated changes to workflows, Errors, fraud, problem-solving')],
       [''],
+      ['NEW: IMPORT VALIDATION FEATURES'],
+      [''],
+      ['✅ Field Category Detection: System warns if calculated/system fields found'],
+      ['✅ Smart Field Filtering: Calculated fields automatically ignored during import'],
+      ['✅ Backward Compatibility: Existing Excel templates still work with warnings'],
+      ['✅ Non-Breaking Validation: Import continues even with field category warnings'],
+      [''],
       ['COMMON IMPORT ERRORS & SOLUTIONS'],
       [''],
       ['Error: "Invalid score value"'],
@@ -193,7 +221,7 @@ export class ExcelExportService {
       ['Solution: Use \'true\' or \'false\', not Yes/No'],
       [''],
       ['Error: "Required field missing"'],
-      ['Solution: Ensure Title, Description, Process are not empty'],
+      ['Solution: Ensure Title, Description are not empty (minimal validation)'],
       [''],
       ['Error: "Invalid array format"'],
       ['Solution: Use semicolons (;) to separate multiple values'],
@@ -306,6 +334,68 @@ export class ExcelExportService {
   }
   
   /**
+   * LEGO: Field categorization system for export/import separation
+   */
+  private static getCalculatedFields(): string[] {
+    return [
+      'Final Impact Score',
+      'Final Effort Score', 
+      'Final Quadrant'
+    ];
+  }
+
+  private static getSystemManagedFields(): string[] {
+    return [
+      'Use Case ID',
+      'Meaningful ID',
+      'Manual Override?',
+      'Override Reason',
+      'Last Status Update',
+      'Created Date'
+    ];
+  }
+
+  private static getUserEditableFields(): string[] {
+    return [
+      // Basic Information
+      'Title', 'Description', 'Problem Statement',
+      // Business Context
+      'Lines of Business', 'Business Segments', 'Geographies', 'Use Case Type',
+      'Processes (Multi-select)', 'Process Activities',
+      // Scoring Levers (input only, not calculated results)
+      'Revenue Impact (1-5)', 'Cost Savings (1-5)', 'Risk Reduction (1-5)',
+      'Broker Partner Experience (1-5)', 'Strategic Fit (1-5)',
+      'Data Readiness (1-5)', 'Technical Complexity (1-5)', 'Change Impact (1-5)',
+      'Model Risk (1-5)', 'Adoption Readiness (1-5)', 'Regulatory Compliance (1-5)',
+      // Implementation & Governance
+      'Primary Business Owner', 'Key Dependencies', 'Implementation Timeline',
+      'Success Metrics', 'Estimated Value', 'Value Measurement Approach',
+      'AI/ML Technologies', 'Data Sources', 'Stakeholder Groups',
+      'Horizontal Use Case', 'Horizontal Use Case Types', 'Integration Requirements',
+      // RSA Ethical Principles
+      'Explainability Required', 'Customer Harm Risk', 'Data Outside UK/EU',
+      'Third Party Model', 'Human Accountability',
+      // AI Inventory Specific
+      'Business Function', 'AI Inventory Status', 'Deployment Status', 'AI or Model',
+      'Risk to Customers', 'Risk to RSA', 'Data Used', 'Model Owner',
+      'RSA Policy Governance', 'Validation Responsibility', 'Informed By',
+      'Third Party Provided Model',
+      // Portfolio Management
+      'Use Case Status', 'Portfolio Status', 'Dashboard Visible', 'Library Source',
+      'Activation Reason', 'Deactivation Reason',
+      // Presentation
+      'Presentation File Name', 'Has Presentation'
+    ];
+  }
+
+  private static categorizeField(fieldName: string): 'calculated' | 'system' | 'user_editable' | 'unknown' {
+    if (this.getCalculatedFields().includes(fieldName)) return 'calculated';
+    if (this.getSystemManagedFields().includes(fieldName)) return 'system';
+    if (this.getUserEditableFields().includes(fieldName)) return 'user_editable';
+    return 'unknown';
+  }
+
+  /**
    * LEGO: Common field mappers for reuse across both strategic and AI inventory exports
    */
   private static mapBasicFields(useCase: any, rawUseCase: any): any[] {
@@ -370,6 +460,70 @@ export class ExcelExportService {
       useCase.aiInventory.humanAccountability || '',
       useCase.aiInventory.regulatoryCompliance || ''
     ];
+  }
+
+  /**
+   * LEGO: Import-specific field mappers that exclude calculated and system fields
+   */
+  private static getStrategicImportHeaders(): string[] {
+    const allHeaders = [
+      // Basic fields (excluding system-generated IDs)
+      'Title', 'Description', 'Problem Statement',
+      // Business context fields  
+      'Lines of Business', 'Business Segments', 'Geographies', 'Use Case Type',
+      // Implementation and portfolio fields (user-editable only)
+      'Use Case Status', 'Portfolio Status', 'Dashboard Visible', 'Library Source',
+      // Scoring levers (inputs only - NOT calculated results)
+      'Revenue Impact (1-5)', 'Cost Savings (1-5)', 'Risk Reduction (1-5)',
+      'Broker Partner Experience (1-5)', 'Strategic Fit (1-5)',
+      'Data Readiness (1-5)', 'Technical Complexity (1-5)', 'Change Impact (1-5)',
+      'Model Risk (1-5)', 'Adoption Readiness (1-5)',
+      // Implementation details
+      'Primary Business Owner', 'Key Dependencies', 'Implementation Timeline',
+      'Success Metrics', 'Estimated Value', 'Value Measurement Approach',
+      // Technical fields
+      'AI/ML Technologies', 'Data Sources', 'Stakeholder Groups',
+      'Horizontal Use Case', 'Horizontal Use Case Types', 'Integration Requirements',
+      // RSA Ethical Principles
+      'Explainability Required', 'Customer Harm Risk', 'Data Outside UK/EU',
+      'Third Party Model', 'Human Accountability', 'Regulatory Compliance (1-5)',
+      // Strategic-specific fields (excluding manual override system fields)
+      'Activation Reason',
+      // Process details
+      'Processes (Multi-select)', 'Process Activities',
+      // Presentation fields
+      'Presentation File Name', 'Has Presentation', 'Deactivation Reason'
+    ];
+    return allHeaders;
+  }
+
+  private static getAiInventoryImportHeaders(): string[] {
+    const allHeaders = [
+      // Basic fields (excluding system-generated IDs)
+      'Title', 'Description', 'Problem Statement',
+      // Business context fields
+      'Lines of Business', 'Business Segments', 'Geographies', 'Use Case Type',
+      // Implementation fields
+      'Use Case Status', 'Primary Business Owner', 'Key Dependencies',
+      'Implementation Timeline', 'Success Metrics', 'Estimated Value',
+      'Value Measurement Approach',
+      // Technical fields
+      'AI/ML Technologies', 'Data Sources', 'Stakeholder Groups',
+      'Horizontal Use Case', 'Horizontal Use Case Types', 'Integration Requirements',
+      // Process details
+      'Processes (Multi-select)', 'Process Activities',
+      // AI Inventory specific fields
+      'Business Function', 'AI Inventory Status', 'Deployment Status', 'AI or Model',
+      'Risk to Customers', 'Risk to RSA', 'Data Used', 'Model Owner',
+      'RSA Policy Governance', 'Validation Responsibility', 'Informed By',
+      'Third Party Provided Model',
+      // RSA Ethical Principles
+      'Explainability Required', 'Customer Harm Risk', 'Data Outside UK/EU',
+      'Third Party Model', 'Human Accountability', 'Regulatory Compliance (1-5)',
+      // Portfolio fields
+      'Portfolio Status', 'Library Source', 'Has Presentation'
+    ];
+    return allHeaders;
   }
 
   private static mapPortfolioFields(useCase: any): any[] {

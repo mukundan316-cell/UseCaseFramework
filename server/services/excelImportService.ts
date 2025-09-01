@@ -24,6 +24,48 @@ interface ImportOptions {
 export class ExcelImportService {
   
   /**
+   * LEGO: Field validation system for import integrity
+   */
+  private static getCalculatedFields(): string[] {
+    return [
+      'Final Impact Score',
+      'Final Effort Score', 
+      'Final Quadrant'
+    ];
+  }
+
+  private static getSystemManagedFields(): string[] {
+    return [
+      'Use Case ID',
+      'Meaningful ID',
+      'Manual Override?',
+      'Override Reason',
+      'Last Status Update',
+      'Created Date'
+    ];
+  }
+
+  private static validateImportHeaders(headers: string[], sheetName: string): string[] {
+    const warnings: string[] = [];
+    
+    // Check for calculated fields
+    const calculatedFields = this.getCalculatedFields();
+    const foundCalculated = headers.filter(h => calculatedFields.includes(h));
+    if (foundCalculated.length > 0) {
+      warnings.push(`❌ [${sheetName}] Calculated fields found: ${foundCalculated.join(', ')}. These are auto-generated and will be ignored during import.`);
+    }
+    
+    // Check for system-managed fields  
+    const systemFields = this.getSystemManagedFields();
+    const foundSystem = headers.filter(h => systemFields.includes(h));
+    if (foundSystem.length > 0) {
+      warnings.push(`⚠️  [${sheetName}] System-managed fields found: ${foundSystem.join(', ')}. These are auto-generated and will be ignored during import.`);
+    }
+    
+    return warnings;
+  }
+
+  /**
    * Import use cases from Excel file using the same format as export
    */
   static async importUseCasesFromExcel(
@@ -194,6 +236,14 @@ export class ExcelImportService {
     if (data.length < 2) return []; // No data rows
 
     const headers = data[0] as string[];
+    
+    // Validate headers and collect warnings (non-breaking validation)
+    const headerWarnings = this.validateImportHeaders(headers, sheetName);
+    if (headerWarnings.length > 0) {
+      console.warn('Import header validation warnings:', headerWarnings);
+      // Note: We continue processing but will filter out problematic fields during mapping
+    }
+    
     const useCases: any[] = [];
 
     for (let i = 1; i < data.length; i++) {
@@ -224,6 +274,14 @@ export class ExcelImportService {
     if (data.length < 2) return [];
 
     const headers = data[0] as string[];
+    
+    // Validate headers and collect warnings (non-breaking validation)
+    const headerWarnings = this.validateImportHeaders(headers, sheetName);
+    if (headerWarnings.length > 0) {
+      console.warn('Import header validation warnings:', headerWarnings);
+      // Note: We continue processing but will filter out problematic fields during mapping
+    }
+    
     const useCases: any[] = [];
 
     for (let i = 1; i < data.length; i++) {
@@ -281,6 +339,14 @@ export class ExcelImportService {
   ): any | null {
     
     const getValue = (columnName: string): any => {
+      // Filter out calculated and system fields - return undefined to ignore them
+      const calculatedFields = this.getCalculatedFields();
+      const systemFields = this.getSystemManagedFields();
+      
+      if (calculatedFields.includes(columnName) || systemFields.includes(columnName)) {
+        return undefined; // Ignore calculated and system fields
+      }
+      
       const index = headers.findIndex(h => h === columnName);
       const value = index >= 0 ? row[index] : undefined;
       // Convert empty strings to null for proper validation
@@ -311,12 +377,13 @@ export class ExcelImportService {
 
     // Auto-detect type if needed
     if (type === 'auto_detect') {
-      const hasScoring = getValue('Final Impact Score') !== undefined;
+      // Use non-calculated fields for type detection
       const hasAIInventory = getValue('AI Inventory Status') !== undefined;
+      const hasStrategicScoring = getValue('Revenue Impact (1-5)') !== undefined || getValue('Cost Savings (1-5)') !== undefined;
       
       if (hasAIInventory) {
         type = 'ai_inventory';
-      } else if (hasScoring) {
+      } else if (hasStrategicScoring) {
         type = 'strategic';
       } else {
         type = 'strategic'; // Default
@@ -325,14 +392,11 @@ export class ExcelImportService {
 
     // Add type-specific data
     if (type === 'strategic') {
-      // Scoring data
-      const finalImpactScore = ExcelImportService.parseNumber(getValue('Final Impact Score'));
-      const finalEffortScore = ExcelImportService.parseNumber(getValue('Final Effort Score'));
+      // Skip calculated fields (Final Impact/Effort Score, Final Quadrant) - they will be auto-calculated
+      // Only process user-editable scoring inputs and strategic-specific fields
       
       Object.assign(useCase, {
-        finalImpactScore: finalImpactScore !== null ? finalImpactScore : undefined,
-        finalEffortScore: finalEffortScore !== null ? finalEffortScore : undefined,
-        finalQuadrant: getValue('Final Quadrant') || null,
+        // Skip: finalImpactScore, finalEffortScore, finalQuadrant (calculated fields)
         overrideReason: getValue('Override Reason') || null,
         
         // Business impact scores (1-5) - convert null to undefined for schema compatibility
