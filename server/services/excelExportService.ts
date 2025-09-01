@@ -637,7 +637,7 @@ export class ExcelExportService {
       return [
         // Basic fields (LEGO reused) - ID, Title, Description, Problem Statement
         ...this.mapBasicFields(useCase, rawUseCase),
-        // Business context fields (LEGO reused) - Process, Lines of Business, Business Segments, Geographies, Use Case Type
+        // Business context fields (LEGO reused) - Lines of Business, Business Segments, Geographies, Use Case Type
         ...this.mapBusinessContextFields(useCase, rawUseCase),
         // Implementation status and portfolio fields  
         useCase.implementation.useCaseStatus || '',
@@ -917,7 +917,7 @@ export class ExcelExportService {
         ['Title', extractedData.basicInfo.title],
         ['Description', extractedData.basicInfo.description],
         ['Problem Statement', extractedData.basicInfo.problemStatement || ''],
-        ['Process', extractedData.basicInfo.process],
+        ['Processes', this.mapMultiSelectArray(extractedData.multiSelectData.processes, extractedData.basicInfo.process || '')],
         ['Line of Business', extractedData.basicInfo.lineOfBusiness],
         ['Business Segment', extractedData.basicInfo.businessSegment],
         ['Geography', extractedData.basicInfo.geography],

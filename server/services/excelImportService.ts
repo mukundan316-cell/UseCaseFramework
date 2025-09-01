@@ -390,7 +390,7 @@ export class ExcelImportService {
       description: getValue('Description') || '',
       // Don't set meaningfulId from Excel - let it be auto-generated based on category
       problemStatement: getValue('Problem Statement'),
-      process: getValue('Process') || null,
+      process: null, // Now handled via processes array in multi-select fields
       // Single values for backward compatibility - will be derived from arrays in storage layer
       lineOfBusiness: null,
       businessSegment: null, 
