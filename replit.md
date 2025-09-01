@@ -37,13 +37,14 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 ## Core Features
 - **Use Case Management**: Full CRUD with 10-lever scoring framework
 - **Analytics Dashboard**: Interactive matrix plots with quadrant prioritization
-- **Portfolio Management**: Active/reference library with bulk operations
+- **Portfolio Management**: Active/reference library with bulk operations and deduplication protection
 - **Assessment System**: Multi-questionnaire platform with dynamic workflows and admin configuration interface
 - **Executive Reporting**: Professional PDF exports and visualizations
 - **ROI Explanation System**: Contextual help, tooltips, and detailed scoring rationale
 - **Excel Import/Export**: Multi-worksheet structure with validation guidance
 - **Multi-Source Support**: RSA Internal, Industry Standard, AI Inventory categories
 - **Dropdown Reordering**: Drag-and-drop admin interface for customizing dropdown order in forms
+- **Data Backup System**: JSON backup creation before major portfolio operations
 
 ## Key Decisions
 - **LEGO Components**: "Build Once, Reuse Everywhere" principle
@@ -58,6 +59,8 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Dropdown Ordering**: Custom sort order storage in JSONB fields with backwards compatibility to alphabetical sorting
 - **Array Processing**: Unified `safeArrayParse()` handles all formats (JSON, Excel CSV, null/undefined) in single function
 - **Excel Field Mapping**: Process fields consolidated to 'Processes (Multi-select)' only, eliminating duplication confusion
+- **Deduplication Protection**: Portfolio activation checks prevent moving already-active use cases to avoid duplicates
+- **Backup Integration**: `/api/export/backup` endpoint provides full JSON backup before major operations
 
 ## Excel Import Principles (Critical - Must Maintain)
 - **Validation Consistency**: Excel validation schema must match UI form validation exactly

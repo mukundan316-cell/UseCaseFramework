@@ -76,6 +76,37 @@ router.get('/use-case/:id', async (req, res) => {
 });
 
 /**
+ * Create JSON backup of all use cases and metadata before major operations
+ * GET /api/export/backup
+ */
+router.get('/backup', async (req, res) => {
+  try {
+    const { storage } = await import('../storage');
+    
+    // Get all use cases and metadata for backup
+    const [useCases, metadata] = await Promise.all([
+      storage.getAllUseCases(),
+      storage.getMetadataConfig()
+    ]);
+    
+    const backup = {
+      useCases,
+      metadata,
+      backupCreatedAt: new Date().toISOString(),
+      version: '1.0.0',
+      description: 'Full system backup before portfolio operations'
+    };
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="rsa-ai-backup-${new Date().toISOString().split('T')[0]}.json"`);
+    res.json(backup);
+  } catch (error) {
+    console.error('Backup export error:', error);
+    res.status(500).json({ error: 'Failed to create backup' });
+  }
+});
+
+/**
  * Questionnaire PDF exports are now handled client-side using Survey.js
  * These server-side routes are disabled in favor of browser-based PDF generation
  * which provides better compatibility with Survey.js formatting and features

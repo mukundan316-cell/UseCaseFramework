@@ -315,6 +315,15 @@ export class DatabaseStorage implements IStorage {
 
   // Two-tier library management methods
   async activateUseCase(id: string, reason?: string): Promise<UseCase | undefined> {
+    // Check if use case is already active to prevent duplicates
+    const [currentUseCase] = await db.select().from(useCases).where(eq(useCases.id, id));
+    if (!currentUseCase) return undefined;
+    
+    if (currentUseCase.isActiveForRsa === 'true' && currentUseCase.libraryTier === 'active') {
+      // Already active, return current state without changes
+      return currentUseCase;
+    }
+    
     const [useCase] = await db
       .update(useCases)
       .set({
@@ -359,6 +368,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async bulkUpdateUseCaseTier(ids: string[], tier: 'active' | 'reference'): Promise<UseCase[]> {
+    // Get current state of all use cases to check for duplicates
+    const currentUseCases = await db.select().from(useCases).where(sql`id = ANY(${ids})`);
+    
+    // Filter out use cases that are already in the target tier to prevent unnecessary updates
+    const useCasesToUpdate = currentUseCases.filter(useCase => {
+      if (tier === 'active') {
+        return useCase.isActiveForRsa !== 'true' || useCase.libraryTier !== 'active';
+      } else {
+        return useCase.isActiveForRsa !== 'false' || useCase.libraryTier !== 'reference';
+      }
+    });
+    
+    if (useCasesToUpdate.length === 0) {
+      // All use cases are already in the target tier
+      return currentUseCases;
+    }
+    
+    const idsToUpdate = useCasesToUpdate.map(uc => uc.id);
+    
     const updates = tier === 'active' 
       ? {
           isActiveForRsa: 'true',
@@ -377,10 +405,11 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .update(useCases)
       .set(updates)
-      .where(sql`id = ANY(${ids})`)
+      .where(sql`id = ANY(${idsToUpdate})`)
       .returning();
     
-    return result;
+    // Return all originally requested use cases (updated and unchanged)
+    return await db.select().from(useCases).where(sql`id = ANY(${ids})`);
   }
 
   async getMetadataConfig(): Promise<MetadataConfig | undefined> {
