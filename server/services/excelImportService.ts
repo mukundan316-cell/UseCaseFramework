@@ -389,15 +389,34 @@ export class ExcelImportService {
       // Business Context fields for AI Inventory
       Object.assign(useCase, {
         librarySource: 'ai_inventory', // Force AI Inventory source
+        problemStatement: getValue('Problem Statement') || null,
         process: getValue('Process') || null,
         lineOfBusiness: getValue('Line of Business') || null,
         businessSegment: getValue('Business Segment') || null,
         geography: getValue('Geography') || null,
+        useCaseType: getValue('Use Case Type') || null,
+        
+        // Implementation fields for AI Inventory
+        useCaseStatus: getValue('Use Case Status') || null,
+        primaryBusinessOwner: getValue('Primary Business Owner') || null,
+        keyDependencies: getValue('Key Dependencies') || null,
+        implementationTimeline: getValue('Implementation Timeline') || null,
+        successMetrics: getValue('Success Metrics') || null,
+        estimatedValue: getValue('Estimated Value') || null,
+        valueMeasurementApproach: getValue('Value Measurement Approach') || null,
+        integrationRequirements: getValue('Integration Requirements') || null,
         
         // Multi-select array fields for AI Inventory
         linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business')),
         businessSegments: ExcelImportService.parseArray(getValue('Business Segments')),
         geographies: ExcelImportService.parseArray(getValue('Geographies')),
+        aiMlTechnologies: ExcelImportService.parseArray(getValue('AI/ML Technologies')),
+        dataSources: ExcelImportService.parseArray(getValue('Data Sources')),
+        stakeholderGroups: ExcelImportService.parseArray(getValue('Stakeholder Groups')),
+        
+        // Horizontal Use Case fields
+        horizontalUseCase: ExcelImportService.parseBoolean(getValue('Horizontal Use Case')) || 'false',
+        horizontalUseCaseTypes: ExcelImportService.parseArray(getValue('Horizontal Use Case Types')),
         
         // Set undefined for scoring fields to let schema defaults apply
         revenueImpact: undefined,
@@ -410,10 +429,13 @@ export class ExcelImportService {
         changeImpact: undefined,
         modelRisk: undefined,
         adoptionReadiness: undefined,
-        explainabilityRequired: 'false',
-        dataOutsideUkEu: 'false',
-        thirdPartyModel: 'false',
-        humanAccountability: 'false',
+        // RSA Ethical Principles for AI Inventory
+        explainabilityRequired: ExcelImportService.parseBoolean(getValue('Explainability Required')) || 'false',
+        customerHarmRisk: getValue('Customer Harm Risk') || null,
+        dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')) || 'false',
+        thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')) || 'false',
+        humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
+        regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) ?? undefined,
         finalQuadrant: 'Not Scored',
         
         // AI Inventory specific fields
@@ -427,8 +449,11 @@ export class ExcelImportService {
         modelOwner: getValue('Model Owner (day-to-day maintenance)') || getValue('Model Owner') || getValue('Model Ownership') || null,
         rsaPolicyGovernance: getValue('RSA Policy Governance') || null,
         thirdPartyProvidedModel: getValue('Third Party Provided Model') || null,
-        validationResponsibility: getValue('Are you responsible for validation / testing, or is a Third Party?') || getValue('Validation Process') || null,
-        informedBy: getValue('Informed By') || null
+        validationResponsibility: getValue('Are you responsible for validation / testing, or is a Third Party?') || getValue('Validation Responsibility') || getValue('Validation Process') || null,
+        informedBy: getValue('Informed By') || null,
+        
+        // Presentation field
+        hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')) || 'false'
       });
       
       // Map Purpose of Use to description if not already set
