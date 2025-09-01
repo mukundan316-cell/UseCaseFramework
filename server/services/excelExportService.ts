@@ -306,6 +306,95 @@ export class ExcelExportService {
   }
   
   /**
+   * LEGO: Common field mappers for reuse across both strategic and AI inventory exports
+   */
+  private static mapBasicFields(useCase: any, rawUseCase: any): any[] {
+    return [
+      rawUseCase.meaningfulId || rawUseCase.id,
+      useCase.basicInfo.title,
+      useCase.basicInfo.description,
+      useCase.basicInfo.problemStatement || ''
+    ];
+  }
+
+  private static mapMultiSelectArray(array: any[], fallback: string = ''): string {
+    return Array.isArray(array) ? array.join('; ') : fallback;
+  }
+
+  private static mapBusinessContextFields(useCase: any, rawUseCase: any): any[] {
+    return [
+      useCase.basicInfo.process || '',
+      this.mapMultiSelectArray(useCase.multiSelectData.linesOfBusiness, useCase.basicInfo.lineOfBusiness || ''),
+      this.mapMultiSelectArray(useCase.multiSelectData.businessSegments, useCase.basicInfo.businessSegment || ''),
+      this.mapMultiSelectArray(useCase.multiSelectData.geographies, useCase.basicInfo.geography || ''),
+      useCase.basicInfo.useCaseType || ''
+    ];
+  }
+
+  private static mapImplementationFields(useCase: any): any[] {
+    return [
+      useCase.implementation.useCaseStatus || '',
+      useCase.implementation.primaryBusinessOwner || '',
+      useCase.implementation.keyDependencies || '',
+      useCase.implementation.implementationTimeline || '',
+      useCase.implementation.successMetrics || '',
+      useCase.implementation.estimatedValue || '',
+      useCase.implementation.valueMeasurementApproach || '',
+      useCase.implementation.integrationRequirements || ''
+    ];
+  }
+
+  private static mapTechnicalFields(useCase: any, rawUseCase: any): any[] {
+    return [
+      this.mapMultiSelectArray(useCase.multiSelectData.aiMlTechnologies),
+      this.mapMultiSelectArray(useCase.multiSelectData.dataSources),
+      this.mapMultiSelectArray(useCase.multiSelectData.stakeholderGroups),
+      rawUseCase.horizontalUseCase === 'true' ? 'Yes' : 'No',
+      this.mapMultiSelectArray(rawUseCase.horizontalUseCaseTypes)
+    ];
+  }
+
+  private static mapEthicalPrinciplesFields(useCase: any): any[] {
+    return [
+      useCase.aiInventory.explainabilityRequired || '',
+      useCase.aiInventory.customerHarmRisk || '',
+      useCase.aiInventory.dataOutsideUkEu || '',
+      useCase.aiInventory.thirdPartyModel || '',
+      useCase.aiInventory.humanAccountability || '',
+      useCase.aiInventory.regulatoryCompliance || ''
+    ];
+  }
+
+  private static mapPortfolioFields(useCase: any): any[] {
+    return [
+      useCase.portfolioStatus.isActiveForRsa ? 'Active Portfolio' : 'Reference Library',
+      useCase.portfolioStatus.librarySource
+    ];
+  }
+
+  private static applyExcelStyling(ws: XLSX.WorkSheet, headers: string[]): void {
+    // Style headers
+    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (ws[cellAddress]) {
+        ws[cellAddress].s = { 
+          font: { bold: true }, 
+          fill: { fgColor: { rgb: "E3F2FD" } },
+          border: {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+          }
+        };
+      }
+    }
+    // Auto-fit columns
+    ws['!cols'] = headers.map(() => ({ width: 20 }));
+  }
+
+  /**
    * Create strategic use cases worksheet
    */
   private static createStrategicUseCasesSheet(useCases: any[]): XLSX.WorkSheet {
@@ -369,16 +458,16 @@ export class ExcelExportService {
       const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
       
       return [
-        rawUseCase.meaningfulId || rawUseCase.id, // Use meaningful ID or fallback to UUID
-        useCase.basicInfo.title,
-        useCase.basicInfo.description,
-        useCase.basicInfo.problemStatement || '',
+        // Basic fields (LEGO reused)
+        ...this.mapBasicFields(useCase, rawUseCase),
         useCase.basicInfo.process,
         useCase.basicInfo.useCaseType,
         useCase.implementation.useCaseStatus || '',
         useCase.portfolioStatus.isActiveForRsa ? 'Active Portfolio' : 'Reference Library',
         useCase.portfolioStatus.isDashboardVisible ? 'Yes' : 'No',
         useCase.portfolioStatus.librarySource,
+        
+        // Strategic scoring fields (unique to strategic)
         useCase.display.hasScoring ? useCase.scoring.finalImpactScore : '',
         useCase.display.hasScoring ? useCase.scoring.finalEffortScore : '',
         useCase.display.hasScoring ? useCase.scoring.finalQuadrant : '',
@@ -392,33 +481,29 @@ export class ExcelExportService {
         useCase.display.hasScoring ? useCase.feasibility.changeImpact : '',
         useCase.display.hasScoring ? useCase.feasibility.modelRisk : '',
         useCase.display.hasScoring ? useCase.feasibility.adoptionReadiness : '',
-        useCase.implementation.primaryBusinessOwner || '',
-        useCase.implementation.keyDependencies || '',
-        useCase.implementation.implementationTimeline || '',
-        useCase.implementation.successMetrics || '',
-        useCase.implementation.estimatedValue || '',
-        useCase.implementation.valueMeasurementApproach || '',
-        useCase.implementation.integrationRequirements || '',
-        Array.isArray(useCase.multiSelectData.aiMlTechnologies) ? useCase.multiSelectData.aiMlTechnologies.join('; ') : '',
-        Array.isArray(useCase.multiSelectData.dataSources) ? useCase.multiSelectData.dataSources.join('; ') : '',
-        Array.isArray(useCase.multiSelectData.stakeholderGroups) ? useCase.multiSelectData.stakeholderGroups.join('; ') : '',
-        rawUseCase.horizontalUseCase === 'true' ? 'Yes' : 'No',
-        Array.isArray(rawUseCase.horizontalUseCaseTypes) ? rawUseCase.horizontalUseCaseTypes.join('; ') : '',
-        // Export boolean fields as 'true'/'false' strings for import compatibility per replit.md
-        useCase.aiInventory.explainabilityRequired || '',
-        useCase.aiInventory.customerHarmRisk || '',
-        useCase.aiInventory.dataOutsideUkEu || '',
-        useCase.aiInventory.thirdPartyModel || '',
-        useCase.aiInventory.humanAccountability || '',
-        useCase.aiInventory.regulatoryCompliance || '',
+        
+        // Implementation fields (LEGO reused)
+        ...this.mapImplementationFields(useCase),
+        
+        // Technical fields (LEGO reused)
+        ...this.mapTechnicalFields(useCase, rawUseCase),
+        
+        // RSA Ethical Principles (LEGO reused)
+        ...this.mapEthicalPrinciplesFields(useCase),
+        
+        // Strategic-specific override fields
         useCase.display.hasScoring && useCase.scoring.manualImpactScore ? 'Yes' : '',
         useCase.display.hasScoring ? (useCase.scoring.overrideReason || '') : '',
         useCase.portfolioStatus.activationReason || '',
-        Array.isArray(useCase.multiSelectData.linesOfBusiness) ? useCase.multiSelectData.linesOfBusiness.join('; ') : (useCase.basicInfo.lineOfBusiness || ''),
-        Array.isArray(useCase.multiSelectData.businessSegments) ? useCase.multiSelectData.businessSegments.join('; ') : (useCase.basicInfo.businessSegment || ''),
-        Array.isArray(useCase.multiSelectData.geographies) ? useCase.multiSelectData.geographies.join('; ') : (useCase.basicInfo.geography || ''),
-        Array.isArray(useCase.multiSelectData.processes) ? useCase.multiSelectData.processes.join('; ') : (useCase.basicInfo.process || ''),
-        Array.isArray(useCase.multiSelectData.activities) ? useCase.multiSelectData.activities.join('; ') : '',
+        
+        // Business context arrays (LEGO reused)
+        this.mapMultiSelectArray(useCase.multiSelectData.linesOfBusiness, useCase.basicInfo.lineOfBusiness || ''),
+        this.mapMultiSelectArray(useCase.multiSelectData.businessSegments, useCase.basicInfo.businessSegment || ''),
+        this.mapMultiSelectArray(useCase.multiSelectData.geographies, useCase.basicInfo.geography || ''),
+        this.mapMultiSelectArray(useCase.multiSelectData.processes, useCase.basicInfo.process || ''),
+        this.mapMultiSelectArray(useCase.multiSelectData.activities),
+        
+        // Presentation fields
         rawUseCase.presentationFileName || '',
         rawUseCase.hasPresentation === 'true' ? 'Yes' : 'No',
         rawUseCase.meaningfulId || '',
@@ -429,26 +514,8 @@ export class ExcelExportService {
     const data = [headers, ...rows];
     const ws = XLSX.utils.aoa_to_sheet(data);
     
-    // Style headers
-    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
-      if (ws[cellAddress]) {
-        ws[cellAddress].s = { 
-          font: { bold: true }, 
-          fill: { fgColor: { rgb: "E3F2FD" } },
-          border: {
-            top: { style: 'thin' },
-            bottom: { style: 'thin' },
-            left: { style: 'thin' },
-            right: { style: 'thin' }
-          }
-        };
-      }
-    }
-    
-    // Auto-fit columns
-    ws['!cols'] = headers.map(() => ({ width: 20 }));
+    // Apply common LEGO styling
+    this.applyExcelStyling(ws, headers);
     
     return ws;
   }
@@ -509,28 +576,19 @@ export class ExcelExportService {
       const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
       
       return [
-        rawUseCase.meaningfulId || rawUseCase.id, // Use meaningful ID or fallback to UUID
-        useCase.basicInfo.title,
-        useCase.basicInfo.description,
-        useCase.basicInfo.problemStatement || '',
-        useCase.basicInfo.process || '',
-        Array.isArray(useCase.multiSelectData.linesOfBusiness) ? useCase.multiSelectData.linesOfBusiness.join('; ') : (useCase.basicInfo.lineOfBusiness || ''),
-        Array.isArray(useCase.multiSelectData.businessSegments) ? useCase.multiSelectData.businessSegments.join('; ') : (useCase.basicInfo.businessSegment || ''),
-        Array.isArray(useCase.multiSelectData.geographies) ? useCase.multiSelectData.geographies.join('; ') : (useCase.basicInfo.geography || ''),
-        useCase.basicInfo.useCaseType || '',
-        useCase.implementation.useCaseStatus || '',
-        useCase.implementation.primaryBusinessOwner || '',
-        useCase.implementation.keyDependencies || '',
-        useCase.implementation.implementationTimeline || '',
-        useCase.implementation.successMetrics || '',
-        useCase.implementation.estimatedValue || '',
-        useCase.implementation.valueMeasurementApproach || '',
-        useCase.implementation.integrationRequirements || '',
-        Array.isArray(useCase.multiSelectData.aiMlTechnologies) ? useCase.multiSelectData.aiMlTechnologies.join('; ') : '',
-        Array.isArray(useCase.multiSelectData.dataSources) ? useCase.multiSelectData.dataSources.join('; ') : '',
-        Array.isArray(useCase.multiSelectData.stakeholderGroups) ? useCase.multiSelectData.stakeholderGroups.join('; ') : '',
-        rawUseCase.horizontalUseCase === 'true' ? 'Yes' : 'No',
-        Array.isArray(rawUseCase.horizontalUseCaseTypes) ? rawUseCase.horizontalUseCaseTypes.join('; ') : '',
+        // Basic fields (LEGO reused)
+        ...this.mapBasicFields(useCase, rawUseCase),
+        
+        // Business context (LEGO reused)
+        ...this.mapBusinessContextFields(useCase, rawUseCase),
+        
+        // Implementation fields (LEGO reused)
+        ...this.mapImplementationFields(useCase),
+        
+        // Technical fields (LEGO reused)
+        ...this.mapTechnicalFields(useCase, rawUseCase),
+        
+        // AI Inventory specific fields
         useCase.aiInventory.businessFunction || '',
         useCase.aiInventory.aiInventoryStatus || '',
         useCase.aiInventory.deploymentStatus || '',
@@ -543,14 +601,14 @@ export class ExcelExportService {
         useCase.aiInventory.validationResponsibility || '',
         useCase.aiInventory.informedBy || '',
         useCase.aiInventory.thirdPartyProvidedModel || '',
-        useCase.aiInventory.explainabilityRequired || '',
-        useCase.aiInventory.customerHarmRisk || '',
-        useCase.aiInventory.dataOutsideUkEu || '',
-        useCase.aiInventory.thirdPartyModel || '',
-        useCase.aiInventory.humanAccountability || '',
-        useCase.aiInventory.regulatoryCompliance || '',
-        useCase.portfolioStatus.isActiveForRsa ? 'Active Portfolio' : 'Reference Library',
-        useCase.portfolioStatus.librarySource,
+        
+        // RSA Ethical Principles (LEGO reused)
+        ...this.mapEthicalPrinciplesFields(useCase),
+        
+        // Portfolio fields (LEGO reused)
+        ...this.mapPortfolioFields(useCase),
+        
+        // Presentation and dates
         rawUseCase.hasPresentation === 'true' ? 'Yes' : 'No',
         useCase.aiInventory.lastStatusUpdate ? format(useCase.aiInventory.lastStatusUpdate, 'yyyy-MM-dd') : '',
         useCase.basicInfo.createdAt ? format(useCase.basicInfo.createdAt, 'yyyy-MM-dd') : ''
@@ -560,26 +618,8 @@ export class ExcelExportService {
     const data = [headers, ...rows];
     const ws = XLSX.utils.aoa_to_sheet(data);
     
-    // Style headers
-    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
-      if (ws[cellAddress]) {
-        ws[cellAddress].s = { 
-          font: { bold: true }, 
-          fill: { fgColor: { rgb: "FFF3E0" } },
-          border: {
-            top: { style: 'thin' },
-            bottom: { style: 'thin' },
-            left: { style: 'thin' },
-            right: { style: 'thin' }
-          }
-        };
-      }
-    }
-    
-    // Auto-fit columns
-    ws['!cols'] = headers.map(() => ({ width: 25 }));
+    // Apply common LEGO styling
+    this.applyExcelStyling(ws, headers);
     
     return ws;
   }
