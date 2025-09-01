@@ -377,7 +377,7 @@ export class ExcelImportService {
         linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business')),
         businessSegments: ExcelImportService.parseArray(getValue('Business Segments')), 
         geographies: ExcelImportService.parseArray(getValue('Geographies')),
-        processes: ExcelImportService.parseArray(getValue('Processes')),
+        processes: ExcelImportService.parseArray(getValue('Processes (Multi-select)')),
         activities: ExcelImportService.parseArray(getValue('Process Activities')),
         presentationFileName: getValue('Presentation File Name') || null,
         hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')) || 'false',
@@ -390,7 +390,7 @@ export class ExcelImportService {
       Object.assign(useCase, {
         librarySource: 'ai_inventory', // Force AI Inventory source
         problemStatement: getValue('Problem Statement') || null,
-        process: getValue('Process') || null,
+        // Note: removed single 'Process' field - now handled via multi-select 'Processes (Multi-select)'
         lineOfBusiness: getValue('Line of Business') || null,
         businessSegment: getValue('Business Segment') || null,
         geography: getValue('Geography') || null,
@@ -410,6 +410,8 @@ export class ExcelImportService {
         linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business')),
         businessSegments: ExcelImportService.parseArray(getValue('Business Segments')),
         geographies: ExcelImportService.parseArray(getValue('Geographies')),
+        processes: ExcelImportService.parseArray(getValue('Processes (Multi-select)')),
+        activities: ExcelImportService.parseArray(getValue('Process Activities')),
         aiMlTechnologies: ExcelImportService.parseArray(getValue('AI/ML Technologies')),
         dataSources: ExcelImportService.parseArray(getValue('Data Sources')),
         stakeholderGroups: ExcelImportService.parseArray(getValue('Stakeholder Groups')),

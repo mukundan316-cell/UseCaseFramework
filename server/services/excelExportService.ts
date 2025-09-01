@@ -323,7 +323,7 @@ export class ExcelExportService {
 
   private static mapBusinessContextFields(useCase: any, rawUseCase: any): any[] {
     return [
-      useCase.basicInfo.process || '',
+      // Removed process field from here to eliminate duplication with mapProcessFields
       this.mapMultiSelectArray(useCase.multiSelectData.linesOfBusiness, useCase.basicInfo.lineOfBusiness || ''),
       this.mapMultiSelectArray(useCase.multiSelectData.businessSegments, useCase.basicInfo.businessSegment || ''),
       this.mapMultiSelectArray(useCase.multiSelectData.geographies, useCase.basicInfo.geography || ''),
@@ -411,8 +411,7 @@ export class ExcelExportService {
       'Title',
       'Description',
       'Problem Statement',
-      // Business context fields (5) 
-      'Process',
+      // Business context fields (4) - removed Process to eliminate duplication with Processes below
       'Lines of Business',
       'Business Segments', 
       'Geographies',
@@ -462,8 +461,8 @@ export class ExcelExportService {
       'Manual Override?',
       'Override Reason',
       'Activation Reason',
-      // Process details (2)
-      'Processes',
+      // Process details (2) - clear naming to show multi-select nature
+      'Processes (Multi-select)',
       'Process Activities',
       // Presentation and metadata (4)
       'Presentation File Name',
@@ -555,8 +554,7 @@ export class ExcelExportService {
       'Title',
       'Description',
       'Problem Statement',
-      // Business context fields (5)
-      'Process',
+      // Business context fields (4) - removed Process to eliminate duplication
       'Lines of Business',
       'Business Segments',
       'Geographies',
@@ -577,8 +575,8 @@ export class ExcelExportService {
       'Horizontal Use Case Types',
       // Integration Requirements (1)
       'Integration Requirements',
-      // Process details (2)
-      'Processes',
+      // Process details (2) - clear naming to show multi-select nature
+      'Processes (Multi-select)',
       'Process Activities',
       // AI Inventory specific fields (11)
       'Business Function',
