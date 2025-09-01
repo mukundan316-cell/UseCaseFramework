@@ -556,7 +556,7 @@ export class ExcelExportService {
       'Horizontal Use Case Types',
       'Processes',
       'Process Activities',
-      'Business Function'
+      'Business Function',
       'AI Inventory Status',
       'Deployment Status',
       'AI or Model',
