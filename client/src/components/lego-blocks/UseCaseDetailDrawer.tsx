@@ -431,20 +431,20 @@ export default function UseCaseDetailDrawer({
                 icon={Settings}
               />
               
-              <FieldDisplay 
-                label="Line of Business"
-                value={useCase.lineOfBusiness}
-                icon={Building2}
-              />
-              
-              {/* Lines of Business Multi-Select */}
-              {extendedUseCase.linesOfBusiness && extendedUseCase.linesOfBusiness.length > 0 && (
+              {/* Lines of Business - Prioritize multi-select array over single value */}
+              {extendedUseCase.linesOfBusiness && extendedUseCase.linesOfBusiness.length > 0 ? (
                 <FieldDisplay 
                   label="Lines of Business"
                   value={extendedUseCase.linesOfBusiness}
                   icon={Building2}
                 />
-              )}
+              ) : useCase.lineOfBusiness ? (
+                <FieldDisplay 
+                  label="Line of Business"
+                  value={useCase.lineOfBusiness}
+                  icon={Building2}
+                />
+              ) : null}
               
               {/* Business Segments - Prioritize multi-select array over single value */}
               {extendedUseCase.businessSegments && extendedUseCase.businessSegments.length > 0 ? (
