@@ -354,6 +354,13 @@ export class ExcelExportService {
     ];
   }
 
+  private static mapProcessFields(useCase: any, rawUseCase: any): any[] {
+    return [
+      this.mapMultiSelectArray(useCase.multiSelectData.processes, useCase.basicInfo.process || ''),
+      this.mapMultiSelectArray(useCase.multiSelectData.activities)
+    ];
+  }
+
   private static mapEthicalPrinciplesFields(useCase: any): any[] {
     return [
       useCase.aiInventory.explainabilityRequired || '',
@@ -547,7 +554,9 @@ export class ExcelExportService {
       'Stakeholder Groups',
       'Horizontal Use Case',
       'Horizontal Use Case Types',
-      'Business Function',
+      'Processes',
+      'Process Activities',
+      'Business Function'
       'AI Inventory Status',
       'Deployment Status',
       'AI or Model',
@@ -587,6 +596,9 @@ export class ExcelExportService {
         
         // Technical fields (LEGO reused)
         ...this.mapTechnicalFields(useCase, rawUseCase),
+        
+        // Process fields (LEGO reused) - CRITICAL for AI Inventory multi-select arrays
+        ...this.mapProcessFields(useCase, rawUseCase),
         
         // AI Inventory specific fields
         useCase.aiInventory.businessFunction || '',
