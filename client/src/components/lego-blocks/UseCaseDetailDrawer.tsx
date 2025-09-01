@@ -446,17 +446,35 @@ export default function UseCaseDetailDrawer({
                 />
               )}
               
-              <FieldDisplay 
-                label="Business Segment"
-                value={useCase.businessSegment}
-                icon={Tag}
-              />
+              {/* Business Segments - Prioritize multi-select array over single value */}
+              {extendedUseCase.businessSegments && extendedUseCase.businessSegments.length > 0 ? (
+                <FieldDisplay 
+                  label="Business Segments"
+                  value={extendedUseCase.businessSegments}
+                  icon={Tag}
+                />
+              ) : useCase.businessSegment ? (
+                <FieldDisplay 
+                  label="Business Segment"
+                  value={useCase.businessSegment}
+                  icon={Tag}
+                />
+              ) : null}
               
-              <FieldDisplay 
-                label="Geography"
-                value={useCase.geography}
-                icon={Network}
-              />
+              {/* Geographies - Prioritize multi-select array over single value */}
+              {extendedUseCase.geographies && extendedUseCase.geographies.length > 0 ? (
+                <FieldDisplay 
+                  label="Geographies"
+                  value={extendedUseCase.geographies}
+                  icon={Network}
+                />
+              ) : useCase.geography ? (
+                <FieldDisplay 
+                  label="Geography"
+                  value={useCase.geography}
+                  icon={Network}
+                />
+              ) : null}
               
               <FieldDisplay 
                 label="Use Case Type"
@@ -481,21 +499,7 @@ export default function UseCaseDetailDrawer({
                 />
               )}
               
-              {useCase.businessSegments && useCase.businessSegments.length > 0 && (
-                <FieldDisplay 
-                  label="Additional Business Segments"
-                  value={useCase.businessSegments}
-                  icon={Building2}
-                />
-              )}
-              
-              {useCase.geographies && useCase.geographies.length > 0 && (
-                <FieldDisplay 
-                  label="Additional Geographies"
-                  value={useCase.geographies}
-                  icon={Network}
-                />
-              )}
+              {/* Multi-select arrays - removed "Additional" since we prioritize them above */}
 
               {/* Horizontal Use Case Section - New Fields */}
               {(extendedUseCase.horizontalUseCase === 'true' || extendedUseCase.horizontalUseCaseTypes?.length > 0) && (
