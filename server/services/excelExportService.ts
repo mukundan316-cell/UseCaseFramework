@@ -434,10 +434,10 @@ export class ExcelExportService {
       'Success Metrics',
       'Estimated Value',
       'Value Measurement Approach',
-      'Integration Requirements',
       'AI/ML Technologies',
       'Data Sources',
       'Stakeholder Groups',
+      'Integration Requirements',
       'Horizontal Use Case',
       'Horizontal Use Case Types',
       'Explainability Required',
@@ -488,11 +488,19 @@ export class ExcelExportService {
         useCase.display.hasScoring ? useCase.feasibility.modelRisk : '',
         useCase.display.hasScoring ? useCase.feasibility.adoptionReadiness : '',
         
-        // Implementation fields (LEGO reused)
-        ...this.mapImplementationFields(useCase),
+        // Implementation fields (LEGO reused) - without Integration Requirements
+        useCase.implementation.primaryBusinessOwner || '',
+        useCase.implementation.keyDependencies || '',
+        useCase.implementation.implementationTimeline || '',
+        useCase.implementation.successMetrics || '',
+        useCase.implementation.estimatedValue || '',
+        useCase.implementation.valueMeasurementApproach || '',
         
         // Technical fields (LEGO reused)
         ...this.mapTechnicalFields(useCase, rawUseCase),
+        
+        // Integration Requirements (moved to after technical fields to match headers)
+        useCase.implementation.integrationRequirements || '',
         
         // RSA Ethical Principles (LEGO reused)
         ...this.mapEthicalPrinciplesFields(useCase),
