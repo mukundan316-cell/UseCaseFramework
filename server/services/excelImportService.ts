@@ -141,6 +141,12 @@ export class ExcelImportService {
             }
           }
           
+          // Validate Use Case ID integrity: If ID provided but doesn't match, reject the record
+          if (useCaseData.useCaseId && !existingUseCase && options.mode === 'append') {
+            result.errors.push(`❌ Invalid Use Case ID "${useCaseData.useCaseId}" for "${useCaseData.title}". Use Case IDs are auto-generated and cannot be manually created. Remove the Use Case ID to create a new record.`);
+            continue; // Skip this record
+          }
+          
           if (existingUseCase && options.mode === 'append') {
             // Update existing - preserve existing meaningfulId and ensure proper types for scoring fields
             const updateData = {
