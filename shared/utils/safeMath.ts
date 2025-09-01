@@ -61,27 +61,39 @@ export function validateScoreRange(value: number): number {
 }
 
 /**
- * Enhanced null-safe array parsing (extends existing parseArrayField pattern)
+ * UNIFIED ARRAY PARSER - Consolidates all array parsing logic following "Build Once, Reuse Everywhere"
+ * Handles: JSON arrays, semicolon/comma-separated strings, single values, null/undefined
+ * Used by: UseCaseDataExtractor, ExcelImportService, ExcelExportService
  */
 export function safeArrayParse(field: string[] | string | null | undefined): string[] {
   if (!field) return [];
   
-  // Already an array
+  // Already an array - filter out empty/invalid items
   if (Array.isArray(field)) {
     return field.filter(item => item && typeof item === 'string' && item.trim() !== '');
   }
   
-  // String that might be JSON
+  // String processing
   if (typeof field === 'string') {
+    const trimmed = field.trim();
+    if (trimmed === '') return [];
+    
+    // Try JSON parsing first (database storage format)
     try {
-      const parsed = JSON.parse(field);
+      const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
         return parsed.filter(item => item && typeof item === 'string' && item.trim() !== '');
       }
-      return field.trim() !== '' ? [field] : [];
+      // JSON but not array, treat as single item
+      return [String(parsed)].filter(s => s.trim() !== '');
     } catch {
-      // Not JSON, treat as single item
-      return field.trim() !== '' ? [field] : [];
+      // Not JSON - handle Excel/CSV format (semicolon preferred, comma fallback)
+      const separator = trimmed.includes(';') ? ';' : ',';
+      if (trimmed.includes(separator)) {
+        return trimmed.split(separator).map(s => s.trim()).filter(s => s.length > 0);
+      }
+      // Single value
+      return [trimmed];
     }
   }
   

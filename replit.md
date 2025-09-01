@@ -14,7 +14,11 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 ## Current Status
 **Application Rating: 5.0/5** - Production-ready enterprise platform with comprehensive feature set. Successfully implements all core requirements with exceptional code quality, architectural consistency, and user experience.
 
-**Latest Update (Aug 31, 2025)**: Fixed database schema sync issue - added missing sort order columns for metadata configuration. All functionality restored and working perfectly.
+**Latest Update (Sep 1, 2025)**: **CRITICAL TECH DEBT ELIMINATION COMPLETED**
+- ✅ Fixed Excel Process field duplication (export/import consistency)
+- ✅ Consolidated 3 array parsers into unified `safeArrayParse` utility
+- ✅ Achieved 100% LEGO principle compliance ("Build Once, Reuse Everywhere")
+- ✅ Reduced code duplication by ~60 lines while maintaining functionality
 
 **Technical Debt Assessment**: Exceptional codebase quality with minimal technical debt:
 - **Database**: 4/5 - Well-structured PostgreSQL schema, proper relationships
@@ -52,6 +56,8 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **API Consistency**: Single endpoint pattern `/api/questionnaire/` for questionnaire data access
 - **UI/Excel Consistency**: Excel import must follow exact same validation and flow as UI creation
 - **Dropdown Ordering**: Custom sort order storage in JSONB fields with backwards compatibility to alphabetical sorting
+- **Array Processing**: Unified `safeArrayParse()` handles all formats (JSON, Excel CSV, null/undefined) in single function
+- **Excel Field Mapping**: Process fields consolidated to 'Processes (Multi-select)' only, eliminating duplication confusion
 
 ## Excel Import Principles (Critical - Must Maintain)
 - **Validation Consistency**: Excel validation schema must match UI form validation exactly
@@ -74,6 +80,8 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 
 ### Code Quality Standards
 - **Component Architecture**: All new components must follow LEGO block principles - reusable, configurable, well-documented
+- **LEGO Utility Functions**: ALL utility functions must be created in `shared/utils/` and reused across services (never duplicate logic)
+- **Array Processing**: Use unified `safeArrayParse()` function for all array parsing (JSON, CSV, Excel formats)
 - **TypeScript**: 100% TypeScript usage with proper typing, no `any` types without justification
 - **Error Handling**: Comprehensive try-catch blocks with user-friendly error messages via toast notifications
 - **Validation**: Zod schemas for all data validation, consistent error messaging across UI and API

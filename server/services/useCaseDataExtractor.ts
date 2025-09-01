@@ -1,4 +1,5 @@
 import { UseCase } from '@shared/schema';
+import { safeArrayParse } from '@shared/utils/safeMath';
 
 /**
  * Use Case Data Extraction Service
@@ -149,14 +150,14 @@ export class UseCaseDataExtractor {
 
     // Multi-select Arrays with proper parsing
     const multiSelectData = {
-      linesOfBusiness: this.parseArrayField(useCase.linesOfBusiness),
-      processes: this.parseArrayField(useCase.processes),
-      activities: this.parseArrayField(useCase.activities),
-      businessSegments: this.parseArrayField(useCase.businessSegments),
-      geographies: this.parseArrayField(useCase.geographies),
-      aiMlTechnologies: this.parseArrayField(useCase.aiMlTechnologies),
-      dataSources: this.parseArrayField(useCase.dataSources),
-      stakeholderGroups: this.parseArrayField(useCase.stakeholderGroups),
+      linesOfBusiness: safeArrayParse(useCase.linesOfBusiness),
+      processes: safeArrayParse(useCase.processes),
+      activities: safeArrayParse(useCase.activities),
+      businessSegments: safeArrayParse(useCase.businessSegments),
+      geographies: safeArrayParse(useCase.geographies),
+      aiMlTechnologies: safeArrayParse(useCase.aiMlTechnologies),
+      dataSources: safeArrayParse(useCase.dataSources),
+      stakeholderGroups: safeArrayParse(useCase.stakeholderGroups),
     };
 
     // Implementation & Governance - include ALL fields from CRUD tabs
@@ -267,30 +268,6 @@ export class UseCaseDataExtractor {
     };
   }
 
-  /**
-   * Parse array fields consistently (handles string arrays, JSON strings, null)
-   */
-  private static parseArrayField(field: string[] | string | null): string[] {
-    if (!field) return [];
-    
-    // Already an array
-    if (Array.isArray(field)) {
-      return field.filter(item => item && item.trim() !== '');
-    }
-    
-    // String that might be JSON
-    if (typeof field === 'string') {
-      try {
-        const parsed = JSON.parse(field);
-        return Array.isArray(parsed) ? parsed.filter(item => item && item.trim() !== '') : [field];
-      } catch {
-        // Not JSON, treat as single item
-        return field.trim() !== '' ? [field] : [];
-      }
-    }
-    
-    return [];
-  }
 
   /**
    * Format tags for display

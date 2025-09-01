@@ -3,6 +3,7 @@ import { storage } from '../storage';
 import { insertUseCaseSchema, type InsertUseCase } from '../../shared/schema';
 import { z } from 'zod';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '../../shared/calculations';
+import { safeArrayParse } from '../../shared/utils/safeMath';
 
 interface ImportResult {
   success: boolean;
@@ -451,13 +452,13 @@ export class ExcelImportService {
         estimatedValue: getValue('Estimated Value') || null,
         valueMeasurementApproach: getValue('Value Measurement Approach') || null,
         integrationRequirements: getValue('Integration Requirements') || null,
-        aiMlTechnologies: ExcelImportService.parseArray(getValue('AI/ML Technologies')),
-        dataSources: ExcelImportService.parseArray(getValue('Data Sources')),
-        stakeholderGroups: ExcelImportService.parseArray(getValue('Stakeholder Groups')),
+        aiMlTechnologies: safeArrayParse(getValue('AI/ML Technologies')),
+        dataSources: safeArrayParse(getValue('Data Sources')),
+        stakeholderGroups: safeArrayParse(getValue('Stakeholder Groups')),
         
         // Horizontal Use Case fields - use default instead of null to match schema requirements
         horizontalUseCase: ExcelImportService.parseBoolean(getValue('Horizontal Use Case')) || 'false',
-        horizontalUseCaseTypes: ExcelImportService.parseArray(getValue('Horizontal Use Case Types')),
+        horizontalUseCaseTypes: safeArrayParse(getValue('Horizontal Use Case Types')),
         
         // RSA Ethical Principles - use defaults instead of null to match schema requirements
         explainabilityRequired: ExcelImportService.parseBoolean(getValue('Explainability Required')) || 'false',
@@ -468,11 +469,11 @@ export class ExcelImportService {
         regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) ?? undefined,
         
         // Multi-select array fields - updated column names to match export
-        linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business')),
-        businessSegments: ExcelImportService.parseArray(getValue('Business Segments')), 
-        geographies: ExcelImportService.parseArray(getValue('Geographies')),
-        processes: ExcelImportService.parseArray(getValue('Processes (Multi-select)')),
-        activities: ExcelImportService.parseArray(getValue('Process Activities')),
+        linesOfBusiness: safeArrayParse(getValue('Lines of Business')),
+        businessSegments: safeArrayParse(getValue('Business Segments')), 
+        geographies: safeArrayParse(getValue('Geographies')),
+        processes: safeArrayParse(getValue('Processes (Multi-select)')),
+        activities: safeArrayParse(getValue('Process Activities')),
         presentationFileName: getValue('Presentation File Name') || null,
         hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')) || 'false',
         deactivationReason: getValue('Deactivation Reason') || null
@@ -501,18 +502,18 @@ export class ExcelImportService {
         integrationRequirements: getValue('Integration Requirements') || null,
         
         // Multi-select array fields for AI Inventory
-        linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business')),
-        businessSegments: ExcelImportService.parseArray(getValue('Business Segments')),
-        geographies: ExcelImportService.parseArray(getValue('Geographies')),
-        processes: ExcelImportService.parseArray(getValue('Processes (Multi-select)')),
-        activities: ExcelImportService.parseArray(getValue('Process Activities')),
-        aiMlTechnologies: ExcelImportService.parseArray(getValue('AI/ML Technologies')),
-        dataSources: ExcelImportService.parseArray(getValue('Data Sources')),
-        stakeholderGroups: ExcelImportService.parseArray(getValue('Stakeholder Groups')),
+        linesOfBusiness: safeArrayParse(getValue('Lines of Business')),
+        businessSegments: safeArrayParse(getValue('Business Segments')),
+        geographies: safeArrayParse(getValue('Geographies')),
+        processes: safeArrayParse(getValue('Processes (Multi-select)')),
+        activities: safeArrayParse(getValue('Process Activities')),
+        aiMlTechnologies: safeArrayParse(getValue('AI/ML Technologies')),
+        dataSources: safeArrayParse(getValue('Data Sources')),
+        stakeholderGroups: safeArrayParse(getValue('Stakeholder Groups')),
         
         // Horizontal Use Case fields
         horizontalUseCase: ExcelImportService.parseBoolean(getValue('Horizontal Use Case')) || 'false',
-        horizontalUseCaseTypes: ExcelImportService.parseArray(getValue('Horizontal Use Case Types')),
+        horizontalUseCaseTypes: safeArrayParse(getValue('Horizontal Use Case Types')),
         
         // Set undefined for scoring fields to let schema defaults apply
         revenueImpact: undefined,
@@ -738,14 +739,4 @@ export class ExcelImportService {
     return null;
   }
 
-  /**
-   * Parse array from string (semicolon or comma-separated)
-   */
-  private static parseArray(value: any): string[] {
-    if (!value) return [];
-    if (Array.isArray(value)) return value;
-    // Try semicolon first (export format), then comma fallback
-    const separator = String(value).includes(';') ? ';' : ',';
-    return String(value).split(separator).map(s => s.trim()).filter(s => s.length > 0);
-  }
 }
