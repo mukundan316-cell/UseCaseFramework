@@ -2,6 +2,7 @@ import React from 'react';
 import { Building2, ExternalLink, Users, Download, Database, FolderOpen } from 'lucide-react';
 import { getSourceConfig } from '../../utils/sourceColors';
 import { useUseCases } from '../../contexts/UseCaseContext';
+import { useSortedMetadata } from '../../hooks/useSortedMetadata';
 
 interface SourceLegendProps {
   className?: string;
@@ -10,6 +11,7 @@ interface SourceLegendProps {
 
 export default function SourceLegend({ className = '', showTitle = true }: SourceLegendProps) {
   const { metadata } = useUseCases();
+  const sortedMetadata = useSortedMetadata();
   
   // Icon mapping for source types
   const iconMapping: Record<string, any> = {
@@ -18,8 +20,8 @@ export default function SourceLegend({ className = '', showTitle = true }: Sourc
     'ai_inventory': FolderOpen
   };
 
-  // Generate dynamic source types from metadata
-  const sourceTypes = (metadata?.sourceTypes || []).map(sourceKey => ({
+  // Generate dynamic source types from metadata using sorted order
+  const sourceTypes = sortedMetadata.getSortedItems('sourceTypes', metadata?.sourceTypes || []).map(sourceKey => ({
     key: sourceKey,
     icon: iconMapping[sourceKey] || Building2 // Default to Building2 if no mapping exists
   }));

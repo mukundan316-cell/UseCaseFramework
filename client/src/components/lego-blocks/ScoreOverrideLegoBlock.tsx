@@ -10,6 +10,7 @@ import { AlertCircle, Calculator, Settings } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { APP_CONFIG } from '@shared/constants/app-config';
+import { useSortedMetadata } from '../../hooks/useSortedMetadata';
 // No need to import UseCase type since we're only using form props
 
 interface ScoreOverrideLegoBlockProps {
@@ -28,6 +29,7 @@ export default function ScoreOverrideLegoBlock({
   onToggleChange
 }: ScoreOverrideLegoBlockProps) {
   const { metadata } = useUseCases();
+  const sortedMetadata = useSortedMetadata();
   const manualImpact = form.watch('manualImpactScore');
   const manualEffort = form.watch('manualEffortScore');
   const manualQuadrant = form.watch('manualQuadrant');
@@ -241,7 +243,7 @@ export default function ScoreOverrideLegoBlock({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {(metadata?.quadrants || ['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']).map((quadrant) => (
+                      {sortedMetadata.getSortedItems('quadrants', metadata?.quadrants || ['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist']).map((quadrant) => (
                         <SelectItem key={quadrant} value={quadrant}>{quadrant}</SelectItem>
                       ))}
                     </SelectContent>

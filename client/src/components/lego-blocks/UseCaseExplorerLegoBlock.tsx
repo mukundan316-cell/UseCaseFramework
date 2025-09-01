@@ -10,6 +10,7 @@ import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calcul
 import CRUDUseCaseModal from './CRUDUseCaseModal';
 import { UseCase } from '../../types';
 import { useToast } from '@/hooks/use-toast';
+import { useSortedMetadata } from '../../hooks/useSortedMetadata';
 
 interface UseCaseExplorerLegoBlockProps {
   useCases: UseCase[];
@@ -45,6 +46,7 @@ export default function UseCaseExplorerLegoBlock({
 }: UseCaseExplorerLegoBlockProps) {
   const { metadata } = useUseCases();
   const { toast } = useToast();
+  const sortedMetadata = useSortedMetadata();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
@@ -266,7 +268,7 @@ export default function UseCaseExplorerLegoBlock({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Processes</SelectItem>
-            {metadata?.processes?.map((process) => (
+            {sortedMetadata.getSortedProcesses().map((process) => (
               <SelectItem key={process} value={process}>
                 {process}
               </SelectItem>
@@ -284,7 +286,7 @@ export default function UseCaseExplorerLegoBlock({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All LOBs</SelectItem>
-            {metadata?.linesOfBusiness?.map((lob) => (
+            {sortedMetadata.getSortedLinesOfBusiness().map((lob) => (
               <SelectItem key={lob} value={lob}>
                 {lob}
               </SelectItem>
@@ -302,7 +304,7 @@ export default function UseCaseExplorerLegoBlock({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Segments</SelectItem>
-            {metadata?.businessSegments?.map((segment) => (
+            {sortedMetadata.getSortedBusinessSegments().map((segment) => (
               <SelectItem key={segment} value={segment}>
                 {segment}
               </SelectItem>
@@ -320,7 +322,7 @@ export default function UseCaseExplorerLegoBlock({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Geographies</SelectItem>
-            {metadata?.geographies?.map((geo) => (
+            {sortedMetadata.getSortedGeographies().map((geo) => (
               <SelectItem key={geo} value={geo}>
                 {geo}
               </SelectItem>
@@ -338,7 +340,7 @@ export default function UseCaseExplorerLegoBlock({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
-            {metadata?.useCaseTypes?.map((type) => (
+            {sortedMetadata.getSortedUseCaseTypes().map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
               </SelectItem>
