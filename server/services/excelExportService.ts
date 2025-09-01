@@ -406,16 +406,23 @@ export class ExcelExportService {
    */
   private static createStrategicUseCasesSheet(useCases: any[]): XLSX.WorkSheet {
     const headers = [
+      // Basic fields (4)
       'Use Case ID',
       'Title',
       'Description',
       'Problem Statement',
+      // Business context fields (5) 
       'Process',
+      'Lines of Business',
+      'Business Segments', 
+      'Geographies',
       'Use Case Type',
+      // Implementation and portfolio fields (4)
       'Use Case Status',
       'Portfolio Status',
       'Dashboard Visible',
       'Library Source',
+      // Strategic scoring fields (13)
       'Final Impact Score',
       'Final Effort Score',
       'Final Quadrant',
@@ -429,32 +436,36 @@ export class ExcelExportService {
       'Change Impact (1-5)',
       'Model Risk (1-5)',
       'Adoption Readiness (1-5)',
+      // Implementation details (6)
       'Primary Business Owner',
       'Key Dependencies',
       'Implementation Timeline',
       'Success Metrics',
       'Estimated Value',
       'Value Measurement Approach',
+      // Technical fields (5)
       'AI/ML Technologies',
       'Data Sources',
       'Stakeholder Groups',
-      'Integration Requirements',
       'Horizontal Use Case',
       'Horizontal Use Case Types',
+      // Integration and workflow
+      'Integration Requirements',
+      // RSA Ethical Principles (6)
       'Explainability Required',
       'Customer Harm Risk',
       'Data Outside UK/EU',
       'Third Party Model',
       'Human Accountability',
       'Regulatory Compliance (1-5)',
+      // Strategic-specific fields (3)
       'Manual Override?',
       'Override Reason',
       'Activation Reason',
-      'Lines of Business',
-      'Business Segments', 
-      'Geographies',
-      'Processes',
+      // Process details (2)
+      'Processes (Multi-select)',
       'Process Activities',
+      // Presentation and metadata (4)
       'Presentation File Name',
       'Has Presentation',
       'Meaningful ID',
@@ -466,10 +477,11 @@ export class ExcelExportService {
       
       
       return [
-        // Basic fields (LEGO reused)
+        // Basic fields (LEGO reused) - ID, Title, Description, Problem Statement
         ...this.mapBasicFields(useCase, rawUseCase),
-        useCase.basicInfo.process,
-        useCase.basicInfo.useCaseType,
+        // Business context fields (LEGO reused) - Process, Lines of Business, Business Segments, Geographies, Use Case Type
+        ...this.mapBusinessContextFields(useCase, rawUseCase),
+        // Implementation status and portfolio fields  
         useCase.implementation.useCaseStatus || '',
         useCase.portfolioStatus.isActiveForRsa ? 'Active Portfolio' : 'Reference Library',
         useCase.portfolioStatus.isDashboardVisible ? 'Yes' : 'No',
@@ -490,7 +502,7 @@ export class ExcelExportService {
         useCase.display.hasScoring ? useCase.feasibility.modelRisk : '',
         useCase.display.hasScoring ? useCase.feasibility.adoptionReadiness : '',
         
-        // Implementation fields (LEGO reused) - without Integration Requirements
+        // Implementation details (6 fields)
         useCase.implementation.primaryBusinessOwner || '',
         useCase.implementation.keyDependencies || '',
         useCase.implementation.implementationTimeline || '',
@@ -498,24 +510,21 @@ export class ExcelExportService {
         useCase.implementation.estimatedValue || '',
         useCase.implementation.valueMeasurementApproach || '',
         
-        // Technical fields (LEGO reused)
+        // Technical fields (5 fields)
         ...this.mapTechnicalFields(useCase, rawUseCase),
         
-        // Integration Requirements (moved to after technical fields to match headers)
+        // Integration Requirements (1 field)
         useCase.implementation.integrationRequirements || '',
         
-        // RSA Ethical Principles (LEGO reused)
+        // RSA Ethical Principles (6 fields)
         ...this.mapEthicalPrinciplesFields(useCase),
         
-        // Strategic-specific override fields
+        // Strategic-specific override fields (3 fields)
         useCase.display.hasScoring && useCase.scoring.manualImpactScore ? 'Yes' : '',
         useCase.display.hasScoring ? (useCase.scoring.overrideReason || '') : '',
         useCase.portfolioStatus.activationReason || '',
         
-        // Business context arrays (LEGO reused)
-        this.mapMultiSelectArray(useCase.multiSelectData.linesOfBusiness, useCase.basicInfo.lineOfBusiness || ''),
-        this.mapMultiSelectArray(useCase.multiSelectData.businessSegments, useCase.basicInfo.businessSegment || ''),
-        this.mapMultiSelectArray(useCase.multiSelectData.geographies, useCase.basicInfo.geography || ''),
+        // Process details (2 fields) - multi-select arrays for processes and activities
         this.mapMultiSelectArray(useCase.multiSelectData.processes, useCase.basicInfo.process || ''),
         this.mapMultiSelectArray(useCase.multiSelectData.activities),
         
@@ -541,15 +550,18 @@ export class ExcelExportService {
    */
   private static createAiInventorySheet(useCases: any[]): XLSX.WorkSheet {
     const headers = [
+      // Basic fields (4)
       'Use Case ID',
       'Title',
       'Description',
       'Problem Statement',
+      // Business context fields (5)
       'Process',
       'Lines of Business',
       'Business Segments',
       'Geographies',
       'Use Case Type',
+      // Implementation fields (7)
       'Use Case Status',
       'Primary Business Owner',
       'Key Dependencies',
@@ -557,14 +569,18 @@ export class ExcelExportService {
       'Success Metrics',
       'Estimated Value',
       'Value Measurement Approach',
+      // Technical fields (5)
       'AI/ML Technologies',
       'Data Sources',
       'Stakeholder Groups',
       'Horizontal Use Case',
       'Horizontal Use Case Types',
+      // Integration Requirements (1)
       'Integration Requirements',
-      'Processes',
+      // Process details (2)
+      'Processes (Multi-select)',
       'Process Activities',
+      // AI Inventory specific fields (11)
       'Business Function',
       'AI Inventory Status',
       'Deployment Status',
