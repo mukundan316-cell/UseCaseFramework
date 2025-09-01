@@ -413,7 +413,7 @@ export class ExcelExportService {
   }
 
   private static mapMultiSelectArray(array: any[], fallback: string = ''): string {
-    return Array.isArray(array) ? array.join('; ') : fallback;
+    return Array.isArray(array) && array.length > 0 ? array.join('; ') : fallback;
   }
 
   private static mapBusinessContextFields(useCase: any, rawUseCase: any): any[] {
