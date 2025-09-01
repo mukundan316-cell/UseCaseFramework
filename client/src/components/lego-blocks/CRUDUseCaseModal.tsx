@@ -166,10 +166,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const [activeTab, setActiveTab] = useState('basic');
 
   // Dynamic options from database metadata (replacing hardcoded arrays)
-  const useCaseStatusOptions = sortedMetadata.getSortedUseCaseStatuses();
-  const aiMlTechnologiesOptions = sortedMetadata.getSortedAiMlTechnologies();
-  const dataSourcesOptions = sortedMetadata.getSortedDataSources();
-  const stakeholderGroupsOptions = sortedMetadata.getSortedStakeholderGroups();
+  const useCaseStatusOptions = sortedMetadata.getSortedItems('useCaseStatuses', metadata?.useCaseStatuses || []);
+  const aiMlTechnologiesOptions = sortedMetadata.getSortedItems('aiMlTechnologies', metadata?.aiMlTechnologies || []);
+  const dataSourcesOptions = sortedMetadata.getSortedItems('dataSources', metadata?.dataSources || []);
+  const stakeholderGroupsOptions = sortedMetadata.getSortedItems('stakeholderGroups', metadata?.stakeholderGroups || []);
 
   // Tooltip definitions
   const sliderTooltips = {
