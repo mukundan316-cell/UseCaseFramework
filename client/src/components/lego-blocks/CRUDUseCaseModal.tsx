@@ -1025,19 +1025,24 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               {/* Tab 2: Business Context */}
               <TabsContent value="business" className="space-y-4 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Process</Label>
-                <Select key={`process-${mode}-${useCase?.id}`} value={form.watch('process') || ''} onValueChange={(value) => form.setValue('process', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select process" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortedMetadata.getSortedProcesses().filter(process => process && process.trim()).map(process => (
-                      <SelectItem key={process} value={process}>{process}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Processes Multi-Select - LEGO Component */}
+              <MultiSelectField
+                label="Processes"
+                items={sortedMetadata.getSortedProcesses()}
+                selectedItems={(form.watch('processes') as string[]) || [form.watch('process')].filter(Boolean)}
+                onSelectionChange={(newItems) => {
+                  form.setValue('processes', newItems);
+                  // Backward compatibility with single process field
+                  if (newItems.length > 0) {
+                    form.setValue('process', newItems[0]);
+                  } else {
+                    form.setValue('process', '');
+                  }
+                }}
+                singleValue={form.watch('process') || ''}
+                onSingleValueChange={(value) => form.setValue('process', value)}
+                helpText="Select one or more business processes"
+              />
               {/* Process Activities handled by LEGO component below */}
               <div className="flex items-center justify-center text-sm text-gray-500 italic">
                 Multi-select Process Activities available below
@@ -1098,7 +1103,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               
               {/* Process Activities - LEGO Contextual Component */}
               <ContextualProcessActivityField
-                selectedProcess={form.watch('process') || ''}
+                selectedProcesses={(form.watch('processes') as string[]) || [form.watch('process')].filter(Boolean)}
                 selectedActivities={(form.watch('activities') as string[]) || [form.watch('activity')].filter(Boolean)}
                 onActivitiesChange={(newItems) => {
                   form.setValue('activities', newItems);
@@ -1109,8 +1114,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     form.setValue('activity', '');
                   }
                 }}
-                helpText={form.watch('process') ? "Activities filtered by selected process" : "Select process first to enable activities"}
-                placeholder={!form.watch('process') ? "Select process first" : "Select activities..."}
+                helpText={(form.watch('processes') as string[])?.length > 0 || form.watch('process') ? "Activities filtered by selected processes" : "Select processes first to enable activities"}
+                placeholder={!((form.watch('processes') as string[])?.length > 0 || form.watch('process')) ? "Select processes first" : "Select activities..."}
               />
 
               {/* Horizontal Use Case Selection - LEGO Component */}

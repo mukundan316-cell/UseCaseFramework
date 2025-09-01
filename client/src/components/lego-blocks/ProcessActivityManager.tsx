@@ -38,6 +38,32 @@ export function useProcessActivityManager() {
   };
 
   /**
+   * Gets activities for multiple processes from database metadata
+   * @param processes - Array of selected business processes
+   * @returns Array of unique activities from all selected processes
+   */
+  const getActivitiesForProcesses = (processes: string[]): string[] => {
+    if (!processes || processes.length === 0 || !metadata?.processActivities) return [];
+    
+    // Handle both parsed object and JSON string formats
+    let processActivitiesMap: Record<string, string[]>;
+    if (typeof metadata.processActivities === 'string') {
+      try {
+        processActivitiesMap = JSON.parse(metadata.processActivities);
+      } catch {
+        return [];
+      }
+    } else {
+      processActivitiesMap = metadata.processActivities;
+    }
+    
+    // Aggregate activities from all selected processes
+    const allActivities = processes.flatMap(process => processActivitiesMap[process] || []);
+    // Remove duplicates and maintain sort order
+    return sortedMetadata.getSortedItems('activities', Array.from(new Set(allActivities)));
+  };
+
+  /**
    * Gets all available processes from metadata
    * @returns Array of all business processes
    */
@@ -86,6 +112,7 @@ export function useProcessActivityManager() {
 
   return {
     getActivitiesForProcess,
+    getActivitiesForProcesses,
     getAllProcesses,
     getAllActivities,
     validateActivityForProcess,
@@ -99,7 +126,8 @@ export function useProcessActivityManager() {
  * Integrates with the ProcessActivityManager for consistent behavior across the app
  */
 interface ContextualProcessActivityFieldProps {
-  selectedProcess: string;
+  selectedProcess?: string; // Backward compatibility
+  selectedProcesses?: string[]; // New multi-select support
   selectedActivities: string[];
   onActivitiesChange: (activities: string[]) => void;
   className?: string;
@@ -109,14 +137,18 @@ interface ContextualProcessActivityFieldProps {
 
 export function ContextualProcessActivityField({
   selectedProcess,
+  selectedProcesses,
   selectedActivities,
   onActivitiesChange,
   className = "",
   placeholder,
   helpText
 }: ContextualProcessActivityFieldProps) {
-  const { getActivitiesForProcess } = useProcessActivityManager();
-  const availableActivities = getActivitiesForProcess(selectedProcess);
+  const { getActivitiesForProcess, getActivitiesForProcesses } = useProcessActivityManager();
+  
+  // Support both single and multiple processes for backward compatibility
+  const processes = selectedProcesses || (selectedProcess ? [selectedProcess] : []);
+  const availableActivities = processes.length > 0 ? getActivitiesForProcesses(processes) : [];
 
   const handleActivityToggle = (activity: string, isChecked: boolean) => {
     let newActivities: string[];
@@ -134,13 +166,13 @@ export function ContextualProcessActivityField({
         Process Activities
       </label>
       <div className="mt-1 p-3 border rounded-md max-h-32 overflow-y-auto bg-white">
-        {!selectedProcess ? (
+        {processes.length === 0 ? (
           <p className="text-sm text-gray-500 italic">
-            {placeholder || "Select process first to enable activities"}
+            {placeholder || "Select processes first to enable activities"}
           </p>
         ) : availableActivities.length === 0 ? (
           <p className="text-sm text-gray-500 italic">
-            No activities defined for this process
+            No activities defined for selected processes
           </p>
         ) : (
           availableActivities.map(activity => {

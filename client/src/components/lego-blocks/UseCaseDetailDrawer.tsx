@@ -425,11 +425,23 @@ export default function UseCaseDetailDrawer({
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 space-y-4">
-              <FieldDisplay 
-                label="Process"
-                value={useCase.process}
-                icon={Settings}
-              />
+              {/* Processes - Consolidate single and multi-select into one display */}
+              {(() => {
+                const processArray: string[] = [];
+                if (useCase.process) processArray.push(useCase.process);
+                if (useCase.processes && useCase.processes.length > 0) {
+                  useCase.processes.forEach(proc => {
+                    if (!processArray.includes(proc)) processArray.push(proc);
+                  });
+                }
+                return processArray.length > 0 ? (
+                  <FieldDisplay 
+                    label={processArray.length > 1 ? "Processes" : "Process"}
+                    value={processArray.length > 1 ? processArray : processArray[0]}
+                    icon={Settings}
+                  />
+                ) : null;
+              })()}
               
               {/* Lines of Business - Prioritize multi-select array over single value */}
               {extendedUseCase.linesOfBusiness && extendedUseCase.linesOfBusiness.length > 0 ? (
@@ -482,14 +494,7 @@ export default function UseCaseDetailDrawer({
                 icon={Tag}
               />
 
-              {/* Multi-select arrays */}
-              {useCase.processes && useCase.processes.length > 0 && (
-                <FieldDisplay 
-                  label="Additional Processes"
-                  value={useCase.processes}
-                  icon={Settings}
-                />
-              )}
+              {/* Processes already consolidated above - no additional display needed */}
               
               {useCase.activities && useCase.activities.length > 0 && (
                 <FieldDisplay 
