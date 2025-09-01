@@ -437,6 +437,15 @@ export default function UseCaseDetailDrawer({
                 icon={Building2}
               />
               
+              {/* Lines of Business Multi-Select */}
+              {extendedUseCase.linesOfBusiness && extendedUseCase.linesOfBusiness.length > 0 && (
+                <FieldDisplay 
+                  label="Lines of Business"
+                  value={extendedUseCase.linesOfBusiness}
+                  icon={Building2}
+                />
+              )}
+              
               <FieldDisplay 
                 label="Business Segment"
                 value={useCase.businessSegment}
@@ -548,6 +557,12 @@ export default function UseCaseDetailDrawer({
                     label="Primary Business Owner"
                     value={extendedUseCase.primaryBusinessOwner}
                     icon={Users}
+                  />
+                  
+                  <FieldDisplay 
+                    label="Use Case Status"
+                    value={extendedUseCase.useCaseStatus}
+                    icon={Circle}
                   />
                   
                   <FieldDisplay 
