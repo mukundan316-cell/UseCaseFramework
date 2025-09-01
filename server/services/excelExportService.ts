@@ -463,7 +463,7 @@ export class ExcelExportService {
       'Override Reason',
       'Activation Reason',
       // Process details (2)
-      'Processes (Multi-select)',
+      'Processes',
       'Process Activities',
       // Presentation and metadata (4)
       'Presentation File Name',
@@ -578,7 +578,7 @@ export class ExcelExportService {
       // Integration Requirements (1)
       'Integration Requirements',
       // Process details (2)
-      'Processes (Multi-select)',
+      'Processes',
       'Process Activities',
       // AI Inventory specific fields (11)
       'Business Function',
