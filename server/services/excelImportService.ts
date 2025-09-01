@@ -297,9 +297,10 @@ export class ExcelImportService {
       // Don't set meaningfulId from Excel - let it be auto-generated based on category
       problemStatement: getValue('Problem Statement'),
       process: getValue('Process') || null,
-      lineOfBusiness: getValue('Line of Business') || null,
-      businessSegment: getValue('Business Segment') || null,
-      geography: getValue('Geography') || null,
+      // Single values for backward compatibility - will be derived from arrays in storage layer
+      lineOfBusiness: null,
+      businessSegment: null, 
+      geography: null,
       useCaseType: getValue('Use Case Type') || 'Process',
       useCaseStatus: getValue('Use Case Status') || 'Reference',
       librarySource: ExcelImportService.normalizeLibrarySource(getValue('Library Source')),
@@ -372,12 +373,12 @@ export class ExcelImportService {
         humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
         regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) ?? undefined,
         
-        // Multi-select array fields
-        linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business (Multi)')),
-        processes: ExcelImportService.parseArray(getValue('Processes (Multi)')),
-        activities: ExcelImportService.parseArray(getValue('Process Activities (Multi)') || getValue('Activities (Multi)')),
-        businessSegments: ExcelImportService.parseArray(getValue('Business Segments (Multi)')),
-        geographies: ExcelImportService.parseArray(getValue('Geographies (Multi)')),
+        // Multi-select array fields - updated column names to match export
+        linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business')),
+        businessSegments: ExcelImportService.parseArray(getValue('Business Segments')), 
+        geographies: ExcelImportService.parseArray(getValue('Geographies')),
+        processes: ExcelImportService.parseArray(getValue('Processes')),
+        activities: ExcelImportService.parseArray(getValue('Process Activities')),
         presentationFileName: getValue('Presentation File Name') || null,
         hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')) || 'false',
         deactivationReason: getValue('Deactivation Reason') || null
