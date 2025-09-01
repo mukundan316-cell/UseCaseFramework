@@ -405,9 +405,9 @@ export class ExcelExportService {
         useCase.implementation.estimatedValue || '',
         useCase.implementation.valueMeasurementApproach || '',
         useCase.implementation.integrationRequirements || '',
-        useCase.multiSelectData.aiMlTechnologies.join(', '),
-        useCase.multiSelectData.dataSources.join(', '),
-        useCase.multiSelectData.stakeholderGroups.join(', '),
+        useCase.multiSelectData.aiMlTechnologies.join('; '),
+        useCase.multiSelectData.dataSources.join('; '),
+        useCase.multiSelectData.stakeholderGroups.join('; '),
         rawUseCase.horizontalUseCase === 'true' ? 'Yes' : 'No',
         Array.isArray(rawUseCase.horizontalUseCaseTypes) ? rawUseCase.horizontalUseCaseTypes.join('; ') : '',
         // Export boolean fields as 'true'/'false' strings for import compatibility per replit.md

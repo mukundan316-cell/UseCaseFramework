@@ -389,9 +389,14 @@ export class ExcelImportService {
       Object.assign(useCase, {
         librarySource: 'ai_inventory', // Force AI Inventory source
         process: getValue('Process') || null,
-        lineOfBusiness: getValue('Lines of Business') || getValue('Line of Business') || null,
-        businessSegment: getValue('Business Segments') || getValue('Business Segment') || null,
-        geography: getValue('Geographies') || getValue('Geography') || null,
+        lineOfBusiness: getValue('Line of Business') || null,
+        businessSegment: getValue('Business Segment') || null,
+        geography: getValue('Geography') || null,
+        
+        // Multi-select array fields for AI Inventory
+        linesOfBusiness: ExcelImportService.parseArray(getValue('Lines of Business')),
+        businessSegments: ExcelImportService.parseArray(getValue('Business Segments')),
+        geographies: ExcelImportService.parseArray(getValue('Geographies')),
         
         // Set undefined for scoring fields to let schema defaults apply
         revenueImpact: undefined,
