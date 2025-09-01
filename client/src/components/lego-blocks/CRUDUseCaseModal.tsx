@@ -166,10 +166,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const [activeTab, setActiveTab] = useState('basic');
 
   // Dynamic options from database metadata (replacing hardcoded arrays)
-  const useCaseStatusOptions = metadata?.useCaseStatuses || [];
-  const aiMlTechnologiesOptions = metadata?.aiMlTechnologies || [];
-  const dataSourcesOptions = metadata?.dataSources || [];
-  const stakeholderGroupsOptions = metadata?.stakeholderGroups || [];
+  const useCaseStatusOptions = sortedMetadata.getSortedUseCaseStatuses();
+  const aiMlTechnologiesOptions = sortedMetadata.getSortedAiMlTechnologies();
+  const dataSourcesOptions = sortedMetadata.getSortedDataSources();
+  const stakeholderGroupsOptions = sortedMetadata.getSortedStakeholderGroups();
 
   // Tooltip definitions
   const sliderTooltips = {
@@ -938,7 +938,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {metadata.useCaseTypes.filter(type => type && type.trim()).map(type => (
+                        {sortedMetadata.getSortedUseCaseTypes().filter(type => type && type.trim()).map(type => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
                       </SelectContent>
@@ -951,7 +951,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         <SelectValue placeholder="Select source type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {(metadata?.sourceTypes || ['rsa_internal']).filter(source => source && source.trim()).map(source => (
+                        {sortedMetadata.getSortedItems('sourceTypes', metadata?.sourceTypes || ['rsa_internal']).filter(source => source && source.trim()).map(source => (
                           <SelectItem key={source} value={source}>
                             {source.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                           </SelectItem>

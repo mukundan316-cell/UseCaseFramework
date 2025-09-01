@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '../contexts/UseCaseContext';
+import { useSortedMetadata } from '../hooks/useSortedMetadata';
 // Enhanced form data type supporting all RSA framework dimensions
 type UseCaseFormData = z.infer<typeof formSchema>;
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '../utils/calculations';
@@ -45,6 +46,7 @@ const formSchema = z.object({
 export default function UseCaseForm() {
   const { addUseCase, metadata, setActiveTab } = useUseCases();
   const { toast } = useToast();
+  const sortedMetadata = useSortedMetadata();
   
   const [scores, setScores] = useState({
     revenueImpact: 3,
@@ -258,7 +260,7 @@ export default function UseCaseForm() {
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {metadata.useCaseTypes.filter(type => type && type.trim()).map(type => (
+                      {sortedMetadata.getSortedUseCaseTypes().filter(type => type && type.trim()).map(type => (
                         <SelectItem key={type} value={type}>{type}</SelectItem>
                       ))}
                     </SelectContent>
@@ -295,7 +297,7 @@ export default function UseCaseForm() {
                       <SelectValue placeholder="Select component" />
                     </SelectTrigger>
                     <SelectContent>
-                      {metadata.valueChainComponents.filter(component => component && component.trim()).map(component => (
+                      {sortedMetadata.getSortedValueChainComponents().filter(component => component && component.trim()).map(component => (
                         <SelectItem key={component} value={component}>{component}</SelectItem>
                       ))}
                     </SelectContent>
@@ -308,7 +310,7 @@ export default function UseCaseForm() {
                       <SelectValue placeholder="Select process" />
                     </SelectTrigger>
                     <SelectContent>
-                      {metadata.processes.filter(process => process && process.trim()).map(process => (
+                      {sortedMetadata.getSortedProcesses().filter(process => process && process.trim()).map(process => (
                         <SelectItem key={process} value={process}>{process}</SelectItem>
                       ))}
                     </SelectContent>
@@ -321,7 +323,7 @@ export default function UseCaseForm() {
                       <SelectValue placeholder="Select LOB" />
                     </SelectTrigger>
                     <SelectContent>
-                      {metadata.linesOfBusiness.filter(lob => lob && lob.trim()).map(lob => (
+                      {sortedMetadata.getSortedLinesOfBusiness().filter(lob => lob && lob.trim()).map(lob => (
                         <SelectItem key={lob} value={lob}>{lob}</SelectItem>
                       ))}
                     </SelectContent>
@@ -334,7 +336,7 @@ export default function UseCaseForm() {
                       <SelectValue placeholder="Select segment" />
                     </SelectTrigger>
                     <SelectContent>
-                      {metadata.businessSegments.filter(segment => segment && segment.trim()).map(segment => (
+                      {sortedMetadata.getSortedBusinessSegments().filter(segment => segment && segment.trim()).map(segment => (
                         <SelectItem key={segment} value={segment}>{segment}</SelectItem>
                       ))}
                     </SelectContent>
@@ -347,7 +349,7 @@ export default function UseCaseForm() {
                       <SelectValue placeholder="Select geography" />
                     </SelectTrigger>
                     <SelectContent>
-                      {metadata.geographies.filter(geo => geo && geo.trim()).map(geo => (
+                      {sortedMetadata.getSortedGeographies().filter(geo => geo && geo.trim()).map(geo => (
                         <SelectItem key={geo} value={geo}>{geo}</SelectItem>
                       ))}
                     </SelectContent>
