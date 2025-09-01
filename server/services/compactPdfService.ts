@@ -258,7 +258,7 @@ export class CompactPdfService {
     }
     
     // Process and LOB (compact)
-    doc.text(`${data.basicInfo.process} | ${data.basicInfo.lineOfBusiness}`, metaX, startY + 35, { 
+    doc.text(`${data.multiSelectData.processes?.[0] || data.basicInfo.process || ''} | ${data.multiSelectData.linesOfBusiness?.[0] || data.basicInfo.lineOfBusiness || ''}`, metaX, startY + 35, { 
       width: 150, height: 8, ellipsis: true 
     });
     
@@ -299,9 +299,9 @@ export class CompactPdfService {
     doc.y = leftY;
     
     this.addCompactInfoSection(doc, 'Business Context', [
-      { label: 'Process', value: data.basicInfo.process },
-      { label: 'Line of Business', value: data.basicInfo.lineOfBusiness },
-      { label: 'Geography', value: data.basicInfo.geography },
+      { label: 'Process', value: data.multiSelectData.processes?.[0] || data.basicInfo.process || '' },
+      { label: 'Line of Business', value: data.multiSelectData.linesOfBusiness?.[0] || data.basicInfo.lineOfBusiness || '' },
+      { label: 'Geography', value: data.multiSelectData.geographies?.[0] || data.basicInfo.geography || '' },
       { label: 'Type', value: data.basicInfo.useCaseType }
     ], colWidth);
     

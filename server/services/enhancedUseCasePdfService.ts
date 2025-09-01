@@ -273,11 +273,11 @@ export class EnhancedUseCasePdfService {
     // Table rows with structured data
     let currentY = tableY + rowHeight;
     const rows = [
-      ['Process', useCase.basicInfo.process, useCase.display.hasScoring ? `Impact: ${useCase.scoring.finalImpactScore.toFixed(1)} / 10` : 'Governance Only'],
-      ['Line of Business', useCase.basicInfo.lineOfBusiness, useCase.display.hasScoring ? `Effort: ${useCase.scoring.finalEffortScore.toFixed(1)} / 10` : useCase.aiInventory.aiInventoryStatus || 'N/A'],
+      ['Process', useCase.multiSelectData.processes?.[0] || useCase.basicInfo.process || '', useCase.display.hasScoring ? `Impact: ${useCase.scoring.finalImpactScore.toFixed(1)} / 10` : 'Governance Only'],
+      ['Line of Business', useCase.multiSelectData.linesOfBusiness?.[0] || useCase.basicInfo.lineOfBusiness || '', useCase.display.hasScoring ? `Effort: ${useCase.scoring.finalEffortScore.toFixed(1)} / 10` : useCase.aiInventory.aiInventoryStatus || 'N/A'],
       ['Use Case Type', useCase.basicInfo.useCaseType, useCase.display.hasScoring ? `Quadrant: ${useCase.scoring.finalQuadrant}` : useCase.aiInventory.deploymentStatus || 'N/A'],
-      ['Business Unit', useCase.basicInfo.businessSegment, useCase.display.hasScoring ? `Revenue Impact: ${useCase.businessValue.revenueImpact} / 5` : useCase.aiInventory.businessFunction || 'N/A'],
-      ['Geography', useCase.basicInfo.geography, useCase.display.hasScoring ? `Risk Reduction: ${useCase.businessValue.riskReduction} / 5` : useCase.aiInventory.modelOwner || 'N/A'],
+      ['Business Unit', useCase.multiSelectData.businessSegments?.[0] || useCase.basicInfo.businessSegment || '', useCase.display.hasScoring ? `Revenue Impact: ${useCase.businessValue.revenueImpact} / 5` : useCase.aiInventory.businessFunction || 'N/A'],
+      ['Geography', useCase.multiSelectData.geographies?.[0] || useCase.basicInfo.geography || '', useCase.display.hasScoring ? `Risk Reduction: ${useCase.businessValue.riskReduction} / 5` : useCase.aiInventory.modelOwner || 'N/A'],
       ['Status', useCase.implementation.useCaseStatus || useCase.portfolioStatus.libraryTier, useCase.display.hasScoring ? `Strategic Fit: ${useCase.businessValue.strategicFit} / 5` : useCase.aiInventory.informedBy || 'N/A']
     ];
     

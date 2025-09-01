@@ -335,9 +335,9 @@ export class TabularPdfService {
       case 'description':
         return this.truncateText(useCase.basicInfo.description, 50);
       case 'process':
-        return useCase.basicInfo.process || '';
+        return useCase.multiSelectData.processes?.[0] || useCase.basicInfo.process || '';
       case 'lineOfBusiness':
-        return useCase.basicInfo.lineOfBusiness || '';
+        return useCase.multiSelectData.linesOfBusiness?.[0] || useCase.basicInfo.lineOfBusiness || '';
       case 'useCaseType':
         return useCase.basicInfo.useCaseType || '';
       case 'status':
@@ -361,9 +361,9 @@ export class TabularPdfService {
       case 'riskLevel':
         return useCase.aiInventory.riskToRsa || '';
       case 'geography':
-        return useCase.basicInfo.geography || '';
+        return useCase.multiSelectData.geographies?.[0] || useCase.basicInfo.geography || '';
       case 'businessSegment':
-        return useCase.basicInfo.businessSegment || '';
+        return useCase.multiSelectData.businessSegments?.[0] || useCase.basicInfo.businessSegment || '';
       case 'librarySource':
         return useCase.portfolioStatus.librarySource || '';
       default:
@@ -430,10 +430,10 @@ export class TabularPdfService {
 
     // Basic Information Section
     currentY = this.addInfoSection(doc, 'Business Context', [
-      ['Process', useCase.basicInfo.process],
-      ['Line of Business', useCase.basicInfo.lineOfBusiness],
-      ['Business Segment', useCase.basicInfo.businessSegment],
-      ['Geography', useCase.basicInfo.geography],
+      ['Process', useCase.multiSelectData.processes?.[0] || useCase.basicInfo.process || ''],
+      ['Line of Business', useCase.multiSelectData.linesOfBusiness?.[0] || useCase.basicInfo.lineOfBusiness || ''],
+      ['Business Segment', useCase.multiSelectData.businessSegments?.[0] || useCase.basicInfo.businessSegment || ''],
+      ['Geography', useCase.multiSelectData.geographies?.[0] || useCase.basicInfo.geography || ''],
       ['Use Case Type', useCase.basicInfo.useCaseType],
       ['Status', useCase.implementation.useCaseStatus || 'Not Set']
     ], currentY);
