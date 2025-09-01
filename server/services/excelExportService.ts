@@ -333,15 +333,16 @@ export class ExcelExportService {
 
   private static mapImplementationFields(useCase: any): any[] {
     return [
+      useCase.implementation.useCaseStatus || '',
       useCase.implementation.primaryBusinessOwner || '',
       useCase.implementation.keyDependencies || '',
       useCase.implementation.implementationTimeline || '',
       useCase.implementation.successMetrics || '',
       useCase.implementation.estimatedValue || '',
-      useCase.implementation.valueMeasurementApproach || '',
-      useCase.implementation.integrationRequirements || ''
+      useCase.implementation.valueMeasurementApproach || ''
     ];
   }
+
 
   private static mapTechnicalFields(useCase: any, rawUseCase: any): any[] {
     return [
@@ -463,6 +464,7 @@ export class ExcelExportService {
     const rows = useCases.map(rawUseCase => {
       const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
       
+      
       return [
         // Basic fields (LEGO reused)
         ...this.mapBasicFields(useCase, rawUseCase),
@@ -555,12 +557,12 @@ export class ExcelExportService {
       'Success Metrics',
       'Estimated Value',
       'Value Measurement Approach',
-      'Integration Requirements',
       'AI/ML Technologies',
       'Data Sources',
       'Stakeholder Groups',
       'Horizontal Use Case',
       'Horizontal Use Case Types',
+      'Integration Requirements',
       'Processes',
       'Process Activities',
       'Business Function',
@@ -591,6 +593,7 @@ export class ExcelExportService {
     const rows = useCases.map(rawUseCase => {
       const useCase = UseCaseDataExtractor.extractCompleteData(rawUseCase);
       
+      
       return [
         // Basic fields (LEGO reused)
         ...this.mapBasicFields(useCase, rawUseCase),
@@ -603,6 +606,9 @@ export class ExcelExportService {
         
         // Technical fields (LEGO reused)
         ...this.mapTechnicalFields(useCase, rawUseCase),
+        
+        // Integration Requirements (moved here to match header order)
+        useCase.implementation.integrationRequirements || '',
         
         // Process fields (LEGO reused) - CRITICAL for AI Inventory multi-select arrays
         ...this.mapProcessFields(useCase, rawUseCase),
