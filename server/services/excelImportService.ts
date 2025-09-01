@@ -382,13 +382,13 @@ export class ExcelImportService {
       return value && value !== '' ? String(value) : null;
     };
 
-    const title = getValue('Title');
+    const title = getValue('Title') || getValue('title_of_ai') || getValue('Title of AI');
     if (!title) return null;
 
     // Base use case data - handle empty strings properly
     const useCase = {
       title: title,
-      description: getValue('Description') || '',
+      description: getValue('Description') || getValue('Purpose Of Use') || getValue('Function') || 'Imported from data source',
       // Don't set meaningfulId from Excel - let it be auto-generated based on category
       problemStatement: getValue('Problem Statement'),
       process: null, // Now handled via processes array in multi-select fields
@@ -555,7 +555,7 @@ export class ExcelImportService {
       
       // Map Purpose of Use to description if not already set
       if (!useCase.description || useCase.description === '') {
-        useCase.description = getValue('Purpose Of Use') || '';
+        useCase.description = getValue('Purpose Of Use') || getValue('Function') || 'AI/ML tool imported from inventory';
       }
       
       // Use Case Status for AI inventory
