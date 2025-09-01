@@ -333,7 +333,6 @@ export class ExcelExportService {
 
   private static mapImplementationFields(useCase: any): any[] {
     return [
-      useCase.implementation.useCaseStatus || '',
       useCase.implementation.primaryBusinessOwner || '',
       useCase.implementation.keyDependencies || '',
       useCase.implementation.implementationTimeline || '',
