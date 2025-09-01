@@ -128,13 +128,25 @@ export class ExcelImportService {
           let existingUseCase = null;
           if (options.mode === 'append') {
             const allUseCases = await storage.getAllUseCases();
-            existingUseCase = allUseCases.find(uc => uc.title === useCaseData.title);
+            
+            // Enhanced matching: First try by Use Case ID (if provided), then by title
+            // This allows updates when ID is provided but title changed
+            if (useCaseData.useCaseId) {
+              existingUseCase = allUseCases.find(uc => uc.id === useCaseData.useCaseId);
+            }
+            
+            // Fallback to title matching if no ID match found
+            if (!existingUseCase) {
+              existingUseCase = allUseCases.find(uc => uc.title === useCaseData.title);
+            }
           }
           
           if (existingUseCase && options.mode === 'append') {
             // Update existing - preserve existing meaningfulId and ensure proper types for scoring fields
             const updateData = {
               ...useCaseData,
+              // Remove useCaseId since it's only for matching, not storing
+              useCaseId: undefined,
               // Preserve the existing meaningfulId - don't overwrite with auto-generated one
               meaningfulId: existingUseCase.meaningfulId,
               // Convert null scoring values to undefined for database compatibility
@@ -157,6 +169,9 @@ export class ExcelImportService {
           } else {
             // Create new - calculate scores and clean data before passing to storage layer
             const cleanedUseCase = { ...useCaseData };
+            
+            // Remove useCaseId since it's only for matching, not storing
+            delete cleanedUseCase.useCaseId;
             
             // Remove null/undefined values to let storage layer apply defaults exactly like UI
             // This follows replit.md: "Remove null/undefined values to let storage layer apply same defaults as UI"
@@ -353,6 +368,13 @@ export class ExcelImportService {
       return value === '' ? null : value;
     };
 
+    // Special function to get Use Case ID for matching purposes (even though it's system-managed)
+    const getUseCaseIdForMatching = (): string | null => {
+      const index = headers.findIndex(h => h === 'Use Case ID');
+      const value = index >= 0 ? row[index] : undefined;
+      return value && value !== '' ? String(value) : null;
+    };
+
     const title = getValue('Title');
     if (!title) return null;
 
@@ -373,6 +395,8 @@ export class ExcelImportService {
       isActiveForRsa: getValue('Portfolio Status')?.toLowerCase().includes('active') ? 'true' : 'false',
       isDashboardVisible: (getValue('Dashboard Visible') === 'Yes' || getValue('Dashboard Visible') === true) ? 'true' : 'false',
       activationReason: getValue('Activation Reason') || null,
+      // Add Use Case ID for matching purposes (won't be saved, just used for finding existing records)
+      useCaseId: getUseCaseIdForMatching(),
     };
 
     // Auto-detect type if needed
