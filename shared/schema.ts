@@ -42,11 +42,11 @@ export const useCases: any = pgTable("use_cases", {
   adoptionReadiness: integer("adoption_readiness").notNull(),
   
   // RSA Ethical Principles - standardized to string types for consistency
-  explainabilityRequired: text("explainability_required"), // 'true' or 'false'
+  explainabilityRequired: text("explainability_required").default('false'), // 'true' or 'false'
   customerHarmRisk: text("customer_harm_risk"),
-  dataOutsideUkEu: text("data_outside_uk_eu"), // 'true' or 'false'
-  thirdPartyModel: text("third_party_model"), // 'true' or 'false'
-  humanAccountability: text("human_accountability"), // 'true' or 'false'
+  dataOutsideUkEu: text("data_outside_uk_eu").default('false'), // 'true' or 'false'
+  thirdPartyModel: text("third_party_model").default('false'), // 'true' or 'false'
+  humanAccountability: text("human_accountability").default('false'), // 'true' or 'false'
   regulatoryCompliance: integer("regulatory_compliance"),
   
   // AI Inventory Governance Fields
