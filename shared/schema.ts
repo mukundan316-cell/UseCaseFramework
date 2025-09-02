@@ -110,9 +110,6 @@ export const useCases: any = pgTable("use_cases", {
   presentationUploadedAt: timestamp("presentation_uploaded_at"),
   hasPresentation: text("has_presentation").default('false'), // 'true' or 'false' following replit.md pattern
   
-  // Legacy URL fields - kept for backward compatibility and migration
-  presentationUrl: text("presentation_url"), // Will be deprecated after migration
-  presentationPdfUrl: text("presentation_pdf_url"), // Will be deprecated after migration
   
   createdAt: timestamp("created_at").defaultNow(),
 });

@@ -31,7 +31,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 ## Architecture
 - **Stack**: React/TypeScript, Node.js/Express, PostgreSQL, Drizzle ORM
 - **Data**: PostgreSQL metadata + JSON blob storage, string booleans throughout
-- **Files**: Database file storage (Base64 encoded in PostgreSQL), eliminating external dependencies
+- **Files**: PostgreSQL database storage (Base64 encoded), eliminating external cloud dependencies
 - **UI**: shadcn/ui + TailwindCSS, RSA #005DAA blue branding
 
 ## Core Features
@@ -77,7 +77,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter  
 - **Data**: Drizzle ORM, TanStack Query, Zod
 - **Files**: PDFKit, Survey.js, LibreOffice
-- **Cloud**: Google Cloud Storage
+- **Database**: PostgreSQL with Base64 file storage
 
 ## Development Standards & Guidelines
 

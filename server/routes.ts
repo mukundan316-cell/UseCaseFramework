@@ -487,14 +487,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Delete presentation files if they exist (supports both legacy URLs and new database file IDs)
       if (useCase.presentationUrl || useCase.presentationPdfUrl || useCase.presentationFileId || useCase.presentationPdfFileId) {
         try {
-          // Handle legacy URL-based files
-          if (useCase.presentationUrl || useCase.presentationPdfUrl) {
-            const { presentationService } = await import('./services/presentationService');
-            await presentationService.deletePresentationFiles(
-              useCase.presentationUrl || undefined,
-              useCase.presentationPdfUrl || undefined
-            );
-          }
           
           // Handle new database-stored files
           const fileIdsToDelete = [
@@ -981,81 +973,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.send(fileData.buffer);
       }
       
-      // Handle legacy Google Cloud Storage URLs
-      if (!url.startsWith('https://storage.googleapis.com/')) {
-        return res.status(400).json({ error: 'Invalid file URL - must be a Google Cloud Storage URL or database file URL' });
-      }
-      
-      const urlParts = url.replace('https://storage.googleapis.com/', '').split('/');
-      if (urlParts.length < 2) {
-        return res.status(400).json({ error: 'Invalid file URL format' });
-      }
-      
-      const bucketName = urlParts[0];
-      const objectPath = urlParts.slice(1).join('/');
-      
-      console.log(`📄 Accessing bucket: ${bucketName}, object: ${objectPath}`);
-      
-      // Use the same authenticated Storage configuration
-      
-      // Use the same Storage client configuration from presentation service
-      const { Storage } = await import('@google-cloud/storage');
-      const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
-      
-      const storage = new Storage({
-        credentials: {
-          audience: "replit",
-          subject_token_type: "access_token",
-          token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
-          type: "external_account",
-          credential_source: {
-            url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
-            format: {
-              type: "json",
-              subject_token_field_name: "access_token",
-            },
-          },
-          universe_domain: "googleapis.com",
-        },
-        projectId: "",
-      });
-      
-      const bucket = storage.bucket(bucketName);
-      const file = bucket.file(objectPath);
-      
-      // Check if file exists
-      const [exists] = await file.exists();
-      if (!exists) {
-        console.error(`File not found: ${bucketName}/${objectPath}`);
-        return res.status(404).json({ error: 'File not found' });
-      }
-      
-      // Get file metadata for proper headers
-      const [metadata] = await file.getMetadata();
-      
-      console.log(`📄 Serving file: ${metadata.contentType}, size: ${metadata.size}`);
-      
-      // Set appropriate headers for file streaming
-      res.set({
-        'Content-Type': metadata.contentType || 'application/octet-stream',
-        'Content-Length': metadata.size || '',
-        'Cache-Control': 'public, max-age=3600',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET',
-        'Content-Disposition': 'inline'
-      });
-      
-      // Create read stream and pipe to response
-      const stream = file.createReadStream();
-      
-      stream.on('error', (streamError: Error) => {
-        console.error('Stream error:', streamError);
-        if (!res.headersSent) {
-          res.status(500).json({ error: 'Failed to stream file' });
-        }
-      });
-      
-      stream.pipe(res);
+      // Only database files are supported now
+      return res.status(400).json({ error: 'Invalid file URL - only database file URLs are supported' });
       
     } catch (error) {
       console.error('Error proxying file:', error);
