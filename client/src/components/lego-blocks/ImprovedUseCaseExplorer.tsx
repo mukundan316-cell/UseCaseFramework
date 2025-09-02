@@ -96,6 +96,7 @@ export default function ImprovedUseCaseExplorer({
     businessSegment: '',
     geography: '',
     useCaseType: '',
+    horizontalUseCaseType: '',
     quadrant: '',
     librarySource: '', // New filter for source differentiation
     // AI Inventory specific filters
@@ -141,6 +142,12 @@ export default function ImprovedUseCaseExplorer({
     if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
+    
+    // Horizontal use case type filter - matches any of the selected types in the array
+    if (filters.horizontalUseCaseType && (useCase as any).horizontalUseCaseTypes) {
+      const horizontalTypes = (useCase as any).horizontalUseCaseTypes || [];
+      if (!horizontalTypes.includes(filters.horizontalUseCaseType)) return false;
+    }
     
     // Universal activity filter for all source types
     if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
@@ -388,8 +395,8 @@ export default function ImprovedUseCaseExplorer({
       {/* Context-Aware Filter Dropdowns */}
       <div className={`grid gap-4 ${
         activeTab === 'inventory' 
-          ? 'grid-cols-2 md:grid-cols-5' // Fewer columns for inventory
-          : 'grid-cols-2 md:grid-cols-7'  // Full columns for strategic/both
+          ? 'grid-cols-2 md:grid-cols-6' // Inventory: Process, LOB, Segment, Geography, Type, Horizontal, AI Status, Deployment
+          : 'grid-cols-2 md:grid-cols-8'  // Strategic/both: Process, Activity, LOB, Segment, Geography, Type, Horizontal, (Source on 'both')
       }`}>
         <Select value={filters.process} onValueChange={(value) => setFilters(prev => ({ ...prev, process: value === 'all' ? '' : value }))}>
           <SelectTrigger>
@@ -461,6 +468,19 @@ export default function ImprovedUseCaseExplorer({
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
             {sortedMetadata.getSortedUseCaseTypes().map((type) => (
+              <SelectItem key={type} value={type}>{type}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Horizontal Use Case Type filter - Show for all tabs */}
+        <Select value={filters.horizontalUseCaseType || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, horizontalUseCaseType: value === 'all' ? '' : value }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Horizontals" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Horizontals</SelectItem>
+            {sortedMetadata.getSortedHorizontalUseCaseTypes().map((type) => (
               <SelectItem key={type} value={type}>{type}</SelectItem>
             ))}
           </SelectContent>

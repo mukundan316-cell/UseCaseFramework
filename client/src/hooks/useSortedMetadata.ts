@@ -47,6 +47,7 @@ export function useSortedMetadata() {
     getSortedGeographies: () => getSortedItems('geographies', metadata?.geographies || [], metadata?.geographiesSortOrder),
     getSortedUseCaseTypes: () => getSortedItems('useCaseTypes', metadata?.useCaseTypes || [], metadata?.useCaseTypesSortOrder),
     getSortedValueChainComponents: () => getSortedItems('valueChainComponents', metadata?.valueChainComponents || [], metadata?.valueChainComponentsSortOrder),
+    getSortedHorizontalUseCaseTypes: () => getSortedItems('horizontalUseCaseTypes', metadata?.horizontalUseCaseTypes || [], null),
     
     // Generic function for any category
     getSortedItems: (category: string, items: string[]) => {
@@ -64,6 +65,7 @@ export function useSortedMetadata() {
         dataSources: metadata?.dataSourcesSortOrder,
         stakeholderGroups: metadata?.stakeholderGroupsSortOrder,
         quadrants: metadata?.quadrantsSortOrder,
+        horizontalUseCaseTypes: null,
       };
       
       return getSortedItems(category, items, sortOrderMap[category]);
