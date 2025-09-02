@@ -144,8 +144,9 @@ export default function ImprovedUseCaseExplorer({
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
     
     // Horizontal use case type filter - matches any of the selected types in the array
-    if (filters.horizontalUseCaseType && (useCase as any).horizontalUseCaseTypes) {
+    if (filters.horizontalUseCaseType) {
       const horizontalTypes = (useCase as any).horizontalUseCaseTypes || [];
+      // If a horizontal filter is selected but the use case has no horizontal types, exclude it
       if (!horizontalTypes.includes(filters.horizontalUseCaseType)) return false;
     }
     
