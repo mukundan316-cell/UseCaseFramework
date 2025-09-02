@@ -31,7 +31,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 ## Architecture
 - **Stack**: React/TypeScript, Node.js/Express, PostgreSQL, Drizzle ORM
 - **Data**: PostgreSQL metadata + JSON blob storage, string booleans throughout
-- **Files**: PostgreSQL database storage (Base64 encoded), eliminating external cloud dependencies
+- **Files**: Local filesystem storage with PostgreSQL metadata, following questionnaire storage pattern
 - **UI**: shadcn/ui + TailwindCSS, RSA #005DAA blue branding
 
 ## Core Features
@@ -52,7 +52,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Field Naming**: Database `snake_case` → Frontend `camelCase` 
 - **Validation**: Minimal requirements (title + description only)
 - **Configuration**: Centralized in `shared/constants/app-config.ts`
-- **File Storage**: Database storage (Base64) over external services for reliability and simplicity
+- **File Storage**: Local filesystem storage with database metadata, following questionnaire pattern for consistency
 - **Assessment Data Format**: Survey.js questionnaire structure (`pages` → `elements` → `panels` → `elements`)
 - **API Consistency**: Single endpoint pattern `/api/questionnaire/` for questionnaire data access
 - **UI/Excel Consistency**: Excel import must follow exact same validation and flow as UI creation
@@ -77,7 +77,7 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter  
 - **Data**: Drizzle ORM, TanStack Query, Zod
 - **Files**: PDFKit, Survey.js, LibreOffice
-- **Database**: PostgreSQL with Base64 file storage
+- **Database**: PostgreSQL with local file storage metadata
 
 ## Development Standards & Guidelines
 
@@ -113,11 +113,13 @@ Production-ready strategic platform for AI use case prioritization at RSA Insura
 - **Rate Limiting**: Implement for file uploads and intensive operations
 
 ### File Management Standards
-- **Database Storage**: All files stored as Base64 in PostgreSQL for reliability
+- **Local Storage**: Files stored in `temp-presentation-storage/presentations/{use-case-id}/` directory structure
+- **Database Metadata**: Only file metadata (path, size, type, name) stored in PostgreSQL
 - **File Types**: Support PowerPoint → PDF conversion with preview capabilities
 - **Size Limits**: 50MB maximum file size with proper validation
-- **Cleanup**: Automatic orphaned file cleanup with foreign key constraints
+- **Cleanup**: Automatic file deletion from both filesystem and database metadata
 - **Error Handling**: Graceful fallbacks for file processing failures
+- **Storage Pattern**: Follows questionnaire storage approach (local files + database metadata)
 
 ### Excel Integration Standards
 - **Schema Consistency**: Excel validation must exactly match UI form validation

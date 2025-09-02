@@ -495,8 +495,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ].filter(Boolean);
           
           if (fileIdsToDelete.length > 0) {
-            const { databaseFileService } = await import('./services/databaseFileService');
-            await databaseFileService.deleteFiles(fileIdsToDelete);
+            const { localFileService } = await import('./services/localFileService');
+            await localFileService.deleteFiles(fileIdsToDelete);
           }
           
           console.log(`🗑️ Cleaned up presentation files for use case: ${useCase.title}`);
@@ -934,7 +934,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register presentation routes
   app.use('/api/presentations', presentationRoutes);
 
-  // Presentation file proxy endpoint - handles both GCS and database files  
+  // Presentation file proxy endpoint - handles local file storage  
   app.get('/api/presentations/proxy/:encodedUrl(*)', async (req, res) => {
     try {
       const { encodedUrl } = req.params;
@@ -946,18 +946,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (url.startsWith('/api/presentations/files/')) {
         // Extract file ID from the database URL
         const fileId = url.replace('/api/presentations/files/', '');
-        console.log(`📄 Database file request: ${fileId}`);
+        console.log(`📄 Local file request: ${fileId}`);
         
-        // Forward to database file service
-        const { databaseFileService } = await import('./services/databaseFileService');
-        const fileData = await databaseFileService.getFileFromDatabase(fileId);
+        // Forward to local file service
+        const { localFileService } = await import('./services/localFileService');
+        const fileData = await localFileService.getFileFromLocal(fileId);
         
         if (!fileData) {
-          console.error(`Database file not found: ${fileId}`);
+          console.error(`Local file not found: ${fileId}`);
           return res.status(404).json({ error: 'File not found' });
         }
         
-        console.log(`📄 Serving database file: ${fileData.mimeType}, size: ${fileData.fileSize}`);
+        console.log(`📄 Serving local file: ${fileData.mimeType}, size: ${fileData.fileSize}`);
         
         // Set appropriate headers for file streaming
         res.set({
@@ -973,7 +973,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.send(fileData.buffer);
       }
       
-      // Only database files are supported now
+      // Only local files are supported now
       return res.status(400).json({ error: 'Invalid file URL - only database file URLs are supported' });
       
     } catch (error) {

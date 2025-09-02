@@ -103,7 +103,7 @@ export const useCases: any = pgTable("use_cases", {
   horizontalUseCase: text("horizontal_use_case").default('false'), // 'true' or 'false'
   horizontalUseCaseTypes: text("horizontal_use_case_types").array(), // Array of selected horizontal use case types
   
-  // PowerPoint Presentation Integration - Database Storage
+  // PowerPoint Presentation Integration - Local File Storage
   presentationFileId: varchar("presentation_file_id").references(() => fileAttachments.id), // Reference to original file
   presentationPdfFileId: varchar("presentation_pdf_file_id").references(() => fileAttachments.id), // Reference to PDF version
   presentationFileName: text("presentation_file_name"),
@@ -114,7 +114,7 @@ export const useCases: any = pgTable("use_cases", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// File attachments table for storing binary data in database
+// File attachments table for storing file metadata (files stored locally)
 export const fileAttachments: any = pgTable("file_attachments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   useCaseId: varchar("use_case_id").references(() => useCases.id),
@@ -122,7 +122,7 @@ export const fileAttachments: any = pgTable("file_attachments", {
   originalName: text("original_name").notNull(),
   mimeType: text("mime_type").notNull(),
   fileSize: integer("file_size").notNull(),
-  fileData: text("file_data").notNull(), // Base64 encoded binary data
+  localPath: text("local_path").notNull(), // Local filesystem path
   fileType: text("file_type").notNull().default('presentation'), // 'presentation', 'pdf'
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });

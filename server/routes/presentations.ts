@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { databaseFileService } from '../services/databaseFileService';
+import { localFileService } from '../services/localFileService';
 
 const router = express.Router();
 
@@ -12,8 +12,8 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     try {
-      // Use database file service validation
-      databaseFileService.validatePresentationFile(file);
+      // Use local file service validation
+      localFileService.validatePresentationFile(file);
       cb(null, true);
     } catch (error) {
       cb(error instanceof Error ? error : new Error('File validation failed'));
@@ -34,15 +34,15 @@ router.post('/upload', upload.single('presentation'), async (req, res) => {
     console.log(`📁 Processing presentation upload: ${file.originalname}`);
     
     try {
-      // Process presentation using database file service
-      const result = await databaseFileService.processPresentation(
+      // Process presentation using local file service
+      const result = await localFileService.processPresentation(
         file.path,
         file.originalname,
         file.mimetype
       );
       
       // Clean up temporary file
-      await databaseFileService.cleanupTempFile(file.path);
+      await localFileService.cleanupTempFile(file.path);
       
       res.json({
         success: true,
@@ -53,7 +53,7 @@ router.post('/upload', upload.single('presentation'), async (req, res) => {
       console.error('Upload/conversion error:', processingError);
       
       // Clean up temporary file on error
-      await databaseFileService.cleanupTempFile(file.path);
+      await localFileService.cleanupTempFile(file.path);
       
       throw processingError;
     }
@@ -73,9 +73,9 @@ router.get('/files/:fileId', async (req, res) => {
   try {
     const { fileId } = req.params;
     
-    console.log(`📄 Serving file from database: ${fileId}`);
+    console.log(`📄 Serving file from local storage: ${fileId}`);
     
-    const fileData = await databaseFileService.getFileFromDatabase(fileId);
+    const fileData = await localFileService.getFileFromLocal(fileId);
     
     if (!fileData) {
       console.error(`File not found: ${fileId}`);
@@ -98,7 +98,7 @@ router.get('/files/:fileId', async (req, res) => {
     res.send(fileData.buffer);
     
   } catch (error) {
-    console.error('Error serving file from database:', error);
+    console.error('Error serving file from local storage:', error);
     if (!res.headersSent) {
       res.status(500).json({ error: 'Failed to serve file', details: error instanceof Error ? error.message : 'Unknown error' });
     }
