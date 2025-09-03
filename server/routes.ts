@@ -940,7 +940,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { encodedUrl } = req.params;
       const url = decodeURIComponent(encodedUrl);
       
-      console.log(`📄 Proxying file: ${url}`);
+      console.log(`📄 Proxying file - encoded: ${encodedUrl}`);
+      console.log(`📄 Proxying file - decoded: ${url}`);
       
       // Check if this is a database file URL
       if (url.startsWith('/api/presentations/files/')) {
