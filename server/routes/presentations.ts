@@ -91,9 +91,9 @@ router.get('/files/:fileId', async (req, res) => {
       'Cache-Control': 'public, max-age=3600',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': '*',
       'Content-Disposition': 'inline',
-      'X-Frame-Options': 'SAMEORIGIN',
-      'Content-Security-Policy': "frame-ancestors 'self';"
+      'X-Frame-Options': 'ALLOWALL'
     });
     
     // Send the file buffer

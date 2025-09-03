@@ -56,8 +56,11 @@ export default function PresentationPreviewBlock({
   const handlePreview = () => {
     if (!presentationPdfUrl) return;
     
-    // Open PDF in new tab to avoid iframe restrictions
-    window.open(presentationPdfUrl, '_blank');
+    setIsPreviewOpen(true);
+    setCurrentPage(1);
+    setIsLoading(true);
+    // Use the direct URL for embedded preview
+    setDirectUrl(presentationPdfUrl);
   };
 
   const handleNextPage = () => {
