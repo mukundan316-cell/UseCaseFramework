@@ -25,7 +25,7 @@ export default function PresentationPreviewBlock({
   className = ""
 }: PresentationPreviewBlockProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [proxyUrl, setProxyUrl] = useState<string | null>(null);
+  const [directUrl, setDirectUrl] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,10 +52,6 @@ export default function PresentationPreviewBlock({
     }
   };
 
-  const getProxyUrl = (url: string): string => {
-    const encodedUrl = encodeURIComponent(url);
-    return `/api/presentations/proxy/${encodedUrl}`;
-  };
 
   const handlePreview = () => {
     if (!presentationPdfUrl) return;
@@ -63,9 +59,8 @@ export default function PresentationPreviewBlock({
     setIsPreviewOpen(true);
     setCurrentPage(1);
     setIsLoading(true);
-    // Set the proxy URL directly with page navigation
-    const url = getProxyUrl(presentationPdfUrl);
-    setProxyUrl(url);
+    // Use the direct URL for preview (same as download)
+    setDirectUrl(presentationPdfUrl);
   };
 
   const handleNextPage = () => {
@@ -89,7 +84,7 @@ export default function PresentationPreviewBlock({
   // Reset state when dialog closes
   useEffect(() => {
     if (!isPreviewOpen) {
-      setProxyUrl(null);
+      setDirectUrl(null);
       setCurrentPage(1);
       setIsLoading(true);
     }
@@ -256,9 +251,9 @@ export default function PresentationPreviewBlock({
           
           {/* PDF Viewer - Full Screen without sidebars */}
           <div className="flex-1 bg-gray-100 overflow-hidden" style={{ height: 'calc(90vh - 80px)' }}>
-            {proxyUrl ? (
+            {directUrl ? (
               <iframe
-                src={`${proxyUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&page=${currentPage}`}
+                src={`${directUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&page=${currentPage}`}
                 className="w-full h-full border-0"
                 title="Presentation Preview"
                 data-testid="presentation-pdf-viewer"
