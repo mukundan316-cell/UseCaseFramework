@@ -296,10 +296,10 @@ export default function ScoringModelManagementBlock() {
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       />
                       <div className="text-xs text-gray-600 space-y-1">
-                        <div>• Impact ≥ {quadrantThreshold.toFixed(1)} & Effort ≥ {quadrantThreshold.toFixed(1)} = <strong>Quick Win</strong></div>
-                        <div>• Impact ≥ {quadrantThreshold.toFixed(1)} & Effort &lt; {quadrantThreshold.toFixed(1)} = <strong>Strategic Bet</strong></div>
-                        <div>• Impact &lt; {quadrantThreshold.toFixed(1)} & Effort ≥ {quadrantThreshold.toFixed(1)} = <strong>Experimental</strong></div>
-                        <div>• Impact &lt; {quadrantThreshold.toFixed(1)} & Effort &lt; {quadrantThreshold.toFixed(1)} = <strong>Watchlist</strong></div>
+                        <div>• Impact ≥ {quadrantThreshold.toFixed(1)} & Effort &lt; {quadrantThreshold.toFixed(1)} = <strong>Quick Win</strong></div>
+                        <div>• Impact ≥ {quadrantThreshold.toFixed(1)} & Effort ≥ {quadrantThreshold.toFixed(1)} = <strong>Strategic Bet</strong></div>
+                        <div>• Impact &lt; {quadrantThreshold.toFixed(1)} & Effort &lt; {quadrantThreshold.toFixed(1)} = <strong>Experimental</strong></div>
+                        <div>• Impact &lt; {quadrantThreshold.toFixed(1)} & Effort ≥ {quadrantThreshold.toFixed(1)} = <strong>Watchlist</strong></div>
                       </div>
                     </div>
                   </div>

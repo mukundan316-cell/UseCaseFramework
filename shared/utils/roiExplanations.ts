@@ -103,12 +103,20 @@ function determineROILevel(
   effortScore: number,
   quadrant: string
 ): 'High ROI' | 'Medium ROI' | 'Low ROI' | 'Poor ROI' {
-  // ROI is essentially Impact/Effort ratio
-  const roiRatio = impactScore / Math.max(effortScore, 0.1); // Avoid division by zero
-  
+  // Primary determination based on quadrant (framework design)
   if (quadrant === 'Quick Win' || quadrant === 'Strategic Bet') {
     return 'High ROI';
-  } else if (quadrant === 'Experimental' || roiRatio >= 0.8) {
+  } else if (quadrant === 'Experimental') {
+    return 'Medium ROI';
+  } else if (quadrant === 'Watchlist') {
+    return 'Poor ROI';
+  }
+  
+  // Fallback for edge cases using Impact/Effort ratio
+  const roiRatio = impactScore / Math.max(effortScore, 0.1);
+  if (roiRatio >= 1.2) {
+    return 'High ROI';
+  } else if (roiRatio >= 0.8) {
     return 'Medium ROI';
   } else if (roiRatio >= 0.5) {
     return 'Low ROI';
@@ -166,7 +174,7 @@ export function getScoringFormulaExplanation(): {
   return {
     impactFormula: 'Impact Score = Weighted average of 5 business impact factors (Revenue, Cost Savings, Risk Reduction, Partner Experience, Strategic Fit). Higher scores mean greater business impact potential.',
     
-    effortFormula: 'Effort Score = Weighted average of 5 implementation effort factors (Data Readiness, Technical Complexity, Change Impact, Model Risk, Adoption Readiness). Higher scores mean easier implementation.',
+    effortFormula: 'Effort Score = Weighted average of 5 implementation effort factors (Data Readiness, Technical Complexity, Change Impact, Model Risk, Adoption Readiness). Higher scores mean harder implementation.',
     
     roiConcept: 'ROI Potential = Impact ÷ Effort ratio. High impact with lower effort = High ROI (Quick Win). High impact with high effort = High ROI but longer timeframe (Strategic Bet).'
   };
