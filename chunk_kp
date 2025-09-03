@@ -1,0 +1,20 @@
+      "createdAt": "2025-09-01T13:30:00.084Z"
+    },
+    {
+      "id": "a893aabc-14f7-4262-b621-98330f6a970d",
+      "meaningfulId": "RSA_INT_015",
+      "title": "Heavy reliance on manual claim notes, narrations, unstructured text → GenAI Insight Extraction",
+      "description": "GenAI-driven summarization of claim narratives for handovers and audits\r\r\nNLP-based auto-coding of claims attributes (LOB, SIC, cause, severity)\r\r\nIntelligent suggestion engine for “next best action” based on historical case outcomes\r\r\nSentiment and red-flag detection to flag dissatisfied customers or risk indicators\r\r\nKnowledge graph enrichment to connect unstructured notes with related cases/policies.",
+      "problemStatement": "Claims handlers rely heavily on free-text notes in Guidewire and other systems. Notes are long, inconsistent, and lack structured coding. This leads to delays (handlers re-read histories), inconsistent MI, and missed opportunities for proactive actions (fraud, subrogation, customer risk). Supervisors and auditors also struggle to review cases quickly.",
+      "linesOfBusiness": [],
+      "useCaseType": "Gen AI",
+      "processes": [
+        "Claims Management"
+      ],
+      "activities": [],
+      "businessSegments": [],
+      "geographies": [],
+      "revenueImpact": 0,
+      "costSavings": 0,
+      "riskReduction": 0,
+      "brokerPartnerExperience": 0,

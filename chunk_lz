@@ -1,0 +1,20 @@
+        "future DxC PAS",
+        "broker feeds."
+      ],
+      "stakeholderGroups": null,
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:59.473Z"
+    },
+    {
+      "id": "0d4f4333-f9cb-435f-92fb-06918866de2d",
+      "meaningfulId": "RSA_IND_018",
+      "title": "Climate Risk Modeling",
+      "description": "Advanced climate models using AI to assess long-term climate risks and their impact on insurance portfolios and pricing strategies.",
+      "problemStatement": null,
+      "linesOfBusiness": [],

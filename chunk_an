@@ -1,0 +1,20 @@
+      "deploymentStatus": null,
+      "lastStatusUpdate": null,
+      "primaryBusinessOwner": "Customer Servicing Manager",
+      "useCaseStatus": "Backlog",
+      "keyDependencies": "All Customer Servicing applications",
+      "implementationTimeline": "Q4 2025",
+      "successMetrics": null,
+      "estimatedValue": null,
+      "valueMeasurementApproach": null,
+      "integrationRequirements": "Guidewire, PAS systems, Contact center systems",
+      "aiMlTechnologies": [
+        "Machine Learning",
+        "Large Language Models",
+        "Natural Language Processing",
+        "Rule-based Systems"
+      ],
+      "dataSources": [
+        "Claims Database",
+        "Policy Database",
+        "Customer Database"

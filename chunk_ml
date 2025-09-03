@@ -1,0 +1,20 @@
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:59.273Z"
+    },
+    {
+      "id": "69116c36-d3ba-49c7-aa38-1319cdc901fa",
+      "meaningfulId": "RSA_IND_015",
+      "title": "Claims Processing Automation",
+      "description": "End-to-end AI solution for first notice of loss through settlement, including damage assessment, coverage verification, and payment processing.",
+      "problemStatement": null,
+      "linesOfBusiness": [],
+      "useCaseType": "Process Automation",
+      "processes": [
+        "Claims Management"
+      ],
+      "activities": [],
+      "businessSegments": [],

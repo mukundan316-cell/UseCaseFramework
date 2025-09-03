@@ -1,0 +1,20 @@
+      "url",
+      "company_profile",
+      "business_lines_matrix",
+      "smart_rating",
+      "multi_rating",
+      "percentage_allocation",
+      "percentage_target",
+      "ranking",
+      "currency",
+      "department_skills_matrix",
+      "business_performance",
+      "composite",
+      "dynamic_use_case_selector"
+    ],
+    "responseStatuses": [
+      "started",
+      "in_progress",
+      "completed",
+      "abandoned"
+    ],

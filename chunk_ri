@@ -1,0 +1,20 @@
+          "label": "Simple",
+          "value": 1,
+          "description": "Uses existing tools and basic configuration"
+        },
+        {
+          "label": "Low",
+          "value": 2,
+          "description": "Minor integration with standard APIs"
+        },
+        {
+          "label": "Moderate",
+          "value": 3,
+          "description": "Requires new system integration or development"
+        },
+        {
+          "label": "High",
+          "value": 4,
+          "description": "Complex custom development across multiple systems"
+        },
+        {

@@ -1,0 +1,20 @@
+      "successMetrics": null,
+      "estimatedValue": "More accurate initial reserves → fewer late adjustments, reduced financial leakage\r\r\nFaster identification of high-severity claims → better resource allocation\r\r\nProactive client risk mitigation → lower repeat claims, improved retention\r\r\nPortfolio-level insights on hazard clusters → supports underwriting and reinsurance strategy.",
+      "valueMeasurementApproach": null,
+      "integrationRequirements": null,
+      "aiMlTechnologies": null,
+      "dataSources": [
+        "Guidewire Claims Center",
+        "hazard data APIs (weather/flood/geospatial)",
+        "IoT sensor feeds",
+        "PowerUp dashboards."
+      ],
+      "stakeholderGroups": null,
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:30:00.365Z"

@@ -1,0 +1,20 @@
+      "stakeholderGroups": [
+        "Risk Management",
+        "Compliance",
+        "External Partners"
+      ],
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": [],
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-03T07:39:29.132Z"
+    },
+    {
+      "id": "b9051144-936c-436c-97c5-1e0f2ee64bdc",
+      "meaningfulId": "RSA_INT_031",
+      "title": "Customer Support AI Assistant (NLP Chatbot)",
+      "description": "Customer Support Assistant Agents: Automate routine inquiries, policy details, claim status updates, and FAQs using NLP chatbots to provide 24/7 service support and freeing human agents. ",
+      "problemStatement": "1) Automate Routine Customer Interactions: Handle inquiries related to policy details, claim status, coverage information, billing, and FAQs to provide instant 24/7 responses, reducing wait times and improving customer satisfaction.\n2) Free Up Human Agents: Enable human representatives to focus on complex cases and personalized service by offloading repetitive queries to AI agents.\n3) Improve Customer Experience: Provide personalized recommendations, guided help through claims and renewals, and interactive assistance, promoting policyholder retention and trust.\n4) Cost Efficiency: Reduce operational costs through automation of high-volume support tasks with consistent quality.",

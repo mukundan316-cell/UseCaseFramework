@@ -1,0 +1,20 @@
+      "Invoice Generation",
+      "Collections Management",
+      "Billing Reconciliation",
+      "Payment Tracking",
+      "FNOL & Triage"
+    ],
+    "sourceTypes": [
+      "rsa_internal",
+      "industry_standard",
+      "ai_inventory"
+    ],
+    "useCaseStatuses": [
+      "Discovery",
+      "Backlog",
+      "In-flight",
+      "Implemented",
+      "On Hold"
+    ],
+    "aiMlTechnologies": [
+      "Machine Learning",

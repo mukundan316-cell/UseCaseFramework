@@ -1,0 +1,20 @@
+        "Large Language Models",
+        "Natural Language Processing",
+        "Predictive Analytics",
+        "Rule-based Systems",
+        "Reinforcement Learning"
+      ],
+      "dataSources": [
+        "Broker Data & Feeds",
+        "Claims Database",
+        "Policy Database",
+        "Customer Database"
+      ],
+      "stakeholderGroups": [
+        "Distrbution (Broker) Teams",
+        "Underwriting Teams",
+        "Claims Teams",
+        "Customer Service"
+      ],
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": [],

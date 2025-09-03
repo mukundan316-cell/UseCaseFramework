@@ -1,0 +1,20 @@
+      "horizontalUseCase": "true",
+      "horizontalUseCaseTypes": [
+        "AI Assistant—Knowledge Source (Research assistant, information retrieval)",
+        "AI Assistant—Automation (Autofill, next-best action suggestions, autonomous agents)"
+      ],
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-03T16:11:10.339Z"
+    },
+    {
+      "id": "23a70c8b-a7a6-4fe8-97a3-4f2abd8377d0",
+      "meaningfulId": "RSA_INT_032",
+      "title": "AI-Driven Risk Monitoring and Early Warning System",
+      "description": "This AI use case involves continuously monitoring insurance portfolios using machine learning and predictive analytics to identify emerging risks, unusual claim activity, or complex exposures that require early intervention despite their low immediate value. The AI system analyzes structured and unstructured data from multiple sources—claims, underwriting, external events, social signals—to detect patterns, anomalies, and trends that may predict future adverse outcomes or escalating risk profiles.",
+      "problemStatement": "Insurers face difficulty in proactively identifying latent or evolving risks within large volumes of low-value policies or claims that are complex in nature. Traditional systems may overlook subtle signs of potential loss development, fraud, regulatory issues, or operational inefficiencies, leading to surprise financial impacts, increased reserves, delayed interventions, and reduced profitability.",
+      "linesOfBusiness": [
+        "Specialty (E&S)",

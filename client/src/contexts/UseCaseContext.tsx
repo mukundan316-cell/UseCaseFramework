@@ -276,36 +276,31 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      // Process filtering - check both single and array values
+      // Process filtering - check only array values
       if (filters.process && 
-          useCase.process !== filters.process && 
           !(useCase.processes && useCase.processes.includes(filters.process))) {
         return false;
       }
       
-      // Activity filtering - check both single and array values
+      // Activity filtering - check only array values
       if (filters.activity && 
-          useCase.activity !== filters.activity && 
           !(useCase.activities && useCase.activities.includes(filters.activity))) {
         return false;
       }
       
-      // Line of Business filtering (already supports multi-select)
+      // Line of Business filtering - check only array values
       if (filters.lineOfBusiness && filters.lineOfBusiness !== 'all') {
-        const useCaseLOBs = useCase.linesOfBusiness || [useCase.lineOfBusiness];
-        if (!useCaseLOBs.includes(filters.lineOfBusiness)) return false;
+        if (!useCase.linesOfBusiness || !useCase.linesOfBusiness.includes(filters.lineOfBusiness)) return false;
       }
       
-      // Business Segment filtering - check both single and array values
+      // Business Segment filtering - check only array values
       if (filters.businessSegment && 
-          useCase.businessSegment !== filters.businessSegment && 
           !(useCase.businessSegments && useCase.businessSegments.includes(filters.businessSegment))) {
         return false;
       }
       
-      // Geography filtering - check both single and array values
+      // Geography filtering - check only array values
       if (filters.geography && 
-          useCase.geography !== filters.geography && 
           !(useCase.geographies && useCase.geographies.includes(filters.geography))) {
         return false;
       }

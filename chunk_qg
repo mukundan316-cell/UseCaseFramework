@@ -1,0 +1,20 @@
+      ],
+      "stakeholderGroups": null,
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:57.630Z"
+    },
+    {
+      "id": "61102f71-7459-4161-a8cd-dedbd8be6a5d",
+      "meaningfulId": "RSA_INT_001",
+      "title": "Enter-once automation for underwriter data  (Straight through processing)",
+      "description": "AI-enabled automation / RPA for “enter once, feed many” workflow across core systems. Intelligent validation to ensure one source of truth flows across raters, PAS, doc gen, and renewal triggers.",
+      "problemStatement": "Underwriters must re-enter the same data across multiple disconnected systems (Dynamics, Excel raters, PAS/UKRIS, AIS, doc gen, Thunderhead, Profhin). Manual copying of outputs (raters → doc gen → PAS) adds rework, creates inconsistencies, and forces email/Excel workarounds. Leads to high error risk, wasted effort, compliance gaps, and downstream ops rework.",
+      "linesOfBusiness": [
+        "All Lines (CL",
+        "SL",

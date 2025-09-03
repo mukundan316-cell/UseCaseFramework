@@ -1,0 +1,20 @@
+      "deploymentStatus": null,
+      "lastStatusUpdate": null,
+      "primaryBusinessOwner": "Risk Services",
+      "useCaseStatus": "Backlog",
+      "keyDependencies": null,
+      "implementationTimeline": null,
+      "successMetrics": null,
+      "estimatedValue": null,
+      "valueMeasurementApproach": null,
+      "integrationRequirements": null,
+      "aiMlTechnologies": [
+        "Machine Learning",
+        "Predictive Analytics"
+      ],
+      "dataSources": [
+        "Claims Database",
+        "Broker Data & Feeds",
+        "Policy Database",
+        "Customer Database"
+      ],

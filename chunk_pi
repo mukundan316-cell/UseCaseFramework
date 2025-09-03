@@ -1,0 +1,20 @@
+      "businessSegments": [
+        "All Segments"
+      ],
+      "geographies": [
+        "UK"
+      ],
+      "revenueImpact": 4,
+      "costSavings": 3,
+      "riskReduction": 4,
+      "brokerPartnerExperience": 4,
+      "strategicFit": 4,
+      "dataReadiness": 2,
+      "technicalComplexity": 3,
+      "changeImpact": 3,
+      "modelRisk": 2,
+      "adoptionReadiness": 2,
+      "explainabilityRequired": "true",
+      "customerHarmRisk": "medium",
+      "dataOutsideUkEu": "false",
+      "thirdPartyModel": "false",

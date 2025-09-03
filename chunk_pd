@@ -1,0 +1,20 @@
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:58.104Z"
+    },
+    {
+      "id": "eaf63717-c62f-4d9e-b0b5-3c861f987eb3",
+      "meaningfulId": "RSA_IND_004",
+      "title": "Underwriting Digital Assistant",
+      "description": "Provides underwriters with a summarized view of submission data, highlighting information outside of guidelines, assessing appetite capacity, and suggesting next best actions.",
+      "problemStatement": null,
+      "linesOfBusiness": [],
+      "useCaseType": "GenAI",
+      "processes": [
+        "Underwriting & Triage"
+      ],
+      "activities": [],
+      "businessSegments": [],
+      "geographies": [],
+      "revenueImpact": 0,
+      "costSavings": 0,

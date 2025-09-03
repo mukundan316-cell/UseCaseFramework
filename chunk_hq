@@ -1,0 +1,20 @@
+      "title": "Conversational AI->High call volumes in contact center, manual QA of calls slow & inconsistent → AI Speech Analytics & Real-Time Support (part of this is already live)",
+      "description": "1) Real-time transcription for every call with live compliance prompts and agent assist\n2) End-of-call AI summary and action capture immediately at wrap-up\n3) Always-on QA (100% coverage) with alerts and coaching signals for supervisors.",
+      "problemStatement": "Service – Telephony ACW – We have AI summarisation up and working in Call Miner already, there was a project at the start of the year to get this real time so they could use it for notes and save on after call work (ACW). This requires some change in Vodafone and the process had started but stalled. Claims have now assigned a PM to work on it to push through to get the benefit. There is a secondary benefit as it will do in call prompting aka ‘the broker said looking for advice on product coverage – direct to site XXX’. Contact centers handle high volumes with after-the-fact QA and no in-call assist. Although CallMiner + Microsoft Cognitive + Verint are already procured and the solution design exists, the program is not mobilized at scale; value is left on the table.",
+      "linesOfBusiness": [
+        "All Commercial"
+      ],
+      "useCaseType": "GenAI",
+      "processes": [
+        "Customer Servicing"
+      ],
+      "activities": [
+        "Customer Support",
+        "Relationship Management",
+        "Issue Resolution",
+        "Service Delivery"
+      ],
+      "businessSegments": [
+        "All Segments"
+      ],
+      "geographies": [

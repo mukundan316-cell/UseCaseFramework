@@ -1,0 +1,20 @@
+      "keyDependencies": "Dynamics, Excel raters, UKRIS, AIS, Thunderhead, Profin (plus MSD renewal triggers – related overlap).",
+      "implementationTimeline": "immediate",
+      "successMetrics": "Significant efficiency gains; fewer errors; faster turnaround; improved compliance; reduced downstream ops effort; stronger broker trust from consistent outputs.",
+      "estimatedValue": "High",
+      "valueMeasurementApproach": null,
+      "integrationRequirements": "Dynamics, Excel raters, UKRIS, AIS, Thunderhead, Profin (plus MSD renewal triggers – related overlap).",
+      "aiMlTechnologies": [
+        "Rule-based Systems"
+      ],
+      "dataSources": [
+        "Policy Database",
+        "Customer Database",
+        "Submissions & Underwriting Database"
+      ],
+      "stakeholderGroups": [
+        "Underwriting Teams",
+        "IT/Technology"
+      ],
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": [],

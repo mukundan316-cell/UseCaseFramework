@@ -1,0 +1,20 @@
+      "createdAt": "2025-09-01T13:29:58.036Z"
+    },
+    {
+      "id": "c89a1447-d520-4c4b-a7f5-5130eaf5d559",
+      "meaningfulId": "RSA_INT_004",
+      "title": "Provide Broker Insights both internally & externally  for proactive cross-sell / prospecting insights → AI-Driven Broker Analytics",
+      "description": "1) 19 Strategic brokers: (plus a wider “medium” cohort). RSA gets portal access for those brokers (upcoming renewals/portfolios).\n2) Automated research & ingestion (AI bot) from broker portals (Marsh, Aon) into Unicorn Data Platform (SQL), this is a tactical solution but longer term will be replaced by the EDP. This will eliminate the error prone manual trackers/excel currently being used. Join broker portal data (e.g., Marsh) with internal data (Unicorn) to Identify incumbent vs. non-incumbent product opportunities per customer.\n3) AI scoring of broker opportunities (propensity to win, cross-sell likelihood, value)\n4) Support Internal & Broker-facing reports with automated insights/decisions and meeting-ready “storylines.”\n5) Evolve from Qlik → Power BI for distribution dashboards in longer term.",
+      "problemStatement": " Growth- Pipeline generation - currently consists manual trackers from sales teams / UW, and Excel data dumps from brokers or online prospecting portals, wealth of information in these that should translate better and more focused pipeline supporting increased quotes. We get data together for all 20 Strategic Brokers from their sites and in time analyse however an AI agent should be able to easily tell us what’s in profile to look at prospecting / quotable. Distribution relies on manual portal scraping and ad-hoc prep for broker meetings; no propensity scoring or automated opportunity surfacing today.",
+      "linesOfBusiness": [
+        "All Lines (CL,SL,Others)"
+      ],
+      "useCaseType": "Analytics & Insights",
+      "processes": [
+        "Sales & Distribution (Including Broker Relationships)"
+      ],
+      "activities": [
+        "Broker Relations",
+        "Channel Management",
+        "Sales Support"
+      ],

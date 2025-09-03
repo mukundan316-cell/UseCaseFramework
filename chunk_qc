@@ -1,0 +1,20 @@
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:57.697Z"
+    },
+    {
+      "id": "c5766d04-6f75-47a1-b2d1-0bfbe72f0c51",
+      "meaningfulId": "RSA_INT_002",
+      "title": "Manual Back-and-Forth for Claims Adjustors with Underwriters to Confirm Coverage",
+      "description": "GenAI-powered policy comparison engine to analyze inception, renewal, and endorsement documents\r\r\nAutomated clause/exception extraction and summarization for claims handlers\r\r\nSide-by-side comparison view of coverage changes across policy periods\r\r\nSeamless integration into Guidewire for real-time coverage summaries at FNOL.",
+      "problemStatement": "Claims handlers and loss adjusters must frequently email underwriters to confirm policy coverage, clauses, and endorsements. This manual back-and-forth creates delays, inconsistent interpretations, and errors. Underwriters are distracted from core tasks, and clients/brokers experience slow claims resolution.",
+      "linesOfBusiness": [],
+      "useCaseType": "Gen AI",
+      "processes": [
+        "Claims Management"
+      ],
+      "activities": [],

@@ -1,0 +1,20 @@
+        },
+        {
+          "label": "Moderate Prep",
+          "value": 3,
+          "description": "Needs significant data preparation work"
+        },
+        {
+          "label": "Major Issues",
+          "value": 4,
+          "description": "Has substantial data quality or access issues"
+        },
+        {
+          "label": "Poor",
+          "value": 5,
+          "description": "Data is incomplete, messy, or unavailable"
+        }
+      ],
+      "revenueImpact": [
+        {
+          "label": "None",

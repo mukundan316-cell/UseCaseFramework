@@ -15,16 +15,11 @@ export const useCases: any = pgTable("use_cases", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   problemStatement: text("problem_statement"),
-  process: text("process"), // Made optional to minimize validation barriers
-  lineOfBusiness: text("line_of_business"), // Made optional to minimize validation barriers
-  linesOfBusiness: text("lines_of_business").array(),
-  businessSegment: text("business_segment"), // Made optional to minimize validation barriers
-  geography: text("geography"), // Made optional to minimize validation barriers
   useCaseType: text("use_case_type"), // Made optional to minimize validation barriers
-  activity: text("activity"), // Optional field for granular process classification
   // Multi-select array fields for enhanced flexibility
   processes: text("processes").array(), // Multiple processes support
   activities: text("activities").array(), // Multiple activities support  
+  linesOfBusiness: text("lines_of_business").array(),
   businessSegments: text("business_segments").array(), // Multiple segments support
   geographies: text("geographies").array(), // Multiple geographies support
   // Business Impact Levers (Impact Score)
@@ -146,13 +141,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   description: z.string().min(1, "Please provide a brief description").max(2000, "Description must be shorter than 2000 characters"),
   // All other fields are optional to minimize validation barriers
   problemStatement: z.union([z.string(), z.null()]).optional(),
-  process: z.union([z.string(), z.null()]).optional(),
-  lineOfBusiness: z.union([z.string(), z.null()]).optional(),
-  businessSegment: z.union([z.string(), z.null()]).optional(),
-  geography: z.union([z.string(), z.null()]).optional(),
   useCaseType: z.union([z.string(), z.null()]).optional(),
-  activity: z.union([z.string(), z.null()]).optional(),
-  valueChainComponent: z.union([z.string(), z.null()]).optional(),
   // Business Impact Levers (Impact Score) - truly optional per replit.md minimal validation
   revenueImpact: z.union([z.number().min(0).max(5), z.null()]).optional(),
   costSavings: z.union([z.number().min(0).max(5), z.null()]).optional(),

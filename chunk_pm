@@ -1,0 +1,20 @@
+        "Content Management -Categorization, tagging, curation",
+        "AI Assistant—Automation (Autofill, next-best action suggestions, autonomous agents)",
+        "Data Analysis - Augmentation, visualization"
+      ],
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:57.968Z"
+    },
+    {
+      "id": "111a4217-a52e-4cf7-8184-a4650f0c1d14",
+      "meaningfulId": "RSA_INT_003",
+      "title": "Guidewire + Claims Connect Integration Gaps → Reconciliation Bots",
+      "description": "AI bots/RPA to reconcile reserves, payments, and supplier invoices across Guidewire, Claims Connect, and finance systems\r\r\nAI anomaly detection to highlight mismatches (amount, supplier, reference, date)\r\r\nInvoice digitization/NLP extraction to auto-ingest supplier invoices\r\r\nEvent-driven sync to update Guidewire when actions occur in Claims Connect\r\r\nException routing to finance/handlers only when mismatches can’t be auto-resolved.",
+      "problemStatement": "Integration gaps between Guidewire and Claims Connect mean supplier invoices, reserves, and payments are not always synchronized. Handlers and finance staff manually confirm data across systems, leading to mismatches, delayed reconciliations, disputes with suppliers, and financial leakage. Audit trails are incomplete, and suppliers often face payment delays.",
+      "linesOfBusiness": [],
+      "useCaseType": "Prescriptive Rules Based",
+      "processes": [

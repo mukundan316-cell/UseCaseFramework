@@ -1,0 +1,20 @@
+      "aiMlTechnologies": null,
+      "dataSources": [
+        "CQE/CQA PAS",
+        "Excel (to be replaced)",
+        "doc producer."
+      ],
+      "stakeholderGroups": [
+        "Underwriting Teams",
+        "IT/Technology"
+      ],
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:30:00.848Z"
+    },
+    {

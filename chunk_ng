@@ -1,0 +1,20 @@
+      "businessSegments": [
+        "UK Commercial Lines (Traded SME Channel)",
+        "UK Commercial Lines (Regional Channel)"
+      ],
+      "geographies": [
+        "UK"
+      ],
+      "revenueImpact": 4,
+      "costSavings": 4,
+      "riskReduction": 3,
+      "brokerPartnerExperience": 3,
+      "strategicFit": 5,
+      "dataReadiness": 4,
+      "technicalComplexity": 4,
+      "changeImpact": 4,
+      "modelRisk": 3,
+      "adoptionReadiness": 3,
+      "explainabilityRequired": "true",
+      "customerHarmRisk": "high",
+      "dataOutsideUkEu": "false",

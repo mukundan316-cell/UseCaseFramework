@@ -1,0 +1,20 @@
+      "aiMlTechnologies": null,
+      "dataSources": [
+        "Guidewire Claims Center",
+        "recoveries workflows",
+        "evidence/document repositories."
+      ],
+      "stakeholderGroups": null,
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:30:00.152Z"
+    },
+    {
+      "id": "1df2e509-ce96-489c-81ef-75474d8bd46a",
+      "meaningfulId": "RSA_INT_016",
+      "title": "Legacy PAS (UKRIS) – Bridging with Bots",

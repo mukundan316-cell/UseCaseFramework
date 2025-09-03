@@ -1,0 +1,20 @@
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:58.797Z"
+    },
+    {
+      "id": "e13e0835-a3e7-4925-804e-09dd441dc2c3",
+      "meaningfulId": "RSA_IND_009",
+      "title": "Portfolio Risk Optimization",
+      "description": "AI-driven portfolio analysis to optimize risk distribution, identify concentration risks, and suggest rebalancing strategies.",
+      "problemStatement": null,
+      "linesOfBusiness": [],
+      "useCaseType": "Predictive ML",
+      "processes": [
+        "Financial Management"
+      ],
+      "activities": [],
+      "businessSegments": [],
+      "geographies": [],
+      "revenueImpact": 0,

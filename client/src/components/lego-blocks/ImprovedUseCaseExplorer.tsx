@@ -129,18 +129,18 @@ export default function ImprovedUseCaseExplorer({
       const matchesSearch = (
         (useCase.title?.toLowerCase() || '').includes(searchLower) ||
         (useCase.description?.toLowerCase() || '').includes(searchLower) ||
-        (useCase.process?.toLowerCase() || '').includes(searchLower) ||
-        (useCase.lineOfBusiness?.toLowerCase() || '').includes(searchLower) ||
+        (useCase.processes?.some(p => p.toLowerCase().includes(searchLower))) ||
+        (useCase.linesOfBusiness?.some(lob => lob.toLowerCase().includes(searchLower))) ||
         (useCase.useCaseType?.toLowerCase() || '').includes(searchLower)
       );
       if (!matchesSearch) return false;
     }
 
-    // Common filters
-    if (filters.process && useCase.process !== filters.process) return false;
-    if (filters.lineOfBusiness && useCase.lineOfBusiness !== filters.lineOfBusiness) return false;
-    if (filters.businessSegment && useCase.businessSegment !== filters.businessSegment) return false;
-    if (filters.geography && useCase.geography !== filters.geography) return false;
+    // Common filters - only check array values
+    if (filters.process && !(useCase.processes && useCase.processes.includes(filters.process))) return false;
+    if (filters.lineOfBusiness && !(useCase.linesOfBusiness && useCase.linesOfBusiness.includes(filters.lineOfBusiness))) return false;
+    if (filters.businessSegment && !(useCase.businessSegments && useCase.businessSegments.includes(filters.businessSegment))) return false;
+    if (filters.geography && !(useCase.geographies && useCase.geographies.includes(filters.geography))) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
     
     // Horizontal use case type filter - matches any of the selected types in the array
@@ -150,8 +150,8 @@ export default function ImprovedUseCaseExplorer({
       if (!horizontalTypes.includes(filters.horizontalUseCaseType)) return false;
     }
     
-    // Universal activity filter for all source types
-    if (filters.activity && (useCase as any).activity && (useCase as any).activity !== filters.activity) return false;
+    // Universal activity filter for all source types - only check array values
+    if (filters.activity && !((useCase as any).activities && (useCase as any).activities.includes(filters.activity))) return false;
     
     // Quadrant filter only for scored items (excludes AI Inventory)
     if (!isAiInventory && filters.quadrant && useCase.quadrant !== filters.quadrant) return false;

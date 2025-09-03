@@ -243,13 +243,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const useCaseWithScores = {
         ...validatedData,
-        linesOfBusiness: (validatedData.linesOfBusiness as string[])?.filter((item): item is string => item != null) || 
-                         [validatedData.lineOfBusiness].filter((item): item is string => item != null),
-        // Handle multi-select arrays with backward compatibility
-        processes: (validatedData.processes as string[]) || (validatedData.process ? [validatedData.process] : undefined),
-        activities: (validatedData.activities as string[]) || (validatedData.activity ? [validatedData.activity] : undefined),
-        businessSegments: (validatedData.businessSegments as string[]) || (validatedData.businessSegment ? [validatedData.businessSegment] : undefined),
-        geographies: (validatedData.geographies as string[]) || (validatedData.geography ? [validatedData.geography] : undefined),
+        linesOfBusiness: (validatedData.linesOfBusiness as string[])?.filter((item): item is string => item != null),
+        // Handle multi-select arrays only
+        processes: (validatedData.processes as string[]) || [],
+        activities: (validatedData.activities as string[]) || [],
+        businessSegments: (validatedData.businessSegments as string[]) || [],
+        geographies: (validatedData.geographies as string[]) || [],
         // Ensure new use cases go to reference library by default
         isActiveForRsa: (validatedData.isActiveForRsa as string) || 'false',
         isDashboardVisible: (validatedData.isDashboardVisible as string) || 'false',
@@ -275,10 +274,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const fieldLabels: { [key: string]: string } = {
             'title': 'Title',
             'description': 'Description', 
-            'process': 'Process',
-            'lineOfBusiness': 'Line of Business',
-            'businessSegment': 'Business Segment',
-            'geography': 'Geography',
+            'processes': 'Processes',
+            'linesOfBusiness': 'Lines of Business',
+            'businessSegments': 'Business Segments',
+            'geographies': 'Geographies',
             'useCaseType': 'Use Case Type',
             'presentationUrl': 'Presentation file',
             'presentationPdfUrl': 'Presentation file',
@@ -331,22 +330,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateSchema = insertUseCaseSchema.partial();
       const validatedData = updateSchema.parse(req.body);
       
-      // Handle multi-select arrays for updates
-      if (validatedData.linesOfBusiness) {
-        validatedData.linesOfBusiness = (validatedData.linesOfBusiness as string[]).length > 0 ? validatedData.linesOfBusiness : [validatedData.lineOfBusiness].filter(Boolean) as string[];
-      }
-      if (validatedData.processes && (validatedData.processes as string[]).length === 0) {
-        validatedData.processes = validatedData.process ? [validatedData.process] : undefined;
-      }
-      if (validatedData.activities && (validatedData.activities as string[]).length === 0) {
-        validatedData.activities = validatedData.activity ? [validatedData.activity] : undefined;
-      }
-      if (validatedData.businessSegments && (validatedData.businessSegments as string[]).length === 0) {
-        validatedData.businessSegments = validatedData.businessSegment ? [validatedData.businessSegment] : undefined;
-      }
-      if (validatedData.geographies && (validatedData.geographies as string[]).length === 0) {
-        validatedData.geographies = validatedData.geography ? [validatedData.geography] : undefined;
-      }
+      // Handle multi-select arrays for updates - no backward compatibility needed
+      // Arrays are now the primary data format
 
       // Calculate enhanced framework scores if scoring fields are present
       let updatesWithScores = { ...validatedData };

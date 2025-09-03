@@ -1,0 +1,20 @@
+      "Deep Learning",
+      "Natural Language Processing",
+      "Computer Vision",
+      "Predictive Analytics",
+      "Large Language Models",
+      "Reinforcement Learning",
+      "Rule-based Systems"
+    ],
+    "dataSources": [
+      "Policy Database",
+      "Claims Database",
+      "Customer Database",
+      "External APIs",
+      "Third-party Data",
+      "Real-time Feeds",
+      "Historical Data",
+      "Regulatory Data",
+      "Broker Data & Feeds",
+      "Submissions & Underwriting Database"
+    ],

@@ -1,0 +1,20 @@
+        "Claims Teams",
+        "IT/Technology"
+      ],
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:59.138Z"
+    },
+    {
+      "id": "c6934cca-c8a0-4b36-9092-706e941f9035",
+      "meaningfulId": "RSA_IND_014",
+      "title": "Dynamic Pricing Engine",
+      "description": "An AI-driven engine that optimizes and adjusts premium rates in real-time based on market conditions, competitor pricing, and incoming risk data.",
+      "problemStatement": null,
+      "linesOfBusiness": [],
+      "useCaseType": "Predictive ML",

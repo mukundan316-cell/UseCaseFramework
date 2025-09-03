@@ -1,0 +1,20 @@
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:30:01.253Z"
+    },
+    {
+      "id": "63de15c3-02f6-4af3-a64e-25cf5fc47c15",
+      "meaningfulId": "RSA_INT_029",
+      "title": "Limited predictive insight into claim lifecycle → AI Simulation Engine for Settlement Path",
+      "description": "AI simulation engine that models possible settlement paths (cash vs repair vs replace)\r\r\nPredictive recommendation based on historical cost, duration, and satisfaction data\r\r\nSupplier availability/pricing integration to factor in real-time constraints\r\r\nFeedback loop to refine predictions based on actual claim outcomes\r\r\nDecision rationale logging for audit/compliance.",
+      "problemStatement": "Claims handlers currently decide between cash settlements, repairs, or replacements without predictive tools. This leads to inconsistent outcomes, higher leakage, and uneven customer experience. Finance and audit lack transparency into decision rationale.",
+      "linesOfBusiness": [
+        "All Commercial"
+      ],
+      "useCaseType": "Predictive ML",
+      "processes": [
+        "Claims Management"
+      ],
+      "activities": [
+        "Expert Settlement",
+        "Claims Analysis",
+        "Claims Processing"

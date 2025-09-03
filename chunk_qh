@@ -1,0 +1,20 @@
+        "Others)",
+        "All Lines (CL,SL,Others)"
+      ],
+      "useCaseType": "Process Automation",
+      "processes": [
+        "Underwriting & Triage"
+      ],
+      "activities": [],
+      "businessSegments": [
+        "All Segments"
+      ],
+      "geographies": [
+        "UK"
+      ],
+      "revenueImpact": 3,
+      "costSavings": 4,
+      "riskReduction": 4,
+      "brokerPartnerExperience": 3,
+      "strategicFit": 4,
+      "dataReadiness": 3,

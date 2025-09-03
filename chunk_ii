@@ -1,0 +1,20 @@
+        "PAS",
+        "underwriting workflow tools."
+      ],
+      "stakeholderGroups": null,
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:30:01.051Z"
+    },
+    {
+      "id": "da847923-95b1-4a87-ace3-0f0ffd0276e3",
+      "meaningfulId": "RSA_INT_026",
+      "title": "Loss Adjusters Manually Visit Sites, Document, and Upload Reports",
+      "description": "AI-enabled image analytics to detect and classify damage from photos/videos\r\r\nDrone and satellite remote sensing for inaccessible or high-risk sites\r\r\nMobile app with AI-powered auto-tagging and direct Guidewire/Claims Connect integration\r\r\nAutomated damage reports generated from evidence, reducing manual input.",
+      "problemStatement": "Loss adjusters must manually travel to sites, capture photos and notes, and upload reports days later. This delays claim assessments, introduces inconsistency in reporting, and puts adjusters at risk in hazardous environments. Claims handlers and customers wait unnecessarily for decisions.",
+      "linesOfBusiness": [],

@@ -1,0 +1,20 @@
+          "value": 5,
+          "description": "Substantial revenue impact (>£2M annually)"
+        }
+      ],
+      "riskReduction": [
+        {
+          "label": "None",
+          "value": 1,
+          "description": "No risk mitigation or potential risk increase"
+        },
+        {
+          "label": "Minor",
+          "value": 2,
+          "description": "Small reduction in operational or compliance risks"
+        },
+        {
+          "label": "Moderate",
+          "value": 3,
+          "description": "Meaningful reduction in business or regulatory risks"
+        },

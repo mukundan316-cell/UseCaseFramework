@@ -1,0 +1,20 @@
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:58.306Z"
+    },
+    {
+      "id": "bb6c43ce-bb9b-4e2b-8e16-6f60d3a90483",
+      "meaningfulId": "RSA_INT_005",
+      "title": "Policy Documents Not Auto-Attached in Guidewire Claims Center",
+      "description": "AI-enabled ingestion of policy docs from PAS, underwriting, and shared sources\r\r\nDocument classification (renewal vs inception vs endorsement) to avoid duplicates\r\r\nAuto-linking of policy docs to claim at FNOL\r\r\nAutomated exception-handling triggers if docs cannot be found.",
+      "problemStatement": "Policy documents (especially inception versions) are not automatically attached in Guidewire. Claims handlers must manually chase underwriters or brokers for missing files, delaying claim setup and coverage validation. This creates inefficiency, poor customer/broker experience, and frustration across claims and underwriting teams.",
+      "linesOfBusiness": [],
+      "useCaseType": "Gen AI",
+      "processes": [
+        "Claims Management"
+      ],
+      "activities": [],
+      "businessSegments": [],
+      "geographies": [],
+      "revenueImpact": 0,

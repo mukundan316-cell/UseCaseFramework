@@ -1,0 +1,20 @@
+          "value": 4,
+          "description": "Significant model risk, complex regulatory requirements"
+        },
+        {
+          "label": "Very High",
+          "value": 5,
+          "description": "High regulatory risk, unproven technology"
+        }
+      ],
+      "costSavings": [
+        {
+          "label": "None",
+          "value": 1,
+          "description": "No cost reduction or potential increase"
+        },
+        {
+          "label": "Minor",
+          "value": 2,
+          "description": "Small operational savings (<£50k annually)"
+        },

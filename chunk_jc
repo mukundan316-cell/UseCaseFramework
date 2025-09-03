@@ -1,0 +1,20 @@
+      "keyDependencies": null,
+      "implementationTimeline": "Medium —tactical enabler for near-term impact while EDP is built.",
+      "successMetrics": null,
+      "estimatedValue": "Faster, consistent underwriting and claims decisions from a trusted data layer\r\r\nReduced manual manipulation; repeatable insights for distribution and UW\r\r\nPrepares the ground for automated insights/decisions and future EDP integration.",
+      "valueMeasurementApproach": null,
+      "integrationRequirements": null,
+      "aiMlTechnologies": null,
+      "dataSources": [
+        "Unicorn pipelines (SQL), PowerUp analytics, PAS (UKRIS/NIG), Guidewire",
+        "external broker feeds/portals."
+      ],
+      "stakeholderGroups": null,
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:30:00.711Z"

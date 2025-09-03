@@ -1,0 +1,20 @@
+      "useCaseStatus": "Backlog",
+      "keyDependencies": "MSD renewal triggers, PAS, Outlook/email systems, broker extranets (partial integration).",
+      "implementationTimeline": "Medium – clearly seen as an automation candidate with compliance importance.",
+      "successMetrics": "Reduced cycle time; fewer missed renewals.\r\r\nConsistent and compliant handling of terrorism questionnaires.\r\r\nImproved broker/client experience and trust.\r\r\nFreed underwriter/ops time for higher-value tasks.",
+      "estimatedValue": "Reduced cycle time; fewer missed renewals\r\r\nConsistent and compliant handling of terrorism questionnaires\r\r\nImproved broker/client experience and trust\r\r\nFreed underwriter/ops time for higher-value tasks.",
+      "valueMeasurementApproach": null,
+      "integrationRequirements": null,
+      "aiMlTechnologies": null,
+      "dataSources": [
+        "MSD renewal triggers",
+        "PAS",
+        "Outlook/email systems",
+        "broker extranets (partial integration)."
+      ],
+      "stakeholderGroups": [
+        "Underwriting Teams",
+        "IT/Technology",
+        "Compliance"
+      ],
+      "horizontalUseCase": "false",

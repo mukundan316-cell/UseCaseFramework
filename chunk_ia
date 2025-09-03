@@ -1,0 +1,20 @@
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:30:01.187Z"
+    },
+    {
+      "id": "0c6ce171-ff7d-4797-890c-df66529149e2",
+      "meaningfulId": "RSA_INT_028",
+      "title": " Legacy Systems Overlap with Guidewire → Claims Routing by Product/LOB",
+      "description": "AI/NLP classification of FNOL data to automatically identify correct product/LOB\r\r\nIntelligent routing engine to send claim to Guidewire, legacy PAS, or external adjusters\r\r\nAPI/middleware integration for bi-directional data sync between systems\r\r\nException handling workflow for ambiguous claims\r\r\nHandler-facing dashboard for routing transparency.",
+      "problemStatement": "Claims handling is fragmented between Guidewire and legacy systems (FarmWeb, NIG, UKRIS). Handlers manually decide where to route new claims, causing errors, delays, and duplicated effort. Specialist lines (agriculture) often require external adjusters, but referrals are manual and inconsistent. Reporting and MI suffer due to siloed data.",
+      "linesOfBusiness": [],
+      "useCaseType": "Prescriptive Rules Based",
+      "processes": [
+        "Claims Management"
+      ],
+      "activities": [],
+      "businessSegments": [],
+      "geographies": [],
+      "revenueImpact": 0,

@@ -1,0 +1,20 @@
+        "Machine Learning",
+        "Rule-based Systems"
+      ],
+      "dataSources": [
+        "Unicorn data model (SQL outputs",
+        "controls)",
+        "broker data feeds (Marsh",
+        "Aon portals)",
+        "Qlik/Power BI",
+        "CRM (MSD) for execution.",
+        "Broker Data & Feeds",
+        "Policy Database"
+      ],
+      "stakeholderGroups": [
+        "Distrbution (Broker) Teams",
+        "IT/Technology",
+        "Business Analytics"
+      ],
+      "horizontalUseCase": "true",
+      "horizontalUseCaseTypes": [

@@ -353,19 +353,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         title: useCase.title || '',
         description: useCase.description || '',
         problemStatement: (useCase as any).problemStatement || '',
-        process: useCase.process || '',
-        lineOfBusiness: useCase.lineOfBusiness || '',
-        linesOfBusiness: (useCase as any).linesOfBusiness || [useCase.lineOfBusiness].filter(Boolean),
-        businessSegment: useCase.businessSegment || '',
-        geography: useCase.geography || '',
         useCaseType: useCase.useCaseType || '',
-        activity: (useCase as any).activity || '',
         librarySource: (useCase as any).librarySource || 'rsa_internal',
-        // Multi-select arrays with backward compatibility
-        processes: (useCase as any).processes || [useCase.process].filter(Boolean),
-        activities: (useCase as any).activities || [(useCase as any).activity].filter(Boolean),
-        businessSegments: (useCase as any).businessSegments || [useCase.businessSegment].filter(Boolean),
-        geographies: (useCase as any).geographies || [useCase.geography].filter(Boolean),
+        // Multi-select arrays only
+        processes: (useCase as any).processes || [],
+        activities: (useCase as any).activities || [],
+        linesOfBusiness: (useCase as any).linesOfBusiness || [],
+        businessSegments: (useCase as any).businessSegments || [],
+        geographies: (useCase as any).geographies || [],
         // RSA Portfolio fields
         isActiveForRsa: rsaActive ? 'true' : 'false',
         isDashboardVisible: dashboardVisible ? 'true' : 'false',
@@ -460,17 +455,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         title: '',
         description: '',
         problemStatement: '',
-        process: '',
-        lineOfBusiness: '',
-        linesOfBusiness: [],
-        businessSegment: '',
-        geography: '',
         useCaseType: '',
-        activity: '',
         librarySource: 'rsa_internal',
         // Multi-select arrays
         processes: [],
         activities: [],
+        linesOfBusiness: [],
         businessSegments: [],
         geographies: [],
         // RSA Portfolio defaults
@@ -522,14 +512,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         title: data.title || '',
         description: data.description || '',
         problemStatement: data.problemStatement || '',
-        // CONSISTENCY FIX: Map array selections to single fields for Industry Standard compatibility
-        // Following replit.md principle of consistent data handling across source types
-        process: data.processes?.[0] || data.process || '',
-        lineOfBusiness: data.linesOfBusiness?.[0] || data.lineOfBusiness || '',
-        businessSegment: data.businessSegments?.[0] || data.businessSegment || '',
-        geography: data.geographies?.[0] || data.geography || '',
         useCaseType: data.useCaseType || '',
-        activity: data.activity || '',
         primaryBusinessOwner: data.primaryBusinessOwner || '',
         useCaseStatus: data.useCaseStatus || '',
         keyDependencies: data.keyDependencies || '',
@@ -772,10 +755,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             errorMessage = "Please enter a title for your use case.";
           } else if (errorText.includes('description')) {
             errorMessage = "Please provide a description for your use case.";
-          } else if (errorText.includes('process')) {
-            errorMessage = "Please select a process from the dropdown.";
-          } else if (errorText.includes('line of business')) {
-            errorMessage = "Please select a line of business from the dropdown.";
+          } else if (errorText.includes('processes')) {
+            errorMessage = "Please select one or more processes.";
+          } else if (errorText.includes('lines of business')) {
+            errorMessage = "Please select one or more lines of business.";
           } else {
             errorMessage = "Please fill in the required fields and try again.";
           }
@@ -1037,18 +1020,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               <MultiSelectField
                 label="Processes"
                 items={sortedMetadata.getSortedProcesses()}
-                selectedItems={(form.watch('processes') as string[]) || [form.watch('process')].filter(Boolean)}
+                selectedItems={(form.watch('processes') as string[]) || []}
                 onSelectionChange={(newItems) => {
                   form.setValue('processes', newItems);
-                  // Backward compatibility with single process field
-                  if (newItems.length > 0) {
-                    form.setValue('process', newItems[0]);
-                  } else {
-                    form.setValue('process', '');
-                  }
                 }}
-                singleValue={form.watch('process') || ''}
-                onSingleValueChange={(value) => form.setValue('process', value)}
                 helpText="Select one or more business processes"
               />
               {/* Process Activities handled by LEGO component below */}
@@ -1062,16 +1037,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               <MultiSelectField
                 label="Lines of Business"
                 items={sortedMetadata.getSortedLinesOfBusiness()}
-                selectedItems={form.watch('linesOfBusiness') || (useCase?.linesOfBusiness || [useCase?.lineOfBusiness].filter(Boolean) as string[])}
+                selectedItems={(form.watch('linesOfBusiness') as string[]) || []}
                 onSelectionChange={(newItems) => {
                   form.setValue('linesOfBusiness', newItems);
-                  // Backward compatibility
-                  if (newItems.length > 0) {
-                    form.setValue('lineOfBusiness', newItems[0]);
-                  }
                 }}
-                singleValue={form.watch('lineOfBusiness') || ''}
-                onSingleValueChange={(value) => form.setValue('lineOfBusiness', value)}
                 helpText="Select one or more lines of business"
               />
               
@@ -1079,16 +1048,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               <MultiSelectField
                 label="Business Segments"
                 items={sortedMetadata.getSortedBusinessSegments()}
-                selectedItems={(form.watch('businessSegments') as string[]) || [form.watch('businessSegment')].filter(Boolean)}
+                selectedItems={(form.watch('businessSegments') as string[]) || []}
                 onSelectionChange={(newItems) => {
                   form.setValue('businessSegments', newItems);
-                  // Backward compatibility
-                  if (newItems.length > 0) {
-                    form.setValue('businessSegment', newItems[0]);
-                  }
                 }}
-                singleValue={form.watch('businessSegment') || ''}
-                onSingleValueChange={(value) => form.setValue('businessSegment', value)}
                 helpText="Select one or more business segments"
               />
               
@@ -1096,34 +1059,22 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               <MultiSelectField
                 label="Geographies"
                 items={sortedMetadata.getSortedGeographies()}
-                selectedItems={(form.watch('geographies') as string[]) || [form.watch('geography')].filter(Boolean)}
+                selectedItems={(form.watch('geographies') as string[]) || []}
                 onSelectionChange={(newItems) => {
                   form.setValue('geographies', newItems);
-                  // Backward compatibility
-                  if (newItems.length > 0) {
-                    form.setValue('geography', newItems[0]);
-                  }
                 }}
-                singleValue={form.watch('geography') || ''}
-                onSingleValueChange={(value) => form.setValue('geography', value)}
                 helpText="Select one or more geographic markets"
               />
               
               {/* Process Activities - LEGO Contextual Component */}
               <ContextualProcessActivityField
-                selectedProcesses={(form.watch('processes') as string[]) || [form.watch('process')].filter(Boolean)}
-                selectedActivities={(form.watch('activities') as string[]) || [form.watch('activity')].filter(Boolean)}
+                selectedProcesses={(form.watch('processes') as string[]) || []}
+                selectedActivities={(form.watch('activities') as string[]) || []}
                 onActivitiesChange={(newItems) => {
                   form.setValue('activities', newItems);
-                  // Backward compatibility
-                  if (newItems.length > 0) {
-                    form.setValue('activity', newItems[0]);
-                  } else {
-                    form.setValue('activity', '');
-                  }
                 }}
-                helpText={(form.watch('processes') as string[])?.length > 0 || form.watch('process') ? "Activities filtered by selected processes" : "Select processes first to enable activities"}
-                placeholder={!((form.watch('processes') as string[])?.length > 0 || form.watch('process')) ? "Select processes first" : "Select activities..."}
+                helpText={(form.watch('processes') as string[])?.length > 0 ? "Activities filtered by selected processes" : "Select processes first to enable activities"}
+                placeholder={!((form.watch('processes') as string[])?.length > 0) ? "Select processes first" : "Select activities..."}
               />
 
               {/* Horizontal Use Case Selection - LEGO Component */}

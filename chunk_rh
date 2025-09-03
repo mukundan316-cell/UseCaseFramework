@@ -1,0 +1,20 @@
+          "description": "Good preparation with minor readiness gaps"
+        },
+        {
+          "label": "Moderate",
+          "value": 3,
+          "description": "Some preparation needed, mixed readiness"
+        },
+        {
+          "label": "Low Readiness",
+          "value": 4,
+          "description": "Significant preparation needed, some resistance"
+        },
+        {
+          "label": "Resistant",
+          "value": 5,
+          "description": "Organization unprepared or resistant to change"
+        }
+      ],
+      "technicalComplexity": [
+        {

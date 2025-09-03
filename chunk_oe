@@ -1,0 +1,20 @@
+      ],
+      "stakeholderGroups": [
+        "Underwriting Teams",
+        "IT/Technology"
+      ],
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:29:58.518Z"
+    },
+    {
+      "id": "fb913ab4-eece-4e81-925b-183df436c305",
+      "meaningfulId": "RSA_INT_007",
+      "title": "Predictive Risk Monitoring (IoT + AI)",
+      "description": "Deploy IoT sensors (fire, flood, water leak, structural health)\r\r\nAI models to analyze sensor data and predict risk events (e.g., overheating, water damage, structural instability)\r\r\nAutomated alerting to clients and underwriters\r\r\nIntegration with underwriting systems for dynamic pricing and with claims systems for early FNOL triggers.",
+      "problemStatement": "Claims prevention today is largely reactive — insurers only act once a loss event occurs (fire, flood, structural failure). There is no systematic predictive monitoring of insured assets. This leads to higher frequency/severity of claims, higher costs, and limited ability to support clients with proactive advice.",

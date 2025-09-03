@@ -1,0 +1,20 @@
+        "SRI",
+        "Integrate",
+        "shared drives (potential future migration to central repository)."
+      ],
+      "stakeholderGroups": null,
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
+      "createdAt": "2025-09-01T13:30:00.219Z"
+    },
+    {
+      "id": "8f177e6f-2f9f-43d8-94f2-9cdad89c9c43",
+      "meaningfulId": "RSA_INT_017",
+      "title": "Subrogation Detection",
+      "description": "NLP models to analyze FNOL narratives, claim notes, and adjuster text for liability cues\r\r\nComputer Vision on uploaded images to detect third-party involvement\r\r\nAI-driven subrogation scoring and prioritization engine\r\r\nAutomated task creation in Guidewire for recovery teams when opportunities are detected.",
+      "problemStatement": "Subrogation opportunities are currently flagged only if adjusters/handlers complete manual forms in Guidewire. This process is inconsistent, prone to oversight, and often reactive, leading to missed recoveries and financial leakage.",

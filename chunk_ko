@@ -1,0 +1,20 @@
+      "valueMeasurementApproach": null,
+      "integrationRequirements": null,
+      "aiMlTechnologies": null,
+      "dataSources": [
+        "UKRIS PAS",
+        "AIS (doc gen)",
+        "IS2000 (historical precedent)",
+        "future DxC PAS integration."
+      ],
+      "stakeholderGroups": [
+        "Underwriting Teams",
+        "IT/Technology"
+      ],
+      "horizontalUseCase": "false",
+      "horizontalUseCaseTypes": null,
+      "presentationFileId": null,
+      "presentationPdfFileId": null,
+      "presentationFileName": null,
+      "presentationUploadedAt": null,
+      "hasPresentation": "false",
