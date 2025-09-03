@@ -10,6 +10,7 @@ import ReorderableMetadataBlock from './lego-blocks/ReorderableMetadataBlock';
 import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagementBlock';
 import ProcessManagementBlock from './lego-blocks/ProcessManagementBlock';
 import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSimple';
+import ScoringDropdownManagementLegoBlock from './lego-blocks/ScoringDropdownManagementLegoBlock';
 import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibraryLegoBlock';
 import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationLegoBlock';
 import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
@@ -365,6 +366,89 @@ export default function AdminPanel() {
                     items={metadata.horizontalUseCaseTypes || []}
                     placeholder="Add new horizontal use case type..."
                   />
+                </div>
+
+                {/* Scoring Dropdown Options Management */}
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <div className="text-center py-4">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Scoring Dropdown Options</h4>
+                    <p className="text-sm text-gray-600">
+                      Manage the dropdown options that users select for the 10-lever scoring framework. 
+                      Each option includes a label, score value (1-5), and business context description.
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Business Impact Levers */}
+                    <div className="space-y-4">
+                      <h5 className="font-semibold text-gray-800 mb-3 border-b pb-2">Business Impact Levers</h5>
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="revenueImpact"
+                        title="Revenue Impact"
+                        options={metadata?.scoringDropdownOptions?.revenueImpact || []}
+                        description="Direct revenue generation or loss prevention potential"
+                      />
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="costSavings"
+                        title="Cost Savings"
+                        options={metadata?.scoringDropdownOptions?.costSavings || []}
+                        description="Operational cost reduction and efficiency gains"
+                      />
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="riskReduction"
+                        title="Risk Reduction"
+                        options={metadata?.scoringDropdownOptions?.riskReduction || []}
+                        description="Risk mitigation and compliance improvements"
+                      />
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="brokerPartnerExperience"
+                        title="Broker Partner Experience"
+                        options={metadata?.scoringDropdownOptions?.brokerPartnerExperience || []}
+                        description="Impact on external broker and partner relationships"
+                      />
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="strategicFit"
+                        title="Strategic Fit"
+                        options={metadata?.scoringDropdownOptions?.strategicFit || []}
+                        description="Alignment with RSA's strategic objectives"
+                      />
+                    </div>
+
+                    {/* Implementation Effort Levers */}
+                    <div className="space-y-4">
+                      <h5 className="font-semibold text-gray-800 mb-3 border-b pb-2">Implementation Effort Levers</h5>
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="dataReadiness"
+                        title="Data Readiness"
+                        options={metadata?.scoringDropdownOptions?.dataReadiness || []}
+                        description="Quality and accessibility of required data"
+                      />
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="technicalComplexity"
+                        title="Technical Complexity"
+                        options={metadata?.scoringDropdownOptions?.technicalComplexity || []}
+                        description="Technical implementation and integration challenges"
+                      />
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="changeImpact"
+                        title="Change Impact"
+                        options={metadata?.scoringDropdownOptions?.changeImpact || []}
+                        description="Organizational and process change requirements"
+                      />
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="modelRisk"
+                        title="Model Risk"
+                        options={metadata?.scoringDropdownOptions?.modelRisk || []}
+                        description="Potential model performance and regulatory risks"
+                      />
+                      <ScoringDropdownManagementLegoBlock
+                        scoringField="adoptionReadiness"
+                        title="Adoption Readiness"
+                        options={metadata?.scoringDropdownOptions?.adoptionReadiness || []}
+                        description="User acceptance and organizational readiness"
+                      />
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Process-Activity Relationships */}

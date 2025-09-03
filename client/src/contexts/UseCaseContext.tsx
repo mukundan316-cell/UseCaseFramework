@@ -34,6 +34,9 @@ interface UseCaseContextType {
   deactivateUseCase: (id: string, reason?: string) => Promise<void>;
   toggleDashboardVisibility: (id: string) => Promise<void>;
   bulkUpdateTier: (ids: string[], tier: 'active' | 'reference') => Promise<void>;
+  
+  // Scoring dropdown management
+  updateScoringDropdownOptions: (scoringField: string, options: any[]) => Promise<void>;
 }
 
 const UseCaseContext = createContext<UseCaseContextType | undefined>(undefined);
@@ -481,6 +484,20 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     await bulkUpdateTierMutation.mutateAsync({ ids, tier });
   };
 
+  const updateScoringDropdownOptions = async (scoringField: string, options: any[]): Promise<void> => {
+    if (!metadata) throw new Error('Metadata not loaded');
+    
+    const updatedMetadata = {
+      ...metadata,
+      scoringDropdownOptions: {
+        ...metadata.scoringDropdownOptions,
+        [scoringField]: options
+      }
+    };
+    
+    await updateMetadata(updatedMetadata);
+  };
+
   const value: UseCaseContextType = {
     useCases: Array.isArray(useCases) ? useCases : [],
     dashboardUseCases: Array.isArray(dashboardUseCases) ? dashboardUseCases : [],
@@ -508,7 +525,8 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     activateUseCase,
     deactivateUseCase,
     toggleDashboardVisibility,
-    bulkUpdateTier
+    bulkUpdateTier,
+    updateScoringDropdownOptions
   };
 
   return (
