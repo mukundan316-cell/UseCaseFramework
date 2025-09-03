@@ -276,6 +276,8 @@ export const metadataConfig = pgTable('metadata_config', {
   marketOptions: text('market_options').array().notNull().default(sql`'{"Personal Lines","Commercial Lines","Specialty Lines","Reinsurance"}'`),
   processActivities: text('process_activities').$type<Record<string, string[]> | string>(),
   scoringModel: text('scoring_model').$type<any>(),
+  // Scoring dropdown options for consistent user interpretation
+  scoringDropdownOptions: jsonb('scoring_dropdown_options').$type<Record<string, Array<{value: number, label: string, description: string}>>>(),
   // Custom sort order storage - maps item names to display order indices
   activitiesSortOrder: jsonb('activities_sort_order').$type<Record<string, number>>(),
   processesSortOrder: jsonb('processes_sort_order').$type<Record<string, number>>(),

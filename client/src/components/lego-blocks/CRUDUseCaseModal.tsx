@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
+import { ScoreDropdownLegoBlock } from './ScoreDropdownLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
 import ScoreOverrideLegoBlock from './ScoreOverrideLegoBlock';
 import { UseCase } from '../../types';
@@ -285,37 +286,42 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
   const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore, threshold);
 
-  // SliderField component for scoring interface - now using LEGO component
-  const SliderField = ({ 
+  // DropdownField component for scoring interface - using LEGO dropdown component
+  const DropdownField = ({ 
     field, 
     label, 
-    tooltip, 
-    leftLabel, 
-    rightLabel 
+    tooltip 
   }: { 
     field: keyof typeof scores; 
     label: string; 
     tooltip: string;
-    leftLabel: string;
-    rightLabel: string;
   }) => {
     // Use form.watch to get current value, fallback to scores state
     const currentValue = form.watch(field) ?? scores[field] ?? 3;
     
+    // Get dropdown options from metadata
+    const dropdownOptions = metadata?.scoringDropdownOptions?.[field] || [];
+    
+    // Fallback to basic options if metadata not available
+    const defaultOptions = [
+      {value: 1, label: "1", description: "Lowest"},
+      {value: 2, label: "2", description: "Low"},
+      {value: 3, label: "3", description: "Moderate"},
+      {value: 4, label: "4", description: "High"},
+      {value: 5, label: "5", description: "Highest"}
+    ];
+    
+    const options = dropdownOptions.length > 0 ? dropdownOptions : defaultOptions;
+    
     return (
-      <ScoreSliderLegoBlock
+      <ScoreDropdownLegoBlock
         label={label}
         field={field}
         value={currentValue}
         onChange={(field, value) => handleSliderChange(field as keyof typeof scores, value)}
+        options={options}
         tooltip={tooltip}
-        leftLabel={leftLabel}
-        rightLabel={rightLabel}
-        minValue={1}
-        maxValue={5}
-        disabled={false}
-        showTooltip={true}
-        valueDisplay="inline"
+        valueDisplay="badge"
       />
     );
   };
@@ -1689,80 +1695,60 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Impact Levers</h4>
                 {/* Strategic scoring fields available for all source types */}
                 <>
-                  <SliderField
+                  <DropdownField
                     field="revenueImpact"
                     label="Revenue Impact"
                     tooltip={sliderTooltips.revenueImpact}
-                    leftLabel="Low"
-                    rightLabel="High"
                   />
-                  <SliderField
+                  <DropdownField
                     field="costSavings"
                     label="Cost Savings"
                     tooltip={sliderTooltips.costSavings}
-                    leftLabel="Low"
-                    rightLabel="High"
                   />
                 </>
-                <SliderField
+                <DropdownField
                   field="riskReduction"
                   label="Risk Reduction"
                   tooltip={sliderTooltips.riskReduction}
-                  leftLabel="Low"
-                  rightLabel="High"
                 />
-                <SliderField
+                <DropdownField
                   field="brokerPartnerExperience"
                   label="Broker/Partner Experience"
                   tooltip={sliderTooltips.brokerPartnerExperience}
-                  leftLabel="Low"
-                  rightLabel="High"
                 />
-                <SliderField
+                <DropdownField
                   field="strategicFit"
                   label="Strategic Fit"
                   tooltip={sliderTooltips.strategicFit}
-                  leftLabel="Low"
-                  rightLabel="High"
                 />
               </div>
               {/* Implementation Effort Levers */}
               <div className="space-y-6">
                 <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Implementation Effort Levers</h4>
-                <SliderField
+                <DropdownField
                   field="dataReadiness"
                   label="Data Readiness"
                   tooltip={sliderTooltips.dataReadiness}
-                  leftLabel="Poor"
-                  rightLabel="Excellent"
                 />
-                <SliderField
+                <DropdownField
                   field="technicalComplexity"
                   label="Technical Complexity"
                   tooltip={sliderTooltips.technicalComplexity}
-                  leftLabel="Simple"
-                  rightLabel="Complex"
                 />
-                <SliderField
+                <DropdownField
                   field="changeImpact"
                   label="Change Impact"
                   tooltip={sliderTooltips.changeImpact}
-                  leftLabel="Minimal"
-                  rightLabel="Extensive"
                 />
-                <SliderField
+                <DropdownField
                   field="modelRisk"
                   label="Model Risk"
                   tooltip={sliderTooltips.modelRisk}
-                  leftLabel="Low"
-                  rightLabel="High"
                 />
-                <SliderField
+                <DropdownField
                   field="adoptionReadiness"
                   label="Adoption Readiness"
                   tooltip={sliderTooltips.adoptionReadiness}
-                  leftLabel="Low"
-                  rightLabel="High"
                 />
               </div>
             </div>
