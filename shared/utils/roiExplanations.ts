@@ -27,7 +27,7 @@ export function generateROIExplanation(
     case 'Quick Win':
       return {
         level: 'High ROI',
-        summary: 'High business impact with relatively low implementation effort creates excellent return potential.'
+        summary: 'High business impact with relatively low implementation effort creates excellent return potential.',
         factors: [
           `Strong impact score (${impactScore.toFixed(1)}/5) indicates significant business impact`,
           `Lower effort score (${effortScore.toFixed(1)}/5) means faster, cheaper implementation`,
@@ -69,7 +69,7 @@ export function generateROIExplanation(
     case 'Watchlist':
       return {
         level: 'Poor ROI',
-        summary: 'Low business impact combined with high implementation effort creates poor return prospects.'
+        summary: 'Low business impact combined with high implementation effort creates poor return prospects.',
         factors: [
           `Lower impact score (${impactScore.toFixed(1)}/5) limits business impact creation`,
           `High effort score (${effortScore.toFixed(1)}/5) requires significant resources`,
