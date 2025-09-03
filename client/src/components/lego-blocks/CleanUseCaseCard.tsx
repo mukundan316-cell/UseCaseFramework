@@ -317,7 +317,7 @@ export default function CleanUseCaseCard({
               </div>
 
               {/* Geography & Primary Owner */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-2">
                 {useCase.geography && (
                   <div className="flex items-center text-xs text-green-700">
                     <Building2 className="w-3 h-3 mr-1.5 text-green-600" />
