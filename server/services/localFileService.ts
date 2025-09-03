@@ -174,6 +174,12 @@ export class LocalFileService {
         return null;
       }
       
+      // Check if local_path is valid
+      if (!file.localPath || file.localPath.trim() === '') {
+        console.error(`File ${fileId} has no local path - this file was not properly stored`);
+        throw new Error(`File not found locally - missing local path for file ${fileId}`);
+      }
+      
       // Read file from local storage
       const absolutePath = path.resolve(process.cwd(), file.localPath);
       const buffer = await fs.readFile(absolutePath);
