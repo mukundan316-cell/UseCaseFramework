@@ -934,6 +934,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register presentation routes
   app.use('/api/presentations', presentationRoutes);
 
+  // Presentation file proxy endpoint - handles local file storage and iframe embedding
+  app.get('/api/presentations/proxy/:encodedUrl(*)', async (req, res) => {
+    try {
+      const { encodedUrl } = req.params;
+      const url = decodeURIComponent(encodedUrl);
+      
+      console.log(`📄 Proxying file: ${url}`);
+      
+      // Check if this is a database file URL
+      if (url.startsWith('/api/presentations/files/')) {
+        // Extract file ID from the database URL
+        const fileId = url.replace('/api/presentations/files/', '');
+        console.log(`📄 Local file request: ${fileId}`);
+        
+        // Forward to local file service
+        const { localFileService } = await import('./services/localFileService');
+        const fileData = await localFileService.getFileFromLocal(fileId);
+        
+        if (!fileData) {
+          console.error(`Local file not found: ${fileId}`);
+          return res.status(404).json({ error: 'File not found' });
+        }
+        
+        console.log(`📄 Serving local file via proxy: ${fileData.mimeType}, size: ${fileData.fileSize}`);
+        
+        // Set headers specifically for iframe embedding
+        res.set({
+          'Content-Type': fileData.mimeType || 'application/octet-stream',
+          'Content-Length': fileData.fileSize.toString(),
+          'Cache-Control': 'public, max-age=3600',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET',
+          'Content-Disposition': 'inline'
+          // No X-Frame-Options to allow iframe embedding
+        });
+        
+        // Send the file buffer
+        return res.send(fileData.buffer);
+      }
+      
+      // Only local files are supported now
+      return res.status(400).json({ error: 'Invalid file URL - only database file URLs are supported' });
+      
+    } catch (error) {
+      console.error('Error proxying file:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to serve file', details: error instanceof Error ? error.message : 'Unknown error' });
+      }
+    }
+  });
 
   // Add saved progress endpoints
   app.get('/api/saved-progress', async (req, res) => {
