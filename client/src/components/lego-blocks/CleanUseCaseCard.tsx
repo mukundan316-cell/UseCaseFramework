@@ -4,6 +4,7 @@ import { UseCase } from '../../types';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
 import { getSourceConfig, getSourceBackgroundTint } from '../../utils/sourceColors';
+import { APP_CONFIG } from '@shared/constants/app-config';
 
 interface CleanUseCaseCardProps {
   useCase: UseCase;
@@ -37,16 +38,16 @@ export default function CleanUseCaseCard({
   // DEBUG logging removed after fixing root cause
   const effectiveQuadrant = hasScores ? getEffectiveQuadrant(useCase as any) : '';
   const hasOverrides = hasManualOverrides(useCase as any);
-  const quadrantBorder = hasScores ? getQuadrantColor(effectiveQuadrant as any) : '#3b82f6';
+  const quadrantBorder = hasScores ? getQuadrantColor(effectiveQuadrant as any) : APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.BORDERS.DEFAULT;
   
-  // Map quadrant to Tailwind background classes
+  // Map quadrant to Tailwind background classes using centralized config
   const getQuadrantBgClass = (quadrant: string) => {
     switch (quadrant) {
-      case "Quick Win": return 'bg-green-50';
-      case "Strategic Bet": return 'bg-blue-50';
-      case "Experimental": return 'bg-yellow-50';
-      case "Watchlist": return 'bg-red-50';
-      default: return 'bg-white';
+      case "Quick Win": return APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.QUADRANT_BACKGROUNDS.QUICK_WIN;
+      case "Strategic Bet": return APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.QUADRANT_BACKGROUNDS.STRATEGIC_BET;
+      case "Experimental": return APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.QUADRANT_BACKGROUNDS.EXPERIMENTAL;
+      case "Watchlist": return APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.QUADRANT_BACKGROUNDS.WATCHLIST;
+      default: return APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.QUADRANT_BACKGROUNDS.DEFAULT;
     }
   };
   
@@ -59,46 +60,46 @@ export default function CleanUseCaseCard({
     ? `${getQuadrantBgClass(effectiveQuadrant)} ${sourceBgTint}` 
     : sourceBgTint;
   
-  // Use gray border for AI Inventory, source color for others
+  // Use centralized border colors for AI Inventory, source color for others
   const borderColor = hasScores ? quadrantBorder : 
-    useCase.librarySource === 'ai_inventory' ? '#6b7280' : sourceConfig.borderColor;
+    useCase.librarySource === 'ai_inventory' ? APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.BORDERS.AI_INVENTORY : sourceConfig.borderColor;
 
-  // Helper function to get status pill styling
+  // Helper function to get status pill styling using centralized config
   const getStatusPillStyle = (status: string) => {
     switch (status) {
       case 'Active':
         return { 
-          background: '#059669', 
+          background: APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.AI_INVENTORY_STATUS.ACTIVE, 
           color: 'white',
           icon: Circle
         };
       case 'Proof_of_Concept':
         return { 
-          background: '#2563eb', 
+          background: APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.AI_INVENTORY_STATUS.PROOF_OF_CONCEPT, 
           color: 'white',
           icon: Circle
         };
       case 'Pending_Closure':
         return { 
-          background: '#ea580c', 
+          background: APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.AI_INVENTORY_STATUS.PENDING_CLOSURE, 
           color: 'white',
           icon: Circle
         };
       case 'Obsolete':
         return { 
-          background: '#6b7280', 
+          background: APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.AI_INVENTORY_STATUS.OBSOLETE, 
           color: 'white',
           icon: Circle
         };
       case 'Inactive':
         return { 
-          background: '#9ca3af', 
+          background: APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.AI_INVENTORY_STATUS.INACTIVE, 
           color: 'white',
           icon: Circle
         };
       default:
         return { 
-          background: '#f3f4f6', 
+          background: APP_CONFIG.EXECUTIVE_DASHBOARD.COLORS.AI_INVENTORY_STATUS.DEFAULT, 
           color: '#374151',
           icon: Circle
         };

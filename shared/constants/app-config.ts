@@ -78,6 +78,28 @@ export const APP_CONFIG = {
         WATCHLIST: '#EF4444',
         DEFAULT: '#6B7280',
       },
+      // Quadrant background classes for cards
+      QUADRANT_BACKGROUNDS: {
+        QUICK_WIN: 'bg-green-50',
+        STRATEGIC_BET: 'bg-blue-50',
+        EXPERIMENTAL: 'bg-yellow-50',
+        WATCHLIST: 'bg-red-50',
+        DEFAULT: 'bg-white',
+      },
+      // AI Inventory status colors
+      AI_INVENTORY_STATUS: {
+        ACTIVE: '#059669',
+        PROOF_OF_CONCEPT: '#2563eb',
+        PENDING_CLOSURE: '#ea580c',
+        OBSOLETE: '#6b7280',
+        INACTIVE: '#9ca3af',
+        DEFAULT: '#f3f4f6',
+      },
+      // Common border colors
+      BORDERS: {
+        DEFAULT: '#3b82f6',
+        AI_INVENTORY: '#6b7280',
+      },
     },
   },
 
