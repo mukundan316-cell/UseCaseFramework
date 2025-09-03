@@ -152,7 +152,11 @@ export default function EnhancedMatrixPlot() {
               <p><span className="font-medium">Strategic Position:</span> {data.quadrant}</p>
               <p><span className="font-medium">Business Unit:</span> {data.lob}</p>
               <p><span className="font-medium">Impact/Effort Ratio:</span> {(data.y / Math.max(data.x, 0.1)).toFixed(1)}</p>
-              <p><span className="font-medium">ROI Estimate:</span> {data.y >= 4 && data.x <= 2 ? "High ROI" : data.y >= 3 && data.x <= 3 ? "Medium ROI" : "Standard ROI"}</p>
+              <p><span className="font-medium">ROI Estimate:</span> {(() => {
+                const roiLevel = data.quadrant === 'Quick Win' || data.quadrant === 'Strategic Bet' ? 'High ROI' :
+                               data.quadrant === 'Experimental' ? 'Medium ROI' : 'Poor ROI';
+                return roiLevel;
+              })()}</p>
             </div>
             <div className="flex flex-wrap gap-1 mt-2">
               {data.isHighValue && (

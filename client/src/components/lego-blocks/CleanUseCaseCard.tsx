@@ -397,8 +397,11 @@ export default function CleanUseCaseCard({
                       ? 'bg-yellow-100 text-yellow-800'
                       : 'bg-red-100 text-red-800'
                   }`}>
-                    {effectiveQuadrant === 'Quick Win' || effectiveQuadrant === 'Strategic Bet' ? 'High ROI' :
-                     effectiveQuadrant === 'Experimental' ? 'Medium ROI' : 'Poor ROI'}
+                    {(() => {
+                      const roiLevel = effectiveQuadrant === 'Quick Win' || effectiveQuadrant === 'Strategic Bet' ? 'High ROI' :
+                                     effectiveQuadrant === 'Experimental' ? 'Medium ROI' : 'Poor ROI';
+                      return roiLevel;
+                    })()}
                   </span>
                 </div>
               </div>
