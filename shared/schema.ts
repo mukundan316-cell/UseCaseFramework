@@ -161,11 +161,11 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   finalEffortScore: z.number().optional(),
   finalQuadrant: z.string().optional(),
   
-  linesOfBusiness: z.array(z.string()).optional(),
-  processes: z.array(z.string()).optional(),
-  activities: z.array(z.string()).optional(),
-  businessSegments: z.array(z.string()).optional(),
-  geographies: z.array(z.string()).optional(),
+  linesOfBusiness: z.array(z.string()).nullable().optional(),
+  processes: z.array(z.string()).nullable().optional(),
+  activities: z.array(z.string()).nullable().optional(),
+  businessSegments: z.array(z.string()).nullable().optional(),
+  geographies: z.array(z.string()).nullable().optional(),
   // Boolean fields - simplified to consistent string enums
   isActiveForRsa: z.enum(['true', 'false']).default('false'),
   isDashboardVisible: z.enum(['true', 'false']).default('false'),
@@ -187,9 +187,9 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   estimatedValue: z.union([z.string(), z.null()]).optional(),
   valueMeasurementApproach: z.union([z.string(), z.null()]).optional(),
   integrationRequirements: z.union([z.string(), z.null()]).optional(),
-  aiMlTechnologies: z.array(z.string()).optional(),
-  dataSources: z.array(z.string()).optional(),
-  stakeholderGroups: z.array(z.string()).optional(),
+  aiMlTechnologies: z.array(z.string()).nullable().optional(),
+  dataSources: z.array(z.string()).nullable().optional(),
+  stakeholderGroups: z.array(z.string()).nullable().optional(),
   // AI Inventory Governance Fields - allow null for import compatibility
   customerHarmRisk: z.union([z.string(), z.null()]).optional(),
   aiOrModel: z.union([z.string(), z.null()]).optional(),
@@ -206,14 +206,14 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   aiInventoryStatus: z.union([z.string(), z.null()]).optional(),
   deploymentStatus: z.union([z.string(), z.null()]).optional(),
   // RSA Ethical Principles - simplified to consistent string enums per replit.md
-  explainabilityRequired: z.enum(['true', 'false']).optional(),
-  dataOutsideUkEu: z.enum(['true', 'false']).optional(),
-  thirdPartyModel: z.enum(['true', 'false']).optional(),
-  humanAccountability: z.enum(['true', 'false']).optional(),
+  explainabilityRequired: z.enum(['true', 'false']).nullable().optional(),
+  dataOutsideUkEu: z.enum(['true', 'false']).nullable().optional(),
+  thirdPartyModel: z.enum(['true', 'false']).nullable().optional(),
+  humanAccountability: z.enum(['true', 'false']).nullable().optional(),
   
   // Horizontal Use Case fields - following replit.md string boolean pattern
   horizontalUseCase: z.enum(['true', 'false']).default('false'),
-  horizontalUseCaseTypes: z.array(z.string()).optional(),
+  horizontalUseCaseTypes: z.array(z.string()).nullable().optional(),
   
   // PowerPoint Presentation fields - following replit.md patterns (allow null for compatibility)
   presentationUrl: z.union([z.string(), z.null()]).optional(),
