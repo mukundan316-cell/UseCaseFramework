@@ -14,14 +14,28 @@ import { useToast } from '@/hooks/use-toast';
  * Allows admin users to configure scoring weights and formulas for the RSA AI Framework
  */
 
+interface ScoringLever {
+  key: string;
+  name: string;
+  weight: number;
+}
+
 interface ScoringCategory {
   name: string;
   color: string;
-  levers: Array<{
-    key: string;
-    name: string;
-    weight: number;
-  }>;
+  levers: ScoringLever[];
+}
+
+interface ScoringModel {
+  categories: {
+    businessValue: ScoringCategory;
+    feasibility: ScoringCategory;
+  };
+  formulas: {
+    impactScore: string;
+    effortScore: string;
+    quadrantThreshold: number;
+  };
 }
 
 const DEFAULT_SCORING_MODEL = {
@@ -76,14 +90,14 @@ export default function ScoringModelManagementBlock() {
 
   const [quadrantThreshold, setQuadrantThreshold] = useState(scoringModel.formulas.quadrantThreshold);
 
-  const updateLeverWeight = (categoryKey: string, leverKey: string, newWeight: number) => {
-    setScoringModel(prev => ({
+  const updateLeverWeight = (categoryKey: keyof ScoringModel['categories'], leverKey: string, newWeight: number) => {
+    setScoringModel((prev: ScoringModel) => ({
       ...prev,
       categories: {
         ...prev.categories,
         [categoryKey]: {
           ...prev.categories[categoryKey],
-          levers: prev.categories[categoryKey].levers.map(lever => 
+          levers: prev.categories[categoryKey].levers.map((lever: ScoringLever) => 
             lever.key === leverKey ? { ...lever, weight: newWeight } : lever
           )
         }
@@ -91,18 +105,18 @@ export default function ScoringModelManagementBlock() {
     }));
   };
 
-  const normalizeWeights = (categoryKey: string) => {
+  const normalizeWeights = (categoryKey: keyof ScoringModel['categories']) => {
     const category = scoringModel.categories[categoryKey];
-    const totalWeight = category.levers.reduce((sum, lever) => sum + lever.weight, 0);
+    const totalWeight = category.levers.reduce((sum: number, lever: ScoringLever) => sum + lever.weight, 0);
     
     if (totalWeight === 100) return; // Already normalized
     
-    const normalizedLevers = category.levers.map(lever => ({
+    const normalizedLevers = category.levers.map((lever: ScoringLever) => ({
       ...lever,
       weight: Math.round((lever.weight / totalWeight) * 100)
     }));
     
-    setScoringModel(prev => ({
+    setScoringModel((prev: ScoringModel) => ({
       ...prev,
       categories: {
         ...prev.categories,
@@ -151,8 +165,8 @@ export default function ScoringModelManagementBlock() {
     }
   };
 
-  const getCategoryTotal = (categoryKey: string) => {
-    return scoringModel.categories[categoryKey].levers.reduce((sum, lever) => sum + lever.weight, 0);
+  const getCategoryTotal = (categoryKey: keyof ScoringModel['categories']) => {
+    return scoringModel.categories[categoryKey].levers.reduce((sum: number, lever: ScoringLever) => sum + lever.weight, 0);
   };
 
   return (
@@ -187,7 +201,7 @@ export default function ScoringModelManagementBlock() {
             </TabsList>
 
             <TabsContent value="weights" className="space-y-6">
-              {Object.entries(scoringModel.categories).map(([categoryKey, category]) => (
+              {(Object.entries(scoringModel.categories) as [keyof ScoringModel['categories'], ScoringCategory][]).map(([categoryKey, category]) => (
                 <Card key={categoryKey}>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -200,9 +214,9 @@ export default function ScoringModelManagementBlock() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">Total: {getCategoryTotal(categoryKey)}%</span>
+                        <span className="text-sm">Total: {getCategoryTotal(categoryKey as keyof ScoringModel['categories'])}%</span>
                         <Button 
-                          onClick={() => normalizeWeights(categoryKey)}
+                          onClick={() => normalizeWeights(categoryKey as keyof ScoringModel['categories'])}
                           size="sm" 
                           variant="outline"
                         >
@@ -213,7 +227,7 @@ export default function ScoringModelManagementBlock() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {category.levers.map((lever) => (
+                      {category.levers.map((lever: ScoringLever) => (
                         <div key={lever.key} className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-sm font-medium">{lever.name}</Label>
@@ -222,7 +236,7 @@ export default function ScoringModelManagementBlock() {
                           <input
                             type="range"
                             value={lever.weight}
-                            onChange={(e) => updateLeverWeight(categoryKey, lever.key, parseInt(e.target.value))}
+                            onChange={(e) => updateLeverWeight(categoryKey as keyof ScoringModel['categories'], lever.key, parseInt(e.target.value))}
                             max={100}
                             min={0}
                             step={5}
