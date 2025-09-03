@@ -522,10 +522,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         title: data.title || '',
         description: data.description || '',
         problemStatement: data.problemStatement || '',
-        process: data.process || '',
-        lineOfBusiness: data.lineOfBusiness || '',
-        businessSegment: data.businessSegment || '',
-        geography: data.geography || '',
+        // CONSISTENCY FIX: Map array selections to single fields for Industry Standard compatibility
+        // Following replit.md principle of consistent data handling across source types
+        process: data.processes?.[0] || data.process || '',
+        lineOfBusiness: data.linesOfBusiness?.[0] || data.lineOfBusiness || '',
+        businessSegment: data.businessSegments?.[0] || data.businessSegment || '',
+        geography: data.geographies?.[0] || data.geography || '',
         useCaseType: data.useCaseType || '',
         activity: data.activity || '',
         primaryBusinessOwner: data.primaryBusinessOwner || '',
