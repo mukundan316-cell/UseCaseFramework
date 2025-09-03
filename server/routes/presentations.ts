@@ -84,14 +84,16 @@ router.get('/files/:fileId', async (req, res) => {
     
     console.log(`📄 Serving file: ${fileData.mimeType}, size: ${fileData.fileSize}`);
     
-    // Set appropriate headers for file streaming
+    // Set appropriate headers for file streaming and iframe embedding
     res.set({
       'Content-Type': fileData.mimeType || 'application/octet-stream',
       'Content-Length': fileData.fileSize.toString(),
       'Cache-Control': 'public, max-age=3600',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET',
-      'Content-Disposition': 'inline'
+      'Content-Disposition': 'inline',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'Content-Security-Policy': "frame-ancestors 'self';"
     });
     
     // Send the file buffer
