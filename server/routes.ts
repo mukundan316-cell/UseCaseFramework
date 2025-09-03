@@ -960,15 +960,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         console.log(`📄 Serving local file via proxy: ${fileData.mimeType}, size: ${fileData.fileSize}`);
         
-        // Set headers specifically for iframe embedding
+        // Set headers specifically for iframe embedding with maximum permissiveness
         res.set({
           'Content-Type': fileData.mimeType || 'application/octet-stream',
           'Content-Length': fileData.fileSize.toString(),
           'Cache-Control': 'public, max-age=3600',
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET',
-          'Content-Disposition': 'inline'
-          // No X-Frame-Options to allow iframe embedding
+          'Access-Control-Allow-Methods': '*',
+          'Access-Control-Allow-Headers': '*',
+          'Access-Control-Allow-Credentials': 'false',
+          'Content-Disposition': 'inline',
+          'Cross-Origin-Resource-Policy': 'cross-origin',
+          'Cross-Origin-Embedder-Policy': 'unsafe-none'
+          // No X-Frame-Options or CSP frame-ancestors to allow iframe embedding from any origin
         });
         
         // Send the file buffer
