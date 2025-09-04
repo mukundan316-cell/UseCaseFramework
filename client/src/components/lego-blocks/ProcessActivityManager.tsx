@@ -34,7 +34,20 @@ export function useProcessActivityManager() {
       processActivitiesMap = metadata.processActivities;
     }
     
-    return processActivitiesMap[process] || [];
+    const activities = processActivitiesMap[process] || [];
+    
+    // Apply process-specific sorting if available
+    const processActivitiesSortOrder = metadata?.processActivitiesSortOrder;
+    if (processActivitiesSortOrder && processActivitiesSortOrder[process]) {
+      const sortOrder = processActivitiesSortOrder[process];
+      return activities.sort((a, b) => {
+        const aOrder = sortOrder[a] ?? 999; // Put items without order at end
+        const bOrder = sortOrder[b] ?? 999;
+        return aOrder - bOrder;
+      });
+    }
+    
+    return activities;
   };
 
   /**
@@ -57,10 +70,32 @@ export function useProcessActivityManager() {
       processActivitiesMap = metadata.processActivities;
     }
     
-    // Aggregate activities from all selected processes
-    const allActivities = processes.flatMap(process => processActivitiesMap[process] || []);
-    // Remove duplicates and maintain sort order
-    return sortedMetadata.getSortedItems('activities', Array.from(new Set(allActivities)));
+    // Get process-specific sort orders
+    const processActivitiesSortOrder = metadata?.processActivitiesSortOrder;
+    
+    // Aggregate activities from all selected processes with their individual sort orders
+    const activitiesWithOrder: Array<{activity: string, order: number, process: string}> = [];
+    
+    processes.forEach(process => {
+      const processActivities = processActivitiesMap[process] || [];
+      const sortOrder = processActivitiesSortOrder?.[process] || {};
+      
+      processActivities.forEach(activity => {
+        // Only add if not already in list (avoid duplicates)
+        if (!activitiesWithOrder.some(item => item.activity === activity)) {
+          activitiesWithOrder.push({
+            activity,
+            order: sortOrder[activity] ?? 999,
+            process
+          });
+        }
+      });
+    });
+    
+    // Sort by order and return just the activity names
+    return activitiesWithOrder
+      .sort((a, b) => a.order - b.order)
+      .map(item => item.activity);
   };
 
   /**
