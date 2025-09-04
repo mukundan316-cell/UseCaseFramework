@@ -281,6 +281,8 @@ export const metadataConfig = pgTable('metadata_config', {
   dataSourcesSortOrder: jsonb('data_sources_sort_order').$type<Record<string, number>>(),
   stakeholderGroupsSortOrder: jsonb('stakeholder_groups_sort_order').$type<Record<string, number>>(),
   quadrantsSortOrder: jsonb('quadrants_sort_order').$type<Record<string, number>>(),
+  // Process-specific activity sort order - nested structure for per-process activity ordering
+  processActivitiesSortOrder: jsonb('process_activities_sort_order').$type<Record<string, Record<string, number>>>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 

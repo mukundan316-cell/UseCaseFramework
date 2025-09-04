@@ -610,6 +610,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PUT /api/metadata/process-activities/:processName/reorder - Update activity sort order for specific process
+  app.put("/api/metadata/process-activities/:processName/reorder", async (req, res) => {
+    try {
+      const { processName } = req.params;
+      const { orderedActivities } = req.body;
+      
+      // Validation
+      if (!Array.isArray(orderedActivities)) {
+        return res.status(400).json({ error: "orderedActivities must be an array" });
+      }
+      
+      if (!processName || processName.trim() === '') {
+        return res.status(400).json({ error: "Process name is required" });
+      }
+      
+      const decodedProcessName = decodeURIComponent(processName);
+      const updated = await storage.updateProcessActivitySortOrder(decodedProcessName, orderedActivities);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating process activity sort order:", error);
+      res.status(500).json({ error: "Failed to update process activity sort order" });
+    }
+  });
+
   // PUT /api/metadata/:category/:oldItem - Edit metadata item in place
   app.put("/api/metadata/:category/:oldItem", async (req, res) => {
     try {

@@ -596,6 +596,37 @@ export class DatabaseStorage implements IStorage {
     return await this.updateMetadataConfig(updatedConfig);
   }
 
+  async updateProcessActivitySortOrder(processName: string, orderedActivities: string[]): Promise<MetadataConfig> {
+    const currentConfig = await this.getMetadataConfig();
+    
+    if (!currentConfig) {
+      throw new Error('Metadata config not found');
+    }
+
+    // Get current process-specific sort orders or initialize empty
+    const currentProcessSortOrders = currentConfig.processActivitiesSortOrder || {};
+    
+    // Create sort order mapping for this process: activity name -> index
+    const processSortOrder: Record<string, number> = {};
+    orderedActivities.forEach((activity, index) => {
+      processSortOrder[activity] = index;
+    });
+
+    // Update the nested structure
+    const updatedProcessSortOrders = {
+      ...currentProcessSortOrders,
+      [processName]: processSortOrder
+    };
+
+    // Update the configuration with new process-specific sort order
+    const updatedConfig = {
+      ...currentConfig,
+      processActivitiesSortOrder: updatedProcessSortOrders
+    };
+    
+    return await this.updateMetadataConfig(updatedConfig);
+  }
+
   // ==================================================================================
   // RESPONSE SESSION MANAGEMENT (BLOB STORAGE QUESTIONNAIRES)
   // ==================================================================================
