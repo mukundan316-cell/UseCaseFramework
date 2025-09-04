@@ -502,6 +502,67 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     }
   }, [form.watch('librarySource'), activeTab]);
 
+  // Helper function to reset form to clean defaults
+  const resetFormToDefaults = () => {
+    // Reset all state to defaults
+    setIsOverrideEnabled(false);
+    setActiveTab('basic');
+    setRsaSelection({
+      isActiveForRsa: 'false',
+      isDashboardVisible: 'false',
+      libraryTier: 'reference',
+      activationReason: '',
+      deactivationReason: '',
+    });
+    setScores({
+      revenueImpact: 3,
+      costSavings: 3,
+      riskReduction: 3,
+      brokerPartnerExperience: 3,
+      strategicFit: 3,
+      dataReadiness: 3,
+      technicalComplexity: 3,
+      changeImpact: 3,
+      modelRisk: 3,
+      adoptionReadiness: 3,
+    });
+
+    const defaultData = {
+      title: '',
+      description: '',
+      problemStatement: '',
+      useCaseType: '',
+      librarySource: 'rsa_internal',
+      processes: [],
+      activities: [],
+      linesOfBusiness: [],
+      businessSegments: [],
+      geographies: [],
+      isActiveForRsa: 'false',
+      isDashboardVisible: 'false',
+      libraryTier: 'reference',
+      activationReason: '',
+      primaryBusinessOwner: '',
+      useCaseStatus: 'Discovery',
+      keyDependencies: '',
+      implementationTimeline: '',
+      successMetrics: '',
+      estimatedValue: '',
+      valueMeasurementApproach: '',
+      integrationRequirements: '',
+      aiMlTechnologies: [],
+      dataSources: [],
+      stakeholderGroups: [],
+      horizontalUseCase: 'false' as 'true' | 'false',
+      horizontalUseCaseTypes: [],
+      presentationUrl: '',
+      presentationPdfUrl: '',
+      presentationFileName: '',
+      ...scores,
+    };
+    form.reset(defaultData);
+  };
+
   const onSubmit = async (data: FormData) => {
     try {
       
@@ -667,6 +728,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           title: "Use case updated successfully",
           description: `"${sanitizedData.title}" has been updated. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
+        
+        // Reset form state to defaults after successful operation
+        resetFormToDefaults();
       } else {
         
         // Apply same data transformations for create mode
@@ -737,6 +801,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           description: `"${sanitizedData.title}" has been added. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
       }
+      
+      // Reset form state to defaults after successful operation
+      resetFormToDefaults();
+      
       // Close modal after successful save
       onClose();
     } catch (error) {
