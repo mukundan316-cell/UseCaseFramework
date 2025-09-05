@@ -82,8 +82,13 @@ export class ExcelImportService {
     };
 
     try {
-      // Parse Excel file
-      const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+      // Parse Excel file with proper encoding options
+      const workbook = XLSX.read(fileBuffer, { 
+        type: 'buffer',
+        codepage: 65001, // UTF-8 encoding
+        cellText: true,   // Preserve text formatting
+        cellDates: true   // Handle dates properly
+      });
       
       
       // Process different worksheets
@@ -253,7 +258,11 @@ export class ExcelImportService {
     if (!workbook.Sheets[sheetName]) return [];
 
     const sheet = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+    const data = XLSX.utils.sheet_to_json(sheet, { 
+      header: 1,
+      raw: false,     // Parse strings instead of raw cell values
+      defval: null    // Use null for empty cells instead of undefined
+    }) as any[][];
     
     if (data.length < 2) return []; // No data rows
 
@@ -291,7 +300,11 @@ export class ExcelImportService {
     if (!workbook.Sheets[sheetName]) return [];
 
     const sheet = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+    const data = XLSX.utils.sheet_to_json(sheet, { 
+      header: 1,
+      raw: false,     // Parse strings instead of raw cell values
+      defval: null    // Use null for empty cells instead of undefined
+    }) as any[][];
     
     if (data.length < 2) return [];
 
@@ -329,7 +342,11 @@ export class ExcelImportService {
     if (!workbook.Sheets[sheetName]) return [];
 
     const sheet = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+    const data = XLSX.utils.sheet_to_json(sheet, { 
+      header: 1,
+      raw: false,     // Parse strings instead of raw cell values
+      defval: null    // Use null for empty cells instead of undefined
+    }) as any[][];
     
     if (data.length < 2) return [];
 
@@ -370,9 +387,19 @@ export class ExcelImportService {
       }
       
       const index = headers.findIndex(h => h === columnName);
-      const value = index >= 0 ? row[index] : undefined;
-      // Convert empty strings to null for proper validation
-      return value === '' ? null : value;
+      let value = index >= 0 ? row[index] : undefined;
+      
+      // Handle empty strings and null values appropriately
+      if (value === '' || value === undefined) {
+        return null; // Convert empty strings and undefined to null
+      }
+      
+      // Apply character encoding fixes to string values
+      if (typeof value === 'string') {
+        value = this.fixCharacterEncoding(value);
+      }
+      
+      return value;
     };
 
     // Special function to get Use Case ID for matching purposes (even though it's system-managed)
@@ -430,19 +457,19 @@ export class ExcelImportService {
         // Skip: finalImpactScore, finalEffortScore, finalQuadrant (calculated fields)
         overrideReason: getValue('Override Reason') || null,
         
-        // Business impact scores (1-5) - convert null to undefined for schema compatibility
-        revenueImpact: ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')) ?? undefined,
-        costSavings: ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')) ?? undefined,
-        riskReduction: ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')) ?? undefined,
-        brokerPartnerExperience: ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')) ?? undefined,
-        strategicFit: ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')) ?? undefined,
+        // Business impact scores (1-5) - allow null for "not yet assessed"
+        revenueImpact: ExcelImportService.parseNumber(getValue('Revenue Impact (1-5)')),
+        costSavings: ExcelImportService.parseNumber(getValue('Cost Savings (1-5)')),
+        riskReduction: ExcelImportService.parseNumber(getValue('Risk Reduction (1-5)')),
+        brokerPartnerExperience: ExcelImportService.parseNumber(getValue('Broker Partner Experience (1-5)')),
+        strategicFit: ExcelImportService.parseNumber(getValue('Strategic Fit (1-5)')),
         
-        // Implementation effort scores (1-5) - convert null to undefined for schema compatibility
-        dataReadiness: ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')) ?? undefined,
-        technicalComplexity: ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')) ?? undefined,
-        changeImpact: ExcelImportService.parseNumber(getValue('Change Impact (1-5)')) ?? undefined,
-        modelRisk: ExcelImportService.parseNumber(getValue('Model Risk (1-5)')) ?? undefined,
-        adoptionReadiness: ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')) ?? undefined,
+        // Implementation effort scores (1-5) - allow null for "not yet assessed"
+        dataReadiness: ExcelImportService.parseNumber(getValue('Data Readiness (1-5)')),
+        technicalComplexity: ExcelImportService.parseNumber(getValue('Technical Complexity (1-5)')),
+        changeImpact: ExcelImportService.parseNumber(getValue('Change Impact (1-5)')),
+        modelRisk: ExcelImportService.parseNumber(getValue('Model Risk (1-5)')),
+        adoptionReadiness: ExcelImportService.parseNumber(getValue('Adoption Readiness (1-5)')),
         
         // Implementation details
         primaryBusinessOwner: getValue('Primary Business Owner') || null,
@@ -466,7 +493,7 @@ export class ExcelImportService {
         dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')) || 'false',
         thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')) || 'false',
         humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
-        regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) ?? undefined,
+        regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')),
         
         // Multi-select array fields - updated column names to match export
         linesOfBusiness: safeArrayParse(getValue('Lines of Business')),
@@ -532,7 +559,7 @@ export class ExcelImportService {
         dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')) || 'false',
         thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')) || 'false',
         humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
-        regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')) ?? undefined,
+        regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')),
         finalQuadrant: 'Not Scored',
         
         // AI Inventory specific fields
@@ -568,6 +595,99 @@ export class ExcelImportService {
   }
 
   /**
+   * Apply smart defaults for required business context fields
+   */
+  private static applyRequiredDefaults(useCaseData: any): any {
+    const enhanced = { ...useCaseData };
+    
+    // Apply smart defaults only for AI Inventory items with truly empty fields
+    const isAIInventory = enhanced.librarySource === 'ai_inventory';
+    
+    if (isAIInventory) {
+      // Process field - default to "General" if empty
+      if (!enhanced.processes || enhanced.processes.length === 0) {
+        enhanced.processes = ['General'];
+      }
+      
+      // Lines of Business - default to "Cross-functional" if empty
+      if (!enhanced.linesOfBusiness || enhanced.linesOfBusiness.length === 0) {
+        enhanced.linesOfBusiness = ['Cross-functional'];
+      }
+    }
+    
+    // Business Segment - default to "All Segments" if empty (for all types)
+    if (!enhanced.businessSegments || enhanced.businessSegments.length === 0) {
+      enhanced.businessSegments = ['All Segments'];
+    }
+    
+    // Geography - default to "UK" if empty (for all types)
+    if (!enhanced.geographies || enhanced.geographies.length === 0) {
+      enhanced.geographies = ['UK'];
+    }
+    
+    return enhanced;
+  }
+
+  /**
+   * Fix character encoding issues from Excel
+   */
+  private static fixCharacterEncoding(text: string): string {
+    if (typeof text !== 'string') return text;
+    
+    return text
+      .replace(/â€"/g, '-')     // em dash
+      .replace(/â€™/g, "'")     // right single quotation mark
+      .replace(/â€œ/g, '"')     // left double quotation mark
+      .replace(/â€/g, '"')      // right double quotation mark
+      .replace(/â€¦/g, '...')   // horizontal ellipsis
+      .replace(/â€¢/g, '•')     // bullet
+      .replace(/â‚¬/g, '€')     // euro sign
+      .replace(/Â/g, '')        // non-breaking space artifacts
+      .replace(/â/g, '')        // common encoding artifact
+      .trim();
+  }
+
+  /**
+   * Enforce field length limits with truncation
+   */
+  private static enforceFieldLengths(useCaseData: any): any {
+    const enhanced = { ...useCaseData };
+    
+    // Title: max 100 characters
+    if (enhanced.title && enhanced.title.length > 100) {
+      console.warn(`Truncating title for "${enhanced.title.substring(0, 30)}..." (was ${enhanced.title.length} chars)`);
+      enhanced.title = enhanced.title.substring(0, 97) + '...';
+    }
+    
+    // Description: max 500 characters
+    if (enhanced.description && enhanced.description.length > 500) {
+      console.warn(`Truncating description for "${enhanced.title || 'Unknown'}" (was ${enhanced.description.length} chars)`);
+      enhanced.description = enhanced.description.substring(0, 497) + '...';
+    }
+    
+    return enhanced;
+  }
+
+  /**
+   * Sanitize and process text fields
+   */
+  private static sanitizeTextFields(useCaseData: any): any {
+    const enhanced = { ...useCaseData };
+    
+    // Apply character encoding fixes to text fields
+    const textFields = ['title', 'description', 'problemStatement', 'primaryBusinessOwner', 
+                       'keyDependencies', 'implementationTimeline', 'successMetrics'];
+    
+    textFields.forEach(field => {
+      if (enhanced[field] && typeof enhanced[field] === 'string') {
+        enhanced[field] = this.fixCharacterEncoding(enhanced[field]);
+      }
+    });
+    
+    return enhanced;
+  }
+
+  /**
    * Validate use cases against the same schema used by storage layer
    * Ensures consistency between Excel validation and actual storage requirements
    */
@@ -589,9 +709,14 @@ export class ExcelImportService {
         delete cleanedData.effortScore;
         delete cleanedData.quadrant;
         
+        // Apply preprocessing steps
+        let processedData = this.sanitizeTextFields(cleanedData);
+        processedData = this.enforceFieldLengths(processedData);
+        processedData = this.applyRequiredDefaults(processedData);
+        
         // Use the same insertUseCaseSchema as storage layer for consistency
         // This follows replit.md principles: "Schema Reuse: Never duplicate validation logic"
-        const validatedUseCase = insertUseCaseSchema.parse(cleanedData);
+        const validatedUseCase = insertUseCaseSchema.parse(processedData);
         validated.push(validatedUseCase);
       } catch (error) {
         if (error instanceof z.ZodError) {
