@@ -1,7 +1,17 @@
 # RSA AI Use Case Value Framework - Complete Help Guide
 
 ## Overview
-The RSA AI Use Case Value Framework is a production-ready platform that prioritizes AI use cases using a sophisticated 10-lever scoring system, executive analytics, and comprehensive data management capabilities.
+The RSA AI Use Case Value Framework is a production-ready strategic platform designed to prioritize AI use cases within RSA Insurance. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform streamlines the prioritization process, offers robust data management, and provides clear insights for decision-making, ultimately enhancing RSA's AI strategy and market potential.
+
+### Platform Capabilities
+- **10-Lever Scoring Framework**: Sophisticated evaluation across business impact and implementation effort dimensions
+- **Executive Analytics Dashboard**: Interactive matrix plots with quadrant-based ROI analysis
+- **T-shirt Sizing System**: UK benchmark-compliant cost and timeline estimation
+- **AI Inventory Integration**: Full governance tracking with 82 records (25 strategic + 57 AI tools)
+- **Assessment Platform**: Multi-section questionnaires with 25+ advanced question types
+- **Manual Override System**: Flexible scoring adjustments with comprehensive audit trails
+- **User Feedback Integration**: Continuous improvement through contextual feedback collection
+- **LEGO Component Architecture**: Rationalized, reusable components with 60% maintenance reduction
 
 ## Value Framework & Scoring System
 
@@ -61,6 +71,82 @@ The framework evaluates use cases across two dimensions using 10 levers with con
    - Change management needs
    - Cultural fit assessment
 
+### Detailed Scoring Guidelines
+
+#### Business Impact Levers (1-5 Scale)
+
+**1. Revenue Impact**
+- **1 (Low)**: Minimal revenue impact (<£100k annually)
+- **2**: Small revenue potential (£100k-500k)
+- **3**: Moderate revenue opportunity (£500k-2M)
+- **4**: Significant revenue impact (£2M-5M)
+- **5 (High)**: Transformational revenue potential (>£5M)
+
+**2. Cost Savings**
+- **1 (Low)**: Negligible cost reduction (<£50k annually)
+- **2**: Minor operational savings (£50k-250k)
+- **3**: Moderate efficiency gains (£250k-1M)
+- **4**: Substantial cost reduction (£1M-3M)
+- **5 (High)**: Major cost transformation (>£3M)
+
+**3. Risk Reduction**
+- **1 (Low)**: No material risk mitigation
+- **2**: Addresses minor compliance/operational risks
+- **3**: Reduces moderate regulatory/financial exposure
+- **4**: Significantly improves risk profile
+- **5 (High)**: Eliminates critical business risks
+
+**4. Broker/Partner Experience**
+- **1 (Low)**: No noticeable improvement
+- **2**: Minor convenience improvements
+- **3**: Moderate enhancement to partner workflows
+- **4**: Significant improvement in partner satisfaction
+- **5 (High)**: Game-changing partner experience
+
+**5. Strategic Fit**
+- **1 (Low)**: Peripheral to business strategy
+- **2**: Loosely aligned with strategic goals
+- **3**: Supports core strategic initiatives
+- **4**: Critical enabler of strategic objectives
+- **5 (High)**: Essential to strategic transformation
+
+#### Implementation Effort Levers (1-5 Scale)
+
+**1. Data Readiness**
+- **1 (Poor)**: Data doesn't exist or is inaccessible
+- **2**: Data exists but requires major cleaning/preparation
+- **3**: Data available with moderate preparation needed
+- **4**: Good quality data, minor preparation required
+- **5 (Excellent)**: Clean, accessible, ready-to-use data
+
+**2. Technical Complexity**
+- **1 (Simple)**: Standard tools, proven approaches
+- **2**: Minor technical challenges
+- **3**: Moderate complexity, some custom development
+- **4**: Complex integration, significant development
+- **5 (Complex)**: Cutting-edge tech, major R&D required
+
+**3. Change Impact**
+- **1 (Minimal)**: No process changes required
+- **2**: Minor adjustments to existing workflows
+- **3**: Moderate process redesign needed
+- **4**: Significant organizational change
+- **5 (Extensive)**: Complete transformation required
+
+**4. Model Risk**
+- **1 (Low)**: Simple rules-based system
+- **2**: Well-understood ML models
+- **3**: Moderate model complexity
+- **4**: Complex models with explainability challenges
+- **5 (High)**: Black-box AI with regulatory concerns
+
+**5. Adoption Readiness**
+- **1 (Low)**: Strong resistance expected
+- **2**: Significant change management needed
+- **3**: Moderate user training required
+- **4**: Users receptive with minimal training
+- **5 (High)**: Eager adoption, minimal barriers
+
 ### Scoring Logic
 
 #### Calculation Process:
@@ -75,35 +161,143 @@ Impact Score = Σ(Business Impact Lever × Weight) / 100
 Effort Score = Σ(Implementation Effort Lever × Weight) / 100
 ```
 
+**Note**: Higher Effort scores indicate HIGHER complexity (harder to implement)
+
 #### Manual Override System:
 - **Effective Scoring**: System calculates "effective" scores using overrides when present
 - **Override Logic**: `effectiveScore = manualScore ?? calculatedScore`
-- **Reason Tracking**: All overrides require justification
+- **Reason Tracking**: All overrides require justification for audit compliance
+
+## Understanding the Prioritization Matrix
+
+The framework uses a 2x2 matrix to classify AI use cases based on two dimensions:
+
+```
+         High Business Value
+                ↑
+    ┌──────────────┬──────────────┐
+    │              │              │
+    │  QUICK WIN   │ STRATEGIC BET│
+    │              │              │
+    ├──────────────┼──────────────┤
+    │              │              │
+    │ EXPERIMENTAL │  WATCHLIST   │
+    │              │              │
+    └──────────────┴──────────────┘
+    Low ← Implementation Complexity → High
+```
+
+- **Y-Axis**: Business Impact (Impact Score) - Higher is better
+- **X-Axis**: Implementation Complexity (Effort Score) - Lower is better (left = easy, right = hard)
 
 ### Quadrant System
 
 Uses configurable threshold (default: 3.0) to categorize use cases:
 
-#### Quadrant Definitions:
-- **Quick Win** (Green): High Impact (≥3.0) + Low Effort (<3.0)
-  - High business value with minimal implementation effort
-  - Recommended for immediate prioritization
-  - Typical ROI timeframe: 3-9 months
+#### 🔴 Quick Win (High Value, Low Complexity)
+**Characteristics:**
+- Impact Score ≥ threshold
+- Effort Score < threshold
+- Fast ROI, minimal resources
 
-- **Strategic Bet** (Blue): High Impact (≥3.0) + High Effort (≥3.0)
-  - Significant long-term value justifying higher investment
-  - Requires careful planning and adequate resources
-  - Typical ROI timeframe: 12-24 months
+**Action Plan:**
+- Prioritize for immediate implementation
+- Allocate resources immediately
+- Use as proof points for AI strategy
+- Target 3-6 month delivery
 
-- **Experimental** (Yellow): Low Impact (<3.0) + Low Effort (<3.0)
-  - Suitable for learning and capability building
-  - Good for skill development initiatives
-  - Typical ROI timeframe: 6-12 months with learning benefits
+**Example Use Cases:**
+- Automated quote generation
+- Simple claims triage
+- Document classification
 
-- **Watchlist** (Red): Low Impact (<3.0) + High Effort (≥3.0)
-  - Poor return prospects
-  - Should be deprioritized or re-scoped
-  - Consider alternative approaches
+#### 🔵 Strategic Bet (High Value, High Complexity)
+**Characteristics:**
+- Impact Score ≥ threshold
+- Effort Score ≥ threshold
+- Transformational but resource-intensive
+
+**Action Plan:**
+- Plan carefully with phased approach
+- Secure executive sponsorship
+- Build dedicated team
+- Consider POC/pilot first
+- 6-18 month timeline
+
+**Example Use Cases:**
+- End-to-end underwriting automation
+- Complex fraud detection system
+- Predictive risk modeling platform
+
+#### 🟡 Experimental (Low Value, Low Complexity)
+**Characteristics:**
+- Impact Score < threshold
+- Effort Score < threshold
+- Easy to try but uncertain value
+
+**Action Plan:**
+- Test with minimal investment
+- Use for learning and capability building
+- Time-box experiments (1-3 months)
+- Fail fast or scale if successful
+
+**Example Use Cases:**
+- Chatbot for internal FAQs
+- Simple sentiment analysis
+- Basic data visualization tools
+
+#### 🔴 Watchlist (Low Value, High Complexity)
+**Characteristics:**
+- Impact Score < threshold
+- Effort Score ≥ threshold
+- High effort with questionable returns
+
+**Action Plan:**
+- Defer or avoid
+- Monitor for changing conditions
+- Revisit if business case improves
+- Consider simpler alternatives
+
+**Example Use Cases:**
+- Complex AI with limited use cases
+- Over-engineered solutions
+- Technology-first initiatives without clear value
+
+## Threshold Settings Guide
+
+The threshold value (1-5 scale) determines quadrant boundaries:
+
+### Conservative Approach (Threshold: 4.0-4.5)
+**Use when:** Resources are limited, risk tolerance is low
+**Result:** Only highest-value, lowest-risk initiatives proceed
+**Pros:** Focus on sure wins
+**Cons:** May miss innovative opportunities
+
+### Balanced Approach (Threshold: 2.5-3.5)
+**Use when:** Balanced portfolio desired
+**Result:** Mix of quick wins and strategic initiatives
+**Pros:** Diversified approach
+**Cons:** Resources spread across multiple initiatives
+
+### Aggressive Approach (Threshold: 1.5-2.0)
+**Use when:** Innovation is priority, resources available
+**Result:** More initiatives classified as high-value
+**Pros:** Accelerated transformation
+**Cons:** Higher risk, resource strain
+
+## Portfolio Distribution Guidelines
+
+### Healthy Portfolio Signs:
+- **20-30% Quick Wins** (momentum builders)
+- **30-40% Strategic Bets** (transformation drivers)
+- **20-30% Experimental** (innovation pipeline)
+- **<20% Watchlist** (minimize wasted effort)
+
+### Warning Signs:
+- **50% in Watchlist** = Poor use case selection
+- **No Quick Wins** = Lack of momentum
+- **All Strategic Bets** = Resource overload risk
+- **Only Experimental** = Lack of strategic focus
 
 ## T-shirt Sizing System
 
@@ -308,6 +502,68 @@ const effectiveQuadrant = useCase.manualQuadrant ??
 - **Comprehensive Reports**: Full assessment results with recommendations
 - **Executive Summaries**: High-level overview for stakeholder communication
 
+## User Feedback System
+
+### Continuous Improvement Integration
+The platform includes a comprehensive feedback collection system that captures user input to improve accuracy and relevance:
+
+#### T-shirt Sizing Feedback:
+- **Context Capture**: Records current size, cost range, and timeline estimates
+- **User Suggestions**: Allows users to propose alternative sizing
+- **API Integration**: `/api/feedback` endpoint for structured data collection
+- **Improvement Loop**: Feedback informs future sizing algorithm refinements
+
+#### Feedback Data Structure:
+```json
+{
+  "useCaseId": "unique-identifier",
+  "useCaseTitle": "Use case name",
+  "currentTShirtSize": "M",
+  "currentCostRange": "£50k-£150k",
+  "currentTimeline": "12-16 weeks",
+  "feedback": "User feedback text",
+  "suggestedSize": "S",
+  "userEmail": "user@rsa.com",
+  "timestamp": "2025-01-01T10:00:00Z"
+}
+```
+
+## Enhanced Features
+
+### Bubble Sizing Optimization
+The executive analytics matrix plot uses optimized bubble sizing for better visualization:
+- **Size Range**: 3-8px for subtle proportional representation
+- **Scaling Logic**: Moderate exponential curve (power 1.3) for realistic scaling
+- **Impact Correlation**: Bubble size proportional to business impact level
+- **Visual Clarity**: Enhanced distinction without overwhelming the interface
+
+### Horizontal Use Case Tracking
+The platform now supports cross-functional use case identification:
+- **Horizontal Classification**: Boolean flag for multi-department use cases
+- **Type Categorization**: Array field for horizontal use case types
+- **Enhanced Filtering**: Improved search and categorization capabilities
+- **Cross-functional Visibility**: Better tracking of shared initiatives
+
+### LEGO Component Enhancements
+Streamlined component architecture with 60% maintenance reduction:
+
+#### SmartRatingLegoBlock (5 variants):
+- **Descriptive**: Text-based rating scales
+- **Stars**: Visual star rating system
+- **Maturity**: Capability maturity assessments
+- **Capability**: Technical capability ratings
+- **Slider**: Interactive slider controls
+
+#### UnifiedValueInputLegoBlock (3 variants):
+- **Currency**: Monetary value inputs with GBP formatting
+- **Percentage Allocation**: 100% constraint validation
+- **Percentage Target**: Unconstrained percentage inputs
+
+#### ConfigurationToggleLegoBlock (3 variants):
+- **Standard**: Basic toggle functionality
+- **With Reason**: Toggle requiring justification
+- **Confirmation**: Toggle with confirmation dialog
+
 ## Performance & Optimization
 
 ### Current Optimizations:
@@ -315,6 +571,8 @@ const effectiveQuadrant = useCase.manualQuadrant ??
 - **Debounced Search**: 300ms delay for improved user experience
 - **Optimized Bubble Rendering**: Efficient chart rendering with configurable scaling
 - **Component Rationalization**: 60% maintenance overhead reduction
+- **Progressive Disclosure**: Hover tooltips for calculation transparency
+- **Responsive Design**: Optimal performance across device types
 
 ### Performance Configuration:
 ```typescript
@@ -323,6 +581,9 @@ UX: {
   DEBOUNCE_DELAY: 300,        // Search/filter debouncing
   ANIMATION_DURATION: 200,     // Smooth transitions
   TOOLTIP_DELAY: 500,         // Tooltip display timing
+  MIN_BUBBLE_SIZE: 3,         // Matrix plot bubble minimum
+  MAX_BUBBLE_SIZE: 8,         // Matrix plot bubble maximum
+  BUBBLE_SCALE_POWER: 1.3,    // Exponential scaling factor
 }
 ```
 
@@ -342,23 +603,52 @@ UX: {
 
 ## Best Practices
 
+### Scoring Best Practices
+
+#### DO's:
+✅ **Gather cross-functional input** - Include IT, business, risk, and compliance perspectives
+✅ **Use data where possible** - Support scores with metrics and benchmarks
+✅ **Consider total cost** - Include ongoing maintenance, not just implementation
+✅ **Think long-term** - Consider 3-5 year value, not just immediate impact
+✅ **Review regularly** - Reassess scores quarterly as conditions change
+✅ **Document assumptions** - Record reasoning for future reference
+
+#### DON'Ts:
+❌ **Score in isolation** - Avoid single person scoring
+❌ **Ignore dependencies** - Consider impact on other systems
+❌ **Overestimate benefits** - Be realistic about achievable value
+❌ **Underestimate complexity** - Include all aspects of implementation
+❌ **Set and forget** - Scores should evolve with learning
+
 ### Configuration Management:
 1. **Use Centralized Config**: Leverage `app-config.ts` for consistent settings
 2. **Test Configuration Changes**: Validate metadata changes before deployment
 3. **Document Custom Weights**: Maintain rationale for custom scoring weights
 4. **Regular Review Cycles**: Periodic assessment of threshold and weight effectiveness
 
-### Scoring Best Practices:
-1. **Consistent Application**: Apply scoring criteria uniformly across use cases
-2. **Stakeholder Alignment**: Ensure scoring reflects organizational priorities
-3. **Regular Calibration**: Review and adjust weights based on outcomes
-4. **Override Justification**: Always document reasons for manual overrides
+### Quarterly Review Process
+1. **Review existing scores** - Have conditions changed?
+2. **Assess completed initiatives** - Were scores accurate?
+3. **Adjust threshold if needed** - Based on resource availability
+4. **Rebalance portfolio** - Ensure healthy distribution
+5. **Update stakeholders** - Communicate changes and rationale
 
 ### Assessment Best Practices:
 1. **Regular Assessment Updates**: Keep organizational maturity assessments current
 2. **Multi-stakeholder Input**: Involve diverse perspectives in assessments
 3. **Action Planning**: Convert assessment results into actionable improvement plans
 4. **Progress Tracking**: Monitor capability development over time
+5. **Feedback Integration**: Leverage user feedback for continuous improvement
+
+## Quick Reference Scoring Card
+
+| Score | Business Value | Implementation Ease |
+|-------|----------------|--------------------|
+| **5** | Game-changing impact | Plug-and-play solution |
+| **4** | Significant value | Straightforward implementation |
+| **3** | Moderate benefit | Average complexity |
+| **2** | Limited value | Challenging implementation |
+| **1** | Minimal impact | Very difficult/risky |
 
 ## Troubleshooting
 
@@ -367,13 +657,28 @@ UX: {
 2. **T-shirt Sizing Errors**: Validate mapping rules and size definitions
 3. **PDF Generation Problems**: Ensure client-side generation is enabled
 4. **Import Failures**: Verify Excel field mappings and data formats
+5. **Feedback Submission Issues**: Check API endpoint availability and data validation
+6. **Bubble Chart Display Problems**: Verify bubble sizing configuration and data ranges
 
 ### Support Resources:
 - **Configuration Validation**: Built-in validation for metadata changes
 - **Error Messaging**: Detailed error descriptions and resolution guidance
 - **Audit Logs**: Comprehensive logging for troubleshooting
 - **Admin Tools**: Built-in diagnostic and maintenance utilities
+- **User Feedback System**: Continuous improvement through user input collection
+- **Performance Monitoring**: Real-time performance tracking and optimization
+
+## Key Reminders
+
+> **Remember**: The goal is not to have all use cases as Quick Wins, but to build a balanced portfolio that delivers both immediate value and long-term transformation.
+
+### Success Indicators:
+- **Balanced Portfolio Distribution**: Healthy mix across all quadrants
+- **Regular Score Calibration**: Quarterly reviews and adjustments
+- **Stakeholder Alignment**: Consistent scoring across teams
+- **Continuous Improvement**: Active use of feedback systems
+- **Strategic Focus**: Clear connection between scores and business objectives
 
 ---
 
-*This guide covers the complete functionality of the RSA AI Use Case Value Framework. For technical implementation details, refer to the codebase documentation and API specifications.*
+*This comprehensive guide covers the complete functionality of the RSA AI Use Case Value Framework, including all recent enhancements and best practices. For technical implementation details, refer to the codebase documentation and API specifications.*
