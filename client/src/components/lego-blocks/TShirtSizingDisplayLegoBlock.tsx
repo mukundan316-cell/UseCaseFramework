@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Shirt, 
   Users, 
@@ -9,10 +12,12 @@ import {
   TrendingUp, 
   Target,
   AlertTriangle,
-  Info
+  Info,
+  MessageCircle
 } from 'lucide-react';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { calculateTShirtSize } from '@shared/calculations';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * LEGO Block: T-shirt Sizing Display
@@ -25,21 +30,79 @@ interface TShirtSizingDisplayLegoBlockProps {
   effortScore: number;
   quadrant: string;
   className?: string;
+  useCaseId?: string;
+  useCaseTitle?: string;
 }
 
 export default function TShirtSizingDisplayLegoBlock({
   impactScore,
   effortScore,
   quadrant,
-  className = ''
+  className = '',
+  useCaseId,
+  useCaseTitle
 }: TShirtSizingDisplayLegoBlockProps) {
   const { metadata } = useUseCases();
   const tShirtConfig = metadata?.tShirtSizing;
+  const { toast } = useToast();
+  
+  // Feedback state
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Calculate T-shirt sizing if available
   const sizing = tShirtConfig?.enabled 
     ? calculateTShirtSize(impactScore, effortScore, tShirtConfig)
     : null;
+
+  // Submit feedback
+  const submitFeedback = async () => {
+    if (!feedback.trim() || !useCaseId) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          useCaseId,
+          useCaseTitle: useCaseTitle || 'Unknown',
+          currentTShirtSize: sizing?.size || 'Unknown',
+          currentCostRange: sizing?.estimatedCostMin && sizing?.estimatedCostMax 
+            ? `${formatCurrency(sizing.estimatedCostMin)} - ${formatCurrency(sizing.estimatedCostMax)}`
+            : 'Unknown',
+          currentTimeline: sizing?.estimatedWeeksMin && sizing?.estimatedWeeksMax
+            ? `${formatDuration(sizing.estimatedWeeksMin)} - ${formatDuration(sizing.estimatedWeeksMax)}`
+            : 'Unknown',
+          feedback: feedback.trim(),
+          userEmail: 'anonymous',
+          timestamp: new Date().toISOString()
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Feedback Submitted",
+          description: "Thank you for your feedback on the T-shirt sizing estimate!",
+        });
+        setFeedback('');
+        setFeedbackOpen(false);
+      } else {
+        throw new Error('Failed to submit feedback');
+      }
+    } catch (error) {
+      toast({
+        title: "Submission Failed",
+        description: "Could not submit feedback. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Fallback to ROI-style display if T-shirt sizing not configured
   if (!sizing || sizing.error || !sizing.size) {
@@ -124,12 +187,75 @@ export default function TShirtSizingDisplayLegoBlock({
             <Shirt className="h-4 w-4 text-[#005DAA]" />
             <span>Resource Planning</span>
           </div>
-          <Badge 
-            className="border text-white font-medium"
-            style={{ backgroundColor: sizeColor }}
-          >
-            {sizing.size}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge 
+              className="border text-white font-medium"
+              style={{ backgroundColor: sizeColor }}
+            >
+              {sizing.size}
+            </Badge>
+            {useCaseId && (
+              <Dialog open={feedbackOpen} onOpenChange={setFeedbackOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-gray-500 hover:text-[#005DAA]"
+                    data-testid="button-feedback-tshirt"
+                  >
+                    <MessageCircle className="h-3 w-3" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>T-shirt Sizing Feedback</DialogTitle>
+                    <DialogDescription>
+                      Share your thoughts on the estimated project size, cost, and timeline for this use case.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="space-y-4">
+                    <div className="p-3 bg-gray-50 rounded-lg text-sm">
+                      <div className="font-medium mb-2">Current Estimate:</div>
+                      <div>Size: <Badge className="text-white" style={{ backgroundColor: sizeColor }}>{sizing.size}</Badge></div>
+                      <div>Cost: {sizing.estimatedCostMin && sizing.estimatedCostMax 
+                        ? `${formatCurrency(sizing.estimatedCostMin)} - ${formatCurrency(sizing.estimatedCostMax)}`
+                        : 'TBD'}</div>
+                      <div>Timeline: {sizing.estimatedWeeksMin && sizing.estimatedWeeksMax
+                        ? `${formatDuration(sizing.estimatedWeeksMin)} - ${formatDuration(sizing.estimatedWeeksMax)}`
+                        : 'TBD'}</div>
+                    </div>
+                    
+                    <Textarea
+                      placeholder="Please share your feedback on this sizing estimate. Does it seem accurate? What would you adjust?"
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      className="min-h-[100px]"
+                      data-testid="textarea-feedback"
+                    />
+                  </div>
+                  
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setFeedbackOpen(false)}
+                      disabled={isSubmitting}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={submitFeedback}
+                      disabled={!feedback.trim() || isSubmitting}
+                      className="bg-[#005DAA] hover:bg-[#004494]"
+                      data-testid="button-submit-feedback"
+                    >
+                      {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       

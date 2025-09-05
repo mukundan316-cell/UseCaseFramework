@@ -1021,6 +1021,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // T-shirt Sizing Feedback API endpoint
+  app.post('/api/feedback', async (req, res) => {
+    try {
+      const { 
+        useCaseId, 
+        useCaseTitle, 
+        currentTShirtSize, 
+        currentCostRange, 
+        currentTimeline, 
+        feedback, 
+        suggestedSize, 
+        userEmail,
+        timestamp = new Date().toISOString()
+      } = req.body;
+
+      // Validate required fields
+      if (!useCaseId || !feedback) {
+        return res.status(400).json({ 
+          error: 'Use case ID and feedback are required' 
+        });
+      }
+
+      // Log feedback for analysis (in production, store in database)
+      const feedbackData = {
+        useCaseId,
+        useCaseTitle: useCaseTitle || 'Unknown',
+        currentTShirtSize: currentTShirtSize || 'Unknown',
+        currentCostRange: currentCostRange || 'Unknown',
+        currentTimeline: currentTimeline || 'Unknown',
+        feedback: feedback.trim(),
+        suggestedSize: suggestedSize || null,
+        userEmail: userEmail || 'anonymous',
+        timestamp,
+        source: 'tshirt_sizing_preview'
+      };
+
+      // In production, this would be stored in a database table
+      console.log('T-shirt Sizing Feedback Received:', JSON.stringify(feedbackData, null, 2));
+      
+      // Return success response
+      res.status(201).json({ 
+        message: 'Feedback received successfully',
+        feedbackId: `feedback_${Date.now()}`,
+        status: 'recorded'
+      });
+
+    } catch (error) {
+      console.error('Feedback submission error:', error);
+      res.status(500).json({ 
+        error: 'Failed to submit feedback',
+        message: 'Please try again later'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
