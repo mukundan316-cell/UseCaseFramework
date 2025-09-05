@@ -447,80 +447,83 @@ export function getDefaultTShirtSizingConfig(): TShirtSizingConfig {
     sizes: [
       {
         name: 'XS',
-        minWeeks: 1,
-        maxWeeks: 3,
+        minWeeks: 2,
+        maxWeeks: 4,
         teamSizeMin: 1,
         teamSizeMax: 2,
         color: '#10B981', // Green
-        description: 'Quick fixes and small enhancements'
+        description: 'Simple automation or tool integration'
       },
       {
         name: 'S',
-        minWeeks: 2,
-        maxWeeks: 6,
+        minWeeks: 4,
+        maxWeeks: 8,
         teamSizeMin: 2,
-        teamSizeMax: 3,
+        teamSizeMax: 4,
         color: '#3B82F6', // Blue
-        description: 'Small projects and proof of concepts'
+        description: 'Basic ML model, RPA, or process optimization'
       },
       {
         name: 'M',
-        minWeeks: 4,
-        maxWeeks: 12,
+        minWeeks: 8,
+        maxWeeks: 16,
         teamSizeMin: 3,
-        teamSizeMax: 5,
-        color: '#F59E0B', // Yellow
-        description: 'Medium-sized initiatives'
+        teamSizeMax: 6,
+        color: '#FBBF24', // Amber
+        description: 'Advanced ML/NLP, data pipelines, multi-system integration'
       },
       {
         name: 'L',
-        minWeeks: 8,
-        maxWeeks: 24,
+        minWeeks: 16,
+        maxWeeks: 26,
         teamSizeMin: 5,
-        teamSizeMax: 8,
+        teamSizeMax: 10,
         color: '#EF4444', // Red
-        description: 'Large strategic projects'
+        description: 'Complex AI systems, agentic bots, cross-functional rollout'
       },
       {
         name: 'XL',
-        minWeeks: 16,
+        minWeeks: 26,
         maxWeeks: 52,
         teamSizeMin: 8,
-        teamSizeMax: 12,
+        teamSizeMax: 15,
         color: '#8B5CF6', // Purple
-        description: 'Major transformation initiatives'
+        description: 'Enterprise-wide transformation, end-to-end automation'
       }
     ],
     roles: [
       { type: 'Developer', dailyRateGBP: 400 },
       { type: 'Analyst', dailyRateGBP: 350 },
-      { type: 'PM', dailyRateGBP: 500 }
+      { type: 'PM', dailyRateGBP: 500 },
+      { type: 'Data Engineer', dailyRateGBP: 550 },
+      { type: 'Architect', dailyRateGBP: 650 },
+      { type: 'QA Engineer', dailyRateGBP: 300 }
     ],
     overheadMultiplier: 1.35, // 35% overhead for benefits, facilities, management
     mappingRules: [
       {
-        name: 'Quick Win - High Impact, Low Effort',
+        name: 'Quick Win',
         condition: { impactMin: 3.5, effortMax: 2.5 },
         targetSize: 'S',
         priority: 100
       },
       {
-        name: 'Strategic Bet - High Impact, Medium Effort', 
-        condition: { impactMin: 3.0, effortMin: 2.5, effortMax: 3.5 },
+        name: 'Strategic',
+        condition: { impactMin: 3.0, effortMax: 3.5 },
         targetSize: 'M',
         priority: 90
       },
       {
-        name: 'Complex Strategic - High Impact, High Effort',
+        name: 'Complex',
         condition: { impactMin: 2.5, effortMin: 3.5 },
         targetSize: 'L',
         priority: 80
       },
       {
-        name: 'Small Experiment - Low to Medium Impact',
-        condition: { impactMax: 3.0, effortMax: 3.0 },
+        name: 'Default',
+        condition: {},
         targetSize: 'XS',
-        priority: 70
+        priority: 10
       }
     ]
   };
