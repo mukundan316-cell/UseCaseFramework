@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   Target, Filter, ZoomIn, RotateCcw, TrendingUp, Award,
-  AlertTriangle, Sparkles, Users, DollarSign, HelpCircle, Info, Table, BarChart3
+  AlertTriangle, Sparkles, Users, DollarSign, HelpCircle, Info, Table, BarChart3, Eye
 } from 'lucide-react';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
@@ -386,27 +386,47 @@ export default function EnhancedMatrixPlot() {
                 </Button>
               </div>
               
-              {viewMode === 'matrix' && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowLabels(!showLabels)}
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                  >
-                    {showLabels ? 'Hide Labels' : 'Show Labels'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedQuadrant(null)}
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                  >
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Reset Filter
-                  </Button>
-                </>
-              )}
+              {/* Unified Actions for both views */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (viewMode === 'matrix') {
+                    setShowLabels(!showLabels);
+                  } else {
+                    // For table view, we'll pass this to the table component
+                    // For now, just show a simple toggle indication
+                    setShowLabels(!showLabels);
+                  }
+                }}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                data-testid="button-toggle-details"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                {viewMode === 'matrix' 
+                  ? (showLabels ? 'Hide Details' : 'Show Details')
+                  : (showLabels ? 'Hide Details' : 'Show Details')
+                }
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (viewMode === 'matrix') {
+                    setSelectedQuadrant(null);
+                  } else {
+                    // For table view, we'll trigger a filter clear
+                    // This will be handled by passing a ref or callback
+                    window.dispatchEvent(new CustomEvent('clearTableFilters'));
+                  }
+                }}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                data-testid="button-clear-filters"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Clear Filters
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -415,6 +435,7 @@ export default function EnhancedMatrixPlot() {
             <PortfolioTableView 
               useCases={dashboardUseCases} 
               metadata={metadata}
+              showDetails={showLabels}
             />
           ) : (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">

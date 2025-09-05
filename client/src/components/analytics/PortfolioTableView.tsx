@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ interface PortfolioTableViewProps {
   useCases: UseCase[];
   metadata: any;
   onViewUseCase?: (useCase: UseCase) => void;
+  showDetails?: boolean;
 }
 
 type SortField = 'title' | 'impact' | 'effort' | 'tshirt' | 'cost' | 'quadrant';
@@ -38,9 +39,20 @@ interface TableRow {
   useCase: UseCase;
 }
 
-export default function PortfolioTableView({ useCases, metadata, onViewUseCase }: PortfolioTableViewProps) {
+export default function PortfolioTableView({ useCases, metadata, onViewUseCase, showDetails = false }: PortfolioTableViewProps) {
   const [sortField, setSortField] = useState<SortField>('impact');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  // Listen for clear filters event from parent component
+  useEffect(() => {
+    const handleClearFilters = () => {
+      setSortField('impact');
+      setSortDirection('desc');
+    };
+
+    window.addEventListener('clearTableFilters', handleClearFilters);
+    return () => window.removeEventListener('clearTableFilters', handleClearFilters);
+  }, []);
 
   // Transform use cases into table data
   const tableData: TableRow[] = useMemo(() => {

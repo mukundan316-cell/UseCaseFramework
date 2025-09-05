@@ -1,0 +1,92 @@
+The current ranges are a solid start but can be enhanced with additional industry-standard roles and calibrated team sizes. Below is an **augmented JSON metadata prompt** for the Replit agent, with UK benchmark values and extra roles:
+
+```json
+{
+  "enabled": true,
+  "sizes": [
+    {
+      "name": "XS",
+      "displayName": "Extra Small",
+      "weeks": { "min": 2, "max": 4 },
+      "teamSize": { "min": 1, "max": 2 },
+      "color": "#10B981",
+      "description": "Simple automation or tool integration"
+    },
+    {
+      "name": "S",
+      "displayName": "Small",
+      "weeks": { "min": 4, "max": 8 },
+      "teamSize": { "min": 2, "max": 4 },
+      "color": "#3B82F6",
+      "description": "Basic ML model, RPA, or process optimization"
+    },
+    {
+      "name": "M",
+      "displayName": "Medium",
+      "weeks": { "min": 8, "max": 16 },
+      "teamSize": { "min": 3, "max": 6 },
+      "color": "#FBBF24",
+      "description": "Advanced ML/NLP, data pipelines, multi-system integration"
+    },
+    {
+      "name": "L",
+      "displayName": "Large",
+      "weeks": { "min": 16, "max": 26 },
+      "teamSize": { "min": 5, "max": 10 },
+      "color": "#EF4444",
+      "description": "Complex AI systems, agentic bots, cross-functional rollout"
+    },
+    {
+      "name": "XL",
+      "displayName": "Extra Large",
+      "weeks": { "min": 26, "max": 52 },
+      "teamSize": { "min": 8, "max": 15 },
+      "color": "#8B5CF6",
+      "description": "Enterprise-wide transformation, end-to-end automation"
+    }
+  ],
+  "roles": [
+    { "type": "Developer",     "dailyRateGBP": 400 },
+    { "type": "Analyst",       "dailyRateGBP": 350 },
+    { "type": "PM",            "dailyRateGBP": 500 },
+    { "type": "Data Engineer", "dailyRateGBP": 550 },
+    { "type": "Architect",     "dailyRateGBP": 650 },
+    { "type": "QA Engineer",   "dailyRateGBP": 300 }
+  ],
+  "overheadMultiplier": 1.35,
+  "mappingRules": [
+    {
+      "name": "Quick Win",
+      "condition": { "impactMin": 3.5, "effortMax": 2.5 },
+      "targetSize": "S",
+      "priority": 100
+    },
+    {
+      "name": "Strategic",
+      "condition": { "impactMin": 3.0, "effortMax": 3.5 },
+      "targetSize": "M",
+      "priority": 90
+    },
+    {
+      "name": "Complex",
+      "condition": { "impactMin": 2.5, "effortMin": 3.5 },
+      "targetSize": "L",
+      "priority": 80
+    },
+    {
+      "name": "Default",
+      "condition": {},
+      "targetSize": "XS",
+      "priority": 10
+    }
+  ]
+}
+```
+
+**Enhancements & Rationale**  
+- **Team sizes** widened by +1 FTE at upper bound to cover UK consulting norms.  
+- **Added roles** for Data Engineer, Architect, QA to reflect typical project teams.  
+- **Daily rates** benchmarked to UK market midpoints (Dev £400, Data Eng £550, Arch £650).  
+- **Size descriptions** refined to match industry terms (RPA, data pipelines, agentic bots).  
+
+This keeps your metadata simple, flexible, and aligned with **industry best practices**—all configurable via the existing admin panel.
