@@ -10,6 +10,7 @@ import ReorderableMetadataBlock from './lego-blocks/ReorderableMetadataBlock';
 import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagementBlock';
 import ProcessManagementBlock from './lego-blocks/ProcessManagementBlock';
 import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSimple';
+import TShirtSizingConfigLegoBlock from './lego-blocks/TShirtSizingConfigLegoBlock';
 import ScoringDropdownManagementLegoBlock from './lego-blocks/ScoringDropdownManagementLegoBlock';
 import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibraryLegoBlock';
 import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationLegoBlock';
@@ -538,6 +539,9 @@ export default function AdminPanel() {
               {/* Scoring Model Management */}
               <div className="space-y-6">
                 <ScoringModelManagementBlock />
+                
+                {/* T-shirt Sizing Configuration */}
+                <TShirtSizingConfigLegoBlock />
               </div>
             </TabsContent>
           </Tabs>

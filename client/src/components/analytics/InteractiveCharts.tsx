@@ -44,7 +44,12 @@ export const InteractiveCharts: React.FC<InteractiveChartsProps> = ({
     quadrant: uc.quadrant,
     lob: uc.lineOfBusiness,
     segment: uc.businessSegment,
-    color: getQuadrantColor(uc.quadrant)
+    color: getQuadrantColor(uc.quadrant),
+    tShirtSize: (uc as any).tShirtSize,
+    estimatedCost: (uc as any).estimatedCostMin && (uc as any).estimatedCostMax ? 
+      `£${((uc as any).estimatedCostMin / 1000).toFixed(0)}k-£${((uc as any).estimatedCostMax / 1000).toFixed(0)}k` : null,
+    estimatedWeeks: (uc as any).estimatedWeeksMin && (uc as any).estimatedWeeksMax ? 
+      `${(uc as any).estimatedWeeksMin}-${(uc as any).estimatedWeeksMax} weeks` : null
   }));
 
   // Quadrant Distribution with Trend Analysis
@@ -100,6 +105,29 @@ export const InteractiveCharts: React.FC<InteractiveChartsProps> = ({
             <p><span className="font-medium">Impact Score:</span> {data.y}/5</p>
             <p><span className="font-medium">Effort Score:</span> {data.x}/5</p>
             <p><span className="font-medium">Quadrant:</span> {data.quadrant}</p>
+            {data.tShirtSize && (
+              <div className="flex items-center gap-2">
+                <span className="font-medium">Project Size:</span>
+                <span 
+                  className="inline-block px-2 py-0.5 rounded text-xs font-semibold text-white"
+                  style={{ backgroundColor: 
+                    data.tShirtSize === 'XS' ? '#10B981' : 
+                    data.tShirtSize === 'S' ? '#3B82F6' : 
+                    data.tShirtSize === 'M' ? '#F59E0B' : 
+                    data.tShirtSize === 'L' ? '#EF4444' : 
+                    data.tShirtSize === 'XL' ? '#8B5CF6' : '#6B7280' 
+                  }}
+                >
+                  {data.tShirtSize}
+                </span>
+              </div>
+            )}
+            {data.estimatedCost && (
+              <p><span className="font-medium">Estimated Cost:</span> {data.estimatedCost}</p>
+            )}
+            {data.estimatedWeeks && (
+              <p><span className="font-medium">Timeline:</span> {data.estimatedWeeks}</p>
+            )}
             <p><span className="font-medium">Line of Business:</span> {data.lob}</p>
             <p><span className="font-medium">Segment:</span> {data.segment}</p>
           </div>

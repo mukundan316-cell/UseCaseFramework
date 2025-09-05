@@ -386,6 +386,53 @@ export default function CleanUseCaseCard({
               </div>
             </div>
             
+            {/* T-shirt Sizing Display */}
+            {(useCase as any).tShirtSize && (
+              <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-purple-700 flex items-center gap-1">
+                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
+                    </svg>
+                    Project Sizing
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="inline-block px-2 py-1 rounded text-xs font-semibold text-white"
+                      style={{ backgroundColor: (useCase as any).tShirtSize === 'XS' ? '#10B981' : 
+                                                 (useCase as any).tShirtSize === 'S' ? '#3B82F6' : 
+                                                 (useCase as any).tShirtSize === 'M' ? '#F59E0B' : 
+                                                 (useCase as any).tShirtSize === 'L' ? '#EF4444' : 
+                                                 (useCase as any).tShirtSize === 'XL' ? '#8B5CF6' : '#6B7280' }}
+                    >
+                      {(useCase as any).tShirtSize}
+                    </span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs text-purple-600">
+                  <div className="flex items-center gap-1">
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                    </svg>
+                    {(useCase as any).estimatedWeeksMin && (useCase as any).estimatedWeeksMax ? 
+                      `${(useCase as any).estimatedWeeksMin}-${(useCase as any).estimatedWeeksMax} weeks` : 
+                      'Timeline TBD'
+                    }
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-8a7 7 0 1114 0 7 7 0 01-14 0z" clipRule="evenodd" />
+                    </svg>
+                    {(useCase as any).estimatedCostMin && (useCase as any).estimatedCostMax ? 
+                      `£${((useCase as any).estimatedCostMin / 1000).toFixed(0)}k-£${((useCase as any).estimatedCostMax / 1000).toFixed(0)}k` : 
+                      'Cost TBD'
+                    }
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {/* ROI Explanation */}
             <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
               <div className="flex items-center justify-between mb-2">
