@@ -1,5 +1,30 @@
 # RSA AI Use Case Value Framework - Complete Help Guide
 
+## Quick Start Guide
+
+New to the RSA AI Use Case Value Framework? Follow these steps to get started:
+
+### For New Users:
+1. **Understand the Basics**: Review the [10-Lever Scoring Framework](#10-lever-scoring-framework) to understand how use cases are evaluated
+2. **Learn the Quadrants**: Study the [Prioritization Matrix](#understanding-the-prioritization-matrix) to see how scores translate to action plans
+3. **Explore Examples**: Check the example use cases in each quadrant for context
+4. **Practice Scoring**: Start with a simple use case using the [Quick Reference Scoring Card](#quick-reference-scoring-card)
+
+### For Administrators:
+1. **Configure Thresholds**: Set appropriate [threshold values](#threshold-settings-guide) for your organization
+2. **Customize Weights**: Adjust lever weights in the [Metadata Configuration](#metadata-configuration) if needed
+3. **Set Up T-shirt Sizing**: Configure [cost estimation parameters](#t-shirt-sizing-system) for your region
+4. **Enable Feedback**: Activate the [User Feedback System](#user-feedback-system) for continuous improvement
+
+### Quick Reference Links:
+- [Scoring Guidelines](#detailed-scoring-guidelines) - Detailed 1-5 scale criteria
+- [Best Practices](#best-practices) - DO's and DON'Ts for accurate scoring
+- [Troubleshooting](#troubleshooting) - Common issues and solutions
+- [API Documentation](../server/routes.ts) - Technical implementation details
+- [Database Schema](../shared/schema.ts) - Data structure reference
+
+---
+
 ## Overview
 The RSA AI Use Case Value Framework is a production-ready strategic platform designed to prioritize AI use cases within RSA Insurance. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform streamlines the prioritization process, offers robust data management, and provides clear insights for decision-making, ultimately enhancing RSA's AI strategy and market potential.
 
@@ -330,16 +355,28 @@ T-shirt sizing is fully metadata-driven with no hard-coded values:
   ],
   "roles": [
     {
-      "type": "Senior Developer",
-      "dailyRateGBP": 600
+      "type": "Developer",
+      "dailyRateGBP": 400
     },
     {
-      "type": "Data Scientist",
-      "dailyRateGBP": 700
+      "type": "Business Analyst",
+      "dailyRateGBP": 350
     },
     {
-      "type": "ML Engineer",
+      "type": "Project Manager",
+      "dailyRateGBP": 500
+    },
+    {
+      "type": "Data Engineer",
+      "dailyRateGBP": 550
+    },
+    {
+      "type": "Solution Architect",
       "dailyRateGBP": 650
+    },
+    {
+      "type": "QA Engineer",
+      "dailyRateGBP": 300
     }
   ],
   "overheadMultiplier": 1.4,
@@ -357,12 +394,62 @@ T-shirt sizing is fully metadata-driven with no hard-coded values:
 }
 ```
 
+### Flow Diagram: Scoring to Cost Estimation
+
+```
+📊 SCORING INPUT
+       ↓
+   [10 Levers: 1-5 Scale]
+   • Revenue Impact
+   • Cost Savings
+   • Risk Reduction
+   • Partner Experience
+   • Strategic Fit
+   • Data Readiness
+   • Technical Complexity
+   • Change Impact
+   • Model Risk
+   • Adoption Readiness
+       ↓
+🧮 COMPUTED SCORES
+   Impact Score (0-5)
+   Effort Score (0-5)
+       ↓
+📍 QUADRANT PLACEMENT
+   [Threshold: 3.0 default]
+   • Quick Win (High Impact, Low Effort)
+   • Strategic Bet (High Impact, High Effort)
+   • Experimental (Low Impact, Low Effort)
+   • Watchlist (Low Impact, High Effort)
+       ↓
+👕 T-SHIRT SIZE MAPPING
+   [Based on Impact/Effort Matrix]
+   • XS: 1-3 weeks, 1-2 people
+   • S: 2-6 weeks, 2-3 people
+   • M: 4-12 weeks, 3-5 people
+   • L: 8-24 weeks, 5-8 people
+   • XL: 16-52 weeks, 8-12 people
+       ↓
+💰 COST/BENEFIT ESTIMATES
+   Cost = Team Size × Daily Rate × Duration × Overhead (1.35x)
+   Benefits = Size-based multiplier × Business Impact
+   ROI = (Benefits - Cost) / Cost × 100%
+```
+
 ### Sizing Calculations
 
 #### Cost Estimation:
 ```
 Estimated Cost = (Average Team Size × Average Daily Rate × Duration in Days × Overhead Multiplier)
 ```
+
+**UK Role-based Daily Rates (2025):**
+- Developer: £400/day
+- Business Analyst: £350/day  
+- Project Manager: £500/day
+- Data Engineer: £550/day
+- Solution Architect: £650/day
+- QA Engineer: £300/day
 
 #### Timeline Estimation:
 - Based on effort score mapping to size categories
@@ -668,16 +755,26 @@ UX: {
 - **User Feedback System**: Continuous improvement through user input collection
 - **Performance Monitoring**: Real-time performance tracking and optimization
 
+### Technical References:
+- **API Documentation**: [Server Routes](../server/routes.ts) - Complete API endpoint reference
+- **Database Schema**: [Shared Schema](../shared/schema.ts) - Data structure definitions
+- **Configuration**: [App Config](../shared/constants/app-config.ts) - Application constants
+- **Calculations**: [Score Logic](../shared/calculations.ts) - Scoring algorithm implementation
+- **Components**: [LEGO Blocks](../client/src/components/lego-blocks/) - UI component library
+- **Utilities**: [Score Override](../shared/utils/scoreOverride.ts) - Manual override logic
+
 ## Key Reminders
 
 > **Remember**: The goal is not to have all use cases as Quick Wins, but to build a balanced portfolio that delivers both immediate value and long-term transformation.
 
 ### Success Indicators:
-- **Balanced Portfolio Distribution**: Healthy mix across all quadrants
-- **Regular Score Calibration**: Quarterly reviews and adjustments
-- **Stakeholder Alignment**: Consistent scoring across teams
-- **Continuous Improvement**: Active use of feedback systems
+- **Balanced Portfolio Distribution**: Healthy mix across all quadrants (20-30% Quick Wins, 30-40% Strategic Bets, 20-30% Experimental, <20% Watchlist)
+- **Regular Score Calibration**: Quarterly reviews and adjustments based on outcomes
+- **Stakeholder Alignment**: Consistent scoring across teams with cross-functional input
+- **Continuous Improvement**: Active use of feedback systems for algorithm refinement
 - **Strategic Focus**: Clear connection between scores and business objectives
+- **Naming Consistency**: Standardized role titles and terminology throughout assessments
+- **Documentation Currency**: Regular updates to reflect platform enhancements and learnings
 
 ---
 
