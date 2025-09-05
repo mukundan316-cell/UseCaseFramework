@@ -338,8 +338,9 @@ export class ExcelExportService {
         console.log('✅ Data validation passed with no issues');
       }
       
-      // Create new workbook
+      // Create new workbook with metadata properties
       const workbook = XLSX.utils.book_new();
+      this.setWorkbookMetadata(workbook, validationSummary, sanitizedUseCases.length, filters);
       
       // WORKSHEET 1: Import Guide (Help for users)
       const importGuideSheet = await this.createImportGuideSheet();
@@ -371,8 +372,12 @@ export class ExcelExportService {
       // Generate Excel buffer
       const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
       
+      // Generate standardized filename with category suffix
+      const timestamp = format(new Date(), 'yyyyMMdd_HHmmss');
+      const categorySuffix = this.getCategorySuffix(filters);
+      const filename = `rsa_ai_usecase_export_${timestamp}_${categorySuffix}.xlsx`;
+      
       // Set response headers
-      const filename = `RSA_Use_Cases_${format(new Date(), 'yyyy-MM-dd_HH-mm')}.xlsx`;
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.setHeader('Content-Length', buffer.length);
@@ -414,6 +419,64 @@ export class ExcelExportService {
    */
   static sanitizeExportData(useCases: any[]): any[] {
     return this.sanitizeUseCaseData(useCases);
+  }
+  
+  /**
+   * Generate category suffix for filename based on filters
+   */
+  private static getCategorySuffix(filters: { category?: string; status?: string } = {}): string {
+    if (filters.category === 'ai_inventory') {
+      return 'ai_inventory';
+    } else if (filters.category === 'strategic') {
+      return 'strategic';
+    } else {
+      return 'all';
+    }
+  }
+  
+  /**
+   * Set Excel workbook metadata properties
+   */
+  private static setWorkbookMetadata(
+    workbook: XLSX.WorkBook, 
+    validationSummary: ValidationSummary, 
+    recordCount: number, 
+    filters: { category?: string; status?: string } = {}
+  ): void {
+    const exportDate = new Date();
+    const categorySuffix = this.getCategorySuffix(filters);
+    
+    // Set workbook properties
+    workbook.Props = {
+      Title: `RSA AI Use Case Framework Export - ${categorySuffix.charAt(0).toUpperCase() + categorySuffix.slice(1)}`,
+      Subject: 'RSA AI Use Case Framework Data Export',
+      Author: 'RSA AI Use Case Framework',
+      Manager: 'RSA Insurance Group',
+      Company: 'RSA Insurance Group',
+      Category: 'AI Use Case Data',
+      Keywords: `AI, Use Cases, RSA, Framework, ${categorySuffix}`,
+      Comments: `Export generated on ${format(exportDate, 'yyyy-MM-dd HH:mm:ss')}. ` +
+                `Contains ${recordCount} records with ${validationSummary.warnings.length} data quality warnings. ` +
+                `Validation status: ${validationSummary.shouldProceed ? 'PASSED' : 'FAILED'}. ` +
+                `Export category: ${categorySuffix}.`,
+      LastAuthor: 'RSA AI Use Case Framework',
+      CreatedDate: exportDate,
+      ModifiedDate: exportDate,
+      Version: '1.0'
+    };
+    
+    // Set custom properties for detailed tracking
+    workbook.Custprops = {
+      'Export Category': categorySuffix,
+      'Record Count': recordCount.toString(),
+      'Validation Status': validationSummary.shouldProceed ? 'PASSED' : 'FAILED',
+      'Critical Errors': validationSummary.criticalErrors.length.toString(),
+      'Warnings': validationSummary.warnings.length.toString(),
+      'Records With Issues': validationSummary.recordsWithIssues.toString(),
+      'AI Inventory Records': validationSummary.governanceFieldsAnalysis?.totalAiInventoryRecords?.toString() || '0',
+      'Framework Version': '2.0',
+      'Export Timestamp': format(exportDate, 'yyyyMMdd_HHmmss')
+    };
   }
   
   /**
