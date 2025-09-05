@@ -68,6 +68,10 @@ interface TShirtSizingConfig {
   roles: Role[];
   overheadMultiplier: number;
   mappingRules: MappingRule[];
+  benefitMultipliers?: {
+    [sizeName: string]: number;
+  };
+  benefitRangePct?: number;
 }
 
 /**
@@ -107,7 +111,15 @@ export default function TShirtSizingConfigLegoBlock() {
         { name: 'Strategic Bet - High Impact, Medium Effort', condition: { impactMin: 3.0, effortMin: 2.5, effortMax: 3.5 }, targetSize: 'M', priority: 90 },
         { name: 'Complex Strategic - High Impact, High Effort', condition: { impactMin: 2.5, effortMin: 3.5 }, targetSize: 'L', priority: 80 },
         { name: 'Small Experiment - Low to Medium Impact', condition: { impactMax: 3.0, effortMax: 3.0 }, targetSize: 'XS', priority: 70 }
-      ]
+      ],
+      benefitMultipliers: {
+        'XS': 50000,
+        'S': 50000,
+        'M': 75000,
+        'L': 100000,
+        'XL': 100000
+      },
+      benefitRangePct: 0.20
     };
 
     if (metadata?.tShirtSizing) {
@@ -417,9 +429,10 @@ export default function TShirtSizingConfigLegoBlock() {
       <CardContent>
         {config.enabled ? (
           <Tabs defaultValue="sizes" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="sizes">Sizes</TabsTrigger>
               <TabsTrigger value="roles">Roles & Rates</TabsTrigger>
+              <TabsTrigger value="benefits">Benefits</TabsTrigger>
               <TabsTrigger value="rules">Mapping Rules</TabsTrigger>
               <TabsTrigger value="preview">Preview</TabsTrigger>
             </TabsList>
@@ -596,6 +609,110 @@ export default function TShirtSizingConfigLegoBlock() {
                     )}
                   </div>
                 ))}
+              </div>
+            </TabsContent>
+
+            {/* Benefit Configuration */}
+            <TabsContent value="benefits" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-800">Annual Benefit Multipliers</h4>
+                  <p className="text-sm text-gray-600">Configure benefit multipliers per T-shirt size for annual benefit calculations</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {config.sizes.map((size, index) => {
+                  const multiplier = config.benefitMultipliers?.[size.name] || 50000;
+                  return (
+                    <div key={size.name} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <Badge style={{ backgroundColor: size.color }} className="text-white">
+                            {size.name}
+                          </Badge>
+                          <span className="text-sm text-gray-600">{size.description}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor={`benefit-multiplier-${size.name}`}>Benefit per Impact Point (GBP)</Label>
+                        <Input
+                          id={`benefit-multiplier-${size.name}`}
+                          type="number"
+                          min="1000"
+                          max="500000"
+                          step="1000"
+                          value={multiplier}
+                          onChange={(e) => {
+                            const newMultipliers = {
+                              ...config.benefitMultipliers,
+                              [size.name]: parseInt(e.target.value) || 0
+                            };
+                            updateConfig({ benefitMultipliers: newMultipliers });
+                          }}
+                          data-testid={`input-benefit-multiplier-${size.name}`}
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          £{(multiplier / 1000).toFixed(0)}K per impact point
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <DollarSign className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <h5 className="font-medium text-blue-800">Benefit Range Percentage</h5>
+                    <p className="text-sm text-blue-600">Variation range applied to base benefit calculations (±%)</p>
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <Label htmlFor="benefit-range-pct">Range Percentage (e.g., 0.20 = ±20%)</Label>
+                  <Input
+                    id="benefit-range-pct"
+                    type="number"
+                    step="0.05"
+                    min="0.05"
+                    max="0.50"
+                    value={config.benefitRangePct || 0.20}
+                    onChange={(e) => updateConfig({ benefitRangePct: parseFloat(e.target.value) || 0.20 })}
+                    className="w-32 mt-1"
+                    data-testid="input-benefit-range-pct"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Current: ±{((config.benefitRangePct || 0.20) * 100).toFixed(0)}% variation
+                  </p>
+                </div>
+              </div>
+              
+              {/* Benefit Calculation Preview */}
+              <div className="space-y-4">
+                <h5 className="font-medium text-gray-800">Benefit Estimation Examples</h5>
+                <div className="text-xs text-gray-600 mb-2">
+                  Examples shown for Impact Score = 4.0
+                </div>
+                {config.sizes.map((size, index) => {
+                  const multiplier = config.benefitMultipliers?.[size.name] || 50000;
+                  const rangePct = config.benefitRangePct || 0.20;
+                  const baseBenefit = 4.0 * multiplier;
+                  const minBenefit = Math.round((baseBenefit * (1 - rangePct)) / 1000) * 1000;
+                  const maxBenefit = Math.round((baseBenefit * (1 + rangePct)) / 1000) * 1000;
+                  
+                  return (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <Badge style={{ backgroundColor: size.color }} className="text-white">
+                        {size.name}
+                      </Badge>
+                      <div className="text-sm font-medium">
+                        £{(minBenefit/1000).toFixed(0)}K - £{(maxBenefit/1000).toFixed(0)}K
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </TabsContent>
 
@@ -957,6 +1074,7 @@ export default function TShirtSizingConfigLegoBlock() {
                     <ul className="text-sm text-green-700 space-y-1">
                       <li>✓ {config.sizes.length} T-shirt sizes configured</li>
                       <li>✓ {config.roles.length} role types with daily rates</li>
+                      <li>✓ {Object.keys(config.benefitMultipliers || {}).length} benefit multipliers set</li>
                       <li>✓ {config.mappingRules.length} mapping rules defined</li>
                       <li>✓ {config.overheadMultiplier}x overhead multiplier set</li>
                     </ul>
