@@ -243,6 +243,24 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
     );
   };
 
+  const getBenefitTooltip = (row: TableRow) => {
+    const tShirtConfig = metadata?.tShirtSizing;
+    const sizeConfig = tShirtConfig?.sizes?.find((s: any) => s.name === row.tshirtSize);
+    
+    return (
+      <div className="space-y-1">
+        <div className="font-medium">{row.annualBenefit}</div>
+        <div className="text-xs">Impact {row.impact.toFixed(1)} × £{getBenefitMultiplier(row.tshirtSize)}K multiplier = {row.annualBenefit}</div>
+        <div className="text-xs text-blue-400">Click Annual Benefit header for calculation details</div>
+      </div>
+    );
+  };
+
+  const getBenefitMultiplier = (size: string) => {
+    const tShirtConfig = metadata?.tShirtSizing;
+    return tShirtConfig?.benefitMultipliers?.[size] || (size === 'XS' || size === 'S' ? 50 : size === 'M' ? 75 : 100);
+  };
+
   // Interactive header content functions
   const getImpactExplanation = () => ({
     title: 'Impact Score Calculation',
@@ -287,6 +305,35 @@ Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
     };
   };
 
+  const getTimelineExplanation = () => {
+    const tShirtConfig = metadata?.tShirtSizing;
+    const sizes = tShirtConfig?.sizes || [];
+    const sizeRanges = sizes.map((size: any) => `• ${size.name}: ${size.minWeeks}-${size.maxWeeks} weeks`).join('\n');
+
+    return {
+      title: 'Timeline Estimation Method',
+      content: `T-shirt Size Ranges:\n${sizeRanges || '• No sizes configured'}\n\nTimeline is determined by:\n1. Impact/Effort scores mapped to T-shirt size\n2. Base duration range for that size\n3. Team availability buffer\n4. Complexity adjustment factors\n\nEstimates include project setup, development, testing, and deployment phases.`
+    };
+  };
+
+  const getBenefitExplanation = () => {
+    const tShirtConfig = metadata?.tShirtSizing;
+    const multipliers = {
+      'XS': tShirtConfig?.benefitMultipliers?.XS || 50,
+      'S': tShirtConfig?.benefitMultipliers?.S || 50,
+      'M': tShirtConfig?.benefitMultipliers?.M || 75,
+      'L': tShirtConfig?.benefitMultipliers?.L || 100,
+      'XL': tShirtConfig?.benefitMultipliers?.XL || 100
+    };
+
+    const multiplierList = Object.entries(multipliers).map(([size, mult]) => `• ${size}: £${mult}K per impact point`).join('\n');
+
+    return {
+      title: 'Annual Benefit Calculation',
+      content: `Benefit = Impact Score × Size-based Multiplier × Range (±20%)\n\nMultipliers by T-shirt Size:\n${multiplierList}\n\nFormula: Impact ${metadata?.scoringModel?.businessValue ? 'Score' : '(1-5)'} × Multiplier = Base Benefit\nRange applied: 80% to 120% of base benefit\n\nBenefits reflect revenue impact, cost savings, risk reduction, and strategic value.`
+    };
+  };
+
   const showCalculationDialog = (type: string) => {
     let content;
     switch (type) {
@@ -298,6 +345,12 @@ Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
         break;
       case 'cost':
         content = getCostExplanation();
+        break;
+      case 'timeline':
+        content = getTimelineExplanation();
+        break;
+      case 'benefit':
+        content = getBenefitExplanation();
         break;
       default:
         return;
@@ -437,12 +490,42 @@ Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
                   <div className="flex items-center gap-1 justify-center">
                     <Clock className="h-4 w-4" />
                     Timeline
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => showCalculationDialog('timeline')}
+                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                        >
+                          <HelpCircle className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to see timeline estimation method</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </th>
                 <th className="text-center p-3 font-semibold">
                   <div className="flex items-center gap-1 justify-center">
                     <TrendingUp className="h-4 w-4" />
                     Annual Benefit
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => showCalculationDialog('benefit')}
+                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                        >
+                          <HelpCircle className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to see benefit calculation method</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </th>
                 <th className="text-center p-3 font-semibold">
@@ -522,9 +605,16 @@ Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
                     </Tooltip>
                   </td>
                   <td className="p-3 text-center">
-                    <div className="font-semibold text-emerald-600">
-                      {row.annualBenefit}
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="font-semibold text-emerald-600 cursor-help">
+                          {row.annualBenefit}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {getBenefitTooltip(row)}
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   <td className="p-3 text-center">
                     <Badge 
