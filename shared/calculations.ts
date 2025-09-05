@@ -190,77 +190,187 @@ export function calculateTShirtSize(
   estimatedWeeksMin: number | null;
   estimatedWeeksMax: number | null;
   teamSizeEstimate: string | null;
+  error?: string;
 } {
-  // Return null values if T-shirt sizing is disabled or not configured
-  if (!config?.enabled) {
+  try {
+    // Validate input parameters
+    if (typeof impactScore !== 'number' || typeof effortScore !== 'number') {
+      return {
+        size: null,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: null,
+        estimatedWeeksMax: null,
+        teamSizeEstimate: null,
+        error: 'Invalid input: impact and effort scores must be numbers'
+      };
+    }
+
+    if (isNaN(impactScore) || isNaN(effortScore)) {
+      return {
+        size: null,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: null,
+        estimatedWeeksMax: null,
+        teamSizeEstimate: null,
+        error: 'Invalid input: scores cannot be NaN'
+      };
+    }
+
+    // Normalize scores to valid range (1-5)
+    const normalizedImpact = Math.max(1, Math.min(5, impactScore));
+    const normalizedEffort = Math.max(1, Math.min(5, effortScore));
+    // Return null values if T-shirt sizing is disabled or not configured
+    if (!config?.enabled) {
+      return {
+        size: null,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: null,
+        estimatedWeeksMax: null,
+        teamSizeEstimate: null
+      };
+    }
+
+    // Validate configuration
+    if (!config.sizes || config.sizes.length === 0) {
+      return {
+        size: null,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: null,
+        estimatedWeeksMax: null,
+        teamSizeEstimate: null,
+        error: 'Invalid configuration: no sizes defined'
+      };
+    }
+
+    if (!config.roles || config.roles.length === 0) {
+      return {
+        size: null,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: null,
+        estimatedWeeksMax: null,
+        teamSizeEstimate: null,
+        error: 'Invalid configuration: no roles defined'
+      };
+    }
+
+    if (!config.mappingRules || config.mappingRules.length === 0) {
+      return {
+        size: null,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: null,
+        estimatedWeeksMax: null,
+        teamSizeEstimate: null,
+        error: 'Invalid configuration: no mapping rules defined'
+      };
+    }
+
+    // Apply mapping rules in priority order (highest priority first)
+    const sortedRules = [...config.mappingRules].sort((a, b) => b.priority - a.priority);
+    
+    let selectedSize: string | null = null;
+    
+    for (const rule of sortedRules) {
+      try {
+        const { condition } = rule;
+        
+        // Check if impact score matches the condition
+        const impactMatch = (
+          (condition.impactMin === undefined || normalizedImpact >= condition.impactMin) &&
+          (condition.impactMax === undefined || normalizedImpact <= condition.impactMax)
+        );
+        
+        // Check if effort score matches the condition
+        const effortMatch = (
+          (condition.effortMin === undefined || normalizedEffort >= condition.effortMin) &&
+          (condition.effortMax === undefined || normalizedEffort <= condition.effortMax)
+        );
+        
+        if (impactMatch && effortMatch) {
+          selectedSize = rule.targetSize;
+          break;
+        }
+      } catch (ruleError) {
+        console.warn('Error processing mapping rule:', rule, ruleError);
+        continue; // Skip this rule and continue with the next one
+      }
+    }
+    
+    // If no rule matches, use the smallest size as fallback
+    if (!selectedSize && config.sizes.length > 0) {
+      selectedSize = config.sizes[0].name;
+    }
+  
+    // Find size configuration
+    const sizeConfig = config.sizes.find(s => s.name === selectedSize);
+    if (!sizeConfig) {
+      return {
+        size: selectedSize,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: null,
+        estimatedWeeksMax: null,
+        teamSizeEstimate: null,
+        error: `Size configuration not found for: ${selectedSize}`
+      };
+    }
+    
+    // Calculate cost estimates based on team size and rates
+    const dailyTeamCost = calculateDailyTeamCost(config.roles, sizeConfig, config.overheadMultiplier);
+    
+    if (dailyTeamCost <= 0) {
+      return {
+        size: selectedSize,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: sizeConfig.minWeeks,
+        estimatedWeeksMax: sizeConfig.maxWeeks,
+        teamSizeEstimate: `${sizeConfig.teamSizeMin}-${sizeConfig.teamSizeMax}`,
+        error: 'Invalid cost calculation: daily team cost is zero or negative'
+      };
+    }
+    
+    const minCost = Math.round(dailyTeamCost * sizeConfig.minWeeks * 5); // 5 working days per week
+    const maxCost = Math.round(dailyTeamCost * sizeConfig.maxWeeks * 5);
+    
+    // Sanity check on calculated costs
+    if (minCost < 0 || maxCost < 0 || minCost > maxCost) {
+      return {
+        size: selectedSize,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: sizeConfig.minWeeks,
+        estimatedWeeksMax: sizeConfig.maxWeeks,
+        teamSizeEstimate: `${sizeConfig.teamSizeMin}-${sizeConfig.teamSizeMax}`,
+        error: 'Invalid cost calculation: negative costs or min > max'
+      };
+    }
+    
+    return {
+      size: selectedSize,
+      estimatedCostMin: minCost,
+      estimatedCostMax: maxCost,
+      estimatedWeeksMin: sizeConfig.minWeeks,
+      estimatedWeeksMax: sizeConfig.maxWeeks,
+      teamSizeEstimate: `${sizeConfig.teamSizeMin}-${sizeConfig.teamSizeMax}`
+    };
+  } catch (error) {
+    console.error('Error in calculateTShirtSize:', error);
     return {
       size: null,
       estimatedCostMin: null,
       estimatedCostMax: null,
       estimatedWeeksMin: null,
       estimatedWeeksMax: null,
-      teamSizeEstimate: null
+      teamSizeEstimate: null,
+      error: `Calculation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     };
   }
-
-  // Apply mapping rules in priority order (highest priority first)
-  const sortedRules = [...config.mappingRules].sort((a, b) => b.priority - a.priority);
-  
-  let selectedSize: string | null = null;
-  
-  for (const rule of sortedRules) {
-    const { condition } = rule;
-    
-    // Check if impact score matches the condition
-    const impactMatch = (
-      (condition.impactMin === undefined || impactScore >= condition.impactMin) &&
-      (condition.impactMax === undefined || impactScore <= condition.impactMax)
-    );
-    
-    // Check if effort score matches the condition
-    const effortMatch = (
-      (condition.effortMin === undefined || effortScore >= condition.effortMin) &&
-      (condition.effortMax === undefined || effortScore <= condition.effortMax)
-    );
-    
-    if (impactMatch && effortMatch) {
-      selectedSize = rule.targetSize;
-      break;
-    }
-  }
-  
-  // If no rule matches, use the smallest size as fallback
-  if (!selectedSize && config.sizes.length > 0) {
-    selectedSize = config.sizes[0].name;
-  }
-  
-  // Find size configuration
-  const sizeConfig = config.sizes.find(s => s.name === selectedSize);
-  if (!sizeConfig) {
-    return {
-      size: selectedSize,
-      estimatedCostMin: null,
-      estimatedCostMax: null,
-      estimatedWeeksMin: null,
-      estimatedWeeksMax: null,
-      teamSizeEstimate: null
-    };
-  }
-  
-  // Calculate cost estimates based on team size and rates
-  const dailyTeamCost = calculateDailyTeamCost(config.roles, sizeConfig, config.overheadMultiplier);
-  
-  const minCost = Math.round(dailyTeamCost * sizeConfig.minWeeks * 5); // 5 working days per week
-  const maxCost = Math.round(dailyTeamCost * sizeConfig.maxWeeks * 5);
-  
-  return {
-    size: selectedSize,
-    estimatedCostMin: minCost,
-    estimatedCostMax: maxCost,
-    estimatedWeeksMin: sizeConfig.minWeeks,
-    estimatedWeeksMax: sizeConfig.maxWeeks,
-    teamSizeEstimate: `${sizeConfig.teamSizeMin}-${sizeConfig.teamSizeMax}`
-  };
 }
 
 /**
@@ -271,15 +381,60 @@ function calculateDailyTeamCost(
   sizeConfig: TShirtSizingConfig['sizes'][0],
   overheadMultiplier: number
 ): number {
-  // Use average team size for calculation
-  const avgTeamSize = (sizeConfig.teamSizeMin + sizeConfig.teamSizeMax) / 2;
-  
-  // Calculate weighted average daily rate based on typical team composition
-  // For simplicity, use equal distribution across roles for now
-  const avgDailyRate = roles.reduce((sum, role) => sum + role.dailyRateGBP, 0) / roles.length;
-  
-  // Apply team size and overhead multiplier
-  return avgDailyRate * avgTeamSize * overheadMultiplier;
+  try {
+    // Validate inputs
+    if (!roles || roles.length === 0) {
+      console.warn('No roles provided for cost calculation');
+      return 0;
+    }
+
+    if (!sizeConfig) {
+      console.warn('No size configuration provided for cost calculation');
+      return 0;
+    }
+
+    if (typeof overheadMultiplier !== 'number' || overheadMultiplier <= 0) {
+      console.warn('Invalid overhead multiplier, using 1.0 as fallback');
+      overheadMultiplier = 1.0;
+    }
+
+    // Use average team size for calculation
+    const avgTeamSize = (sizeConfig.teamSizeMin + sizeConfig.teamSizeMax) / 2;
+    
+    if (avgTeamSize <= 0) {
+      console.warn('Invalid team size configuration');
+      return 0;
+    }
+    
+    // Calculate weighted average daily rate based on typical team composition
+    // Filter out invalid rates and calculate average
+    const validRoles = roles.filter(role => 
+      role && 
+      typeof role.dailyRateGBP === 'number' && 
+      role.dailyRateGBP > 0
+    );
+
+    if (validRoles.length === 0) {
+      console.warn('No valid roles with positive rates found');
+      return 0;
+    }
+
+    const avgDailyRate = validRoles.reduce((sum, role) => sum + role.dailyRateGBP, 0) / validRoles.length;
+    
+    // Apply team size and overhead multiplier
+    const result = avgDailyRate * avgTeamSize * overheadMultiplier;
+    
+    // Sanity check
+    if (isNaN(result) || result < 0) {
+      console.warn('Invalid cost calculation result:', result);
+      return 0;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error calculating daily team cost:', error);
+    return 0;
+  }
 }
 
 /**

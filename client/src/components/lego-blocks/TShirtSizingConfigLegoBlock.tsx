@@ -23,6 +23,17 @@ import {
   Target,
   AlertTriangle
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface TShirtSize {
   name: string;
@@ -115,13 +126,127 @@ export default function TShirtSizingConfigLegoBlock() {
   const [editingSize, setEditingSize] = useState<number | null>(null);
   const [editingRole, setEditingRole] = useState<number | null>(null);
   const [editingRule, setEditingRule] = useState<number | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   // Update config when metadata changes
   useEffect(() => {
     setConfig(getCurrentConfig());
   }, [metadata?.tShirtSizing]);
 
+  // Validation functions
+  const validateConfig = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    // Validate sizes
+    config.sizes.forEach((size, index) => {
+      if (!size.name.trim()) {
+        errors[`size-name-${index}`] = 'Size name is required';
+      }
+      if (size.minWeeks < 1) {
+        errors[`size-min-weeks-${index}`] = 'Minimum weeks must be at least 1';
+      }
+      if (size.maxWeeks < size.minWeeks) {
+        errors[`size-max-weeks-${index}`] = 'Maximum weeks must be greater than minimum';
+      }
+      if (size.teamSizeMin < 1) {
+        errors[`size-team-min-${index}`] = 'Minimum team size must be at least 1';
+      }
+      if (size.teamSizeMax < size.teamSizeMin) {
+        errors[`size-team-max-${index}`] = 'Maximum team size must be greater than minimum';
+      }
+      if (!size.color.match(/^#[0-9A-F]{6}$/i)) {
+        errors[`size-color-${index}`] = 'Invalid color format';
+      }
+    });
+
+    // Validate roles
+    config.roles.forEach((role, index) => {
+      if (!role.type.trim()) {
+        errors[`role-type-${index}`] = 'Role type is required';
+      }
+      if (role.dailyRateGBP < 1) {
+        errors[`role-rate-${index}`] = 'Daily rate must be at least £1';
+      }
+      if (role.dailyRateGBP > 2000) {
+        errors[`role-rate-${index}`] = 'Daily rate seems unusually high (max £2000)';
+      }
+    });
+
+    // Validate overhead multiplier
+    if (config.overheadMultiplier < 0.5 || config.overheadMultiplier > 3.0) {
+      errors['overhead-multiplier'] = 'Overhead multiplier should be between 0.5 and 3.0';
+    }
+
+    // Validate mapping rules
+    config.mappingRules.forEach((rule, index) => {
+      if (!rule.name.trim()) {
+        errors[`rule-name-${index}`] = 'Rule name is required';
+      }
+      if (!config.sizes.find(s => s.name === rule.targetSize)) {
+        errors[`rule-target-${index}`] = 'Target size must match an existing size';
+      }
+      if (rule.priority < 1 || rule.priority > 100) {
+        errors[`rule-priority-${index}`] = 'Priority must be between 1 and 100';
+      }
+      
+      // Validate condition ranges
+      const { condition } = rule;
+      if (condition.impactMin !== undefined && (condition.impactMin < 1 || condition.impactMin > 5)) {
+        errors[`rule-impact-min-${index}`] = 'Impact minimum must be between 1 and 5';
+      }
+      if (condition.impactMax !== undefined && (condition.impactMax < 1 || condition.impactMax > 5)) {
+        errors[`rule-impact-max-${index}`] = 'Impact maximum must be between 1 and 5';
+      }
+      if (condition.effortMin !== undefined && (condition.effortMin < 1 || condition.effortMin > 5)) {
+        errors[`rule-effort-min-${index}`] = 'Effort minimum must be between 1 and 5';
+      }
+      if (condition.effortMax !== undefined && (condition.effortMax < 1 || condition.effortMax > 5)) {
+        errors[`rule-effort-max-${index}`] = 'Effort maximum must be between 1 and 5';
+      }
+      if (condition.impactMin !== undefined && condition.impactMax !== undefined && condition.impactMin > condition.impactMax) {
+        errors[`rule-impact-range-${index}`] = 'Impact minimum cannot be greater than maximum';
+      }
+      if (condition.effortMin !== undefined && condition.effortMax !== undefined && condition.effortMin > condition.effortMax) {
+        errors[`rule-effort-range-${index}`] = 'Effort minimum cannot be greater than maximum';
+      }
+    });
+
+    // Check for duplicate size names
+    const sizeNames = config.sizes.map(s => s.name.toLowerCase());
+    const duplicateNames = sizeNames.filter((name, index) => sizeNames.indexOf(name) !== index);
+    duplicateNames.forEach(name => {
+      const index = config.sizes.findIndex(s => s.name.toLowerCase() === name);
+      if (index !== -1) {
+        errors[`size-name-${index}`] = 'Size name must be unique';
+      }
+    });
+
+    // Check for duplicate role types
+    const roleTypes = config.roles.map(r => r.type.toLowerCase());
+    const duplicateTypes = roleTypes.filter((type, index) => roleTypes.indexOf(type) !== index);
+    duplicateTypes.forEach(type => {
+      const index = config.roles.findIndex(r => r.type.toLowerCase() === type);
+      if (index !== -1) {
+        errors[`role-type-${index}`] = 'Role type must be unique';
+      }
+    });
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const saveConfig = async () => {
+    if (!validateConfig()) {
+      toast({
+        title: "Validation Failed",
+        description: "Please fix the validation errors before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
     try {
       await updateMetadata({
         ...metadata!,
@@ -132,12 +257,15 @@ export default function TShirtSizingConfigLegoBlock() {
         title: "Configuration Saved",
         description: "T-shirt sizing configuration has been updated successfully.",
       });
+      setValidationErrors({});
     } catch (error) {
       toast({
         title: "Save Failed",
         description: "Failed to save T-shirt sizing configuration.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -176,9 +304,29 @@ export default function TShirtSizingConfigLegoBlock() {
     updateConfig({ sizes: [...config.sizes, newSize] });
   };
 
-  const removeSize = (index: number) => {
+  const handleRemoveSize = (index: number) => {
+    if (config.sizes.length <= 1) {
+      toast({
+        title: "Cannot Remove Size",
+        description: "At least one T-shirt size must be configured.",
+        variant: "destructive",
+      });
+      return;
+    }
     const newSizes = config.sizes.filter((_, i) => i !== index);
     updateConfig({ sizes: newSizes });
+    // Clear validation errors for removed size
+    const newErrors = { ...validationErrors };
+    Object.keys(newErrors).forEach(key => {
+      if (key.includes(`-${index}`)) {
+        delete newErrors[key];
+      }
+    });
+    setValidationErrors(newErrors);
+    toast({
+      title: "Size Removed",
+      description: `Size "${config.sizes[index]?.name}" has been removed.`,
+    });
   };
 
   const addRole = () => {
@@ -186,9 +334,29 @@ export default function TShirtSizingConfigLegoBlock() {
     updateConfig({ roles: [...config.roles, newRole] });
   };
 
-  const removeRole = (index: number) => {
+  const handleRemoveRole = (index: number) => {
+    if (config.roles.length <= 1) {
+      toast({
+        title: "Cannot Remove Role",
+        description: "At least one role must be configured for cost calculations.",
+        variant: "destructive",
+      });
+      return;
+    }
     const newRoles = config.roles.filter((_, i) => i !== index);
     updateConfig({ roles: newRoles });
+    // Clear validation errors for removed role
+    const newErrors = { ...validationErrors };
+    Object.keys(newErrors).forEach(key => {
+      if (key.includes(`role-`) && key.includes(`-${index}`)) {
+        delete newErrors[key];
+      }
+    });
+    setValidationErrors(newErrors);
+    toast({
+      title: "Role Removed",
+      description: `Role "${config.roles[index]?.type}" has been removed.`,
+    });
   };
 
   const addRule = () => {
@@ -201,9 +369,13 @@ export default function TShirtSizingConfigLegoBlock() {
     updateConfig({ mappingRules: [...config.mappingRules, newRule] });
   };
 
-  const removeRule = (index: number) => {
+  const handleRemoveRule = (index: number) => {
     const newRules = config.mappingRules.filter((_, i) => i !== index);
     updateConfig({ mappingRules: newRules });
+    toast({
+      title: "Rule Removed",
+      description: `Mapping rule "${config.mappingRules[index]?.name}" has been removed.`,
+    });
   };
 
   return (
@@ -229,9 +401,14 @@ export default function TShirtSizingConfigLegoBlock() {
                 data-testid="switch-enable-tshirt"
               />
             </div>
-            <Button onClick={saveConfig} className="bg-[#005DAA] hover:bg-[#004494]" data-testid="button-save-config">
+            <Button 
+              onClick={saveConfig} 
+              disabled={isSaving}
+              className="bg-[#005DAA] hover:bg-[#004494] disabled:opacity-50" 
+              data-testid="button-save-config"
+            >
               <Save className="h-4 w-4 mr-2" />
-              Save Configuration
+              {isSaving ? 'Saving...' : 'Save Configuration'}
             </Button>
           </div>
         </div>
@@ -276,15 +453,35 @@ export default function TShirtSizingConfigLegoBlock() {
                         >
                           {editingSize === index ? <X className="h-3 w-3" /> : <Edit2 className="h-3 w-3" />}
                         </Button>
-                        <Button
-                          onClick={() => removeSize(index)}
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600"
-                          data-testid={`button-delete-size-${index}`}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:bg-red-50"
+                              data-testid={`button-delete-size-${index}`}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove T-shirt Size</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to remove size "{size.name}"? This action cannot be undone and may affect existing mapping rules.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleRemoveSize(index)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Remove Size
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                     
@@ -297,7 +494,11 @@ export default function TShirtSizingConfigLegoBlock() {
                             value={size.name}
                             onChange={(e) => updateSize(index, { name: e.target.value })}
                             data-testid={`input-size-name-${index}`}
+                            className={validationErrors[`size-name-${index}`] ? 'border-red-500' : ''}
                           />
+                          {validationErrors[`size-name-${index}`] && (
+                            <p className="text-red-500 text-sm mt-1">{validationErrors[`size-name-${index}`]}</p>
+                          )}
                         </div>
                         <div>
                           <Label htmlFor={`size-color-${index}`}>Color</Label>
@@ -314,40 +515,60 @@ export default function TShirtSizingConfigLegoBlock() {
                           <Input
                             id={`size-min-weeks-${index}`}
                             type="number"
+                            min="1"
                             value={size.minWeeks}
                             onChange={(e) => updateSize(index, { minWeeks: parseInt(e.target.value) || 1 })}
                             data-testid={`input-size-min-weeks-${index}`}
+                            className={validationErrors[`size-min-weeks-${index}`] ? 'border-red-500' : ''}
                           />
+                          {validationErrors[`size-min-weeks-${index}`] && (
+                            <p className="text-red-500 text-sm mt-1">{validationErrors[`size-min-weeks-${index}`]}</p>
+                          )}
                         </div>
                         <div>
                           <Label htmlFor={`size-max-weeks-${index}`}>Max Weeks</Label>
                           <Input
                             id={`size-max-weeks-${index}`}
                             type="number"
+                            min="1"
                             value={size.maxWeeks}
                             onChange={(e) => updateSize(index, { maxWeeks: parseInt(e.target.value) || 1 })}
                             data-testid={`input-size-max-weeks-${index}`}
+                            className={validationErrors[`size-max-weeks-${index}`] ? 'border-red-500' : ''}
                           />
+                          {validationErrors[`size-max-weeks-${index}`] && (
+                            <p className="text-red-500 text-sm mt-1">{validationErrors[`size-max-weeks-${index}`]}</p>
+                          )}
                         </div>
                         <div>
                           <Label htmlFor={`size-team-min-${index}`}>Min Team Size</Label>
                           <Input
                             id={`size-team-min-${index}`}
                             type="number"
+                            min="1"
                             value={size.teamSizeMin}
                             onChange={(e) => updateSize(index, { teamSizeMin: parseInt(e.target.value) || 1 })}
                             data-testid={`input-size-team-min-${index}`}
+                            className={validationErrors[`size-team-min-${index}`] ? 'border-red-500' : ''}
                           />
+                          {validationErrors[`size-team-min-${index}`] && (
+                            <p className="text-red-500 text-sm mt-1">{validationErrors[`size-team-min-${index}`]}</p>
+                          )}
                         </div>
                         <div>
                           <Label htmlFor={`size-team-max-${index}`}>Max Team Size</Label>
                           <Input
                             id={`size-team-max-${index}`}
                             type="number"
+                            min="1"
                             value={size.teamSizeMax}
                             onChange={(e) => updateSize(index, { teamSizeMax: parseInt(e.target.value) || 1 })}
                             data-testid={`input-size-team-max-${index}`}
+                            className={validationErrors[`size-team-max-${index}`] ? 'border-red-500' : ''}
                           />
+                          {validationErrors[`size-team-max-${index}`] && (
+                            <p className="text-red-500 text-sm mt-1">{validationErrors[`size-team-max-${index}`]}</p>
+                          )}
                         </div>
                         <div className="col-span-2">
                           <Label htmlFor={`size-description-${index}`}>Description</Label>
@@ -408,15 +629,35 @@ export default function TShirtSizingConfigLegoBlock() {
                         >
                           {editingRole === index ? <X className="h-3 w-3" /> : <Edit2 className="h-3 w-3" />}
                         </Button>
-                        <Button
-                          onClick={() => removeRole(index)}
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600"
-                          data-testid={`button-delete-role-${index}`}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:bg-red-50"
+                              data-testid={`button-delete-role-${index}`}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove Role</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to remove role "{role.type}"? This action cannot be undone and will affect cost calculations.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleRemoveRole(index)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Remove Role
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                     
@@ -429,17 +670,27 @@ export default function TShirtSizingConfigLegoBlock() {
                             value={role.type}
                             onChange={(e) => updateRole(index, { type: e.target.value })}
                             data-testid={`input-role-type-${index}`}
+                            className={validationErrors[`role-type-${index}`] ? 'border-red-500' : ''}
                           />
+                          {validationErrors[`role-type-${index}`] && (
+                            <p className="text-red-500 text-sm mt-1">{validationErrors[`role-type-${index}`]}</p>
+                          )}
                         </div>
                         <div>
                           <Label htmlFor={`role-rate-${index}`}>Daily Rate (GBP)</Label>
                           <Input
                             id={`role-rate-${index}`}
                             type="number"
+                            min="1"
+                            max="2000"
                             value={role.dailyRateGBP}
                             onChange={(e) => updateRole(index, { dailyRateGBP: parseInt(e.target.value) || 0 })}
                             data-testid={`input-role-rate-${index}`}
+                            className={validationErrors[`role-rate-${index}`] ? 'border-red-500' : ''}
                           />
+                          {validationErrors[`role-rate-${index}`] && (
+                            <p className="text-red-500 text-sm mt-1">{validationErrors[`role-rate-${index}`]}</p>
+                          )}
                         </div>
                       </div>
                     )}
@@ -461,11 +712,16 @@ export default function TShirtSizingConfigLegoBlock() {
                     id="overhead-multiplier"
                     type="number"
                     step="0.1"
+                    min="0.5"
+                    max="3.0"
                     value={config.overheadMultiplier}
                     onChange={(e) => updateConfig({ overheadMultiplier: parseFloat(e.target.value) || 1.0 })}
-                    className="w-32 mt-1"
+                    className={`w-32 mt-1 ${validationErrors['overhead-multiplier'] ? 'border-red-500' : ''}`}
                     data-testid="input-overhead-multiplier"
                   />
+                  {validationErrors['overhead-multiplier'] && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors['overhead-multiplier']}</p>
+                  )}
                 </div>
               </div>
             </TabsContent>
@@ -505,15 +761,35 @@ export default function TShirtSizingConfigLegoBlock() {
                           >
                             {editingRule === actualIndex ? <X className="h-3 w-3" /> : <Edit2 className="h-3 w-3" />}
                           </Button>
-                          <Button
-                            onClick={() => removeRule(actualIndex)}
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600"
-                            data-testid={`button-delete-rule-${actualIndex}`}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 hover:bg-red-50"
+                                data-testid={`button-delete-rule-${actualIndex}`}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove Mapping Rule</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove mapping rule "{rule.name}"? This action cannot be undone and may affect how use cases are sized.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleRemoveRule(actualIndex)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Remove Rule
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </div>
                       

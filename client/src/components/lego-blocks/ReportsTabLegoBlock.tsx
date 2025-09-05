@@ -4,9 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import type { UseCase } from '../../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Target, BarChart3, PieChart as PieChartIcon, Sparkles } from 'lucide-react';
+import { TrendingUp, Target, BarChart3, PieChart as PieChartIcon, Sparkles, Building } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import ExecutiveAnalytics from '../analytics/ExecutiveAnalytics';
+import ResourcePlanningMetricsLegoBlock from './ResourcePlanningMetricsLegoBlock';
 
 /**
  * Reports Tab LEGO Block
@@ -46,7 +47,7 @@ export default function ReportsTabLegoBlock() {
 
   return (
     <Tabs defaultValue="enhanced" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="enhanced" className="flex items-center gap-2">
           <Sparkles className="h-4 w-4" />
           Executive Analytics
@@ -54,6 +55,10 @@ export default function ReportsTabLegoBlock() {
         <TabsTrigger value="detailed" className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4" />
           Detailed Reports
+        </TabsTrigger>
+        <TabsTrigger value="resource-planning" className="flex items-center gap-2">
+          <Building className="h-4 w-4" />
+          Resource Planning
         </TabsTrigger>
       </TabsList>
 
@@ -63,6 +68,10 @@ export default function ReportsTabLegoBlock() {
 
       <TabsContent value="detailed">
         <DetailedReportsView useCases={useCases} />
+      </TabsContent>
+
+      <TabsContent value="resource-planning">
+        <ResourcePlanningMetricsLegoBlock />
       </TabsContent>
     </Tabs>
   );
@@ -74,7 +83,7 @@ function DetailedReportsView({ useCases }: { useCases: UseCase[] }) {
     uc.impactScore !== null && 
     uc.effortScore !== null && 
     uc.quadrant &&
-    (uc.isActiveForRsa === 'true' || uc.isActiveForRsa === true)
+    uc.isActiveForRsa === 'true'
   );
 
   // Quadrant summary data
