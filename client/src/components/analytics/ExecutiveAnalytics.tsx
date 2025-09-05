@@ -56,6 +56,8 @@ export default function ExecutiveAnalytics() {
     
     const quickWins = activeUseCases.filter(uc => uc.quadrant === 'Quick Win');
     const strategicBets = activeUseCases.filter(uc => uc.quadrant === 'Strategic Bet');
+    const experimental = activeUseCases.filter(uc => uc.quadrant === 'Experimental');
+    const watchlist = activeUseCases.filter(uc => uc.quadrant === 'Watchlist');
     
     // Risk Assessment
     const highRiskUseCases = activeUseCases.filter(uc => 
@@ -73,6 +75,8 @@ export default function ExecutiveAnalytics() {
       highImpactUseCases: highImpactUseCases.length,
       quickWinCount: quickWins.length,
       strategicBetCount: strategicBets.length,
+      experimentalCount: experimental.length,
+      watchlistCount: watchlist.length,
       highRiskCount: highRiskUseCases.length,
       averageImpact: avgImpact,
       averageEffort: avgEffort,
@@ -148,27 +152,27 @@ export default function ExecutiveAnalytics() {
       value: analytics.strategicBetCount, 
       color: '#3B82F6', 
       gradientColor: 'rgba(59, 130, 246, 0.8)',
-      roi: 'Strategic Value',
+      size: 'Large',
       description: 'High Impact, High Effort',
       percentage: ((analytics.strategicBetCount / analytics.totalPortfolioValue) * 100).toFixed(1)
     },
     { 
       name: 'Experimental', 
-      value: useCases.filter(uc => uc.quadrant === 'Experimental').length, 
+      value: analytics.experimentalCount, 
       color: '#F59E0B', 
       gradientColor: 'rgba(245, 158, 11, 0.8)',
-      roi: 'Learning Value',
+      size: 'Small',
       description: 'Low Impact, Low Effort',
-      percentage: ((useCases.filter(uc => uc.quadrant === 'Experimental').length / analytics.totalPortfolioValue) * 100).toFixed(1)
+      percentage: ((analytics.experimentalCount / analytics.totalPortfolioValue) * 100).toFixed(1)
     },
     { 
       name: 'Watchlist', 
-      value: useCases.filter(uc => uc.quadrant === 'Watchlist').length, 
+      value: analytics.watchlistCount, 
       color: '#EF4444', 
       gradientColor: 'rgba(239, 68, 68, 0.8)',
-      roi: 'Review Required',
+      size: 'Variable',
       description: 'Low Impact, High Effort',
-      percentage: ((useCases.filter(uc => uc.quadrant === 'Watchlist').length / analytics.totalPortfolioValue) * 100).toFixed(1)
+      percentage: ((analytics.watchlistCount / analytics.totalPortfolioValue) * 100).toFixed(1)
     }
   ];
 
