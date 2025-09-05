@@ -1,12 +1,284 @@
 import XLSX from 'xlsx';
 import { db } from '../db';
-import { useCases } from '@shared/schema';
+import { useCases, metadataConfig } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { Response } from 'express';
 import { format } from 'date-fns';
 import { UseCaseDataExtractor } from './useCaseDataExtractor';
 
+// Validation interfaces
+interface ValidationSummary {
+  totalRecords: number;
+  recordsWithIssues: number;
+  criticalErrors: ValidationError[];
+  warnings: ValidationWarning[];
+  shouldProceed: boolean;
+  governanceFieldsAnalysis?: {
+    totalAiInventoryRecords: number;
+    recordsWithPopulatedGovernance: number;
+    averageGovernanceCompletion: number;
+  };
+}
+
+interface ValidationError {
+  recordId: string;
+  field: string;
+  issue: string;
+  currentValue: any;
+}
+
+interface ValidationWarning {
+  recordId: string;
+  field: string;
+  issue: string;
+  currentValue: any;
+  suggestion?: string;
+}
+
 export class ExcelExportService {
+
+  /**
+   * Comprehensive data validation for Excel export
+   * Validates required fields, sanitizes data, and provides validation summary
+   */
+  private static async validateUseCasesForExport(useCases: any[]): Promise<ValidationSummary> {
+    const criticalErrors: ValidationError[] = [];
+    const warnings: ValidationWarning[] = [];
+    let recordsWithIssues = 0;
+    
+    // Get valid values from metadata for validation
+    const metadata = await db.select().from(metadataConfig).limit(1);
+    const validUseCaseStatuses = metadata[0]?.useCaseStatuses || ['Discovery', 'Backlog', 'In-flight', 'Implemented', 'On Hold'];
+    const validLibrarySources = metadata[0]?.sourceTypes || ['rsa_internal', 'industry_standard', 'ai_inventory'];
+    
+    // AI Inventory governance analysis
+    const aiInventoryItems = useCases.filter(uc => uc.librarySource === 'ai_inventory');
+    let aiInventoryWithGovernance = 0;
+    let totalGovernanceFields = 0;
+    
+    for (const useCase of useCases) {
+      let hasIssues = false;
+      const recordId = useCase.meaningfulId || useCase.id;
+      
+      // CRITICAL VALIDATIONS - Required fields
+      if (!useCase.title || useCase.title.toString().trim() === '') {
+        criticalErrors.push({
+          recordId,
+          field: 'title',
+          issue: 'Title is required and cannot be empty',
+          currentValue: useCase.title
+        });
+        hasIssues = true;
+      }
+      
+      if (!useCase.description || useCase.description.toString().trim() === '') {
+        criticalErrors.push({
+          recordId,
+          field: 'description',
+          issue: 'Description is required and cannot be empty',
+          currentValue: useCase.description
+        });
+        hasIssues = true;
+      }
+      
+      // Use Case Status validation
+      if (useCase.useCaseStatus && !validUseCaseStatuses.includes(useCase.useCaseStatus)) {
+        criticalErrors.push({
+          recordId,
+          field: 'useCaseStatus',
+          issue: `Use Case Status must be one of: ${validUseCaseStatuses.join(', ')}`,
+          currentValue: useCase.useCaseStatus
+        });
+        hasIssues = true;
+      }
+      
+      // Library Source validation
+      if (useCase.librarySource && !validLibrarySources.includes(useCase.librarySource)) {
+        criticalErrors.push({
+          recordId,
+          field: 'librarySource',
+          issue: `Library Source must be one of: ${validLibrarySources.join(', ')}`,
+          currentValue: useCase.librarySource
+        });
+        hasIssues = true;
+      }
+      
+      // WARNINGS - Data quality checks
+      
+      // Numeric score validation (1-5 range)
+      const scoreFields = [
+        'revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
+        'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness', 'regulatoryCompliance'
+      ];
+      
+      for (const field of scoreFields) {
+        const value = useCase[field];
+        if (value !== null && value !== undefined && value !== '') {
+          const numValue = Number(value);
+          if (isNaN(numValue) || numValue < 1 || numValue > 5) {
+            warnings.push({
+              recordId,
+              field,
+              issue: 'Score values should be between 1-5',
+              currentValue: value,
+              suggestion: 'Use numeric values 1, 2, 3, 4, or 5, or leave empty'
+            });
+            hasIssues = true;
+          }
+        }
+      }
+      
+      // Missing important optional fields
+      if (!useCase.primaryBusinessOwner || useCase.primaryBusinessOwner.toString().trim() === '') {
+        warnings.push({
+          recordId,
+          field: 'primaryBusinessOwner',
+          issue: 'Primary Business Owner is recommended for implementation tracking',
+          currentValue: useCase.primaryBusinessOwner,
+          suggestion: 'Add business owner name for better accountability'
+        });
+        hasIssues = true;
+      }
+      
+      // AI Inventory governance field analysis
+      if (useCase.librarySource === 'ai_inventory') {
+        const governanceFields = [
+          'businessFunction', 'riskToCustomers', 'riskToRsa', 'dataUsed', 'modelOwner',
+          'rsaPolicyGovernance', 'validationResponsibility', 'informedBy'
+        ];
+        
+        let populatedFields = 0;
+        for (const field of governanceFields) {
+          if (useCase[field] && useCase[field].toString().trim() !== '') {
+            populatedFields++;
+          }
+        }
+        
+        if (populatedFields > 0) {
+          aiInventoryWithGovernance++;
+        }
+        totalGovernanceFields += populatedFields;
+        
+        // Warn if governance fields are mostly empty
+        if (populatedFields < governanceFields.length * 0.5) {
+          warnings.push({
+            recordId,
+            field: 'governance_fields',
+            issue: `Only ${populatedFields}/${governanceFields.length} governance fields populated`,
+            currentValue: `${Math.round((populatedFields / governanceFields.length) * 100)}% complete`,
+            suggestion: 'Complete governance fields for better compliance tracking'
+          });
+          hasIssues = true;
+        }
+      }
+      
+      // Suspicious scoring patterns
+      if (useCase.librarySource !== 'ai_inventory') {
+        const businessScores = [useCase.revenueImpact, useCase.costSavings, useCase.riskReduction, useCase.brokerPartnerExperience, useCase.strategicFit];
+        const validBusinessScores = businessScores.filter(score => score >= 1 && score <= 5);
+        
+        if (validBusinessScores.length >= 3 && validBusinessScores.every(score => score === 5)) {
+          warnings.push({
+            recordId,
+            field: 'business_scores',
+            issue: 'All business impact scores are maximum (5) - verify scoring accuracy',
+            currentValue: 'All scores = 5',
+            suggestion: 'Review scoring to ensure realistic assessment'
+          });
+          hasIssues = true;
+        }
+      }
+      
+      if (hasIssues) {
+        recordsWithIssues++;
+      }
+    }
+    
+    // Calculate governance analysis for AI Inventory
+    const governanceAnalysis = aiInventoryItems.length > 0 ? {
+      totalAiInventoryRecords: aiInventoryItems.length,
+      recordsWithPopulatedGovernance: aiInventoryWithGovernance,
+      averageGovernanceCompletion: Math.round((totalGovernanceFields / (aiInventoryItems.length * 8)) * 100)
+    } : undefined;
+    
+    const shouldProceed = criticalErrors.length === 0;
+    
+    // Log validation results
+    console.log(`Excel Export Validation Complete:`, {
+      totalRecords: useCases.length,
+      recordsWithIssues,
+      criticalErrors: criticalErrors.length,
+      warnings: warnings.length,
+      shouldProceed
+    });
+    
+    if (criticalErrors.length > 0) {
+      console.error('Critical validation errors found:', criticalErrors);
+    }
+    
+    return {
+      totalRecords: useCases.length,
+      recordsWithIssues,
+      criticalErrors,
+      warnings,
+      shouldProceed,
+      governanceFieldsAnalysis: governanceAnalysis
+    };
+  }
+
+  /**
+   * Sanitize use case data for Excel export
+   * Removes invalid characters and cleans arrays
+   */
+  private static sanitizeUseCaseData(useCases: any[]): any[] {
+    return useCases.map(useCase => {
+      const sanitized = { ...useCase };
+      
+      // Sanitize string fields - remove Excel-breaking characters
+      const stringFields = ['title', 'description', 'problemStatement', 'useCaseType', 'primaryBusinessOwner', 
+                           'keyDependencies', 'implementationTimeline', 'successMetrics', 'estimatedValue',
+                           'valueMeasurementApproach', 'integrationRequirements', 'activationReason',
+                           'customerHarmRisk', 'riskToCustomers', 'riskToRsa', 'dataUsed', 'modelOwner'];
+      
+      for (const field of stringFields) {
+        if (sanitized[field] && typeof sanitized[field] === 'string') {
+          // Remove control characters and Excel-breaking chars, trim whitespace
+          sanitized[field] = sanitized[field]
+            .replace(/[\x00-\x1F\x7F]/g, ' ') // Remove control characters
+            .replace(/\t/g, ' ') // Replace tabs with spaces
+            .replace(/\r\n|\r|\n/g, ' ') // Replace line breaks with spaces
+            .trim();
+        }
+      }
+      
+      // Clean multi-select arrays
+      const arrayFields = ['processes', 'activities', 'linesOfBusiness', 'businessSegments', 'geographies',
+                          'aiMlTechnologies', 'dataSources', 'stakeholderGroups', 'horizontalUseCaseTypes'];
+      
+      for (const field of arrayFields) {
+        if (Array.isArray(sanitized[field])) {
+          sanitized[field] = sanitized[field]
+            .filter(item => item != null && item !== '')
+            .map(item => typeof item === 'string' ? item.trim() : item);
+        }
+      }
+      
+      // Ensure numeric fields are valid numbers or empty strings
+      const numericFields = ['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit',
+                            'dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness', 'regulatoryCompliance'];
+      
+      for (const field of numericFields) {
+        if (sanitized[field] !== null && sanitized[field] !== undefined) {
+          const numValue = Number(sanitized[field]);
+          if (isNaN(numValue)) {
+            sanitized[field] = ''; // Convert invalid numbers to empty string
+          }
+        }
+      }
+      
+      return sanitized;
+    });
+  }
   
   /**
    * Generate comprehensive Excel export with multiple worksheets
@@ -40,6 +312,32 @@ export class ExcelExportService {
       
       console.log('Found use cases for Excel export:', allUseCases.length);
       
+      // VALIDATE DATA BEFORE EXPORT
+      console.log('🔍 Starting data validation...');
+      const validationSummary = await this.validateUseCasesForExport(allUseCases);
+      
+      // If critical errors exist, return error response with validation details
+      if (!validationSummary.shouldProceed) {
+        console.error('❌ Export blocked due to critical validation errors');
+        res.status(400).json({
+          success: false,
+          error: 'Export blocked due to data validation errors',
+          validation: validationSummary
+        });
+        return;
+      }
+      
+      // SANITIZE DATA FOR EXPORT
+      console.log('🧹 Sanitizing data for export...');
+      const sanitizedUseCases = this.sanitizeUseCaseData(allUseCases);
+      
+      // Log validation summary (warnings only since critical errors would have returned already)
+      if (validationSummary.warnings.length > 0) {
+        console.warn(`⚠️ Export proceeding with ${validationSummary.warnings.length} data quality warnings`);
+      } else {
+        console.log('✅ Data validation passed with no issues');
+      }
+      
       // Create new workbook
       const workbook = XLSX.utils.book_new();
       
@@ -48,26 +346,26 @@ export class ExcelExportService {
       XLSX.utils.book_append_sheet(workbook, importGuideSheet, 'Import Guide');
       
       // WORKSHEET 2: Summary Overview
-      const summaryData = UseCaseDataExtractor.getSummaryStats(allUseCases);
+      const summaryData = UseCaseDataExtractor.getSummaryStats(sanitizedUseCases);
       const summarySheet = this.createSummarySheet(summaryData);
       XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
       
       // WORKSHEET 3: Strategic Use Cases (scored)
-      const strategicUseCases = allUseCases.filter(uc => uc.librarySource !== 'ai_inventory');
+      const strategicUseCases = sanitizedUseCases.filter(uc => uc.librarySource !== 'ai_inventory');
       if (strategicUseCases.length > 0) {
         const strategicSheet = this.createStrategicUseCasesSheet(strategicUseCases);
         XLSX.utils.book_append_sheet(workbook, strategicSheet, 'Strategic Use Cases');
       }
       
       // WORKSHEET 4: AI Inventory (governance)
-      const aiInventoryItems = allUseCases.filter(uc => uc.librarySource === 'ai_inventory');
+      const aiInventoryItems = sanitizedUseCases.filter(uc => uc.librarySource === 'ai_inventory');
       if (aiInventoryItems.length > 0) {
         const aiInventorySheet = this.createAiInventorySheet(aiInventoryItems);
         XLSX.utils.book_append_sheet(workbook, aiInventorySheet, 'AI Inventory');
       }
       
       // WORKSHEET 5: Complete Raw Data
-      const rawDataSheet = this.createRawDataSheet(allUseCases);
+      const rawDataSheet = this.createRawDataSheet(sanitizedUseCases);
       XLSX.utils.book_append_sheet(workbook, rawDataSheet, 'Raw Data');
       
       // Generate Excel buffer
@@ -78,10 +376,21 @@ export class ExcelExportService {
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.setHeader('Content-Length', buffer.length);
+      res.setHeader('X-Validation-Summary', JSON.stringify({
+        totalRecords: validationSummary.totalRecords,
+        recordsWithIssues: validationSummary.recordsWithIssues,
+        criticalErrorCount: validationSummary.criticalErrors.length,
+        warningCount: validationSummary.warnings.length,
+        governanceAnalysis: validationSummary.governanceFieldsAnalysis
+      }));
       
       // Send the buffer
       res.send(buffer);
-      console.log('Excel export generated successfully');
+      console.log(`✅ Excel export generated successfully with validation summary:`, {
+        totalRecords: validationSummary.totalRecords,
+        issues: validationSummary.recordsWithIssues,
+        warnings: validationSummary.warnings.length
+      });
       
     } catch (error) {
       console.error('Failed to generate Excel export:', error);
@@ -89,6 +398,22 @@ export class ExcelExportService {
         res.status(500).json({ error: 'Failed to generate Excel export' });
       }
     }
+  }
+
+  /**
+   * Public method to validate use case data for API endpoints
+   * Returns validation summary without performing export
+   */
+  static async validateExportData(useCases: any[]): Promise<ValidationSummary> {
+    return this.validateUseCasesForExport(useCases);
+  }
+
+  /**
+   * Public method to sanitize use case data for API endpoints
+   * Returns cleaned data without performing export
+   */
+  static sanitizeExportData(useCases: any[]): any[] {
+    return this.sanitizeUseCaseData(useCases);
   }
   
   /**
