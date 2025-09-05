@@ -1,7 +1,9 @@
-import React from 'react';
-import { BarChart3, Target, TrendingUp, Sparkles, Users, Award, Zap, Calendar } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { BarChart3, Target, TrendingUp, Sparkles, Users, Award, Zap, Calendar, DollarSign, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useUseCases } from '../../contexts/UseCaseContext';
+import { calculateTShirtSize } from '@shared/calculations';
+import { getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 
 /**
  * LEGO Block: Summary Metrics Display
@@ -16,7 +18,8 @@ export default function SummaryMetricsLegoBlock() {
     getAverageEffort,
     getNewThisMonthCount,
     setFilters,
-    filters 
+    filters,
+    metadata 
   } = useUseCases();
 
   const filteredUseCases = getFilteredUseCases();
@@ -24,6 +27,56 @@ export default function SummaryMetricsLegoBlock() {
   const averageImpact = getAverageImpact();
   const averageEffort = getAverageEffort();
   const newThisMonth = getNewThisMonthCount();
+
+  // Calculate portfolio resource metrics
+  const portfolioMetrics = useMemo(() => {
+    const tShirtConfig = metadata?.tShirtSizing;
+    if (!tShirtConfig?.enabled) return null;
+
+    let totalCostMin = 0;
+    let totalCostMax = 0;
+    let totalWeeksMin = 0;
+    let totalWeeksMax = 0;
+    let validProjects = 0;
+
+    filteredUseCases.forEach(useCase => {
+      const impactScore = getEffectiveImpactScore(useCase as any);
+      const effortScore = getEffectiveEffortScore(useCase as any);
+      
+      if (impactScore && effortScore) {
+        const sizing = calculateTShirtSize(impactScore, effortScore, tShirtConfig);
+        
+        if (sizing.size && !sizing.error) {
+          validProjects++;
+          if (sizing.estimatedCostMin) totalCostMin += sizing.estimatedCostMin;
+          if (sizing.estimatedCostMax) totalCostMax += sizing.estimatedCostMax;
+          if (sizing.estimatedWeeksMin) totalWeeksMin += sizing.estimatedWeeksMin;
+          if (sizing.estimatedWeeksMax) totalWeeksMax += sizing.estimatedWeeksMax;
+        }
+      }
+    });
+
+    const formatCurrency = (amount: number) => {
+      if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
+      if (amount >= 1000) return `£${(amount / 1000).toFixed(0)}K`;
+      return `£${Math.round(amount).toLocaleString()}`;
+    };
+
+    const formatDuration = (weeks: number) => {
+      if (weeks >= 52) return `${(weeks / 52).toFixed(1)}yr`;
+      if (weeks >= 4) return `${Math.round(weeks / 4)}mo`;
+      return `${Math.round(weeks)}w`;
+    };
+
+    return {
+      totalCostRange: validProjects > 0 ? 
+        `${formatCurrency(totalCostMin)} - ${formatCurrency(totalCostMax)}` : '£0',
+      totalTimelineRange: validProjects > 0 ?
+        `${formatDuration(totalWeeksMin)} - ${formatDuration(totalWeeksMax)}` : '0w',
+      validProjects,
+      avgCostPerProject: validProjects > 0 ? formatCurrency(totalCostMin / validProjects) : '£0'
+    };
+  }, [filteredUseCases, metadata]);
 
   // Metric click handlers for matrix filtering
   const handleQuadrantFilter = (quadrant: string) => {
@@ -123,6 +176,33 @@ export default function SummaryMetricsLegoBlock() {
             </button>
           ) : null}
         </p>
+
+        {/* Portfolio Resource Metrics */}
+        {portfolioMetrics && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <MetricCard
+              icon={DollarSign}
+              label="Portfolio Investment"
+              value={portfolioMetrics.totalCostRange}
+              subtitle={`Avg: ${portfolioMetrics.avgCostPerProject} per project`}
+              color="#10B981"
+            />
+            <MetricCard
+              icon={Clock}
+              label="Portfolio Timeline"
+              value={portfolioMetrics.totalTimelineRange}
+              subtitle={`${portfolioMetrics.validProjects} projects sized`}
+              color="#3B82F6"
+            />
+            <MetricCard
+              icon={Users}
+              label="Resource Planning"
+              value={`${portfolioMetrics.validProjects}/${filteredUseCases.length}`}
+              subtitle="Projects with estimates"
+              color="#8B5CF6"
+            />
+          </div>
+        )}
         
         {/* Complexity and Impact Scale Indicators */}
         <div className="flex items-center justify-between text-sm text-gray-500 mb-2">

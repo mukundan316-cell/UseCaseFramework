@@ -48,6 +48,7 @@ import { getSourceConfig, getSourceBackgroundTint } from '../../utils/sourceColo
 import { getQuadrantColor } from '../../utils/calculations';
 import ReusableButton from './ReusableButton';
 import PresentationPreviewBlock from './PresentationPreviewBlock';
+import TShirtSizingDisplayLegoBlock from './TShirtSizingDisplayLegoBlock';
 
 interface UseCaseDetailDrawerProps {
   isOpen: boolean;
@@ -389,6 +390,15 @@ export default function UseCaseDetailDrawer({
                         {effectiveQuadrant}
                       </Badge>
                     </div>
+                  </div>
+                  
+                  {/* T-shirt Sizing Display */}
+                  <div className="mt-4">
+                    <TShirtSizingDisplayLegoBlock
+                      impactScore={effectiveImpact || 0}
+                      effortScore={effectiveEffort || 0}
+                      quadrant={effectiveQuadrant}
+                    />
                   </div>
                 </div>
               )}
