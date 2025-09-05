@@ -2,9 +2,11 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   ArrowUpDown, ArrowUp, ArrowDown, Target, DollarSign, 
-  Clock, Shirt, TrendingUp, Users, Eye
+  Clock, Shirt, TrendingUp, Users, Eye, HelpCircle, Info
 } from 'lucide-react';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 import { calculateTShirtSize, calculateAnnualBenefitRange } from '@shared/calculations';
@@ -42,6 +44,10 @@ interface TableRow {
 export default function PortfolioTableView({ useCases, metadata, onViewUseCase, showDetails = false }: PortfolioTableViewProps) {
   const [sortField, setSortField] = useState<SortField>('impact');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [calculationDialogOpen, setCalculationDialogOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState<{type: string; title: string; content: string}>({
+    type: '', title: '', content: ''
+  });
 
   // Listen for clear filters event from parent component
   useEffect(() => {
@@ -187,17 +193,131 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
     return `${formatWeeks(min)} - ${formatWeeks(max)}`;
   };
 
+  // Helper functions for tooltip content
+  const getTShirtTooltip = (row: TableRow) => {
+    const tShirtConfig = metadata?.tShirtSizing;
+    const sizeConfig = tShirtConfig?.sizes?.find((s: any) => s.name === row.tshirtSize);
+    
+    if (!sizeConfig) return `Size ${row.tshirtSize}: Based on impact/effort scoring`;
+    
+    return (
+      <div className="space-y-1">
+        <div className="font-medium">Size {row.tshirtSize}: {sizeConfig.description}</div>
+        <div className="text-xs">Impact {row.impact.toFixed(1)} + Effort {row.effort.toFixed(1)} → {row.tshirtSize} complexity</div>
+        <div className="text-xs text-blue-400">Click T-Shirt header for mapping rules</div>
+      </div>
+    );
+  };
+
+  const getCostTooltip = (row: TableRow) => {
+    if (!row.costMin || !row.costMax || !row.teamSize) {
+      return 'Cost calculation requires T-shirt sizing configuration';
+    }
+    
+    const tShirtConfig = metadata?.tShirtSizing;
+    const avgCost = (row.costMin + row.costMax) / 2;
+    const avgWeeks = row.weeksMin && row.weeksMax ? (row.weeksMin + row.weeksMax) / 2 : 0;
+    const avgDailyRate = tShirtConfig?.roles?.reduce((sum: number, role: any) => sum + role.dailyRateGBP, 0) / (tShirtConfig?.roles?.length || 1) || 400;
+    const overhead = tShirtConfig?.overheadMultiplier || 1.35;
+    
+    return (
+      <div className="space-y-1">
+        <div className="font-medium">{formatCurrency(row.costMin, row.costMax)}</div>
+        <div className="text-xs">{row.teamSize} × £{Math.round(avgDailyRate)}/day × {Math.round(avgWeeks)} weeks × {overhead}x overhead</div>
+        <div className="text-xs text-blue-400">Click Cost Range header for rate details</div>
+      </div>
+    );
+  };
+
+  const getTimelineTooltip = (row: TableRow) => {
+    if (!row.weeksMin || !row.weeksMax) {
+      return 'Timeline estimation requires T-shirt sizing configuration';
+    }
+    
+    return (
+      <div className="space-y-1">
+        <div className="font-medium">{formatDuration(row.weeksMin, row.weeksMax)}</div>
+        <div className="text-xs">Based on {row.tshirtSize}-size projects ({row.weeksMin}-{row.weeksMax} weeks) with buffer</div>
+        <div className="text-xs text-blue-400">Includes team availability and complexity factors</div>
+      </div>
+    );
+  };
+
+  // Interactive header content functions
+  const getImpactExplanation = () => ({
+    title: 'Impact Score Calculation',
+    content: `Business Impact Score = Weighted average of:
+• Revenue Impact (${metadata?.scoringModel?.businessValue?.revenueImpact || 20}%)
+• Cost Savings (${metadata?.scoringModel?.businessValue?.costSavings || 20}%)
+• Risk Reduction (${metadata?.scoringModel?.businessValue?.riskReduction || 20}%)
+• Broker Partner Experience (${metadata?.scoringModel?.businessValue?.brokerPartnerExperience || 20}%)
+• Strategic Fit (${metadata?.scoringModel?.businessValue?.strategicFit || 20}%)
+
+Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
+  });
+
+  const getTShirtExplanation = () => {
+    const tShirtConfig = metadata?.tShirtSizing;
+    if (!tShirtConfig?.enabled) {
+      return {
+        title: 'T-Shirt Sizing',
+        content: 'T-shirt sizing is not currently enabled. Contact your administrator to configure sizing rules and UK benchmark rates.'
+      };
+    }
+
+    const mappingRules = tShirtConfig.mappingRules?.map((rule: any) => 
+      `• ${rule.name}: Impact ${rule.condition.impactMin || '?'}+ / Effort ${rule.condition.effortMax || '?'}- → ${rule.targetSize}`
+    ).join('\n') || 'No mapping rules configured';
+
+    return {
+      title: 'T-Shirt Size Mapping Rules',
+      content: `Current mapping rules:\n${mappingRules}\n\nSizes range from XS (1-4 weeks, 1-2 people) to XL (26-52 weeks, 8-15 people) based on UK benchmarks.`
+    };
+  };
+
+  const getCostExplanation = () => {
+    const tShirtConfig = metadata?.tShirtSizing;
+    const roles = tShirtConfig?.roles || [];
+    const roleRates = roles.map((role: any) => `• ${role.type}: £${role.dailyRateGBP}/day`).join('\n');
+    const overhead = tShirtConfig?.overheadMultiplier || 1.35;
+
+    return {
+      title: 'Cost Calculation Method',
+      content: `UK Benchmark Rates:\n${roleRates || '• No roles configured'}\n\nFormula: Team Size × Average Daily Rate × Duration × ${overhead}x Overhead\n\nOverhead includes project management, infrastructure, training, and contingency.`
+    };
+  };
+
+  const showCalculationDialog = (type: string) => {
+    let content;
+    switch (type) {
+      case 'impact':
+        content = getImpactExplanation();
+        break;
+      case 'tshirt':
+        content = getTShirtExplanation();
+        break;
+      case 'cost':
+        content = getCostExplanation();
+        break;
+      default:
+        return;
+    }
+    setDialogContent({ type, ...content });
+    setCalculationDialogOpen(true);
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5" />
-          Portfolio Resource Planning
-        </CardTitle>
-        <p className="text-sm text-gray-600">
-          Strategic overview with T-shirt sizing and resource estimates for active portfolio
-        </p>
-      </CardHeader>
+    <TooltipProvider>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Portfolio Resource Planning
+          </CardTitle>
+          <p className="text-sm text-gray-600">
+            Strategic overview with T-shirt sizing and resource estimates for active portfolio
+          </p>
+        </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -215,16 +335,33 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
                   </Button>
                 </th>
                 <th className="text-center p-3 font-semibold">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => handleSort('impact')}
-                    className="flex items-center gap-1 hover:bg-gray-50"
-                  >
-                    <Target className="h-4 w-4" />
-                    Impact
-                    {getSortIcon('impact')}
-                  </Button>
+                  <div className="flex items-center gap-1 justify-center">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleSort('impact')}
+                      className="flex items-center gap-1 hover:bg-gray-50"
+                    >
+                      <Target className="h-4 w-4" />
+                      Impact
+                      {getSortIcon('impact')}
+                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => showCalculationDialog('impact')}
+                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                        >
+                          <HelpCircle className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to see how Impact scores are calculated</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </th>
                 <th className="text-center p-3 font-semibold">
                   <Button 
@@ -239,28 +376,62 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
                   </Button>
                 </th>
                 <th className="text-center p-3 font-semibold">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => handleSort('tshirt')}
-                    className="flex items-center gap-1 hover:bg-gray-50"
-                  >
-                    <Shirt className="h-4 w-4" />
-                    T-Shirt
-                    {getSortIcon('tshirt')}
-                  </Button>
+                  <div className="flex items-center gap-1 justify-center">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleSort('tshirt')}
+                      className="flex items-center gap-1 hover:bg-gray-50"
+                    >
+                      <Shirt className="h-4 w-4" />
+                      T-Shirt
+                      {getSortIcon('tshirt')}
+                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => showCalculationDialog('tshirt')}
+                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                        >
+                          <HelpCircle className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to see T-shirt sizing mapping rules</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </th>
                 <th className="text-center p-3 font-semibold">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => handleSort('cost')}
-                    className="flex items-center gap-1 hover:bg-gray-50"
-                  >
-                    <DollarSign className="h-4 w-4" />
-                    Cost Range
-                    {getSortIcon('cost')}
-                  </Button>
+                  <div className="flex items-center gap-1 justify-center">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleSort('cost')}
+                      className="flex items-center gap-1 hover:bg-gray-50"
+                    >
+                      <DollarSign className="h-4 w-4" />
+                      Cost Range
+                      {getSortIcon('cost')}
+                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => showCalculationDialog('cost')}
+                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                        >
+                          <HelpCircle className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to see cost calculation method</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </th>
                 <th className="text-center p-3 font-semibold">
                   <div className="flex items-center gap-1 justify-center">
@@ -312,22 +483,43 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
                     </span>
                   </td>
                   <td className="p-3 text-center">
-                    <Badge 
-                      className="text-white font-medium"
-                      style={{ backgroundColor: row.tshirtColor }}
-                    >
-                      {row.tshirtSize}
-                    </Badge>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge 
+                          className="text-white font-medium cursor-help"
+                          style={{ backgroundColor: row.tshirtColor }}
+                        >
+                          {row.tshirtSize}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {getTShirtTooltip(row)}
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   <td className="p-3 text-center">
-                    <div className="font-mono text-sm">
-                      {formatCurrency(row.costMin, row.costMax)}
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="font-mono text-sm cursor-help">
+                          {formatCurrency(row.costMin, row.costMax)}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {getCostTooltip(row)}
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   <td className="p-3 text-center">
-                    <div className="font-mono text-sm">
-                      {formatDuration(row.weeksMin, row.weeksMax)}
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="font-mono text-sm cursor-help">
+                          {formatDuration(row.weeksMin, row.weeksMax)}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {getTimelineTooltip(row)}
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   <td className="p-3 text-center">
                     <div className="font-semibold text-emerald-600">
@@ -384,7 +576,29 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
           </div>
         </div>
       </CardContent>
+      
+      {/* Calculation Explanation Dialog */}
+      <Dialog open={calculationDialogOpen} onOpenChange={setCalculationDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Info className="h-5 w-5 text-blue-600" />
+              {dialogContent.title}
+            </DialogTitle>
+            <DialogDescription>
+              Understanding how these values are calculated helps ensure accurate resource planning and stakeholder confidence.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-md border">
+              {dialogContent.content}
+            </pre>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
+    </TooltipProvider>
   );
 }
 

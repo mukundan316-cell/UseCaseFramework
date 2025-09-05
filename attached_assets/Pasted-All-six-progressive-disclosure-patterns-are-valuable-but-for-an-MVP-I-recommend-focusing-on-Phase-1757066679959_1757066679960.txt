@@ -1,0 +1,20 @@
+All six progressive disclosure patterns are valuable, but for an MVP I recommend focusing on **Phase 1: Hover Tooltips** and **Phase 2: Interactive Column Headers**. These deliver maximum transparency with minimal UI work:
+
+1. **Hover Tooltips (Phase 1)**  
+   – T-Shirt Badge: Tooltip with “Size M: Impact 3.6 + Effort 2.5 → Medium” and link to mapping rules  
+   – Cost Range: Tooltip showing “3 people × £400/day × 8–16 weeks × 1.35 overhead = £111K–£223K”  
+   – Timeline: Tooltip “8–16 weeks based on M-size buffer”  
+
+2. **Interactive Column Headers (Phase 2)**  
+   – Impact: Click header to show “Weighted average of Revenue, Cost Savings, Risk Reduction, Broker Experience, Strategic Fit”  
+   – T-Shirt: Click to display current mapping rule thresholds  
+   – Cost Range: Click to reveal “Role rates: Dev £400, Analyst £350, PM £500; Overhead 35%”  
+
+These two enhancements:  
+-  **Keep the table clean**—no extra icons or expanding rows everywhere  
+-  **Provide context on demand**—users hover or click exactly where they need explanation  
+-  **Are quick wins**—can be built using existing tooltip and modal components  
+
+Once these are live, you can consider **Expandable Row Details** in Phase 3 for power users needing full scoring breakdowns.
+
+[1](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/81367901/8cf89df2-ad11-4064-bb0c-10479c9e01a9/image.jpg?AWSAccessKeyId=ASIA2F3EMEYEVLHPK77M&Signature=ekBrzUVaMon%2FsYwoKNxlVDK416s%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEAoaCXVzLWVhc3QtMSJHMEUCIBTrVBqnw1y1pEHJm5bXS8eS8sRHoDOkdVylnHqFsNbSAiEAhq0T7S0uIYzfv98ghmsbeIsqoTHs643is3VICVNzkzoq8QQIcxABGgw2OTk3NTMzMDk3MDUiDPMXmjab7NaDnVFfbSrOBG3VqUcD3N0%2BeYlFl4TjRiophDW4mOCZv0lvnKSGzcVh3nKp1AnSeIEEbGcSZwUxW1kvnypaXyu%2FFvm5AAakO0YJwFuo%2F2v42Kp%2Bjm6r9TneWaIiXqlyjoMIFLa7NjEns%2B1E%2FREluhjM%2BXWbGBl%2FF2dNKqMlQ0sJxvHDZc%2BMN6PFafU%2FtB%2B6hWlRxJj8fx6JL12RoAy9Z11d9q5G9qTeEdmF0FzOycvh2YUADR2p5rU%2FHIYcjHvYewe280A4VTvIDTLvp9QvOGyaEbo4FBLMME0QdVQeEiSDZy7%2BR0KmPy1HoxiRAcY%2Bx%2FT4vDY8nrGBAOGfAVWm7WjCpOyKjsdRaditnLLbxU9t52KtZgwqAak99Q8YCa0A1m%2FEfb4qp6d755ycaDT86S7rMh%2Bs%2F7UzWhvoS%2Fi8vX6RmPk0srBVCrMsgwBbRh2yJQTmxRxyiyTraeeFkAs0jwrwk%2F0a4DWudXrB17ZPZVXvFY%2FoLRyH2Muy0sQOFMuvhFf7ovxmAeqLcNf6nRa8jmgGrGJ9dFEaZeJJoIa8RSfkx4cPkGosyw2a9ceQHCQoxAf1mDhhUJMyaqOQIBLQKKPMn%2BpDssEzkgQH8Ywrg%2BNoZvNtJiHPSLJsuEILvyTyKxvs2ctm2sRrIflaSOF9qCExf78RntRulBIN%2BhKj7jIzHrjFlSjO7iPEyZgwrwte3cHJC4Vv7WD6pu3Qmf0hAkUt6Vqt2oodPB5l9obAHg9Soiv6Yjr41%2BtMgHzTk6ugUlOeAUYVovQWJ7AVdXpIjQ21kZnaWu%2BGMKnl6sUGOpoBE0tuv%2FC6yZAMcjzABmZtFErqcfTw1xZiEfJX48F7nBlIQGuhmgZBxUyDfizcekAdJYDHXtRga64S6V90mYvJefYyNrBK9V4Ag4EfJRQWU9UzkimmGksuHR1v2ZQg3L9D7KJ21XGpPmFY0i2v8HTTuKd4urt0uBL31QGqXMeYrDSYie%2FfAQ0vUx%2FgxlkBlOdwjFrtHOkrMznOpQ%3D%3D&Expires=1757067170)

@@ -40,6 +40,7 @@ The platform is built on a modern full-stack architecture using React/TypeScript
 - **Performance**: Client-side PDF generation, debounced search (300ms), and optimized bubble chart rendering
 - **T-shirt Sizing Engine**: UK benchmark-compliant sizing system with automated mapping rules, 6 professional roles (Developer: £400, Analyst: £350, PM: £500, Data Engineer: £550, Architect: £650, QA Engineer: £300), configurable overhead multipliers, and comprehensive resource planning
 - **User Feedback System**: Integrated feedback collection mechanism with contextual data capture, API endpoint integration, and systematic user input tracking for continuous platform improvement
+- **Progressive Disclosure Interface**: Hover tooltips and interactive column headers providing calculation transparency while maintaining clean UI design for Portfolio Resource Planning table
 
 ## External Dependencies
 The project integrates with several key external services and libraries:
