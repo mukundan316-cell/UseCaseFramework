@@ -9,12 +9,13 @@ import {
 } from 'recharts';
 import { 
   Target, Filter, ZoomIn, RotateCcw, TrendingUp, Award,
-  AlertTriangle, Sparkles, Users, DollarSign, HelpCircle, Info
+  AlertTriangle, Sparkles, Users, DollarSign, HelpCircle, Info, Table, BarChart3
 } from 'lucide-react';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 import { APP_CONFIG } from '@shared/constants/app-config';
 import { calculateTShirtSize } from '@shared/calculations';
+import PortfolioTableView from './PortfolioTableView';
 
 /**
  * Enhanced Matrix Plot for Executive Dashboard
@@ -26,6 +27,7 @@ export default function EnhancedMatrixPlot() {
   const [selectedQuadrant, setSelectedQuadrant] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [viewMode, setViewMode] = useState<'matrix' | 'table'>('matrix');
 
   // Dynamic bubble sizing based on business impact (RSA scoring alignment)
   function calculateBubbleSize(impactScore: number): number {
@@ -356,27 +358,65 @@ export default function EnhancedMatrixPlot() {
               </CardDescription>
             </div>
             <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowLabels(!showLabels)}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                {showLabels ? 'Hide Labels' : 'Show Labels'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedQuadrant(null)}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset Filter
-              </Button>
+              {/* View Toggle */}
+              <div className="flex bg-white/10 rounded-md p-1">
+                <Button
+                  variant={viewMode === 'matrix' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('matrix')}
+                  className={viewMode === 'matrix' 
+                    ? "bg-white text-slate-900 hover:bg-white/90" 
+                    : "text-white hover:bg-white/20"
+                  }
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Matrix
+                </Button>
+                <Button
+                  variant={viewMode === 'table' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('table')}
+                  className={viewMode === 'table' 
+                    ? "bg-white text-slate-900 hover:bg-white/90" 
+                    : "text-white hover:bg-white/20"
+                  }
+                >
+                  <Table className="w-4 h-4 mr-2" />
+                  Table
+                </Button>
+              </div>
+              
+              {viewMode === 'matrix' && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowLabels(!showLabels)}
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  >
+                    {showLabels ? 'Hide Labels' : 'Show Labels'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedQuadrant(null)}
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Reset Filter
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-8">
+          {viewMode === 'table' ? (
+            <PortfolioTableView 
+              useCases={dashboardUseCases} 
+              metadata={metadata}
+            />
+          ) : (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Main Matrix Chart - Takes 4/5 of the space */}
             <div className="lg:col-span-4">
@@ -659,6 +699,7 @@ export default function EnhancedMatrixPlot() {
               </Card>
             </div>
           </div>
+          )}
         </CardContent>
       </Card>
     </div>
