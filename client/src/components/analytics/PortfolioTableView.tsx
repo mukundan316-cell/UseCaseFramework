@@ -7,7 +7,7 @@ import {
   Clock, Shirt, TrendingUp, Users, Eye
 } from 'lucide-react';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
-import { calculateTShirtSize } from '@shared/calculations';
+import { calculateTShirtSize, calculateAnnualBenefitRange } from '@shared/calculations';
 import { UseCase } from '../../types';
 
 interface PortfolioTableViewProps {
@@ -70,10 +70,13 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
       // Get size configuration for color
       const sizeConfig = tShirtConfig?.sizes?.find((s: any) => s.name === sizing?.size);
       
-      // Calculate annual benefit estimate (simplified)
-      const annualBenefit = effectiveImpact >= 4 ? '£500K+' : 
-                          effectiveImpact >= 3 ? '£200K-500K' : 
-                          effectiveImpact >= 2 ? '£50K-200K' : '£0-50K';
+      // Calculate annual benefit using size-based multipliers
+      const benefitCalc = calculateAnnualBenefitRange(effectiveImpact, sizing?.size || null, tShirtConfig);
+      const annualBenefit = benefitCalc.benefitMin && benefitCalc.benefitMax 
+        ? `£${Math.round(benefitCalc.benefitMin/1000)}K–£${Math.round(benefitCalc.benefitMax/1000)}K`
+        : effectiveImpact >= 4 ? '£500K+' : 
+          effectiveImpact >= 3 ? '£200K-500K' : 
+          effectiveImpact >= 2 ? '£50K-200K' : '£0-50K';
       
       // Calculate ROI range based on quadrant
       const roiRange = effectiveQuadrant === 'Quick Win' ? '150-400%' :

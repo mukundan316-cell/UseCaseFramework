@@ -173,6 +173,10 @@ export interface TShirtSizingConfig {
     targetSize: string;
     priority: number;
   }>;
+  benefitMultipliers?: {
+    [sizeName: string]: number;
+  };
+  benefitRangePct?: number;
 }
 
 /**
@@ -438,6 +442,62 @@ function calculateDailyTeamCost(
 }
 
 /**
+ * Calculate annual benefit range based on impact score and T-shirt size
+ */
+export function calculateAnnualBenefitRange(
+  impactScore: number,
+  tShirtSize: string | null,
+  config?: TShirtSizingConfig
+): {
+  benefitMin: number | null;
+  benefitMax: number | null;
+  error?: string;
+} {
+  try {
+    if (!config || !config.benefitMultipliers || !tShirtSize) {
+      return {
+        benefitMin: null,
+        benefitMax: null,
+        error: 'Configuration or T-shirt size not available'
+      };
+    }
+
+    const multiplier = config.benefitMultipliers[tShirtSize];
+    const rangePct = config.benefitRangePct || 0.20;
+
+    if (!multiplier) {
+      return {
+        benefitMin: null,
+        benefitMax: null,
+        error: `No benefit multiplier found for size: ${tShirtSize}`
+      };
+    }
+
+    // Normalize impact score to valid range
+    const normalizedImpact = Math.max(1, Math.min(5, impactScore));
+    
+    // Calculate base benefit
+    const baseBenefit = normalizedImpact * multiplier;
+    
+    // Apply range percentage
+    const benefitMin = Math.round((baseBenefit * (1 - rangePct)) / 1000) * 1000;
+    const benefitMax = Math.round((baseBenefit * (1 + rangePct)) / 1000) * 1000;
+
+    return {
+      benefitMin,
+      benefitMax
+    };
+  } catch (error) {
+    console.error('Error calculating annual benefit range:', error);
+    return {
+      benefitMin: null,
+      benefitMax: null,
+      error: `Calculation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
+  }
+}
+
+/**
  * Default T-shirt sizing configuration for RSA
  * Used as fallback when no configuration is provided
  */
@@ -525,6 +585,14 @@ export function getDefaultTShirtSizingConfig(): TShirtSizingConfig {
         targetSize: 'XS',
         priority: 10
       }
-    ]
+    ],
+    benefitMultipliers: {
+      'XS': 50000,
+      'S': 50000,
+      'M': 75000,
+      'L': 100000,
+      'XL': 100000
+    },
+    benefitRangePct: 0.20
   };
 }
