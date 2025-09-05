@@ -105,6 +105,14 @@ export const useCases: any = pgTable("use_cases", {
   presentationUploadedAt: timestamp("presentation_uploaded_at"),
   hasPresentation: text("has_presentation").default('false'), // 'true' or 'false' following replit.md pattern
   
+  // T-shirt sizing fields - optional for backward compatibility
+  tShirtSize: text("t_shirt_size"), // XS, S, M, L, XL
+  estimatedCostMin: integer("estimated_cost_min"), // Minimum cost estimate in GBP
+  estimatedCostMax: integer("estimated_cost_max"), // Maximum cost estimate in GBP
+  estimatedWeeksMin: integer("estimated_weeks_min"), // Minimum timeline in weeks
+  estimatedWeeksMax: integer("estimated_weeks_max"), // Maximum timeline in weeks
+  teamSizeEstimate: text("team_size_estimate"), // e.g., "3-5"
+  
   
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -265,6 +273,35 @@ export const metadataConfig = pgTable('metadata_config', {
   marketOptions: text('market_options').array().notNull().default(sql`'{"Personal Lines","Commercial Lines","Specialty Lines","Reinsurance"}'`),
   processActivities: text('process_activities').$type<Record<string, string[]> | string>(),
   scoringModel: text('scoring_model').$type<any>(),
+  // T-shirt sizing configuration - metadata-driven approach
+  tShirtSizing: jsonb('t_shirt_sizing').$type<{
+    enabled: boolean;
+    sizes: Array<{
+      name: string;
+      minWeeks: number;
+      maxWeeks: number;
+      teamSizeMin: number;
+      teamSizeMax: number;
+      color: string;
+      description?: string;
+    }>;
+    roles: Array<{
+      type: string;
+      dailyRateGBP: number;
+    }>;
+    overheadMultiplier: number;
+    mappingRules: Array<{
+      name: string;
+      condition: {
+        impactMin?: number;
+        impactMax?: number;
+        effortMin?: number;
+        effortMax?: number;
+      };
+      targetSize: string;
+      priority: number;
+    }>;
+  }>(),
   // Scoring dropdown options for consistent user interpretation
   scoringDropdownOptions: jsonb('scoring_dropdown_options').$type<Record<string, Array<{value: number, label: string, description: string}>>>(),
   // Custom sort order storage - maps item names to display order indices

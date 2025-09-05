@@ -1,0 +1,152 @@
+# Metadata-Driven T-Shirt Sizing Framework for RSA
+
+Based on your sophisticated existing framework and the need for flexibility without hard-coding, here's a comprehensive **metadata-driven approach** that captures the lowest grain and builds up to accurate, configurable T-shirt sizing.
+
+## Core Architecture: Configuration-First Design
+
+### **1. Metadata Schema Foundation**
+
+The system uses **five core configuration tables** that eliminate all hard-coded values:
+
+**Core Configuration Tables:**
+- `tshirt_sizing_config`: Size definitions, colors, descriptions
+- `role_rates`: Market-based daily rates by role and geography  
+- `team_composition_templates`: FTE allocation per role by T-shirt size
+- `mapping_rules`: Dynamic rules engine for size assignment
+- `roi_parameters`: Configurable benefit multipliers and discount rates
+
+### **2. Granular Cost Calculation Engine**
+
+**Formula**: `Role × Rate × Duration × Team Size × Overhead`
+
+**Sample Calculation for RSA 'M' Size Project:**
+- Base daily team cost: £1,830
+- Overhead multiplier: 1.56 (includes benefits, facilities, management, risk buffer)
+- Total daily cost: £2,853  
+- 12-week project cost: £171,206
+
+**UK Market Rates (Configurable):**
+- Developer: £400/day
+- Analyst: £350/day  
+- PM: £500/day
+- Architect: £600/day
+- AI Specialist: £650/day
+
+### **3. Dynamic Mapping Rules Engine**
+
+Replace hard-coded thresholds with **priority-based rules**:
+
+**Sample Rules for RSA:**
+1. **Quick Win Rule**: Impact 2.5-4.0, Effort <2.5 → Size S (Priority 100)
+2. **Strategic Bet Rule**: Impact 3.5-5.0, Effort 2.5-4.0 → Size L (Priority 200)  
+3. **Effort Adjustment Rule**: Any project with Effort >4.0 → +1 Size (Priority 300)
+
+### **4. Flexible ROI Parameters**
+
+**Configurable Annual Benefit Multipliers:**
+- Revenue Impact: £75,000 per scoring point
+- Cost Savings: £60,000 per scoring point
+- Risk Reduction: £50,000 per scoring point
+- Strategic Fit: £40,000 per scoring point
+- Broker Experience: £30,000 per scoring point
+
+**Project-Type Discount Rates:**
+- Quick Win: 8.0%
+- Strategic: 10.0% 
+- Experimental: 12.0%
+- Infrastructure: 6.0%
+
+## Admin Interface Features
+
+### **User-Friendly Configuration Panels:**
+
+1. **T-Shirt Size Management**
+   - Drag-and-drop size ordering
+   - Color picker for visualization
+   - Real-time impact preview on existing use cases
+   - Bulk enable/disable capabilities
+
+2. **Cost Configuration**
+   - Role rate management by geography
+   - Team composition templates
+   - Overhead factor calculator with breakdown
+   - Historical cost accuracy tracking
+
+3. **Mapping Rules Engine**
+   - Visual rule builder with drag-and-drop conditions
+   - Rule conflict detection and warnings
+   - A/B testing for rule effectiveness
+   - Bulk import/export via Excel
+
+4. **Analytics Dashboard**
+   - Estimation accuracy over time
+   - Cost variance analysis by size
+   - ROI prediction confidence intervals
+   - Industry benchmark comparisons
+
+## Self-Improving System
+
+### **Automatic Calibration:**
+```sql
+-- Auto-calibration based on actual outcomes
+WITH accuracy_analysis AS (
+  SELECT 
+    tshirt_size,
+    AVG(actual_cost / estimated_cost_max) as cost_accuracy_factor,
+    AVG(actual_weeks / estimated_weeks_max) as time_accuracy_factor
+  FROM estimation_accuracy ea
+  JOIN use_cases uc ON ea.use_case_id = uc.meaningful_id
+  WHERE ea.created_at > NOW() - INTERVAL '12 months'
+  GROUP BY tshirt_size
+)
+UPDATE role_rates 
+SET daily_rate_gbp = daily_rate_gbp * accuracy_analysis.cost_accuracy_factor;
+```
+
+## Implementation Roadmap
+
+### **Phase 1 - Foundation (2 weeks):**
+- Create metadata tables
+- Migrate RSA's current values to configuration  
+- Basic admin interface for size/cost management
+- Backward compatibility testing
+
+### **Phase 2 - Enhanced Config (4 weeks):**
+- Advanced mapping rules engine
+- Role-based cost calculation
+- Timeline configuration with confidence factors
+- Preview and impact analysis tools
+
+### **Phase 3 - Intelligence (6 weeks):**
+- AI-powered cost estimation suggestions
+- Historical accuracy tracking and calibration
+- Industry benchmark integration
+- Advanced analytics dashboard
+
+## Integration with RSA's Existing System
+
+**Seamless Integration Points:**
+- **Current Impact Calculation**: Revenue×25% + Cost×20% + Risk×20% + Experience×10% + Strategic×25%
+- **Current Effort Calculation**: Data×15% + Technical×15% + Change×25% + ModelRisk×20% + Adoption×25%  
+- **Existing Override System**: Extended to T-shirt sizing with audit trails
+- **Excel Templates**: Auto-updated with new calculated fields
+
+## Key Benefits
+
+✅ **Complete Flexibility**: Zero-downtime configuration changes  
+✅ **Self-Improving**: Automatic calibration from project outcomes  
+✅ **Market Adaptive**: Multi-currency and geography support  
+✅ **Audit Compliant**: Complete trail of all configuration changes  
+✅ **A/B Testing**: Optimization capabilities built-in  
+✅ **Industry Ready**: Benchmark integration capabilities  
+✅ **ML Enhanced**: Machine learning enhancement ready  
+✅ **Non-Disruptive**: Maintains current user experience
+
+This metadata-driven approach transforms your T-shirt sizing from static hard-coded values into a **dynamic, learning system** that adapts to market changes, learns from actual outcomes, and provides the flexibility RSA needs while maintaining the accuracy and industry alignment you require.
+
+The system captures costs at the **lowest grain** (role × day × geography) and builds up through configurable team compositions, overhead factors, and timeline ranges to produce accurate, defensible estimates that improve over time.
+
+[1](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/81367901/00258669-6749-4f7f-ba2a-31cd6e9e9141/image.jpg)
+[2](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/81367901/9b2f2c34-f95f-4cea-bd75-f09c19a84bbc/image.jpg)
+[3](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/81367901/c6e7cac9-ad06-47c6-bce6-d734789edc10/image.jpg)
+[4](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/81367901/d9d21fe4-2634-4730-a62b-ca32db91c571/rsa_ai_usecase_export_20250905_060747_all.xlsx)

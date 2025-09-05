@@ -4,6 +4,7 @@ import {
   type ResponseSession, type InsertResponseSession
 } from "@shared/schema";
 import type { QuestionAnswer } from "@shared/questionnaireTypes";
+import { calculateTShirtSize, getDefaultTShirtSizingConfig, type TShirtSizingConfig } from "@shared/calculations";
 import { db } from "./db";
 import { eq, sql, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -97,6 +98,50 @@ export interface IStorage {
  * Ensures all data is persisted to PostgreSQL database per REFERENCE.md compliance
  */
 export class DatabaseStorage implements IStorage {
+  
+  /**
+   * Calculate T-shirt sizing for a use case based on impact and effort scores
+   * Uses metadata configuration if available, falls back to defaults
+   */
+  private async calculateTShirtSizingForUseCase(impactScore: number, effortScore: number): Promise<{
+    tShirtSize: string | null;
+    estimatedCostMin: number | null;
+    estimatedCostMax: number | null;
+    estimatedWeeksMin: number | null;
+    estimatedWeeksMax: number | null;
+    teamSizeEstimate: string | null;
+  }> {
+    try {
+      // Get T-shirt sizing configuration from metadata
+      const metadata = await this.getMetadataConfig();
+      const tShirtConfig = metadata?.tShirtSizing as TShirtSizingConfig;
+      
+      // Use config if available and enabled, otherwise use defaults
+      const config = tShirtConfig?.enabled ? tShirtConfig : getDefaultTShirtSizingConfig();
+      
+      const result = calculateTShirtSize(impactScore, effortScore, config);
+      
+      return {
+        tShirtSize: result.size,
+        estimatedCostMin: result.estimatedCostMin,
+        estimatedCostMax: result.estimatedCostMax,
+        estimatedWeeksMin: result.estimatedWeeksMin,
+        estimatedWeeksMax: result.estimatedWeeksMax,
+        teamSizeEstimate: result.teamSizeEstimate
+      };
+    } catch (error) {
+      console.warn('Failed to calculate T-shirt sizing:', error);
+      // Return null values if calculation fails - this maintains backward compatibility
+      return {
+        tShirtSize: null,
+        estimatedCostMin: null,
+        estimatedCostMax: null,
+        estimatedWeeksMin: null,
+        estimatedWeeksMax: null,
+        teamSizeEstimate: null
+      };
+    }
+  }
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
@@ -225,6 +270,15 @@ export class DatabaseStorage implements IStorage {
       }
     });
     
+    // Calculate T-shirt sizing based on impact and effort scores
+    const tShirtSizing = await this.calculateTShirtSizingForUseCase(
+      cleanData.impactScore || 0,
+      cleanData.effortScore || 0
+    );
+    
+    // Add T-shirt sizing fields to the clean data
+    Object.assign(cleanData, tShirtSizing);
+    
     const [useCase] = await db
       .insert(useCases)
       .values(cleanData)
@@ -298,6 +352,27 @@ export class DatabaseStorage implements IStorage {
     
     if (Object.keys(cleanUpdates).length === 0) {
       return undefined; // No valid updates
+    }
+    
+    // Check if impact or effort scores are being updated - if so, recalculate T-shirt sizing
+    const shouldRecalculateTShirtSizing = ['impactScore', 'effortScore', 'revenueImpact', 'costSavings', 
+      'riskReduction', 'brokerPartnerExperience', 'strategicFit', 'dataReadiness', 'technicalComplexity', 
+      'changeImpact', 'modelRisk', 'adoptionReadiness'].some(field => cleanUpdates.hasOwnProperty(field));
+    
+    if (shouldRecalculateTShirtSizing) {
+      // Get current use case to retrieve existing scores
+      const [currentUseCase] = await db.select().from(useCases).where(eq(useCases.id, id));
+      
+      if (currentUseCase) {
+        // Calculate new T-shirt sizing with updated scores
+        const newImpactScore = cleanUpdates.impactScore ?? currentUseCase.impactScore;
+        const newEffortScore = cleanUpdates.effortScore ?? currentUseCase.effortScore;
+        
+        const tShirtSizing = await this.calculateTShirtSizingForUseCase(newImpactScore, newEffortScore);
+        
+        // Add T-shirt sizing fields to the updates
+        Object.assign(cleanUpdates, tShirtSizing);
+      }
     }
     
     const [useCase] = await db
