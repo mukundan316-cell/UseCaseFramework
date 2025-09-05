@@ -406,16 +406,17 @@ export default function ScoringModelManagementBlock() {
                     </div>
                   </div>
 
-                  {/* ROI Explanation */}
+                  {/* Resource Planning Logic */}
                   <div className="p-4 bg-indigo-50 rounded-lg border">
-                    <h4 className="font-medium text-indigo-800 mb-2">ROI Calculation Logic</h4>
+                    <h4 className="font-medium text-indigo-800 mb-2">Resource Planning Integration</h4>
                     <p className="text-sm text-indigo-700 mb-3">
-                      ROI potential is determined by the ratio of Impact Score to Effort Score, combined with quadrant position
+                      Quadrant positioning determines T-shirt sizing and concrete resource allocation based on Impact/Effort scores
                     </p>
                     <div className="space-y-2 text-sm text-indigo-600">
-                      <div>• <strong>High ROI:</strong> Quick Win (high impact, low effort) or Strategic Bet (high impact, high effort)</div>
-                      <div>• <strong>Medium ROI:</strong> Experimental (low impact, low effort) - good for learning</div>
-                      <div>• <strong>Poor ROI:</strong> Watchlist (low impact, high effort) - avoid or redesign</div>
+                      <div>• <strong>Quick Win:</strong> S/M sizes → Fast delivery (2-12 weeks), small teams (2-5 people), £50K-£300K investment</div>
+                      <div>• <strong>Strategic Bet:</strong> M/L sizes → Major initiatives (12-24 weeks), larger teams (5-8 people), £300K-£800K investment</div>
+                      <div>• <strong>Experimental:</strong> XS/S sizes → Learning projects (1-6 weeks), minimal teams (1-3 people), £20K-£150K investment</div>
+                      <div>• <strong>Watchlist:</strong> L/XL sizes → High effort, questionable value - avoid or redesign approach</div>
                     </div>
                   </div>
 
