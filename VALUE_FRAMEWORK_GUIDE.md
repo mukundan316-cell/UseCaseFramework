@@ -432,7 +432,7 @@ T-shirt sizing is fully metadata-driven with no hard-coded values:
        ↓
 💰 COST/BENEFIT ESTIMATES
    Cost = Team Size × Daily Rate × Duration × Overhead (1.35x)
-   Benefits = Size-based multiplier × Business Impact
+   Benefits = Impact Score × Progressive Multiplier (XS:£25K, S:£50K, M:£100K, L:£200K, XL:£400K)
    ROI = (Benefits - Cost) / Cost × 100%
 ```
 
@@ -460,6 +460,21 @@ Estimated Cost = (Average Team Size × Average Daily Rate × Duration in Days ×
 - Automatically calculated based on impact/effort matrix
 - Considers skill requirements and project complexity
 - Provides min-max ranges for planning flexibility
+
+#### Benefit Calculation:
+**Progressive Size-based Multipliers (corrected 2025):**
+- **XS**: £25K per impact point (Small quick wins)
+- **S**: £50K per impact point (Standard projects) 
+- **M**: £100K per impact point (Medium initiatives)
+- **L**: £200K per impact point (Large strategic projects)
+- **XL**: £400K per impact point (Major transformations)
+
+**Formula:** `Annual Benefit = Impact Score × Size Multiplier × Range (±20%)`
+
+**Example Calculations:**
+- XS project with 4.0 impact: 4.0 × £25K = £100K (Range: £80K - £120K)
+- M project with 4.0 impact: 4.0 × £100K = £400K (Range: £320K - £480K)
+- XL project with 3.2 impact: 3.2 × £400K = £1.28M (Range: £1.02M - £1.54M)
 
 #### Risk Assessment Integration:
 - T-shirt size correlates with quadrant positioning

@@ -642,7 +642,17 @@ export default function TShirtSizingConfigLegoBlock() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {config.sizes.map((size, index) => {
-                  const multiplier = config.benefitMultipliers?.[size.name] || 50000;
+                  const getDefaultMultiplier = (sizeName: string) => {
+                    switch(sizeName) {
+                      case 'XS': return 25000;
+                      case 'S': return 50000;
+                      case 'M': return 100000;
+                      case 'L': return 200000;
+                      case 'XL': return 400000;
+                      default: return 50000;
+                    }
+                  };
+                  const multiplier = config.benefitMultipliers?.[size.name] || getDefaultMultiplier(size.name);
                   return (
                     <div key={size.name} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between mb-3">
@@ -734,7 +744,17 @@ export default function TShirtSizingConfigLegoBlock() {
                 </div>
                 
                 {config.sizes.map((size, index) => {
-                  const multiplier = config.benefitMultipliers?.[size.name] || 50000;
+                  const getDefaultMultiplier = (sizeName: string) => {
+                    switch(sizeName) {
+                      case 'XS': return 25000;
+                      case 'S': return 50000;
+                      case 'M': return 100000;
+                      case 'L': return 200000;
+                      case 'XL': return 400000;
+                      default: return 50000;
+                    }
+                  };
+                  const multiplier = config.benefitMultipliers?.[size.name] || getDefaultMultiplier(size.name);
                   const rangePct = config.benefitRangePct || 0.20;
                   const baseBenefit = exampleImpactScore * multiplier;
                   const minBenefit = Math.round((baseBenefit * (1 - rangePct)) / 1000) * 1000;

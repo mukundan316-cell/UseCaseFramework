@@ -258,7 +258,14 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
 
   const getBenefitMultiplier = (size: string) => {
     const tShirtConfig = metadata?.tShirtSizing;
-    return tShirtConfig?.benefitMultipliers?.[size] || (size === 'XS' || size === 'S' ? 50 : size === 'M' ? 75 : 100);
+    const defaultMultipliers: Record<string, number> = {
+      'XS': 25,
+      'S': 50,
+      'M': 100,
+      'L': 200,
+      'XL': 400
+    };
+    return tShirtConfig?.benefitMultipliers?.[size] || defaultMultipliers[size] || 50;
   };
 
   // Interactive header content functions
@@ -319,11 +326,11 @@ Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
   const getBenefitExplanation = () => {
     const tShirtConfig = metadata?.tShirtSizing;
     const multipliers = {
-      'XS': tShirtConfig?.benefitMultipliers?.XS || 50,
+      'XS': tShirtConfig?.benefitMultipliers?.XS || 25,
       'S': tShirtConfig?.benefitMultipliers?.S || 50,
-      'M': tShirtConfig?.benefitMultipliers?.M || 75,
-      'L': tShirtConfig?.benefitMultipliers?.L || 100,
-      'XL': tShirtConfig?.benefitMultipliers?.XL || 100
+      'M': tShirtConfig?.benefitMultipliers?.M || 100,
+      'L': tShirtConfig?.benefitMultipliers?.L || 200,
+      'XL': tShirtConfig?.benefitMultipliers?.XL || 400
     };
 
     const multiplierList = Object.entries(multipliers).map(([size, mult]) => `• ${size}: £${mult}K per impact point`).join('\n');
