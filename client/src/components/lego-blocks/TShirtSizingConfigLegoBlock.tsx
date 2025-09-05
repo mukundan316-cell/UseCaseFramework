@@ -113,11 +113,11 @@ export default function TShirtSizingConfigLegoBlock() {
         { name: 'Small Experiment - Low to Medium Impact', condition: { impactMax: 3.0, effortMax: 3.0 }, targetSize: 'XS', priority: 70 }
       ],
       benefitMultipliers: {
-        'XS': 50000,
+        'XS': 25000,
         'S': 50000,
-        'M': 75000,
-        'L': 100000,
-        'XL': 100000
+        'M': 100000,
+        'L': 200000,
+        'XL': 400000
       },
       benefitRangePct: 0.20
     };
@@ -140,6 +140,7 @@ export default function TShirtSizingConfigLegoBlock() {
   const [editingRule, setEditingRule] = useState<number | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [exampleImpactScore, setExampleImpactScore] = useState(4);
 
   // Update config when metadata changes
   useEffect(() => {
@@ -188,6 +189,24 @@ export default function TShirtSizingConfigLegoBlock() {
     // Validate overhead multiplier
     if (config.overheadMultiplier < 0.5 || config.overheadMultiplier > 3.0) {
       errors['overhead-multiplier'] = 'Overhead multiplier should be between 0.5 and 3.0';
+    }
+
+    // Validate benefit multiplier progression
+    if (config.benefitMultipliers) {
+      const sizeOrder = ['XS', 'S', 'M', 'L', 'XL'];
+      const availableSizes = sizeOrder.filter(size => config.benefitMultipliers?.[size]);
+      
+      for (let i = 1; i < availableSizes.length; i++) {
+        const currentSize = availableSizes[i];
+        const previousSize = availableSizes[i-1];
+        const currentMultiplier = config.benefitMultipliers[currentSize];
+        const previousMultiplier = config.benefitMultipliers[previousSize];
+        
+        if (currentMultiplier < previousMultiplier) {
+          errors['benefit-progression'] = `Benefit multipliers should increase with size. ${currentSize} (£${(currentMultiplier/1000).toFixed(0)}K) should be greater than ${previousSize} (£${(previousMultiplier/1000).toFixed(0)}K)`;
+          break;
+        }
+      }
     }
 
     // Validate mapping rules
@@ -693,12 +712,31 @@ export default function TShirtSizingConfigLegoBlock() {
               <div className="space-y-4">
                 <h5 className="font-medium text-gray-800">Benefit Estimation Examples</h5>
                 <div className="text-xs text-gray-600 mb-2">
-                  Examples shown for Impact Score = 4.0
+                  Examples shown for different Impact Scores
                 </div>
+                
+                {/* Impact Score Selector for Examples */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm text-gray-600">Impact Score:</span>
+                  {[2, 3, 4, 5].map(score => (
+                    <button
+                      key={score}
+                      onClick={() => setExampleImpactScore(score)}
+                      className={`px-2 py-1 text-xs rounded ${
+                        exampleImpactScore === score 
+                          ? 'bg-blue-500 text-white' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {score}.0
+                    </button>
+                  ))}
+                </div>
+                
                 {config.sizes.map((size, index) => {
                   const multiplier = config.benefitMultipliers?.[size.name] || 50000;
                   const rangePct = config.benefitRangePct || 0.20;
-                  const baseBenefit = 4.0 * multiplier;
+                  const baseBenefit = exampleImpactScore * multiplier;
                   const minBenefit = Math.round((baseBenefit * (1 - rangePct)) / 1000) * 1000;
                   const maxBenefit = Math.round((baseBenefit * (1 + rangePct)) / 1000) * 1000;
                   

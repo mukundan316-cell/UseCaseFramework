@@ -587,11 +587,11 @@ export function getDefaultTShirtSizingConfig(): TShirtSizingConfig {
       }
     ],
     benefitMultipliers: {
-      'XS': 50000,
+      'XS': 25000,
       'S': 50000,
-      'M': 75000,
-      'L': 100000,
-      'XL': 100000
+      'M': 100000,
+      'L': 200000,
+      'XL': 400000
     },
     benefitRangePct: 0.20
   };
