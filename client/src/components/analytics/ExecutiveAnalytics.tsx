@@ -13,6 +13,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useUseCases } from '../../contexts/UseCaseContext';
+import { calculateTShirtSize } from '@shared/calculations';
+import { getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 import type { UseCase } from '../../types';
 import AdvancedMetrics from './AdvancedMetrics';
 
@@ -38,7 +40,7 @@ interface AnalyticsMetric {
 }
 
 export default function ExecutiveAnalytics() {
-  const { useCases, dashboardUseCases, getQuadrantCounts } = useUseCases();
+  const { useCases, dashboardUseCases, getQuadrantCounts, metadata } = useUseCases();
   const [selectedView, setSelectedView] = useState<'overview' | 'performance' | 'risk' | 'investment'>('overview');
   const [drillDownData, setDrillDownData] = useState<any>(null);
 
@@ -137,7 +139,7 @@ export default function ExecutiveAnalytics() {
       value: analytics.quickWinCount, 
       color: '#10B981', 
       gradientColor: 'rgba(16, 185, 129, 0.8)',
-      roi: 'High ROI',
+      size: 'Medium',
       description: 'High Impact, Low Effort',
       percentage: ((analytics.quickWinCount / analytics.totalPortfolioValue) * 100).toFixed(1)
     },
@@ -350,7 +352,7 @@ export default function ExecutiveAnalytics() {
                                   <div className="space-y-1 text-sm">
                                     <p><span className="font-medium">Count:</span> {data.value} initiatives</p>
                                     <p><span className="font-medium">Percentage:</span> {data.percentage}%</p>
-                                    <p><span className="font-medium">ROI Profile:</span> {data.roi}</p>
+                                    <p><span className="font-medium">Project Size:</span> {data.size}</p>
                                     <p className="text-gray-600 italic">{data.description}</p>
                                   </div>
                                 </div>
@@ -399,10 +401,51 @@ export default function ExecutiveAnalytics() {
                     <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                       <h5 className="font-semibold text-blue-900 mb-2">Executive Recommendation</h5>
                       <p className="text-sm text-blue-800">
-                        {analytics.quickWinCount > 0 ? 
-                          `Prioritize ${analytics.quickWinCount} Quick Wins for immediate ROI while building capabilities for ${analytics.strategicBetCount} Strategic Bets.` :
-                          "Focus on building a balanced portfolio with more Quick Win opportunities."
-                        }
+                        {(() => {
+                          const tShirtConfig = metadata?.tShirtSizing;
+                          if (tShirtConfig?.enabled) {
+                            // Calculate resource requirements for Quick Wins and Strategic Bets
+                            let quickWinCost = 0;
+                            let strategicBetCost = 0;
+                            let quickWinWeeks = 0;
+                            let strategicBetWeeks = 0;
+                            
+                            useCases.filter(uc => uc.isActiveForRsa === 'true').forEach(useCase => {
+                              const impactScore = getEffectiveImpactScore(useCase as any);
+                              const effortScore = getEffectiveEffortScore(useCase as any);
+                              const quadrant = (useCase as any).quadrant;
+                              
+                              if (impactScore && effortScore) {
+                                const sizing = calculateTShirtSize(impactScore, effortScore, tShirtConfig);
+                                if (sizing.size && !sizing.error) {
+                                  if (quadrant === 'Quick Win') {
+                                    quickWinCost += sizing.estimatedCostMin || 0;
+                                    quickWinWeeks += sizing.estimatedWeeksMin || 0;
+                                  } else if (quadrant === 'Strategic Bet') {
+                                    strategicBetCost += sizing.estimatedCostMax || 0;
+                                    strategicBetWeeks += sizing.estimatedWeeksMax || 0;
+                                  }
+                                }
+                              }
+                            });
+
+                            const formatCurrency = (amount: number) => {
+                              if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
+                              if (amount >= 1000) return `£${(amount / 1000).toFixed(0)}K`;
+                              return `£${Math.round(amount).toLocaleString()}`;
+                            };
+
+                            if (analytics.quickWinCount > 0) {
+                              return `Execute ${analytics.quickWinCount} Quick Wins requiring ${formatCurrency(quickWinCost)} investment over ${Math.round(quickWinWeeks/4)} months, while planning ${analytics.strategicBetCount} Strategic Bets with ${formatCurrency(strategicBetCost)} budget allocation.`;
+                            } else {
+                              return `Focus on ${analytics.strategicBetCount} Strategic Bet initiatives requiring ${formatCurrency(strategicBetCost)} investment and ${Math.round(strategicBetWeeks/4)} month timeline for capability building.`;
+                            }
+                          } else {
+                            return analytics.quickWinCount > 0 ? 
+                              `Prioritize ${analytics.quickWinCount} Quick Wins for immediate impact while building capabilities for ${analytics.strategicBetCount} Strategic Bets.` :
+                              "Focus on building a balanced portfolio with more Quick Win opportunities.";
+                          }
+                        })()}
                       </p>
                     </div>
                   </div>
@@ -420,7 +463,7 @@ export default function ExecutiveAnalytics() {
                   Business Segment Performance Matrix
                 </CardTitle>
                 <CardDescription className="text-emerald-100">
-                  Strategic value analysis across business segments • ROI efficiency comparison
+                  Strategic value analysis across business segments • Resource allocation efficiency
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
@@ -667,7 +710,7 @@ export default function ExecutiveAnalytics() {
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                     <h4 className="font-semibold text-green-800 mb-2">Immediate Actions</h4>
                     <p className="text-sm text-green-700 mb-3">
-                      Focus on {analytics.quickWinCount} Quick Win initiatives for rapid ROI
+                      Focus on {analytics.quickWinCount} Quick Win initiatives for rapid value delivery
                     </p>
                     <Button size="sm" className="bg-green-600 hover:bg-green-700">
                       Prioritize Quick Wins

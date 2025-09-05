@@ -14,6 +14,7 @@ import {
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 import { APP_CONFIG } from '@shared/constants/app-config';
+import { calculateTShirtSize } from '@shared/calculations';
 
 /**
  * Enhanced Matrix Plot for Executive Dashboard
@@ -21,7 +22,7 @@ import { APP_CONFIG } from '@shared/constants/app-config';
  */
 
 export default function EnhancedMatrixPlot() {
-  const { useCases, dashboardUseCases } = useUseCases();
+  const { useCases, dashboardUseCases, metadata } = useUseCases();
   const [selectedQuadrant, setSelectedQuadrant] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -122,6 +123,29 @@ export default function EnhancedMatrixPlot() {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      
+      // Calculate T-shirt sizing if available
+      const tShirtConfig = metadata?.tShirtSizing;
+      const sizing = tShirtConfig?.enabled 
+        ? calculateTShirtSize(data.y, data.x, tShirtConfig)
+        : null;
+
+      // Format currency
+      const formatCurrency = (amount: number | null) => {
+        if (!amount) return 'TBD';
+        if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
+        if (amount >= 1000) return `£${(amount / 1000).toFixed(0)}K`;
+        return `£${Math.round(amount).toLocaleString()}`;
+      };
+
+      // Format duration
+      const formatDuration = (weeks: number | null) => {
+        if (!weeks) return 'TBD';
+        if (weeks >= 52) return `${(weeks / 52).toFixed(1)} years`;
+        if (weeks >= 4) return `${Math.round(weeks / 4)} months`;
+        return `${Math.round(weeks)} weeks`;
+      };
+
       return (
         <div className="bg-white p-4 rounded-lg shadow-xl border border-gray-200 max-w-sm">
           <div className="flex items-center space-x-2 mb-3">
@@ -151,12 +175,34 @@ export default function EnhancedMatrixPlot() {
             <div className="pt-2 border-t border-gray-200">
               <p><span className="font-medium">Strategic Position:</span> {data.quadrant}</p>
               <p><span className="font-medium">Business Unit:</span> {data.lob}</p>
-              <p><span className="font-medium">Impact/Effort Ratio:</span> {(data.y / Math.max(data.x, 0.1)).toFixed(1)}</p>
-              <p><span className="font-medium">ROI Estimate:</span> {(() => {
-                const roiLevel = data.quadrant === 'Quick Win' || data.quadrant === 'Strategic Bet' ? 'High ROI' :
-                               data.quadrant === 'Experimental' ? 'Medium ROI' : 'Poor ROI';
-                return roiLevel;
-              })()}</p>
+              
+              {/* T-shirt Sizing Information */}
+              {sizing && sizing.size && !sizing.error ? (
+                <>
+                  <p><span className="font-medium">Project Size:</span> <span 
+                    className="px-2 py-1 rounded text-xs font-medium text-white"
+                    style={{ 
+                      backgroundColor: tShirtConfig?.sizes.find((s: any) => s.name === sizing.size)?.color || '#6B7280' 
+                    }}
+                  >
+                    {sizing.size}
+                  </span></p>
+                  {sizing.estimatedCostMin && sizing.estimatedCostMax && (
+                    <p><span className="font-medium">Investment:</span> {formatCurrency(sizing.estimatedCostMin)} - {formatCurrency(sizing.estimatedCostMax)}</p>
+                  )}
+                  {sizing.estimatedWeeksMin && sizing.estimatedWeeksMax && (
+                    <p><span className="font-medium">Timeline:</span> {formatDuration(sizing.estimatedWeeksMin)} - {formatDuration(sizing.estimatedWeeksMax)}</p>
+                  )}
+                  {sizing.teamSizeEstimate && (
+                    <p><span className="font-medium">Team Size:</span> {sizing.teamSizeEstimate} people</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p><span className="font-medium">Impact/Effort Ratio:</span> {(data.y / Math.max(data.x, 0.1)).toFixed(1)}</p>
+                  <p className="text-xs text-orange-600">Enable T-shirt sizing in Admin Panel for resource estimates</p>
+                </>
+              )}
             </div>
             <div className="flex flex-wrap gap-1 mt-2">
               {data.isHighValue && (
@@ -169,9 +215,9 @@ export default function EnhancedMatrixPlot() {
                   Quick Implementation
                 </div>
               )}
-              {data.y >= 4 && data.x <= 2 && (
+              {sizing && sizing.size && data.y >= 4 && data.x <= 2 && (
                 <div className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
-                  Premium ROI
+                  High ROI Potential
                 </div>
               )}
             </div>
