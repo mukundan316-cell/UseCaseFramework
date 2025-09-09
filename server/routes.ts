@@ -548,6 +548,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Individual metadata item endpoints for LEGO component CRUD operations
+  // NOTE: Specific routes must come BEFORE generic parameterized routes
+  app.post("/api/metadata/migrate-tshirt-sizing", async (req, res) => {
+    try {
+      const currentMetadata = await storage.getMetadataConfig();
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+
+      // Import comprehensive T-shirt sizing configuration
+      const { getDefaultTShirtSizingConfig } = await import("@shared/calculations");
+      const comprehensiveConfig = getDefaultTShirtSizingConfig();
+
+      // Update metadata with comprehensive T-shirt sizing configuration
+      const updatedMetadata = {
+        ...currentMetadata,
+        tShirtSizing: comprehensiveConfig
+      };
+
+      const result = await storage.updateMetadataConfig(updatedMetadata);
+      
+      res.json({
+        success: true,
+        message: "T-shirt sizing configuration successfully migrated to comprehensive 22-rule system",
+        rulesCount: comprehensiveConfig.mappingRules.length,
+        benefitMultipliers: comprehensiveConfig.benefitMultipliers
+      });
+    } catch (error) {
+      console.error("Failed to migrate T-shirt sizing configuration:", error);
+      res.status(500).json({ 
+        error: "Failed to migrate T-shirt sizing configuration",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   app.post("/api/metadata/:category", async (req, res) => {
     try {
       const { category } = req.params;

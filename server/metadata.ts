@@ -55,6 +55,7 @@ function getDefaultMetadata(): MetadataConfig {
     // Assessment and questionnaire LOVs
     questionTypes: ["text", "textarea", "select", "multi_select", "radio", "checkbox", "number", "date", "email", "url", "company_profile", "business_lines_matrix", "smart_rating", "multi_rating", "percentage_allocation", "percentage_target", "ranking", "currency", "department_skills_matrix", "business_performance", "composite", "dynamic_use_case_selector"],
     responseStatuses: ["started", "in_progress", "completed", "abandoned"],
+    questionCategories: ["Strategic Foundation", "AI Capabilities", "Use Case Discovery", "Technology Infrastructure", "Organizational Readiness", "Risk & Compliance"],
     // Company profile options  
     companyTiers: ["Small (<£100M)", "Mid (£100M-£3B)", "Large (>£3B)"],
     marketOptions: ["Personal Lines", "Commercial Lines", "Specialty Lines", "Reinsurance"],
@@ -63,8 +64,26 @@ function getDefaultMetadata(): MetadataConfig {
     aiMlTechnologies: ["AI", "Model", "ML", "GenAI", "NLP"],
     dataSources: ["Internal Data", "External Data", "Aggregated Data", "Public Data"],
     stakeholderGroups: ["IT Operations", "Business Users", "Risk Management", "Compliance"],
-    processActivities: null,
+    horizontalUseCaseTypes: ["Document drafting", "report generation", "Categorization", "tagging", "curation", "Research assistant", "information retrieval", "Autofill", "next-best action suggestions", "autonomous agents", "Debugging", "refactoring", "coding", "Synthesis", "summarization", "Augmentation", "visualization", "Text versions for analysis", "time series data generation", "scenario generation", "Suggestions for workflow amendments", "automated changes to workflows", "Errors", "fraud", "problem-solving"],
+    scoringDropdownOptions: {},
+    processActivities: {},
     scoringModel: null,
+    tShirtSizing: null,
+    // Default sort orders for metadata categories
+    activitiesSortOrder: [],
+    processesSortOrder: [],
+    linesOfBusinessSortOrder: [],
+    businessSegmentsSortOrder: [],
+    geographiesSortOrder: [],
+    useCaseTypesSortOrder: [],
+    valueChainComponentsSortOrder: [],
+    sourceTypesSortOrder: [],
+    quadrantsSortOrder: [],
+    useCaseStatusesSortOrder: [],
+    aiMlTechnologiesSortOrder: [],
+    dataSourcesSortOrder: [],
+    stakeholderGroupsSortOrder: [],
+    horizontalUseCaseTypesSortOrder: [],
     updatedAt: new Date()
   };
 }
