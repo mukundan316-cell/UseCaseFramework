@@ -442,6 +442,45 @@ export default function EnhancedMatrixPlot() {
             {/* Main Matrix Chart - Takes 4/5 of the space */}
             <div className="lg:col-span-4">
               <div className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                
+                {/* Axis Help Tooltips */}
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-center space-x-1 z-10">
+                  <span className="text-sm font-semibold text-gray-700">Implementation Effort</span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="w-4 h-4 text-amber-500 hover:text-amber-600 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm">
+                      <div className="space-y-1">
+                        <p className="font-semibold">Implementation Effort (X-axis)</p>
+                        <p>Measures technical complexity, resource requirements, and implementation difficulty:</p>
+                        <p>• <strong>1-2:</strong> Quick fixes, simple automation</p>
+                        <p>• <strong>3:</strong> Standard projects with moderate complexity</p>
+                        <p>• <strong>4-5:</strong> Complex, resource-intensive initiatives</p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+
+                <div className="absolute top-1/2 left-2 transform -translate-y-1/2 -rotate-90 flex items-center space-x-1 z-10">
+                  <span className="text-sm font-semibold text-gray-700">Business Impact</span>
+                  <div className="rotate-90">
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="w-4 h-4 text-emerald-500 hover:text-emerald-600 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <div className="space-y-1">
+                          <p className="font-semibold">Business Impact (Y-axis)</p>
+                          <p>Measures potential business value across key dimensions:</p>
+                          <p>• <strong>1-2:</strong> Minimal business benefit</p>
+                          <p>• <strong>3:</strong> Moderate value creation</p>
+                          <p>• <strong>4-5:</strong> High strategic and financial impact</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
                 <ResponsiveContainer width="100%" height={640}>
                   <ScatterChart 
                     data={filteredData}
