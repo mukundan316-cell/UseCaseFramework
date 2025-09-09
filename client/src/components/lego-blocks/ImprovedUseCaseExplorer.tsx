@@ -112,16 +112,11 @@ export default function ImprovedUseCaseExplorer({
     const isRsaInternal = librarySource === 'rsa_internal';
     const isIndustryStandard = librarySource === 'industry_standard';
     
-    // Skip internal tab filtering for active portfolio context since it's already pre-filtered
-    if (context === 'active') {
-      // Skip tab-based filtering - active portfolio is already filtered by API
-    } else {
-      // Tab-based filtering for reference library only
-      if (activeTab === 'rsa_internal' && !isRsaInternal) return false;
-      if (activeTab === 'industry_standard' && !isIndustryStandard) return false;
-      if (activeTab === 'inventory' && !isAiInventory) return false;
-      // 'both' tab shows everything
-    }
+    // Tab-based filtering for both active and reference contexts
+    if (activeTab === 'rsa_internal' && !isRsaInternal) return false;
+    if (activeTab === 'industry_standard' && !isIndustryStandard) return false;
+    if (activeTab === 'inventory' && !isAiInventory) return false;
+    // 'both' tab shows everything
     
     // Text search with null safety
     if (searchTerm) {
