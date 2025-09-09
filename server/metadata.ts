@@ -83,6 +83,7 @@ function getDefaultMetadata(): MetadataConfig {
     aiMlTechnologiesSortOrder: {},
     dataSourcesSortOrder: {},
     stakeholderGroupsSortOrder: {},
+    processActivitiesSortOrder: {},
     updatedAt: new Date()
   };
 }
