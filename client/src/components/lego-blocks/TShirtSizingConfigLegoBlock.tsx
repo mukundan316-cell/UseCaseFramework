@@ -94,30 +94,210 @@ export default function TShirtSizingConfigLegoBlock() {
     const defaultConfig: TShirtSizingConfig = {
       enabled: true,
       sizes: [
-        { name: 'XS', minWeeks: 1, maxWeeks: 3, teamSizeMin: 1, teamSizeMax: 2, color: '#10B981', description: 'Quick fixes and small enhancements' },
-        { name: 'S', minWeeks: 2, maxWeeks: 6, teamSizeMin: 2, teamSizeMax: 3, color: '#3B82F6', description: 'Small projects and proof of concepts' },
-        { name: 'M', minWeeks: 4, maxWeeks: 12, teamSizeMin: 3, teamSizeMax: 5, color: '#F59E0B', description: 'Medium-sized initiatives' },
-        { name: 'L', minWeeks: 8, maxWeeks: 24, teamSizeMin: 5, teamSizeMax: 8, color: '#EF4444', description: 'Large strategic projects' },
-        { name: 'XL', minWeeks: 16, maxWeeks: 52, teamSizeMin: 8, teamSizeMax: 12, color: '#8B5CF6', description: 'Major transformation initiatives' }
+        {
+          name: 'XS',
+          minWeeks: 2,
+          maxWeeks: 4,
+          teamSizeMin: 1,
+          teamSizeMax: 2,
+          color: '#10B981', // Green
+          description: 'Simple automation or tool integration'
+        },
+        {
+          name: 'S',
+          minWeeks: 4,
+          maxWeeks: 8,
+          teamSizeMin: 2,
+          teamSizeMax: 4,
+          color: '#3B82F6', // Blue
+          description: 'Basic ML model, RPA, or process optimization'
+        },
+        {
+          name: 'M',
+          minWeeks: 8,
+          maxWeeks: 16,
+          teamSizeMin: 3,
+          teamSizeMax: 6,
+          color: '#FBBF24', // Amber
+          description: 'Advanced ML/NLP, data pipelines, multi-system integration'
+        },
+        {
+          name: 'L',
+          minWeeks: 16,
+          maxWeeks: 26,
+          teamSizeMin: 5,
+          teamSizeMax: 10,
+          color: '#EF4444', // Red
+          description: 'Complex AI systems, agentic bots, cross-functional rollout'
+        },
+        {
+          name: 'XL',
+          minWeeks: 26,
+          maxWeeks: 52,
+          teamSizeMin: 8,
+          teamSizeMax: 15,
+          color: '#8B5CF6', // Purple
+          description: 'Enterprise-wide transformation, end-to-end automation'
+        }
       ],
       roles: [
         { type: 'Developer', dailyRateGBP: 400 },
         { type: 'Analyst', dailyRateGBP: 350 },
-        { type: 'PM', dailyRateGBP: 500 }
+        { type: 'PM', dailyRateGBP: 500 },
+        { type: 'Data Engineer', dailyRateGBP: 550 },
+        { type: 'Architect', dailyRateGBP: 650 },
+        { type: 'QA Engineer', dailyRateGBP: 300 }
       ],
-      overheadMultiplier: 1.35,
+      overheadMultiplier: 1.35, // 35% overhead for benefits, facilities, management
       mappingRules: [
-        { name: 'Quick Win - High Impact, Low Effort', condition: { impactMin: 3.5, effortMax: 2.5 }, targetSize: 'S', priority: 100 },
-        { name: 'Strategic Bet - High Impact, Medium Effort', condition: { impactMin: 3.0, effortMin: 2.5, effortMax: 3.5 }, targetSize: 'M', priority: 90 },
-        { name: 'Complex Strategic - High Impact, High Effort', condition: { impactMin: 2.5, effortMin: 3.5 }, targetSize: 'L', priority: 80 },
-        { name: 'Small Experiment - Low to Medium Impact', condition: { impactMax: 3.0, effortMax: 3.0 }, targetSize: 'XS', priority: 70 }
+        // TIER 1: Critical & High-Value Quick Wins (Highest Priority)
+        {
+          name: 'Critical Quick Fix',
+          condition: { impactMin: 4.5, effortMax: 1.5 },
+          targetSize: 'XS',
+          priority: 150
+        },
+        {
+          name: 'High-Value Quick Win', 
+          condition: { impactMin: 4.0, effortMax: 2.5 },
+          targetSize: 'S',
+          priority: 140
+        },
+        {
+          name: 'Strategic Quick Win',
+          condition: { impactMin: 3.5, effortMax: 2.0 },
+          targetSize: 'S',
+          priority: 130
+        },
+        
+        // TIER 2: Strategic Projects (High Priority)
+        {
+          name: 'Strategic Priority',
+          condition: { impactMin: 4.0, effortMin: 2.5, effortMax: 3.5 },
+          targetSize: 'M',
+          priority: 120
+        },
+        {
+          name: 'Major Strategic Bet',
+          condition: { impactMin: 4.0, effortMin: 3.5, effortMax: 4.5 },
+          targetSize: 'L',
+          priority: 110
+        },
+        {
+          name: 'Complex Strategic',
+          condition: { impactMin: 3.5, effortMin: 4.5 },
+          targetSize: 'XL',
+          priority: 105
+        },
+        
+        // TIER 3: Standard Projects (Medium Priority)
+        {
+          name: 'Standard Quick Win',
+          condition: { impactMin: 3.0, effortMax: 2.5 },
+          targetSize: 'S',
+          priority: 100
+        },
+        {
+          name: 'Important Project',
+          condition: { impactMin: 3.5, effortMin: 2.0, effortMax: 3.5 },
+          targetSize: 'M',
+          priority: 95
+        },
+        {
+          name: 'Strategic Project',
+          condition: { impactMin: 3.0, effortMin: 3.5, effortMax: 4.5 },
+          targetSize: 'L',
+          priority: 90
+        },
+        
+        // TIER 4: Medium-Impact Projects (Lower Priority)
+        {
+          name: 'Standard Project',
+          condition: { impactMin: 2.5, effortMin: 2.5, effortMax: 3.5 },
+          targetSize: 'M',
+          priority: 80
+        },
+        {
+          name: 'Complex Standard',
+          condition: { impactMin: 2.5, effortMin: 3.5, effortMax: 4.5 },
+          targetSize: 'M',
+          priority: 75
+        },
+        {
+          name: 'Resource-Heavy Project',
+          condition: { impactMin: 2.5, effortMin: 4.5 },
+          targetSize: 'L',
+          priority: 70
+        },
+        
+        // TIER 5: Small Tasks & Maintenance (Routine Work)
+        {
+          name: 'Small Project',
+          condition: { impactMin: 2.0, effortMin: 1.5, effortMax: 2.5 },
+          targetSize: 'S',
+          priority: 65
+        },
+        {
+          name: 'Maintenance Project',
+          condition: { impactMax: 2.5, effortMin: 2.5, effortMax: 3.5 },
+          targetSize: 'S',
+          priority: 60
+        },
+        {
+          name: 'Questionable Investment',
+          condition: { impactMax: 2.5, effortMin: 3.5, effortMax: 4.5 },
+          targetSize: 'M',
+          priority: 55
+        },
+        
+        // TIER 6: Money Pits & Poor Investments (Lowest Priority)
+        {
+          name: 'Low-Value Money Pit',
+          condition: { impactMax: 2.5, effortMin: 4.5 },
+          targetSize: 'XL',
+          priority: 40
+        },
+        {
+          name: 'Major Money Pit',
+          condition: { impactMax: 1.5, effortMin: 3.5 },
+          targetSize: 'XL',
+          priority: 35
+        },
+        
+        // TIER 7: Minor Tasks (Catch-All)
+        {
+          name: 'Minor Enhancement',
+          condition: { impactMin: 2.0, effortMax: 1.5 },
+          targetSize: 'XS',
+          priority: 30
+        },
+        {
+          name: 'Small Maintenance',
+          condition: { impactMax: 2.0, effortMax: 2.5 },
+          targetSize: 'XS',
+          priority: 25
+        },
+        {
+          name: 'Low-Value Work',
+          condition: { impactMax: 1.5, effortMax: 3.5 },
+          targetSize: 'S',
+          priority: 20
+        },
+        
+        // FINAL FALLBACK: Absolute Minimum
+        {
+          name: 'Trivial Task',
+          condition: {},
+          targetSize: 'XS',
+          priority: 10
+        }
       ],
       benefitMultipliers: {
-        'XS': 25000,
-        'S': 50000,
-        'M': 100000,
-        'L': 200000,
-        'XL': 400000
+        'XS': 20000,  // £4K per impact point - minor fixes, quick enhancements
+        'S': 40000,   // £8K per impact point - quick wins, small projects  
+        'M': 75000,   // £15K per impact point - standard medium projects
+        'L': 150000,  // £30K per impact point - large strategic initiatives
+        'XL': 300000  // £60K per impact point - major transformations
       },
       benefitRangePct: 0.20
     };
