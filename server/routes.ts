@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertUseCaseSchema } from "@shared/schema";
 import { z } from "zod";
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@shared/calculations";
+import { getImpactWeights, getEffortWeights } from "@shared/utils/weightUtils";
 import { mapUseCaseToFrontend } from "@shared/mappers";
 import recommendationRoutes from "./routes/recommendations";
 import exportRoutes from "./routes/export.routes";
@@ -30,21 +31,9 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
     }
   }
   
-  const businessImpactWeights = parsedScoringModel?.businessValue || { // Note: keeping 'businessValue' key for API compatibility
-    revenueImpact: 20,
-    costSavings: 20,
-    riskReduction: 20,
-    brokerPartnerExperience: 20,
-    strategicFit: 20
-  };
-  
-  const implementationEffortWeights = parsedScoringModel?.feasibility || { // Note: keeping 'feasibility' key for API compatibility
-    dataReadiness: 20,
-    technicalComplexity: 20,
-    changeImpact: 20,
-    modelRisk: 20,
-    adoptionReadiness: 20
-  };
+  // Use centralized weight utilities for consistency
+  const businessImpactWeights = getImpactWeights({ scoringModel: parsedScoringModel });
+  const implementationEffortWeights = getEffortWeights({ scoringModel: parsedScoringModel });
   
   const threshold = parsedScoringModel?.quadrantThreshold || 3.0;
   
@@ -204,20 +193,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get current metadata for weights
       const metadata = await storage.getMetadataConfig();
-      const businessImpactWeights = metadata?.scoringModel?.businessValue || { // Note: keeping 'businessValue' key for API compatibility
-        revenueImpact: 20,
-        costSavings: 20,
-        riskReduction: 20,
-        brokerPartnerExperience: 20,
-        strategicFit: 20
-      };
-      const implementationEffortWeights = metadata?.scoringModel?.feasibility || { // Note: keeping 'feasibility' key for API compatibility
-        dataReadiness: 20,
-        technicalComplexity: 20,
-        changeImpact: 20,
-        modelRisk: 20,
-        adoptionReadiness: 20
-      };
+      // Use centralized weight utilities for consistency
+      const businessImpactWeights = getImpactWeights(metadata);
+      const implementationEffortWeights = getEffortWeights(metadata);
       const threshold = metadata?.scoringModel?.quadrantThreshold || 3.0;
       
       // Calculate scores with weights
@@ -358,20 +336,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Get current metadata for weights
         const metadata = await storage.getMetadataConfig();
-        const businessImpactWeights = metadata?.scoringModel?.businessValue || { // Note: keeping 'businessValue' key for API compatibility
-          revenueImpact: 20,
-          costSavings: 20,
-          riskReduction: 20,
-          brokerPartnerExperience: 20,
-          strategicFit: 20
-        };
-        const implementationEffortWeights = metadata?.scoringModel?.feasibility || { // Note: keeping 'feasibility' key for API compatibility
-          dataReadiness: 20,
-          technicalComplexity: 20,
-          changeImpact: 20,
-          modelRisk: 20,
-          adoptionReadiness: 20
-        };
+        // Use centralized weight utilities for consistency
+        const businessImpactWeights = getImpactWeights(metadata);
+        const implementationEffortWeights = getEffortWeights(metadata);
         const threshold = metadata?.scoringModel?.quadrantThreshold || 3.0;
         
         // Merge current values with updates for complete scoring

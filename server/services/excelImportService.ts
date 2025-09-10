@@ -195,10 +195,11 @@ export class ExcelImportService {
             
             // Calculate required scores just like UI does - get metadata for weights
             const metadata = await storage.getMetadataConfig();
-            const businessImpactWeights = (metadata?.scoringModel?.businessValue as any) || {
+            // Use centralized weight utilities for consistency  
+            const businessImpactWeights = metadata?.scoringModel?.businessValue || {
               revenueImpact: 20, costSavings: 20, riskReduction: 20, brokerPartnerExperience: 20, strategicFit: 20
             };
-            const implementationEffortWeights = (metadata?.scoringModel?.feasibility as any) || {
+            const implementationEffortWeights = metadata?.scoringModel?.feasibility || {
               dataReadiness: 20, technicalComplexity: 20, changeImpact: 20, modelRisk: 20, adoptionReadiness: 20
             };
             const threshold = (metadata?.scoringModel?.quadrantThreshold as number) || 3.0;

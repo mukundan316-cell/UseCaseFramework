@@ -248,20 +248,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const formValues = form.watch();
   
   // Extract weights from metadata or use defaults for real-time calculations
-  const businessImpactWeights = metadata?.scoringModel?.businessValue || { // Note: keeping 'businessValue' key for API compatibility
-    revenueImpact: 20,
-    costSavings: 20,
-    riskReduction: 20,
-    brokerPartnerExperience: 20,
-    strategicFit: 20
+  // Use centralized weight utilities for consistency
+  const businessImpactWeights = metadata?.scoringModel?.businessValue || {
+    revenueImpact: 20, costSavings: 20, riskReduction: 20, brokerPartnerExperience: 20, strategicFit: 20
   };
-  
-  const implementationEffortWeights = metadata?.scoringModel?.feasibility || { // Note: keeping 'feasibility' key for API compatibility
-    dataReadiness: 20,
-    technicalComplexity: 20,
-    changeImpact: 20,
-    modelRisk: 20,
-    adoptionReadiness: 20
+  const implementationEffortWeights = metadata?.scoringModel?.feasibility || {
+    dataReadiness: 20, technicalComplexity: 20, changeImpact: 20, modelRisk: 20, adoptionReadiness: 20
   };
   
   const threshold = metadata?.scoringModel?.quadrantThreshold || 3.0;
