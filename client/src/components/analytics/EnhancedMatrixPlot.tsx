@@ -15,6 +15,7 @@ import { useUseCases } from '../../contexts/UseCaseContext';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 import { APP_CONFIG } from '@shared/constants/app-config';
 import { calculateTShirtSize } from '@shared/calculations';
+import { isScoreAboveThreshold, isScoreBelowOrEqualThreshold, formatScore } from '@shared/utils/scoreFormatting';
 import PortfolioTableView from './PortfolioTableView';
 
 /**
@@ -75,8 +76,8 @@ export default function EnhancedMatrixPlot() {
         useCase: useCase,
         lob: useCase.lineOfBusiness,
         segment: useCase.businessSegment,
-        isHighValue: effectiveImpact >= APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.HIGH_VALUE_THRESHOLD,
-        isLowEffort: effectiveEffort <= APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.LOW_EFFORT_THRESHOLD,
+        isHighValue: isScoreAboveThreshold(effectiveImpact, APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.HIGH_VALUE_THRESHOLD),
+        isLowEffort: isScoreBelowOrEqualThreshold(effectiveEffort, APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.LOW_EFFORT_THRESHOLD),
         impact: effectiveImpact,
         effort: effectiveEffort
       };
@@ -161,14 +162,14 @@ export default function EnhancedMatrixPlot() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <span className="font-medium text-gray-600">Business Impact:</span>
-                <div className="text-lg font-bold text-emerald-600">{data.y.toFixed(1)}/5</div>
+                <div className="text-lg font-bold text-emerald-600">{formatScore(data.y)}/5</div>
                 <div className="text-xs text-gray-500 mt-1">
                   {data.y >= 4 ? "High Impact" : data.y >= 3 ? "Medium Impact" : "Low Impact"}
                 </div>
               </div>
               <div>
                 <span className="font-medium text-gray-600">Implementation Effort:</span>
-                <div className="text-lg font-bold text-amber-600">{data.x.toFixed(1)}/5</div>
+                <div className="text-lg font-bold text-amber-600">{formatScore(data.x)}/5</div>
                 <div className="text-xs text-gray-500 mt-1">
                   {data.x <= 2 ? "Low Effort" : data.x >= 4 ? "High Effort" : "Medium Effort"}
                 </div>

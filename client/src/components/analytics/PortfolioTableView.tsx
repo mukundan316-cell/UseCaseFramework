@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 import { calculateTShirtSize, calculateAnnualBenefitRange } from '@shared/calculations';
+import { formatScore } from '@shared/utils/scoreFormatting';
 import { UseCase } from '../../types';
 
 interface PortfolioTableViewProps {
@@ -638,12 +639,12 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
                   </td>
                   <td className="p-3 text-center">
                     <span className="font-semibold text-green-700">
-                      {row.impact.toFixed(1)}
+                      {formatScore(row.impact)}
                     </span>
                   </td>
                   <td className="p-3 text-center">
                     <span className="font-semibold text-blue-700">
-                      {row.effort.toFixed(1)}
+                      {formatScore(row.effort)}
                     </span>
                   </td>
                   <td className="p-3 text-center">
