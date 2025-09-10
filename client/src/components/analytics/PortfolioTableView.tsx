@@ -455,7 +455,17 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Click to see how Impact scores are calculated</p>
+                        <div className="space-y-1">
+                          <div className="font-medium">Impact Score Weights</div>
+                          <div className="text-xs space-y-0.5">
+                            <div>Revenue Impact: {(metadata?.scoringModel?.businessValue?.revenueImpact || 20)}%</div>
+                            <div>Cost Savings: {(metadata?.scoringModel?.businessValue?.costSavings || 20)}%</div>
+                            <div>Risk Reduction: {(metadata?.scoringModel?.businessValue?.riskReduction || 20)}%</div>
+                            <div>Broker Partner Experience: {(metadata?.scoringModel?.businessValue?.brokerPartnerExperience || 20)}%</div>
+                            <div>Strategic Fit: {(metadata?.scoringModel?.businessValue?.strategicFit || 20)}%</div>
+                          </div>
+                          <div className="text-xs text-blue-400 mt-1">Click help icon for detailed calculation</div>
+                        </div>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -484,7 +494,17 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Click to see how Effort scores are calculated</p>
+                        <div className="space-y-1">
+                          <div className="font-medium">Effort Score Weights</div>
+                          <div className="text-xs space-y-0.5">
+                            <div>Data Readiness: {(metadata?.scoringModel?.feasibility?.dataReadiness || 20)}%</div>
+                            <div>Technical Complexity: {(metadata?.scoringModel?.feasibility?.technicalComplexity || 20)}%</div>
+                            <div>Change Impact: {(metadata?.scoringModel?.feasibility?.changeImpact || 20)}%</div>
+                            <div>Model Risk: {(metadata?.scoringModel?.feasibility?.modelRisk || 20)}%</div>
+                            <div>Adoption Readiness: {(metadata?.scoringModel?.feasibility?.adoptionReadiness || 20)}%</div>
+                          </div>
+                          <div className="text-xs text-blue-400 mt-1">Click help icon for detailed calculation</div>
+                        </div>
                       </TooltipContent>
                     </Tooltip>
                   </div>
