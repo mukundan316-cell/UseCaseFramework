@@ -269,29 +269,51 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
   };
 
   // Interactive header content functions
-  const getImpactExplanation = () => ({
-    title: 'Impact Score Calculation',
-    content: `Business Impact Score = Weighted average of:
-• Revenue Impact (${metadata?.scoringModel?.businessValue?.revenueImpact || 20}%)
-• Cost Savings (${metadata?.scoringModel?.businessValue?.costSavings || 20}%)
-• Risk Reduction (${metadata?.scoringModel?.businessValue?.riskReduction || 20}%)
-• Broker Partner Experience (${metadata?.scoringModel?.businessValue?.brokerPartnerExperience || 20}%)
-• Strategic Fit (${metadata?.scoringModel?.businessValue?.strategicFit || 20}%)
+  const getImpactExplanation = () => {
+    // Use centralized weight utility for consistency
+    const weights = metadata?.scoringModel?.businessValue || {
+      revenueImpact: 20,
+      costSavings: 20,
+      riskReduction: 20,
+      brokerPartnerExperience: 20,
+      strategicFit: 20
+    };
+
+    return {
+      title: 'Impact Score Calculation',
+      content: `Business Impact Score = Weighted average of:
+• Revenue Impact (${weights.revenueImpact}%)
+• Cost Savings (${weights.costSavings}%)
+• Risk Reduction (${weights.riskReduction}%)
+• Broker Partner Experience (${weights.brokerPartnerExperience}%)
+• Strategic Fit (${weights.strategicFit}%)
 
 Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
-  });
+    };
+  };
 
-  const getEffortExplanation = () => ({
-    title: 'Effort Score Calculation',
-    content: `Implementation Effort Score = Weighted average of:
-• Technical Complexity (${metadata?.scoringModel?.implementationEffort?.technicalComplexity || 25}%)
-• Change Impact (${metadata?.scoringModel?.implementationEffort?.changeImpact || 25}%)
-• Model Risk (${metadata?.scoringModel?.implementationEffort?.modelRisk || 25}%)
-• Adoption Readiness (${metadata?.scoringModel?.implementationEffort?.adoptionReadiness || 12.5}%)
-• Explainability/Bias (${metadata?.scoringModel?.implementationEffort?.explainabilityBias || 12.5}%)
+  const getEffortExplanation = () => {
+    // Use centralized weight utility for consistency
+    const weights = metadata?.scoringModel?.feasibility || {
+      dataReadiness: 20,
+      technicalComplexity: 20,
+      changeImpact: 20,
+      modelRisk: 20,
+      adoptionReadiness: 20
+    };
+
+    return {
+      title: 'Effort Score Calculation',
+      content: `Implementation Effort Score = Weighted average of:
+• Data Readiness (${weights.dataReadiness}%)
+• Technical Complexity (${weights.technicalComplexity}%)
+• Change Impact (${weights.changeImpact}%)
+• Model Risk (${weights.modelRisk}%)
+• Adoption Readiness (${weights.adoptionReadiness}%)
 
 Each lever scored 1-5, then weighted and averaged. Higher scores indicate greater implementation difficulty. Manual overrides may apply.`
-  });
+    };
+  };
 
   const getTShirtExplanation = () => {
     const tShirtConfig = metadata?.tShirtSizing;
