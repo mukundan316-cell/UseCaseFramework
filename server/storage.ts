@@ -489,7 +489,19 @@ export class DatabaseStorage implements IStorage {
 
   async getMetadataConfig(): Promise<MetadataConfig | undefined> {
     const [config] = await db.select().from(metadataConfig).where(eq(metadataConfig.id, 'default'));
-    return config || undefined;
+    if (!config) return undefined;
+    
+    // Parse scoringModel if it's stored as JSON string (centralized parsing per replit.md)
+    if (config.scoringModel && typeof config.scoringModel === 'string') {
+      try {
+        config.scoringModel = JSON.parse(config.scoringModel);
+      } catch (error) {
+        console.error('Failed to parse scoringModel JSON:', error);
+        // Keep as string if parsing fails to prevent breaking
+      }
+    }
+    
+    return config;
   }
 
   async updateMetadataConfig(metadata: Partial<MetadataConfig>): Promise<MetadataConfig> {
