@@ -331,17 +331,21 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   };
 
   const getQuadrantCounts = (): Record<string, number> => {
-    const filteredUseCases = getFilteredUseCases();
-    return filteredUseCases.reduce((acc, useCase) => {
-      // Calculate effective quadrant for accurate counts
+    // Use dashboard use cases for quadrant counts (following replit.md centralized config)
+    const useCasesToCount = dashboardUseCases;
+    // Get configurable threshold from metadata instead of hardcoded 3.0
+    const threshold = metadata?.scoringModel?.quadrantThreshold || 3.0;
+    
+    return useCasesToCount.reduce((acc, useCase) => {
+      // Calculate effective quadrant for accurate counts using configurable threshold
       const effectiveQuadrant = (useCase as any).manualQuadrant || 
         (((useCase as any).manualImpactScore !== undefined || (useCase as any).manualEffortScore !== undefined) ?
           (() => {
             const impact = (useCase as any).manualImpactScore ?? useCase.impactScore ?? 0;
             const effort = (useCase as any).manualEffortScore ?? useCase.effortScore ?? 0;
-            if (impact >= 3.0 && effort < 3.0) return 'Quick Win';
-            if (impact >= 3.0 && effort >= 3.0) return 'Strategic Bet';
-            if (impact < 3.0 && effort < 3.0) return 'Experimental';
+            if (impact >= threshold && effort < threshold) return 'Quick Win';
+            if (impact >= threshold && effort >= threshold) return 'Strategic Bet';
+            if (impact < threshold && effort < threshold) return 'Experimental';
             return 'Watchlist';
           })() : useCase.quadrant) || 'Unassigned';
       acc[effectiveQuadrant] = (acc[effectiveQuadrant] || 0) + 1;
