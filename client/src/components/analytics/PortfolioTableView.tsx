@@ -270,7 +270,7 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
 
   // Interactive header content functions
   const getImpactExplanation = () => {
-    // Use centralized weight utility for consistency
+    // Use actual configured weights from metadata
     const weights = metadata?.scoringModel?.businessValue || {
       revenueImpact: 20,
       costSavings: 20,
@@ -293,7 +293,7 @@ Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
   };
 
   const getEffortExplanation = () => {
-    // Use centralized weight utility for consistency
+    // Use actual configured weights from metadata
     const weights = metadata?.scoringModel?.feasibility || {
       dataReadiness: 20,
       technicalComplexity: 20,
