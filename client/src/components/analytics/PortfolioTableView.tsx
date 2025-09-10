@@ -281,6 +281,18 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
 Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
   });
 
+  const getEffortExplanation = () => ({
+    title: 'Effort Score Calculation',
+    content: `Implementation Effort Score = Weighted average of:
+• Technical Complexity (${metadata?.scoringModel?.implementationEffort?.technicalComplexity || 25}%)
+• Change Impact (${metadata?.scoringModel?.implementationEffort?.changeImpact || 25}%)
+• Model Risk (${metadata?.scoringModel?.implementationEffort?.modelRisk || 25}%)
+• Adoption Readiness (${metadata?.scoringModel?.implementationEffort?.adoptionReadiness || 12.5}%)
+• Explainability/Bias (${metadata?.scoringModel?.implementationEffort?.explainabilityBias || 12.5}%)
+
+Each lever scored 1-5, then weighted and averaged. Higher scores indicate greater implementation difficulty. Manual overrides may apply.`
+  });
+
   const getTShirtExplanation = () => {
     const tShirtConfig = metadata?.tShirtSizing;
     if (!tShirtConfig?.enabled) {
@@ -346,6 +358,9 @@ Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
     switch (type) {
       case 'impact':
         content = getImpactExplanation();
+        break;
+      case 'effort':
+        content = getEffortExplanation();
         break;
       case 'tshirt':
         content = getTShirtExplanation();
