@@ -424,16 +424,33 @@ Each lever scored 1-5, then weighted and averaged. Manual overrides may apply.`
                   </div>
                 </th>
                 <th className="text-center p-3 font-semibold">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => handleSort('effort')}
-                    className="flex items-center gap-1 hover:bg-gray-50"
-                  >
-                    <TrendingUp className="h-4 w-4" />
-                    Effort
-                    {getSortIcon('effort')}
-                  </Button>
+                  <div className="flex items-center gap-1 justify-center">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleSort('effort')}
+                      className="flex items-center gap-1 hover:bg-gray-50"
+                    >
+                      <TrendingUp className="h-4 w-4" />
+                      Effort
+                      {getSortIcon('effort')}
+                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => showCalculationDialog('effort')}
+                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                        >
+                          <HelpCircle className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to see how Effort scores are calculated</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </th>
                 <th className="text-center p-3 font-semibold">
                   <div className="flex items-center gap-1 justify-center">
