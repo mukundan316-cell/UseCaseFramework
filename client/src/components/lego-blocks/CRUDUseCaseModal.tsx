@@ -948,7 +948,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   {/* Meaningful ID Field - Read-only for existing use cases with IDs */}
                   {mode === 'edit' && useCase?.meaningfulId && (
                     <div>
-                      <Label className="text-sm font-medium">
+                      <Label className="text-sm font-semibold">
                         Use Case ID
                       </Label>
                       <div className="mt-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
@@ -963,7 +963,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   )}
                   
                   <div>
-                    <Label htmlFor="title" className="text-sm font-medium">
+                    <Label htmlFor="title" className="text-sm font-semibold">
                       Use Case Title <span className="text-red-500">*</span>
                     </Label>
                     <Input
@@ -983,7 +983,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   {/* For new use cases, ID field is hidden - auto-generated after creation */}
                   
                   <div>
-                    <Label>Use Case Type</Label>
+                    <Label className="text-sm font-semibold">Use Case Type</Label>
                     <Select key={`useCaseType-${mode}-${useCase?.id}`} value={form.watch('useCaseType') || ''} onValueChange={(value) => form.setValue('useCaseType', value)}>
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Select type" />
@@ -996,7 +996,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     </Select>
                   </div>
                   <div>
-                    <Label>Source Type</Label>
+                    <Label className="text-sm font-semibold">Source Type</Label>
                     <Select key={`librarySource-${mode}-${useCase?.id}`} value={form.watch('librarySource') || 'rsa_internal'} onValueChange={(value) => form.setValue('librarySource', value)}>
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Select source type" />
@@ -1025,7 +1025,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="problemStatement">Problem Statement / Business Need</Label>
+                  <Label htmlFor="problemStatement" className="text-sm font-semibold">Problem Statement / Business Need</Label>
                   <Textarea
                     id="problemStatement"
                     rows={3}
@@ -1038,7 +1038,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="description" className="text-sm font-medium">
+                  <Label htmlFor="description" className="text-sm font-semibold">
                     AI/Automation or Solution considerations <span className="text-red-500">*</span>
                   </Label>
                   <Textarea
@@ -1155,7 +1155,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   <h4 className="font-medium text-gray-900">Project Management</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="primaryBusinessOwner">Primary Business Owner</Label>
+                      <Label htmlFor="primaryBusinessOwner" className="text-sm font-semibold">Primary Business Owner</Label>
                       <Input
                         id="primaryBusinessOwner"
                         placeholder="e.g., John Smith, Claims Director"
@@ -1164,7 +1164,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       />
                     </div>
                     <div>
-                      <Label>Use Case Status</Label>
+                      <Label className="text-sm font-semibold">Use Case Status</Label>
                       <Select value={form.watch('useCaseStatus') || 'Discovery'} onValueChange={(value) => form.setValue('useCaseStatus', value)}>
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Select status" />
@@ -1179,7 +1179,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="keyDependencies">Key Dependencies</Label>
+                      <Label htmlFor="keyDependencies" className="text-sm font-semibold">Key Dependencies</Label>
                       <Textarea
                         id="keyDependencies"
                         rows={2}
@@ -1189,7 +1189,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       />
                     </div>
                     <div>
-                      <Label htmlFor="implementationTimeline">Implementation Timeline</Label>
+                      <Label htmlFor="implementationTimeline" className="text-sm font-semibold">Implementation Timeline</Label>
                       <Input
                         id="implementationTimeline"
                         placeholder="e.g., Q2 2024 - Q4 2024"
@@ -1205,7 +1205,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   <h4 className="font-medium text-gray-900">Value Realization</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="successMetrics">Success Metrics / KPIs</Label>
+                      <Label htmlFor="successMetrics" className="text-sm font-semibold">Success Metrics / KPIs</Label>
                       <Textarea
                         id="successMetrics"
                         rows={2}
@@ -1215,7 +1215,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       />
                     </div>
                     <div>
-                      <Label htmlFor="estimatedValue">Estimated Value (£)</Label>
+                      <Label htmlFor="estimatedValue" className="text-sm font-semibold">Estimated Value (£)</Label>
                       <Input
                         id="estimatedValue"
                         placeholder="e.g., £2.5M annual savings"
@@ -1225,7 +1225,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="valueMeasurementApproach">Value Measurement Approach</Label>
+                    <Label htmlFor="valueMeasurementApproach" className="text-sm font-semibold">Value Measurement Approach</Label>
                     <Textarea
                       id="valueMeasurementApproach"
                       rows={2}
@@ -1263,7 +1263,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     />
                   </div>
                   <div>
-                    <Label htmlFor="integrationRequirements">Integration Requirements</Label>
+                    <Label htmlFor="integrationRequirements" className="text-sm font-semibold">Integration Requirements</Label>
                     <Textarea
                       id="integrationRequirements"
                       rows={2}
