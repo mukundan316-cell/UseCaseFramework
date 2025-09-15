@@ -1026,7 +1026,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 </div>
                 <div>
                   <Label htmlFor="description" className="text-sm font-medium">
-                    Description <span className="text-red-500">*</span>
+                    AI/Automation or Solution considerations <span className="text-red-500">*</span>
                   </Label>
                   <Textarea
                     id="description"
