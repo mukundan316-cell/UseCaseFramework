@@ -1025,6 +1025,19 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                 </div>
                 <div>
+                  <Label htmlFor="problemStatement">Problem Statement / Business Need</Label>
+                  <Textarea
+                    id="problemStatement"
+                    rows={3}
+                    placeholder="Describe the specific business problem or need this use case addresses (e.g., 'Our current claims processing time is 25% higher than industry average, leading to poor customer satisfaction and increased operational costs.')"
+                    className="mt-1"
+                    {...form.register('problemStatement')}
+                  />
+                  {form.formState.errors.problemStatement && (
+                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.problemStatement.message}</p>
+                  )}
+                </div>
+                <div>
                   <Label htmlFor="description" className="text-sm font-medium">
                     AI/Automation or Solution considerations <span className="text-red-500">*</span>
                   </Label>
@@ -1040,19 +1053,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     <p className="text-sm text-red-600 mt-1" data-testid="error-description">
                       {form.formState.errors.description.message}
                     </p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="problemStatement">Problem Statement / Business Need</Label>
-                  <Textarea
-                    id="problemStatement"
-                    rows={3}
-                    placeholder="Describe the specific business problem or need this use case addresses (e.g., 'Our current claims processing time is 25% higher than industry average, leading to poor customer satisfaction and increased operational costs.')"
-                    className="mt-1"
-                    {...form.register('problemStatement')}
-                  />
-                  {form.formState.errors.problemStatement && (
-                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.problemStatement.message}</p>
                   )}
                 </div>
 
