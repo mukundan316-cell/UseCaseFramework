@@ -34,7 +34,7 @@ async function getNextSequenceNumberSimple(prefix: string): Promise<number> {
     return 1; // First use case for this prefix
   }
   
-  // Extract sequence number from the last ID (e.g., RSA_INT_005 → 5)
+  // Extract sequence number from the last ID (e.g., HEX_INT_005 → 5)
   const lastId = rows[0].meaningful_id;
   const sequencePart = lastId.split('_').pop();
   const lastSequence = parseInt(sequencePart || '0', 10);
@@ -44,8 +44,8 @@ async function getNextSequenceNumberSimple(prefix: string): Promise<number> {
 
 async function generateMeaningfulId(useCase: any): Promise<string> {
   // Determine prefix based on librarySource
-  const prefix = useCase.librarySource === 'rsa_internal' ? 'RSA_INT' : 
-                useCase.librarySource === 'industry_standard' ? 'RSA_IND' : 'RSA_AITOOL';
+  const prefix = useCase.librarySource === 'rsa_internal' ? 'HEX_INT' : 
+                useCase.librarySource === 'industry_standard' ? 'HEX_IND' : 'HEX_AITOOL';
   
   // Get next sequence number for this prefix (no category needed)
   const sequence = await getNextSequenceNumberSimple(prefix);

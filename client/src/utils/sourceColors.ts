@@ -17,8 +17,8 @@ export const getSourceConfig = (librarySource: string): SourceStyleConfig => {
         badgeColor: '#1e40af',
         badgeBackground: '#dbeafe', // blue-100
         iconColor: '#2563eb', // blue-600
-        label: 'RSA Internal',
-        description: 'Contributed by RSA internal teams and employees'
+        label: 'Hexaware Internal',
+        description: 'Contributed by Hexaware internal teams and employees'
       };
     case 'industry_standard':
       return {

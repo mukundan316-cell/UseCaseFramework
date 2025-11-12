@@ -798,7 +798,7 @@ export class ExcelImportService {
                          (useCase.deploymentStatus !== null && useCase.deploymentStatus !== undefined) ||
                          (useCase.businessFunction !== null && useCase.businessFunction !== undefined);
     
-    // Check if this is a Strategic use case (RSA Internal with scoring or active status)
+    // Check if this is a Strategic use case (Hexaware Internal with scoring or active status)
     const isStrategic = useCase.librarySource === 'rsa_internal' || 
                        useCase.isActiveForRsa === 'true' ||
                        useCase.libraryTier === 'active' ||

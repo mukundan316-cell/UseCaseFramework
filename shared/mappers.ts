@@ -7,7 +7,7 @@ import type { UseCase } from './schema';
 
 export interface UseCaseFrontend {
   id: string;
-  meaningfulId?: string; // Human-readable ID like RSA-CLA-001
+  meaningfulId?: string; // Human-readable ID like HEX_INT_001
   title: string;
   description: string;
   problemStatement?: string;

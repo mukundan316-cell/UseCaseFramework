@@ -288,7 +288,7 @@ export class UseCaseDataExtractor {
    */
   private static formatLibrarySource(source: string): string {
     const sourceMap: Record<string, string> = {
-      'rsa_internal': 'RSA Internal',
+      'rsa_internal': 'Hexaware Internal',
       'industry_standard': 'Industry Standard',
       'ai_inventory': 'AI Inventory',
     };

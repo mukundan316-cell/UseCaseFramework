@@ -264,7 +264,7 @@ export default function ImprovedUseCaseExplorer({
             }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>RSA Internal</span>
+            <span>Hexaware Internal</span>
             <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-medium">
               {rsaInternalCount}
             </span>
