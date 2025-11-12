@@ -17,19 +17,19 @@ export class UseCasePdfService {
     // Clean white background
     doc.rect(0, 0, pageWidth, pageHeight).fill('#FFFFFF');
     
-    // Top header with RSA branding
+    // Top header with Hexaware branding
     doc.rect(0, 0, pageWidth, 3).fill('#005DAA');
     
-    // RSA Logo and branding (top left)
+    // Hexaware Logo and branding (top left)
     doc.fontSize(28)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA', 60, 60);
+       .text('Hexaware', 60, 60);
     
     doc.fontSize(10)
        .fillColor('#666666')
        .font('Helvetica')
-       .text('INSURANCE', 60, 95);
+       .text('TECHNOLOGIES', 60, 95);
     
     // Document classification (top right)
     doc.fontSize(9)
@@ -73,7 +73,7 @@ export class UseCasePdfService {
        .font('Helvetica')
        .text(`Total Use Cases: ${totalUseCases}`, 100, boxY + 45)
        .text(`Active Portfolio: ${activeUseCases}`, 100, boxY + 60)
-       .text(`Organization: RSA Insurance`, 100, boxY + 75)
+       .text(`Organization: Hexaware`, 100, boxY + 75)
        .text(`Generated: ${format(new Date(), 'MMMM d, yyyy')}`, 100, boxY + 90)
        .text(`Classification: Strategic Investment Document`, 100, boxY + 105);
     
@@ -86,14 +86,14 @@ export class UseCasePdfService {
     doc.fontSize(11)
        .fillColor('#333333')
        .font('Helvetica')
-       .text('This catalog presents RSA\'s comprehensive AI use case portfolio, strategically evaluated', 60, 525, { width: 480, lineGap: 4 })
+       .text('This catalog presents Hexaware\'s comprehensive AI use case portfolio, strategically evaluated', 60, 525, { width: 480, lineGap: 4 })
        .text('for business impact and implementation feasibility. Each use case represents a', 60, 545, { width: 480, lineGap: 4 })
        .text('validated opportunity for digital transformation and competitive advantage.', 60, 565, { width: 480, lineGap: 4 });
     
     // Footer with page indicator
     doc.fontSize(8)
        .fillColor('#999999')
-       .text('RSA Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 40)
+       .text('Hexaware Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 40)
        .text('Page 1', pageWidth - 80, pageHeight - 40);
   }
 
@@ -110,7 +110,7 @@ export class UseCasePdfService {
     doc.fontSize(10)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA Insurance', 60, 25);
+       .text('Hexaware', 60, 25);
     
     doc.fontSize(9)
        .fillColor('#666666')
@@ -259,8 +259,8 @@ export class UseCasePdfService {
     
     doc.moveDown(0.5);
     
-    // TAB 4: RSA FRAMEWORK ASSESSMENT
-    this.addSectionHeader(doc, 'RSA FRAMEWORK ASSESSMENT');
+    // TAB 4: HEXAWARE FRAMEWORK ASSESSMENT
+    this.addSectionHeader(doc, 'HEXAWARE FRAMEWORK ASSESSMENT');
     
     // Business Value dimensions
     this.addScoreSubsection(doc, 'Business Value');
@@ -302,7 +302,7 @@ export class UseCasePdfService {
     
     // Portfolio Information
     this.addScoreSubsection(doc, 'Portfolio Status');
-    this.addDetailRow(doc, 'Portfolio', useCase.isActiveForRsa === 'true' ? 'RSA Active Portfolio' : 'Reference Library');
+    this.addDetailRow(doc, 'Portfolio', useCase.isActiveForRsa === 'true' ? 'Hexaware Active Portfolio' : 'Reference Library');
     this.addDetailRow(doc, 'Dashboard Visible', useCase.isDashboardVisible ? 'Yes' : 'No');
     
     // Add separator line before next use case
@@ -457,7 +457,7 @@ export class UseCasePdfService {
     doc.fontSize(8)
        .fillColor('#666666')
        .font('Helvetica')
-       .text('RSA Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 35);
+       .text('Hexaware Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 35);
     
     doc.fontSize(8)
        .fillColor('#999999')
@@ -492,7 +492,7 @@ export class UseCasePdfService {
 
       // Set headers
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_Use_Case_${useCase.title.replace(/[^a-zA-Z0-9]/g, '_')}_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Hexaware_Use_Case_${useCase.title.replace(/[^a-zA-Z0-9]/g, '_')}_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       doc.pipe(res);
 
@@ -547,7 +547,7 @@ export class UseCasePdfService {
 
       // Set headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_Use_Case_Library_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Hexaware_Use_Case_Library_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       // Stream PDF to response
       doc.pipe(res);
@@ -620,7 +620,7 @@ export class UseCasePdfService {
 
       // Set headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_Executive_Portfolio_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Hexaware_Executive_Portfolio_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       // Stream PDF to response
       doc.pipe(res);

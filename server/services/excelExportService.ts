@@ -375,7 +375,7 @@ export class ExcelExportService {
       // Generate standardized filename with category suffix
       const timestamp = format(new Date(), 'yyyyMMdd_HHmmss');
       const categorySuffix = this.getCategorySuffix(filters);
-      const filename = `rsa_ai_usecase_export_${timestamp}_${categorySuffix}.xlsx`;
+      const filename = `hexaware_ai_usecase_export_${timestamp}_${categorySuffix}.xlsx`;
       
       // Set response headers
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -448,18 +448,18 @@ export class ExcelExportService {
     
     // Set workbook properties
     workbook.Props = {
-      Title: `RSA AI Use Case Framework Export - ${categorySuffix.charAt(0).toUpperCase() + categorySuffix.slice(1)}`,
-      Subject: 'RSA AI Use Case Framework Data Export',
-      Author: 'RSA AI Use Case Framework',
-      Manager: 'RSA Insurance Group',
-      Company: 'RSA Insurance Group',
+      Title: `Hexaware AI Use Case Framework Export - ${categorySuffix.charAt(0).toUpperCase() + categorySuffix.slice(1)}`,
+      Subject: 'Hexaware AI Use Case Framework Data Export',
+      Author: 'Hexaware AI Use Case Framework',
+      Manager: 'Hexaware Technologies',
+      Company: 'Hexaware Technologies',
       Category: 'AI Use Case Data',
-      Keywords: `AI, Use Cases, RSA, Framework, ${categorySuffix}`,
+      Keywords: `AI, Use Cases, Hexaware, Framework, ${categorySuffix}`,
       Comments: `Export generated on ${format(exportDate, 'yyyy-MM-dd HH:mm:ss')}. ` +
                 `Contains ${recordCount} records with ${validationSummary.warnings.length} data quality warnings. ` +
                 `Validation status: ${validationSummary.shouldProceed ? 'PASSED' : 'FAILED'}. ` +
                 `Export category: ${categorySuffix}.`,
-      LastAuthor: 'RSA AI Use Case Framework',
+      LastAuthor: 'Hexaware AI Use Case Framework',
       CreatedDate: exportDate,
       ModifiedDate: exportDate,
       Version: '1.0'
@@ -487,11 +487,11 @@ export class ExcelExportService {
     const { storage } = await import('../storage');
     const metadata = await storage.getMetadataConfig();
     const data = [
-      ['RSA AI Use Case Framework - Import Guide'],
+      ['Hexaware AI Use Case Framework - Import Guide'],
       ['Last Updated: ' + format(new Date(), 'MMMM d, yyyy')],
       [''],
       ['OVERVIEW'],
-      ['This guide helps you prepare Excel data for import into the RSA AI Use Case Framework.'],
+      ['This guide helps you prepare Excel data for import into the Hexaware AI Use Case Framework.'],
       ['Follow these guidelines to avoid data type errors and maintain system consistency.'],
       [''],
       ['WORKSHEET STRUCTURE'],
@@ -653,7 +653,7 @@ export class ExcelExportService {
       [''],
       ['SUPPORT CONTACT'],
       ['For technical issues or data validation questions:'],
-      ['Contact: RSA AI Framework Support Team'],
+      ['Contact: Hexaware AI Framework Support Team'],
       [''],
       ['VERSION CONTROL'],
       ['Framework Version: 2.0'],
@@ -695,7 +695,7 @@ export class ExcelExportService {
    */
   private static createSummarySheet(summary: any): XLSX.WorkSheet {
     const data = [
-      ['RSA AI Use Case Value Framework - Executive Summary'],
+      ['Hexaware AI Use Case Value Framework - Executive Summary'],
       ['Generated', format(new Date(), 'EEEE, MMMM d, yyyy \'at\' h:mm a')],
       [''],
       ['Portfolio Overview'],
@@ -710,7 +710,7 @@ export class ExcelExportService {
       ['Average Effort Score', summary.averageEffortScore.toFixed(2)],
       [''],
       ['Export Details'],
-      ['Organization', 'RSA Insurance'],
+      ['Organization', 'Hexaware'],
       ['Framework Version', '2.0'],
       ['Classification', 'Internal Use Only']
     ];
@@ -770,8 +770,8 @@ export class ExcelExportService {
       'Third Party Model', 'Human Accountability',
       // AI Inventory Specific
       'Business Function', 'AI Inventory Status', 'Deployment Status', 'AI or Model',
-      'Risk to Customers', 'Risk to RSA', 'Data Used', 'Model Owner',
-      'RSA Policy Governance', 'Validation Responsibility', 'Informed By',
+      'Risk to Customers', 'Risk to Organization', 'Data Used', 'Model Owner',
+      'Policy Governance', 'Validation Responsibility', 'Informed By',
       'Third Party Provided Model',
       // Portfolio Management
       'Use Case Status', 'Portfolio Status', 'Dashboard Visible', 'Library Source',
@@ -907,8 +907,8 @@ export class ExcelExportService {
       'Processes (Multi-select)', 'Process Activities',
       // AI Inventory specific fields
       'Business Function', 'AI Inventory Status', 'Deployment Status', 'AI or Model',
-      'Risk to Customers', 'Risk to RSA', 'Data Used', 'Model Owner',
-      'RSA Policy Governance', 'Validation Responsibility', 'Informed By',
+      'Risk to Customers', 'Risk to Organization', 'Data Used', 'Model Owner',
+      'Policy Governance', 'Validation Responsibility', 'Informed By',
       'Third Party Provided Model',
       // RSA Ethical Principles
       'Explainability Required', 'Customer Harm Risk', 'Data Outside UK/EU',
@@ -1131,10 +1131,10 @@ export class ExcelExportService {
       'Deployment Status',
       'AI or Model',
       'Risk to Customers',
-      'Risk to RSA',
+      'Risk to Organization',
       'Data Used',
       'Model Owner',
-      'RSA Policy Governance',
+      'Policy Governance',
       'Validation Responsibility',
       'Informed By',
       'Third Party Provided Model',
@@ -1352,7 +1352,7 @@ export class ExcelExportService {
           ['AI Inventory Status', extractedData.aiInventory.aiInventoryStatus || ''],
           ['Deployment Status', extractedData.aiInventory.deploymentStatus || ''],
           ['Risk to Customers', extractedData.aiInventory.riskToCustomers || ''],
-          ['Risk to RSA', extractedData.aiInventory.riskToRsa || ''],
+          ['Risk to Organization', extractedData.aiInventory.riskToRsa || ''],
           ['Data Used', extractedData.aiInventory.dataUsed || ''],
           ['Model Owner', extractedData.aiInventory.modelOwner || ''],
           ['Informed By', extractedData.aiInventory.informedBy || ''],
@@ -1381,7 +1381,7 @@ export class ExcelExportService {
       
       // Generate and send Excel
       const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-      const filename = `RSA_UseCase_${extractedData.basicInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+      const filename = `Hexaware_UseCase_${extractedData.basicInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
       
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

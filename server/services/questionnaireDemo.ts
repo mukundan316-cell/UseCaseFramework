@@ -16,7 +16,7 @@ export class QuestionnaireDemoService {
     const questionnaireId = '91684df8-9700-4605-bc3e-2320120e5e1b'; // Fixed ID for testing
     const questionnaire: QuestionnaireDefinition = {
       id: questionnaireId,
-      title: 'RSA AI Strategy Assessment Framework',
+      title: 'Hexaware AI Strategy Assessment Framework',
       description: 'Comprehensive assessment for AI readiness and use case prioritization',
       version: '2.0.0',
       createdAt: new Date().toISOString(),
@@ -130,7 +130,7 @@ export class QuestionnaireDemoService {
         {
           questionId: 'q1-company-profile',
           answerValue: {
-            companyName: 'RSA Insurance Group',
+            companyName: 'Hexaware Technologies',
             industry: 'Insurance',
             employeeCount: 15000
           },
@@ -191,7 +191,7 @@ export class QuestionnaireDemoService {
       // For now, let's create a simple test by reading from a known ID
       const questionnaire = {
         id: createdQuestionnaireId,
-        title: 'RSA AI Strategy Assessment Framework',
+        title: 'Hexaware AI Strategy Assessment Framework',
         description: 'Comprehensive assessment for AI readiness and use case prioritization',
         version: '1.0',
         createdAt: new Date().toISOString(),

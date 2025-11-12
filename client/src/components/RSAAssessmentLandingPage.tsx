@@ -22,8 +22,8 @@ interface RSAAssessmentLandingPageProps {
 }
 
 /**
- * RSA Assessment Landing Page Component
- * Professional introduction and state-aware navigation for the RSA AI Strategy Assessment
+ * Hexaware Assessment Landing Page Component
+ * Professional introduction and state-aware navigation for the Hexaware AI Strategy Assessment
  */
 export default function RSAAssessmentLandingPage({ 
   className = "" 
@@ -179,14 +179,13 @@ export default function RSAAssessmentLandingPage({
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold leading-tight">
-              RSA AI Strategy Assessment Framework
+              Hexaware AI Strategy Assessment Framework
             </h1>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 max-w-4xl mx-auto">
               <p className="text-base text-blue-50 leading-relaxed">
-                This comprehensive assessment enables RSA to develop a tailored AI strategy that moves beyond current data 
-                management focus to unlock £10-50M in annual value through targeted AI initiatives across Commercial and Specialty 
-                insurance operations.
+                This comprehensive assessment enables Hexaware to develop a tailored AI strategy that moves beyond current data 
+                management focus to unlock significant value through targeted AI initiatives across enterprise operations.
               </p>
             </div>
           </div>
@@ -207,7 +206,7 @@ export default function RSAAssessmentLandingPage({
           
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Home className="h-4 w-4" />
-            <span>RSA AI Strategy Framework</span>
+            <span>Hexaware AI Strategy Framework</span>
           </div>
         </div>
       </div>
@@ -378,7 +377,7 @@ export default function RSAAssessmentLandingPage({
               Ready to Begin Your AI Strategy Assessment?
             </h3>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              This assessment will provide data-driven insights to guide RSA's AI transformation and unlock significant value across your insurance operations.
+              This assessment will provide data-driven insights to guide Hexaware's AI transformation and unlock significant value across your enterprise operations.
             </p>
           </div>
 
@@ -454,8 +453,8 @@ export default function RSAAssessmentLandingPage({
 
           <div className="text-sm text-gray-500 max-w-lg mx-auto">
             <p>
-              This assessment follows RSA's strategic framework and incorporates industry best practices 
-              for AI transformation in insurance operations.
+              This assessment follows Hexaware's strategic framework and incorporates industry best practices 
+              for AI transformation in enterprise operations.
             </p>
           </div>
         </CardContent>

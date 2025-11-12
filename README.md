@@ -1,6 +1,6 @@
-# RSA AI Use Case Value Framework
+# Hexaware AI Use Case Value Framework
 
-Strategic AI use case prioritization platform for RSA Insurance featuring comprehensive assessment, scoring, and analytics capabilities.
+Strategic AI use case prioritization platform for Hexaware featuring comprehensive assessment, scoring, and analytics capabilities.
 
 ## Quick Start
 ```bash
@@ -18,9 +18,9 @@ npm run dev  # Starts application on port 5000
 - ✅ **Horizontal Use Case Tracking**: Cross-functional use case identification
 
 ## Core Features
-- **AI Use Case Management**: Complete CRUD with RSA 10-lever scoring framework and automated recalculation
+- **AI Use Case Management**: Complete CRUD with 10-lever scoring framework and automated recalculation
 - **Assessment System**: 6-section AI maturity questionnaire with 25+ advanced question types  
-- **Analytics Dashboard**: RSA AI Value Matrix with interactive charts and quadrant-based ROI analysis
+- **Analytics Dashboard**: AI Value Matrix with interactive charts and quadrant-based ROI analysis
 - **File Management System**: PowerPoint/image→PDF conversion with 50MB limit
 - **PDF Export System**: Professional reports for use cases, assessments, and portfolios
 - **Excel Import/Export**: Multi-worksheet structure with comprehensive validation

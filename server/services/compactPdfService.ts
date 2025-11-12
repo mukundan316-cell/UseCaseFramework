@@ -47,7 +47,7 @@ export class CompactPdfService {
       });
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="RSA-AI-Library-Compact.pdf"');
+      res.setHeader('Content-Disposition', 'attachment; filename="Hexaware-AI-Library-Compact.pdf"');
       doc.pipe(res);
 
       // Compact cover page
@@ -98,7 +98,7 @@ export class CompactPdfService {
       });
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="RSA-Active-Portfolio-Compact.pdf"');
+      res.setHeader('Content-Disposition', 'attachment; filename="Hexaware-Active-Portfolio-Compact.pdf"');
       doc.pipe(res);
 
       this.addCompactCoverPage(doc, 'portfolio', { activeUseCases: activeUseCases.length });
@@ -136,7 +136,7 @@ export class CompactPdfService {
       });
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA-UseCase-${useCase.title.replace(/[^a-zA-Z0-9]/g, '-')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Hexaware-UseCase-${useCase.title.replace(/[^a-zA-Z0-9]/g, '-')}.pdf"`);
       doc.pipe(res);
 
       this.addDetailedUseCasePage(doc, extractedData);
@@ -158,9 +158,9 @@ export class CompactPdfService {
     // Thin blue header band
     doc.rect(0, 0, pageWidth, 30).fill(this.COLORS.primary);
     
-    // RSA branding (compact)
+    // Hexaware branding (compact)
     doc.fontSize(16).fillColor('#FFFFFF').font('Helvetica-Bold')
-       .text('RSA Insurance', this.LAYOUT.margin, 8);
+       .text('Hexaware', this.LAYOUT.margin, 8);
     
     doc.fontSize(8).fillColor('#E8F4FD').font('Helvetica')
        .text('AI Strategy & Prioritization Framework', pageWidth - 200, 12);
@@ -364,7 +364,7 @@ export class CompactPdfService {
    */
   private static addPageHeader(doc: any, sectionTitle: string): void {
     doc.fontSize(10).fillColor(this.COLORS.primary).font('Helvetica-Bold')
-       .text(`RSA AI Framework - ${sectionTitle}`, this.LAYOUT.margin, this.LAYOUT.margin);
+       .text(`Hexaware AI Framework - ${sectionTitle}`, this.LAYOUT.margin, this.LAYOUT.margin);
     
     doc.moveDown(0.5);
   }

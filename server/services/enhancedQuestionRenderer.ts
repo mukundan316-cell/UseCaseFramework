@@ -651,7 +651,7 @@ export class EnhancedQuestionRenderer {
         .fillColor('white')
         .fontSize(12)
         .font('Helvetica-Bold')
-        .text('RSA Insurance - AI Maturity Assessment', 60, 15);
+        .text('Hexaware - AI Maturity Assessment', 60, 15);
       
       this.currentY = 60;
     }

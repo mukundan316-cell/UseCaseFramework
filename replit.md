@@ -1,7 +1,7 @@
-# RSA AI Use Case Value Framework
+# Hexaware AI Use Case Value Framework
 
 ## Overview
-The RSA AI Use Case Value Framework is a production-ready strategic platform designed to prioritize AI use cases within RSA Insurance. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform aims to streamline the prioritization process, offer robust data management, and provide clear insights for decision-making, ultimately enhancing RSA's AI strategy and market potential.
+The Hexaware AI Use Case Value Framework is a production-ready strategic platform designed to prioritize AI use cases within Hexaware. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform aims to streamline the prioritization process, offer robust data management, and provide clear insights for decision-making, ultimately enhancing Hexaware's AI strategy and market potential.
 
 ## User Preferences
 - **Communication**: Simple, everyday language
@@ -12,7 +12,7 @@ The RSA AI Use Case Value Framework is a production-ready strategic platform des
 - **Bubble Sizing**: Moderate exponential scaling (power 1.3)
 
 ## System Architecture
-The platform is built on a modern full-stack architecture using React/TypeScript for the frontend, Node.js/Express for the backend API, and PostgreSQL with Drizzle ORM for data persistence. UI/UX leverages shadcn/ui and TailwindCSS, adhering to RSA's #005DAA blue branding.
+The platform is built on a modern full-stack architecture using React/TypeScript for the frontend, Node.js/Express for the backend API, and PostgreSQL with Drizzle ORM for data persistence. UI/UX leverages shadcn/ui and TailwindCSS, adhering to Hexaware's #005DAA blue branding.
 
 ### Recent Accomplishments (Q4 2024 - Q1 2025):
 - **LEGO Component Rationalization**: Completed 3-phase consolidation resulting in SmartRatingLegoBlock (5 variants), UnifiedValueInputLegoBlock (3 variants), and ConfigurationToggleLegoBlock (3 variants)

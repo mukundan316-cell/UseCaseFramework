@@ -25,19 +25,19 @@ export class AssessmentPdfService {
     // Clean white background
     doc.rect(0, 0, pageWidth, pageHeight).fill('#FFFFFF');
     
-    // Top header with RSA branding
+    // Top header with Hexaware branding
     doc.rect(0, 0, pageWidth, 3).fill('#005DAA');
     
-    // RSA Logo and branding (top left)
+    // Hexaware Logo and branding (top left)
     doc.fontSize(28)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA', 60, 60);
+       .text('Hexaware', 60, 60);
     
     doc.fontSize(10)
        .fillColor('#666666')
        .font('Helvetica')
-       .text('INSURANCE', 60, 95);
+       .text('TECHNOLOGIES', 60, 95);
     
     // Document classification (top right)
     doc.fontSize(9)
@@ -79,7 +79,7 @@ export class AssessmentPdfService {
        .fillColor('#666666')
        .font('Helvetica')
        .text(`Respondent: ${respondentName}`, 100, boxY + 45)
-       .text(`Organization: RSA Insurance`, 100, boxY + 60)
+       .text(`Organization: Hexaware`, 100, boxY + 60)
        .text(`Assessment Date: ${format(new Date(createdAt), 'MMMM d, yyyy')}`, 100, boxY + 75)
        .text(`Report Generated: ${format(new Date(), 'MMMM d, yyyy')}`, 100, boxY + 90);
     
@@ -92,14 +92,14 @@ export class AssessmentPdfService {
     doc.fontSize(11)
        .fillColor('#333333')
        .font('Helvetica')
-       .text('This comprehensive assessment evaluates RSA\'s organizational readiness for AI implementation', 60, 525, { width: 480, lineGap: 4 })
+       .text('This comprehensive assessment evaluates Hexaware\'s organizational readiness for AI implementation', 60, 525, { width: 480, lineGap: 4 })
        .text('across strategic, technical, and operational dimensions. The analysis provides actionable', 60, 545, { width: 480, lineGap: 4 })
        .text('recommendations for accelerating AI adoption and maximizing business value.', 60, 565, { width: 480, lineGap: 4 });
     
     // Footer with page indicator
     doc.fontSize(8)
        .fillColor('#999999')
-       .text('RSA Digital Innovation | AI Maturity Assessment', 60, pageHeight - 40)
+       .text('Hexaware Digital Innovation | AI Maturity Assessment', 60, pageHeight - 40)
        .text('Page 1', pageWidth - 80, pageHeight - 40);
   }
 
@@ -116,7 +116,7 @@ export class AssessmentPdfService {
     doc.fontSize(10)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA Insurance', 60, 25);
+       .text('Hexaware', 60, 25);
     
     doc.fontSize(9)
        .fillColor('#666666')
@@ -221,7 +221,7 @@ export class AssessmentPdfService {
     doc.fontSize(8)
        .fillColor('#666666')
        .font('Helvetica')
-       .text('RSA Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 35);
+       .text('Hexaware Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 35);
     
     doc.fontSize(8)
        .fillColor('#999999')
@@ -253,7 +253,7 @@ export class AssessmentPdfService {
 
       // Set headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_AI_Maturity_Assessment_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Hexaware_AI_Maturity_Assessment_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       // Stream PDF to response
       doc.pipe(res);
@@ -346,7 +346,7 @@ export class AssessmentPdfService {
          .font('Helvetica')
          .text('Following this assessment, we recommend the following immediate actions:', { lineGap: 4 })
          .moveDown(0.5)
-         .text('• Schedule strategic planning session with RSA Digital Innovation team', { indent: 20, lineGap: 4 })
+         .text('• Schedule strategic planning session with Hexaware Digital Innovation team', { indent: 20, lineGap: 4 })
          .text('• Prioritize use cases for pilot implementation', { indent: 20, lineGap: 4 })
          .text('• Develop detailed implementation roadmap and timeline', { indent: 20, lineGap: 4 })
          .text('• Establish governance structure and success metrics', { indent: 20, lineGap: 4 });
@@ -473,7 +473,7 @@ export class AssessmentPdfService {
     
     doc.fontSize(10)
        .fillColor('#666666')
-       .text('Scores are calculated based on RSA\'s comprehensive AI maturity framework, evaluating responses across 52 strategic questions. Each category reflects specific capabilities essential for successful AI implementation in the insurance sector.')
+       .text('Scores are calculated based on Hexaware\'s comprehensive AI maturity framework, evaluating responses across 52 strategic questions. Each category reflects specific capabilities essential for successful AI implementation in the enterprise sector.')
        .moveDown(0.5)
        .text('Maturity Levels: Beginner (0-40), Developing (41-60), Advanced (61-80), Expert (81-100)');
   }
@@ -543,7 +543,7 @@ export class AssessmentPdfService {
     PDFExportService.addSectionHeader(doc, 'Next Steps', 2);
     
     const nextSteps = [
-      'Schedule a follow-up consultation with RSA Digital Innovation team',
+      'Schedule a follow-up consultation with Hexaware Digital Innovation team',
       'Review and prioritize recommended use cases for implementation',
       'Establish AI governance framework and ethical guidelines',
       'Identify quick wins and pilot opportunities',

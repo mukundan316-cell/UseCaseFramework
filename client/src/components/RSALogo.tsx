@@ -3,55 +3,41 @@ import React from 'react';
 const RSALogo = () => (
   <div className="flex items-center">
     <svg
-      width="120"
+      width="140"
       height="60"
-      viewBox="0 0 120 60"
+      viewBox="0 0 140 60"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className="mr-2"
     >
-      {/* RSA Sunburst Logo */}
+      {/* Hexaware Logo - Modern Hexagon Design */}
       <g>
-        {/* Sunburst rays */}
-        <g transform="translate(90, 30)">
-          {Array.from({ length: 24 }, (_, i) => {
-            const angle = (i * 15) * Math.PI / 180;
-            const x1 = Math.cos(angle) * 8;
-            const y1 = Math.sin(angle) * 8;
-            const x2 = Math.cos(angle) * 12;
-            const y2 = Math.sin(angle) * 12;
-            return (
-              <line
-                key={i}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                stroke="#9F4F96"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            );
-          })}
+        {/* Hexagon Icon */}
+        <g transform="translate(8, 30)">
+          {/* Outer Hexagon */}
+          <path
+            d="M 12,0 L 24,6.93 L 24,20.79 L 12,27.72 L 0,20.79 L 0,6.93 Z"
+            fill="#005DAA"
+            opacity="0.9"
+          />
+          {/* Inner Hexagon */}
+          <path
+            d="M 12,4 L 20,8.62 L 20,17.86 L 12,22.48 L 4,17.86 L 4,8.62 Z"
+            fill="#9F4F96"
+            opacity="0.8"
+          />
+          {/* Center dot */}
+          <circle cx="12" cy="13.86" r="3" fill="#FFFFFF" />
         </g>
         
-        {/* Center circle */}
-        <circle cx="90" cy="30" r="4" fill="#9F4F96" />
-        
-        {/* RSA Text */}
-        <text x="8" y="35" fill="#6B7280" fontSize="24" fontWeight="bold" fontFamily="Source Sans Pro, sans-serif">
-          RSA
+        {/* Hexaware Text */}
+        <text x="44" y="25" fill="#2D3748" fontSize="22" fontWeight="700" fontFamily="Inter, sans-serif">
+          Hexaware
         </text>
         
-        {/* "an [intact] company" text */}
-        <text x="8" y="48" fill="#6B7280" fontSize="10" fontFamily="Source Sans Pro, sans-serif">
-          an 
-        </text>
-        <text x="22" y="48" fill="#DC2626" fontSize="10" fontFamily="Source Sans Pro, sans-serif">
-          [intact]
-        </text>
-        <text x="52" y="48" fill="#6B7280" fontSize="10" fontFamily="Source Sans Pro, sans-serif">
-          company
+        {/* Tagline */}
+        <text x="44" y="42" fill="#6B7280" fontSize="9" fontFamily="Inter, sans-serif">
+          Digital Transformation Partner
         </text>
       </g>
     </svg>

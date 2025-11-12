@@ -83,7 +83,7 @@ interface TShirtSizingConfig {
  * - Manage role-based daily rates for cost calculation
  * - Configure impact/effort to size mapping rules
  * - Real-time configuration preview and validation
- * - Follows RSA branding and LEGO architecture principles
+ * - Follows Hexaware branding and LEGO architecture principles
  */
 export default function TShirtSizingConfigLegoBlock() {
   const { updateMetadata, metadata } = useUseCases();
@@ -599,7 +599,7 @@ export default function TShirtSizingConfigLegoBlock() {
             </div>
             <div>
               <CardTitle className="text-xl font-bold text-gray-900">T-shirt Sizing Configuration</CardTitle>
-              <CardDescription>Configure project sizing, cost estimates, and mapping rules for RSA use cases</CardDescription>
+              <CardDescription>Configure project sizing, cost estimates, and mapping rules for Hexaware use cases</CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-3">

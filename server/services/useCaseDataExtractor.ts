@@ -249,7 +249,7 @@ export class UseCaseDataExtractor {
       statusBadge: portfolioStatus.isActiveForRsa ? 'ACTIVE PORTFOLIO' : 'REFERENCE LIBRARY',
       statusColor: portfolioStatus.isActiveForRsa ? '#22C55E' : '#6B7280',
       quadrantDisplay: scoring.finalQuadrant,
-      scoresSummary: hasScoring ? `Impact: ${scoring.finalImpactScore.toFixed(1)} | Effort: ${scoring.finalEffortScore.toFixed(1)}` : (isAiInventory ? 'AI Governance Tracking' : 'Not Activated for RSA Portfolio'),
+      scoresSummary: hasScoring ? `Impact: ${scoring.finalImpactScore.toFixed(1)} | Effort: ${scoring.finalEffortScore.toFixed(1)}` : (isAiInventory ? 'AI Governance Tracking' : 'Not Activated for Portfolio'),
       tagsFormatted: this.formatTags(useCase),
       isAiInventory,
       hasScoring,

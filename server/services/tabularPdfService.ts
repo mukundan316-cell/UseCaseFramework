@@ -29,7 +29,7 @@ export class TabularPdfService {
       });
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA-Use-Case-${extractedData.basicInfo.title.replace(/[^a-zA-Z0-9]/g, '-')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Hexaware-Use-Case-${extractedData.basicInfo.title.replace(/[^a-zA-Z0-9]/g, '-')}.pdf"`);
       doc.pipe(res);
 
       this.addIndividualUseCasePage(doc, extractedData);
@@ -87,7 +87,7 @@ export class TabularPdfService {
       });
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="RSA-AI-Library-Table.pdf"');
+      res.setHeader('Content-Disposition', 'attachment; filename="Hexaware-AI-Library-Table.pdf"');
       doc.pipe(res);
 
       // Cover page
@@ -134,16 +134,16 @@ export class TabularPdfService {
     // Header band
     doc.rect(0, 0, pageWidth, 80).fill(this.COLORS.primary);
 
-    // RSA branding
+    // Hexaware branding
     doc.fontSize(28)
        .fillColor('#FFFFFF')
        .font('Helvetica-Bold')
-       .text('RSA', 40, 25);
+       .text('Hexaware', 40, 25);
 
     doc.fontSize(12)
        .fillColor('#E8F4FD')
        .font('Helvetica')
-       .text('INSURANCE', 40, 55);
+       .text('TECHNOLOGIES', 40, 55);
 
     // Document classification
     doc.fontSize(10)
@@ -177,7 +177,7 @@ export class TabularPdfService {
        .fillColor(this.COLORS.gray)
        .font('Helvetica')
        .text(
-         `This report provides a comprehensive tabular view of all ${totalUseCases} AI use cases in the RSA library. ` +
+         `This report provides a comprehensive tabular view of all ${totalUseCases} AI use cases in the Hexaware library. ` +
          'Each table includes detailed information about business context, implementation status, and strategic scoring.',
          60, summaryY + 45, { width: pageWidth - 120 }
        );
@@ -396,13 +396,13 @@ export class TabularPdfService {
    * Add individual use case page
    */
   private static addIndividualUseCasePage(doc: any, useCase: any): void {
-    // Header with RSA branding
+    // Header with Hexaware branding
     doc.rect(0, 0, doc.page.width, 60).fill(this.COLORS.primary);
     
     doc.fontSize(24)
        .fillColor('#FFFFFF')
        .font('Helvetica-Bold')
-       .text('RSA', this.LAYOUT.margin, 20);
+       .text('Hexaware', this.LAYOUT.margin, 20);
 
     doc.fontSize(10)
        .fillColor('#E8F4FD')
@@ -440,7 +440,7 @@ export class TabularPdfService {
 
     // Scoring Section (if available)
     if (useCase.display.hasScoring) {
-      currentY = this.addInfoSection(doc, 'RSA Framework Scoring', [
+      currentY = this.addInfoSection(doc, 'Hexaware Framework Scoring', [
         ['Impact Score', `${useCase.scoring.finalImpactScore}/10`],
         ['Effort Score', `${useCase.scoring.finalEffortScore}/10`],
         ['Strategic Quadrant', useCase.scoring.finalQuadrant],
@@ -457,7 +457,7 @@ export class TabularPdfService {
         ['AI Inventory Status', useCase.aiInventory.aiInventoryStatus],
         ['Deployment Status', useCase.aiInventory.deploymentStatus],
         ['Business Function', useCase.aiInventory.businessFunction],
-        ['Risk to RSA', useCase.aiInventory.riskToRsa],
+        ['Risk to Organization', useCase.aiInventory.riskToRsa],
         ['Risk to Customers', useCase.aiInventory.riskToCustomers],
         ['Model Owner', useCase.aiInventory.modelOwner]
       ].filter(([_, value]) => value);

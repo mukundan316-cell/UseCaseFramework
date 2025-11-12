@@ -24,12 +24,12 @@ export class EnhancedUseCasePdfService {
     doc.fontSize(32)
        .fillColor('#FFFFFF')
        .font('Helvetica-Bold')
-       .text('RSA', 60, 25);
+       .text('Hexaware', 60, 25);
     
     doc.fontSize(12)
        .fillColor('#E8F4FD')
        .font('Helvetica')
-       .text('INSURANCE', 60, 60);
+       .text('TECHNOLOGIES', 60, 60);
     
     // Document classification (top right)
     doc.fontSize(10)
@@ -51,12 +51,12 @@ export class EnhancedUseCasePdfService {
       case 'library':
         title = 'Use Case Library';
         subtitle = 'Comprehensive AI Opportunity Catalog';
-        description = 'This catalog presents a comprehensive library of AI use cases specifically curated for RSA Insurance. Each initiative has been evaluated for strategic alignment, feasibility, resource requirements, and expected business impact to ensure optimal allocation of resources.';
+        description = 'This catalog presents a comprehensive library of AI use cases specifically curated for Hexaware. Each initiative has been evaluated for strategic alignment, feasibility, resource requirements, and expected business impact to ensure optimal allocation of resources.';
         break;
       case 'portfolio':
-        title = 'RSA AI Portfolio';
+        title = 'Hexaware AI Portfolio';
         subtitle = 'Active Strategic Implementation Portfolio';
-        description = 'Current portfolio of approved AI initiatives actively under development and implementation across RSA business units, representing strategic priorities for digital transformation.';
+        description = 'Current portfolio of approved AI initiatives actively under development and implementation across Hexaware business units, representing strategic priorities for digital transformation.';
         break;
       case 'individual':
         title = 'Use Case Analysis';
@@ -139,14 +139,14 @@ export class EnhancedUseCasePdfService {
     doc.fontSize(10)
        .fillColor('#666666')
        .font('Helvetica')
-       .text(`Organization: RSA Insurance`, 60, 480)
+       .text(`Organization: Hexaware`, 60, 480)
        .text(`Report Generated: ${format(new Date(), 'EEEE, MMMM d, yyyy')}`, 60, 495);
     
     // Professional footer
     doc.fontSize(9)
        .fillColor('#999999')
        .font('Helvetica')
-       .text('RSA Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 50)
+       .text('Hexaware Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 50)
        .text('Page 1', pageWidth - 80, pageHeight - 50);
   }
 
@@ -163,7 +163,7 @@ export class EnhancedUseCasePdfService {
     doc.fontSize(12)
        .fillColor('#005DAA')
        .font('Helvetica-Bold')
-       .text('RSA Insurance', 60, 25);
+       .text('Hexaware', 60, 25);
     
     doc.fontSize(10)
        .fillColor('#666666')
@@ -333,7 +333,7 @@ export class EnhancedUseCasePdfService {
           doc.fontSize(10)
              .fillColor('#374151')
              .font('Helvetica')
-             .text(`Risk to RSA: ${useCase.aiInventory.riskToRsa}`, leftMargin + 20, doc.y, { width: tableWidth - 40 });
+             .text(`Risk to Organization: ${useCase.aiInventory.riskToRsa}`, leftMargin + 20, doc.y, { width: tableWidth - 40 });
           doc.y += 15;
         }
         if (useCase.aiInventory.dataUsed) {
@@ -381,7 +381,7 @@ export class EnhancedUseCasePdfService {
     doc.fontSize(9)
        .fillColor('#6B7280')
        .font('Helvetica')
-       .text('RSA Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 45);
+       .text('Hexaware Digital Innovation | AI Use Case Value Framework', 60, pageHeight - 45);
     
     doc.fontSize(9)
        .fillColor('#9CA3AF')
@@ -417,7 +417,7 @@ export class EnhancedUseCasePdfService {
 
       // Set headers
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_Use_Case_Library_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Hexaware_Use_Case_Library_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       doc.pipe(res);
 
@@ -442,7 +442,7 @@ export class EnhancedUseCasePdfService {
       doc.fontSize(12)
          .fillColor('#374151')
          .font('Helvetica')
-         .text('This catalog presents a comprehensive library of AI use cases specifically curated for the insurance sector, with particular focus on RSA\'s strategic alignment and expected business impact. Each use case has been evaluated for feasibility, resource requirements, and potential ROI to ensure optimal allocation of resources.', { 
+         .text('This catalog presents a comprehensive library of AI use cases specifically curated for the technology sector, with particular focus on Hexaware\'s strategic alignment and expected business impact. Each use case has been evaluated for feasibility, resource requirements, and potential ROI to ensure optimal allocation of resources.', { 
            width: 480, 
            lineGap: 6 
          });
@@ -499,7 +499,7 @@ export class EnhancedUseCasePdfService {
 
       // Set headers
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="RSA_Active_Portfolio_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Hexaware_Active_Portfolio_${format(new Date(), 'yyyy-MM-dd')}.pdf"`);
       
       doc.pipe(res);
 
@@ -512,7 +512,7 @@ export class EnhancedUseCasePdfService {
       
       // PAGE 2: Portfolio Overview
       doc.addPage();
-      this.addPageHeader(doc, 'RSA AI Portfolio', 2);
+      this.addPageHeader(doc, 'Hexaware AI Portfolio', 2);
       doc.y = 80;
       
       doc.fontSize(18)
@@ -525,7 +525,7 @@ export class EnhancedUseCasePdfService {
       doc.fontSize(12)
          .fillColor('#374151')
          .font('Helvetica')
-         .text(`This portfolio represents RSA's current active AI initiatives under development and implementation. These ${activeUseCases.length} strategic use cases have been approved for investment and are being actively pursued across our business units to drive digital transformation and competitive advantage.`, { 
+         .text(`This portfolio represents Hexaware's current active AI initiatives under development and implementation. These ${activeUseCases.length} strategic use cases have been approved for investment and are being actively pursued across our business units to drive digital transformation and competitive advantage.`, { 
            width: 480, 
            lineGap: 6 
          });
