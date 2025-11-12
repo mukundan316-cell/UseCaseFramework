@@ -30,7 +30,7 @@ export default function EnhancedMatrixPlot() {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [viewMode, setViewMode] = useState<'matrix' | 'table'>('matrix');
 
-  // Dynamic bubble sizing based on business impact (RSA scoring alignment)
+  // Dynamic bubble sizing based on business impact (Hexaware scoring alignment)
   function calculateBubbleSize(impactScore: number): number {
     const config = APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT;
     const minSize = config.MIN_BUBBLE_SIZE;
@@ -58,7 +58,7 @@ export default function EnhancedMatrixPlot() {
       const effectiveImpact = getEffectiveImpactScore(useCase as any);
       const effectiveEffort = getEffectiveEffortScore(useCase as any);
       
-      // Dynamic bubble sizing based on business impact (aligned with RSA scoring framework)
+      // Dynamic bubble sizing based on business impact (aligned with Hexaware scoring framework)
       const bubbleSize = calculateBubbleSize(effectiveImpact);
       
       // Production ready - debug logs removed after bubble sizing verification
@@ -253,7 +253,7 @@ export default function EnhancedMatrixPlot() {
                     <HelpCircle className="w-4 h-4 text-blue-400 hover:text-blue-600 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>Total number of AI use cases in your active portfolio. These represent all initiatives being evaluated for RSA implementation.</p>
+                    <p>Total number of AI use cases in your active portfolio. These represent all initiatives being evaluated for Hexaware implementation.</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -338,7 +338,7 @@ export default function EnhancedMatrixPlot() {
                 <div className="p-2 bg-white/20 rounded-lg">
                   <Target className="h-6 w-6" />
                 </div>
-                RSA AI Value Matrix - Executive View
+                Hexaware AI Value Matrix - Executive View
                 <Tooltip>
                   <TooltipTrigger>
                     <Info className="w-5 h-5 text-slate-300 hover:text-white cursor-help ml-2" />

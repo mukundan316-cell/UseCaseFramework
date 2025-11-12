@@ -134,7 +134,7 @@ export default function BreadcrumbNavigationLegoBlock({
               className={cn(
                 "flex items-center space-x-1 px-2 py-1 rounded transition-colors",
                 item.isActive 
-                  ? "text-[#005DAA] font-medium bg-blue-50" 
+                  ? "text-[#3C2CDA] font-medium bg-blue-50" 
                   : item.onClick 
                     ? "text-gray-600 hover:text-gray-900 hover:bg-gray-50 cursor-pointer" 
                     : "text-gray-500"
@@ -144,7 +144,7 @@ export default function BreadcrumbNavigationLegoBlock({
               {Icon && (
                 <Icon className={cn(
                   "h-4 w-4",
-                  item.isActive ? "text-[#005DAA]" : "text-gray-400"
+                  item.isActive ? "text-[#3C2CDA]" : "text-gray-400"
                 )} />
               )}
               <span className={cn(

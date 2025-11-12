@@ -30,7 +30,7 @@ export default function NavigationHeader({
       <Button
         variant="ghost"
         onClick={() => setLocation(backTo)}
-        className="flex items-center space-x-2 text-gray-600 hover:text-[#005DAA] transition-colors"
+        className="flex items-center space-x-2 text-gray-600 hover:text-[#3C2CDA] transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>{backLabel}</span>

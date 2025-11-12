@@ -248,7 +248,7 @@ export default function SavedProgressModalLegoBlock({
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-[#005DAA]" />
+            <Clock className="h-5 w-5 text-[#3C2CDA]" />
             <span>Saved Assessment Progress</span>
             {!isLoading && (
               <Badge variant="secondary" className="ml-2">
@@ -307,7 +307,7 @@ export default function SavedProgressModalLegoBlock({
               {savedAssessments.map((assessment) => (
                 <div
                   key={assessment.responseId}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-[#005DAA] transition-colors bg-white"
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-[#3C2CDA] transition-colors bg-white"
                 >
                   <div className="flex-1 space-y-3">
                     {/* User Info */}
@@ -330,7 +330,7 @@ export default function SavedProgressModalLegoBlock({
                         <span className="font-medium text-gray-900">
                           Section {assessment.currentSection} of {assessment.totalSections}
                         </span>
-                        <span className="text-[#005DAA] font-semibold text-lg">
+                        <span className="text-[#3C2CDA] font-semibold text-lg">
                           {assessment.completionPercentage}%
                         </span>
                       </div>

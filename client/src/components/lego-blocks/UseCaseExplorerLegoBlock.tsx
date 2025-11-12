@@ -128,7 +128,7 @@ export default function UseCaseExplorerLegoBlock({
       await onActivate?.(useCase.id, 'Activated from explorer');
       toast({
         title: "Use case activated",
-        description: `"${useCase.title}" has been added to RSA Active Portfolio.`,
+        description: `"${useCase.title}" has been added to Hexaware Active Portfolio.`,
       });
     } catch (error) {
       console.error("Activation error:", error);
@@ -441,7 +441,7 @@ export default function UseCaseExplorerLegoBlock({
                     </span>
                   </div>
 
-                  {/* Scores Display - Only for RSA Active Portfolio */}
+                  {/* Scores Display - Only for Hexaware Active Portfolio */}
                   {showQuadrantFilters && useCase.impactScore !== undefined && useCase.effortScore !== undefined && (
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div className="text-center bg-green-50 rounded-lg p-3">

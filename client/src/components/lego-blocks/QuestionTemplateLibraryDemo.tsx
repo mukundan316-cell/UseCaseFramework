@@ -90,7 +90,7 @@ export default function QuestionTemplateLibraryDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Database className="h-5 w-5 text-[#005DAA]" />
+            <Database className="h-5 w-5 text-[#3C2CDA]" />
             <span>Question Template Library Demo</span>
           </CardTitle>
           <CardDescription>
@@ -102,7 +102,7 @@ export default function QuestionTemplateLibraryDemo() {
           {/* Demo Statistics */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#005DAA]">100+</div>
+              <div className="text-2xl font-bold text-[#3C2CDA]">100+</div>
               <div className="text-sm text-gray-600">RSA Templates</div>
             </div>
             <div className="text-center">

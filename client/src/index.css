@@ -3,60 +3,76 @@
 @tailwind utilities;
 
 :root {
-  /* RSA Official Brand Colors - Enhanced for Futuristic UI */
-  --rsa-blue: #005DAA;
-  --rsa-light-blue: #E6F2FF;
-  --rsa-dark-blue: #003D73;
-  --rsa-purple: #9F4F96;
-  --rsa-light-purple: #F0E6FF;
-  --rsa-gray: #4A5568;
-  --rsa-light-gray: #F7F9FC;
-  --rsa-border: #E2E8F0;
-  --rsa-text: #2D3748;
+  /* Hexaware Official Brand Colors - Q1 2024 Guidelines */
+  --hexaware-blue: #3C2CDA;
+  --hexaware-bright-blue: #1D86FF;
+  --hexaware-electric-blue: #14CBDE;
+  --hexaware-dark-blue: #07125E;
+  --hexaware-black: #040D43;
+  --hexaware-honey: #EA9D00;
+  --hexaware-silver: #8088A7;
+  --hexaware-light: #F4EFF2;
+  --hexaware-canary: #F4CB4E;
+  --hexaware-error: #DA2D2C;
+  --hexaware-white: #FFFFFF;
+  --hexaware-border-light: #CBD0E5;
+  --hexaware-border-dark: #535983;
+  
+  /* Legacy variable names for backward compatibility */
+  --rsa-blue: #3C2CDA;
+  --rsa-light-blue: #E8E6FD;
+  --rsa-dark-blue: #07125E;
+  --rsa-purple: #1D86FF;
+  --rsa-light-purple: #E8F4FF;
+  --rsa-gray: #8088A7;
+  --rsa-light-gray: #F4EFF2;
+  --rsa-border: #CBD0E5;
+  --rsa-text: #040D43;
   
   /* Futuristic Enhancement Colors */
-  --gradient-primary: linear-gradient(135deg, #005DAA 0%, #9F4F96 100%);
-  --gradient-secondary: linear-gradient(135deg, #E6F2FF 0%, #F0E6FF 100%);
+  --gradient-primary: linear-gradient(135deg, #3C2CDA 0%, #1D86FF 100%);
+  --gradient-secondary: linear-gradient(135deg, #E8E6FD 0%, #E8F4FF 100%);
   --glass-bg: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.2);
-  --shadow-glow: 0 8px 32px rgba(0, 93, 170, 0.15);
+  --shadow-glow: 0 8px 32px rgba(60, 44, 218, 0.15);
   --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
   --backdrop-blur: 16px;
   
-  /* Component Colors using RSA Brand */
+  /* Component Colors using Hexaware Brand */
   --background: hsl(0 0% 100%);
-  --foreground: hsl(208 22% 18%);
+  --foreground: hsl(231 85% 17%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(208 22% 18%);
+  --card-foreground: hsl(231 85% 17%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(208 22% 18%);
-  --primary: #005DAA;
+  --popover-foreground: hsl(231 85% 17%);
+  --primary: #3C2CDA;
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 16% 95%);
-  --secondary-foreground: hsl(208 22% 18%);
-  --muted: hsl(210 16% 95%);
-  --muted-foreground: hsl(208 22% 18%);
-  --accent: #E6F2FF;
-  --accent-foreground: #005DAA;
-  --destructive: hsl(0 84% 60%);
+  --secondary: hsl(248 100% 97%);
+  --secondary-foreground: hsl(231 85% 17%);
+  --muted: hsl(248 100% 97%);
+  --muted-foreground: hsl(231 85% 17%);
+  --accent: #E8E6FD;
+  --accent-foreground: #3C2CDA;
+  --destructive: #DA2D2C;
   --destructive-foreground: hsl(0 0% 100%);
-  --border: #E2E8F0;
-  --input: hsl(210 16% 98%);
-  --ring: #005DAA;
+  --border: #CBD0E5;
+  --input: hsl(248 100% 97%);
+  --ring: #3C2CDA;
   
-  /* Chart colors using RSA palette */
-  --chart-1: #005DAA;
-  --chart-2: #9F4F96;
-  --chart-3: #00A0B0;
-  --chart-4: #EDC951;
-  --chart-5: #EB6841;
+  /* Chart colors using Hexaware palette */
+  --chart-1: #3C2CDA;
+  --chart-2: #1D86FF;
+  --chart-3: #14CBDE;
+  --chart-4: #EA9D00;
+  --chart-5: #F4CB4E;
   
-  /* Typography - RSA uses Source Sans Pro */
-  --font-sans: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+  /* Typography - Hexaware uses Manrope and Heebo */
+  --font-sans: 'Manrope', 'Helvetica Neue', Arial, system-ui, -apple-system, sans-serif;
+  --font-body: 'Heebo', 'Helvetica Neue', Arial, system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
   
-  /* RSA-style radius */
+  /* Hexaware-style radius */
   --radius: 0.5rem;
 }
 
@@ -67,34 +83,34 @@
   --card-foreground: hsl(0 0% 85.0980%);
   --popover: hsl(0 0% 0%);
   --popover-foreground: hsl(200 6.6667% 91.1765%);
-  --primary: hsl(210 100% 33.3333%);
+  --primary: hsl(246 75% 55%);
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(195.0000 15.3846% 94.9020%);
-  --secondary-foreground: hsl(210 25% 7.8431%);
+  --secondary-foreground: hsl(231 85% 17%);
   --muted: hsl(0 0% 9.4118%);
   --muted-foreground: hsl(210 3.3898% 46.2745%);
   --accent: hsl(205.7143 70% 7.8431%);
-  --accent-foreground: hsl(210 100% 33.3333%);
+  --accent-foreground: hsl(246 75% 55%);
   --destructive: hsl(356.3033 90.5579% 54.3137%);
   --destructive-foreground: hsl(0 0% 100%);
   --border: hsl(210 5.2632% 14.9020%);
   --input: hsl(207.6923 27.6596% 18.4314%);
-  --ring: hsl(210 100% 33.3333%);
-  --chart-1: hsl(210 100% 33.3333%);
-  --chart-2: hsl(159.7826 100% 36.0784%);
-  --chart-3: hsl(42.0290 92.8251% 56.2745%);
-  --chart-4: hsl(147.1429 78.5047% 41.9608%);
-  --chart-5: hsl(341.4894 75.2000% 50.9804%);
+  --ring: hsl(246 75% 55%);
+  --chart-1: hsl(246 75% 55%);
+  --chart-2: hsl(207 100% 57%);
+  --chart-3: hsl(187 79% 47%);
+  --chart-4: hsl(42 100% 59%);
+  --chart-5: hsl(42 92% 63%);
   --sidebar: hsl(228 9.8039% 10%);
   --sidebar-foreground: hsl(0 0% 85.0980%);
-  --sidebar-primary: hsl(210 100% 33.3333%);
+  --sidebar-primary: hsl(246 75% 55%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
   --sidebar-accent: hsl(205.7143 70% 7.8431%);
-  --sidebar-accent-foreground: hsl(210 100% 33.3333%);
+  --sidebar-accent-foreground: hsl(246 75% 55%);
   --sidebar-border: hsl(205.7143 15.7895% 26.0784%);
-  --sidebar-ring: hsl(210 100% 33.3333%);
-  --rsa-blue: hsl(210 100% 33.3333%);
-  --rsa-bg: hsl(210 16.7% 97.1%);
+  --sidebar-ring: hsl(246 75% 55%);
+  --rsa-blue: hsl(246 75% 55%);
+  --rsa-bg: hsl(248 100% 97%);
   --rsa-card: hsl(0 0% 100%);
 }
 
@@ -110,7 +126,7 @@
   }
 }
 
-/* RSA Global Styles - Enhanced Futuristic */
+/* Hexaware Global Styles - Enhanced Futuristic */
 * {
   border-color: var(--border);
 }
@@ -125,7 +141,7 @@ body {
   min-height: 100vh;
 }
 
-/* RSA Button Styles - Enhanced Futuristic */
+/* Hexaware Button Styles - Enhanced Futuristic */
 .btn-rsa-primary {
   background: var(--gradient-primary);
   color: white;
@@ -141,7 +157,7 @@ body {
 
 .btn-rsa-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 93, 170, 0.25);
+  box-shadow: 0 12px 40px rgba(60, 44, 218, 0.25);
 }
 
 .btn-rsa-primary::before {
@@ -174,7 +190,7 @@ body {
   border: 1px solid rgba(255,255,255,0.3);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(0, 93, 170, 0.1),
+    0 8px 32px rgba(60, 44, 218, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
   transition: all 0.3s ease;
 }
@@ -182,7 +198,7 @@ body {
 .futuristic-card:hover {
   transform: translateY(-4px);
   box-shadow: 
-    0 16px 48px rgba(0, 93, 170, 0.15),
+    0 16px 48px rgba(60, 44, 218, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
@@ -191,7 +207,7 @@ body {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 24px;
   box-shadow: 
-    0 20px 60px rgba(0, 93, 170, 0.1),
+    0 20px 60px rgba(60, 44, 218, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.5);
   position: relative;
@@ -258,10 +274,10 @@ body {
 
 @keyframes pulse-glow {
   0%, 100% { 
-    box-shadow: 0 4px 20px rgba(0, 93, 170, 0.2); 
+    box-shadow: 0 4px 20px rgba(60, 44, 218, 0.2); 
   }
   50% { 
-    box-shadow: 0 8px 40px rgba(0, 93, 170, 0.4); 
+    box-shadow: 0 8px 40px rgba(60, 44, 218, 0.4); 
   }
 }
 
@@ -276,10 +292,10 @@ body {
 .btn-rsa-primary:hover {
   background-color: var(--rsa-dark-blue);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 93, 170, 0.3);
+  box-shadow: 0 4px 12px rgba(60, 44, 218, 0.3);
 }
 
-/* RSA Card Styles */
+/* Hexaware Card Styles */
 .card-rsa {
   background: var(--card);
   border: 1px solid var(--border);
@@ -325,7 +341,7 @@ body {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #005DAA;
+    background: #3C2CDA;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
@@ -334,14 +350,14 @@ body {
 
   input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 93, 170, 0.4);
+    box-shadow: 0 4px 12px rgba(60, 44, 218, 0.4);
   }
 
   input[type="range"]::-moz-range-thumb {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #005DAA;
+    background: #3C2CDA;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
@@ -350,7 +366,7 @@ body {
 
   input[type="range"]::-moz-range-thumb:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 93, 170, 0.4);
+    box-shadow: 0 4px 12px rgba(60, 44, 218, 0.4);
   }
 
   input[type="range"]::-webkit-slider-track {

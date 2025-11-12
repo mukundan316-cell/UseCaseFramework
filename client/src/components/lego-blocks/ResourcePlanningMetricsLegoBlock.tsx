@@ -186,7 +186,7 @@ export default function ResourcePlanningMetricsLegoBlock() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Building className="h-6 w-6 text-[#005DAA]" />
+        <Building className="h-6 w-6 text-[#3C2CDA]" />
         <div>
           <h3 className="text-xl font-bold text-gray-900">Resource Planning Dashboard</h3>
           <p className="text-sm text-gray-600">Enterprise-grade project estimation and resource allocation</p>
@@ -294,7 +294,7 @@ export default function ResourcePlanningMetricsLegoBlock() {
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2">
-              <PieChart className="h-5 w-5 text-[#005DAA]" />
+              <PieChart className="h-5 w-5 text-[#3C2CDA]" />
               Project Size Distribution
             </CardTitle>
           </CardHeader>
@@ -328,7 +328,7 @@ export default function ResourcePlanningMetricsLegoBlock() {
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-[#005DAA]" />
+              <TrendingUp className="h-5 w-5 text-[#3C2CDA]" />
               Strategic Investment Allocation
             </CardTitle>
           </CardHeader>
@@ -375,7 +375,7 @@ export default function ResourcePlanningMetricsLegoBlock() {
                 </div>
                 <div className="mt-2 bg-gray-200 rounded-full h-2">
                   <div 
-                    className="bg-[#005DAA] h-2 rounded-full transition-all duration-300"
+                    className="bg-[#3C2CDA] h-2 rounded-full transition-all duration-300"
                     style={{ width: `${Math.min(100, resourceMetrics.resourceUtilization)}%` }}
                   />
                 </div>

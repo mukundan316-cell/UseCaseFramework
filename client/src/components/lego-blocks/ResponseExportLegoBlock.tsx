@@ -171,8 +171,8 @@ export default function ResponseExportLegoBlock({
             data-testid="button-export-response"
             className={cn(
               "flex items-center space-x-2",
-              "hover:bg-[#005DAA] hover:text-white",
-              "data-[state=open]:bg-[#005DAA] data-[state=open]:text-white"
+              "hover:bg-[#3C2CDA] hover:text-white",
+              "data-[state=open]:bg-[#3C2CDA] data-[state=open]:text-white"
             )}
           >
             {isExporting ? (
@@ -198,8 +198,8 @@ export default function ResponseExportLegoBlock({
               disabled={isExporting}
               className={cn(
                 "flex items-start space-x-3 p-4 cursor-pointer",
-                "hover:bg-[#005DAA] hover:text-white",
-                "focus:bg-[#005DAA] focus:text-white",
+                "hover:bg-[#3C2CDA] hover:text-white",
+                "focus:bg-[#3C2CDA] focus:text-white",
                 currentExport === option.format && "opacity-50 cursor-wait"
               )}
             >

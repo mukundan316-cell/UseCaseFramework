@@ -213,7 +213,7 @@ export default function ResumeProgressLegoBlock({
       <Card className={`w-full ${className}`}>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-[#005DAA]" />
+            <Clock className="h-5 w-5 text-[#3C2CDA]" />
             <span>Saved Progress</span>
           </CardTitle>
           <CardDescription>Loading your saved assessments...</CardDescription>
@@ -237,7 +237,7 @@ export default function ResumeProgressLegoBlock({
       <Card className={`w-full ${className}`}>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-[#005DAA]" />
+            <Clock className="h-5 w-5 text-[#3C2CDA]" />
             <span>Saved Progress</span>
           </CardTitle>
           <CardDescription>No saved assessment progress found</CardDescription>
@@ -260,7 +260,7 @@ export default function ResumeProgressLegoBlock({
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-[#005DAA]" />
+            <Clock className="h-5 w-5 text-[#3C2CDA]" />
             <span>Saved Progress</span>
             <Badge variant="secondary" className="ml-2">
               {savedAssessments.length}
@@ -284,7 +284,7 @@ export default function ResumeProgressLegoBlock({
           {savedAssessments.map((assessment) => (
             <div
               key={assessment.responseId}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-[#005DAA] transition-colors"
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-[#3C2CDA] transition-colors"
             >
               <div className="flex-1 space-y-2">
                 {/* User Info */}
@@ -307,7 +307,7 @@ export default function ResumeProgressLegoBlock({
                     <span className="font-medium text-gray-900">
                       Section {assessment.currentSection} of {assessment.totalSections}
                     </span>
-                    <span className="text-[#005DAA] font-semibold">
+                    <span className="text-[#3C2CDA] font-semibold">
                       {assessment.completionPercentage}%
                     </span>
                   </div>

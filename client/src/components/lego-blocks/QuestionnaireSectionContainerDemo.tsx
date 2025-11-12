@@ -159,7 +159,7 @@ export default function QuestionnaireSectionContainerDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Container className="h-5 w-5 text-[#005DAA]" />
+            <Container className="h-5 w-5 text-[#3C2CDA]" />
             <span>QuestionnaireSectionContainerLegoBlock Demo</span>
           </CardTitle>
           <CardDescription>

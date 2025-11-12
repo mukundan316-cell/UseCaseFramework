@@ -31,22 +31,22 @@ export default function ExplorerEnhanced() {
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="active" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-            <TabsTrigger value="active">RSA Active Portfolio</TabsTrigger>
+            <TabsTrigger value="active">Hexaware Active Portfolio</TabsTrigger>
             <TabsTrigger value="reference">Reference Library</TabsTrigger>
           </TabsList>
 
           <TabsContent value="active" className="space-y-6">
             <ImprovedUseCaseExplorer
               useCases={dashboardUseCases || []}
-              title="RSA Active Portfolio"
-              description="Use cases selected for RSA implementation with completed scoring and prioritization"
+              title="Hexaware Active Portfolio"
+              description="Use cases selected for Hexaware implementation with completed scoring and prioritization"
               showQuadrantFilters={true}
               showRSASelection={true}
               onDelete={handleDelete}
               onActivate={handleActivate}
               onDeactivate={handleDeactivate}
               showCreateButton={false}
-              emptyStateMessage="No use cases in RSA Active Portfolio. Add use cases from the Reference Library to get started."
+              emptyStateMessage="No use cases in Hexaware Active Portfolio. Add use cases from the Reference Library to get started."
               context="active"
             />
           </TabsContent>

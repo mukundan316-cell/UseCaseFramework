@@ -532,7 +532,7 @@ export default function AdminPanel() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">System Configuration</h3>
                 <p className="text-sm text-gray-600">
                   Configure scoring models, system-wide settings, and advanced administrative features.
-                  These settings affect the entire RSA AI Framework operation.
+                  These settings affect the entire Hexaware AI Framework operation.
                 </p>
               </div>
               

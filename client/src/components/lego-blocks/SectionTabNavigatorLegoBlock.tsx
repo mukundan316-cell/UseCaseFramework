@@ -155,9 +155,9 @@ export default function SectionTabNavigatorLegoBlock({
       case 'completed':
         return `${baseClasses} bg-green-50 border-green-300 text-green-800 hover:bg-green-100`;
       case 'active':
-        return `${baseClasses} bg-blue-50 border-[#005DAA] text-[#005DAA] ring-2 ring-[#005DAA]/30`;
+        return `${baseClasses} bg-blue-50 border-[#3C2CDA] text-[#3C2CDA] ring-2 ring-[#3C2CDA]/30`;
       case 'available':
-        return `${baseClasses} bg-white border-gray-300 text-gray-700 hover:border-[#005DAA] hover:bg-blue-50`;
+        return `${baseClasses} bg-white border-gray-300 text-gray-700 hover:border-[#3C2CDA] hover:bg-blue-50`;
       case 'locked':
         return `${baseClasses} bg-gray-50 border-gray-200 text-gray-400`;
       default:
@@ -216,7 +216,7 @@ export default function SectionTabNavigatorLegoBlock({
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
                     state === 'completed' ? 'bg-green-500 text-white' :
-                    state === 'active' ? 'bg-[#005DAA] text-white' :
+                    state === 'active' ? 'bg-[#3C2CDA] text-white' :
                     state === 'available' ? 'bg-gray-100 text-gray-700' :
                     'bg-gray-100 text-gray-400'
                   )}>
@@ -250,7 +250,7 @@ export default function SectionTabNavigatorLegoBlock({
 
                 {/* Active indicator */}
                 {state === 'active' && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#005DAA] rounded-full animate-pulse" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#3C2CDA] rounded-full animate-pulse" />
                 )}
               </div>
             );
@@ -274,7 +274,7 @@ export default function SectionTabNavigatorLegoBlock({
         
         <div className="flex justify-between text-xs text-gray-500">
           <span>Started</span>
-          <span className="font-medium text-[#005DAA]">{overallProgress}% Complete</span>
+          <span className="font-medium text-[#3C2CDA]">{overallProgress}% Complete</span>
           <span>Finished</span>
         </div>
       </div>

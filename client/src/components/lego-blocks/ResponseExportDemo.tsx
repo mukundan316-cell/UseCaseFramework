@@ -17,7 +17,7 @@ export default function ResponseExportDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-[#005DAA]" />
+            <FileText className="h-5 w-5 text-[#3C2CDA]" />
             <span>ResponseExportLegoBlock Demo</span>
           </CardTitle>
           <CardDescription>
@@ -87,15 +87,15 @@ export default function ResponseExportDemo() {
               </div>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="p-3 bg-white rounded border">
-                  <div className="text-2xl font-bold text-[#005DAA]">85%</div>
+                  <div className="text-2xl font-bold text-[#3C2CDA]">85%</div>
                   <div className="text-xs text-gray-600">Overall Score</div>
                 </div>
                 <div className="p-3 bg-white rounded border">
-                  <div className="text-2xl font-bold text-[#005DAA]">Managed</div>
+                  <div className="text-2xl font-bold text-[#3C2CDA]">Managed</div>
                   <div className="text-xs text-gray-600">Maturity Level</div>
                 </div>
                 <div className="p-3 bg-white rounded border">
-                  <div className="text-2xl font-bold text-[#005DAA]">24</div>
+                  <div className="text-2xl font-bold text-[#3C2CDA]">24</div>
                   <div className="text-xs text-gray-600">Responses</div>
                 </div>
               </div>

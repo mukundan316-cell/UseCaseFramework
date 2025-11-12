@@ -244,7 +244,7 @@ export default function SectionSummaryCardDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Database className="h-5 w-5 text-[#005DAA]" />
+            <Database className="h-5 w-5 text-[#3C2CDA]" />
             <span>SectionSummaryCardLegoBlock Demo</span>
           </CardTitle>
           <CardDescription>
@@ -256,7 +256,7 @@ export default function SectionSummaryCardDemo() {
           {/* Overall Progress Summary */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#005DAA]">{overallProgress}%</div>
+              <div className="text-2xl font-bold text-[#3C2CDA]">{overallProgress}%</div>
               <div className="text-sm text-gray-600">Overall Progress</div>
             </div>
             <div className="text-center">

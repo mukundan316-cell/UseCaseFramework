@@ -3,40 +3,38 @@ import React from 'react';
 const RSALogo = () => (
   <div className="flex items-center">
     <svg
-      width="140"
+      width="180"
       height="60"
-      viewBox="0 0 140 60"
+      viewBox="0 0 180 60"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className="mr-2"
     >
-      {/* Hexaware Logo - Modern Hexagon Design */}
+      {/* Hexaware Official Logo - Wordmark Only (Q1 2024 Brand Guidelines) */}
       <g>
-        {/* Hexagon Icon */}
-        <g transform="translate(8, 30)">
-          {/* Outer Hexagon */}
-          <path
-            d="M 12,0 L 24,6.93 L 24,20.79 L 12,27.72 L 0,20.79 L 0,6.93 Z"
-            fill="#005DAA"
-            opacity="0.9"
-          />
-          {/* Inner Hexagon */}
-          <path
-            d="M 12,4 L 20,8.62 L 20,17.86 L 12,22.48 L 4,17.86 L 4,8.62 Z"
-            fill="#9F4F96"
-            opacity="0.8"
-          />
-          {/* Center dot */}
-          <circle cx="12" cy="13.86" r="3" fill="#FFFFFF" />
-        </g>
-        
-        {/* Hexaware Text */}
-        <text x="44" y="25" fill="#2D3748" fontSize="22" fontWeight="700" fontFamily="Inter, sans-serif">
+        {/* Hexaware Wordmark */}
+        <text 
+          x="10" 
+          y="32" 
+          fill="#3C2CDA" 
+          fontSize="28" 
+          fontWeight="600" 
+          fontFamily="Manrope, Helvetica Neue, Arial, sans-serif"
+          letterSpacing="-0.02em"
+        >
           Hexaware
         </text>
         
-        {/* Tagline */}
-        <text x="44" y="42" fill="#6B7280" fontSize="9" fontFamily="Inter, sans-serif">
+        {/* Brand Tagline */}
+        <text 
+          x="10" 
+          y="48" 
+          fill="#8088A7" 
+          fontSize="10" 
+          fontWeight="400"
+          fontFamily="Manrope, Helvetica Neue, Arial, sans-serif"
+          letterSpacing="0.02em"
+        >
           Digital Transformation Partner
         </text>
       </g>

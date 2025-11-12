@@ -215,7 +215,7 @@ export default function QuestionnaireSectionContainerLegoBlock({
             {/* Section Info */}
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-2">
-                <Badge variant="outline" className="bg-[#005DAA] text-white border-[#005DAA]">
+                <Badge variant="outline" className="bg-[#3C2CDA] text-white border-[#3C2CDA]">
                   Section {currentSection} of {totalSections}
                 </Badge>
                 <Badge 
@@ -268,7 +268,7 @@ export default function QuestionnaireSectionContainerLegoBlock({
               <div className="flex items-center space-x-2 text-xs text-gray-500">
                 {isSaving ? (
                   <>
-                    <div className="animate-spin rounded-full h-3 w-3 border border-[#005DAA] border-t-transparent" />
+                    <div className="animate-spin rounded-full h-3 w-3 border border-[#3C2CDA] border-t-transparent" />
                     <span>Saving...</span>
                   </>
                 ) : hasUnsavedChanges ? (
@@ -349,7 +349,7 @@ export default function QuestionnaireSectionContainerLegoBlock({
                   key={i + 1}
                   className={cn(
                     "w-2 h-2 rounded-full",
-                    i + 1 === currentSection ? 'bg-[#005DAA]' :
+                    i + 1 === currentSection ? 'bg-[#3C2CDA]' :
                     i + 1 < currentSection ? 'bg-green-500' :
                     'bg-gray-300'
                   )}

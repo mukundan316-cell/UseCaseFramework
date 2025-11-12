@@ -289,7 +289,7 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
                 </TooltipProvider>
               )}
               {showScore && (
-                <span className="font-semibold text-[#005DAA] bg-[#E6F2FF] px-2 py-1 rounded">
+                <span className="font-semibold text-[#3C2CDA] bg-[#E6F2FF] px-2 py-1 rounded">
                   {value || minValue}
                 </span>
               )}
@@ -351,7 +351,7 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
             config.button,
             error && "border-red-500 focus:border-red-500",
             disabled && "opacity-50 cursor-not-allowed",
-            isOpen && "border-[#005DAA] ring-1 ring-[#005DAA]"
+            isOpen && "border-[#3C2CDA] ring-1 ring-[#3C2CDA]"
           )}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
@@ -366,7 +366,7 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
                 <div className="flex items-center space-x-2">
                   <span className="font-medium">{selectedOption.label}</span>
                   {showScore && (
-                    <span className="text-xs bg-[#E6F2FF] text-[#005DAA] px-2 py-1 rounded">
+                    <span className="text-xs bg-[#E6F2FF] text-[#3C2CDA] px-2 py-1 rounded">
                       {selectedOption.value}
                     </span>
                   )}
@@ -404,7 +404,7 @@ export const SmartRatingLegoBlock: React.FC<SmartRatingLegoBlockProps> = ({
                     config.option,
                     "flex items-start space-x-3",
                     index === focusedIndex && "bg-[#E6F2FF]",
-                    value === option.value && "bg-blue-50 border-l-4 border-[#005DAA]",
+                    value === option.value && "bg-blue-50 border-l-4 border-[#3C2CDA]",
                     "hover:bg-gray-50"
                   )}
                   onClick={() => handleOptionSelect(option.value)}

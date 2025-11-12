@@ -18,7 +18,7 @@ export default function StandaloneSurveyDemo() {
   useEffect(() => {
     // Enhanced RSA AI Assessment Survey Configuration
     const surveyJson = {
-      title: "RSA AI Strategy Assessment (Survey.js Integration)",
+      title: "Hexaware AI Strategy Assessment (Survey.js Integration)",
       description: "Comprehensive AI readiness evaluation powered by Survey.js",
       showProgressBar: "top",
       progressBarType: "questions",

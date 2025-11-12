@@ -120,7 +120,7 @@ export default function ScoringDashboardDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-            <BarChart3 className="h-6 w-6 text-[#005DAA]" />
+            <BarChart3 className="h-6 w-6 text-[#3C2CDA]" />
             <span>Scoring Dashboard LEGO Block Demo</span>
           </CardTitle>
           <CardDescription className="text-lg">

@@ -420,7 +420,7 @@ export default function SectionConfigurationLegoBlock({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center space-x-2">
-                <Settings className="h-5 w-5 text-[#005DAA]" />
+                <Settings className="h-5 w-5 text-[#3C2CDA]" />
                 <span>Section {section.sectionNumber}: {section.title}</span>
               </CardTitle>
               <p className="text-sm text-gray-600 mt-1">{section.description}</p>
@@ -451,7 +451,7 @@ export default function SectionConfigurationLegoBlock({
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="p-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-[#005DAA]">{stats.totalQuestions}</div>
+            <div className="text-2xl font-bold text-[#3C2CDA]">{stats.totalQuestions}</div>
             <div className="text-sm text-gray-600">Questions</div>
           </div>
         </Card>
@@ -514,7 +514,7 @@ export default function SectionConfigurationLegoBlock({
                         key={template.id} 
                         className={cn(
                           "cursor-pointer transition-colors hover:bg-gray-50",
-                          selectedTemplate?.id === template.id && "ring-2 ring-[#005DAA]"
+                          selectedTemplate?.id === template.id && "ring-2 ring-[#3C2CDA]"
                         )}
                         onClick={() => setSelectedTemplate(template)}
                       >
@@ -575,7 +575,7 @@ export default function SectionConfigurationLegoBlock({
                           {...provided.draggableProps}
                           className={cn(
                             "transition-shadow",
-                            snapshot.isDragging && "shadow-lg ring-2 ring-[#005DAA]"
+                            snapshot.isDragging && "shadow-lg ring-2 ring-[#3C2CDA]"
                           )}
                         >
                           <CardContent className="p-4">

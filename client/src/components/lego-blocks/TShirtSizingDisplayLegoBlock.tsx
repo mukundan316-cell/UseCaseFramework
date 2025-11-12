@@ -184,7 +184,7 @@ export default function TShirtSizingDisplayLegoBlock({
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">
           <div className="flex items-center gap-2">
-            <Shirt className="h-4 w-4 text-[#005DAA]" />
+            <Shirt className="h-4 w-4 text-[#3C2CDA]" />
             <span>Resource Planning</span>
           </div>
           <div className="flex items-center gap-2">
@@ -200,7 +200,7 @@ export default function TShirtSizingDisplayLegoBlock({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 text-gray-500 hover:text-[#005DAA]"
+                    className="h-6 w-6 p-0 text-gray-500 hover:text-[#3C2CDA]"
                     data-testid="button-feedback-tshirt"
                   >
                     <MessageCircle className="h-3 w-3" />
@@ -246,7 +246,7 @@ export default function TShirtSizingDisplayLegoBlock({
                     <Button
                       onClick={submitFeedback}
                       disabled={!feedback.trim() || isSubmitting}
-                      className="bg-[#005DAA] hover:bg-[#004494]"
+                      className="bg-[#3C2CDA] hover:bg-[#07125E]"
                       data-testid="button-submit-feedback"
                     >
                       {isSubmitting ? 'Submitting...' : 'Submit Feedback'}

@@ -546,7 +546,7 @@ export default function QuestionTemplateLibraryLegoBlock({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <BookOpen className="h-5 w-5 text-[#005DAA]" />
+            <BookOpen className="h-5 w-5 text-[#3C2CDA]" />
             <span>Question Template Library</span>
             <Badge variant="outline">{templates.length} templates</Badge>
           </CardTitle>
@@ -747,7 +747,7 @@ export default function QuestionTemplateLibraryLegoBlock({
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center space-x-2">
-                <Plus className="h-5 w-5 text-[#005DAA]" />
+                <Plus className="h-5 w-5 text-[#3C2CDA]" />
                 <span>Create Custom Question Template</span>
               </DialogTitle>
               <DialogDescription>

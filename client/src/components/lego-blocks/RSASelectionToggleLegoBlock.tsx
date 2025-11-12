@@ -107,7 +107,7 @@ export default function RSASelectionToggleLegoBlock({
         <div className="flex items-center justify-between p-4 rounded-lg border-2 border-gray-300 bg-white hover:border-rsa-blue/50 transition-all duration-200">
           <div className="flex-1">
             <Label htmlFor="rsa-active" className="text-base font-medium text-gray-900 cursor-pointer">
-              Include in RSA Active Portfolio
+              Include in Hexaware Active Portfolio
             </Label>
             <p className="text-sm text-gray-600 mt-1">
               Move this use case from reference library to active portfolio for scoring and evaluation

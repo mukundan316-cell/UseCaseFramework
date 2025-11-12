@@ -163,7 +163,7 @@ export default function SmartRatingLegoBlockDemo() {
         <h2 className="text-2xl font-semibold mb-4">Rating Variants</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {demoQuestions.map((demo) => (
-            <Card key={demo.id} className="border-2 hover:border-[#005DAA] transition-colors">
+            <Card key={demo.id} className="border-2 hover:border-[#3C2CDA] transition-colors">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg capitalize">{demo.variant}</CardTitle>
@@ -196,7 +196,7 @@ export default function SmartRatingLegoBlockDemo() {
         <h2 className="text-2xl font-semibold mb-4">Size Options</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {sizeDemos.map((demo) => (
-            <Card key={demo.id} className="border-2 hover:border-[#005DAA] transition-colors">
+            <Card key={demo.id} className="border-2 hover:border-[#3C2CDA] transition-colors">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{demo.size.toUpperCase()} Size</CardTitle>
@@ -229,7 +229,7 @@ export default function SmartRatingLegoBlockDemo() {
         <h2 className="text-2xl font-semibold mb-4">Configuration Options</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {configDemos.map((demo) => (
-            <Card key={demo.id} className="border-2 hover:border-[#005DAA] transition-colors">
+            <Card key={demo.id} className="border-2 hover:border-[#3C2CDA] transition-colors">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">

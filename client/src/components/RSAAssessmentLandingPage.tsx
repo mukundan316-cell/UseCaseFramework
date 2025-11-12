@@ -68,31 +68,31 @@ export default function RSAAssessmentLandingPage({
       icon: Target,
       title: "Business Case Development",
       description: "Prioritize AI use cases with highest ROI potential",
-      color: "text-[#005DAA]"
+      color: "text-[#3C2CDA]"
     },
     {
       icon: TrendingUp,
       title: "Technology Roadmap",
       description: "Design implementation plans leveraging existing infrastructure",
-      color: "text-[#9F4F96]"
+      color: "text-[#1D86FF]"
     },
     {
       icon: TrendingUp,
       title: "Investment Strategy",
       description: "Recommend budget allocation (£500K-£10M+ annually)",
-      color: "text-[#005DAA]"
+      color: "text-[#3C2CDA]"
     },
     {
       icon: Shield,
       title: "Risk Management",
       description: "Identify and mitigate AI-related risks",
-      color: "text-[#9F4F96]"
+      color: "text-[#1D86FF]"
     },
     {
       icon: Users,
       title: "Change Management",
       description: "Create targeted adoption strategies",
-      color: "text-[#005DAA]"
+      color: "text-[#3C2CDA]"
     }
   ];
 
@@ -170,7 +170,7 @@ export default function RSAAssessmentLandingPage({
   return (
     <div className={cn("min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50", className)}>
       {/* Enhanced Header */}
-      <div className="bg-gradient-to-r from-[#005DAA] via-[#0066BB] to-[#9F4F96] text-white">
+      <div className="bg-gradient-to-r from-[#3C2CDA] via-[#1D86FF] to-[#14CBDE] text-white">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
@@ -198,7 +198,7 @@ export default function RSAAssessmentLandingPage({
           <Button
             variant="outline"
             onClick={handleBackToDashboard}
-            className="flex items-center space-x-2 border-[#005DAA] text-[#005DAA] hover:bg-[#005DAA] hover:text-white"
+            className="flex items-center space-x-2 border-[#3C2CDA] text-[#3C2CDA] hover:bg-[#3C2CDA] hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Dashboard</span>
@@ -245,9 +245,9 @@ export default function RSAAssessmentLandingPage({
       <div className="space-y-8">
         {/* Assessment State Alert */}
         {assessmentState !== 'none' && (
-          <Alert className="border-[#005DAA]/20 bg-[#005DAA]/5">
-            <CheckCircle2 className="h-4 w-4 text-[#005DAA]" />
-            <AlertDescription className="text-[#005DAA]">
+          <Alert className="border-[#3C2CDA]/20 bg-[#3C2CDA]/5">
+            <CheckCircle2 className="h-4 w-4 text-[#3C2CDA]" />
+            <AlertDescription className="text-[#3C2CDA]">
               {assessmentState === 'completed' ? (
                 <>Assessment completed! You can view your results or retake the assessment.</>
               ) : (
@@ -295,7 +295,7 @@ export default function RSAAssessmentLandingPage({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Clock className="h-5 w-5 text-[#005DAA]" />
+                <Clock className="h-5 w-5 text-[#3C2CDA]" />
                 <span>Assessment Sections</span>
               </CardTitle>
               <CardDescription>
@@ -323,7 +323,7 @@ export default function RSAAssessmentLandingPage({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <CheckCircle2 className="h-5 w-5 text-[#9F4F96]" />
+                <CheckCircle2 className="h-5 w-5 text-[#1D86FF]" />
                 <span>Assessment Features</span>
               </CardTitle>
               <CardDescription>
@@ -333,7 +333,7 @@ export default function RSAAssessmentLandingPage({
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-[#005DAA] rounded-full mt-2"></div>
+                  <div className="w-2 h-2 bg-[#3C2CDA] rounded-full mt-2"></div>
                   <div>
                     <h4 className="font-medium text-gray-900">Total Time</h4>
                     <p className="text-sm text-gray-600">{totalEstimatedTime} (can be split across sessions)</p>
@@ -341,7 +341,7 @@ export default function RSAAssessmentLandingPage({
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-[#9F4F96] rounded-full mt-2"></div>
+                  <div className="w-2 h-2 bg-[#1D86FF] rounded-full mt-2"></div>
                   <div>
                     <h4 className="font-medium text-gray-900">Auto-Save & Resume</h4>
                     <p className="text-sm text-gray-600">Progress automatically saved, resume anytime</p>
@@ -349,7 +349,7 @@ export default function RSAAssessmentLandingPage({
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-[#005DAA] rounded-full mt-2"></div>
+                  <div className="w-2 h-2 bg-[#3C2CDA] rounded-full mt-2"></div>
                   <div>
                     <h4 className="font-medium text-gray-900">Progress Tracking</h4>
                     <p className="text-sm text-gray-600">Real-time completion status across all sections</p>
@@ -357,7 +357,7 @@ export default function RSAAssessmentLandingPage({
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-[#9F4F96] rounded-full mt-2"></div>
+                  <div className="w-2 h-2 bg-[#1D86FF] rounded-full mt-2"></div>
                   <div>
                     <h4 className="font-medium text-gray-900">Advanced Question Types</h4>
                     <p className="text-sm text-gray-600">Interactive matrices, rankings, and business-specific inputs</p>
@@ -370,7 +370,7 @@ export default function RSAAssessmentLandingPage({
       </div>
 
       {/* Call-to-Action Section */}
-      <Card className="border-[#005DAA]/20">
+      <Card className="border-[#3C2CDA]/20">
         <CardContent className="p-8 text-center space-y-6">
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-gray-900">
@@ -421,7 +421,7 @@ export default function RSAAssessmentLandingPage({
                 <Button
                   variant="outline"
                   onClick={handleStartOver}
-                  className="px-6 py-3 border-[#005DAA] text-[#005DAA] hover:bg-[#005DAA] hover:text-white"
+                  className="px-6 py-3 border-[#3C2CDA] text-[#3C2CDA] hover:bg-[#3C2CDA] hover:text-white"
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
                   Start Over
@@ -442,7 +442,7 @@ export default function RSAAssessmentLandingPage({
                 <Button
                   variant="outline"
                   onClick={handleStartOver}
-                  className="px-6 py-3 border-[#9F4F96] text-[#9F4F96] hover:bg-[#9F4F96] hover:text-white"
+                  className="px-6 py-3 border-[#1D86FF] text-[#1D86FF] hover:bg-[#1D86FF] hover:text-white"
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
                   Retake Assessment

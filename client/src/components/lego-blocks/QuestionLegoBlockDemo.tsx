@@ -131,7 +131,7 @@ export default function QuestionLegoBlockDemo() {
         <CardContent className="space-y-8">
           {sampleQuestions.map((question) => (
             <div key={question.id} className="space-y-4">
-              <div className="bg-gradient-to-r from-[#005DAA]/5 to-[#9F4F96]/5 p-6 rounded-lg border border-[#005DAA]/10">
+              <div className="bg-gradient-to-r from-[#3C2CDA]/5 to-[#1D86FF]/5 p-6 rounded-lg border border-[#3C2CDA]/10">
                 <QuestionLegoBlock
                   question={question}
                   value={responses[question.id]}
@@ -155,9 +155,9 @@ export default function QuestionLegoBlockDemo() {
           ))}
           
           {/* Summary */}
-          <Card className="border-[#005DAA]/20">
+          <Card className="border-[#3C2CDA]/20">
             <CardHeader>
-              <CardTitle className="text-lg text-[#005DAA]">Response Summary</CardTitle>
+              <CardTitle className="text-lg text-[#3C2CDA]">Response Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <pre className="text-sm text-gray-600 whitespace-pre-wrap">

@@ -1,5 +1,5 @@
 /**
- * RSA AI Use Case Recommendation Engine
+ * Hexaware AI Use Case Recommendation Engine
  * Analyzes assessment results and matches low-scoring areas to relevant use cases
  */
 

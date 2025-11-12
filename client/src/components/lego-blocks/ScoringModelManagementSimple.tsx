@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 
 /**
  * LEGO Block: Simple Scoring Model Management
- * Allows admin users to configure scoring weights for the RSA AI Framework
+ * Allows admin users to configure scoring weights for the Hexaware AI Framework
  */
 export default function ScoringModelManagementBlock() {
   const { updateMetadata, metadata } = useUseCases();
@@ -140,7 +140,7 @@ export default function ScoringModelManagementBlock() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="h-5 w-5" />
-            RSA AI Framework Scoring Model Configuration
+            Hexaware AI Framework Scoring Model Configuration
           </CardTitle>
           <p className="text-sm text-gray-600">
             Configure weights for each scoring lever and define calculation formulas. 

@@ -68,7 +68,7 @@ export default function SubsectionLegoBlock({
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center space-x-3">
             {/* Subsection number badge - exact styling from screenshot */}
-            <div className="flex items-center justify-center w-8 h-8 bg-[#005DAA] text-white text-sm font-medium rounded">
+            <div className="flex items-center justify-center w-8 h-8 bg-[#3C2CDA] text-white text-sm font-medium rounded">
               {subsectionNumber}
             </div>
             

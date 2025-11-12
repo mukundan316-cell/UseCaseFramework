@@ -44,7 +44,7 @@ export default function BusinessLinesMatrixLegoBlockDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Building2 className="h-6 w-6 text-[#005DAA]" />
+            <Building2 className="h-6 w-6 text-[#3C2CDA]" />
             <span>BusinessLinesMatrixLegoBlock Demo</span>
           </CardTitle>
           <p className="text-sm text-gray-600">

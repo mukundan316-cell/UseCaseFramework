@@ -247,7 +247,7 @@ export default function SectionTransitionDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <ArrowUpDown className="h-5 w-5 text-[#005DAA]" />
+            <ArrowUpDown className="h-5 w-5 text-[#3C2CDA]" />
             <span>SectionTransitionLegoBlock Demo</span>
           </CardTitle>
           <CardDescription>
@@ -259,7 +259,7 @@ export default function SectionTransitionDemo() {
           {/* Demo Status */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
             <div className="text-center">
-              <div className="text-xl font-bold text-[#005DAA]">{currentSectionIndex}</div>
+              <div className="text-xl font-bold text-[#3C2CDA]">{currentSectionIndex}</div>
               <div className="text-sm text-gray-600">Current Section</div>
             </div>
             <div className="text-center">

@@ -93,7 +93,7 @@ export default function ExecutiveAnalytics() {
       label: 'Portfolio Value',
       value: analytics.totalPortfolioValue,
       description: 'Active use cases driving business value',
-      color: '#005DAA',
+      color: '#3C2CDA',
       trend: 'up'
     },
     {

@@ -53,7 +53,7 @@ export const ScoreDropdownLegoBlock: React.FC<ScoreDropdownLegoBlockProps> = ({
     switch (valueDisplay) {
       case 'badge':
         return (
-          <span className="font-semibold text-[#005DAA] bg-[#E6F2FF] px-2 py-1 rounded text-sm">
+          <span className="font-semibold text-[#3C2CDA] bg-[#E6F2FF] px-2 py-1 rounded text-sm">
             {value}: {selectedOption?.label || 'Unknown'}
           </span>
         );

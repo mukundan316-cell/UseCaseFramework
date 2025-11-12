@@ -44,7 +44,7 @@ export const ScoreSliderLegoBlock: React.FC<ScoreSliderLegoBlockProps> = ({
     switch (valueDisplay) {
       case 'badge':
         return (
-          <span className="font-semibold text-[#005DAA] bg-[#E6F2FF] px-2 py-1 rounded">
+          <span className="font-semibold text-[#3C2CDA] bg-[#E6F2FF] px-2 py-1 rounded">
             {value}
           </span>
         );

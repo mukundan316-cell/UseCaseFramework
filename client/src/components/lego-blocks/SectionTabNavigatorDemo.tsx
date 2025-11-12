@@ -68,7 +68,7 @@ export default function SectionTabNavigatorDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Navigation className="h-5 w-5 text-[#005DAA]" />
+            <Navigation className="h-5 w-5 text-[#3C2CDA]" />
             <span>SectionTabNavigatorLegoBlock Demo</span>
           </CardTitle>
           <CardDescription>

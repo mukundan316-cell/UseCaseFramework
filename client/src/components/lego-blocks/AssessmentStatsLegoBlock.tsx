@@ -368,7 +368,7 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
           </CardTitle>
           <CardDescription>
             {isAssessmentReady 
-              ? 'The RSA AI Maturity Assessment is fully configured and ready for use.'
+              ? 'The Hexaware AI Maturity Assessment is fully configured and ready for use.'
               : 'The assessment needs additional questions to be complete.'
             }
           </CardDescription>

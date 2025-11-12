@@ -344,7 +344,7 @@ export default function CleanUseCaseCard({
           )}
         </div>
 
-        {/* Scores Display - Only for Strategic Use Cases (not AI inventory) with RSA Active Portfolio */}
+        {/* Scores Display - Only for Strategic Use Cases (not AI inventory) with Hexaware Active Portfolio */}
         {hasScores && effectiveImpact !== undefined && effectiveEffort !== undefined && useCase.librarySource !== 'ai_inventory' && (
           <div className="mb-4">
             {/* Quadrant Badge with Override Indicator */}

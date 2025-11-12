@@ -297,7 +297,7 @@ export default function ProcessActivityManagementBlock() {
                         onClick={saveReorder} 
                         size="sm" 
                         disabled={isSaving}
-                        className="bg-[#005DAA] hover:bg-[#004a8c] text-white"
+                        className="bg-[#3C2CDA] hover:bg-[#004a8c] text-white"
                       >
                         <Save className="h-4 w-4 mr-1" />
                         {isSaving ? 'Saving...' : 'Save Order'}
@@ -356,7 +356,7 @@ export default function ProcessActivityManagementBlock() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 className={`flex items-center p-2 bg-white rounded border ${
-                                  snapshot.isDragging ? 'shadow-md ring-2 ring-[#005DAA]/20' : ''
+                                  snapshot.isDragging ? 'shadow-md ring-2 ring-[#3C2CDA]/20' : ''
                                 }`}
                               >
                                 <div 

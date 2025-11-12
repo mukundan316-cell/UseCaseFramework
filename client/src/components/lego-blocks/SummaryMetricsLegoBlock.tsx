@@ -8,7 +8,7 @@ import { getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/
 /**
  * LEGO Block: Summary Metrics Display
  * Reusable metrics component with clickable filters for matrix interaction
- * Follows RSA branding with #005DAA blue accents and database-first queries
+ * Follows RSA branding with #3C2CDA blue accents and database-first queries
  */
 export default function SummaryMetricsLegoBlock() {
   const { 
@@ -103,7 +103,7 @@ export default function SummaryMetricsLegoBlock() {
     subtitle, 
     onClick,
     isActive = false,
-    color = '#005DAA'
+    color = '#3C2CDA'
   }: {
     icon: any;
     label: string;
@@ -116,14 +116,14 @@ export default function SummaryMetricsLegoBlock() {
     <Card 
       className={`
         cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl
-        ${isActive ? 'ring-2 ring-[#005DAA] bg-gradient-to-br from-blue-50 to-indigo-50' : 'hover:ring-1 hover:ring-[#005DAA]/30 hover:shadow-lg'}
+        ${isActive ? 'ring-2 ring-[#3C2CDA] bg-gradient-to-br from-blue-50 to-indigo-50' : 'hover:ring-1 hover:ring-[#3C2CDA]/30 hover:shadow-lg'}
         ${onClick ? 'hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-indigo-50/50' : ''}
         border-0 shadow-md bg-gradient-to-br from-white to-slate-50/50 backdrop-blur-sm
       `}
       onClick={onClick}
       style={{
         background: isActive 
-          ? 'linear-gradient(135deg, #005DAA15 0%, #3B82F620 50%, #005DAA08 100%)'
+          ? 'linear-gradient(135deg, #3C2CDA15 0%, #3B82F620 50%, #3C2CDA08 100%)'
           : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
       }}
     >
@@ -170,7 +170,7 @@ export default function SummaryMetricsLegoBlock() {
           {filters.quadrant || filters.search || filters.process ? (
             <button 
               onClick={clearAllFilters}
-              className="ml-2 text-[#005DAA] hover:text-[#005DAA]/80 underline text-sm"
+              className="ml-2 text-[#3C2CDA] hover:text-[#3C2CDA]/80 underline text-sm"
             >
               (clear filters)
             </button>

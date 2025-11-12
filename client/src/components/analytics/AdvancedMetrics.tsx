@@ -103,7 +103,7 @@ export const AdvancedMetrics: React.FC<AdvancedMetricsProps> = ({
       change: '+12%',
       trend: 'up' as const,
       icon: Target,
-      color: '#005DAA',
+      color: '#3C2CDA',
       description: 'Active strategic initiatives'
     },
     {

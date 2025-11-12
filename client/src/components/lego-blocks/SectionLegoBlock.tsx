@@ -255,7 +255,7 @@ export default function SectionLegoBlock({
               )}
               
               {/* Section number badge */}
-              <div className="flex items-center justify-center w-6 h-6 bg-[#005DAA] text-white text-sm font-medium rounded-full">
+              <div className="flex items-center justify-center w-6 h-6 bg-[#3C2CDA] text-white text-sm font-medium rounded-full">
                 {sectionOrder}
               </div>
               
@@ -314,7 +314,7 @@ export default function SectionLegoBlock({
             <span className={cn(
               "text-sm font-medium",
               isCompleted ? "text-green-600" : 
-              hasRequiredIncomplete ? "text-amber-600" : "text-[#005DAA]"
+              hasRequiredIncomplete ? "text-amber-600" : "text-[#3C2CDA]"
             )}>
               {progress.percentage}%
             </span>
@@ -458,7 +458,7 @@ export default function SectionLegoBlock({
         "transition-all duration-200",
         isCompleted ? "border-green-200 bg-green-50/30" :
         hasRequiredIncomplete ? "border-amber-200 bg-amber-50/30" :
-        "border-[#005DAA]/20",
+        "border-[#3C2CDA]/20",
         isExpanded && "shadow-md",
         className
       )}

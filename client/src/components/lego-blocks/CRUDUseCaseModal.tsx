@@ -1821,7 +1821,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         <AlertCircle className="h-4 w-4 text-blue-600" />
                         <AlertDescription className="text-blue-800">
                           <strong>Library-First Workflow:</strong> All use cases start in the reference library. 
-                          Toggle "Include in RSA Active Portfolio" below to enable detailed assessment and scoring.
+                          Toggle "Include in Hexaware Active Portfolio" below to enable detailed assessment and scoring.
                         </AlertDescription>
                       </Alert>
                     </CardContent>

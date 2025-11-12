@@ -22,7 +22,7 @@ import {
  */
 export default function BreadcrumbNavigationDemo() {
   const [currentContext, setCurrentContext] = useState<NavigationContext>({
-    assessmentTitle: 'RSA AI Maturity Assessment',
+    assessmentTitle: 'Hexaware AI Maturity Assessment',
     sectionNumber: 2,
     sectionTitle: 'AI Capabilities Assessment',
     questionNumber: 7,
@@ -42,7 +42,7 @@ export default function BreadcrumbNavigationDemo() {
       id: 'section-overview',
       name: 'Section Overview',
       context: {
-        assessmentTitle: 'RSA AI Maturity Assessment',
+        assessmentTitle: 'Hexaware AI Maturity Assessment',
         sectionNumber: 1,
         sectionTitle: 'Business Strategy & AI Vision',
         sectionProgress: 100,
@@ -54,7 +54,7 @@ export default function BreadcrumbNavigationDemo() {
       id: 'mid-section',
       name: 'Mid Section Progress',
       context: {
-        assessmentTitle: 'RSA AI Maturity Assessment',
+        assessmentTitle: 'Hexaware AI Maturity Assessment',
         sectionNumber: 3,
         sectionTitle: 'Use Case Discovery',
         questionNumber: 5,
@@ -68,7 +68,7 @@ export default function BreadcrumbNavigationDemo() {
       id: 'early-question',
       name: 'Early Question',
       context: {
-        assessmentTitle: 'RSA AI Maturity Assessment',
+        assessmentTitle: 'Hexaware AI Maturity Assessment',
         sectionNumber: 4,
         sectionTitle: 'Technology Infrastructure',
         questionNumber: 2,
@@ -82,7 +82,7 @@ export default function BreadcrumbNavigationDemo() {
       id: 'final-section',
       name: 'Final Section',
       context: {
-        assessmentTitle: 'RSA AI Maturity Assessment',
+        assessmentTitle: 'Hexaware AI Maturity Assessment',
         sectionNumber: 6,
         sectionTitle: 'Regulatory & Compliance',
         questionNumber: 11,
@@ -179,7 +179,7 @@ export default function BreadcrumbNavigationDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Navigation className="h-5 w-5 text-[#005DAA]" />
+            <Navigation className="h-5 w-5 text-[#3C2CDA]" />
             <span>BreadcrumbNavigationLegoBlock Demo</span>
           </CardTitle>
           <CardDescription>

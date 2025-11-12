@@ -176,7 +176,7 @@ export default function AssessmentResultsDashboard({
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Assessment Not Found</h3>
           <p className="text-gray-600 mb-4">Please complete an assessment to view results</p>
           {onRetake && (
-            <Button onClick={onRetake} className="bg-[#005DAA] hover:bg-[#004A8C]">
+            <Button onClick={onRetake} className="bg-[#3C2CDA] hover:bg-[#004A8C]">
               Start Assessment
             </Button>
           )}
@@ -211,7 +211,7 @@ export default function AssessmentResultsDashboard({
         <Button
           variant="ghost"
           onClick={() => setLocation('/')}
-          className="flex items-center space-x-2 text-gray-600 hover:text-[#005DAA]"
+          className="flex items-center space-x-2 text-gray-600 hover:text-[#3C2CDA]"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Dashboard</span>
@@ -390,7 +390,7 @@ export default function AssessmentResultsDashboard({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Target className="h-5 w-5 text-[#005DAA]" />
+              <Target className="h-5 w-5 text-[#3C2CDA]" />
               <span>Gap Analysis</span>
             </CardTitle>
             <CardDescription>
@@ -408,9 +408,9 @@ export default function AssessmentResultsDashboard({
       </div>
 
       {/* Next Steps Card */}
-      <Card className="border-[#005DAA] bg-gradient-to-r from-blue-50 to-indigo-50">
+      <Card className="border-[#3C2CDA] bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-[#005DAA]">
+          <CardTitle className="flex items-center space-x-2 text-[#3C2CDA]">
             <Award className="h-5 w-5" />
             <span>Next Steps</span>
           </CardTitle>
@@ -421,7 +421,7 @@ export default function AssessmentResultsDashboard({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 bg-white rounded-lg border">
-              <FileText className="h-8 w-8 mx-auto mb-2 text-[#005DAA]" />
+              <FileText className="h-8 w-8 mx-auto mb-2 text-[#3C2CDA]" />
               <h4 className="font-semibold text-sm text-gray-800 mb-1">Export Results</h4>
               <p className="text-xs text-gray-600 mb-3">Download detailed reports for stakeholders</p>
               {actualResponseId && (
@@ -436,7 +436,7 @@ export default function AssessmentResultsDashboard({
             </div>
             
             <div className="text-center p-4 bg-white rounded-lg border">
-              <BarChart3 className="h-8 w-8 mx-auto mb-2 text-[#005DAA]" />
+              <BarChart3 className="h-8 w-8 mx-auto mb-2 text-[#3C2CDA]" />
               <h4 className="font-semibold text-sm text-gray-800 mb-1">Explore Use Cases</h4>
               <p className="text-xs text-gray-600 mb-3">Browse AI use cases in the framework</p>
               <ReusableButton
@@ -449,7 +449,7 @@ export default function AssessmentResultsDashboard({
             </div>
             
             <div className="text-center p-4 bg-white rounded-lg border">
-              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-[#005DAA]" />
+              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-[#3C2CDA]" />
               <h4 className="font-semibold text-sm text-gray-800 mb-1">Track Progress</h4>
               <p className="text-xs text-gray-600 mb-3">Retake assessment to monitor improvement</p>
               <ReusableButton

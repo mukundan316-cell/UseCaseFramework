@@ -248,14 +248,14 @@ export default function SectionLegoBlockDemo() {
           </CardDescription>
           
           {/* Overall Progress */}
-          <div className="bg-gradient-to-r from-[#005DAA]/5 to-[#9F4F96]/5 p-4 rounded-lg border border-[#005DAA]/10">
+          <div className="bg-gradient-to-r from-[#3C2CDA]/5 to-[#1D86FF]/5 p-4 rounded-lg border border-[#3C2CDA]/10">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Overall Progress</span>
-              <span className="text-lg font-bold text-[#005DAA]">{overallProgress}%</span>
+              <span className="text-lg font-bold text-[#3C2CDA]">{overallProgress}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-[#005DAA] to-[#9F4F96] h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-[#3C2CDA] to-[#1D86FF] h-2 rounded-full transition-all duration-300"
                 style={{ width: `${overallProgress}%` }}
               ></div>
             </div>
@@ -307,9 +307,9 @@ export default function SectionLegoBlockDemo() {
       </div>
 
       {/* Debug Panel */}
-      <Card className="border-[#005DAA]/20">
+      <Card className="border-[#3C2CDA]/20">
         <CardHeader>
-          <CardTitle className="text-lg text-[#005DAA]">Debug Information</CardTitle>
+          <CardTitle className="text-lg text-[#3C2CDA]">Debug Information</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

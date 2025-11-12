@@ -234,7 +234,7 @@ export default function QuestionRegistryDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Database className="h-5 w-5 text-[#005DAA]" />
+            <Database className="h-5 w-5 text-[#3C2CDA]" />
             <span>QuestionRegistryLegoBlock Demo</span>
           </CardTitle>
           <CardDescription>

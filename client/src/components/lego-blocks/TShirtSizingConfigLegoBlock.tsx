@@ -595,7 +595,7 @@ export default function TShirtSizingConfigLegoBlock() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-lg">
-              <Shirt className="h-5 w-5 text-[#005DAA]" />
+              <Shirt className="h-5 w-5 text-[#3C2CDA]" />
             </div>
             <div>
               <CardTitle className="text-xl font-bold text-gray-900">T-shirt Sizing Configuration</CardTitle>
@@ -615,7 +615,7 @@ export default function TShirtSizingConfigLegoBlock() {
             <Button 
               onClick={saveConfig} 
               disabled={isSaving}
-              className="bg-[#005DAA] hover:bg-[#004494] disabled:opacity-50" 
+              className="bg-[#3C2CDA] hover:bg-[#07125E] disabled:opacity-50" 
               data-testid="button-save-config"
             >
               <Save className="h-4 w-4 mr-2" />

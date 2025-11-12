@@ -28,7 +28,7 @@ export default function PercentageAllocationLegoBlockDemo() {
 
   // Sample categories for different scenarios
   const budgetCategories: AllocationCategory[] = [
-    { id: 'technology', label: 'Technology & Infrastructure', color: '#005DAA' },
+    { id: 'technology', label: 'Technology & Infrastructure', color: '#3C2CDA' },
     { id: 'people', label: 'People & Training', color: '#0066CC' },
     { id: 'operations', label: 'Operations & Processes', color: '#3399FF' },
     { id: 'marketing', label: 'Marketing & Sales', color: '#66B2FF' },
@@ -105,7 +105,7 @@ export default function PercentageAllocationLegoBlockDemo() {
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="flex items-center justify-center space-x-2 text-[#005DAA]">
+          <div className="flex items-center justify-center space-x-2 text-[#3C2CDA]">
             <PieChart className="h-8 w-8" />
             <h1 className="text-3xl font-bold">PercentageAllocationLegoBlock Demo</h1>
           </div>
@@ -122,9 +122,9 @@ export default function PercentageAllocationLegoBlockDemo() {
         </div>
 
         {/* Feature Overview */}
-        <Card className="border-[#005DAA]/20">
+        <Card className="border-[#3C2CDA]/20">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-[#005DAA]">
+            <CardTitle className="flex items-center space-x-2 text-[#3C2CDA]">
               <Target className="h-5 w-5" />
               <span>Key Features</span>
             </CardTitle>
@@ -132,7 +132,7 @@ export default function PercentageAllocationLegoBlockDemo() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <PieChart className="h-8 w-8 text-[#005DAA] mx-auto mb-2" />
+                <PieChart className="h-8 w-8 text-[#3C2CDA] mx-auto mb-2" />
                 <h3 className="font-medium text-gray-900">Visual Allocation</h3>
                 <p className="text-sm text-gray-600">Progress bars and percentage display</p>
               </div>
@@ -159,9 +159,9 @@ export default function PercentageAllocationLegoBlockDemo() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Budget Allocation */}
-          <Card className="border-[#005DAA]/20">
+          <Card className="border-[#3C2CDA]/20">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#005DAA]">
+              <CardTitle className="flex items-center space-x-2 text-[#3C2CDA]">
                 <PieChart className="h-5 w-5" />
                 <span>Budget Allocation</span>
               </CardTitle>
@@ -311,7 +311,7 @@ export default function PercentageAllocationLegoBlockDemo() {
         {/* Utility Functions Demo */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#005DAA]">Utility Functions</CardTitle>
+            <CardTitle className="text-[#3C2CDA]">Utility Functions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -336,9 +336,9 @@ export default function PercentageAllocationLegoBlockDemo() {
         </Card>
 
         {/* LEGO Architecture Info */}
-        <Card className="border-[#005DAA]/20 bg-gradient-to-r from-blue-50 to-purple-50">
+        <Card className="border-[#3C2CDA]/20 bg-gradient-to-r from-blue-50 to-purple-50">
           <CardHeader>
-            <CardTitle className="text-[#005DAA]">LEGO Block Architecture</CardTitle>
+            <CardTitle className="text-[#3C2CDA]">LEGO Block Architecture</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">

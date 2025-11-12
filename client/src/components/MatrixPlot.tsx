@@ -91,15 +91,15 @@ export default function MatrixPlot() {
       <div className="matrix-container p-8">
         <div className="mb-6 text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            RSA AI Use Case Value Framework
+            Hexaware AI Use Case Value Framework
           </h2>
           <p className="text-gray-600 mb-2">AI Strategy & Prioritization Platform</p>
-          <p className="text-sm text-gray-500">As of August 2025 © RSA Insurance</p>
+          <p className="text-sm text-gray-500">As of November 2025 © Hexaware Technologies</p>
         </div>
         
         {/* Gartner-Style Magic Quadrant */}
         <div className="bg-white border-2 border-gray-800 relative mx-auto" style={{ width: '700px', height: '500px' }}>
-          {/* Quadrant Labels - RSA Framework Style */}
+          {/* Quadrant Labels - Hexaware Framework Style */}
           <div className="absolute top-2 left-4 bg-gray-400 text-white px-3 py-1 text-sm font-semibold">
             QUICK WIN
           </div>

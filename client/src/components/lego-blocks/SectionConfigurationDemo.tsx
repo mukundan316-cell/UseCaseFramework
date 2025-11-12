@@ -157,7 +157,7 @@ export default function SectionConfigurationDemo() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Settings className="h-5 w-5 text-[#005DAA]" />
+            <Settings className="h-5 w-5 text-[#3C2CDA]" />
             <span>SectionConfigurationLegoBlock Demo</span>
           </CardTitle>
           <CardDescription>

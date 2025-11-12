@@ -51,7 +51,7 @@ const SaveStatus = React.memo(() => {
 SaveStatus.displayName = 'SaveStatus';
 
 export const AssessmentHeader = React.memo(({
-  questionnaireTitle = "RSA AI Strategy Assessment Framework",
+  questionnaireTitle = "Hexaware AI Strategy Assessment Framework",
   progress,
   answeredCount,
   totalQuestions,
@@ -65,7 +65,7 @@ export const AssessmentHeader = React.memo(({
   return (
     <div className="sticky top-0 z-50 bg-white shadow-sm">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#005DAA] via-[#0066BB] to-[#9F4F96] text-white">
+      <div className="bg-gradient-to-r from-[#3C2CDA] via-[#1D86FF] to-[#14CBDE] text-white">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-4">
             <Button
@@ -79,7 +79,7 @@ export const AssessmentHeader = React.memo(({
             
             <div className="flex items-center space-x-2 text-sm">
               <Home className="h-4 w-4" />
-              <span>RSA AI Assessment</span>
+              <span>Hexaware AI Assessment</span>
             </div>
           </div>
 

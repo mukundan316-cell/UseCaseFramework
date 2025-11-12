@@ -172,7 +172,7 @@ export default function QuestionLegoBlock({
               }}
               disabled={readonly}
               className={cn(
-                "w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#005DAA] focus:border-transparent",
+                "w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3C2CDA] focus:border-transparent",
                 error && "border-red-500 focus:ring-red-500",
                 readonly && "bg-gray-50 cursor-not-allowed"
               )}

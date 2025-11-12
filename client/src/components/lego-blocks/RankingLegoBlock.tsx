@@ -267,7 +267,7 @@ export const RankingLegoBlock: React.FC<RankingLegoBlockProps> = ({
           </div>
           <div className="w-24 bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-[#005DAA] h-2 rounded-full transition-all duration-300"
+              className="bg-[#3C2CDA] h-2 rounded-full transition-all duration-300"
               style={{ width: `${completionPercentage}%` }}
             />
           </div>
@@ -308,7 +308,7 @@ export const RankingLegoBlock: React.FC<RankingLegoBlockProps> = ({
                   {...provided.droppableProps}
                   className={cn(
                     "min-h-[200px] p-4 border-2 border-dashed rounded-lg transition-colors",
-                    snapshot.isDraggingOver ? "border-[#005DAA] bg-blue-50" : "border-gray-300 bg-gray-50",
+                    snapshot.isDraggingOver ? "border-[#3C2CDA] bg-blue-50" : "border-gray-300 bg-gray-50",
                     disabled && "opacity-50"
                   )}
                 >
@@ -332,7 +332,7 @@ export const RankingLegoBlock: React.FC<RankingLegoBlockProps> = ({
                             <div className="flex items-center space-x-3">
                               {/* Rank Number */}
                               {showNumbers && (
-                                <div className="flex-shrink-0 w-8 h-8 bg-[#005DAA] text-white rounded-full flex items-center justify-center font-medium text-sm">
+                                <div className="flex-shrink-0 w-8 h-8 bg-[#3C2CDA] text-white rounded-full flex items-center justify-center font-medium text-sm">
                                   {index + 1}
                                 </div>
                               )}

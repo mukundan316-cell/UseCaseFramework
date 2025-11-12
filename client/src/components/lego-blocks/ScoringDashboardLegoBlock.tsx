@@ -105,7 +105,7 @@ export default function ScoringDashboardLegoBlock({
       <Card className={cn("w-full", className)}>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <BarChart3 className="h-5 w-5 text-[#005DAA]" />
+            <BarChart3 className="h-5 w-5 text-[#3C2CDA]" />
             <span>{title}</span>
           </CardTitle>
           <CardDescription>{description}</CardDescription>
@@ -135,7 +135,7 @@ export default function ScoringDashboardLegoBlock({
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center justify-between">
             <span className="flex items-center space-x-2">
-              <BarChart3 className="h-4 w-4 text-[#005DAA]" />
+              <BarChart3 className="h-4 w-4 text-[#3C2CDA]" />
               <span>AI Maturity</span>
             </span>
             <Badge 
@@ -150,7 +150,7 @@ export default function ScoringDashboardLegoBlock({
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Overall Score</span>
-              <span className="font-semibold text-[#005DAA]">{data.overallPercentage}%</span>
+              <span className="font-semibold text-[#3C2CDA]">{data.overallPercentage}%</span>
             </div>
             <Progress value={data.overallPercentage} className="h-2" />
             <div className="text-xs text-gray-500">
@@ -171,7 +171,7 @@ export default function ScoringDashboardLegoBlock({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center space-x-2 text-xl">
-                <BarChart3 className="h-5 w-5 text-[#005DAA]" />
+                <BarChart3 className="h-5 w-5 text-[#3C2CDA]" />
                 <span>{title}</span>
               </CardTitle>
               <CardDescription>{description}</CardDescription>
@@ -256,7 +256,7 @@ export default function ScoringDashboardLegoBlock({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-[#005DAA]" />
+            <TrendingUp className="h-5 w-5 text-[#3C2CDA]" />
             <span>Dimension Scores</span>
           </CardTitle>
           <CardDescription>
@@ -287,7 +287,7 @@ export default function ScoringDashboardLegoBlock({
                       </Badge>
                     </div>
                     <div className="flex items-center space-x-3 text-sm">
-                      <span className="font-semibold text-[#005DAA]">
+                      <span className="font-semibold text-[#3C2CDA]">
                         {dimension.percentage}%
                       </span>
                       <span className="text-gray-500">

@@ -87,7 +87,7 @@ export function AssessmentSessionStart({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#005DAA] via-[#0066BB] to-[#9F4F96] text-white">
+      <div className="bg-gradient-to-r from-[#3C2CDA] via-[#1D86FF] to-[#14CBDE] text-white">
         <div className="max-w-4xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">
             <Button
@@ -105,7 +105,7 @@ export function AssessmentSessionStart({
               Start Your Assessment
             </h1>
             <p className="text-base text-blue-50 leading-relaxed max-w-2xl mx-auto">
-              Please provide your contact information to begin the RSA AI Strategy Assessment. 
+              Please provide your contact information to begin the Hexaware AI Strategy Assessment. 
               Your progress will be automatically saved and can be resumed at any time.
             </p>
           </div>
@@ -181,7 +181,7 @@ export function AssessmentSessionStart({
               <Button
                 onClick={handleStartAssessment}
                 disabled={isSubmitting || !formData.email.trim() || !formData.name.trim()}
-                className="w-full bg-[#005DAA] hover:bg-[#004A88] text-white py-3 h-auto"
+                className="w-full bg-[#3C2CDA] hover:bg-[#07125E] text-white py-3 h-auto"
                 size="lg"
               >
                 {isSubmitting ? (
