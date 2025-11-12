@@ -172,7 +172,7 @@ export default function UseCaseForm() {
     costSavings: "Operational cost reduction through automation or efficiency gains",
     riskReduction: "Ability to reduce operational, regulatory, or financial risks",
     brokerPartnerExperience: "Impact on broker/partner experience - faster TAT, self-service tools, analytics access",
-    strategicFit: "Alignment with RSA's delegated, specialty, or mid-market focus",
+    strategicFit: "Alignment with Hexaware's strategic objectives",
     dataReadiness: "Quality, structure, and sufficient volume of available data",
     technicalComplexity: "Maturity of models needed (LLMs vs ML) and technical difficulty",
     changeImpact: "Degree of process and role redesign required for implementation",
@@ -358,9 +358,9 @@ export default function UseCaseForm() {
               </div>
             </div>
 
-            {/* Enhanced RSA Framework Scoring */}
+            {/* Enhanced Hexaware Framework Scoring */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Enhanced RSA Framework Assessment (1-5 Scale)</h3>
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Enhanced Hexaware Framework Assessment (1-5 Scale)</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Business Value Levers */}
                 <div className="space-y-6">

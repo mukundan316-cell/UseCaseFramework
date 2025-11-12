@@ -262,7 +262,7 @@ export default function ExcelUploadLegoBlock({
                 <div>
                   <p className="font-medium">Select Excel File</p>
                   <p className="text-sm text-gray-600">
-                    Choose .xlsx or .xls file exported from RSA Framework
+                    Choose .xlsx or .xls file exported from Hexaware Framework
                   </p>
                 </div>
                 <Button

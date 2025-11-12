@@ -411,7 +411,7 @@ export default function AdminPanel() {
                         scoringField="strategicFit"
                         title="Strategic Fit"
                         options={metadata?.scoringDropdownOptions?.strategicFit || []}
-                        description="Alignment with RSA's strategic objectives"
+                        description="Alignment with Hexaware's strategic objectives"
                       />
                     </div>
 
