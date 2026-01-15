@@ -729,7 +729,7 @@ export default function UseCaseDetailDrawer({
                   />
                   
                   <FieldDisplay 
-                    label="Risk to RSA"
+                    label="Risk to Hexaware"
                     value={extendedUseCase.riskToRsa}
                     icon={Shield}
                   />
@@ -747,7 +747,7 @@ export default function UseCaseDetailDrawer({
                   />
 
                   <FieldDisplay 
-                    label="RSA Policy Governance"
+                    label="Hexaware Policy Governance"
                     value={extendedUseCase.rsaPolicyGovernance}
                     icon={Shield}
                   />

@@ -66,7 +66,7 @@ export default function RSASelectionToggleLegoBlock({
       return (
         <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
           <Target className="h-3 w-3 mr-1" />
-          RSA Active
+          Hexaware Active
         </Badge>
       );
     } else {
@@ -91,7 +91,7 @@ export default function RSASelectionToggleLegoBlock({
             </div>
             <div>
               <CardTitle className="text-lg font-bold text-gray-900">
-                RSA Portfolio Selection
+                Hexaware Portfolio Selection
               </CardTitle>
               <CardDescription className="text-sm">
                 Control active portfolio inclusion and dashboard visibility
@@ -178,14 +178,14 @@ export default function RSASelectionToggleLegoBlock({
                 Activation Reason <span className="text-red-500">*</span>
               </Label>
               <Textarea 
-                placeholder="Explain why this use case is selected for RSA portfolio..."
+                placeholder="Explain why this use case is selected for Hexaware portfolio..."
                 value={activationReason}
                 onChange={(e) => onActivationReasonChange(e.target.value)}
                 className="min-h-[80px] resize-none"
                 maxLength={500}
               />
               <div className="flex justify-between text-xs text-gray-500">
-                <span>Required for RSA portfolio inclusion</span>
+                <span>Required for Hexaware portfolio inclusion</span>
                 <span>{activationReason.length}/500</span>
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function RSASelectionToggleLegoBlock({
                 Deactivation Reason
               </Label>
               <Textarea 
-                placeholder="Explain why this use case was removed from RSA portfolio..."
+                placeholder="Explain why this use case was removed from Hexaware portfolio..."
                 value={deactivationReason}
                 onChange={(e) => onDeactivationReasonChange!(e.target.value)}
                 className="min-h-[80px] resize-none"
@@ -222,7 +222,7 @@ export default function RSASelectionToggleLegoBlock({
             <Info className="h-4 w-4 text-gray-500 mt-0.5" />
             <div className="text-xs text-gray-600 space-y-1">
               <p><strong>Reference Library:</strong> Available for browsing and selection</p>
-              <p><strong>RSA Active:</strong> Included in portfolio analysis and scoring</p>
+              <p><strong>Hexaware Active:</strong> Included in portfolio analysis and scoring</p>
               <p><strong>Dashboard Visible:</strong> Shown in prioritization matrix</p>
             </div>
           </div>
@@ -235,8 +235,8 @@ export default function RSASelectionToggleLegoBlock({
           </Label>
           <div className="text-xs text-gray-600 space-y-1 p-3 bg-gray-50 rounded-lg">
             <p>• Use cases start in Reference Library by default</p>
-            <p>• Scoring sections become available after RSA activation</p>
-            <p>• Dashboard visibility requires RSA portfolio inclusion</p>
+            <p>• Scoring sections become available after Hexaware activation</p>
+            <p>• Dashboard visibility requires Hexaware portfolio inclusion</p>
             <p>• Changes are saved automatically when modal is submitted</p>
           </div>
         </div>

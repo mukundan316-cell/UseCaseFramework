@@ -354,7 +354,7 @@ export default function CompanyProfileLegoBlock({
               Additional Context & Notes
             </Label>
             <Textarea
-              placeholder={questionData.notes?.placeholder || "Additional context about RSA's market position, strategy, or business profile..."}
+              placeholder={questionData.notes?.placeholder || "Additional context about Hexaware's market position, strategy, or business profile..."}
               value={formData.notes || ''}
               onChange={(e) => handleChange('notes', e.target.value)}
               disabled={disabled}

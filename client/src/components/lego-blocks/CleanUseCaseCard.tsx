@@ -244,7 +244,7 @@ export default function CleanUseCaseCard({
                   )}
                   {(useCase as any).riskToRsa && (
                     <div className="text-xs text-amber-700 break-words">
-                      <span className="font-medium">RSA:</span> {(useCase as any).riskToRsa}
+                      <span className="font-medium">Hexaware:</span> {(useCase as any).riskToRsa}
                     </div>
                   )}
                 </div>

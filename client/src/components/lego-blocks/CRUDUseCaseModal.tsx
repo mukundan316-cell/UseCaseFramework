@@ -1018,7 +1018,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                           <p className="text-sm text-emerald-800 font-medium">AI Inventory Item Selected</p>
                         </div>
                         <p className="text-sm text-emerald-700 mt-1">
-                          AI Inventory governance fields are available on the <strong>"Implementation & Governance"</strong> tab below the RSA Ethical Principles section.
+                          AI Inventory governance fields are available on the <strong>"Implementation & Governance"</strong> tab below the Hexaware Ethical Principles section.
                         </p>
                       </div>
                     )}
@@ -1274,9 +1274,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                 </div>
 
-                {/* RSA Ethical Principles Section */}
+                {/* Hexaware Ethical Principles Section */}
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">RSA Ethical Principles</h4>
+                  <h4 className="font-medium text-gray-900">Hexaware Ethical Principles</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -1501,10 +1501,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         name="riskToRsa"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Risk to RSA</FormLabel>
+                            <FormLabel className="text-base font-semibold text-gray-900">Risk to Hexaware</FormLabel>
                             <FormControl>
                               <Textarea
-                                placeholder="Describe RSA-specific risks..."
+                                placeholder="Describe Hexaware-specific risks..."
                                 className="mt-1"
                                 {...field}
                               />
@@ -1551,7 +1551,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         name="rsaPolicyGovernance"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">RSA Policy Governance</FormLabel>
+                            <FormLabel className="text-base font-semibold text-gray-900">Hexaware Policy Governance</FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="Governance framework reference..."
@@ -1811,11 +1811,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     <CardContent className="p-8 text-center">
                       <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                       <h3 className="text-lg font-medium text-gray-700 mb-2">
-                        Scoring Available After RSA Portfolio Selection
+                        Scoring Available After Hexaware Portfolio Selection
                       </h3>
                       <p className="text-gray-600 mb-4">
                         Use cases in the reference library can be browsed and selected. 
-                        Complete scoring and categorization becomes available once included in the RSA active portfolio.
+                        Complete scoring and categorization becomes available once included in the Hexaware active portfolio.
                       </p>
                       <Alert className="border-blue-200 bg-blue-50 text-left">
                         <AlertCircle className="h-4 w-4 text-blue-600" />
