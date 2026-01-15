@@ -1,7 +1,7 @@
-# RSA AI Use Case Value Framework - On-Premises Installation Guide
+# Hexaware AI Use Case Value Framework - On-Premises Installation Guide
 
 ## Overview
-This guide will help you deploy the RSA AI Use Case Value Framework on your own infrastructure outside of Replit.
+This guide will help you deploy the Hexaware AI Use Case Value Framework on your own infrastructure outside of Replit.
 
 ## System Requirements
 
@@ -26,8 +26,8 @@ This guide will help you deploy the RSA AI Use Case Value Framework on your own 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/mukundan316-cell/UseCaseFramework.git
-cd UseCaseFramework
+git clone https://github.com/your-org/hexaware-ai-framework.git
+cd hexaware-ai-framework
 ```
 
 ### 2. Install Node.js Dependencies
@@ -45,11 +45,11 @@ npm install
 psql -U postgres
 
 # Create database
-CREATE DATABASE rsa_ai_framework;
+CREATE DATABASE hexaware_ai_framework;
 
 # Create a dedicated user (optional but recommended)
-CREATE USER rsa_admin WITH PASSWORD 'your_secure_password';
-GRANT ALL PRIVILEGES ON DATABASE rsa_ai_framework TO rsa_admin;
+CREATE USER hexaware_admin WITH PASSWORD 'your_secure_password';
+GRANT ALL PRIVILEGES ON DATABASE hexaware_ai_framework TO hexaware_admin;
 ```
 
 #### Option B: Install PostgreSQL locally
@@ -73,14 +73,14 @@ Download and install from: https://www.postgresql.org/download/windows/
 
 ### 4. Restore Database Backup
 
-The repository includes a complete database backup with 124+ use cases and all configuration.
+The repository includes a complete database backup with 127+ use cases and all configuration.
 
 ```bash
 # Restore the database backup
-psql -U postgres -d rsa_ai_framework < database_backup.sql
+psql -U postgres -d hexaware_ai_framework < database_backup.sql
 
 # Or if using a custom user:
-psql -U rsa_admin -d rsa_ai_framework < database_backup.sql
+psql -U hexaware_admin -d hexaware_ai_framework < database_backup.sql
 ```
 
 **Note:** If you prefer to start with an empty database, you can skip the restore step and the application will initialize the schema automatically.
@@ -99,7 +99,7 @@ nano .env  # or use your preferred editor
 
 ```env
 # Database connection string
-DATABASE_URL=postgresql://rsa_admin:your_secure_password@localhost:5432/rsa_ai_framework
+DATABASE_URL=postgresql://hexaware_admin:your_secure_password@localhost:5432/hexaware_ai_framework
 
 # Session secret (generate with: openssl rand -base64 32)
 SESSION_SECRET=your-generated-secret-key
@@ -179,7 +179,7 @@ Use a process manager to keep the application running:
 **Using PM2:**
 ```bash
 npm install -g pm2
-pm2 start npm --name "rsa-framework" -- start
+pm2 start npm --name "hexaware-framework" -- start
 pm2 save
 pm2 startup
 ```
@@ -223,20 +223,20 @@ Set up automated database backups:
 
 ```bash
 # Create backup script
-cat > /usr/local/bin/backup-rsa-db.sh << 'EOF'
+cat > /usr/local/bin/backup-hexaware-db.sh << 'EOF'
 #!/bin/bash
-BACKUP_DIR="/var/backups/rsa-framework"
+BACKUP_DIR="/var/backups/hexaware-framework"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 mkdir -p $BACKUP_DIR
-pg_dump -U rsa_admin rsa_ai_framework > $BACKUP_DIR/backup_$TIMESTAMP.sql
+pg_dump -U hexaware_admin hexaware_ai_framework > $BACKUP_DIR/backup_$TIMESTAMP.sql
 # Keep only last 30 days of backups
 find $BACKUP_DIR -name "backup_*.sql" -mtime +30 -delete
 EOF
 
-chmod +x /usr/local/bin/backup-rsa-db.sh
+chmod +x /usr/local/bin/backup-hexaware-db.sh
 
 # Add to crontab (daily at 2 AM)
-(crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/backup-rsa-db.sh") | crontab -
+(crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/backup-hexaware-db.sh") | crontab -
 ```
 
 ### 5. Firewall Configuration
@@ -298,7 +298,7 @@ npm install
 npm run build
 
 # Restart application
-pm2 restart rsa-framework
+pm2 restart hexaware-framework
 ```
 
 ### Database Migrations
@@ -359,7 +359,7 @@ pm2 monit         # Real-time monitoring
 - T-shirt sizing system with UK benchmark costs
 - Excel import/export (multi-worksheet support)
 - PowerPoint presentation integration with PDF conversion
-- AI Inventory governance tracking (82 records)
+- AI Inventory governance tracking (127 records)
 - Assessment questionnaire platform (Survey.js)
 - Executive analytics dashboard
 - Portfolio resource planning
@@ -386,5 +386,6 @@ For issues or questions:
 
 ## Version History
 
-- **v1.0**: Initial release with 124 use cases, T-shirt sizing, executive analytics
+- **v1.0**: Initial release with 127 use cases, T-shirt sizing, executive analytics
+- **v2.0**: Full Hexaware rebranding with HEX_ ID prefixes
 - See Git commit history for detailed changes

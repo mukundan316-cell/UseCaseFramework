@@ -1,4 +1,4 @@
-# RSA AI Use Case Value Framework - Quick Start Guide
+# Hexaware AI Use Case Value Framework - Quick Start Guide
 
 ## 5-Minute Setup (Development Mode)
 
@@ -9,18 +9,18 @@
 
 ### Step 1: Clone & Install
 ```bash
-git clone https://github.com/mukundan316-cell/UseCaseFramework.git
-cd UseCaseFramework
+git clone https://github.com/your-org/hexaware-ai-framework.git
+cd hexaware-ai-framework
 npm install
 ```
 
 ### Step 2: Database Setup
 ```bash
 # Create database
-createdb rsa_ai_framework
+createdb hexaware_ai_framework
 
-# Restore backup with 124 use cases
-psql -d rsa_ai_framework < database_backup.sql
+# Restore backup with 127 use cases
+psql -d hexaware_ai_framework < database_backup.sql
 ```
 
 ### Step 3: Configure Environment
@@ -29,7 +29,7 @@ psql -d rsa_ai_framework < database_backup.sql
 cp .env.example .env
 
 # Edit .env - Minimal required changes:
-# DATABASE_URL=postgresql://localhost:5432/rsa_ai_framework
+# DATABASE_URL=postgresql://localhost:5432/hexaware_ai_framework
 # SESSION_SECRET=your-random-secret-here
 ```
 
@@ -44,9 +44,10 @@ npm run dev
 
 ## What You Get Out of the Box
 
-### 📊 124 Pre-loaded Use Cases
-- Strategic use cases from RSA Insurance
-- AI Inventory items (57 tools)
+### 📊 127 Pre-loaded Use Cases
+- Hexaware Internal strategic use cases (50)
+- Industry Standard best practices (31)
+- AI Inventory items (46 tools)
 - Complete scoring and metadata
 
 ### 🎯 10-Lever Scoring Framework
@@ -90,7 +91,7 @@ UK benchmark costs with 6 professional roles:
 
 ### 📁 Excel Import/Export
 - Multi-worksheet support
-- Auto-ID generation
+- Auto-ID generation (HEX_INT_*, HEX_IND_*, HEX_AITOOL_*)
 - Validation matching UI forms
 - Bulk operations
 
@@ -156,7 +157,7 @@ UK benchmark costs with 6 professional roles:
 ## File Structure
 
 ```
-UseCaseFramework/
+hexaware-ai-framework/
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── components/    # Reusable UI components
@@ -170,7 +171,7 @@ UseCaseFramework/
 │   ├── schema.ts          # Database schema + types
 │   ├── calculations.ts    # Scoring logic
 │   └── constants/         # App configuration
-├── database_backup.sql    # Full DB backup (124 use cases)
+├── database_backup.sql    # Full DB backup (127 use cases)
 ├── .env.example           # Environment template
 ├── INSTALLATION.md        # Detailed deployment guide
 └── package.json           # Dependencies
@@ -202,7 +203,7 @@ UPLOAD_DIR=./uploads         # File storage location
 systemctl status postgresql
 
 # Test connection
-psql -d rsa_ai_framework
+psql -d hexaware_ai_framework
 
 # Verify DATABASE_URL in .env
 ```
@@ -263,6 +264,7 @@ chmod 755 uploads
 ## Support & Documentation
 
 - **Architecture**: See `replit.md` for detailed system design
+- **User Guide**: See `HEXAWARE_USER_GUIDE.md` for end-user training
 - **Schema**: See `shared/schema.ts` for database structure
 - **Calculations**: See `shared/calculations.ts` for scoring logic
 - **Full Install Guide**: See `INSTALLATION.md` for production setup

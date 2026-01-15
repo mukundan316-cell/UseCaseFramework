@@ -53,4 +53,7 @@ npm run dev  # Starts application on port 5000
 - `temp-questionnaire-storage/` - Assessment data with JSON blob storage
 
 ## Documentation
-All technical details and user preferences are maintained in `replit.md`.# RSAInsurancePortal
+- **Technical Details**: `replit.md` - Architecture, data model, deployment guide
+- **User Guide**: `HEXAWARE_USER_GUIDE.md` - End-user training with feature walkthrough
+- **Installation**: `INSTALLATION.md` - Full production deployment guide
+- **Quick Start**: `QUICKSTART.md` - 5-minute setup instructions
