@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
+import ResponsiveTabsListLegoBlock from './ResponsiveTabsListLegoBlock';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '@/contexts/UseCaseContext';
 import { 
@@ -628,13 +629,13 @@ export default function TShirtSizingConfigLegoBlock() {
       <CardContent>
         {config.enabled ? (
           <Tabs defaultValue="sizes" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <ResponsiveTabsListLegoBlock>
               <TabsTrigger value="sizes">Sizes</TabsTrigger>
               <TabsTrigger value="roles">Roles & Rates</TabsTrigger>
               <TabsTrigger value="benefits">Benefits</TabsTrigger>
               <TabsTrigger value="rules">Mapping Rules</TabsTrigger>
               <TabsTrigger value="preview">Preview</TabsTrigger>
-            </TabsList>
+            </ResponsiveTabsListLegoBlock>
 
             {/* Size Configuration */}
             <TabsContent value="sizes" className="space-y-4">

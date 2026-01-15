@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
+import ResponsiveTabsListLegoBlock from './ResponsiveTabsListLegoBlock';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -916,7 +917,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             onSubmit(form.getValues() as FormData);
           }} className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <ResponsiveTabsListLegoBlock>
                 <TabsTrigger value="basic" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Basic Information
@@ -940,7 +941,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     Hexaware Framework Assessment
                   </TabsTrigger>
                 )}
-              </TabsList>
+              </ResponsiveTabsListLegoBlock>
 
               {/* Tab 1: Basic Information */}
               <TabsContent value="basic" className="space-y-4 mt-6">
