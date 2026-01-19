@@ -1,6 +1,7 @@
 import React from 'react';
 import EnhancedMatrixPlot from './analytics/EnhancedMatrixPlot';
 import SummaryMetricsLegoBlock from './lego-blocks/SummaryMetricsLegoBlock';
+import TomPhaseBreakdownLegoBlock from './lego-blocks/TomPhaseBreakdownLegoBlock';
 import ReportsTabLegoBlock from './lego-blocks/ReportsTabLegoBlock';
 import ExportButton from './lego-blocks/ExportButton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -31,6 +32,9 @@ export default function DashboardView() {
           />
         </div>
       </div>
+
+      {/* TOM Phase Distribution - only visible when TOM is enabled */}
+      <TomPhaseBreakdownLegoBlock />
       
       {/* Dashboard Tabs */}
       <Tabs defaultValue="matrix" className="space-y-4">

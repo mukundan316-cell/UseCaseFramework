@@ -20,7 +20,8 @@ import { UseCase } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import type { TomConfig } from '@shared/tom';
 import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -116,6 +117,9 @@ const formSchema = z.object({
   presentationUrl: z.string().optional(),
   presentationPdfUrl: z.string().optional(),
   presentationFileName: z.string().optional(),
+  // TOM Phase Override fields
+  tomPhaseOverride: z.string().optional().nullable(),
+  tomOverrideReason: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -138,6 +142,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const sortedMetadata = useSortedMetadata();
+
+  // TOM Configuration query
+  const { data: tomConfig } = useQuery<TomConfig>({
+    queryKey: ['/api/tom/config'],
+  });
+  const isTomEnabled = tomConfig?.enabled === 'true';
+  const tomPhases = tomConfig?.phases || [];
 
   // RSA Portfolio state management
   const [rsaSelection, setRsaSelection] = useState({
@@ -415,6 +426,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         presentationUrl: (useCase as any).presentationUrl || '',
         presentationPdfUrl: (useCase as any).presentationPdfUrl || '',
         presentationFileName: (useCase as any).presentationFileName || '',
+        // TOM Phase Override fields
+        tomPhaseOverride: (useCase as any).tomPhaseOverride || null,
+        tomOverrideReason: (useCase as any).tomOverrideReason || '',
       };
       
       // Update scores state first
@@ -605,7 +619,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         manualQuadrant: data.manualQuadrant,
         // Horizontal Use Case fields
         horizontalUseCase: data.horizontalUseCase || 'false',
-        horizontalUseCaseTypes: data.horizontalUseCaseTypes || []
+        horizontalUseCaseTypes: data.horizontalUseCaseTypes || [],
+        // TOM Phase Override fields - preserve null for auto-derivation
+        tomPhaseOverride: data.tomPhaseOverride || null,
+        tomOverrideReason: data.tomOverrideReason || ''
       };
       
       
@@ -636,6 +653,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           manualEffortScore: (useCase as any).manualEffortScore,
           manualQuadrant: (useCase as any).manualQuadrant,
           overrideReason: (useCase as any).overrideReason,
+          // TOM Phase Override fields
+          tomPhaseOverride: (useCase as any).tomPhaseOverride,
+          tomOverrideReason: (useCase as any).tomOverrideReason,
         };
         
         // For now, send all data to avoid change detection issues
@@ -1178,6 +1198,51 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       </Select>
                     </div>
                   </div>
+                  
+                  {/* TOM Phase Override - only visible when TOM is enabled */}
+                  {isTomEnabled && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg border border-dashed">
+                      <div>
+                        <Label className="text-sm font-semibold flex items-center gap-2">
+                          TOM Phase Override
+                          <span className="text-xs font-normal text-muted-foreground">(Optional)</span>
+                        </Label>
+                        <Select 
+                          value={form.watch('tomPhaseOverride') || ''} 
+                          onValueChange={(value) => form.setValue('tomPhaseOverride', value === '' ? null : value)}
+                        >
+                          <SelectTrigger className="mt-1" data-testid="select-tom-phase-override">
+                            <SelectValue placeholder="Auto-derive from status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Auto-derive from status</SelectItem>
+                            {tomPhases.map(phase => (
+                              <SelectItem key={phase.id} value={phase.id}>
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-2 h-2 rounded-full" 
+                                    style={{ backgroundColor: phase.color }}
+                                  />
+                                  {phase.name}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="tomOverrideReason" className="text-sm font-semibold">Override Reason</Label>
+                        <Input
+                          id="tomOverrideReason"
+                          placeholder="Why is manual phase assignment needed?"
+                          className="mt-1"
+                          disabled={!form.watch('tomPhaseOverride')}
+                          {...form.register('tomOverrideReason')}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="keyDependencies" className="text-sm font-semibold">Key Dependencies</Label>
