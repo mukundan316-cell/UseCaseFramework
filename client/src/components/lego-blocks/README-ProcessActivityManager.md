@@ -1,7 +1,7 @@
 # Process Activity Manager LEGO Block
 
 ## Overview
-The ProcessActivityManager is a reusable LEGO component that centralizes process-activity relationship management across the RSA AI Framework application. It eliminates duplication by storing mappings in the database metadata and provides consistent contextual filtering anywhere in the app.
+The ProcessActivityManager is a reusable LEGO component that centralizes process-activity relationship management across the Hexaware AI Framework application. It eliminates duplication by storing mappings in the database metadata and provides consistent contextual filtering anywhere in the app.
 
 ## Key Components
 
