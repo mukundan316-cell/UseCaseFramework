@@ -1216,22 +1216,22 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                   
                   {/* TOM Phase Override - only visible when TOM is enabled */}
-                  {isTomEnabled && (
+                  {isTomEnabled && tomConfig && (
                     <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-dashed">
-                      {/* Current Derived Phase Badge */}
-                      {currentDerivedPhase && (
+                      {/* Current Derived Phase Badge - with defensive guards */}
+                      {currentDerivedPhase?.id && currentDerivedPhase.id !== 'disabled' && (
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-muted-foreground">Current TOM Phase:</span>
                           <Badge 
                             style={{ 
-                              backgroundColor: currentDerivedPhase.color,
+                              backgroundColor: currentDerivedPhase?.color ?? '#6B7280',
                               color: 'white'
                             }}
                             className="no-default-hover-elevate no-default-active-elevate"
                             data-testid="badge-current-tom-phase"
                           >
-                            {currentDerivedPhase.name}
-                            {currentDerivedPhase.isOverride && ' (Override)'}
+                            {currentDerivedPhase?.name ?? 'Loading...'}
+                            {currentDerivedPhase?.isOverride === true && ' (Override)'}
                           </Badge>
                         </div>
                       )}
