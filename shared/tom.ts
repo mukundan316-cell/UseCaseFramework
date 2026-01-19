@@ -44,7 +44,7 @@ export interface DerivedPhaseResult {
   name: string;
   color: string;
   isOverride: boolean;
-  matchedBy?: 'status' | 'deployment' | 'priority' | 'manual';
+  matchedBy: 'status' | 'deployment' | 'priority' | 'manual' | 'disabled' | 'unmapped';
 }
 
 export const DEFAULT_TOM_CONFIG: TomConfig = {
@@ -144,7 +144,7 @@ export function derivePhase(
   tomConfig: TomConfig
 ): DerivedPhaseResult {
   if (!tomConfig || tomConfig.enabled !== 'true') {
-    return { id: 'disabled', name: 'TOM Disabled', color: '#6B7280', isOverride: false };
+    return { id: 'disabled', name: 'TOM Disabled', color: '#6B7280', isOverride: false, matchedBy: 'disabled' };
   }
 
   if (tomPhaseOverride) {
@@ -169,7 +169,7 @@ export function derivePhase(
   }
 
   if (matchingPhases.length === 0) {
-    return { id: 'unmapped', name: 'Unmapped', color: '#9CA3AF', isOverride: false };
+    return { id: 'unmapped', name: 'Unmapped', color: '#9CA3AF', isOverride: false, matchedBy: 'unmapped' };
   }
 
   if (matchingPhases.length === 1) {
