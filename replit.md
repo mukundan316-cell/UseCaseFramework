@@ -290,6 +290,21 @@ Monitor:
 - **Multi-dimensional Metadata**: Array fields for processes, activities, business segments, geographies
 - **Horizontal Use Case Tracking**: Cross-functional use case identification and categorization
 
+## Strategic Assets (attached_assets/)
+
+Reference documents retained for platform development:
+
+| File | Purpose |
+|------|---------|
+| `AI-Scale-Operating-Platform-Blueprint.txt` | Unified framework blueprint for multi-tab AI@Scale platform |
+| `AI-Scale-Operating-Platform-Strategic-Vision.txt` | Strategic reframe addressing 9 Markel client topics |
+| `Value-Realization-Architectural-Plan.txt` | Value realization module schema and LEGO component plan |
+| `Hexaware-Brand-Guidelines.pdf` | Official Hexaware brand colors, typography, logo usage |
+| `AI-Tool-Inventory-Source-Data.xlsx` | Source data for 46 AI Inventory use cases |
+| `Quadrant-Scoring-Methodology.docx` | 10-lever scoring methodology documentation |
+
+**Note:** Legacy screenshots, duplicate exports, and conversation artifacts were cleaned (Jan 2025) - reduced from 545+ files to 6 critical assets.
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion
