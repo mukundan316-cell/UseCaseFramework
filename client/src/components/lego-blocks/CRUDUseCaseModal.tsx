@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -21,7 +22,7 @@ import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import type { TomConfig } from '@shared/tom';
+import { derivePhase, type TomConfig } from '@shared/tom';
 import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -217,6 +218,21 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       ...scores,
     },
   });
+
+  // Compute derived TOM phase based on current form values (for live preview)
+  const watchedStatus = form.watch('useCaseStatus');
+  const watchedDeploymentStatus = form.watch('deploymentStatus');
+  const watchedTomOverride = form.watch('tomPhaseOverride');
+  
+  const currentDerivedPhase = React.useMemo(() => {
+    if (!isTomEnabled || !tomConfig) return null;
+    return derivePhase(
+      watchedStatus || null,
+      watchedDeploymentStatus || null,
+      watchedTomOverride || null,
+      tomConfig
+    );
+  }, [isTomEnabled, tomConfig, watchedStatus, watchedDeploymentStatus, watchedTomOverride]);
 
   const handleSliderChange = (field: keyof typeof scores, value: number) => {
     const newScores = { ...scores, [field]: value };
@@ -1201,7 +1217,26 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   
                   {/* TOM Phase Override - only visible when TOM is enabled */}
                   {isTomEnabled && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg border border-dashed">
+                    <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-dashed">
+                      {/* Current Derived Phase Badge */}
+                      {currentDerivedPhase && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">Current TOM Phase:</span>
+                          <Badge 
+                            style={{ 
+                              backgroundColor: currentDerivedPhase.color,
+                              color: 'white'
+                            }}
+                            className="no-default-hover-elevate no-default-active-elevate"
+                            data-testid="badge-current-tom-phase"
+                          >
+                            {currentDerivedPhase.name}
+                            {currentDerivedPhase.isOverride && ' (Override)'}
+                          </Badge>
+                        </div>
+                      )}
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label className="text-sm font-semibold flex items-center gap-2">
                           TOM Phase Override
@@ -1239,6 +1274,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                           disabled={!form.watch('tomPhaseOverride')}
                           {...form.register('tomOverrideReason')}
                         />
+                      </div>
                       </div>
                     </div>
                   )}
