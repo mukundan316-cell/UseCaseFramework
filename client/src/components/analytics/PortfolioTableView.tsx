@@ -15,6 +15,17 @@ import { UseCase } from '../../types';
 import { useQuery } from '@tanstack/react-query';
 import type { TomConfig } from '@shared/tom';
 
+// Safe color utility with fallback
+const getSafePhaseColor = (color: string | undefined): string => {
+  if (!color) return '#6B7280';
+  if (/^#([0-9A-Fa-f]{3}){1,2}$/.test(color) || 
+      /^rgb\(/.test(color) || 
+      /^[a-z]+$/i.test(color)) {
+    return color;
+  }
+  return '#6B7280';
+};
+
 interface PortfolioTableViewProps {
   useCases: UseCase[];
   metadata: any;
@@ -737,7 +748,7 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
                           <Badge 
                             variant="secondary"
                             className="text-xs text-white"
-                            style={{ backgroundColor: derivedPhase.color }}
+                            style={{ backgroundColor: getSafePhaseColor(derivedPhase.color) }}
                           >
                             {derivedPhase.name}
                           </Badge>

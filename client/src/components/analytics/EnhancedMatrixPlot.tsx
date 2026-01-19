@@ -35,10 +35,23 @@ export default function EnhancedMatrixPlot() {
   const [selectedTomPhase, setSelectedTomPhase] = useState<string | null>(null);
 
   // Fetch TOM config for phase filter
-  const { data: tomConfig } = useQuery<TomConfig>({
+  const { data: tomConfig, isError: tomConfigError } = useQuery<TomConfig>({
     queryKey: ['/api/tom/config'],
   });
-  const showTomFilter = tomConfig?.enabled === 'true';
+  
+  // Safe color utility with fallback
+  const getSafePhaseColor = (color: string | undefined): string => {
+    if (!color) return '#6B7280';
+    if (/^#([0-9A-Fa-f]{3}){1,2}$/.test(color) || 
+        /^rgb\(/.test(color) || 
+        /^[a-z]+$/i.test(color)) {
+      return color;
+    }
+    return '#6B7280';
+  };
+  
+  // Only show TOM filter when config is loaded and valid
+  const showTomFilter = tomConfig?.enabled === 'true' && !tomConfigError && tomConfig?.phases?.length > 0;
 
   // Dynamic bubble sizing based on business impact (Hexaware scoring alignment)
   function calculateBubbleSize(impactScore: number): number {
@@ -423,7 +436,7 @@ export default function EnhancedMatrixPlot() {
                         <div className="flex items-center gap-2">
                           <div 
                             className="w-2 h-2 rounded-full" 
-                            style={{ backgroundColor: phase.color }}
+                            style={{ backgroundColor: getSafePhaseColor(phase.color) }}
                           />
                           {phase.name}
                         </div>

@@ -67,9 +67,23 @@ export default function UseCaseExplorerLegoBlock({
   });
 
   // Fetch TOM config for phase filter options
-  const { data: tomConfig } = useQuery<TomConfig>({
+  const { data: tomConfig, isError: tomConfigError } = useQuery<TomConfig>({
     queryKey: ['/api/tom/config'],
   });
+
+  // Safe color utility with fallback
+  const getSafePhaseColor = (color: string | undefined): string => {
+    if (!color) return '#6B7280';
+    if (/^#([0-9A-Fa-f]{3}){1,2}$/.test(color) || 
+        /^rgb\(/.test(color) || 
+        /^[a-z]+$/i.test(color)) {
+      return color;
+    }
+    return '#6B7280';
+  };
+
+  // Only show TOM filter when config is loaded and valid
+  const showTomFilter = tomConfig?.enabled === 'true' && !tomConfigError && tomConfig?.phases?.length > 0;
 
   // Simple filtering with dropdown selects
   const filteredUseCases = useCases.filter((useCase) => {
@@ -362,7 +376,7 @@ export default function UseCaseExplorerLegoBlock({
         </Select>
 
         {/* TOM Phase filter - Show when TOM is enabled */}
-        {tomConfig?.enabled === 'true' && (
+        {showTomFilter && (
           <Select
             value={filters.tomPhase || "all"}
             onValueChange={(value) => setFilters(prev => ({ ...prev, tomPhase: value === 'all' ? '' : value }))}
@@ -373,12 +387,12 @@ export default function UseCaseExplorerLegoBlock({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All TOM Phases</SelectItem>
-              {tomConfig.phases.map((phase) => (
+              {tomConfig?.phases.map((phase) => (
                 <SelectItem key={phase.id} value={phase.id}>
                   <div className="flex items-center gap-2">
                     <div 
                       className="w-2 h-2 rounded-full" 
-                      style={{ backgroundColor: phase.color }}
+                      style={{ backgroundColor: getSafePhaseColor(phase.color) }}
                     />
                     {phase.name}
                   </div>
