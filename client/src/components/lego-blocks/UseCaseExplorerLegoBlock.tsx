@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus, Edit, Trash2, Library, Package, Tag, CheckCircle, Circle, BarChart3 } from 'lucide-react';
+import { Search, Filter, Plus, Edit, Trash2, Library, Package, Tag, CheckCircle, Circle, BarChart3, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-// Badge import removed - using simple text spans instead
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calculations';
 import CRUDUseCaseModal from './CRUDUseCaseModal';
 import { UseCase } from '../../types';
 import { useToast } from '@/hooks/use-toast';
 import { useSortedMetadata } from '../../hooks/useSortedMetadata';
+import { useQuery } from '@tanstack/react-query';
+import type { TomConfig } from '@shared/tom';
 
 interface UseCaseExplorerLegoBlockProps {
   useCases: UseCase[];
@@ -61,7 +62,13 @@ export default function UseCaseExplorerLegoBlock({
     businessSegment: '',
     geography: '',
     useCaseType: '',
-    quadrant: ''
+    quadrant: '',
+    tomPhase: ''
+  });
+
+  // Fetch TOM config for phase filter options
+  const { data: tomConfig } = useQuery<TomConfig>({
+    queryKey: ['/api/tom/config'],
   });
 
   // Simple filtering with dropdown selects
@@ -87,6 +94,12 @@ export default function UseCaseExplorerLegoBlock({
     if (filters.geography && useCase.geography !== filters.geography) return false;
     if (filters.useCaseType && useCase.useCaseType !== filters.useCaseType) return false;
     if (filters.quadrant && useCase.quadrant !== filters.quadrant) return false;
+
+    // TOM Phase filter - filter by derived phase
+    if (filters.tomPhase) {
+      const derivedPhase = (useCase as any).derivedPhase;
+      if (!derivedPhase || derivedPhase.id !== filters.tomPhase) return false;
+    }
 
     return true;
   });
@@ -347,6 +360,33 @@ export default function UseCaseExplorerLegoBlock({
             ))}
           </SelectContent>
         </Select>
+
+        {/* TOM Phase filter - Show when TOM is enabled */}
+        {tomConfig?.enabled === 'true' && (
+          <Select
+            value={filters.tomPhase || "all"}
+            onValueChange={(value) => setFilters(prev => ({ ...prev, tomPhase: value === 'all' ? '' : value }))}
+          >
+            <SelectTrigger className="gap-1" data-testid="filter-tom-phase">
+              <Target className="h-3.5 w-3.5 text-indigo-600" />
+              <SelectValue placeholder="All TOM Phases" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All TOM Phases</SelectItem>
+              {tomConfig.phases.map((phase) => (
+                <SelectItem key={phase.id} value={phase.id}>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-2 h-2 rounded-full" 
+                      style={{ backgroundColor: phase.color }}
+                    />
+                    {phase.name}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         </div>
         

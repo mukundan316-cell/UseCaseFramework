@@ -12,6 +12,8 @@ import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore 
 import { calculateTShirtSize, calculateAnnualBenefitRange } from '@shared/calculations';
 import { formatScore } from '@shared/utils/scoreFormatting';
 import { UseCase } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import type { TomConfig } from '@shared/tom';
 
 interface PortfolioTableViewProps {
   useCases: UseCase[];
@@ -49,6 +51,12 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
   const [dialogContent, setDialogContent] = useState<{type: string; title: string; content: string}>({
     type: '', title: '', content: ''
   });
+
+  // Fetch TOM config to show TOM Phase column when enabled
+  const { data: tomConfig } = useQuery<TomConfig>({
+    queryKey: ['/api/tom/config'],
+  });
+  const showTomPhase = tomConfig?.enabled === 'true';
 
   // Listen for clear filters event from parent component
   useEffect(() => {
@@ -621,6 +629,14 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
                     {getSortIcon('quadrant')}
                   </Button>
                 </th>
+                {showTomPhase && (
+                  <th className="text-center p-3 font-semibold">
+                    <div className="flex items-center gap-1 justify-center">
+                      <Target className="h-4 w-4 text-indigo-600" />
+                      TOM Phase
+                    </div>
+                  </th>
+                )}
                 <th className="text-center p-3 font-semibold">Actions</th>
               </tr>
             </thead>
@@ -710,6 +726,25 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
                       {row.quadrant}
                     </Badge>
                   </td>
+                  {showTomPhase && (
+                    <td className="p-3 text-center">
+                      {(() => {
+                        const derivedPhase = (row.useCase as any).derivedPhase;
+                        if (!derivedPhase || derivedPhase.id === 'disabled' || derivedPhase.id === 'unmapped') {
+                          return <span className="text-xs text-gray-400">—</span>;
+                        }
+                        return (
+                          <Badge 
+                            variant="secondary"
+                            className="text-xs text-white"
+                            style={{ backgroundColor: derivedPhase.color }}
+                          >
+                            {derivedPhase.name}
+                          </Badge>
+                        );
+                      })()}
+                    </td>
+                  )}
                   <td className="p-3 text-center">
                     {onViewUseCase && (
                       <Button

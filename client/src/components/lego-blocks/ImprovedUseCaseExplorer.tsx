@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, Download, FolderOpen, Building2 } from 'lucide-react';
+import { Search, Filter, Plus, Download, FolderOpen, Building2, Target } from 'lucide-react';
 import ExportButton from './ExportButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import SourceLegend from './SourceLegend';
 import UseCaseDetailDrawer from './UseCaseDetailDrawer';
 import { getSourceConfig } from '../../utils/sourceColors';
 import { useSortedMetadata } from '../../hooks/useSortedMetadata';
+import { useQuery } from '@tanstack/react-query';
+import type { TomConfig } from '@shared/tom';
 
 interface ImprovedUseCaseExplorerProps {
   useCases: UseCase[];
@@ -101,7 +103,14 @@ export default function ImprovedUseCaseExplorer({
     librarySource: '', // New filter for source differentiation
     // AI Inventory specific filters
     aiInventoryStatus: '',
-    deploymentStatus: ''
+    deploymentStatus: '',
+    // TOM Phase filter
+    tomPhase: ''
+  });
+
+  // Fetch TOM config for phase filter options
+  const { data: tomConfig } = useQuery<TomConfig>({
+    queryKey: ['/api/tom/config'],
   });
 
   // Filter use cases with tab-aware logic
@@ -158,6 +167,12 @@ export default function ImprovedUseCaseExplorer({
     }
     
     if (filters.librarySource && (useCase as any).librarySource !== filters.librarySource) return false;
+
+    // TOM Phase filter - filter by derived phase
+    if (filters.tomPhase) {
+      const derivedPhase = (useCase as any).derivedPhase;
+      if (!derivedPhase || derivedPhase.id !== filters.tomPhase) return false;
+    }
 
     return true;
   });
@@ -531,6 +546,30 @@ export default function ImprovedUseCaseExplorer({
                   </SelectItem>
                 );
               })}
+            </SelectContent>
+          </Select>
+        )}
+
+        {/* TOM Phase filter - Show when TOM is enabled */}
+        {tomConfig?.enabled === 'true' && (
+          <Select value={filters.tomPhase || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, tomPhase: value === 'all' ? '' : value }))}>
+            <SelectTrigger className="gap-1" data-testid="filter-tom-phase">
+              <Target className="h-3.5 w-3.5 text-indigo-600" />
+              <SelectValue placeholder="All TOM Phases" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All TOM Phases</SelectItem>
+              {tomConfig.phases.map((phase) => (
+                <SelectItem key={phase.id} value={phase.id}>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-2 h-2 rounded-full" 
+                      style={{ backgroundColor: phase.color }}
+                    />
+                    {phase.name}
+                  </div>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         )}

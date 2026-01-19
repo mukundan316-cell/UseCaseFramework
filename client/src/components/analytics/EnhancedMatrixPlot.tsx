@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
   ReferenceLine, Cell, LabelList
@@ -17,6 +18,8 @@ import { APP_CONFIG } from '@shared/constants/app-config';
 import { calculateTShirtSize } from '@shared/calculations';
 import { isScoreAboveThreshold, isScoreBelowOrEqualThreshold, formatScore } from '@shared/utils/scoreFormatting';
 import PortfolioTableView from './PortfolioTableView';
+import { useQuery } from '@tanstack/react-query';
+import type { TomConfig } from '@shared/tom';
 
 /**
  * Enhanced Matrix Plot for Executive Dashboard
@@ -29,6 +32,13 @@ export default function EnhancedMatrixPlot() {
   const [showLabels, setShowLabels] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [viewMode, setViewMode] = useState<'matrix' | 'table'>('matrix');
+  const [selectedTomPhase, setSelectedTomPhase] = useState<string | null>(null);
+
+  // Fetch TOM config for phase filter
+  const { data: tomConfig } = useQuery<TomConfig>({
+    queryKey: ['/api/tom/config'],
+  });
+  const showTomFilter = tomConfig?.enabled === 'true';
 
   // Dynamic bubble sizing based on business impact (Hexaware scoring alignment)
   function calculateBubbleSize(impactScore: number): number {
@@ -50,10 +60,19 @@ export default function EnhancedMatrixPlot() {
     return finalSize;
   }
 
+  // Filter use cases by TOM phase if selected
+  const filteredDashboardUseCases = useMemo(() => {
+    if (!selectedTomPhase) return dashboardUseCases;
+    return dashboardUseCases.filter(useCase => {
+      const derivedPhase = (useCase as any).derivedPhase;
+      return derivedPhase && derivedPhase.id === selectedTomPhase;
+    });
+  }, [dashboardUseCases, selectedTomPhase]);
+
   // Enhanced chart data with authentic database values (LEGO principle: reusable configuration)
   // useMemo to ensure proper recalculation when dashboardUseCases change
   const chartData = React.useMemo(() => {
-    return dashboardUseCases.map(useCase => {
+    return filteredDashboardUseCases.map(useCase => {
       const effectiveQuadrant = getEffectiveQuadrant(useCase as any);
       const effectiveImpact = getEffectiveImpactScore(useCase as any);
       const effectiveEffort = getEffectiveEffortScore(useCase as any);
@@ -82,7 +101,7 @@ export default function EnhancedMatrixPlot() {
         effort: effectiveEffort
       };
     });
-  }, [dashboardUseCases]);
+  }, [filteredDashboardUseCases]);
 
   // LEGO principle: Centralized configuration for consistent styling
   function getQuadrantColor(quadrant: string): string {
@@ -386,6 +405,33 @@ export default function EnhancedMatrixPlot() {
                   Table
                 </Button>
               </div>
+
+              {/* TOM Phase Filter - Show when TOM is enabled */}
+              {showTomFilter && (
+                <Select 
+                  value={selectedTomPhase || 'all'} 
+                  onValueChange={(value) => setSelectedTomPhase(value === 'all' ? null : value)}
+                >
+                  <SelectTrigger className="w-40 bg-white/10 border-white/20 text-white" data-testid="filter-tom-phase-portfolio">
+                    <Target className="h-3.5 w-3.5 mr-1 text-indigo-300" />
+                    <SelectValue placeholder="All Phases" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All TOM Phases</SelectItem>
+                    {tomConfig?.phases.map((phase) => (
+                      <SelectItem key={phase.id} value={phase.id}>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-2 h-2 rounded-full" 
+                            style={{ backgroundColor: phase.color }}
+                          />
+                          {phase.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               
               {/* Unified Actions for both views */}
               <Button
@@ -414,6 +460,7 @@ export default function EnhancedMatrixPlot() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
+                  setSelectedTomPhase(null);
                   if (viewMode === 'matrix') {
                     setSelectedQuadrant(null);
                   } else {
@@ -434,7 +481,7 @@ export default function EnhancedMatrixPlot() {
         <CardContent className="p-8">
           {viewMode === 'table' ? (
             <PortfolioTableView 
-              useCases={dashboardUseCases} 
+              useCases={filteredDashboardUseCases} 
               metadata={metadata}
               showDetails={showLabels}
             />
