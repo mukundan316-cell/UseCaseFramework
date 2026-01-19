@@ -1271,14 +1271,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                           <span className="text-xs font-normal text-muted-foreground">(Optional)</span>
                         </Label>
                         <Select 
-                          value={form.watch('tomPhaseOverride') || ''} 
-                          onValueChange={(value) => form.setValue('tomPhaseOverride', value === '' ? null : value)}
+                          value={form.watch('tomPhaseOverride') || '_auto'} 
+                          onValueChange={(value) => form.setValue('tomPhaseOverride', value === '_auto' ? null : value)}
                         >
                           <SelectTrigger className="mt-1" data-testid="select-tom-phase-override">
                             <SelectValue placeholder="Auto-derive from status" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Auto-derive from status</SelectItem>
+                            <SelectItem value="_auto">Auto-derive from status</SelectItem>
                             {tomPhases.map(phase => (
                               <SelectItem key={phase.id} value={phase.id}>
                                 <div className="flex items-center gap-2">
