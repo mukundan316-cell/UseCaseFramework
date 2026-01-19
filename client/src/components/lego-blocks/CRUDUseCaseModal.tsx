@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen } from 'lucide-react';
+import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import { ScoreDropdownLegoBlock } from './ScoreDropdownLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
@@ -922,6 +922,34 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             {mode === 'edit' ? 'Update the use case details and scoring' : 'Define a new AI use case with Hexaware framework scoring'}
           </DialogDescription>
         </DialogHeader>
+
+        {/* TOM Phase Badge - Shows derived phase when TOM is enabled */}
+        {isTomEnabled && currentDerivedPhase && mode === 'edit' && (
+          <div className="flex items-center gap-2 px-1 py-2 mb-2 bg-slate-50 dark:bg-slate-900 rounded-lg border">
+            <Target className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">TOM Phase:</span>
+            <Badge 
+              style={{ 
+                backgroundColor: currentDerivedPhase.color,
+                color: 'white'
+              }}
+              className="text-xs"
+              data-testid="badge-tom-phase"
+            >
+              {currentDerivedPhase.name}
+            </Badge>
+            {currentDerivedPhase.isOverride && (
+              <Badge variant="outline" className="text-xs" data-testid="badge-tom-manual">
+                Manual
+              </Badge>
+            )}
+            {currentDerivedPhase.matchedBy && !currentDerivedPhase.isOverride && (
+              <span className="text-xs text-muted-foreground">
+                (derived from {currentDerivedPhase.matchedBy})
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Form Requirements Guide */}
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">

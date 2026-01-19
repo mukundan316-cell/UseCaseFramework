@@ -117,6 +117,66 @@ Admin authentication.
 **Fields**:
 - `id` (uuid, PK), `username` (unique), `password` (hashed)
 
+## Target Operating Model (TOM) Feature
+
+### Overview
+TOM provides a configurable operating model layer that maps use cases to lifecycle phases based on their status and deployment state. It supports four operating model presets (Centralized CoE, Federated Model, Hybrid Model, CoE-Led with Business Pods) and automatically derives phases from use case status.
+
+### Configuration (metadata_config.tomConfig)
+- `enabled`: String boolean ('true'/'false') to toggle TOM features
+- `activePreset`: One of 'centralized', 'federated', 'hybrid', 'coe_led'
+- `presets`: Operating model templates with name and description
+- `phases`: Array of phase definitions with status/deployment mappings
+- `governanceBodies`: Governance body definitions (AI SteerCo, Working Group, Business Owner Review)
+- `derivationRules`: Logic for phase matching (matchOrder, fallbackBehavior, nullDeploymentHandling)
+
+### Phase Definitions
+| Phase | Color | Mapped Statuses | Mapped Deployments | Manual Only |
+|-------|-------|-----------------|-------------------|-------------|
+| Foundation | #3C2CDA | Discovery, Backlog, On Hold | - | No |
+| Strategic | #1D86FF | In-flight | PoC, Pilot | No |
+| Transition | #14CBDE | Implemented | Production | No |
+| Steady State | #07125E | - | - | Yes |
+
+### Phase Derivation Logic
+1. Check `tomPhaseOverride` (manual assignment takes precedence)
+2. Match `useCaseStatus` against phase.mappedStatuses
+3. If multiple matches, use `deploymentStatus` as tiebreaker
+4. If still ambiguous, use lowest priority number
+5. Steady State is manual-only (never auto-derived)
+
+### use_cases TOM Fields
+- `tomPhaseOverride` (text, nullable): Manual phase assignment
+- `phaseEnteredAt` (timestamp): When use case entered current phase (auto-updated on phase changes)
+- `tomOverrideReason` (text): Reason for manual override
+
+### API Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| /api/tom/config | GET | Retrieve TOM configuration |
+| /api/tom/config | PUT | Update TOM configuration |
+| /api/tom/phase-summary | GET | Get use case counts per phase |
+| /api/tom/seed-default | POST | Reset to default TOM configuration |
+
+### UI Components
+- **TomConfigurationLegoBlock**: Admin panel for TOM setup (enable/disable, preset selection, phase viewing)
+- **TomPhaseBreakdownLegoBlock**: Dashboard widget showing phase distribution
+- **TOM Phase Badge**: Use case modal indicator showing derived phase with color
+
+### Derived Phase Response
+When TOM is enabled, GET /api/use-cases returns `derivedPhase` for each use case:
+```json
+{
+  "derivedPhase": {
+    "id": "foundation",
+    "name": "Foundation",
+    "color": "#3C2CDA",
+    "isOverride": false,
+    "matchedBy": "status"
+  }
+}
+```
+
 ## Deployment Guide (External Hosting)
 
 ### Prerequisites
