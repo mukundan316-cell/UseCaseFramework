@@ -5,11 +5,12 @@ import { insertUseCaseSchema } from "@shared/schema";
 import { z } from "zod";
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from "@shared/calculations";
 import { getImpactWeights, getEffortWeights } from "@shared/utils/weightUtils";
-import { mapUseCaseToFrontend } from "@shared/mappers";
+import { mapUseCaseToFrontend, type UseCaseFrontend } from "@shared/mappers";
 import recommendationRoutes from "./routes/recommendations";
 import exportRoutes from "./routes/export.routes";
 import importRoutes from "./routes/import.routes";
 import presentationRoutes from "./routes/presentations";
+import { derivePhase, type TomConfig } from "@shared/tom";
 
 import { questionnaireServiceInstance } from './services/questionnaireService';
 import { db } from './db';
@@ -68,6 +69,39 @@ async function recalculateAllUseCaseScores(scoringModel: any) {
   }
 }
 
+// Helper to enrich use cases with TOM derivedPhase when TOM is enabled
+interface DerivedPhaseInfo {
+  id: string;
+  name: string;
+  color: string;
+  isOverride: boolean;
+  matchedBy?: 'status' | 'deployment' | 'priority' | 'manual';
+}
+
+async function enrichUseCasesWithTomPhase(useCases: UseCaseFrontend[]): Promise<(UseCaseFrontend & { derivedPhase?: DerivedPhaseInfo })[]> {
+  try {
+    const metadata = await storage.getMetadataConfig();
+    const tomConfig = metadata?.tomConfig as TomConfig | undefined;
+    
+    if (!tomConfig || tomConfig.enabled !== 'true') {
+      return useCases;
+    }
+    
+    return useCases.map(uc => ({
+      ...uc,
+      derivedPhase: derivePhase(
+        uc.useCaseStatus || null,
+        uc.deploymentStatus || null,
+        (uc as any).tomPhaseOverride || null,
+        tomConfig
+      ) as DerivedPhaseInfo
+    }));
+  } catch (error) {
+    console.error('Error enriching use cases with TOM phase:', error);
+    return useCases;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   const questionnaireService = questionnaireServiceInstance;
   
@@ -76,7 +110,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const useCases = await storage.getAllUseCases();
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
-      res.json(mappedUseCases);
+      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases);
+      res.json(enrichedUseCases);
     } catch (error) {
       console.error("Error fetching all use cases:", error);
       res.status(500).json({ error: "Failed to fetch use cases" });
@@ -88,7 +123,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const useCases = await storage.getDashboardUseCases();
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
-      res.json(mappedUseCases);
+      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases);
+      res.json(enrichedUseCases);
     } catch (error) {
       console.error("Error fetching dashboard use cases:", error);
       res.status(500).json({ error: "Failed to fetch dashboard use cases" });
@@ -99,7 +135,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const useCases = await storage.getActiveUseCases();
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
-      res.json(mappedUseCases);
+      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases);
+      res.json(enrichedUseCases);
     } catch (error) {
       console.error("Error fetching active use cases:", error);
       res.status(500).json({ error: "Failed to fetch active use cases" });
@@ -110,7 +147,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const useCases = await storage.getReferenceLibraryUseCases();
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
-      res.json(mappedUseCases);
+      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases);
+      res.json(enrichedUseCases);
     } catch (error) {
       console.error("Error fetching reference library use cases:", error);
       res.status(500).json({ error: "Failed to fetch reference library use cases" });
@@ -652,6 +690,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error editing metadata item:", error);
       res.status(500).json({ error: "Failed to edit metadata item" });
+    }
+  });
+
+  // TOM (Target Operating Model) Configuration Routes
+  app.get("/api/tom/config", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      const { DEFAULT_TOM_CONFIG } = await import("@shared/tom");
+      const tomConfig = metadata?.tomConfig || DEFAULT_TOM_CONFIG;
+      res.json(tomConfig);
+    } catch (error) {
+      console.error("Error fetching TOM config:", error);
+      res.status(500).json({ error: "Failed to fetch TOM configuration" });
+    }
+  });
+
+  app.put("/api/tom/config", async (req, res) => {
+    try {
+      const tomConfig = req.body;
+      const currentMetadata = await storage.getMetadataConfig();
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      const updatedMetadata = {
+        ...currentMetadata,
+        tomConfig
+      };
+      const result = await storage.updateMetadataConfig(updatedMetadata);
+      res.json(result?.tomConfig || tomConfig);
+    } catch (error) {
+      console.error("Error updating TOM config:", error);
+      res.status(500).json({ error: "Failed to update TOM configuration" });
+    }
+  });
+
+  app.get("/api/tom/phase-summary", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      const { DEFAULT_TOM_CONFIG, calculatePhaseSummary } = await import("@shared/tom");
+      const tomConfig = metadata?.tomConfig || DEFAULT_TOM_CONFIG;
+      
+      if (tomConfig.enabled !== 'true') {
+        return res.json({ enabled: false, summary: {} });
+      }
+      
+      const useCases = await storage.getAllUseCases();
+      const summary = calculatePhaseSummary(
+        useCases.map(uc => ({
+          useCaseStatus: uc.useCaseStatus,
+          deploymentStatus: uc.deploymentStatus,
+          tomPhaseOverride: uc.tomPhaseOverride
+        })),
+        tomConfig
+      );
+      
+      res.json({ 
+        enabled: true, 
+        summary,
+        phases: tomConfig.phases.map(p => ({
+          id: p.id,
+          name: p.name,
+          color: p.color,
+          count: summary[p.id] || 0
+        }))
+      });
+    } catch (error) {
+      console.error("Error calculating TOM phase summary:", error);
+      res.status(500).json({ error: "Failed to calculate phase summary" });
+    }
+  });
+
+  app.post("/api/tom/seed-default", async (req, res) => {
+    try {
+      const { DEFAULT_TOM_CONFIG } = await import("@shared/tom");
+      const currentMetadata = await storage.getMetadataConfig();
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      const updatedMetadata = {
+        ...currentMetadata,
+        tomConfig: DEFAULT_TOM_CONFIG
+      };
+      const result = await storage.updateMetadataConfig(updatedMetadata);
+      res.json({ 
+        success: true, 
+        message: "Default TOM configuration seeded successfully",
+        tomConfig: result?.tomConfig 
+      });
+    } catch (error) {
+      console.error("Error seeding TOM config:", error);
+      res.status(500).json({ error: "Failed to seed TOM configuration" });
     }
   });
 

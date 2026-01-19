@@ -113,6 +113,10 @@ export const useCases: any = pgTable("use_cases", {
   estimatedWeeksMax: integer("estimated_weeks_max"), // Maximum timeline in weeks
   teamSizeEstimate: text("team_size_estimate"), // e.g., "3-5"
   
+  // TOM (Target Operating Model) Phase Tracking
+  tomPhaseOverride: text("tom_phase_override"), // Manual phase override: 'foundation', 'strategic', 'transition', 'steady_state'
+  phaseEnteredAt: timestamp("phase_entered_at"), // Auto-updated when derived phase changes
+  tomOverrideReason: text("tom_override_reason"), // Reason for manual phase override
   
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -228,6 +232,10 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   presentationPdfUrl: z.union([z.string(), z.null()]).optional(),
   presentationFileName: z.union([z.string(), z.null()]).optional(),
   hasPresentation: z.enum(['true', 'false']).default('false'),
+  
+  // TOM Phase Override fields - allow null for clearing overrides
+  tomPhaseOverride: z.union([z.string(), z.null()]).optional(),
+  tomOverrideReason: z.union([z.string(), z.null()]).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -320,6 +328,39 @@ export const metadataConfig = pgTable('metadata_config', {
   quadrantsSortOrder: jsonb('quadrants_sort_order').$type<Record<string, number>>(),
   // Process-specific activity sort order - nested structure for per-process activity ordering
   processActivitiesSortOrder: jsonb('process_activities_sort_order').$type<Record<string, Record<string, number>>>(),
+  // TOM (Target Operating Model) Configuration
+  tomConfig: jsonb('tom_config').$type<{
+    enabled: string; // 'true' or 'false' per replit.md string boolean pattern
+    activePreset: string;
+    presets: Record<string, {
+      name: string;
+      description: string;
+    }>;
+    phases: Array<{
+      id: string;
+      name: string;
+      description: string;
+      order: number;
+      priority: number;
+      color: string;
+      mappedStatuses: string[];
+      mappedDeployments: string[];
+      manualOnly: boolean;
+      governanceGate: string;
+      expectedDurationWeeks: number | null;
+    }>;
+    governanceBodies: Array<{
+      id: string;
+      name: string;
+      role: string;
+      cadence: string;
+    }>;
+    derivationRules: {
+      matchOrder: string[];
+      fallbackBehavior: string;
+      nullDeploymentHandling: string;
+    };
+  }>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 

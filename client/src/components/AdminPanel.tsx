@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Download, Upload, RotateCcw, Settings, Database, ClipboardList, Workflow } from 'lucide-react';
+import { Download, Upload, RotateCcw, Settings, Database, ClipboardList, Workflow, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DataActionCard from './lego-blocks/DataActionCard';
@@ -17,6 +17,7 @@ import QuestionConfigurationLegoBlock from './lego-blocks/QuestionConfigurationL
 import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
 import LibraryManagementLegoBlock from './lego-blocks/LibraryManagementLegoBlock';
 import ExcelUploadLegoBlock from './lego-blocks/ExcelUploadLegoBlock';
+import TomConfigurationLegoBlock from './lego-blocks/TomConfigurationLegoBlock';
 
 export default function AdminPanel() {
   const { 
@@ -208,7 +209,7 @@ export default function AdminPanel() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="data" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="data" className="flex items-center gap-2">
                 <Database className="h-4 w-4" />
                 Data Management
@@ -220,6 +221,10 @@ export default function AdminPanel() {
               <TabsTrigger value="assessment" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Assessment
+              </TabsTrigger>
+              <TabsTrigger value="tom" className="flex items-center gap-2" data-testid="tab-tom">
+                <Target className="h-4 w-4" />
+                TOM
               </TabsTrigger>
               <TabsTrigger value="system" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
@@ -524,6 +529,19 @@ export default function AdminPanel() {
                   className="w-full"
                 />
               </div>
+            </TabsContent>
+
+            {/* TOM Configuration Tab */}
+            <TabsContent value="tom" className="space-y-6">
+              <div className="text-center py-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Target Operating Model Configuration</h3>
+                <p className="text-sm text-gray-600">
+                  Configure the AI@Scale Operating Platform framework with lifecycle phases, governance bodies, and derivation rules.
+                  This drives use case phase assignments based on status and deployment states.
+                </p>
+              </div>
+              
+              <TomConfigurationLegoBlock />
             </TabsContent>
 
             {/* System Configuration Tab */}
