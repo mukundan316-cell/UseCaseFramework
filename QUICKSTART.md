@@ -19,7 +19,7 @@ npm install
 # Create database
 createdb hexaware_ai_framework
 
-# Restore backup with 127 use cases
+# Restore backup with 126 use cases
 psql -d hexaware_ai_framework < database_backup.sql
 ```
 
@@ -44,8 +44,8 @@ npm run dev
 
 ## What You Get Out of the Box
 
-### 📊 127 Pre-loaded Use Cases
-- Hexaware Internal strategic use cases (50)
+### 📊 126 Pre-loaded Use Cases
+- Hexaware Internal strategic use cases (49)
 - Industry Standard best practices (31)
 - AI Inventory items (46 tools)
 - Complete scoring and metadata
@@ -171,7 +171,7 @@ hexaware-ai-framework/
 │   ├── schema.ts          # Database schema + types
 │   ├── calculations.ts    # Scoring logic
 │   └── constants/         # App configuration
-├── database_backup.sql    # Full DB backup (127 use cases)
+├── database_backup.sql    # Full DB backup (126 use cases)
 ├── .env.example           # Environment template
 ├── INSTALLATION.md        # Detailed deployment guide
 └── package.json           # Dependencies

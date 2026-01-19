@@ -73,7 +73,7 @@ Download and install from: https://www.postgresql.org/download/windows/
 
 ### 4. Restore Database Backup
 
-The repository includes a complete database backup with 127+ use cases and all configuration.
+The repository includes a complete database backup with 126 use cases and all configuration.
 
 ```bash
 # Restore the database backup
@@ -359,7 +359,7 @@ pm2 monit         # Real-time monitoring
 - T-shirt sizing system with UK benchmark costs
 - Excel import/export (multi-worksheet support)
 - PowerPoint presentation integration with PDF conversion
-- AI Inventory governance tracking (127 records)
+- AI Inventory governance tracking (126 records)
 - Assessment questionnaire platform (Survey.js)
 - Executive analytics dashboard
 - Portfolio resource planning
@@ -386,6 +386,6 @@ For issues or questions:
 
 ## Version History
 
-- **v1.0**: Initial release with 127 use cases, T-shirt sizing, executive analytics
+- **v1.0**: Initial release with 126 use cases, T-shirt sizing, executive analytics
 - **v2.0**: Full Hexaware rebranding with HEX_ ID prefixes
 - See Git commit history for detailed changes

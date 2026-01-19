@@ -1,5 +1,5 @@
 # LEGO Block Rationalization Plan
-## RSA AI Use Case Value Framework - Component Consolidation
+## Hexaware AI Use Case Value Framework - Component Consolidation
 
 ### Executive Summary
 Current audit identified 13+ LEGO components with overlapping functionality across scoring, percentages, and configuration. This plan consolidates them into 8 streamlined components while maintaining all existing functionality.

@@ -1,8 +1,8 @@
-# RSA AI Use Case Value Framework - Complete Help Guide
+# Hexaware AI Use Case Value Framework - Complete Help Guide
 
 ## Quick Start Guide
 
-New to the RSA AI Use Case Value Framework? Follow these steps to get started:
+New to the Hexaware AI Use Case Value Framework? Follow these steps to get started:
 
 ### For New Users:
 1. **Understand the Basics**: Review the [10-Lever Scoring Framework](#10-lever-scoring-framework) to understand how use cases are evaluated
@@ -26,13 +26,13 @@ New to the RSA AI Use Case Value Framework? Follow these steps to get started:
 ---
 
 ## Overview
-The RSA AI Use Case Value Framework is a production-ready strategic platform designed to prioritize AI use cases within RSA Insurance. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform streamlines the prioritization process, offers robust data management, and provides clear insights for decision-making, ultimately enhancing RSA's AI strategy and market potential.
+The Hexaware AI Use Case Value Framework is a production-ready strategic platform designed to prioritize AI use cases within Hexaware. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform streamlines the prioritization process, offers robust data management, and provides clear insights for decision-making, ultimately enhancing Hexaware's AI strategy and market potential.
 
 ### Platform Capabilities
 - **10-Lever Scoring Framework**: Sophisticated evaluation across business impact and implementation effort dimensions
 - **Executive Analytics Dashboard**: Interactive matrix plots with quadrant-based ROI analysis
 - **T-shirt Sizing System**: UK benchmark-compliant cost and timeline estimation
-- **AI Inventory Integration**: Full governance tracking with 82 records (25 strategic + 57 AI tools)
+- **AI Inventory Integration**: Full governance tracking with 126 records (49 Hexaware Internal + 31 Industry Standard + 46 AI Inventory)
 - **Assessment Platform**: Multi-section questionnaires with 25+ advanced question types
 - **Manual Override System**: Flexible scoring adjustments with comprehensive audit trails
 - **User Feedback Integration**: Continuous improvement through contextual feedback collection
@@ -554,9 +554,9 @@ const effectiveQuadrant = useCase.manualQuadrant ??
 
 #### Core Governance Fields:
 - **AI or Model Classification**: Distinguishes between AI applications and ML models
-- **Risk Assessments**: Comprehensive customer and RSA-specific risk evaluations
+- **Risk Assessments**: Comprehensive customer and Hexaware-specific risk evaluations
 - **Data Usage Tracking**: Detailed data source and usage documentation
-- **Policy Compliance**: RSA AI Policy Framework adherence tracking
+- **Policy Compliance**: Hexaware AI Policy Framework adherence tracking
 - **Validation Responsibility**: Internal vs third-party validation assignments
 - **Stakeholder Mapping**: Governance structure and informed parties
 
@@ -568,7 +568,7 @@ const effectiveQuadrant = useCase.manualQuadrant ??
 
 ### Governance Workflows:
 1. **Risk Assessment Process**: Systematic evaluation of customer and organizational risks
-2. **Policy Compliance Review**: Regular assessment against RSA AI governance framework
+2. **Policy Compliance Review**: Regular assessment against Hexaware AI governance framework
 3. **Validation Planning**: Internal capability assessment and third-party requirements
 4. **Stakeholder Communication**: Automated notification and reporting workflows
 
@@ -600,7 +600,7 @@ const effectiveQuadrant = useCase.manualQuadrant ??
 
 ### PDF Export Capabilities:
 - **Client-side Generation**: Survey.js-based PDF creation for optimal compatibility
-- **Professional Formatting**: RSA-branded templates with consistent styling
+- **Professional Formatting**: Hexaware-branded templates with consistent styling
 - **Comprehensive Reports**: Full assessment results with recommendations
 - **Executive Summaries**: High-level overview for stakeholder communication
 
@@ -625,7 +625,7 @@ The platform includes a comprehensive feedback collection system that captures u
   "currentTimeline": "12-16 weeks",
   "feedback": "User feedback text",
   "suggestedSize": "S",
-  "userEmail": "user@rsa.com",
+  "userEmail": "user@hexaware.com",
   "timestamp": "2025-01-01T10:00:00Z"
 }
 ```
@@ -793,4 +793,4 @@ UX: {
 
 ---
 
-*This comprehensive guide covers the complete functionality of the RSA AI Use Case Value Framework, including all recent enhancements and best practices. For technical implementation details, refer to the codebase documentation and API specifications.*
+*This comprehensive guide covers the complete functionality of the Hexaware AI Use Case Value Framework, including all recent enhancements and best practices. For technical implementation details, refer to the codebase documentation and API specifications.*
