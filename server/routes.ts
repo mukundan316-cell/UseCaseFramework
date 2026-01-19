@@ -449,9 +449,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
       );
       
+      // Track TOM phase changes if TOM is enabled
+      // First, get old phase before update and TOM config
+      const metadataForTom = await storage.getMetadataConfig();
+      const tomConfig = metadataForTom?.tomConfig as TomConfig | null;
+      
+      let oldDerivedPhaseId: string | null = null;
+      if (tomConfig?.enabled === 'true') {
+        // Get the current use case to calculate old phase
+        const currentUseCaseForPhase = await storage.getAllUseCases().then(cases => 
+          cases.find(c => c.id === id)
+        );
+        if (currentUseCaseForPhase) {
+          // derivePhase expects: (useCaseStatus, deploymentStatus, tomPhaseOverride, tomConfig)
+          const oldPhaseResult = derivePhase(
+            currentUseCaseForPhase.useCaseStatus,
+            currentUseCaseForPhase.deploymentStatus,
+            currentUseCaseForPhase.tomPhaseOverride,
+            tomConfig
+          );
+          oldDerivedPhaseId = oldPhaseResult?.id || null;
+        }
+      }
+      
       const updatedUseCase = await storage.updateUseCase(id, cleanUpdates);
       if (!updatedUseCase) {
         return res.status(404).json({ error: "Use case not found" });
+      }
+      
+      // Check if phase changed and update phaseEnteredAt if so
+      if (tomConfig?.enabled === 'true') {
+        // derivePhase expects: (useCaseStatus, deploymentStatus, tomPhaseOverride, tomConfig)
+        const newPhaseResult = derivePhase(
+          updatedUseCase.useCaseStatus,
+          updatedUseCase.deploymentStatus,
+          updatedUseCase.tomPhaseOverride,
+          tomConfig
+        );
+        const newDerivedPhaseId = newPhaseResult?.id || null;
+        
+        // Only update phaseEnteredAt if phase actually changed
+        if (newDerivedPhaseId !== oldDerivedPhaseId) {
+          await storage.updateUseCase(id, { 
+            phaseEnteredAt: new Date().toISOString()
+          } as any);
+          console.log(`Phase changed for ${id}: ${oldDerivedPhaseId} → ${newDerivedPhaseId}, updated phaseEnteredAt`);
+        }
       }
       
       res.json(mapUseCaseToFrontend(updatedUseCase));
