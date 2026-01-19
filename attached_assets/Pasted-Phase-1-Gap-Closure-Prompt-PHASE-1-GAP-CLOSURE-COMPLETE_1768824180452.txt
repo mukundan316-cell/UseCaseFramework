@@ -1,0 +1,159 @@
+Phase 1 Gap Closure Prompt
+PHASE 1 GAP CLOSURE: COMPLETE TOM IMPLEMENTATION
+
+4 gaps must be fixed before Phase 2. Address in order below.
+
+=== GAP 1: DERIVED TOM PHASE IN USE CASE API ===
+
+Problem: GET /api/use-cases doesn't return derived TOM phase per use case.
+Impact: Lists, tables, and exports can't show which phase each use case is in.
+
+Fix:
+1. In server/routes.ts, modify GET /api/use-cases endpoint
+2. After fetching use cases, call derivePhase() for each
+3. Add derivedTomPhase object to each use case in response:
+
+   {
+     ...existingUseCaseFields,
+     derivedTomPhase: {
+       id: "foundation",
+       name: "Foundation", 
+       color: "#3C2CDA",
+       isOverridden: false  // true if tomPhaseOverride is set
+     }
+   }
+
+4. Only include derivedTomPhase if TOM is enabled (check tomConfig.enabled)
+5. Ensure this doesn't break existing consumers of the API
+
+Test: Call GET /api/use-cases and verify each use case has derivedTomPhase object.
+
+Checkpoint after completing.
+
+=== GAP 2: PHASE ENTERED AT TIMESTAMP TRACKING ===
+
+Problem: phaseEnteredAt is never populated. Phase 2 (Value Realization) needs to know when use cases entered each phase.
+Impact: Can't answer "How long has this been in Strategic phase?"
+
+Fix:
+1. Create helper function in server/routes.ts or shared/tom.ts:
+
+   async function updatePhaseTimestamp(useCaseId, previousStatus, newStatus, previousDeployment, newDeployment) {
+     // Get TOM config
+     // Derive phase from OLD status/deployment
+     // Derive phase from NEW status/deployment
+     // If phases are different:
+     //   UPDATE use_cases SET phaseEnteredAt = NOW() WHERE id = useCaseId
+   }
+
+2. Call this function in:
+   - PUT /api/use-cases/:id (when useCaseStatus or deploymentStatus changes)
+   - PATCH /api/use-cases/:id (if exists)
+   - Any bulk update endpoints
+
+3. Also trigger when tomPhaseOverride is set/changed
+
+4. For existing 126 use cases with NULL phaseEnteredAt:
+   - Create one-time migration/seed that sets phaseEnteredAt = createdAt (or NOW() if no createdAt)
+   - Run this once to backfill historical data
+
+Test: 
+- Change a use case status from "Discovery" to "In-flight"
+- Verify phaseEnteredAt updates
+- Verify phase changes from Foundation to Strategic
+
+Checkpoint after completing.
+
+=== GAP 3: TOM PHASE BADGE IN USE CASE DETAIL VIEW ===
+
+Problem: When viewing a use case, users can't see its derived TOM phase.
+Impact: Users have to go to dashboard to understand where a use case sits in the lifecycle.
+
+Fix:
+1. Identify the use case detail view component (likely in client/src/components/ or a modal)
+2. Add TOM Phase Badge component near the existing status/deployment fields
+3. Badge should show:
+   - Phase name
+   - Phase color (as background or left border)
+   - Small icon or label if overridden (e.g., "Manual" badge)
+   - Tooltip showing: "Derived from status: {status} + deployment: {deployment}" OR "Manually set: {reason}"
+
+4. Only render when TOM is enabled
+5. Reuse existing badge/pill patterns from the codebase
+
+UI Location suggestion (near existing fields):
+┌─────────────────────────────────────────┐
+│ Status: In-flight    Deployment: Pilot  │
+│ TOM Phase: [Strategic] ← new badge      │
+└─────────────────────────────────────────┘
+
+Test: Open any use case detail view with TOM enabled, verify badge displays correct phase.
+
+Checkpoint after completing.
+
+=== GAP 4: DOCUMENT TOM IN REPLIT.MD ===
+
+Problem: TOM feature not documented. Future developers won't understand the feature.
+Impact: Technical debt, onboarding friction.
+
+Fix:
+Add new section to replit.md after the "Data Model" section:
+
+## Target Operating Model (TOM) Feature
+
+### Overview
+TOM provides a configurable operating model layer that maps use cases to lifecycle phases based on their status and deployment state.
+
+### Configuration (metadata_config.tomConfig)
+- `enabled`: String boolean to toggle TOM features
+- `activePreset`: One of centralized, federated, hybrid, coe_led
+- `presets`: Operating model templates (metadata only currently)
+- `phases`: Array of phase definitions with status/deployment mappings
+- `governanceBodies`: Governance body definitions
+- `derivationRules`: Logic for phase matching
+
+### Phase Derivation Logic
+1. Check tomPhaseOverride (manual assignment takes precedence)
+2. Match useCaseStatus against phase.mappedStatuses
+3. If multiple matches, use deploymentStatus as tiebreaker
+4. If still ambiguous, use lowest priority number
+5. Steady State is manual-only (never auto-derived)
+
+### use_cases TOM Fields
+- `tomPhaseOverride`: Manual phase assignment (text, nullable)
+- `phaseEnteredAt`: Timestamp when use case entered current phase
+- `tomOverrideReason`: Reason for manual override
+
+### API Endpoints
+- GET /api/tom/config - Retrieve TOM configuration
+- PUT /api/tom/config - Update TOM configuration
+- GET /api/tom/phase-summary - Get use case counts per phase
+
+### UI Components
+- TomConfigurationLegoBlock: Admin panel for TOM setup
+- TomPhaseBreakdownLegoBlock: Dashboard phase distribution
+- TOM Phase Badge: Use case detail view indicator
+
+Checkpoint after completing.
+
+=== SKIP FOR NOW (OPTIONAL/DEFERRED) ===
+
+These are NOT blocking Phase 2:
+- Phase drag-drop reordering (nice-to-have)
+- Preset-driven behavior changes (future enhancement)
+
+=== VALIDATION BEFORE PHASE 2 ===
+
+Run these checks after all 4 gaps are closed:
+
+□ GET /api/use-cases returns derivedTomPhase for each use case
+□ Changing a use case status updates phaseEnteredAt
+□ All 126 use cases have phaseEnteredAt populated (backfilled)
+□ Use case detail view shows TOM phase badge
+□ replit.md documents TOM feature
+□ Existing functionality still works (quadrants, scoring, T-shirt sizing)
+
+Once all checks pass, report back and we'll proceed to Phase 2 (Value Realization).
+
+Why This Order
+GapWhy This OrderPhase 2 DependencyGap 1: API returns phaseFoundational - everything needs thisValue tracking needs to know which phase to attribute value toGap 2: phaseEnteredAtTracks time-in-phaseValue realization needs "when did this enter phase X" for ROI timingGap 3: UI badgeUser visibilityUsers need to see phase when entering value dataGap 4: DocumentationTech debt closureNot blocking but should be done before adding more features
