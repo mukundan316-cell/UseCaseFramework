@@ -714,6 +714,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Duplicate Detection Routes (Topic 3.4 - Markel 9 Topics)
+  app.post("/api/use-cases/check-duplicates", async (req, res) => {
+    try {
+      const { title, description, excludeId } = req.body;
+      
+      if (!title || !description) {
+        return res.status(400).json({ error: "Title and description are required" });
+      }
+      
+      const similarCases = await storage.findSimilarUseCases(title, description, excludeId);
+      res.json({ 
+        hasDuplicates: similarCases.length > 0,
+        similarCases 
+      });
+    } catch (error) {
+      console.error("Error checking for duplicates:", error);
+      res.status(500).json({ error: "Failed to check for duplicates" });
+    }
+  });
+  
+  app.get("/api/use-cases/potential-duplicates", async (req, res) => {
+    try {
+      const useCases = await storage.getAllUseCases();
+      const potentialDuplicates = useCases.filter(uc => 
+        uc.duplicateStatus === 'potential_duplicate'
+      ).map(uc => mapUseCaseToFrontend(uc));
+      res.json(potentialDuplicates);
+    } catch (error) {
+      console.error("Error getting potential duplicates:", error);
+      res.status(500).json({ error: "Failed to get potential duplicates" });
+    }
+  });
+  
+  app.put("/api/use-cases/:id/resolve-duplicate", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, reviewedBy } = req.body;
+      
+      if (!status || !['confirmed_duplicate', 'reviewed_not_duplicate'].includes(status)) {
+        return res.status(400).json({ error: "Invalid duplicate status" });
+      }
+      
+      const useCase = await storage.resolveDuplicate(id, status, reviewedBy || 'admin');
+      if (!useCase) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      
+      res.json(mapUseCaseToFrontend(useCase));
+    } catch (error) {
+      console.error("Error resolving duplicate:", error);
+      res.status(500).json({ error: "Failed to resolve duplicate" });
+    }
+  });
+  
+  // Audit Trail Routes (Topic 8.2 - Markel 9 Topics)
+  app.get("/api/use-cases/:id/audit-log", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const logs = await storage.getUseCaseChangeLog(id);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error getting audit log:", error);
+      res.status(500).json({ error: "Failed to get audit log" });
+    }
+  });
+  
+  app.get("/api/audit-logs", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      const logs = await storage.getAllChangeLogs(limit);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error getting all audit logs:", error);
+      res.status(500).json({ error: "Failed to get audit logs" });
+    }
+  });
+
   // Metadata routes for database-first compliance
   app.get("/api/metadata", async (req, res) => {
     try {

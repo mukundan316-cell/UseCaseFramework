@@ -1,7 +1,7 @@
 import { 
-  users, useCases, metadataConfig, responseSessions,
+  users, useCases, metadataConfig, responseSessions, useCaseChangeLog,
   type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig,
-  type ResponseSession, type InsertResponseSession
+  type ResponseSession, type InsertResponseSession, type UseCaseChangeLog, type InsertUseCaseChangeLog
 } from "@shared/schema";
 import type { QuestionAnswer } from "@shared/questionnaireTypes";
 import { calculateTShirtSize, getDefaultTShirtSizingConfig, type TShirtSizingConfig } from "@shared/calculations";
@@ -53,6 +53,105 @@ async function generateMeaningfulId(useCase: any): Promise<string> {
   return `${prefix}_${sequence.toString().padStart(3, '0')}`;
 }
 
+// Duplicate Detection Helper (Topic 3.4 - Markel 9 Topics)
+function calculateSimilarity(str1: string, str2: string): number {
+  if (!str1 || !str2) return 0;
+  
+  const s1 = str1.toLowerCase().trim();
+  const s2 = str2.toLowerCase().trim();
+  
+  if (s1 === s2) return 1.0;
+  
+  // Simple word overlap similarity (Jaccard-like)
+  const words1Arr = s1.split(/\s+/).filter(w => w.length > 2);
+  const words2Arr = s2.split(/\s+/).filter(w => w.length > 2);
+  const words2Set = new Set(words2Arr);
+  
+  const intersectionCount = words1Arr.filter(w => words2Set.has(w)).length;
+  const unionCount = new Set(words1Arr.concat(words2Arr)).size;
+  
+  if (unionCount === 0) return 0;
+  
+  return intersectionCount / unionCount;
+}
+
+async function findSimilarUseCases(title: string, description: string, excludeId?: string): Promise<Array<{
+  meaningfulId: string;
+  title: string;
+  similarityScore: number;
+}>> {
+  // Get all use cases to compare
+  const allUseCases = await db.select({
+    id: useCases.id,
+    meaningfulId: useCases.meaningfulId,
+    title: useCases.title,
+    description: useCases.description
+  }).from(useCases);
+  
+  const similarCases: Array<{ meaningfulId: string; title: string; similarityScore: number }> = [];
+  
+  for (const uc of allUseCases) {
+    if (excludeId && uc.id === excludeId) continue;
+    
+    // Calculate combined similarity (title weighted more heavily)
+    const titleSim = calculateSimilarity(title, uc.title);
+    const descSim = calculateSimilarity(description, uc.description);
+    const combinedScore = (titleSim * 0.7) + (descSim * 0.3);
+    
+    // Flag if similarity is above threshold (0.6 = 60% similar)
+    if (combinedScore >= 0.6) {
+      similarCases.push({
+        meaningfulId: uc.meaningfulId || uc.id,
+        title: uc.title,
+        similarityScore: Math.round(combinedScore * 100) / 100
+      });
+    }
+  }
+  
+  // Sort by similarity score descending
+  return similarCases.sort((a, b) => b.similarityScore - a.similarityScore).slice(0, 5);
+}
+
+// Audit Trail Helper (Topic 8.2 - Markel 9 Topics)
+async function logUseCaseChange(
+  useCaseId: string,
+  meaningfulId: string | null,
+  changeType: string,
+  beforeState: Record<string, any> | null,
+  afterState: Record<string, any> | null,
+  actor: string = 'system',
+  changeReason?: string,
+  source: string = 'api'
+): Promise<void> {
+  try {
+    // Calculate which fields changed
+    const changedFields: string[] = [];
+    if (beforeState && afterState) {
+      const allKeys = Array.from(new Set(Object.keys(beforeState).concat(Object.keys(afterState))));
+      for (const key of allKeys) {
+        if (JSON.stringify(beforeState[key]) !== JSON.stringify(afterState[key])) {
+          changedFields.push(key);
+        }
+      }
+    }
+    
+    await db.insert(useCaseChangeLog).values({
+      useCaseId,
+      useCaseMeaningfulId: meaningfulId,
+      changeType,
+      actor,
+      beforeState,
+      afterState,
+      changedFields: changedFields.length > 0 ? changedFields : null,
+      changeReason,
+      source
+    });
+  } catch (error) {
+    console.error('Failed to log use case change:', error);
+    // Don't throw - audit logging failure shouldn't break operations
+  }
+}
+
 // Storage interface with metadata management for database-first compliance
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -90,7 +189,17 @@ export interface IStorage {
   createResponseSession(session: InsertResponseSession): Promise<ResponseSession>;
   updateResponseSession(id: string, updates: Partial<ResponseSession>): Promise<ResponseSession | undefined>;
   
-  // Clean blob-first questionnaire architecture - answers stored in JSON files
+  // Duplicate Detection (Topic 3.4 - Markel 9 Topics)
+  findSimilarUseCases(title: string, description: string, excludeId?: string): Promise<Array<{
+    meaningfulId: string;
+    title: string;
+    similarityScore: number;
+  }>>;
+  resolveDuplicate(id: string, status: 'confirmed_duplicate' | 'reviewed_not_duplicate', reviewedBy: string): Promise<UseCase | undefined>;
+  
+  // Audit Trail (Topic 8.2 - Markel 9 Topics)
+  getUseCaseChangeLog(useCaseId: string): Promise<UseCaseChangeLog[]>;
+  getAllChangeLogs(limit?: number): Promise<UseCaseChangeLog[]>;
 }
 
 /**
@@ -279,10 +388,33 @@ export class DatabaseStorage implements IStorage {
     // Add T-shirt sizing fields to the clean data
     Object.assign(cleanData, tShirtSizing);
     
+    // Check for potential duplicates before creating
+    const similarCases = await findSimilarUseCases(cleanData.title, cleanData.description);
+    if (similarCases.length > 0) {
+      cleanData.duplicateStatus = 'potential_duplicate';
+      cleanData.duplicateSimilarTo = similarCases.map(s => s.meaningfulId);
+      cleanData.duplicateSimilarityScore = similarCases[0].similarityScore;
+    } else {
+      cleanData.duplicateStatus = 'unique';
+    }
+    
     const [useCase] = await db
       .insert(useCases)
       .values(cleanData)
       .returning() as UseCase[];
+    
+    // Log the creation in audit trail
+    await logUseCaseChange(
+      useCase.id,
+      useCase.meaningfulId,
+      'created',
+      null,
+      useCase as Record<string, any>,
+      'system',
+      undefined,
+      'api'
+    );
+    
     return useCase;
   }
 
@@ -359,20 +491,40 @@ export class DatabaseStorage implements IStorage {
       'riskReduction', 'brokerPartnerExperience', 'strategicFit', 'dataReadiness', 'technicalComplexity', 
       'changeImpact', 'modelRisk', 'adoptionReadiness'].some(field => cleanUpdates.hasOwnProperty(field));
     
+    // Get current use case before update for audit trail
+    const [beforeUseCase] = await db.select().from(useCases).where(eq(useCases.id, id));
+    if (!beforeUseCase) return undefined;
+    
     if (shouldRecalculateTShirtSizing) {
-      // Get current use case to retrieve existing scores
-      const [currentUseCase] = await db.select().from(useCases).where(eq(useCases.id, id));
+      // Calculate new T-shirt sizing with updated scores
+      const newImpactScore = cleanUpdates.impactScore ?? beforeUseCase.impactScore;
+      const newEffortScore = cleanUpdates.effortScore ?? beforeUseCase.effortScore;
       
-      if (currentUseCase) {
-        // Calculate new T-shirt sizing with updated scores
-        const newImpactScore = cleanUpdates.impactScore ?? currentUseCase.impactScore;
-        const newEffortScore = cleanUpdates.effortScore ?? currentUseCase.effortScore;
-        
-        const tShirtSizing = await this.calculateTShirtSizingForUseCase(newImpactScore, newEffortScore);
-        
-        // Add T-shirt sizing fields to the updates
-        Object.assign(cleanUpdates, tShirtSizing);
+      const tShirtSizing = await this.calculateTShirtSizingForUseCase(newImpactScore, newEffortScore);
+      
+      // Add T-shirt sizing fields to the updates
+      Object.assign(cleanUpdates, tShirtSizing);
+    }
+    
+    // Check for title/description changes to re-run duplicate detection
+    if (cleanUpdates.title || cleanUpdates.description) {
+      const newTitle = cleanUpdates.title || beforeUseCase.title;
+      const newDesc = cleanUpdates.description || beforeUseCase.description;
+      const similarCases = await findSimilarUseCases(newTitle, newDesc, id);
+      
+      if (similarCases.length > 0 && beforeUseCase.duplicateStatus !== 'reviewed_not_duplicate') {
+        cleanUpdates.duplicateStatus = 'potential_duplicate';
+        cleanUpdates.duplicateSimilarTo = similarCases.map(s => s.meaningfulId);
+        cleanUpdates.duplicateSimilarityScore = similarCases[0].similarityScore;
       }
+    }
+    
+    // Determine change type for audit
+    let changeType = 'updated';
+    if (cleanUpdates.useCaseStatus && cleanUpdates.useCaseStatus !== beforeUseCase.useCaseStatus) {
+      changeType = 'status_change';
+    } else if (cleanUpdates.tomPhase && cleanUpdates.tomPhase !== beforeUseCase.tomPhase) {
+      changeType = 'phase_change';
     }
     
     const [useCase] = await db
@@ -380,12 +532,46 @@ export class DatabaseStorage implements IStorage {
       .set(cleanUpdates)
       .where(eq(useCases.id, id))
       .returning();
+    
+    if (useCase) {
+      // Log the update in audit trail
+      await logUseCaseChange(
+        useCase.id,
+        useCase.meaningfulId,
+        changeType,
+        beforeUseCase as Record<string, any>,
+        useCase as Record<string, any>,
+        'system',
+        cleanUpdates.overrideReason || undefined,
+        'api'
+      );
+    }
+    
     return useCase || undefined;
   }
 
   async deleteUseCase(id: string): Promise<boolean> {
+    // Get use case before deletion for audit trail
+    const [beforeUseCase] = await db.select().from(useCases).where(eq(useCases.id, id));
+    
     const result = await db.delete(useCases).where(eq(useCases.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
+    const deleted = result.rowCount !== null && result.rowCount > 0;
+    
+    if (deleted && beforeUseCase) {
+      // Log the deletion in audit trail
+      await logUseCaseChange(
+        beforeUseCase.id,
+        beforeUseCase.meaningfulId,
+        'deleted',
+        beforeUseCase as Record<string, any>,
+        null,
+        'system',
+        undefined,
+        'api'
+      );
+    }
+    
+    return deleted;
   }
 
   // Two-tier library management methods
@@ -811,6 +997,59 @@ export class DatabaseStorage implements IStorage {
   }
   // Clean blob-first questionnaire architecture
   // All questionnaire data is stored in JSON files
+  
+  // Duplicate Detection Implementation (Topic 3.4)
+  async findSimilarUseCases(title: string, description: string, excludeId?: string): Promise<Array<{
+    meaningfulId: string;
+    title: string;
+    similarityScore: number;
+  }>> {
+    return await findSimilarUseCases(title, description, excludeId);
+  }
+  
+  async resolveDuplicate(id: string, status: 'confirmed_duplicate' | 'reviewed_not_duplicate', reviewedBy: string): Promise<UseCase | undefined> {
+    const [useCase] = await db
+      .update(useCases)
+      .set({
+        duplicateStatus: status,
+        duplicateReviewedAt: new Date(),
+        duplicateReviewedBy: reviewedBy
+      })
+      .where(eq(useCases.id, id))
+      .returning();
+    
+    if (useCase) {
+      await logUseCaseChange(
+        useCase.id,
+        useCase.meaningfulId,
+        'duplicate_resolved',
+        { duplicateStatus: useCase.duplicateStatus },
+        { duplicateStatus: status, reviewedBy },
+        reviewedBy,
+        `Marked as ${status}`,
+        'api'
+      );
+    }
+    
+    return useCase || undefined;
+  }
+  
+  // Audit Trail Implementation (Topic 8.2)
+  async getUseCaseChangeLog(useCaseId: string): Promise<UseCaseChangeLog[]> {
+    const logs = await db.select()
+      .from(useCaseChangeLog)
+      .where(eq(useCaseChangeLog.useCaseId, useCaseId))
+      .orderBy(sql`created_at DESC`);
+    return logs;
+  }
+  
+  async getAllChangeLogs(limit: number = 100): Promise<UseCaseChangeLog[]> {
+    const logs = await db.select()
+      .from(useCaseChangeLog)
+      .orderBy(sql`created_at DESC`)
+      .limit(limit);
+    return logs;
+  }
 }
 
 // Use DatabaseStorage for database-first compliance per REFERENCE.md
