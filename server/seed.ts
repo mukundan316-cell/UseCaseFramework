@@ -159,6 +159,78 @@ async function seedMetadataConfig() {
           hybrid: { name: 'Hybrid Model', description: 'Central platform, distributed execution' },
           coe_led: { name: 'CoE-Led with Business Pods', description: 'CoE leads with embedded business pods' }
         },
+        presetProfiles: {
+          centralized: {
+            phaseOverrides: {
+              foundation: { governanceGate: 'ai_steerco', expectedDurationWeeks: 12 },
+              strategic: { governanceGate: 'ai_steerco', expectedDurationWeeks: 20 },
+              transition: { governanceGate: 'ai_steerco', expectedDurationWeeks: 16 },
+              steady_state: { governanceGate: 'ai_steerco', expectedDurationWeeks: null }
+            },
+            staffingRatios: {
+              foundation: { vendor: 0.9, client: 0.1 },
+              strategic: { vendor: 0.8, client: 0.2 },
+              transition: { vendor: 0.6, client: 0.4 },
+              steady_state: { vendor: 0.2, client: 0.8 }
+            },
+            deliveryTracks: [
+              { id: 'single_track', name: 'Unified Delivery', description: 'All initiatives through central CoE pipeline' }
+            ]
+          },
+          federated: {
+            phaseOverrides: {
+              foundation: { governanceGate: 'working_group', expectedDurationWeeks: 6 },
+              strategic: { governanceGate: 'business_owner', expectedDurationWeeks: 12 },
+              transition: { governanceGate: 'business_owner', expectedDurationWeeks: 8 },
+              steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+            },
+            staffingRatios: {
+              foundation: { vendor: 0.4, client: 0.6 },
+              strategic: { vendor: 0.3, client: 0.7 },
+              transition: { vendor: 0.2, client: 0.8 },
+              steady_state: { vendor: 0.1, client: 0.9 }
+            },
+            deliveryTracks: [
+              { id: 'bu_owned', name: 'Business Unit Owned', description: 'Each business unit manages own AI initiatives' }
+            ]
+          },
+          hybrid: {
+            phaseOverrides: {
+              foundation: { governanceGate: 'working_group', expectedDurationWeeks: 6 },
+              strategic: { governanceGate: 'working_group', expectedDurationWeeks: 14 },
+              transition: { governanceGate: 'business_owner', expectedDurationWeeks: 10 },
+              steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+            },
+            staffingRatios: {
+              foundation: { vendor: 0.6, client: 0.4 },
+              strategic: { vendor: 0.5, client: 0.5 },
+              transition: { vendor: 0.35, client: 0.65 },
+              steady_state: { vendor: 0.15, client: 0.85 }
+            },
+            deliveryTracks: [
+              { id: 'quick_wins', name: 'Quick Wins', description: 'Fast-track high-impact, low-effort initiatives' },
+              { id: 'strategic', name: 'Strategic Initiatives', description: 'Long-term capability building and complex projects' }
+            ]
+          },
+          coe_led: {
+            phaseOverrides: {
+              foundation: { governanceGate: 'ai_steerco', expectedDurationWeeks: 8 },
+              strategic: { governanceGate: 'working_group', expectedDurationWeeks: 16 },
+              transition: { governanceGate: 'business_owner', expectedDurationWeeks: 12 },
+              steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+            },
+            staffingRatios: {
+              foundation: { vendor: 0.7, client: 0.3 },
+              strategic: { vendor: 0.55, client: 0.45 },
+              transition: { vendor: 0.4, client: 0.6 },
+              steady_state: { vendor: 0.2, client: 0.8 }
+            },
+            deliveryTracks: [
+              { id: 'coe_track', name: 'CoE Pipeline', description: 'Primary delivery through CoE with business pod support' },
+              { id: 'pod_track', name: 'Business Pods', description: 'Embedded teams handling domain-specific initiatives' }
+            ]
+          }
+        },
         phases: [
           {
             id: 'foundation', name: 'Foundation',
@@ -346,7 +418,220 @@ async function seedMetadataConfig() {
     } as any);
     
     console.log("✅ Complete metadata configuration seeded - all features now DB-driven");
+    
+    // Seed Markel client configuration with Hybrid preset
+    await seedMarkelClientConfig();
   } catch (error) {
     console.error('Error seeding metadata config:', error);
+  }
+}
+
+/**
+ * Seeds Markel client configuration with Hybrid operating model preset
+ * Demonstrates multi-client TOM support per Topic 5 requirements
+ */
+async function seedMarkelClientConfig() {
+  try {
+    console.log("Creating Markel client configuration with Hybrid TOM preset...");
+    
+    // Check if Markel config already exists
+    const existingMarkel = await db.select().from(metadataConfig).where(eq(metadataConfig.id, 'markel'));
+    if (existingMarkel.length > 0) {
+      console.log("Markel client configuration already exists, skipping...");
+      return;
+    }
+
+    await db.insert(metadataConfig).values({
+      id: 'markel',
+      valueChainComponents: [
+        "Risk Assessment & Underwriting",
+        "Customer Experience & Distribution", 
+        "Claims Management & Settlement",
+        "Risk Consulting & Prevention",
+        "Portfolio Management & Analytics"
+      ],
+      processes: [],
+      activities: [],
+      processActivities: {},
+      linesOfBusiness: ["Specialty Lines", "Professional Liability", "General Liability"],
+      businessSegments: ["SME", "Mid-Market", "Specialty"],
+      geographies: ["UK", "Europe", "North America"],
+      useCaseTypes: ["Analytics & Insights", "Process Automation", "GenAI", "Predictive ML"],
+      sourceTypes: ['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory'],
+      useCaseStatuses: ['Discovery', 'Backlog', 'In-flight', 'Implemented', 'On Hold'],
+      aiMlTechnologies: ['Machine Learning', 'Deep Learning', 'Natural Language Processing', 'Computer Vision', 'Predictive Analytics', 'Large Language Models'],
+      dataSources: ['Policy Database', 'Claims Database', 'Customer Database', 'External APIs', 'Third-party Data'],
+      stakeholderGroups: ['Underwriting Teams', 'Claims Teams', 'IT/Technology', 'Business Analytics', 'Risk Management'],
+      horizontalUseCaseTypes: ['Document drafting', 'Categorization', 'Research assistant', 'Autofill', 'Summarization'],
+      quadrants: ['Quick Win', 'Strategic Bet', 'Experimental', 'Watchlist'],
+      questionTypes: ['text', 'textarea', 'select', 'multi_select', 'radio', 'checkbox', 'number'],
+      responseStatuses: ['started', 'in_progress', 'completed', 'abandoned'],
+      questionCategories: ['Strategic Foundation', 'AI Capabilities', 'Use Case Discovery'],
+      companyTiers: ['Small (<£100M)', 'Mid (£100M-£3B)', 'Large (>£3B)'],
+      marketOptions: ['Personal Lines', 'Commercial Lines', 'Specialty Lines', 'Reinsurance'],
+
+      scoringModel: {
+        weights: {
+          impact: { revenueImpact: 25, costSavings: 25, riskReduction: 20, brokerPartnerExperience: 15, strategicFit: 15 },
+          effort: { dataReadiness: 25, technicalComplexity: 25, changeImpact: 20, modelRisk: 15, adoptionReadiness: 15 }
+        },
+        quadrantThresholds: { impactMidpoint: 2.5, effortMidpoint: 2.5 }
+      },
+
+      tShirtSizing: {
+        enabled: true,
+        sizes: [
+          { name: 'XS', minWeeks: 2, maxWeeks: 4, teamSizeMin: 1, teamSizeMax: 2, color: '#10B981', description: 'Quick prototype or POC' },
+          { name: 'S', minWeeks: 4, maxWeeks: 8, teamSizeMin: 2, teamSizeMax: 3, color: '#3B82F6', description: 'Small enhancement or feature' },
+          { name: 'M', minWeeks: 8, maxWeeks: 16, teamSizeMin: 3, teamSizeMax: 5, color: '#F59E0B', description: 'Medium project with integrations' },
+          { name: 'L', minWeeks: 16, maxWeeks: 26, teamSizeMin: 4, teamSizeMax: 8, color: '#EF4444', description: 'Large cross-functional initiative' },
+          { name: 'XL', minWeeks: 26, maxWeeks: 52, teamSizeMin: 6, teamSizeMax: 12, color: '#7C3AED', description: 'Enterprise-scale transformation' }
+        ],
+        roles: [
+          { type: 'Data Scientist', dailyRateGBP: 800 },
+          { type: 'ML Engineer', dailyRateGBP: 850 },
+          { type: 'Data Engineer', dailyRateGBP: 750 },
+          { type: 'Project Manager', dailyRateGBP: 700 }
+        ],
+        overheadMultiplier: 1.25,
+        mappingRules: []
+      },
+
+      // TOM Configuration - Hybrid preset active for Markel
+      tomConfig: {
+        enabled: 'true',
+        activePreset: 'hybrid',
+        presets: {
+          centralized: { name: 'Centralized CoE', description: 'Single AI team owns all delivery' },
+          federated: { name: 'Federated Model', description: 'Business units own AI with central standards' },
+          hybrid: { name: 'Hybrid Model', description: 'Central platform, distributed execution' },
+          coe_led: { name: 'CoE-Led with Business Pods', description: 'CoE leads with embedded business pods' }
+        },
+        presetProfiles: {
+          centralized: {
+            phaseOverrides: {
+              foundation: { governanceGate: 'ai_steerco', expectedDurationWeeks: 12 },
+              strategic: { governanceGate: 'ai_steerco', expectedDurationWeeks: 20 },
+              transition: { governanceGate: 'ai_steerco', expectedDurationWeeks: 16 },
+              steady_state: { governanceGate: 'ai_steerco', expectedDurationWeeks: null }
+            },
+            staffingRatios: {
+              foundation: { vendor: 0.9, client: 0.1 },
+              strategic: { vendor: 0.8, client: 0.2 },
+              transition: { vendor: 0.6, client: 0.4 },
+              steady_state: { vendor: 0.2, client: 0.8 }
+            },
+            deliveryTracks: [
+              { id: 'single_track', name: 'Unified Delivery', description: 'All initiatives through central CoE pipeline' }
+            ]
+          },
+          federated: {
+            phaseOverrides: {
+              foundation: { governanceGate: 'working_group', expectedDurationWeeks: 6 },
+              strategic: { governanceGate: 'business_owner', expectedDurationWeeks: 12 },
+              transition: { governanceGate: 'business_owner', expectedDurationWeeks: 8 },
+              steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+            },
+            staffingRatios: {
+              foundation: { vendor: 0.4, client: 0.6 },
+              strategic: { vendor: 0.3, client: 0.7 },
+              transition: { vendor: 0.2, client: 0.8 },
+              steady_state: { vendor: 0.1, client: 0.9 }
+            },
+            deliveryTracks: [
+              { id: 'bu_owned', name: 'Business Unit Owned', description: 'Each business unit manages own AI initiatives' }
+            ]
+          },
+          hybrid: {
+            phaseOverrides: {
+              foundation: { governanceGate: 'working_group', expectedDurationWeeks: 6 },
+              strategic: { governanceGate: 'working_group', expectedDurationWeeks: 14 },
+              transition: { governanceGate: 'business_owner', expectedDurationWeeks: 10 },
+              steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+            },
+            staffingRatios: {
+              foundation: { vendor: 0.6, client: 0.4 },
+              strategic: { vendor: 0.5, client: 0.5 },
+              transition: { vendor: 0.35, client: 0.65 },
+              steady_state: { vendor: 0.15, client: 0.85 }
+            },
+            deliveryTracks: [
+              { id: 'quick_wins', name: 'Quick Wins', description: 'Fast-track high-impact, low-effort initiatives' },
+              { id: 'strategic', name: 'Strategic Initiatives', description: 'Long-term capability building and complex projects' }
+            ]
+          },
+          coe_led: {
+            phaseOverrides: {
+              foundation: { governanceGate: 'ai_steerco', expectedDurationWeeks: 8 },
+              strategic: { governanceGate: 'working_group', expectedDurationWeeks: 16 },
+              transition: { governanceGate: 'business_owner', expectedDurationWeeks: 12 },
+              steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+            },
+            staffingRatios: {
+              foundation: { vendor: 0.7, client: 0.3 },
+              strategic: { vendor: 0.55, client: 0.45 },
+              transition: { vendor: 0.4, client: 0.6 },
+              steady_state: { vendor: 0.2, client: 0.8 }
+            },
+            deliveryTracks: [
+              { id: 'coe_track', name: 'CoE Pipeline', description: 'Primary delivery through CoE with business pod support' },
+              { id: 'pod_track', name: 'Business Pods', description: 'Embedded teams handling domain-specific initiatives' }
+            ]
+          }
+        },
+        phases: [
+          {
+            id: 'foundation', name: 'Foundation',
+            description: 'Initial setup, governance alignment, and backlog grooming',
+            order: 1, priority: 1, color: '#3C2CDA',
+            mappedStatuses: ['Discovery', 'Backlog', 'On Hold'],
+            mappedDeployments: [],
+            manualOnly: false, governanceGate: 'ai_steerco', expectedDurationWeeks: 8
+          },
+          {
+            id: 'strategic', name: 'Strategic',
+            description: 'Active development, pilots, and value validation',
+            order: 2, priority: 2, color: '#1D86FF',
+            mappedStatuses: ['In-flight'],
+            mappedDeployments: ['PoC', 'Pilot'],
+            manualOnly: false, governanceGate: 'working_group', expectedDurationWeeks: 16
+          },
+          {
+            id: 'transition', name: 'Transition',
+            description: 'Production deployment and capability transfer in progress',
+            order: 3, priority: 3, color: '#14CBDE',
+            mappedStatuses: ['Implemented'],
+            mappedDeployments: ['Production'],
+            manualOnly: false, governanceGate: 'business_owner', expectedDurationWeeks: 12
+          },
+          {
+            id: 'steady_state', name: 'Steady State',
+            description: 'Full client ownership, optimization mode',
+            order: 4, priority: 4, color: '#07125E',
+            mappedStatuses: [],
+            mappedDeployments: [],
+            manualOnly: true, governanceGate: 'none', expectedDurationWeeks: null
+          }
+        ],
+        governanceBodies: [
+          { id: 'ai_steerco', name: 'AI Steering Committee', role: 'Strategic oversight and investment decisions', cadence: 'Monthly' },
+          { id: 'working_group', name: 'AI Working Group', role: 'Tactical execution and prioritization', cadence: 'Bi-weekly' },
+          { id: 'business_owner', name: 'Business Owner Review', role: 'Value validation and adoption sign-off', cadence: 'Weekly' }
+        ],
+        derivationRules: {
+          matchOrder: ['useCaseStatus', 'deploymentStatus'],
+          fallbackBehavior: 'lowestPriority',
+          nullDeploymentHandling: 'ignoreInMatching'
+        }
+      },
+
+      valueRealizationConfig: { enabled: 'true', kpiLibrary: {} },
+      capabilityTransitionConfig: { enabled: 'true' },
+      timeEstimationConfig: { minMultiplier: 2.5, maxMultiplier: 4 }
+    } as any);
+    
+    console.log("✅ Markel client configuration seeded with Hybrid TOM preset");
+  } catch (error) {
+    console.error('Error seeding Markel client config:', error);
   }
 }

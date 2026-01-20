@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -9,16 +9,33 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Settings, Target, Users, Clock, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
-import type { TomConfig, TomPhase, TomGovernanceBody } from '@shared/tom';
+import { Settings, Target, Users, Clock, ChevronDown, ChevronUp, Loader2, Building2, Layers } from 'lucide-react';
+import type { TomConfig, TomPhase, TomGovernanceBody, TomPresetProfile } from '@shared/tom';
+
+interface ClientOption {
+  id: string;
+  name: string;
+}
 
 export default function TomConfigurationLegoBlock() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [expandedPhase, setExpandedPhase] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string>(() => {
+    return localStorage.getItem('tomClientId') || 'default';
+  });
+
+  const { data: availableClients } = useQuery<ClientOption[]>({
+    queryKey: ['/api/tom/clients'],
+  });
 
   const { data: tomConfig, isLoading } = useQuery<TomConfig>({
-    queryKey: ['/api/tom/config'],
+    queryKey: ['/api/tom/config', selectedClientId],
+    queryFn: async () => {
+      const response = await fetch(`/api/tom/config?clientId=${selectedClientId}`);
+      if (!response.ok) throw new Error('Failed to fetch TOM config');
+      return response.json();
+    },
   });
 
   const { data: phaseSummary } = useQuery<{
@@ -26,21 +43,35 @@ export default function TomConfigurationLegoBlock() {
     summary: Record<string, number>;
     phases: Array<{ id: string; name: string; color: string; count: number }>;
   }>({
-    queryKey: ['/api/tom/phase-summary'],
+    queryKey: ['/api/tom/phase-summary', selectedClientId],
+    queryFn: async () => {
+      const response = await fetch(`/api/tom/phase-summary?clientId=${selectedClientId}`);
+      if (!response.ok) throw new Error('Failed to fetch phase summary');
+      return response.json();
+    },
   });
+
+  const handleClientChange = (newClientId: string) => {
+    setSelectedClientId(newClientId);
+    localStorage.setItem('tomClientId', newClientId);
+    toast({
+      title: 'Client Changed',
+      description: `Switched to ${newClientId === 'default' ? 'Default' : newClientId} configuration.`,
+    });
+  };
 
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<TomConfig>) => {
       const updated = { ...tomConfig, ...updates };
-      return apiRequest('/api/tom/config', {
+      return apiRequest(`/api/tom/config?clientId=${selectedClientId}`, {
         method: 'PUT',
         body: JSON.stringify(updated),
         headers: { 'Content-Type': 'application/json' },
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tom/config'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/config', selectedClientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary', selectedClientId] });
       toast({
         title: 'TOM Configuration Updated',
         description: 'Target Operating Model configuration saved successfully.',
@@ -54,6 +85,8 @@ export default function TomConfigurationLegoBlock() {
       });
     },
   });
+
+  const activePresetProfile = tomConfig?.presetProfiles?.[tomConfig.activePreset] as TomPresetProfile | undefined;
 
   const handleToggleEnabled = (checked: boolean) => {
     updateMutation.mutate({ enabled: checked ? 'true' : 'false' });
@@ -113,6 +146,32 @@ export default function TomConfigurationLegoBlock() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {availableClients && availableClients.length > 1 && (
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                Client Configuration
+              </Label>
+              <Select value={selectedClientId} onValueChange={handleClientChange}>
+                <SelectTrigger className="w-full max-w-md" data-testid="select-tom-client">
+                  <SelectValue placeholder="Select client" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableClients.map((client) => (
+                    <SelectItem key={client.id} value={client.id} data-testid={`client-${client.id}`}>
+                      <span className="font-medium">{client.name}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedClientId !== 'default' && (
+                <Badge variant="outline" className="text-xs">
+                  Using {selectedClientId} configuration
+                </Badge>
+              )}
+            </div>
+          )}
+
           <div className="space-y-3">
             <Label>Operating Model Preset</Label>
             <Select value={tomConfig.activePreset} onValueChange={handlePresetChange}>
@@ -131,6 +190,43 @@ export default function TomConfigurationLegoBlock() {
               </SelectContent>
             </Select>
           </div>
+
+          {activePresetProfile && (
+            <div className="space-y-4">
+              <Separator />
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2">
+                  <Layers className="h-4 w-4" />
+                  Delivery Tracks
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {activePresetProfile.deliveryTracks?.map((track) => (
+                    <Badge key={track.id} variant="secondary" className="px-3 py-1">
+                      <span className="font-medium">{track.name}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">- {track.description}</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <Label>Staffing Ratios by Phase</Label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {Object.entries(activePresetProfile.staffingRatios || {}).map(([phase, ratio]) => (
+                    <div key={phase} className="rounded-lg border p-3 text-center">
+                      <div className="text-xs text-muted-foreground capitalize mb-1">{phase.replace('_', ' ')}</div>
+                      <div className="text-sm">
+                        <span className="text-blue-600 font-medium">{Math.round((ratio as any).vendor * 100)}%</span>
+                        <span className="text-muted-foreground mx-1">/</span>
+                        <span className="text-green-600 font-medium">{Math.round((ratio as any).client * 100)}%</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">Vendor / Client</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {isEnabled && phaseSummary?.enabled && (
             <div className="rounded-lg bg-muted/50 p-4">

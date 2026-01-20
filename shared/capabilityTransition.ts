@@ -528,32 +528,50 @@ export const DEFAULT_BENCHMARK_CONFIG: CapabilityBenchmarkConfig = {
   archetypes: {
     foundation_centralized: { 
       independenceRange: [0, 15], 
-      vendorFteMultiplier: 1.0, 
+      vendorFteMultiplier: 0.9, 
       clientFteMultiplier: 0.1,
       transitionMonths: 18
     },
     foundation_coe: { 
       independenceRange: [5, 25], 
-      vendorFteMultiplier: 0.9, 
-      clientFteMultiplier: 0.2,
+      vendorFteMultiplier: 0.7, 
+      clientFteMultiplier: 0.3,
       transitionMonths: 15
+    },
+    strategic_centralized: { 
+      independenceRange: [15, 35], 
+      vendorFteMultiplier: 0.8, 
+      clientFteMultiplier: 0.2,
+      transitionMonths: 20
     },
     strategic_hybrid: { 
       independenceRange: [25, 50], 
-      vendorFteMultiplier: 0.6, 
+      vendorFteMultiplier: 0.5, 
       clientFteMultiplier: 0.5,
-      transitionMonths: 12
+      transitionMonths: 14
+    },
+    transition_centralized: { 
+      independenceRange: [35, 55], 
+      vendorFteMultiplier: 0.6, 
+      clientFteMultiplier: 0.4,
+      transitionMonths: 16
     },
     transition_hybrid: { 
       independenceRange: [50, 75], 
       vendorFteMultiplier: 0.35, 
-      clientFteMultiplier: 0.75,
-      transitionMonths: 9
+      clientFteMultiplier: 0.65,
+      transitionMonths: 10
+    },
+    steady_state_centralized: { 
+      independenceRange: [60, 80], 
+      vendorFteMultiplier: 0.2, 
+      clientFteMultiplier: 0.8,
+      transitionMonths: 6
     },
     steady_state_federated: { 
       independenceRange: [85, 100], 
-      vendorFteMultiplier: 0.1, 
-      clientFteMultiplier: 1.0,
+      vendorFteMultiplier: 0.15, 
+      clientFteMultiplier: 0.85,
       transitionMonths: 3
     }
   },
@@ -588,18 +606,42 @@ function mapTomPhaseToArchetypeKey(tomPhase: string | null | undefined, operatin
   const model = (operatingModel || 'coe').toLowerCase();
   
   if (phase.includes('foundation')) {
-    return model.includes('centralized') ? 'foundation_centralized' : 'foundation_coe';
+    if (model.includes('centralized')) return 'foundation_centralized';
+    return 'foundation_coe';
   }
   if (phase.includes('strategic')) {
+    if (model.includes('centralized')) return 'strategic_centralized';
     return 'strategic_hybrid';
   }
   if (phase.includes('transition')) {
+    if (model.includes('centralized')) return 'transition_centralized';
     return 'transition_hybrid';
   }
   if (phase.includes('steady') || phase.includes('state')) {
+    if (model.includes('centralized')) return 'steady_state_centralized';
     return 'steady_state_federated';
   }
   return 'foundation_coe';
+}
+
+export interface PresetStaffingRatio {
+  vendor: number;
+  client: number;
+}
+
+export function getStaffingFromPresetProfile(
+  tomPhase: string | null | undefined,
+  presetStaffingRatios?: Record<string, PresetStaffingRatio>
+): { vendorMultiplier: number; clientMultiplier: number } | null {
+  if (!presetStaffingRatios) return null;
+  const phase = (tomPhase || 'foundation').toLowerCase().replace('_', '');
+  
+  for (const [key, ratio] of Object.entries(presetStaffingRatios)) {
+    if (phase.includes(key.replace('_', ''))) {
+      return { vendorMultiplier: ratio.vendor, clientMultiplier: ratio.client };
+    }
+  }
+  return null;
 }
 
 function getQuadrantFromScores(impactScore?: number, effortScore?: number): string {

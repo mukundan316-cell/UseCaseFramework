@@ -82,9 +82,10 @@ interface DerivedPhaseInfo {
 async function enrichUseCasesWithTomPhase(useCases: UseCaseFrontend[]): Promise<(UseCaseFrontend & { derivedPhase?: DerivedPhaseInfo })[]> {
   try {
     const metadata = await storage.getMetadataConfig();
-    const tomConfig = metadata?.tomConfig as TomConfig | undefined;
+    const { ensureTomConfig, mergePresetProfile } = await import("@shared/tom");
+    const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
     
-    if (!tomConfig || tomConfig.enabled !== 'true') {
+    if (tomConfig.enabled !== 'true') {
       return useCases;
     }
     
@@ -977,11 +978,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // TOM (Target Operating Model) Configuration Routes
+  
+  // Get available clients for TOM configuration
+  app.get("/api/tom/clients", async (req, res) => {
+    try {
+      const clients = await storage.getAllMetadataConfigIds();
+      const clientOptions = clients.map(id => ({
+        id,
+        name: id === 'default' ? 'Default Configuration' : id.charAt(0).toUpperCase() + id.slice(1)
+      }));
+      res.json(clientOptions);
+    } catch (error) {
+      console.error("Error fetching TOM clients:", error);
+      res.json([{ id: 'default', name: 'Default Configuration' }]);
+    }
+  });
+
   app.get("/api/tom/config", async (req, res) => {
     try {
-      const metadata = await storage.getMetadataConfig();
-      const { DEFAULT_TOM_CONFIG } = await import("@shared/tom");
-      const tomConfig = metadata?.tomConfig || DEFAULT_TOM_CONFIG;
+      const clientId = (req.query.clientId as string) || 'default';
+      const metadata = await storage.getMetadataConfigById(clientId);
+      const { ensureTomConfig } = await import("@shared/tom");
+      const tomConfig = ensureTomConfig(metadata?.tomConfig);
       res.json(tomConfig);
     } catch (error) {
       console.error("Error fetching TOM config:", error);
@@ -991,8 +1009,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/tom/config", async (req, res) => {
     try {
+      const clientId = (req.query.clientId as string) || 'default';
       const tomConfig = req.body;
-      const currentMetadata = await storage.getMetadataConfig();
+      const currentMetadata = await storage.getMetadataConfigById(clientId);
       if (!currentMetadata) {
         return res.status(404).json({ error: "Metadata configuration not found" });
       }
@@ -1000,7 +1019,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...currentMetadata,
         tomConfig
       };
-      const result = await storage.updateMetadataConfig(updatedMetadata);
+      const result = await storage.updateMetadataConfigById(clientId, updatedMetadata);
       res.json(result?.tomConfig || tomConfig);
     } catch (error) {
       console.error("Error updating TOM config:", error);
@@ -1010,9 +1029,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/tom/phase-summary", async (req, res) => {
     try {
-      const metadata = await storage.getMetadataConfig();
-      const { DEFAULT_TOM_CONFIG, calculatePhaseSummary } = await import("@shared/tom");
-      const tomConfig = metadata?.tomConfig || DEFAULT_TOM_CONFIG;
+      const clientId = (req.query.clientId as string) || 'default';
+      const metadata = await storage.getMetadataConfigById(clientId);
+      const { ensureTomConfig, calculatePhaseSummary, mergePresetProfile } = await import("@shared/tom");
+      const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
       
       if (tomConfig.enabled !== 'true') {
         return res.json({ enabled: false, summary: {} });
@@ -1191,14 +1211,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const metadata = await storage.getMetadataConfig();
       const tomModule = await import("@shared/tom");
       const { aggregatePortfolioValue } = await import("@shared/valueRealization");
-      const derivePhase = tomModule.derivePhase;
+      const { derivePhase, ensureTomConfig, mergePresetProfile } = tomModule;
       
-      const tomConfig = metadata?.tomConfig as TomConfig | null;
+      const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
       
       // Map use cases with derived phases
       const useCasesWithPhases = useCases.map(uc => {
         let derivedPhase = null;
-        if (tomConfig?.enabled === 'true') {
+        if (tomConfig.enabled === 'true') {
           const phaseResult = derivePhase(
             uc.useCaseStatus,
             uc.deploymentStatus,

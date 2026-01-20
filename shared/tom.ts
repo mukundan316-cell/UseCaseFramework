@@ -24,6 +24,28 @@ export interface TomPreset {
   description: string;
 }
 
+export interface PhaseOverride {
+  governanceGate?: string;
+  expectedDurationWeeks?: number | null;
+}
+
+export interface StaffingRatio {
+  vendor: number;
+  client: number;
+}
+
+export interface DeliveryTrack {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface TomPresetProfile {
+  phaseOverrides: Record<string, PhaseOverride>;
+  staffingRatios: Record<string, StaffingRatio>;
+  deliveryTracks: DeliveryTrack[];
+}
+
 export interface TomDerivationRules {
   matchOrder: string[];
   fallbackBehavior: string;
@@ -34,6 +56,7 @@ export interface TomConfig {
   enabled: string;
   activePreset: string;
   presets: Record<string, TomPreset>;
+  presetProfiles: Record<string, TomPresetProfile>;
   phases: TomPhase[];
   governanceBodies: TomGovernanceBody[];
   derivationRules: TomDerivationRules;
@@ -55,6 +78,78 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
     federated: { name: 'Federated Model', description: 'Business units own AI with central standards' },
     hybrid: { name: 'Hybrid Model', description: 'Central platform, distributed execution' },
     coe_led: { name: 'CoE-Led with Business Pods', description: 'CoE leads with embedded business pods' }
+  },
+  presetProfiles: {
+    centralized: {
+      phaseOverrides: {
+        foundation: { governanceGate: 'ai_steerco', expectedDurationWeeks: 12 },
+        strategic: { governanceGate: 'ai_steerco', expectedDurationWeeks: 20 },
+        transition: { governanceGate: 'ai_steerco', expectedDurationWeeks: 16 },
+        steady_state: { governanceGate: 'ai_steerco', expectedDurationWeeks: null }
+      },
+      staffingRatios: {
+        foundation: { vendor: 0.9, client: 0.1 },
+        strategic: { vendor: 0.8, client: 0.2 },
+        transition: { vendor: 0.6, client: 0.4 },
+        steady_state: { vendor: 0.2, client: 0.8 }
+      },
+      deliveryTracks: [
+        { id: 'single_track', name: 'Unified Delivery', description: 'All initiatives through central CoE pipeline' }
+      ]
+    },
+    federated: {
+      phaseOverrides: {
+        foundation: { governanceGate: 'working_group', expectedDurationWeeks: 6 },
+        strategic: { governanceGate: 'business_owner', expectedDurationWeeks: 12 },
+        transition: { governanceGate: 'business_owner', expectedDurationWeeks: 8 },
+        steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+      },
+      staffingRatios: {
+        foundation: { vendor: 0.4, client: 0.6 },
+        strategic: { vendor: 0.3, client: 0.7 },
+        transition: { vendor: 0.2, client: 0.8 },
+        steady_state: { vendor: 0.1, client: 0.9 }
+      },
+      deliveryTracks: [
+        { id: 'bu_owned', name: 'Business Unit Owned', description: 'Each business unit manages own AI initiatives' }
+      ]
+    },
+    hybrid: {
+      phaseOverrides: {
+        foundation: { governanceGate: 'working_group', expectedDurationWeeks: 6 },
+        strategic: { governanceGate: 'working_group', expectedDurationWeeks: 14 },
+        transition: { governanceGate: 'business_owner', expectedDurationWeeks: 10 },
+        steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+      },
+      staffingRatios: {
+        foundation: { vendor: 0.6, client: 0.4 },
+        strategic: { vendor: 0.5, client: 0.5 },
+        transition: { vendor: 0.35, client: 0.65 },
+        steady_state: { vendor: 0.15, client: 0.85 }
+      },
+      deliveryTracks: [
+        { id: 'quick_wins', name: 'Quick Wins', description: 'Fast-track high-impact, low-effort initiatives' },
+        { id: 'strategic', name: 'Strategic Initiatives', description: 'Long-term capability building and complex projects' }
+      ]
+    },
+    coe_led: {
+      phaseOverrides: {
+        foundation: { governanceGate: 'ai_steerco', expectedDurationWeeks: 8 },
+        strategic: { governanceGate: 'working_group', expectedDurationWeeks: 16 },
+        transition: { governanceGate: 'business_owner', expectedDurationWeeks: 12 },
+        steady_state: { governanceGate: 'none', expectedDurationWeeks: null }
+      },
+      staffingRatios: {
+        foundation: { vendor: 0.7, client: 0.3 },
+        strategic: { vendor: 0.55, client: 0.45 },
+        transition: { vendor: 0.4, client: 0.6 },
+        steady_state: { vendor: 0.2, client: 0.8 }
+      },
+      deliveryTracks: [
+        { id: 'coe_track', name: 'CoE Pipeline', description: 'Primary delivery through CoE with business pod support' },
+        { id: 'pod_track', name: 'Business Pods', description: 'Embedded teams handling domain-specific initiatives' }
+      ]
+    }
   },
   phases: [
     {
@@ -136,6 +231,47 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
     nullDeploymentHandling: 'ignoreInMatching'
   }
 };
+
+export function ensureTomConfig(config: Partial<TomConfig> | null | undefined): TomConfig {
+  if (!config) return DEFAULT_TOM_CONFIG;
+  return {
+    ...DEFAULT_TOM_CONFIG,
+    ...config,
+    presetProfiles: config.presetProfiles || DEFAULT_TOM_CONFIG.presetProfiles,
+    presets: config.presets || DEFAULT_TOM_CONFIG.presets,
+    phases: config.phases || DEFAULT_TOM_CONFIG.phases,
+    governanceBodies: config.governanceBodies || DEFAULT_TOM_CONFIG.governanceBodies,
+    derivationRules: config.derivationRules || DEFAULT_TOM_CONFIG.derivationRules
+  };
+}
+
+export function mergePresetProfile(tomConfig: TomConfig): TomConfig {
+  const activePreset = tomConfig.activePreset;
+  const profile = tomConfig.presetProfiles?.[activePreset];
+  
+  if (!profile) return tomConfig;
+  
+  const mergedPhases = tomConfig.phases.map(phase => {
+    const override = profile.phaseOverrides?.[phase.id];
+    if (!override) return phase;
+    return {
+      ...phase,
+      governanceGate: override.governanceGate ?? phase.governanceGate,
+      expectedDurationWeeks: override.expectedDurationWeeks !== undefined 
+        ? override.expectedDurationWeeks 
+        : phase.expectedDurationWeeks
+    };
+  });
+  
+  return {
+    ...tomConfig,
+    phases: mergedPhases
+  };
+}
+
+export function getActivePresetProfile(tomConfig: TomConfig): TomPresetProfile | null {
+  return tomConfig.presetProfiles?.[tomConfig.activePreset] || null;
+}
 
 export function derivePhase(
   useCaseStatus: string | null | undefined,

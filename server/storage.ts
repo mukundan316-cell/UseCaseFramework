@@ -177,6 +177,11 @@ export interface IStorage {
   getMetadataConfig(): Promise<MetadataConfig | undefined>;
   updateMetadataConfig(metadata: Partial<MetadataConfig>): Promise<MetadataConfig>;
   
+  // Multi-client metadata support (Topic 5 - TOM Multi-Client)
+  getAllMetadataConfigIds(): Promise<string[]>;
+  getMetadataConfigById(id: string): Promise<MetadataConfig | undefined>;
+  updateMetadataConfigById(id: string, metadata: Partial<MetadataConfig>): Promise<MetadataConfig | undefined>;
+  
   // Individual metadata item CRUD operations
   addMetadataItem(category: string, item: string): Promise<MetadataConfig>;
   removeMetadataItem(category: string, item: string): Promise<MetadataConfig>;
@@ -715,6 +720,72 @@ export class DatabaseStorage implements IStorage {
         .insert(metadataConfig)
         .values({ id: 'default', ...completeMetadata } as any)
         .returning();
+      return config;
+    }
+  }
+
+  // Multi-client metadata support (Topic 5 - TOM Multi-Client)
+  async getAllMetadataConfigIds(): Promise<string[]> {
+    const configs = await db.select({ id: metadataConfig.id }).from(metadataConfig);
+    return configs.map(c => c.id);
+  }
+
+  async getMetadataConfigById(id: string): Promise<MetadataConfig | undefined> {
+    const [config] = await db.select().from(metadataConfig).where(eq(metadataConfig.id, id));
+    if (!config) {
+      // Fallback to default if client-specific config not found
+      if (id !== 'default') {
+        return this.getMetadataConfig();
+      }
+      return undefined;
+    }
+    
+    // Parse scoringModel if it's stored as JSON string
+    if (config.scoringModel && typeof config.scoringModel === 'string') {
+      try {
+        config.scoringModel = JSON.parse(config.scoringModel);
+      } catch (error) {
+        console.error('Failed to parse scoringModel JSON:', error);
+      }
+    }
+    
+    return config;
+  }
+
+  async updateMetadataConfigById(id: string, metadata: Partial<MetadataConfig>): Promise<MetadataConfig | undefined> {
+    // Check if the specific config exists (not just falling back to default)
+    const [specificConfig] = await db.select().from(metadataConfig).where(eq(metadataConfig.id, id));
+    
+    if (specificConfig) {
+      // Update existing record
+      const completeMetadata = {
+        ...specificConfig,
+        ...metadata,
+        updatedAt: new Date()
+      };
+
+      const [config] = await db
+        .update(metadataConfig)
+        .set(completeMetadata)
+        .where(eq(metadataConfig.id, id))
+        .returning();
+      
+      return config;
+    } else {
+      // Insert new client-specific record (upsert behavior)
+      const defaultConfig = await this.getMetadataConfig();
+      const newConfig = {
+        ...defaultConfig,
+        ...metadata,
+        id,
+        updatedAt: new Date()
+      };
+
+      const [config] = await db
+        .insert(metadataConfig)
+        .values(newConfig as any)
+        .returning();
+      
       return config;
     }
   }
