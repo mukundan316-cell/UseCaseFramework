@@ -91,6 +91,26 @@ All framework features are now fully driven by `metadata_config` table in the da
 
 Key files: `server/seed.ts`, `shared/schema.ts` (metadataConfig table), all `shared/*.ts` calculation modules
 
+### Markel 9 Topics Compliance Features (Jan 2026)
+Three key governance gaps addressed per audit:
+
+- **Duplicate Detection (Topic 3.4)**: Automatic similarity matching when creating/editing use cases
+  - Schema: `duplicate_status`, `duplicate_similar_to`, `duplicate_similarity_score` fields on use_cases
+  - API: `POST /api/use-cases/check-duplicates`, `GET /api/use-cases/potential-duplicates`, `PUT /api/use-cases/:id/resolve-duplicate`
+  - UI: Warning alert in CRUD modal when potential duplicates found (>60% title/description similarity)
+  
+- **Full Audit Trail (Topic 8.2)**: Append-only change history for compliance/governance
+  - Schema: `use_case_change_log` table with before/after state JSONB, actor, source, changed_fields
+  - API: `GET /api/use-cases/:id/audit-log`, `GET /api/audit-logs?limit=N`
+  - UI: `AuditTimelineLegoBlock` component displays chronological change history
+  - Auto-logging on create, update, delete, status_change, phase_change, duplicate_resolved events
+  
+- **Role Evolution Tracking (Topic 9.3)**: Track how roles transition from vendor to client ownership
+  - Schema: `roleEvolution` array in capabilityTransition JSONB with baseline/current/target ownership, transition history, confidence level
+  - UI: `RoleEvolutionLegoBlock` component in CapabilityTransitionView with accordion per role, ownership selectors, transition history
+
+Key files: `shared/schema.ts` (new tables/fields), `server/storage.ts` (logUseCaseChange, findSimilarUseCases), `server/routes.ts` (API endpoints), `client/src/components/lego-blocks/AuditTimelineLegoBlock.tsx`, `RoleEvolutionLegoBlock.tsx`
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion

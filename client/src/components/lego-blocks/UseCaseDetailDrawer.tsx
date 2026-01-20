@@ -49,6 +49,8 @@ import { getQuadrantColor } from '../../utils/calculations';
 import ReusableButton from './ReusableButton';
 import PresentationPreviewBlock from './PresentationPreviewBlock';
 import TShirtSizingDisplayLegoBlock from './TShirtSizingDisplayLegoBlock';
+import AuditTimelineLegoBlock from './AuditTimelineLegoBlock';
+import { History } from 'lucide-react';
 
 interface UseCaseDetailDrawerProps {
   isOpen: boolean;
@@ -803,6 +805,18 @@ export default function UseCaseDetailDrawer({
             </AccordionContent>
           </AccordionItem>
 
+          {/* Audit Trail Section (Topic 8.2 - Markel 9 Topics) */}
+          <AccordionItem value="audit" className="border-b-0">
+            <AccordionTrigger className="py-3 hover:no-underline" data-testid="accordion-audit-trail">
+              <div className="flex items-center gap-2">
+                <History className="w-4 h-4 text-purple-600" />
+                <span className="font-semibold text-gray-800">Change History</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <AuditTimelineLegoBlock useCaseId={useCase.id} showTitle={false} />
+            </AccordionContent>
+          </AccordionItem>
 
         </Accordion>
       </SheetContent>

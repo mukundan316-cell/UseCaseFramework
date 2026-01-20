@@ -16,6 +16,8 @@ import type {
   StaffingProjectionPoint,
   CapabilityTransitionConfig 
 } from '@shared/capabilityTransition';
+import RoleEvolutionLegoBlock from '@/components/lego-blocks/RoleEvolutionLegoBlock';
+import AuditTimelineLegoBlock from '@/components/lego-blocks/AuditTimelineLegoBlock';
 
 export default function CapabilityTransitionView() {
   const { data: portfolioSummary, isLoading: summaryLoading, isError: summaryError } = useQuery<PortfolioCapabilitySummary>({
@@ -507,6 +509,16 @@ export default function CapabilityTransitionView() {
             </CardContent>
           </Card>
         )}
+        
+        {/* Role Evolution Tracking (Topic 9.3 - Markel 9 Topics) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RoleEvolutionLegoBlock 
+            roleEvolution={[]}
+            readOnly={true}
+            emptyStateMessage="Role evolution is tracked at the individual use case level. View a specific use case to see its role transition details."
+          />
+          <AuditTimelineLegoBlock limit={20} />
+        </div>
       </div>
     </TooltipProvider>
   );

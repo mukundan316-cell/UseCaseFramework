@@ -182,6 +182,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     modelRisk: 3,
     adoptionReadiness: 3,
   });
+  
+  // Duplicate Detection State (Topic 3.4 - Markel 9 Topics)
+  const [similarUseCases, setSimilarUseCases] = useState<Array<{
+    meaningfulId: string;
+    title: string;
+    similarityScore: number;
+  }>>([]);
+  const [isCheckingDuplicates, setIsCheckingDuplicates] = useState(false);
 
   // Manual override toggle state - managed by ScoreOverrideLegoBlock
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(false);
@@ -611,6 +619,45 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     };
     form.reset(defaultData);
   };
+  
+  // Duplicate Detection Effect (Topic 3.4 - Markel 9 Topics)
+  const watchedTitle = form.watch('title');
+  const watchedDescription = form.watch('description');
+  
+  useEffect(() => {
+    const checkForDuplicates = async () => {
+      if (!watchedTitle || watchedTitle.length < 5) {
+        setSimilarUseCases([]);
+        return;
+      }
+      
+      setIsCheckingDuplicates(true);
+      try {
+        const response = await fetch('/api/use-cases/check-duplicates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: watchedTitle,
+            description: watchedDescription || '',
+            excludeId: mode === 'edit' ? useCase?.id : undefined
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setSimilarUseCases(data.similarCases || []);
+        }
+      } catch (error) {
+        console.error('Error checking for duplicates:', error);
+      } finally {
+        setIsCheckingDuplicates(false);
+      }
+    };
+    
+    // Debounce the duplicate check
+    const timeoutId = setTimeout(checkForDuplicates, 500);
+    return () => clearTimeout(timeoutId);
+  }, [watchedTitle, watchedDescription, mode, useCase?.id]);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -1248,6 +1295,29 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       <p className="text-sm text-red-600 mt-1" data-testid="error-title">
                         {form.formState.errors.title.message}
                       </p>
+                    )}
+                    
+                    {/* Duplicate Detection Warning (Topic 3.4) */}
+                    {isCheckingDuplicates && (
+                      <p className="mt-2 text-xs text-muted-foreground" data-testid="checking-duplicates">
+                        Checking for similar use cases...
+                      </p>
+                    )}
+                    {!isCheckingDuplicates && similarUseCases.length > 0 && (
+                      <Alert className="mt-2 border-amber-500 bg-amber-50" data-testid="alert-duplicate-warning">
+                        <AlertCircle className="h-4 w-4 text-amber-600" />
+                        <AlertDescription className="text-amber-800 text-sm">
+                          <strong>Potential duplicates found:</strong>
+                          <ul className="mt-1 ml-4 list-disc">
+                            {similarUseCases.slice(0, 3).map((similar) => (
+                              <li key={similar.meaningfulId}>
+                                {similar.meaningfulId}: {similar.title} ({Math.round(similar.similarityScore * 100)}% match)
+                              </li>
+                            ))}
+                          </ul>
+                          <p className="mt-1 text-xs">Consider reviewing existing use cases before creating a new one.</p>
+                        </AlertDescription>
+                      </Alert>
                     )}
                   </div>
                   
