@@ -1,0 +1,53 @@
+AUDIT REQUEST: Value Realization Data Entry Flow
+
+The Insights > Value Realization view exists but shows £0. I need to understand:
+
+=== PART 1: USE CASE VALUE ENTRY ===
+
+1. In the CRUD Modal (CRUDUseCaseModal), is there a Value Realization tab or section?
+   - If yes, screenshot or describe what fields are available
+   - If no, where is value data supposed to be entered?
+
+2. What fields exist on use_cases.valueRealization JSONB?
+   - Is any use case currently populated with value data?
+   - Query: SELECT id, title, "valueRealization" FROM use_cases WHERE "valueRealization" IS NOT NULL LIMIT 5
+
+3. Is there an API endpoint for updating use case value data?
+   - PUT /api/use-cases/:id/value ?
+   - How does it work?
+
+=== PART 2: KPI BENCHMARKS ===
+
+4. In the KPI Library (Admin > System > KPI Library Management):
+   - Click "Show Details" on one KPI (e.g., Cycle Time Reduction)
+   - What benchmark values are configured?
+   - Are there actual baseline numbers (e.g., $125/claim) or just maturity rules?
+
+5. How does process-to-KPI mapping work?
+   - When a use case has processes[] = ["Claims Management"], which KPIs are suggested?
+   - Is this automatic or manual selection?
+
+=== PART 3: VALUE CALCULATION ===
+
+6. How does the system convert KPI improvements to monetary value?
+   - Is there a formula configured?
+   - Example: If Cycle Time improves 40%, how does that become £X?
+
+7. What enterprise metrics are calculated?
+   - Total Investment: Sum of all use case investments?
+   - Cumulative Value: Sum of what exactly?
+   - Portfolio ROI: Formula?
+
+=== PART 4: SAMPLE DATA ===
+
+8. To demonstrate the platform, we need sample value data.
+   - Can you populate 5-10 use cases with realistic value data?
+   - Use the existing benchmarks from VALUE_FRAMEWORK_GUIDE.md
+
+=== OUTPUT ===
+
+Provide:
+1. Description of current value entry UX
+2. Screenshot of KPI benchmark details
+3. Explanation of value calculation logic
+4. Recommendation for sample data population

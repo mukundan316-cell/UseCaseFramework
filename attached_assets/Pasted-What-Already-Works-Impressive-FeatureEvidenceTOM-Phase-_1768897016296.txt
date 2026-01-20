@@ -1,0 +1,156 @@
+What Already Works (Impressive!)
+FeatureEvidenceTOM Phase badge in CRUD modalImage 1: Shows "Foundation" badgeProcess-to-KPI auto-suggestionImage 3: "3 applicable KPIs identified"Maturity derivationImage 3: Shows "developing" + "medium" confidenceKPI suggestions with rangesImage 3: "FTE Efficiency Gain - Expected 200-500% improvement"Manual override optionImage 3: "Override Estimated Value (£)" fieldIndustry benchmarksAudit shows real values (£125/claim, McKinsey 2024)
+
+What's Missing (Targeted Gaps)
+GapImpactEffortNo investment entryCan't calculate ROI without cost dataSmallNo KPI confirmationUser can't select which suggested KPIs to trackSmallNo PUT endpointCan't persist value data to databaseSmallNo sample dataPortfolio view shows £0Small
+
+Phase 2 Completion Prompt
+PHASE 2 COMPLETION: Value Entry & Sample Data
+
+The Value Realization infrastructure is 90% complete. These targeted fixes will make it demo-ready.
+
+=== GAP 1: ADD INVESTMENT ENTRY TO CRUD MODAL ===
+
+Location: Implementation & Governance tab, above or within Value Realization section
+
+Add Investment Input Fields:
+┌─────────────────────────────────────────────────────────────────┐
+│ Investment & Cost                                               │
+├─────────────────────────────────────────────────────────────────┤
+│ Initial Investment (£) *     │ Ongoing Monthly Cost (£)        │
+│ [________150,000___________] │ [__________5,000______________] │
+│                                                                 │
+│ Investment includes: implementation, licensing, training        │
+└─────────────────────────────────────────────────────────────────┘
+
+Fields to add:
+- initialInvestment: number (required for ROI calculation)
+- ongoingMonthlyCost: number (optional)
+- Save to valueRealization.investment in JSONB
+
+=== GAP 2: KPI CONFIRMATION UI ===
+
+Current: Shows "3 applicable KPIs identified" (read-only)
+Needed: Allow user to confirm which KPIs to track
+
+Modify Suggested KPIs section:
+┌─────────────────────────────────────────────────────────────────┐
+│ Suggested KPIs (Based on: Sales & Distribution)                 │
+├─────────────────────────────────────────────────────────────────┤
+│ ☑ FTE Efficiency Gain                          developing       │
+│   Expected: 200-500% improvement               medium           │
+│                                                                 │
+│ ☑ Customer/Broker Satisfaction                 developing       │
+│   Expected: 8-14% improvement                  medium           │
+│                                                                 │
+│ ☐ Conversion Rate Improvement                  developing       │
+│   Expected: 4-7% improvement                   medium           │
+│                                                                 │
+│ [+ Add Custom KPI]                                              │
+└─────────────────────────────────────────────────────────────────┘
+
+Behavior:
+- Checkboxes default to checked for auto-suggested KPIs
+- User can uncheck to exclude
+- User can add custom KPIs not in suggestions
+- Selected KPIs saved to valueRealization.selectedKpis[]
+
+=== GAP 3: API ENDPOINT FOR VALUE DATA ===
+
+Add to server/routes.ts:
+
+PUT /api/use-cases/:id/value
+  Request body: {
+    investment: {
+      initialInvestment: number,
+      ongoingMonthlyCost: number,
+      currency: "GBP"
+    },
+    selectedKpis: string[],
+    kpiValues: {
+      [kpiId]: {
+        baselineValue: number,
+        targetValue: number,
+        isOverridden: boolean,
+        overrideReason: string
+      }
+    }
+  }
+  
+  Behavior:
+  1. Validate input
+  2. Calculate derived values (maturity, ranges) using existing logic
+  3. Calculate estimated value using existing formulas
+  4. Update use_cases.valueRealization JSONB
+  5. Return updated use case with calculated metrics
+
+Also ensure existing PUT /api/use-cases/:id saves valueRealization if included in body.
+
+=== GAP 4: SAMPLE DATA POPULATION ===
+
+Populate 10 use cases with realistic value data for demo purposes.
+
+Selection criteria:
+- Pick use cases that have processes[] populated
+- Mix of quadrants (Quick Win, Strategic Bet, etc.)
+- Mix of TOM phases if any are beyond Foundation
+
+Sample data pattern:
+Use Case 1: Claims Triage AI
+
+processes: ["Claims Management"]
+selectedKpis: ["cycle_time_reduction", "cost_per_transaction"]
+investment: { initial: £150,000, monthly: £5,000 }
+T-shirt: Medium
+Expected value: £180K-£250K/year
+
+Use Case 2: Underwriting Automation
+
+processes: ["Underwriting & Triage"]
+selectedKpis: ["cost_per_transaction", "accuracy_improvement"]
+investment: { initial: £350,000, monthly: £12,000 }
+T-shirt: Large
+Expected value: £400K-£600K/year
+
+Use Case 3: Broker Portal Enhancement
+
+processes: ["Sales & Distribution"]
+selectedKpis: ["conversion_rate", "customer_satisfaction"]
+investment: { initial: £80,000, monthly: £3,000 }
+T-shirt: Small
+Expected value: £120K-£180K/year
+
+... (create 7 more with variety)
+
+Create a seed script or admin function to populate this data.
+
+=== GAP 5: CALCULATED METRICS ON SAVE ===
+
+When value data is saved, calculate and store:
+- estimatedAnnualValueGbp (range min/max)
+- currentRoi: ((estimatedValue - investment) / investment) * 100
+- projectedBreakevenMonth: investment / (estimatedValue / 12)
+
+These populate the Portfolio Value Realization dashboard.
+
+=== VALIDATION CRITERIA ===
+
+□ CRUD Modal shows Investment entry fields
+□ CRUD Modal allows KPI selection/confirmation
+□ PUT /api/use-cases/:id/value endpoint works
+□ Saving use case persists valueRealization data
+□ 10 use cases have sample value data
+□ Insights > Value Realization shows non-zero totals
+□ Portfolio ROI calculates correctly
+□ Value by TOM Phase shows distribution
+
+=== CHECKPOINT SEQUENCE ===
+
+1. Add Investment fields to CRUD Modal
+2. Add KPI confirmation checkboxes
+3. Add/verify PUT endpoint
+4. Wire up save functionality
+5. Create and run sample data script
+6. Verify portfolio aggregation displays correctly
+
+Start with checkpoint 1. Report after each.
