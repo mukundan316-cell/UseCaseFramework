@@ -865,13 +865,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         confidence: z.enum(['high', 'medium', 'low']),
       });
       
+      const industryBenchmarkSchema = z.object({
+        baselineValue: z.number(),
+        baselineUnit: z.string(),
+        baselineSource: z.string(),
+        improvementRange: z.object({ min: z.number(), max: z.number() }),
+        improvementUnit: z.string(),
+        typicalTimeline: z.string(),
+        maturityTiers: z.object({
+          foundational: z.object({ min: z.number(), max: z.number() }),
+          developing: z.object({ min: z.number(), max: z.number() }),
+          advanced: z.object({ min: z.number(), max: z.number() }),
+        }),
+      });
+
       const kpiDefinitionSchema = z.object({
         id: z.string(),
         name: z.string(),
         description: z.string(),
         unit: z.string(),
         direction: z.enum(['increase', 'decrease']),
-        applicableUseCaseTypes: z.array(z.string()),
+        applicableProcesses: z.array(z.string()),
+        industryBenchmarks: z.record(industryBenchmarkSchema).optional(),
         maturityRules: z.array(maturityRuleSchema),
       });
       

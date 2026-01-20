@@ -405,7 +405,20 @@ export const metadataConfig = pgTable('metadata_config', {
       description: string;
       unit: string;
       direction: 'increase' | 'decrease';
-      applicableUseCaseTypes: string[];
+      applicableProcesses: string[];
+      industryBenchmarks?: Record<string, {
+        baselineValue: number;
+        baselineUnit: string;
+        baselineSource: string;
+        improvementRange: { min: number; max: number };
+        improvementUnit: string;
+        typicalTimeline: string;
+        maturityTiers: {
+          foundational: { min: number; max: number };
+          developing: { min: number; max: number };
+          advanced: { min: number; max: number };
+        };
+      }>;
       maturityRules: Array<{
         level: 'advanced' | 'developing' | 'foundational';
         conditions: Record<string, { min?: number; max?: number }>;

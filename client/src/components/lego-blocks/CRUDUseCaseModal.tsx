@@ -32,6 +32,8 @@ import PresentationUploadBlock from './PresentationUploadBlock';
 import PresentationPreviewBlock from './PresentationPreviewBlock';
 import HorizontalUseCaseLegoBlock from './HorizontalUseCaseLegoBlock';
 import LoadingState from '@/components/ui/loading-state';
+import ValueEstimationLegoBlock from './ValueEstimationLegoBlock';
+import TShirtSizingDisplayLegoBlock from './TShirtSizingDisplayLegoBlock';
 
 
 const formSchema = z.object({
@@ -1935,6 +1937,28 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 onToggleChange={setIsOverrideEnabled}
               />
             )}
+            
+            {/* Resource Planning: T-shirt Sizing + Value Estimation */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <TShirtSizingDisplayLegoBlock
+                impactScore={currentImpactScore}
+                effortScore={currentEffortScore}
+                quadrant={currentQuadrant}
+                useCaseId={useCase?.id}
+                useCaseTitle={form.watch('title')}
+              />
+              <ValueEstimationLegoBlock
+                processes={(form.watch('processes') as string[]) || []}
+                scores={{
+                  dataReadiness: scores.dataReadiness || null,
+                  technicalComplexity: scores.technicalComplexity || null,
+                  adoptionReadiness: scores.adoptionReadiness || null,
+                  changeImpact: scores.changeImpact || null,
+                  modelRisk: scores.modelRisk || null
+                }}
+                compact={false}
+              />
+            </div>
                   </div>
                 ) : (
                   <Card className="bg-gray-50 border-dashed border-2">
