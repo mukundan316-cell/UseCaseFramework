@@ -3,13 +3,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Users, TrendingUp, GraduationCap, CheckCircle2, Clock, Target,
   Loader2, AlertCircle, HelpCircle, ArrowUpRight, Building2, UserCheck
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, Tooltip as RechartsTooltip } from 'recharts';
-import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { 
   PortfolioCapabilitySummary, 
   StaffingProjectionPoint,
@@ -29,20 +28,6 @@ export default function CapabilityTransitionView() {
     queryKey: ['/api/capability/config'],
   });
 
-  const seedDefaultMutation = useMutation({
-    mutationFn: () => apiRequest('/api/capability/seed-default', { method: 'POST' }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/capability/config'] });
-    }
-  });
-
-  const seedSampleMutation = useMutation({
-    mutationFn: () => apiRequest('/api/capability/seed-sample-data', { method: 'POST' }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/capability/portfolio-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/capability/staffing-projection'] });
-    }
-  });
 
   const isLoading = summaryLoading || projectionLoading || configLoading;
 
@@ -101,31 +86,17 @@ export default function CapabilityTransitionView() {
         </div>
 
         {!hasCapabilityData && (
-          <Card className="bg-amber-50 border-amber-200">
+          <Card className="bg-blue-50 border-blue-200">
             <CardContent className="py-6">
-              <div className="text-center space-y-4">
-                <p className="text-amber-700">
-                  No capability transition data found. Seed sample data for demo purposes.
+              <div className="text-center space-y-3">
+                <Users className="h-10 w-10 text-blue-500 mx-auto" />
+                <p className="text-blue-800 font-medium">
+                  No capability transition data yet
                 </p>
-                <div className="flex gap-3 justify-center">
-                  <Button 
-                    onClick={() => seedDefaultMutation.mutate()}
-                    disabled={seedDefaultMutation.isPending}
-                    variant="outline"
-                    data-testid="button-seed-capability-config"
-                  >
-                    {seedDefaultMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    Seed Config
-                  </Button>
-                  <Button 
-                    onClick={() => seedSampleMutation.mutate()}
-                    disabled={seedSampleMutation.isPending}
-                    data-testid="button-seed-capability-data"
-                  >
-                    {seedSampleMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    Seed Sample Data
-                  </Button>
-                </div>
+                <p className="text-blue-600 text-sm max-w-md mx-auto">
+                  Add staffing information (Vendor FTE, Client FTE, Independence %) to your use cases via the 
+                  Capability Transition tab in the use case editor to track knowledge transfer and self-sufficiency progress.
+                </p>
               </div>
             </CardContent>
           </Card>
