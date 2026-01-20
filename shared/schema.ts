@@ -114,6 +114,7 @@ export const useCases: any = pgTable("use_cases", {
   teamSizeEstimate: text("team_size_estimate"), // e.g., "3-5"
   
   // TOM (Target Operating Model) Phase Tracking
+  tomPhase: text("tom_phase"), // Derived or overridden phase: 'foundation', 'strategic', 'transition', 'steady_state'
   tomPhaseOverride: text("tom_phase_override"), // Manual phase override: 'foundation', 'strategic', 'transition', 'steady_state'
   phaseEnteredAt: timestamp("phase_entered_at"), // Auto-updated when derived phase changes
   tomOverrideReason: text("tom_override_reason"), // Reason for manual phase override
@@ -317,7 +318,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   presentationFileName: z.union([z.string(), z.null()]).optional(),
   hasPresentation: z.enum(['true', 'false']).default('false'),
   
-  // TOM Phase Override fields - allow null for clearing overrides
+  // TOM Phase fields - allow null for clearing overrides
+  tomPhase: z.union([z.string(), z.null()]).optional(),
   tomPhaseOverride: z.union([z.string(), z.null()]).optional(),
   tomOverrideReason: z.union([z.string(), z.null()]).optional(),
 });

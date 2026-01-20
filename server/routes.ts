@@ -11,6 +11,7 @@ import exportRoutes from "./routes/export.routes";
 import importRoutes from "./routes/import.routes";
 import presentationRoutes from "./routes/presentations";
 import { derivePhase, type TomConfig } from "@shared/tom";
+import { deriveAllFields, getDefaultConfigs, shouldTriggerDerivation, type UseCaseForDerivation } from "./derivation";
 
 import { questionnaireServiceInstance } from './services/questionnaireService';
 import { db } from './db';
@@ -275,6 +276,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const newUseCase = await storage.createUseCase(useCaseWithScores as any);
+      
+      // Auto-derive TOM phase, value estimates, and capability defaults
+      try {
+        const derivedMetadata = await storage.getMetadataConfig();
+        const configs = getDefaultConfigs(derivedMetadata);
+        
+        const useCaseForDerivation: UseCaseForDerivation = {
+          id: newUseCase.id,
+          title: newUseCase.title,
+          useCaseStatus: newUseCase.useCaseStatus,
+          deploymentStatus: newUseCase.deploymentStatus,
+          tomPhaseOverride: newUseCase.tomPhaseOverride,
+          processes: newUseCase.processes,
+          quadrant: newUseCase.quadrant,
+          tShirtSize: newUseCase.tShirtSize,
+          dataReadiness: newUseCase.dataReadiness,
+          technicalComplexity: newUseCase.technicalComplexity,
+          adoptionReadiness: newUseCase.adoptionReadiness,
+          capabilityTransition: null,
+          valueRealization: null,
+          tomPhase: null
+        };
+        
+        const derived = deriveAllFields(useCaseForDerivation, configs, {
+          overwriteValue: true,
+          overwriteCapability: true
+        });
+        
+        // Always set phaseEnteredAt on creation for TOM phase timeline tracking
+        if (derived.tomPhase) {
+          (derived as any).phaseEnteredAt = new Date();
+        }
+        
+        if (Object.keys(derived).length > 0) {
+          await storage.updateUseCase(newUseCase.id, derived);
+          Object.assign(newUseCase, derived);
+        }
+      } catch (derivationError) {
+        console.error("Auto-derivation warning (use case created successfully):", derivationError);
+      }
+      
       res.status(201).json(mapUseCaseToFrontend(newUseCase));
     } catch (error) {
       console.error("Error creating use case:", error);
@@ -491,9 +533,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Only update phaseEnteredAt if phase actually changed
         if (newDerivedPhaseId !== oldDerivedPhaseId) {
           await storage.updateUseCase(id, { 
-            phaseEnteredAt: new Date().toISOString()
+            phaseEnteredAt: new Date(),
+            tomPhase: newDerivedPhaseId
           } as any);
-          console.log(`Phase changed for ${id}: ${oldDerivedPhaseId} → ${newDerivedPhaseId}, updated phaseEnteredAt`);
+          console.log(`Phase changed for ${id}: ${oldDerivedPhaseId} → ${newDerivedPhaseId}, updated phaseEnteredAt and tomPhase`);
+        } else if (updatedUseCase.tomPhase !== newDerivedPhaseId) {
+          // Ensure tomPhase field is always in sync
+          await storage.updateUseCase(id, { tomPhase: newDerivedPhaseId } as any);
+        }
+      }
+      
+      // Smart derivation: only recalculate fields affected by changes
+      const triggers = shouldTriggerDerivation(validatedData, undefined);
+      if (triggers.value || triggers.capability) {
+        try {
+          const derivedMetadata = await storage.getMetadataConfig();
+          const configs = getDefaultConfigs(derivedMetadata);
+          
+          // Refresh use case data after phase update
+          const refreshedUseCase = await storage.getAllUseCases().then(cases => cases.find(c => c.id === id));
+          if (refreshedUseCase) {
+            const useCaseForDerivation: UseCaseForDerivation = {
+              id: refreshedUseCase.id,
+              title: refreshedUseCase.title,
+              useCaseStatus: refreshedUseCase.useCaseStatus,
+              deploymentStatus: refreshedUseCase.deploymentStatus,
+              tomPhaseOverride: refreshedUseCase.tomPhaseOverride,
+              processes: refreshedUseCase.processes,
+              quadrant: refreshedUseCase.quadrant,
+              tShirtSize: refreshedUseCase.tShirtSize,
+              dataReadiness: refreshedUseCase.dataReadiness,
+              technicalComplexity: refreshedUseCase.technicalComplexity,
+              adoptionReadiness: refreshedUseCase.adoptionReadiness,
+              capabilityTransition: refreshedUseCase.capabilityTransition,
+              valueRealization: refreshedUseCase.valueRealization,
+              tomPhase: refreshedUseCase.tomPhase
+            };
+            
+            // Only overwrite value if no manual data exists (derived === true or absent)
+            const canOverwriteValue = triggers.value && 
+              !validatedData.valueRealization &&
+              (!refreshedUseCase.valueRealization || refreshedUseCase.valueRealization?.derived === true);
+            
+            const derived = deriveAllFields(useCaseForDerivation, configs, {
+              overwriteValue: canOverwriteValue,
+              overwriteCapability: triggers.capability && 
+                (!refreshedUseCase.capabilityTransition || refreshedUseCase.capabilityTransition?.derived === true)
+            });
+            
+            // Only update derived fields if not manually set
+            const fieldsToUpdate: Record<string, any> = {};
+            if (derived.valueRealization && canOverwriteValue) {
+              fieldsToUpdate.valueRealization = derived.valueRealization;
+            }
+            // Only overwrite capability if derived or absent (protect manual data)
+            const canOverwriteCapability = triggers.capability && 
+              (!refreshedUseCase.capabilityTransition || refreshedUseCase.capabilityTransition?.derived === true);
+            if (derived.capabilityTransition && canOverwriteCapability) {
+              fieldsToUpdate.capabilityTransition = derived.capabilityTransition;
+            }
+            
+            if (Object.keys(fieldsToUpdate).length > 0) {
+              await storage.updateUseCase(id, fieldsToUpdate);
+              Object.assign(updatedUseCase, fieldsToUpdate);
+            }
+          }
+        } catch (derivationError) {
+          console.error("Smart derivation warning:", derivationError);
         }
       }
       
@@ -1293,6 +1399,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching staffing projection:", error);
       res.status(500).json({ error: "Failed to fetch staffing projection" });
+    }
+  });
+
+  // Comprehensive bulk derivation for all use cases - TOM, Value, and Capability
+  app.post("/api/derive/all", async (req, res) => {
+    try {
+      const { 
+        overwriteValue = false, 
+        overwriteCapability = false 
+      } = req.body;
+      
+      const useCases = await storage.getAllUseCases();
+      const metadata = await storage.getMetadataConfig();
+      const configs = getDefaultConfigs(metadata);
+      
+      const results = {
+        total: useCases.length,
+        tomDerived: 0,
+        valueDerived: 0,
+        capabilityDerived: 0,
+        errors: [] as string[]
+      };
+      
+      for (const useCase of useCases) {
+        try {
+          const useCaseForDerivation: UseCaseForDerivation = {
+            id: useCase.id,
+            title: useCase.title,
+            useCaseStatus: useCase.useCaseStatus,
+            deploymentStatus: useCase.deploymentStatus,
+            tomPhaseOverride: useCase.tomPhaseOverride,
+            processes: useCase.processes,
+            quadrant: useCase.quadrant,
+            tShirtSize: useCase.tShirtSize,
+            dataReadiness: useCase.dataReadiness,
+            technicalComplexity: useCase.technicalComplexity,
+            adoptionReadiness: useCase.adoptionReadiness,
+            capabilityTransition: useCase.capabilityTransition,
+            valueRealization: useCase.valueRealization,
+            tomPhase: useCase.tomPhase
+          };
+          
+          const derived = deriveAllFields(useCaseForDerivation, configs, {
+            overwriteValue: overwriteValue && 
+              (!useCase.valueRealization || useCase.valueRealization?.derived === true),
+            overwriteCapability
+          });
+          
+          // Set phaseEnteredAt if TOM phase derived and not already set
+          if (derived.tomPhase && !useCase.phaseEnteredAt) {
+            (derived as any).phaseEnteredAt = new Date();
+          }
+          
+          if (Object.keys(derived).length > 0) {
+            await storage.updateUseCase(useCase.id, derived);
+            
+            if (derived.tomPhase !== undefined) results.tomDerived++;
+            if (derived.valueRealization !== undefined) results.valueDerived++;
+            if (derived.capabilityTransition !== undefined) results.capabilityDerived++;
+          }
+        } catch (err) {
+          results.errors.push(`${useCase.id}: ${(err as Error).message}`);
+        }
+      }
+      
+      res.json({ success: true, ...results });
+    } catch (error) {
+      console.error("Error in bulk derivation:", error);
+      res.status(500).json({ error: "Failed to derive fields for use cases" });
     }
   });
 
