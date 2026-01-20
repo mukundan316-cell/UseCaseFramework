@@ -39,6 +39,19 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 - **User Feedback**: Integrated feedback collection system with contextual data capture.
 - **Progressive Disclosure**: Utilization of hover tooltips and interactive headers for calculation transparency.
 
+### Value Realization System (Jan 2026)
+A comprehensive KPI-based ROI tracking system for the 126 insurance use cases:
+
+- **KPI Library**: 9 insurance-specific KPIs with industry benchmarks (Claims Processing Time, First Contact Resolution, etc.) stored in `metadata_config.valueRealizationKpis`
+- **Process Mapping**: KPIs mapped to 14 business processes using existing `processes[]` and `activities[]` fields (57% and 7% populated respectively)
+- **Value Estimation**: Automated calculations based on maturity scores with confidence levels (high/medium/low)
+- **Unit Handling**: Smart validation - only converts monetary units (GBP/USD/EUR) to value; time/percentage KPIs display improvement in native units
+- **Admin Management**: KpiLibraryManagementLegoBlock in Admin Panel System tab for viewing/editing KPIs, benchmarks, and process mappings
+- **CRUD Integration**: ValueEstimationLegoBlock in Implementation tab shows real-time KPI matching when selecting processes
+- **Data Architecture**: Uses existing `valueRealization` JSONB field - no new schema columns required
+
+Key files: `shared/valueRealization.ts`, `client/src/components/lego-blocks/ValueEstimationLegoBlock.tsx`, `client/src/components/lego-blocks/KpiLibraryManagementLegoBlock.tsx`
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion
@@ -47,3 +60,9 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 - **Database**: PostgreSQL (@neondatabase/serverless)
 - **Session Management**: express-session, connect-pg-simple
 - **Specialized**: Survey.js ecosystem, Radix UI primitives, and 100+ other development dependencies.
+
+## Reference Assets
+Source documents retained in `attached_assets/`:
+- `Hexaware-Brand-Guidelines.pdf` - Official brand standards
+- `AI-Tool-Inventory-Source-Data.xlsx` - Original use case data
+- `Quadrant-Scoring-Methodology.docx` - Scoring framework reference
