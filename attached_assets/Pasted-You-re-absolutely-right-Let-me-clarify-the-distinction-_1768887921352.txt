@@ -1,0 +1,171 @@
+You're absolutely right. Let me clarify the distinction:
+
+Two Different Concepts
+ConceptWhat It IsCurrent StatusKPI Library with Industry BenchmarksPre-populated values by domain/use case type (e.g., "Claims Triage typically costs $125/claim, industry shows 20-35% reduction potential")Partially designed, needs enrichmentMaturity-Driven Range SelectionUses 10-lever scores to determine WHERE in the range a specific use case fallsDesigned but not built
+They work together:
+KPI LIBRARY (by domain/use case type)
+│
+├── Claims Triage (Insurance)
+│   ├── Cost per Claim: Baseline $125 (source: McKinsey 2024)
+│   ├── Improvement Range: 20-35% (industry benchmark)
+│   └── Cycle Time: Baseline 45 mins → 15-25 mins typical
+│
+└── When applied to a specific use case:
+    │
+    ├── System auto-populates: "Industry benchmark: $125/claim, 20-35% reduction"
+    │
+    ├── Maturity derivation says: "Your scores suggest DEVELOPING maturity"
+    │   └── "Expect 25-30% reduction (middle of range)"
+    │
+    └── User can override: "Our data shows $95/claim baseline, expect 40%"
+
+What's Missing
+The current KPI library structure has:
+
+✅ KPI definitions (cycle_time_reduction, cost_per_transaction, etc.)
+✅ Maturity rules (conditions based on scores)
+⚠️ Missing: Industry baseline VALUES by domain/use case type
+⚠️ Missing: Source attribution (McKinsey, BCG, etc.)
+⚠️ Missing: Domain/use case type mapping
+
+
+Revised KPI Library Structure
+json{
+  "kpiLibrary": {
+    "cost_per_transaction": {
+      "id": "cost_per_transaction",
+      "name": "Cost Per Transaction",
+      "description": "Cost to process each transaction/claim/policy",
+      "unit": "currency",
+      "direction": "decrease",
+      
+      "industryBenchmarks": {
+        "insurance": {
+          "claims_triage": {
+            "baselineValue": 125,
+            "baselineUnit": "USD",
+            "baselineSource": "McKinsey Insurance Operations 2024",
+            "improvementRange": { "min": 20, "max": 35 },
+            "improvementUnit": "%",
+            "typicalTimeline": "6-12 months",
+            "maturityTiers": {
+              "foundational": { "min": 20, "max": 25 },
+              "developing": { "min": 25, "max": 30 },
+              "advanced": { "min": 30, "max": 35 }
+            }
+          },
+          "underwriting": {
+            "baselineValue": 450,
+            "baselineUnit": "USD",
+            "baselineSource": "BCG Insurance Benchmarks 2024",
+            "improvementRange": { "min": 15, "max": 30 },
+            "maturityTiers": { ... }
+          },
+          "premium_audit": {
+            "baselineValue": 85,
+            "baselineUnit": "USD",
+            "baselineSource": "Deloitte Insurance Study 2023",
+            "improvementRange": { "min": 25, "max": 40 },
+            "maturityTiers": { ... }
+          }
+        },
+        "banking": {
+          "loan_processing": { ... },
+          "fraud_detection": { ... }
+        }
+      },
+      
+      "maturityConditions": {
+        "advanced": {
+          "dataReadiness": { "min": 4 },
+          "technicalComplexity": { "max": 2 }
+        },
+        "developing": {
+          "dataReadiness": { "min": 3 }
+        },
+        "foundational": {}
+      }
+    }
+  }
+}
+```
+
+---
+
+## Auto-Population Flow
+```
+1. User creates use case:
+   - Type: "Claims Triage"
+   - Industry: "Insurance" (could be derived from client context)
+
+2. System looks up KPI Library:
+   - Finds applicable KPIs for claims_triage + insurance
+   - cost_per_transaction, cycle_time, accuracy, etc.
+
+3. System auto-populates value estimates:
+   ┌─────────────────────────────────────────────────────────────┐
+   │ Cost Per Transaction                    [Industry Benchmark]│
+   │                                                             │
+   │ Baseline: $125/claim (McKinsey Insurance Operations 2024)   │
+   │ Industry Range: 20-35% reduction                            │
+   │                                                             │
+   │ Your Maturity: Developing (based on scores)                 │
+   │ Expected Range: 25-30% reduction                            │
+   │                                                             │
+   │ ☐ Override with custom values                               │
+   └─────────────────────────────────────────────────────────────┘
+
+4. User can:
+   - Accept industry benchmark (default)
+   - Override baseline: "Our cost is actually $95/claim"
+   - Override expected improvement: "We expect 40% based on pilot"
+   - Add reason: "Client has advanced data infrastructure"
+```
+
+---
+
+## Strategic Questions
+
+Before proceeding, we need to decide:
+
+| Question | Options |
+|----------|---------|
+| **How deep is the benchmark library?** | A) Pre-populate 5-10 KPIs for insurance only (Markel focus) <br> B) Build extensible structure, populate minimally |
+| **Where do benchmarks come from?** | A) Your existing research docs (markel-value-framework.md, value-calculation-algorithms.md) <br> B) Placeholder values with "Source TBD" |
+| **Domain/industry handling?** | A) Single domain (Insurance) for now <br> B) Multi-domain structure, only Insurance populated |
+| **Use case type mapping?** | A) Use existing `useCaseType` field <br> B) Create new taxonomy |
+
+---
+
+## My Recommendation
+
+For Markel presentation:
+
+1. **Structure**: Build the full hierarchical structure (domain → use case type → KPI → maturity tiers)
+2. **Content**: Pre-populate **Insurance domain only** with values from your existing research docs
+3. **Use case types**: Use existing field, map to 5-6 insurance categories (Claims, Underwriting, Fraud, Premium Audit, Pricing, FNOL)
+4. **Sources**: Cite McKinsey/BCG/Deloitte where you have them, mark others as "Industry Average"
+5. **Override**: Always allow user override with reason capture
+
+---
+
+## Revised Audit Question
+
+Before finalizing Phase 2 prompt, we need the agent to clarify:
+```
+CLARIFICATION REQUEST: KPI Library & Use Case Type Mapping
+
+1. What values currently exist in useCaseType field across the 126 use cases?
+   - List distinct values and counts
+
+2. Is there an existing industry/domain field on use cases or in metadata?
+
+3. In the current valueRealizationConfig.kpiLibrary:
+   - Is there any mapping to use case types?
+   - Are there any baseline values populated?
+
+4. In the existing research documents (markel-value-framework.md, value-calculation-algorithms.md):
+   - What specific baseline values are cited?
+   - What sources are referenced?
+
+This will inform how we structure the industry benchmark library.

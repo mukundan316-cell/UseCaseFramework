@@ -1,0 +1,24 @@
+These are critical strategic questions. Let me reflect on each:
+
+1. Can Value Realization Be Reflected at Use Case Level Automatically?
+Current State: The plan has derivation logic, but it's triggered on-demand (when user views or edits).
+The Real Question: Should every use case automatically have derived value estimates based on its scores, even without user intervention?
+ApproachBehaviorTrade-offOn-demand derivationValues calculated when viewed/editedLightweight, but no portfolio-wide visibility until touchedAuto-populationAll 126 use cases get derived values on system startup/migrationImmediate portfolio insights, but may show estimates user hasn't validatedHybridDerive on-demand, but show "estimated" flag in aggregatesBest of both - visibility with transparency
+My View: Hybrid is correct. Use cases should show derived estimates automatically (using existing scores), but clearly marked as "System Estimate" until user confirms or overrides.
+
+2. Calculated Values Visible in Existing CRUD Modal
+The Concern: We're adding new tabs and views, but are we updating the existing CRUD modal to show derived/calculated values inline?
+Currently in CRUD modal:
+
+10-lever scores ✅ (user enters)
+T-shirt sizing ✅ (auto-calculated from scores)
+TOM Phase ⚠️ (is it visible in modal header?)
+Value Estimates ❓ (not yet integrated)
+ROI ❓ (not yet integrated)
+
+The Principle: A user editing a use case should see ALL derived values in context, not have to jump to different tabs/pages.
+Gap Identified: We may be building "Value Realization" as a separate tab, but not showing the derived estimates in the main Overview/Summary section of the CRUD modal.
+
+3. Is Admin Module Comprehensive?
+FeatureAdmin Config Exists?Metadata (processes, activities, etc.)✅ YesScoring dropdown options✅ YesT-shirt sizing config✅ YesTOM Configuration✅ YesValue Realization config🔨 PlannedCapability Transition config❌ Not yetResponsible AI config❌ Not yet
+Gap: We're building features without ensuring Admin can manage all configuration. Each feature should have its Admin counterpart.

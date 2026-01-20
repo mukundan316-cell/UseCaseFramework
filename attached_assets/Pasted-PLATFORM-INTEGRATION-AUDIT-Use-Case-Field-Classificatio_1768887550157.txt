@@ -1,0 +1,87 @@
+PLATFORM INTEGRATION AUDIT
+Use Case Field Classification
+Field Category	Fields	Type
+User-Entered (Core)	title, description, problemStatement, useCaseType, processes[], activities[], linesOfBusiness[], businessSegments[], geographies[]	Direct input
+User-Entered (Scoring Levers)	revenueImpact, costSavings, riskReduction, brokerPartnerExperience, strategicFit, dataReadiness, technicalComplexity, changeImpact, modelRisk, adoptionReadiness	1-5 scale
+User-Entered (Overrides)	manualImpactScore, manualEffortScore, manualQuadrant, overrideReason, tomPhaseOverride, tomOverrideReason	Optional overrides
+User-Entered (T-shirt)	tShirtSize, estimatedCostMin/Max, estimatedWeeksMin/Max, teamSizeEstimate	Stored on record
+User-Entered (Value)	valueRealization.selectedKpis, investment, tracking entries	JSONB field
+System-Calculated	impactScore, effortScore, quadrant (from 10 levers + weights)	Calculated & stored
+System-Derived (on-the-fly)	derivedPhase (TOM phase from status + deploymentStatus + tomConfig)	NOT stored - calculated per API call
+CRUD Modal Visibility Assessment
+Derived/Calculated Value	Visible in CRUD Modal?	Editable?	Notes
+TOM Phase Badge	✅ Yes	Read-only display	Shows when TOM enabled, displays current derived phase
+T-shirt Sizing Summary	❌ NO	N/A	Missing - T-shirt size fields exist on schema but not shown in modal
+Impact/Effort Scores	✅ Yes (Scoring tab)	User selects lever values, scores auto-calculated	10-lever input with real-time calculation
+Quadrant Assignment	❌ NO	N/A	Quadrant is calculated but not displayed in modal
+Value Estimates	❌ NO	N/A	Value Realization tab exists but not integrated into CRUD modal
+Feature Completeness Matrix
+TOM (Target Operating Model)
+Component	Status	Notes
+Schema: metadataConfig.tomConfig	✅ Complete	Full JSONB with phases, presets, derivation rules
+Schema: useCases TOM fields	✅ Complete	tomPhaseOverride, phaseEnteredAt, tomOverrideReason
+API: Config endpoints	✅ Complete	GET/PUT /api/tom/config, /api/tom/phase-summary
+API: Phase derivation in response	✅ Complete	enrichUseCasesWithTomPhase() adds derivedPhase to list endpoints
+CRUD Modal: Phase visible	✅ Complete	Shows badge with phase name and override indicator
+Explorer: Phase filter/column	⚠️ Needs verification	Uses derivedPhase from API
+Dashboard: Phase breakdown	✅ Complete	TomPhaseBreakdownLegoBlock visualizes distribution
+Admin: TOM Configuration tab	✅ Complete	Full phase editor, preset management
+Documentation: replit.md	✅ Complete	TOM documented
+T-SHIRT SIZING
+Component	Status	Notes
+Schema: metadataConfig.tShirtSizing	✅ Complete	Sizes, roles, rates, mapping rules
+Schema: useCases sizing fields	✅ Complete	tShirtSize, estimatedCost/Weeks Min/Max, teamSizeEstimate
+API: Sizing calculation	✅ Complete	calculateTShirtSizingForUseCase() in storage.ts
+CRUD Modal: Sizing visible/editable	❌ MISSING	Critical gap - fields exist but no UI
+Explorer: Sizing column	⚠️ Unknown	Needs verification
+Dashboard: Resource planning	⚠️ Unknown	Portfolio cost rollup unclear
+Admin: Sizing configuration	✅ Complete	TShirtSizingConfigLegoBlock in System tab
+Documentation	✅ Mentioned	Brief mention in replit.md
+SCORING (10-lever)
+Component	Status	Notes
+Schema: score fields	✅ Complete	All 10 levers + impact/effort/quadrant
+Schema: metadataConfig.scoringDropdownOptions	✅ Complete	Per-lever dropdown options
+API: Score calculation	✅ Complete	calculateImpactScore/calculateEffortScore
+CRUD Modal: Scoring tab	✅ Complete	Full 10-lever input with sliders
+Explorer: Score columns	✅ Complete	impactScore, effortScore displayed
+Dashboard: Score-based analytics	✅ Complete	Matrix plot uses scores
+Admin: Scoring options config	✅ Complete	ScoringDropdownManagementLegoBlock
+Documentation	✅ Complete	Scoring documented
+VALUE REALIZATION
+Component	Status	Notes
+Schema: useCases.valueRealization	✅ Complete	JSONB with KPIs, investment, tracking
+Schema: metadataConfig.valueRealizationConfig	✅ Complete	KPI library, calculation config
+API: Portfolio summary	✅ Complete	/api/value/portfolio-summary
+API: KPI library	✅ Complete	/api/value/kpi-library
+CRUD Modal: Value visible/editable	❌ MISSING	Critical gap - no UI in CRUD modal
+Insights: Value Realization View	✅ Complete	ValueRealizationView component
+Admin: Value configuration	⚠️ Needs verification	May need dedicated tab
+Documentation	⚠️ Minimal	Not detailed in replit.md
+Admin Coverage
+Configuration	Admin UI Exists?	Location
+Metadata (processes, LOBs, etc.)	✅ Yes	Admin > Data Management
+Scoring dropdown options	✅ Yes	Admin > Data Management > Scoring Dropdown Options
+Scoring model weights	✅ Yes	Admin > System > ScoringModelManagementBlock
+T-shirt sizing rates	✅ Yes	Admin > System > TShirtSizingConfigLegoBlock
+TOM phases/presets	✅ Yes	Admin > TOM
+Value Realization KPIs	❌ MISSING	No dedicated admin tab for KPI library
+Aggregation Consistency
+Aggregation	Calculated Where	Consistent?
+Use cases per quadrant	Frontend (matrix plot)	✅ Uses quadrant from API response
+Use cases per TOM phase	Server (/api/tom/phase-summary)	✅ Uses consistent derivation
+Portfolio investment	Server (aggregatePortfolioValue)	✅ Central calculation
+Resource planning totals	❓ Unknown	T-shirt cost rollup not clearly implemented
+Critical Gaps
+T-shirt Sizing not visible in CRUD Modal - Fields exist in schema, calculation works, but no UI to view/edit in the use case form
+Value Realization not in CRUD Modal - Full tracking system exists but not integrated into individual use case editing
+Quadrant not displayed in CRUD Modal - Score is calculated but resulting quadrant isn't shown
+No Admin UI for Value Realization KPI Library - Config exists but no way to customize KPIs
+T-shirt sizing may not be auto-calculated - API exists but unclear if sizing is recalculated on use case save
+Recommendations Before Phase 2
+Add T-shirt Sizing display to CRUD Modal - Show calculated size, cost range, and timeline in a read-only section (or editable override)
+Add Quadrant display to CRUD Modal - Show which quadrant the use case falls into based on scores
+Consider Value Realization tab in CRUD Modal - Allow entering KPIs, investment, and tracking data per use case
+Add Value Config Admin tab - Enable admins to customize the KPI library
+Ensure T-shirt sizing auto-calculates on save - Verify or add recalculation logic when scores change
+Update replit.md - Document Value Realization feature fully
+This audit shows the platform has solid schema and backend infrastructure for all major features, but T-shirt sizing and Value Realization have visibility gaps in the CRUD modal - users can't see or interact with these features when creating/editing individual use cases.
