@@ -11,6 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const tabs = [
     { id: 'dashboard' as TabType, label: 'Dashboard View', icon: Sparkle },
     { id: 'explorer' as TabType, label: 'Explorer', icon: Search },
+    { id: 'insights' as TabType, label: 'Insights', icon: Brain },
     { id: 'assessment' as TabType, label: 'AI Assessment', icon: ClipboardCheck },
     { id: 'admin' as TabType, label: 'Admin', icon: Settings },
   ];

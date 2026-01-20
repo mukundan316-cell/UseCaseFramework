@@ -20,6 +20,7 @@ import RSAAssessmentLandingPage from "./components/RSAAssessmentLandingPage";
 import SurveyJsAssessment from "./pages/SurveyJsAssessment";
 import StandaloneSurveyDemo from "./pages/StandaloneSurveyDemo";
 import AIRoadmapPage from "./pages/AIRoadmapPage";
+import InsightsPage from "./pages/InsightsPage";
 import { AssessmentSessionStart } from "./components/AssessmentSessionStart";
 import NotFound from "@/pages/not-found";
 
@@ -143,6 +144,16 @@ function Router() {
               }}
               onRetake={() => alert('Retake assessment clicked!')}
             />
+          </ErrorBoundary>
+        } />
+        <Route path="/insights" component={() => 
+          <ErrorBoundary>
+            <InsightsPage />
+          </ErrorBoundary>
+        } />
+        <Route path="/insights/:subTab" component={({ params: { subTab } }) => 
+          <ErrorBoundary>
+            <InsightsPage defaultTab={subTab as 'value-realization' | 'operating-model' | 'capability-transition' | 'responsible-ai'} />
           </ErrorBoundary>
         } />
         <Route component={() => 

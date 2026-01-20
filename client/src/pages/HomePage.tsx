@@ -3,6 +3,7 @@ import { useUseCases } from '../contexts/UseCaseContext';
 import Layout from '../components/Layout';
 import DashboardView from '../components/DashboardView';
 import Explorer from '../components/Explorer';
+import InsightsPage from './InsightsPage';
 import AdminPanel from '../components/AdminPanel';
 import RSAAssessmentLandingPage from '../components/RSAAssessmentLandingPage';
 
@@ -15,6 +16,8 @@ export default function HomePage() {
         return <DashboardView />;
       case 'explorer':
         return <Explorer />;
+      case 'insights':
+        return <InsightsPage />;
       case 'admin':
         return <AdminPanel />;
       case 'assessment':

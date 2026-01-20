@@ -827,6 +827,169 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // =============================================================================
+  // VALUE REALIZATION API ENDPOINTS
+  // =============================================================================
+
+  app.get("/api/value/config", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      if (!metadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      
+      // Return config or default if not set
+      const { DEFAULT_VALUE_REALIZATION_CONFIG } = await import("@shared/valueRealization");
+      const config = metadata.valueRealizationConfig || DEFAULT_VALUE_REALIZATION_CONFIG;
+      res.json(config);
+    } catch (error) {
+      console.error("Error fetching value config:", error);
+      res.status(500).json({ error: "Failed to fetch value configuration" });
+    }
+  });
+
+  app.put("/api/value/config", async (req, res) => {
+    try {
+      const maturityConditionSchema = z.object({
+        min: z.number().optional(),
+        max: z.number().optional(),
+      });
+      
+      const maturityRuleSchema = z.object({
+        level: z.enum(['advanced', 'developing', 'foundational']),
+        conditions: z.record(maturityConditionSchema),
+        range: z.object({
+          min: z.number(),
+          max: z.number(),
+        }),
+        confidence: z.enum(['high', 'medium', 'low']),
+      });
+      
+      const kpiDefinitionSchema = z.object({
+        id: z.string(),
+        name: z.string(),
+        description: z.string(),
+        unit: z.string(),
+        direction: z.enum(['increase', 'decrease']),
+        applicableUseCaseTypes: z.array(z.string()),
+        maturityRules: z.array(maturityRuleSchema),
+      });
+      
+      const configSchema = z.object({
+        enabled: z.string().optional(),
+        kpiLibrary: z.record(kpiDefinitionSchema).optional(),
+        calculationConfig: z.object({
+          roiFormula: z.string(),
+          breakevenFormula: z.string(),
+          defaultCurrency: z.string(),
+          fiscalYearStart: z.number(),
+        }).optional(),
+      });
+      
+      const parseResult = configSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid configuration format", details: parseResult.error.errors });
+      }
+      
+      const currentMetadata = await storage.getMetadataConfig();
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      
+      const { DEFAULT_VALUE_REALIZATION_CONFIG } = await import("@shared/valueRealization");
+      const existingConfig = currentMetadata.valueRealizationConfig || DEFAULT_VALUE_REALIZATION_CONFIG;
+      
+      const mergedConfig = {
+        enabled: parseResult.data.enabled ?? existingConfig.enabled,
+        kpiLibrary: parseResult.data.kpiLibrary ?? existingConfig.kpiLibrary,
+        calculationConfig: parseResult.data.calculationConfig ?? existingConfig.calculationConfig,
+      };
+      
+      const updatedMetadata = {
+        ...currentMetadata,
+        valueRealizationConfig: mergedConfig
+      };
+      
+      const result = await storage.updateMetadataConfig(updatedMetadata);
+      res.json(result?.valueRealizationConfig);
+    } catch (error) {
+      console.error("Error updating value config:", error);
+      res.status(500).json({ error: "Failed to update value configuration" });
+    }
+  });
+
+  app.get("/api/value/kpi-library", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      const { DEFAULT_VALUE_REALIZATION_CONFIG } = await import("@shared/valueRealization");
+      const config = metadata?.valueRealizationConfig || DEFAULT_VALUE_REALIZATION_CONFIG;
+      res.json(config.kpiLibrary || {});
+    } catch (error) {
+      console.error("Error fetching KPI library:", error);
+      res.status(500).json({ error: "Failed to fetch KPI library" });
+    }
+  });
+
+  app.get("/api/value/portfolio-summary", async (req, res) => {
+    try {
+      const useCases = await storage.getAllUseCases();
+      const metadata = await storage.getMetadataConfig();
+      const tomModule = await import("@shared/tom");
+      const { aggregatePortfolioValue } = await import("@shared/valueRealization");
+      const derivePhase = tomModule.derivePhase;
+      
+      const tomConfig = metadata?.tomConfig as TomConfig | null;
+      
+      // Map use cases with derived phases
+      const useCasesWithPhases = useCases.map(uc => {
+        let derivedPhase = null;
+        if (tomConfig?.enabled === 'true') {
+          const phaseResult = derivePhase(
+            uc.useCaseStatus,
+            uc.deploymentStatus,
+            uc.tomPhaseOverride,
+            tomConfig
+          );
+          derivedPhase = phaseResult;
+        }
+        return {
+          ...uc,
+          derivedPhase,
+          valueRealization: uc.valueRealization as any
+        };
+      });
+      
+      const summary = aggregatePortfolioValue(useCasesWithPhases);
+      res.json(summary);
+    } catch (error) {
+      console.error("Error calculating portfolio summary:", error);
+      res.status(500).json({ error: "Failed to calculate portfolio summary" });
+    }
+  });
+
+  app.post("/api/value/seed-default", async (req, res) => {
+    try {
+      const { DEFAULT_VALUE_REALIZATION_CONFIG } = await import("@shared/valueRealization");
+      const currentMetadata = await storage.getMetadataConfig();
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      const updatedMetadata = {
+        ...currentMetadata,
+        valueRealizationConfig: DEFAULT_VALUE_REALIZATION_CONFIG
+      };
+      const result = await storage.updateMetadataConfig(updatedMetadata);
+      res.json({ 
+        success: true, 
+        message: "Default Value Realization configuration seeded successfully",
+        valueRealizationConfig: result?.valueRealizationConfig 
+      });
+    } catch (error) {
+      console.error("Error seeding Value config:", error);
+      res.status(500).json({ error: "Failed to seed Value Realization configuration" });
+    }
+  });
+
   // Section progress tracking is handled by the blob storage system via questionnaire routes
 
   // Register questionnaire routes (blob storage based)

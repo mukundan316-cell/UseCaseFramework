@@ -118,6 +118,41 @@ export const useCases: any = pgTable("use_cases", {
   phaseEnteredAt: timestamp("phase_entered_at"), // Auto-updated when derived phase changes
   tomOverrideReason: text("tom_override_reason"), // Reason for manual phase override
   
+  // Value Realization tracking
+  valueRealization: jsonb("value_realization").$type<{
+    selectedKpis: string[];
+    kpiValues: Record<string, {
+      baselineValue: number | null;
+      baselineUnit: string;
+      targetValue: number | null;
+      targetUnit: string;
+      derivedMaturityLevel: 'advanced' | 'developing' | 'foundational' | null;
+      derivedRange: { min: number; max: number } | null;
+      derivedConfidence: 'high' | 'medium' | 'low' | null;
+      isOverridden: boolean;
+      overrideValue: number | null;
+      overrideReason: string | null;
+    }>;
+    investment: {
+      initialInvestment: number;
+      ongoingMonthlyCost: number;
+      currency: string;
+    } | null;
+    tracking: {
+      entries: Array<{
+        month: string;
+        actuals: Record<string, { value: number; unit: string }>;
+        notes: string;
+      }>;
+    };
+    calculatedMetrics: {
+      currentRoi: number | null;
+      projectedBreakevenMonth: string | null;
+      cumulativeValueGbp: number | null;
+      lastCalculated: string | null;
+    };
+  }>(),
+  
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -359,6 +394,30 @@ export const metadataConfig = pgTable('metadata_config', {
       matchOrder: string[];
       fallbackBehavior: string;
       nullDeploymentHandling: string;
+    };
+  }>(),
+  // Value Realization Configuration
+  valueRealizationConfig: jsonb('value_realization_config').$type<{
+    enabled: string;
+    kpiLibrary: Record<string, {
+      id: string;
+      name: string;
+      description: string;
+      unit: string;
+      direction: 'increase' | 'decrease';
+      applicableUseCaseTypes: string[];
+      maturityRules: Array<{
+        level: 'advanced' | 'developing' | 'foundational';
+        conditions: Record<string, { min?: number; max?: number }>;
+        range: { min: number; max: number };
+        confidence: 'high' | 'medium' | 'low';
+      }>;
+    }>;
+    calculationConfig: {
+      roiFormula: string;
+      breakevenFormula: string;
+      defaultCurrency: string;
+      fiscalYearStart: number;
     };
   }>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
