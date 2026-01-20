@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { UseCaseProvider } from "./contexts/UseCaseContext";
 import HomePage from "./pages/HomePage";
-import AssessmentResultsDashboard from "./components/lego-blocks/AssessmentResultsDashboard";
 import RSAAssessmentLandingPage from "./components/RSAAssessmentLandingPage";
 import SurveyJsAssessment from "./pages/SurveyJsAssessment";
 import AIRoadmapPage from "./pages/AIRoadmapPage";
@@ -54,13 +53,6 @@ function Router() {
           </ErrorBoundary>
         } />
 
-        <Route path="/results/:responseId" component={({ params: { responseId } }) => 
-          <ErrorBoundary>
-            <AssessmentResultsDashboard 
-              responseId={responseId}
-            />
-          </ErrorBoundary>
-        } />
         <Route path="/insights" component={() => 
           <ErrorBoundary>
             <InsightsPage />

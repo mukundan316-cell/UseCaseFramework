@@ -3,6 +3,12 @@
 ## Overview
 This project is a production-ready strategic platform designed to prioritize AI use cases within Hexaware. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform aims to streamline AI strategy and decision-making by enabling efficient management, evaluation, and tracking of AI initiatives, ultimately supporting Hexaware's business vision and market potential in the AI domain.
 
+## Recent Changes (January 2026)
+- **Value Realization Improvements**: Fixed KPI-derived value estimation to properly aggregate £45/hr hourly rates, displaying £12.8M total across 72 use cases with estimates
+- **Insights Tab Consistency**: Standardized all four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) with matching layout patterns including summary cards, distribution charts, and use case tables
+- **Project Cleanup**: Removed 20 unused LEGO-block components, temp screenshot images, and outdated planning documentation
+- **Bulk Value Derivation**: Added `/api/value/derive-all` endpoint for batch processing of value estimates across all use cases
+
 ## User Preferences
 - **Communication**: Simple, everyday language
 - **Architecture**: LEGO-style reusable components
@@ -29,25 +35,56 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 - **Analytics**: Interactive matrix plots, executive dashboards, and PDF export with ROI explanations.
 - **Assessment System**: Multi-questionnaire platform using Survey.js for dynamic workflows.
 - **File Management**: Local filesystem storage (`uploads/`) for various file types, with metadata tracking and a 50MB per file limit.
-- **Modularity**: Emphasizes "LEGO components" for reusability.
+- **Modularity**: ~65 active LEGO components for reusability (pruned from 85+).
 - **Validation**: Minimal validation (title + description) using Zod schemas and centralized configuration.
 - **Excel Integration**: Multi-worksheet import/export with auto-ID generation.
 - **API Design**: RESTful patterns with structured error responses and server-side validation.
 - **Security**: Input sanitization, parameterized queries, and secure session management.
 - **Performance**: Client-side PDF generation, debounced search, and optimized rendering.
 - **T-shirt Sizing**: Implements UK benchmark compliance for cost and timeline estimations.
-- **Value Realization System**: KPI-based ROI tracking for use cases, including a KPI library, process mapping, and automated value estimation based on maturity scores.
+- **Value Realization System**: KPI-based ROI tracking for use cases, including a KPI library, process mapping, and automated value estimation based on maturity scores. Uses £45/hr for hour-based KPI estimates.
 - **Capability Transition Benchmark Derivation**: Automated population of capability transition data (staffing curves, independence projections) from use case attributes, using benchmark archetypes and pace modifiers.
 - **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations with override protection.
 - **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table, providing a flexible and configurable system with default fallbacks.
 - **Compliance Features**: Duplicate detection, full audit trail (`use_case_change_log`), and role evolution tracking within capability transitions.
 - **Navigation**: All features accessible via tab navigation from home page: Dashboard View, Explorer, Insights, AI Assessment, Admin.
 
+### Insights Dashboard Structure
+All four Insights tabs follow a consistent pattern:
+1. **Summary Cards**: 4 key metrics with icons and help tooltips
+2. **Distribution Charts**: Visual breakdowns (bar charts, progress bars)
+3. **Use Case Table**: Detailed list with status badges and key metrics
+
+Tabs:
+- **Value Realization**: Portfolio value tracking (£12.8M estimated, 72 use cases with estimates)
+- **Operating Model**: TOM phase distribution and lifecycle management
+- **Capability Transition**: Staffing projections and independence metrics
+- **Responsible AI**: RAI compliance scoring and risk assessment
+
+## Project Structure (Key Directories)
+```
+client/src/
+├── components/
+│   ├── insights/          # 4 Insights tab views
+│   ├── lego-blocks/       # ~65 reusable LEGO components
+│   ├── analytics/         # Dashboard and chart components
+│   └── ui/                # shadcn/ui primitives
+├── pages/                 # Route pages
+└── lib/                   # Utilities and API client
+server/
+├── routes.ts              # All API endpoints
+├── derivation.ts          # Value/TOM/capability derivation logic
+└── storage.ts             # Database interface
+shared/
+├── schema.ts              # Drizzle ORM schema
+└── valueRealization.ts    # Value calculation utilities
+```
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion
 - **Data Management**: Drizzle ORM, TanStack Query, Zod
-- **File Processing**: PDFKit, Survey.js, LibreOffice, Multer, ImageMagick
+- **File Processing**: PDFKit, Survey.js, LibreOffice, Multer
 - **Database**: PostgreSQL (@neondatabase/serverless)
 - **Session Management**: express-session, connect-pg-simple
-- **Specialized**: Survey.js ecosystem, Radix UI primitives.
+- **Specialized**: Survey.js ecosystem, Radix UI primitives
