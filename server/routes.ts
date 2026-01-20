@@ -1505,6 +1505,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PUT /api/derivation/formulas - Update derivation formulas
+  app.put("/api/derivation/formulas", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      if (!metadata) {
+        return res.status(404).json({ error: "Metadata not found" });
+      }
+
+      const updatedFormulas = req.body;
+      
+      // Deep merge with existing formulas, preserving nested structure
+      const existingFormulas = (metadata as any).derivationFormulas || {};
+      const deepMerge = (target: any, source: any): any => {
+        const result = { ...target };
+        for (const key of Object.keys(source)) {
+          if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+            result[key] = deepMerge(target[key] || {}, source[key]);
+          } else {
+            result[key] = source[key];
+          }
+        }
+        return result;
+      };
+      
+      const mergedFormulas = deepMerge(existingFormulas, {
+        ...updatedFormulas,
+        lastUpdated: new Date().toISOString()
+      });
+
+      // Update metadata with new formulas
+      await storage.updateMetadataConfig({
+        ...metadata,
+        derivationFormulas: mergedFormulas
+      } as any);
+
+      res.json({ 
+        success: true, 
+        message: "Derivation formulas updated",
+        formulas: mergedFormulas
+      });
+    } catch (error) {
+      console.error("Error updating derivation formulas:", error);
+      res.status(500).json({ error: "Failed to update derivation formulas" });
+    }
+  });
+
   // POST /api/derivation/seed - Persist derivation formulas to database (SSOT)
   app.post("/api/derivation/seed", async (req, res) => {
     try {

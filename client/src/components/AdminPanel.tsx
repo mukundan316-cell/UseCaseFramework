@@ -8,7 +8,7 @@ import { useUseCases } from '../contexts/UseCaseContext';
 import MetadataLegoBlock from './MetadataLegoBlock';
 import ReorderableMetadataBlock from './lego-blocks/ReorderableMetadataBlock';
 import ProcessActivityManagementBlock from './lego-blocks/ProcessActivityManagementBlock';
-import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementSimple';
+import ScoringModelManagementBlock from './lego-blocks/ScoringModelManagementBlock';
 import TShirtSizingConfigLegoBlock from './lego-blocks/TShirtSizingConfigLegoBlock';
 import ScoringDropdownManagementLegoBlock from './lego-blocks/ScoringDropdownManagementLegoBlock';
 import QuestionTemplateLibraryLegoBlock from './lego-blocks/QuestionTemplateLibraryLegoBlock';
