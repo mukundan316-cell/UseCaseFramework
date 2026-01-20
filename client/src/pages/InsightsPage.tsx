@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Target, Users, Shield } from 'lucide-react';
-import InsightsPlaceholderLegoBlock from '@/components/lego-blocks/InsightsPlaceholderLegoBlock';
 import TomPhaseBreakdownLegoBlock from '@/components/lego-blocks/TomPhaseBreakdownLegoBlock';
 import ValueRealizationView from '@/components/insights/ValueRealizationView';
 import CapabilityTransitionView from '@/components/insights/CapabilityTransitionView';
+import ResponsibleAIPortfolioView from '@/components/insights/ResponsibleAIPortfolioView';
 
 type InsightsSubTab = 'value-realization' | 'operating-model' | 'capability-transition' | 'responsible-ai';
 
@@ -69,12 +69,7 @@ export default function InsightsPage({ defaultTab = 'value-realization' }: Insig
             </TabsContent>
 
             <TabsContent value="responsible-ai" className="space-y-6">
-              <InsightsPlaceholderLegoBlock
-                title="Responsible AI"
-                description="Consolidated view of AI governance, risk assessments, and compliance tracking across the portfolio."
-                icon={Shield}
-                comingSoon={true}
-              />
+              <ResponsibleAIPortfolioView />
             </TabsContent>
           </Tabs>
         </CardContent>
