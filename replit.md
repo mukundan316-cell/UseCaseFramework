@@ -111,6 +111,24 @@ Three key governance gaps addressed per audit:
 
 Key files: `shared/schema.ts` (new tables/fields), `server/storage.ts` (logUseCaseChange, findSimilarUseCases), `server/routes.ts` (API endpoints), `client/src/components/lego-blocks/AuditTimelineLegoBlock.tsx`, `RoleEvolutionLegoBlock.tsx`
 
+### Multi-Client TOM Configuration System (Jan 2026)
+Database-driven Target Operating Model supporting multiple client configurations without hardcoded client-specific details:
+
+- **Operating Model Presets**: 5 configurable presets (Centralized CoE, Federated, Hybrid, CoE-Led, RSA Enterprise TOM)
+  - RSA TOM: 6-phase lifecycle (Ideation→Assessment→Foundation→Build→Scale→Operate) with Innovation Board governance
+  - API: `POST /api/tom/sync-defaults` backfills DEFAULT_TOM_CONFIG presets, profiles, and governance bodies into database
+  
+- **Consolidated Admin Experience**: All TOM-related content under single Admin Panel TOM tab
+  - TomConfigurationLegoBlock: Client selector, preset activation, phase distribution, governance configuration
+  - PhaseManagementLegoBlock: Full CRUD for lifecycle phases per client
+  - Cross-component synchronization via localStorage ('tomClientId') with polling listener
+  
+- **Client Isolation**: All API endpoints accept `clientId` query parameter for tenant-specific configuration
+  - Default client: 'default' for Hexaware standard configuration
+  - Each client maintains independent presets, phases, governance bodies, and derivation rules
+
+Key files: `shared/tom.ts` (DEFAULT_TOM_CONFIG, TomConfig types), `client/src/components/lego-blocks/TomConfigurationLegoBlock.tsx`, `PhaseManagementLegoBlock.tsx`
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion
