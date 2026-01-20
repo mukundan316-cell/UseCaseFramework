@@ -1059,6 +1059,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Backfill endpoint - sync DEFAULT_TOM_CONFIG presets/profiles to database
+  app.post("/api/tom/sync-defaults", async (req, res) => {
+    try {
+      const clientId = (req.query.clientId as string) || 'default';
+      const currentMetadata = await storage.getMetadataConfigById(clientId);
+      
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      
+      const { ensureTomConfig, DEFAULT_TOM_CONFIG } = await import("@shared/tom");
+      const currentTom = ensureTomConfig(currentMetadata.tomConfig);
+      
+      // Merge presets from DEFAULT_TOM_CONFIG (add missing, preserve existing)
+      const mergedPresets = {
+        ...DEFAULT_TOM_CONFIG.presets,
+        ...currentTom.presets
+      };
+      
+      // Merge presetProfiles from DEFAULT_TOM_CONFIG (add missing, preserve existing)
+      const mergedProfiles = {
+        ...DEFAULT_TOM_CONFIG.presetProfiles,
+        ...currentTom.presetProfiles
+      };
+      
+      // Merge governance bodies (add missing based on id)
+      const existingBodyIds = new Set(currentTom.governanceBodies.map(b => b.id));
+      const mergedGovernance = [
+        ...currentTom.governanceBodies,
+        ...DEFAULT_TOM_CONFIG.governanceBodies.filter(b => !existingBodyIds.has(b.id))
+      ];
+      
+      const updatedTom = {
+        ...currentTom,
+        presets: mergedPresets,
+        presetProfiles: mergedProfiles,
+        governanceBodies: mergedGovernance
+      };
+      
+      const updatedMetadata = {
+        ...currentMetadata,
+        tomConfig: updatedTom
+      };
+      
+      const result = await storage.updateMetadataConfigById(clientId, updatedMetadata);
+      
+      res.json({ 
+        success: true, 
+        message: 'TOM configuration synced with defaults',
+        presetsAdded: Object.keys(mergedPresets).filter(k => !currentTom.presets[k]),
+        profilesAdded: Object.keys(mergedProfiles).filter(k => !currentTom.presetProfiles[k]),
+        governanceAdded: mergedGovernance.length - currentTom.governanceBodies.length
+      });
+    } catch (error) {
+      console.error("Error syncing TOM defaults:", error);
+      res.status(500).json({ error: "Failed to sync TOM defaults" });
+    }
+  });
+
   app.post("/api/tom/phases/load-preset/:presetId", async (req, res) => {
     try {
       const { presetId } = req.params;

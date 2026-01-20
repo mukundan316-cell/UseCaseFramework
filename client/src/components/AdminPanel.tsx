@@ -544,6 +544,8 @@ export default function AdminPanel() {
               </div>
               
               <TomConfigurationLegoBlock />
+              
+              <PhaseManagementLegoBlock />
             </TabsContent>
 
             {/* System Configuration Tab */}
@@ -558,9 +560,6 @@ export default function AdminPanel() {
               
               {/* System Configuration Components */}
               <div className="space-y-6">
-                {/* TOM Phase Management */}
-                <PhaseManagementLegoBlock />
-                
                 {/* KPI Library Management */}
                 <KpiLibraryManagementLegoBlock />
                 

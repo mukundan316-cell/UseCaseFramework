@@ -20,7 +20,6 @@ interface ClientOption {
 export default function TomConfigurationLegoBlock() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [expandedPhase, setExpandedPhase] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string>(() => {
     return localStorage.getItem('tomClientId') || 'default';
   });
@@ -86,6 +85,29 @@ export default function TomConfigurationLegoBlock() {
     },
   });
 
+  const syncDefaultsMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/tom/sync-defaults?clientId=${selectedClientId}`, {
+        method: 'POST',
+      });
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/config', selectedClientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary', selectedClientId] });
+      toast({
+        title: 'Configuration Synced',
+        description: `Added ${data.presetsAdded?.length || 0} presets and ${data.governanceAdded || 0} governance bodies.`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Sync Failed',
+        description: 'Failed to sync TOM defaults.',
+        variant: 'destructive',
+      });
+    },
+  });
+
   const activePresetProfile = tomConfig?.presetProfiles?.[tomConfig.activePreset] as TomPresetProfile | undefined;
 
   const handleToggleEnabled = (checked: boolean) => {
@@ -133,6 +155,18 @@ export default function TomConfigurationLegoBlock() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => syncDefaultsMutation.mutate()}
+                disabled={syncDefaultsMutation.isPending}
+                data-testid="button-sync-defaults"
+              >
+                {syncDefaultsMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : null}
+                Sync Defaults
+              </Button>
               <Label htmlFor="tom-enabled" className="text-sm font-medium">
                 {isEnabled ? 'Enabled' : 'Disabled'}
               </Label>
@@ -248,29 +282,6 @@ export default function TomConfigurationLegoBlock() {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Settings className="h-4 w-4" />
-            Lifecycle Phases
-          </CardTitle>
-          <CardDescription>
-            Phases are derived from use case status and deployment status. Manual-only phases require explicit assignment.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {tomConfig.phases.map((phase) => (
-            <PhaseCard
-              key={phase.id}
-              phase={phase}
-              isExpanded={expandedPhase === phase.id}
-              onToggle={() => setExpandedPhase(expandedPhase === phase.id ? null : phase.id)}
-              count={phaseSummary?.summary?.[phase.id] || 0}
-            />
-          ))}
         </CardContent>
       </Card>
 

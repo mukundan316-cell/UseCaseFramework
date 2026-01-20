@@ -30,14 +30,34 @@ const DEFAULT_COLORS = [
   '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#84CC16'
 ];
 
-interface PhaseManagementLegoBlockProps {
-  clientId?: string;
-}
-
-export default function PhaseManagementLegoBlock({ clientId = 'default' }: PhaseManagementLegoBlockProps) {
+export default function PhaseManagementLegoBlock() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
+  
+  // Sync with TomConfigurationLegoBlock's client selection via localStorage
+  const [clientId, setClientId] = useState<string>(() => {
+    return localStorage.getItem('tomClientId') || 'default';
+  });
+  
+  // Listen for storage changes to sync with TomConfigurationLegoBlock
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      const storedClientId = localStorage.getItem('tomClientId') || 'default';
+      if (storedClientId !== clientId) {
+        setClientId(storedClientId);
+      }
+    };
+    
+    // Check periodically for changes (storage event doesn't fire in same tab)
+    const interval = setInterval(handleStorageChange, 500);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [clientId]);
   const [editingPhase, setEditingPhase] = useState<TomPhase | null>(null);
   const [formData, setFormData] = useState<PhaseFormData>({
     id: '',
