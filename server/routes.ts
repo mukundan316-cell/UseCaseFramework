@@ -1027,6 +1027,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Phase management endpoints
+  app.put("/api/tom/phases", async (req, res) => {
+    try {
+      const { phases } = req.body;
+      const clientId = (req.query.clientId as string) || 'default';
+      const currentMetadata = await storage.getMetadataConfigById(clientId);
+      
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      
+      const { ensureTomConfig } = await import("@shared/tom");
+      const currentTom = ensureTomConfig(currentMetadata.tomConfig);
+      
+      const updatedTom = {
+        ...currentTom,
+        phases
+      };
+      
+      const updatedMetadata = {
+        ...currentMetadata,
+        tomConfig: updatedTom
+      };
+      
+      const result = await storage.updateMetadataConfigById(clientId, updatedMetadata);
+      res.json(result?.tomConfig?.phases || phases);
+    } catch (error) {
+      console.error("Error updating phases:", error);
+      res.status(500).json({ error: "Failed to update phases" });
+    }
+  });
+
+  app.post("/api/tom/phases/load-preset/:presetId", async (req, res) => {
+    try {
+      const { presetId } = req.params;
+      const clientId = (req.query.clientId as string) || 'default';
+      const currentMetadata = await storage.getMetadataConfigById(clientId);
+      
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      
+      const { ensureTomConfig, DEFAULT_TOM_CONFIG } = await import("@shared/tom");
+      const currentTom = ensureTomConfig(currentMetadata.tomConfig);
+      
+      // Get preset-specific phases or default phases
+      const presetProfile = DEFAULT_TOM_CONFIG.presetProfiles[presetId];
+      const presetPhases = presetProfile?.phases || DEFAULT_TOM_CONFIG.phases;
+      
+      const updatedTom = {
+        ...currentTom,
+        activePreset: presetId,
+        phases: presetPhases
+      };
+      
+      const updatedMetadata = {
+        ...currentMetadata,
+        tomConfig: updatedTom
+      };
+      
+      const result = await storage.updateMetadataConfigById(clientId, updatedMetadata);
+      res.json({ 
+        success: true, 
+        presetId, 
+        phases: result?.tomConfig?.phases || presetPhases 
+      });
+    } catch (error) {
+      console.error("Error loading preset phases:", error);
+      res.status(500).json({ error: "Failed to load preset phases" });
+    }
+  });
+
   app.get("/api/tom/phase-summary", async (req, res) => {
     try {
       const clientId = (req.query.clientId as string) || 'default';

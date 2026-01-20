@@ -44,6 +44,7 @@ export interface TomPresetProfile {
   phaseOverrides: Record<string, PhaseOverride>;
   staffingRatios: Record<string, StaffingRatio>;
   deliveryTracks: DeliveryTrack[];
+  phases?: TomPhase[]; // Optional preset-specific phase definitions
 }
 
 export interface TomDerivationRules {
@@ -77,7 +78,8 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
     centralized: { name: 'Centralized CoE', description: 'Single AI team owns all delivery' },
     federated: { name: 'Federated Model', description: 'Business units own AI with central standards' },
     hybrid: { name: 'Hybrid Model', description: 'Central platform, distributed execution' },
-    coe_led: { name: 'CoE-Led with Business Pods', description: 'CoE leads with embedded business pods' }
+    coe_led: { name: 'CoE-Led with Business Pods', description: 'CoE leads with embedded business pods' },
+    rsa_tom: { name: 'RSA Enterprise TOM', description: 'Six-phase enterprise model with extended governance' }
   },
   presetProfiles: {
     centralized: {
@@ -149,6 +151,109 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
         { id: 'coe_track', name: 'CoE Pipeline', description: 'Primary delivery through CoE with business pod support' },
         { id: 'pod_track', name: 'Business Pods', description: 'Embedded teams handling domain-specific initiatives' }
       ]
+    },
+    rsa_tom: {
+      phaseOverrides: {
+        ideation: { governanceGate: 'innovation_board', expectedDurationWeeks: 4 },
+        assessment: { governanceGate: 'ai_steerco', expectedDurationWeeks: 6 },
+        foundation: { governanceGate: 'ai_steerco', expectedDurationWeeks: 8 },
+        build: { governanceGate: 'working_group', expectedDurationWeeks: 12 },
+        scale: { governanceGate: 'business_owner', expectedDurationWeeks: 10 },
+        operate: { governanceGate: 'none', expectedDurationWeeks: null }
+      },
+      staffingRatios: {
+        ideation: { vendor: 0.3, client: 0.7 },
+        assessment: { vendor: 0.5, client: 0.5 },
+        foundation: { vendor: 0.75, client: 0.25 },
+        build: { vendor: 0.8, client: 0.2 },
+        scale: { vendor: 0.5, client: 0.5 },
+        operate: { vendor: 0.15, client: 0.85 }
+      },
+      deliveryTracks: [
+        { id: 'innovation', name: 'Innovation Track', description: 'Exploratory initiatives and proof of concepts' },
+        { id: 'transformation', name: 'Transformation Track', description: 'Large-scale enterprise transformation programs' },
+        { id: 'enhancement', name: 'Enhancement Track', description: 'Incremental improvements to existing capabilities' }
+      ],
+      phases: [
+        {
+          id: 'ideation',
+          name: 'Ideation',
+          description: 'Early discovery, opportunity identification, and initial concept validation',
+          order: 1,
+          priority: 1,
+          color: '#9333EA',
+          mappedStatuses: ['Discovery'],
+          mappedDeployments: [],
+          manualOnly: false,
+          governanceGate: 'innovation_board',
+          expectedDurationWeeks: 4
+        },
+        {
+          id: 'assessment',
+          name: 'Assessment',
+          description: 'Detailed feasibility analysis, business case development, and resource planning',
+          order: 2,
+          priority: 2,
+          color: '#3C2CDA',
+          mappedStatuses: ['Backlog', 'On Hold'],
+          mappedDeployments: [],
+          manualOnly: false,
+          governanceGate: 'ai_steerco',
+          expectedDurationWeeks: 6
+        },
+        {
+          id: 'foundation',
+          name: 'Foundation',
+          description: 'Technical infrastructure setup, team onboarding, and governance alignment',
+          order: 3,
+          priority: 3,
+          color: '#1D86FF',
+          mappedStatuses: ['In-flight'],
+          mappedDeployments: [],
+          manualOnly: false,
+          governanceGate: 'ai_steerco',
+          expectedDurationWeeks: 8
+        },
+        {
+          id: 'build',
+          name: 'Build',
+          description: 'Active development, integration, and pilot testing with controlled user groups',
+          order: 4,
+          priority: 4,
+          color: '#14CBDE',
+          mappedStatuses: [],
+          mappedDeployments: ['PoC', 'Pilot'],
+          manualOnly: false,
+          governanceGate: 'working_group',
+          expectedDurationWeeks: 12
+        },
+        {
+          id: 'scale',
+          name: 'Scale',
+          description: 'Production deployment, user adoption, and capability transfer to client teams',
+          order: 5,
+          priority: 5,
+          color: '#10B981',
+          mappedStatuses: ['Implemented'],
+          mappedDeployments: ['Production'],
+          manualOnly: false,
+          governanceGate: 'business_owner',
+          expectedDurationWeeks: 10
+        },
+        {
+          id: 'operate',
+          name: 'Operate',
+          description: 'Full client ownership, continuous optimization, and value realization tracking',
+          order: 6,
+          priority: 6,
+          color: '#07125E',
+          mappedStatuses: [],
+          mappedDeployments: [],
+          manualOnly: true,
+          governanceGate: 'none',
+          expectedDurationWeeks: null
+        }
+      ]
     }
   },
   phases: [
@@ -207,6 +312,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
   ],
   governanceBodies: [
     {
+      id: 'innovation_board',
+      name: 'Innovation Board',
+      role: 'Early-stage opportunity assessment and ideation approval',
+      cadence: 'Weekly'
+    },
+    {
       id: 'ai_steerco',
       name: 'AI Steering Committee',
       role: 'Strategic oversight and investment decisions',
@@ -251,7 +362,10 @@ export function mergePresetProfile(tomConfig: TomConfig): TomConfig {
   
   if (!profile) return tomConfig;
   
-  const mergedPhases = tomConfig.phases.map(phase => {
+  // Use preset-specific phases if defined, otherwise use default phases with overrides
+  const basePhases = profile.phases || tomConfig.phases;
+  
+  const mergedPhases = basePhases.map(phase => {
     const override = profile.phaseOverrides?.[phase.id];
     if (!override) return phase;
     return {

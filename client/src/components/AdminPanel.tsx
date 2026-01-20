@@ -18,6 +18,7 @@ import AssessmentStatsLegoBlock from './lego-blocks/AssessmentStatsLegoBlock';
 import LibraryManagementLegoBlock from './lego-blocks/LibraryManagementLegoBlock';
 import ExcelUploadLegoBlock from './lego-blocks/ExcelUploadLegoBlock';
 import TomConfigurationLegoBlock from './lego-blocks/TomConfigurationLegoBlock';
+import PhaseManagementLegoBlock from './lego-blocks/PhaseManagementLegoBlock';
 import KpiLibraryManagementLegoBlock from './lego-blocks/KpiLibraryManagementLegoBlock';
 
 export default function AdminPanel() {
@@ -557,6 +558,9 @@ export default function AdminPanel() {
               
               {/* System Configuration Components */}
               <div className="space-y-6">
+                {/* TOM Phase Management */}
+                <PhaseManagementLegoBlock />
+                
                 {/* KPI Library Management */}
                 <KpiLibraryManagementLegoBlock />
                 
