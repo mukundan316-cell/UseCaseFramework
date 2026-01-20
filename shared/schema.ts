@@ -201,7 +201,30 @@ export const useCases: any = pgTable("use_cases", {
       targetIndependence: number;
       advisoryRetainer: string;
     };
+    roleEvolution: Array<{
+      roleId: string;
+      roleName: string;
+      baselineOwnership: 'vendor' | 'client' | 'shared';
+      currentOwnership: 'vendor' | 'client' | 'shared';
+      targetOwnership: 'vendor' | 'client' | 'shared';
+      transitionHistory: Array<{
+        date: string;
+        fromOwnership: 'vendor' | 'client' | 'shared';
+        toOwnership: 'vendor' | 'client' | 'shared';
+        note: string;
+        actor: string;
+      }>;
+      confidenceLevel: 'high' | 'medium' | 'low';
+      targetTransitionDate: string | null;
+    }>;
   }>(),
+  
+  // Duplicate Detection fields (Topic 3.4 - Markel 9 Topics)
+  duplicateStatus: text("duplicate_status").default('unique'), // 'unique', 'potential_duplicate', 'confirmed_duplicate', 'reviewed_not_duplicate'
+  duplicateSimilarTo: text("duplicate_similar_to").array(), // Array of meaningful_ids of similar use cases
+  duplicateSimilarityScore: real("duplicate_similarity_score"), // 0-1 similarity score
+  duplicateReviewedAt: timestamp("duplicate_reviewed_at"),
+  duplicateReviewedBy: text("duplicate_reviewed_by"),
   
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -218,6 +241,29 @@ export const fileAttachments: any = pgTable("file_attachments", {
   fileType: text("file_type").notNull().default('presentation'), // 'presentation', 'pdf'
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
+
+// Use Case Change Log table for full audit trail (Topic 8.2 - Markel 9 Topics)
+export const useCaseChangeLog = pgTable("use_case_change_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  useCaseId: varchar("use_case_id").notNull(),
+  useCaseMeaningfulId: text("use_case_meaningful_id"),
+  changeType: text("change_type").notNull(), // 'created', 'updated', 'deleted', 'status_change', 'phase_change', 'activation', 'deactivation'
+  actor: text("actor").default('system'), // Who made the change (username or 'system')
+  beforeState: jsonb("before_state").$type<Record<string, any>>(),
+  afterState: jsonb("after_state").$type<Record<string, any>>(),
+  changedFields: text("changed_fields").array(), // List of field names that changed
+  changeReason: text("change_reason"),
+  source: text("source").default('api'), // 'api', 'import', 'bulk_operation', 'derivation'
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertChangeLogSchema = createInsertSchema(useCaseChangeLog).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type UseCaseChangeLog = typeof useCaseChangeLog.$inferSelect;
+export type InsertUseCaseChangeLog = z.infer<typeof insertChangeLogSchema>;
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -322,6 +368,12 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   tomPhase: z.union([z.string(), z.null()]).optional(),
   tomPhaseOverride: z.union([z.string(), z.null()]).optional(),
   tomOverrideReason: z.union([z.string(), z.null()]).optional(),
+  
+  // Duplicate Detection fields - allow null for optional values
+  duplicateStatus: z.enum(['unique', 'potential_duplicate', 'confirmed_duplicate', 'reviewed_not_duplicate']).default('unique'),
+  duplicateSimilarTo: z.array(z.string()).nullable().optional(),
+  duplicateSimilarityScore: z.number().min(0).max(1).nullable().optional(),
+  duplicateReviewedBy: z.union([z.string(), z.null()]).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
