@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Target, Users, Shield } from 'lucide-react';
-import TomPhaseBreakdownLegoBlock from '@/components/lego-blocks/TomPhaseBreakdownLegoBlock';
 import ValueRealizationView from '@/components/insights/ValueRealizationView';
+import OperatingModelView from '@/components/insights/OperatingModelView';
 import CapabilityTransitionView from '@/components/insights/CapabilityTransitionView';
 import ResponsibleAIPortfolioView from '@/components/insights/ResponsibleAIPortfolioView';
 
@@ -55,13 +55,7 @@ export default function InsightsPage({ defaultTab = 'value-realization' }: Insig
             </TabsContent>
 
             <TabsContent value="operating-model" className="space-y-6">
-              <div className="text-center py-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Target Operating Model Analytics</h3>
-                <p className="text-gray-600 max-w-2xl mx-auto">
-                  View TOM phase distribution and analytics. Configure TOM settings in Admin &gt; TOM.
-                </p>
-              </div>
-              <TomPhaseBreakdownLegoBlock />
+              <OperatingModelView />
             </TabsContent>
 
             <TabsContent value="capability-transition" className="space-y-6">

@@ -2115,6 +2115,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/value/derive-all", async (req, res) => {
+    try {
+      const { overwriteExisting = true } = req.body;
+      const useCases = await storage.getAllUseCases();
+      const metadata = await storage.getMetadataConfig();
+      
+      const { 
+        deriveValueEstimates, 
+        calculateTotalEstimatedValue,
+        DEFAULT_VALUE_REALIZATION_CONFIG
+      } = await import("@shared/valueRealization");
+      
+      const valueConfig = metadata?.valueRealizationConfig || DEFAULT_VALUE_REALIZATION_CONFIG;
+      const kpiLibrary = valueConfig.kpiLibrary || {};
+      
+      let derivedCount = 0;
+      let skippedCount = 0;
+      
+      for (const useCase of useCases) {
+        const processes = useCase.processes || [];
+        const hasExistingTracked = useCase.valueRealization?.investment;
+        const shouldDerive = (overwriteExisting && !hasExistingTracked) || !useCase.valueRealization;
+        
+        if (shouldDerive && processes.length > 0) {
+          const scores = {
+            dataReadiness: useCase.dataReadiness,
+            technicalComplexity: useCase.technicalComplexity,
+            adoptionReadiness: useCase.adoptionReadiness
+          };
+          
+          const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary);
+          const totalValue = calculateTotalEstimatedValue(valueEstimates);
+          
+          const valueRealization = {
+            derived: true,
+            derivedAt: new Date().toISOString(),
+            kpiEstimates: valueEstimates.map(est => ({
+              kpiId: est.kpiId,
+              kpiName: est.kpiName,
+              maturityLevel: est.maturityLevel,
+              expectedRange: est.expectedRange,
+              confidence: est.confidence,
+              estimatedAnnualValueGbp: est.estimatedAnnualValueGbp,
+              benchmarkProcess: est.benchmarkProcess
+            })),
+            totalEstimatedValue: totalValue,
+            lastUpdated: new Date().toISOString()
+          };
+          
+          await storage.updateUseCase(useCase.id, { valueRealization });
+          derivedCount++;
+        } else {
+          skippedCount++;
+        }
+      }
+      
+      res.json({ 
+        success: true, 
+        derived: derivedCount, 
+        skipped: skippedCount,
+        total: useCases.length
+      });
+    } catch (error) {
+      console.error("Error deriving value estimates:", error);
+      res.status(500).json({ error: "Failed to derive value estimates" });
+    }
+  });
+
   // Section progress tracking is handled by the blob storage system via questionnaire routes
 
   // Register questionnaire routes (blob storage based)

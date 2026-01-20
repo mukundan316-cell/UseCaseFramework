@@ -395,10 +395,17 @@ export function getApplicableKpis(
 }
 
 const MONETARY_UNITS = ['GBP', 'USD', 'EUR', 'gbp', 'usd', 'eur', '£', '$', '€'];
+const HOUR_BASED_UNITS = ['hours', 'hour', 'hrs', 'hr', 'fte'];
 
 function isMonetaryUnit(unit: string): boolean {
   return MONETARY_UNITS.some(m => unit.toLowerCase().includes(m.toLowerCase()));
 }
+
+function isHourBasedUnit(unit: string): boolean {
+  return HOUR_BASED_UNITS.some(h => unit.toLowerCase().includes(h.toLowerCase()));
+}
+
+const DEFAULT_HOURLY_RATE_GBP = 45;
 
 export function deriveValueEstimates(
   processes: string[],
@@ -429,6 +436,24 @@ export function deriveValueEstimates(
       estimatedAnnualValueGbp = {
         min: Math.round(baselineValue * minSavingsRate * volumeMultiplier),
         max: Math.round(baselineValue * maxSavingsRate * volumeMultiplier)
+      };
+    } else if (industryBenchmark && isHourBasedUnit(industryBenchmark.baselineUnit)) {
+      const monthlyHoursMin = expectedRange.min;
+      const monthlyHoursMax = expectedRange.max;
+      const annualMultiplier = 12;
+      
+      estimatedAnnualValueGbp = {
+        min: Math.round(monthlyHoursMin * DEFAULT_HOURLY_RATE_GBP * annualMultiplier),
+        max: Math.round(monthlyHoursMax * DEFAULT_HOURLY_RATE_GBP * annualMultiplier)
+      };
+    } else if (expectedRange) {
+      const monthlyHoursMin = expectedRange.min;
+      const monthlyHoursMax = expectedRange.max;
+      const annualMultiplier = 12;
+      
+      estimatedAnnualValueGbp = {
+        min: Math.round(monthlyHoursMin * DEFAULT_HOURLY_RATE_GBP * annualMultiplier),
+        max: Math.round(monthlyHoursMax * DEFAULT_HOURLY_RATE_GBP * annualMultiplier)
       };
     }
 
