@@ -11,8 +11,7 @@ import {
   Users, 
   RefreshCw, 
   CheckCircle,
-  Info,
-  Zap
+  Info
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -60,7 +59,7 @@ interface DerivationFormulas {
 
 export default function DerivationRulesLegoBlock() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('scoring');
+  const [activeTab, setActiveTab] = useState('value');
 
   const { data: formulas, isLoading } = useQuery<DerivationFormulas>({
     queryKey: ['/api/derivation/formulas']
@@ -161,11 +160,7 @@ export default function DerivationRulesLegoBlock() {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 mb-4">
-            <TabsTrigger value="scoring" className="text-xs">
-              <Calculator className="w-3 h-3 mr-1" />
-              Scoring
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="value" className="text-xs">
               <TrendingUp className="w-3 h-3 mr-1" />
               Value
@@ -179,53 +174,6 @@ export default function DerivationRulesLegoBlock() {
               TOM Phase
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="scoring" className="space-y-4">
-            <div className="text-sm text-muted-foreground mb-4">
-              How Impact and Effort scores are calculated from the 10-lever scoring framework.
-            </div>
-            
-            <FormulaCard
-              title="Impact Score"
-              formula={formulas?.scoring?.impactScore?.formula || 'Weighted average of Business Value levers'}
-              description={formulas?.scoring?.impactScore?.description}
-              icon={TrendingUp}
-            />
-            
-            {formulas?.scoring?.impactScore?.weights && (
-              <div className="flex flex-wrap gap-2 ml-12">
-                {Object.entries(formulas.scoring.impactScore.weights).map(([lever, weight]) => (
-                  <Badge key={lever} variant="secondary" className="text-xs">
-                    {lever}: {weight}%
-                  </Badge>
-                ))}
-              </div>
-            )}
-            
-            <FormulaCard
-              title="Effort Score"
-              formula={formulas?.scoring?.effortScore?.formula || 'Weighted average of Feasibility levers'}
-              description={formulas?.scoring?.effortScore?.description}
-              icon={Zap}
-            />
-            
-            {formulas?.scoring?.effortScore?.weights && (
-              <div className="flex flex-wrap gap-2 ml-12">
-                {Object.entries(formulas.scoring.effortScore.weights).map(([lever, weight]) => (
-                  <Badge key={lever} variant="secondary" className="text-xs">
-                    {lever}: {weight}%
-                  </Badge>
-                ))}
-              </div>
-            )}
-            
-            <FormulaCard
-              title="Quadrant Assignment"
-              formula={formulas?.scoring?.quadrant?.formula || 'Compare scores against threshold'}
-              description={`Threshold: Impact ${formulas?.scoring?.quadrant?.threshold?.impactMidpoint || 3.0}, Effort ${formulas?.scoring?.quadrant?.threshold?.effortMidpoint || 3.0}`}
-              icon={Target}
-            />
-          </TabsContent>
 
           <TabsContent value="value" className="space-y-4">
             <div className="text-sm text-muted-foreground mb-4">
