@@ -20,6 +20,7 @@ import ExcelUploadLegoBlock from './lego-blocks/ExcelUploadLegoBlock';
 import TomConfigurationLegoBlock from './lego-blocks/TomConfigurationLegoBlock';
 import PhaseManagementLegoBlock from './lego-blocks/PhaseManagementLegoBlock';
 import KpiLibraryManagementLegoBlock from './lego-blocks/KpiLibraryManagementLegoBlock';
+import DerivationRulesLegoBlock from './lego-blocks/DerivationRulesLegoBlock';
 
 export default function AdminPanel() {
   const { 
@@ -560,6 +561,9 @@ export default function AdminPanel() {
               
               {/* System Configuration Components */}
               <div className="space-y-6">
+                {/* Derivation Rules & Formulas - Transparency for all auto-calculations */}
+                <DerivationRulesLegoBlock />
+                
                 {/* KPI Library Management */}
                 <KpiLibraryManagementLegoBlock />
                 

@@ -582,6 +582,27 @@ export const metadataConfig = pgTable('metadata_config', {
     minMultiplier: number;
     maxMultiplier: number;
   }>(),
+  // Derivation Formulas - Single Source of Truth for all auto-calculation rules
+  derivationFormulas: jsonb('derivation_formulas').$type<{
+    scoring: {
+      impactScore: { formula: string; description: string; levers: string[]; example?: string };
+      effortScore: { formula: string; description: string; levers: string[]; example?: string };
+      quadrant: { formula: string; description: string; thresholdDefault: number };
+    };
+    valueRealization: {
+      kpiMatching: { formula: string; description: string };
+      maturityLevel: { formula: string; description: string };
+      roi: { formula: string; description: string };
+      breakeven: { formula: string; description: string };
+    };
+    tomPhase: { formula: string; description: string; overrideField: string };
+    capability: {
+      baseFte: { formula: string; description: string; values: Record<string, number> };
+      transitionSpeed: { formula: string; description: string; values: Record<string, number> };
+      independence: { formula: string; description: string; archetypes: Record<string, any> };
+    };
+    lastUpdated: string;
+  }>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 

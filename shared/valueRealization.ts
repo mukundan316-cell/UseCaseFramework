@@ -286,6 +286,49 @@ export interface ValueEstimateResult {
   estimatedAnnualValueGbp: { min: number; max: number } | null;
 }
 
+/**
+ * Normalize process name for fuzzy matching
+ * Removes parentheses content, extra spaces, and standardizes common variations
+ */
+function normalizeProcessName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s*\([^)]*\)/g, '') // Remove parenthetical content
+    .replace(/&/g, 'and')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Find matching process in KPI applicableProcesses with fuzzy matching
+ * Returns the canonical KPI process name if found, null otherwise
+ */
+function findMatchingProcess(
+  processToMatch: string,
+  applicableProcesses: string[]
+): string | null {
+  // First try exact match
+  if (applicableProcesses.includes(processToMatch)) {
+    return processToMatch;
+  }
+  
+  // Try normalized matching
+  const normalizedInput = normalizeProcessName(processToMatch);
+  for (const kpiProcess of applicableProcesses) {
+    const normalizedKpiProcess = normalizeProcessName(kpiProcess);
+    if (normalizedInput === normalizedKpiProcess) {
+      return kpiProcess;
+    }
+    // Also check if one contains the other (for partial matches)
+    if (normalizedInput.includes(normalizedKpiProcess) || normalizedKpiProcess.includes(normalizedInput)) {
+      return kpiProcess;
+    }
+  }
+  
+  return null;
+}
+
 export function getApplicableKpis(
   processes: string[],
   kpiLibrary: Record<string, KpiDefinition>
@@ -295,15 +338,19 @@ export function getApplicableKpis(
 
   for (const process of processes) {
     for (const [kpiId, kpi] of Object.entries(kpiLibrary)) {
-      if (kpi.applicableProcesses.includes(process) && !addedKpis.has(kpiId)) {
-        const benchmark = kpi.industryBenchmarks?.[process] || null;
+      // Use fuzzy matching instead of exact match
+      const matchedKpiProcess = findMatchingProcess(process, kpi.applicableProcesses);
+      
+      if (matchedKpiProcess && !addedKpis.has(kpiId)) {
+        // Use the matched KPI process name for benchmark lookup
+        const benchmark = kpi.industryBenchmarks?.[matchedKpiProcess] || null;
         const existingResult = results.find(r => r.kpiId === kpiId);
         
         if (existingResult) {
           existingResult.matchedProcesses.push(process);
           if (!existingResult.industryBenchmark && benchmark) {
             existingResult.industryBenchmark = benchmark;
-            existingResult.benchmarkProcess = process;
+            existingResult.benchmarkProcess = matchedKpiProcess;
           }
         } else {
           results.push({
@@ -311,7 +358,7 @@ export function getApplicableKpis(
             kpi,
             matchedProcesses: [process],
             industryBenchmark: benchmark,
-            benchmarkProcess: benchmark ? process : null
+            benchmarkProcess: benchmark ? matchedKpiProcess : null
           });
           addedKpis.add(kpiId);
         }

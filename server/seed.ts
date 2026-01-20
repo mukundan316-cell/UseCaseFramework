@@ -312,7 +312,7 @@ async function seedMetadataConfig() {
           fte_efficiency: {
             id: 'fte_efficiency', name: 'FTE Efficiency Gain',
             description: 'FTE hours saved or reallocated per month', unit: 'hours/month', direction: 'increase',
-            applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Submission & Quote', 'Policy Servicing', 'Billing', 'Financial Management', 'Regulatory & Compliance', 'Risk Consulting', 'Sales & Distribution', 'Customer Servicing', 'General', 'Product & Rating', 'Human Resources'],
+            applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Submission & Quote', 'Policy Servicing', 'Billing', 'Financial Management', 'Regulatory & Compliance', 'Risk Consulting', 'Sales & Distribution (Including Broker Relationships)', 'Customer Servicing', 'General', 'Product & Rating', 'Human Resources', 'Reinsurance'],
             industryBenchmarks: {
               'Claims Management': { baselineValue: 160, baselineUnit: 'hours/FTE/month', baselineSource: 'Industry Average', improvementRange: { min: 15, max: 40 }, improvementUnit: '%', typicalTimeline: '6-12 months', maturityTiers: { foundational: { min: 50, max: 100 }, developing: { min: 200, max: 400 }, advanced: { min: 500, max: 800 } } }
             },
@@ -338,7 +338,7 @@ async function seedMetadataConfig() {
           customer_satisfaction: {
             id: 'customer_satisfaction', name: 'Customer Satisfaction Improvement',
             description: 'Improvement in CSAT or NPS scores', unit: 'points', direction: 'increase',
-            applicableProcesses: ['Customer Servicing', 'Claims Management', 'Sales & Distribution', 'Risk Consulting'],
+            applicableProcesses: ['Customer Servicing', 'Claims Management', 'Sales & Distribution (Including Broker Relationships)', 'Risk Consulting'],
             industryBenchmarks: {},
             maturityRules: [
               { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 10, max: 15 }, confidence: 'high' },
@@ -363,6 +363,62 @@ async function seedMetadataConfig() {
           breakevenFormula: 'totalInvestment / monthlyValue',
           defaultCurrency: 'GBP',
           fiscalYearStart: 4
+        }
+      },
+
+      // Derivation Formulas - Single Source of Truth for all auto-calculations
+      derivationFormulas: {
+        scoring: {
+          impactScore: {
+            formula: 'Weighted average of Business Value levers',
+            description: 'Sum of (lever_score × lever_weight) / 100 for all impact levers',
+            levers: ['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit'],
+            example: '(3×20 + 4×20 + 3×20 + 2×20 + 4×20) / 100 = 3.2'
+          },
+          effortScore: {
+            formula: 'Weighted average of Feasibility levers (inverted)',
+            description: 'Sum of ((6 - lever_score) × lever_weight) / 100 for complexity-based effort',
+            levers: ['dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness'],
+            example: 'Higher scores mean MORE ready, so we invert for effort calculation'
+          },
+          quadrant: {
+            formula: 'Compare Impact vs Effort against threshold',
+            description: 'Impact >= threshold AND Effort <= threshold → Quick Win; Impact >= threshold AND Effort > threshold → Strategic Bet; etc.',
+            thresholdDefault: 3.0
+          }
+        },
+        valueRealization: {
+          kpiMatching: {
+            formula: 'Match use case processes to KPI applicableProcesses',
+            description: 'For each process in use case, find KPIs where applicableProcesses includes that process'
+          },
+          maturityLevel: {
+            formula: 'Evaluate maturity rules based on scores',
+            description: 'Check dataReadiness, technicalComplexity, adoptionReadiness against conditions to determine foundational/developing/advanced'
+          },
+          estimatedValue: {
+            formula: 'baselineValue × improvementRange × confidence',
+            description: 'Annual value = baseline metric × improvement percentage × confidence adjustment'
+          }
+        },
+        tomPhase: {
+          formula: 'Map useCaseStatus + deploymentStatus to lifecycle phase',
+          description: 'Discovery/Backlog → Ideation; In-flight → Assessment/Foundation/Build based on deployment; Implemented → Scale/Operate',
+          overrideField: 'tomPhaseOverride takes precedence if set'
+        },
+        capability: {
+          baseFte: {
+            formula: 'tShirtBaseFte[size]',
+            description: 'XS=2, S=3, M=5, L=8, XL=12 base FTE'
+          },
+          transitionSpeed: {
+            formula: 'baseMonths × paceModifier[quadrant]',
+            description: 'Quick Win=0.7x, Strategic Bet=1.0x, Experimental=1.2x, Watchlist=1.5x'
+          },
+          independence: {
+            formula: 'archetype.independenceRange based on TOM phase',
+            description: 'Foundation phases: 0-25%; Strategic: 25-50%; Transition: 50-85%; Steady State: 85-100%'
+          }
         }
       },
 

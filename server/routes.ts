@@ -1396,6 +1396,317 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST /api/value/sync-processes - Sync KPI library processes with metadata.processes (SSOT)
+  app.post("/api/value/sync-processes", async (req, res) => {
+    try {
+      const currentMetadata = await storage.getMetadataConfig();
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      
+      const canonicalProcesses = currentMetadata.processes || [];
+      const kpiLibrary = currentMetadata.valueRealizationConfig?.kpiLibrary || {};
+      
+      // Update each KPI's applicableProcesses to only include valid canonical processes
+      const syncedKpiLibrary: Record<string, any> = {};
+      const syncReport: { kpiId: string; removed: string[]; kept: string[] }[] = [];
+      
+      for (const [kpiId, kpi] of Object.entries(kpiLibrary)) {
+        const kpiData = kpi as any;
+        const originalProcesses = kpiData.applicableProcesses || [];
+        const validProcesses = originalProcesses.filter((p: string) => canonicalProcesses.includes(p));
+        const removedProcesses = originalProcesses.filter((p: string) => !canonicalProcesses.includes(p));
+        
+        syncedKpiLibrary[kpiId] = {
+          ...kpiData,
+          applicableProcesses: validProcesses.length > 0 ? validProcesses : canonicalProcesses // fallback to all if none match
+        };
+        
+        if (removedProcesses.length > 0) {
+          syncReport.push({ kpiId, removed: removedProcesses, kept: validProcesses });
+        }
+      }
+      
+      const updatedMetadata = {
+        ...currentMetadata,
+        valueRealizationConfig: {
+          ...currentMetadata.valueRealizationConfig,
+          enabled: currentMetadata.valueRealizationConfig?.enabled || 'true',
+          kpiLibrary: syncedKpiLibrary
+        }
+      };
+      
+      await storage.updateMetadataConfig(updatedMetadata as any);
+      
+      res.json({
+        success: true,
+        message: `Synced KPI library with ${canonicalProcesses.length} canonical processes`,
+        canonicalProcesses,
+        syncReport
+      });
+    } catch (error) {
+      console.error("Error syncing KPI processes:", error);
+      res.status(500).json({ error: "Failed to sync KPI processes" });
+    }
+  });
+
+  // GET /api/derivation/formulas - Get all derivation formulas for Admin transparency
+  app.get("/api/derivation/formulas", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      
+      // Always try to return DB-stored formulas first
+      if ((metadata as any)?.derivationFormulas) {
+        res.json((metadata as any).derivationFormulas);
+        return;
+      }
+      
+      // Fallback: build from existing configs (indicates DB needs seeding)
+      const derivationFormulas = {
+        _note: 'Built from config - run POST /api/derivation/seed to persist',
+        scoring: {
+          impactScore: {
+            formula: 'Weighted average of Business Value levers',
+            description: 'Sum of (lever_score × lever_weight) / 100',
+            levers: Object.keys(metadata?.scoringModel?.weights?.impact || {}),
+            weights: metadata?.scoringModel?.weights?.impact
+          },
+          effortScore: {
+            formula: 'Weighted average of Feasibility levers',
+            description: 'Sum of (lever_score × lever_weight) / 100',
+            levers: Object.keys(metadata?.scoringModel?.weights?.effort || {}),
+            weights: metadata?.scoringModel?.weights?.effort
+          },
+          quadrant: {
+            formula: 'Impact vs Effort threshold comparison',
+            threshold: metadata?.scoringModel?.quadrantThresholds || { impactMidpoint: 3.0, effortMidpoint: 3.0 }
+          }
+        },
+        valueRealization: metadata?.valueRealizationConfig?.calculationConfig || {},
+        capability: metadata?.capabilityTransitionConfig?.benchmarkConfig || {},
+        tom: {
+          enabled: metadata?.tomConfig?.enabled,
+          activePreset: metadata?.tomConfig?.activePreset,
+          phases: Object.keys(metadata?.tomConfig?.phases || {})
+        }
+      };
+      
+      res.json(derivationFormulas);
+    } catch (error) {
+      console.error("Error fetching derivation formulas:", error);
+      res.status(500).json({ error: "Failed to fetch derivation formulas" });
+    }
+  });
+
+  // POST /api/derivation/seed - Persist derivation formulas to database (SSOT)
+  app.post("/api/derivation/seed", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      if (!metadata) {
+        return res.status(404).json({ error: "Metadata not found" });
+      }
+      
+      // Build comprehensive derivation formulas from all configs
+      const derivationFormulas = {
+        scoring: {
+          impactScore: {
+            formula: 'Weighted average of Business Value levers',
+            description: 'Sum of (lever_score × lever_weight) / 100 for all impact levers',
+            levers: ['revenueImpact', 'costSavings', 'riskReduction', 'brokerPartnerExperience', 'strategicFit'],
+            example: '(3×20 + 4×20 + 3×20 + 2×20 + 4×20) / 100 = 3.2'
+          },
+          effortScore: {
+            formula: 'Weighted average of Feasibility levers (inverted)',
+            description: 'Sum of ((6 - lever_score) × lever_weight) / 100 for complexity-based effort',
+            levers: ['dataReadiness', 'technicalComplexity', 'changeImpact', 'modelRisk', 'adoptionReadiness'],
+            example: 'Higher scores mean MORE ready, so we invert for effort calculation'
+          },
+          quadrant: {
+            formula: 'Compare Impact vs Effort against threshold',
+            description: 'Impact >= threshold AND Effort <= threshold → Quick Win; Impact >= threshold AND Effort > threshold → Strategic Bet; etc.',
+            thresholdDefault: metadata?.scoringModel?.quadrantThresholds?.impactMidpoint || 3.0
+          }
+        },
+        valueRealization: {
+          kpiMatching: {
+            formula: 'Match use case processes to KPI applicableProcesses',
+            description: 'For each process in use case, find KPIs where applicableProcesses includes that process (with fuzzy matching)'
+          },
+          maturityLevel: {
+            formula: 'Evaluate maturity rules based on scores',
+            description: 'Check dataReadiness, technicalComplexity, adoptionReadiness against conditions to determine foundational/developing/advanced'
+          },
+          roi: {
+            formula: metadata?.valueRealizationConfig?.calculationConfig?.roiFormula || '((cumulativeValue - totalInvestment) / totalInvestment) × 100',
+            description: 'Return on Investment as a percentage'
+          },
+          breakeven: {
+            formula: metadata?.valueRealizationConfig?.calculationConfig?.breakevenFormula || 'totalInvestment / monthlyValue',
+            description: 'Number of months until investment is recovered'
+          }
+        },
+        tomPhase: {
+          formula: 'Map useCaseStatus + deploymentStatus to lifecycle phase',
+          description: 'Discovery/Backlog → Ideation; In-flight → Assessment/Foundation/Build based on deployment; Implemented → Scale/Operate',
+          overrideField: 'tomPhaseOverride takes precedence if set'
+        },
+        capability: {
+          baseFte: {
+            formula: 'tShirtBaseFte[size]',
+            description: 'XS=2, S=3, M=5, L=8, XL=12 base FTE',
+            values: metadata?.capabilityTransitionConfig?.benchmarkConfig?.tShirtBaseFte || { XS: 2, S: 3, M: 5, L: 8, XL: 12 }
+          },
+          transitionSpeed: {
+            formula: 'baseMonths × paceModifier[quadrant]',
+            description: 'Quick Win=0.7x, Strategic Bet=1.0x, Experimental=1.2x, Watchlist=1.5x',
+            values: metadata?.capabilityTransitionConfig?.benchmarkConfig?.paceModifiers || {}
+          },
+          independence: {
+            formula: 'archetype.independenceRange based on TOM phase',
+            description: 'Foundation phases: 0-25%; Strategic: 25-50%; Transition: 50-85%; Steady State: 85-100%',
+            archetypes: metadata?.capabilityTransitionConfig?.benchmarkConfig?.archetypes || {}
+          }
+        },
+        lastUpdated: new Date().toISOString()
+      };
+      
+      const updatedMetadata = {
+        ...metadata,
+        derivationFormulas
+      };
+      
+      await storage.updateMetadataConfig(updatedMetadata as any);
+      
+      res.json({
+        success: true,
+        message: 'Derivation formulas persisted to database',
+        derivationFormulas
+      });
+    } catch (error) {
+      console.error("Error seeding derivation formulas:", error);
+      res.status(500).json({ error: "Failed to seed derivation formulas" });
+    }
+  });
+
+  // POST /api/use-cases/:id/derive-value - Re-derive value realization for a specific use case
+  app.post("/api/use-cases/:id/derive-value", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const allUseCases = await storage.getAllUseCases();
+      const useCase = allUseCases.find(uc => uc.id === id);
+      
+      if (!useCase) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      
+      const processes = (useCase.processes as string[]) || [];
+      if (processes.length === 0) {
+        return res.status(400).json({ error: "Use case has no processes - value realization requires at least one process" });
+      }
+      
+      const { deriveValueEstimates, calculateTotalEstimatedValue } = await import("@shared/valueRealization");
+      const metadata = await storage.getMetadataConfig();
+      const kpiLibrary = metadata?.valueRealizationConfig?.kpiLibrary || {};
+      
+      const scores = {
+        dataReadiness: (useCase.dataReadiness as number) || 3,
+        technicalComplexity: (useCase.technicalComplexity as number) || 3,
+        adoptionReadiness: (useCase.adoptionReadiness as number) || 3
+      };
+      
+      const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary);
+      const totalValue = calculateTotalEstimatedValue(valueEstimates);
+      
+      const derivedValueRealization = {
+        derived: true,
+        derivedAt: new Date().toISOString(),
+        kpiEstimates: valueEstimates.map(est => ({
+          kpiId: est.kpiId,
+          kpiName: est.kpiName,
+          maturityLevel: est.maturityLevel,
+          expectedRange: est.expectedRange,
+          confidence: est.confidence,
+          estimatedAnnualValueGbp: est.estimatedAnnualValueGbp,
+          benchmarkProcess: est.benchmarkProcess
+        })),
+        totalEstimatedValue: totalValue,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      await storage.updateUseCase(id, { valueRealization: derivedValueRealization });
+      
+      res.json({
+        success: true,
+        useCaseId: id,
+        processesMatched: processes,
+        kpisFound: valueEstimates.length,
+        valueRealization: derivedValueRealization
+      });
+    } catch (error) {
+      console.error("Error deriving value realization:", error);
+      res.status(500).json({ error: "Failed to derive value realization" });
+    }
+  });
+
+  // POST /api/derive/value-all - Bulk re-derive value realization for all use cases with processes
+  app.post("/api/derive/value-all", async (req, res) => {
+    try {
+      const { deriveValueEstimates, calculateTotalEstimatedValue } = await import("@shared/valueRealization");
+      const metadata = await storage.getMetadataConfig();
+      const kpiLibrary = metadata?.valueRealizationConfig?.kpiLibrary || {};
+      
+      const allUseCases = await storage.getAllUseCases();
+      const updated: string[] = [];
+      const skipped: string[] = [];
+      
+      for (const useCase of allUseCases) {
+        const processes = (useCase.processes as string[]) || [];
+        if (processes.length === 0) {
+          skipped.push(useCase.id);
+          continue;
+        }
+        
+        const scores = {
+          dataReadiness: (useCase.dataReadiness as number) || 3,
+          technicalComplexity: (useCase.technicalComplexity as number) || 3,
+          adoptionReadiness: (useCase.adoptionReadiness as number) || 3
+        };
+        
+        const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary);
+        const totalValue = calculateTotalEstimatedValue(valueEstimates);
+        
+        const derivedValueRealization = {
+          derived: true,
+          derivedAt: new Date().toISOString(),
+          kpiEstimates: valueEstimates.map(est => ({
+            kpiId: est.kpiId,
+            kpiName: est.kpiName,
+            maturityLevel: est.maturityLevel,
+            expectedRange: est.expectedRange,
+            confidence: est.confidence,
+            estimatedAnnualValueGbp: est.estimatedAnnualValueGbp,
+            benchmarkProcess: est.benchmarkProcess
+          })),
+          totalEstimatedValue: totalValue,
+          lastUpdated: new Date().toISOString()
+        };
+        
+        await storage.updateUseCase(useCase.id, { valueRealization: derivedValueRealization });
+        updated.push(useCase.id);
+      }
+      
+      res.json({
+        success: true,
+        updated: updated.length,
+        skipped: skipped.length,
+        message: `Re-derived value realization for ${updated.length} use cases (${skipped.length} skipped - no processes)`
+      });
+    } catch (error) {
+      console.error("Error bulk deriving value realization:", error);
+      res.status(500).json({ error: "Failed to bulk derive value realization" });
+    }
+  });
+
   // PUT /api/use-cases/:id/value - Update value realization data for a use case
   app.put("/api/use-cases/:id/value", async (req, res) => {
     try {
