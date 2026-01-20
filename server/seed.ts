@@ -1,6 +1,9 @@
 import { db } from './db';
 import { metadataConfig } from '@shared/schema';
 import { eq } from "drizzle-orm";
+import { QuestionnaireDemoService } from './services/questionnaireDemo';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Complete metadata seeding for pristine database
@@ -17,9 +20,37 @@ export async function seedDatabase() {
       console.log('Existing metadata found, preserving user data...');
     }
     
+    // Always ensure questionnaire storage is initialized
+    await seedQuestionnaireStorage();
+    
     console.log('Use case database ready for user input');
   } catch (error) {
     console.error('Error seeding database:', error);
+  }
+}
+
+/**
+ * Seeds questionnaire storage with demo questionnaire if empty
+ */
+async function seedQuestionnaireStorage() {
+  const questionnairesDir = path.join(process.cwd(), 'temp-questionnaire-storage', 'questionnaires');
+  
+  try {
+    // Check if questionnaire storage directory has any questionnaires
+    if (!fs.existsSync(questionnairesDir)) {
+      fs.mkdirSync(questionnairesDir, { recursive: true });
+    }
+    
+    const files = fs.readdirSync(questionnairesDir).filter(f => f.endsWith('.json'));
+    
+    if (files.length === 0) {
+      console.log('No questionnaires found, seeding demo questionnaire...');
+      const demoService = new QuestionnaireDemoService();
+      await demoService.createSampleQuestionnaire();
+      console.log('Demo questionnaire seeded successfully');
+    }
+  } catch (error) {
+    console.error('Error seeding questionnaire storage:', error);
   }
 }
 

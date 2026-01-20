@@ -1,0 +1,120 @@
+{
+  "id": "91684df8-9700-4605-bc3e-2320120e5e1b",
+  "title": "Hexaware AI Strategy Assessment Framework",
+  "description": "Comprehensive assessment for AI readiness and use case prioritization",
+  "version": "2.0.0",
+  "createdAt": "2026-01-20T17:14:23.516Z",
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "Business Strategy & Leadership",
+      "sectionOrder": 1,
+      "subsections": [
+        {
+          "id": "subsection-1-1",
+          "title": "Executive Vision & Strategic Alignment",
+          "subsectionOrder": 1,
+          "sectionId": "section-1"
+        }
+      ]
+    },
+    {
+      "id": "section-2",
+      "title": "Current AI & Data Capabilities",
+      "sectionOrder": 2,
+      "subsections": [
+        {
+          "id": "subsection-2-1",
+          "title": "Data Infrastructure Assessment",
+          "subsectionOrder": 1,
+          "sectionId": "section-2"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1-company-profile",
+      "questionText": "Please provide your company profile information",
+      "questionType": "company_profile",
+      "isRequired": true,
+      "questionOrder": 1,
+      "sectionId": "section-1",
+      "subsectionId": "subsection-1-1",
+      "questionData": {
+        "fields": [
+          {
+            "name": "companyName",
+            "label": "Company Name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "name": "industry",
+            "label": "Industry",
+            "type": "select",
+            "options": [
+              "Insurance",
+              "Financial Services",
+              "Technology"
+            ]
+          },
+          {
+            "name": "employeeCount",
+            "label": "Number of Employees",
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q2-business-lines",
+      "questionText": "Which insurance lines does your business focus on?",
+      "questionType": "business_lines_matrix",
+      "isRequired": true,
+      "questionOrder": 2,
+      "sectionId": "section-1",
+      "subsectionId": "subsection-1-1",
+      "questionData": {
+        "businessLines": [
+          "Personal Auto",
+          "Commercial Auto",
+          "Property",
+          "Casualty",
+          "Life",
+          "Health"
+        ],
+        "matrixType": "priority"
+      }
+    },
+    {
+      "id": "q3-ai-maturity",
+      "questionText": "How would you rate your organization's AI maturity?",
+      "questionType": "smart_rating",
+      "isRequired": true,
+      "questionOrder": 3,
+      "sectionId": "section-2",
+      "subsectionId": "subsection-2-1",
+      "questionData": {
+        "scale": 5,
+        "labels": [
+          "No AI Experience",
+          "Basic Exploration",
+          "Pilot Projects",
+          "Production Deployment",
+          "AI-Native Organization"
+        ],
+        "description": "Rate your current level of AI adoption and expertise"
+      }
+    }
+  ],
+  "metadata": {
+    "estimatedTimeMinutes": 45,
+    "category": "AI Strategy Assessment",
+    "tags": [
+      "AI",
+      "Strategy",
+      "Digital Transformation"
+    ]
+  }
+}

@@ -25,8 +25,11 @@ export interface QuestionnaireDefinition {
   createdAt: string;
   estimatedTimeMinutes?: number;
   sections?: any[];
+  // Legacy format support
+  questions?: any[];
+  metadata?: Record<string, any>;
   // Survey.js format only
-  pages: Array<any>;
+  pages?: Array<any>;
 }
 
 export interface QuestionnaireResponse {
@@ -233,25 +236,21 @@ export class QuestionnaireStorageService {
     try {
       console.log(`Reading questionnaires from: ${this.questionnairesDir}`);
       
-      // Read directories (each questionnaire has its own subdirectory)
       const entries = await fs.promises.readdir(this.questionnairesDir, { withFileTypes: true });
       console.log(`Found ${entries.length} entries in questionnaires directory`);
       
-      const directories = entries.filter(entry => entry.isDirectory());
-      console.log(`Found ${directories.length} directories: ${directories.map(d => d.name).join(', ')}`);
-      
       const definitions: QuestionnaireDefinition[] = [];
       
+      // Read from subdirectories (old format: <id>/definition.json)
+      const directories = entries.filter(entry => entry.isDirectory());
       for (const dir of directories) {
         const definitionPath = path.join(this.questionnairesDir, dir.name, 'definition.json');
-        console.log(`Reading definition from: ${definitionPath}`);
         try {
           const content = await fs.promises.readFile(definitionPath, 'utf8');
           const definition = JSON.parse(content) as any;
           
-          // Add missing metadata fields using directory name as ID
           const completeDefinition: QuestionnaireDefinition = {
-            id: dir.name, // Use directory name as questionnaire ID
+            id: dir.name,
             title: definition.title || `Questionnaire ${dir.name}`,
             description: definition.description || '',
             version: definition.version || '1.0',
@@ -261,10 +260,26 @@ export class QuestionnaireStorageService {
             pages: definition.pages || []
           };
           
-          console.log(`Successfully parsed definition for ${dir.name}: ${completeDefinition.title}`);
           definitions.push(completeDefinition);
         } catch (error) {
-          console.error(`Failed to parse questionnaire definition in ${dir.name}:`, error);
+          // Subdirectory doesn't have definition.json, skip
+        }
+      }
+      
+      // Read from flat JSON files (new format: <id>.json)
+      const jsonFiles = entries.filter(entry => entry.isFile() && entry.name.endsWith('.json'));
+      for (const file of jsonFiles) {
+        const filePath = path.join(this.questionnairesDir, file.name);
+        try {
+          const content = await fs.promises.readFile(filePath, 'utf8');
+          const definition = JSON.parse(content) as QuestionnaireDefinition;
+          
+          // Avoid duplicates if same ID exists from subdirectory
+          if (!definitions.some(d => d.id === definition.id)) {
+            definitions.push(definition);
+          }
+        } catch (error) {
+          console.error(`Failed to parse questionnaire from ${file.name}:`, error);
         }
       }
       
