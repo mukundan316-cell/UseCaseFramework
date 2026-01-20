@@ -1,0 +1,95 @@
+ARCHITECTURAL FEEDBACK REQUEST: Insights Tab Structure
+
+Before implementing, I need your assessment of this proposed approach against replit.md guidelines and existing architecture. DO NOT build anything - only provide feedback.
+
+=== PROPOSED STRUCTURE ===
+
+Add new top-level "Insights" tab with sub-navigation:
+
+Current:  Dashboard | Explorer | AI Assessment | Admin
+Proposed: Dashboard | Explorer | Insights | AI Assessment | Admin
+
+Insights sub-tabs:
+├── Value Realization (Priority - Phase 2 build)
+│   └── Portfolio-level value tracking, ROI, breakeven analytics
+├── Operating Model
+│   └── Read-only TOM analytics view (config stays in Admin)
+├── Capability Transition (Phase 3 build)
+│   └── Staffing curves, independence tracking, KT milestones
+└── Responsible AI
+    └── Consolidated governance/risk view from existing fields
+
+=== KEY DESIGN DECISIONS ===
+
+1. Insights = Analytics/Read Views; Admin = Configuration
+2. Default sub-tab when clicking Insights: Value Realization
+3. Dashboard summary cards link into relevant Insights sub-tabs
+4. Use Case Detail modal keeps per-use-case entry tabs (Value, etc.)
+5. Insights shows portfolio-level aggregation across all use cases
+6. Placeholder "Coming Soon" for unbuilt sub-tabs initially
+
+=== QUESTIONS FOR YOUR ASSESSMENT ===
+
+1. TAB STRUCTURE FEASIBILITY
+   - Does the current routing (Wouter) support nested sub-tabs easily?
+   - What's the existing pattern for sub-navigation? (Reference existing components)
+   - Any concerns with adding a 5th top-level tab?
+
+2. REPLIT.MD ALIGNMENT
+   - Does this follow LEGO component patterns?
+   - Does this align with "quick wins without complexity" principle?
+   - Any architectural decisions in replit.md that conflict with this approach?
+
+3. EXISTING PATTERNS TO REUSE
+   - Which existing components handle sub-navigation? (Tabs within pages)
+   - Are there existing "analytics view" patterns to follow?
+   - How does Admin panel handle its internal tabs - can we mirror that pattern?
+
+4. DATA FLOW
+   - Portfolio aggregation queries - any performance concerns with 126+ use cases?
+   - Should aggregations be computed server-side (API) or client-side?
+   - Caching considerations?
+
+5. NAVIGATION INTEGRATION
+   - How would Dashboard cards link to specific Insights sub-tabs?
+   - URL structure recommendation: /insights/value-realization or /insights?tab=value?
+   - Back navigation / breadcrumb considerations?
+
+6. ALTERNATIVE APPROACHES
+   - Is there a simpler pattern in the existing codebase that achieves the same goal?
+   - Any concerns that suggest a different approach entirely?
+
+7. BUILD SEQUENCE RECOMMENDATION
+   - Should we build the Insights shell first (with placeholders), then populate?
+   - Or build Value Realization fully, then wrap in Insights structure?
+   - What's the lowest-risk sequence?
+
+=== OUTPUT FORMAT ===
+
+## ARCHITECTURAL ASSESSMENT
+
+### 1. Tab Structure Feasibility
+[Your assessment]
+
+### 2. Replit.md Alignment
+[Conflicts or confirmations]
+
+### 3. Recommended Patterns to Reuse
+[Specific components/files to reference]
+
+### 4. Data Flow Recommendations
+[Server vs client, caching, performance]
+
+### 5. Navigation Approach
+[URL structure, linking strategy]
+
+### 6. Concerns or Blockers
+[Any issues that need resolution before building]
+
+### 7. Recommended Build Sequence
+[Your suggested order of implementation]
+
+### 8. Estimated Complexity
+[Low/Medium/High and why]
+
+Provide honest assessment. If this approach is over-engineered or conflicts with existing patterns, say so and suggest alternatives.
