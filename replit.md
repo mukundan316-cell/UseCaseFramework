@@ -52,6 +52,18 @@ A comprehensive KPI-based ROI tracking system for the 126 insurance use cases:
 
 Key files: `shared/valueRealization.ts`, `client/src/components/lego-blocks/ValueEstimationLegoBlock.tsx`, `client/src/components/lego-blocks/KpiLibraryManagementLegoBlock.tsx`
 
+### Capability Transition Benchmark Derivation (Jan 2026)
+Automated population of capability transition data (staffing curves, independence projections, KT milestones) from use case attributes:
+
+- **Benchmark Archetypes**: Maps TOM phases (foundation_centralized, foundation_coe, strategic_hybrid, transition_hybrid, steady_state_federated) to staffing multipliers, independence ranges, and transition timelines
+- **Pace Modifiers**: Quadrant placement (Quick Win, Strategic Bet, Experimental, Watchlist) adjusts transition speed
+- **T-Shirt Scaling**: Base FTE derived from t-shirt size (XS=2, S=3, M=5, L=8, XL=12)
+- **Override Tracking**: `derived`, `derivedAt`, `derivedFrom` fields track auto-calculated vs manually-entered data
+- **API Endpoints**: `POST /api/capability/derive-all` (bulk), `POST /api/use-cases/:id/capability/derive` (single)
+- **UI Integration**: "Derive Defaults" button in CapabilityTransitionView dashboard
+
+Key files: `shared/capabilityTransition.ts` (DEFAULT_BENCHMARK_CONFIG, deriveCapabilityDefaults), `client/src/components/insights/CapabilityTransitionView.tsx`
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion

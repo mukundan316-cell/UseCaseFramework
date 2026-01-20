@@ -512,6 +512,16 @@ export const metadataConfig = pgTable('metadata_config', {
       targetAudience: string[];
       estimatedHours: number;
     }>;
+    benchmarkConfig?: {
+      archetypes: Record<string, {
+        independenceRange: [number, number];
+        vendorFteMultiplier: number;
+        clientFteMultiplier: number;
+        transitionMonths: number;
+      }>;
+      paceModifiers: Record<string, number>;
+      tShirtBaseFte: Record<string, number>;
+    };
   }>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });

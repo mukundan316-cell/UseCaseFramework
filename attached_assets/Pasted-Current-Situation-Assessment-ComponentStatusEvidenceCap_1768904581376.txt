@@ -1,0 +1,231 @@
+Current Situation Assessment
+ComponentStatusEvidenceCapability Transition UI✅ BuiltCapabilityTransitionView.tsx exists with chartsCapability API Endpoints✅ Built/api/capability/portfolio-summary worksDatabase Schema❌ Missinguse_cases table has no capability_transition JSONB columnAdmin Configuration❌ MissingNo capabilityTransitionConfig in metadata_configSample Data❌ ZeroAll 126 use cases lack capability data
+Result: The dashboard is a beautiful empty shell waiting for its data foundation.
+
+The Strategic Problem
+From your audit (Document 2), Topic 6 "Capability Uplift" sits at 75% with the critical gap being:
+
+"No benchmark-driven auto-derivation" — Currently manual entry only
+
+This means even if you add the schema, you'd need someone to manually enter capability data for 126 use cases. That's not sustainable for a demo.
+
+The Solution: Cascade Benchmark Engine (Document 1)
+Your "Unified Benchmark-Driven AI Portfolio Management" plan solves this elegantly:
+Existing Use Case Attributes → Auto-Derived Capability Defaults
+─────────────────────────────────────────────────────────────────
+TOM Phase (Foundation/Strategic/Transition/Steady State)
+     ↓
+Quadrant (Quick Win/Strategic Bet/Fill-In/Watchlist)
+     ↓
+T-Shirt Size (XS/S/M/L/XL)
+     ↓
+Operating Model (Centralized/Federated/Hybrid/CoE-Led)
+     ↓
+═══════════════════════════════════════════════════════════════
+AUTO-DERIVED OUTPUTS:
+- Independence target band (e.g., 50-75% for Transition phase)
+- Starting Vendor/Client FTE levels (from T-shirt size)
+- Staffing glide path shape (from operating model)
+- Transition pace modifier (from quadrant)
+- 18-month staffing curve projection
+- KT milestone defaults
+
+Recommended Next Step: Implement Benchmark Engine (Phase A)
+This is a backend-first implementation that unlocks everything:
+Step 1: Add Schema
+sql-- Add to metadata_config
+ALTER TABLE metadata_config ADD COLUMN capability_benchmark_config JSONB;
+
+-- Add to use_cases  
+ALTER TABLE use_cases ADD COLUMN capability_transition JSONB;
+Step 2: Populate Benchmark Configuration
+json{
+  "archetypes": {
+    "foundation_coe": { "independenceTarget": [0, 25], "vendorFte": 6, "clientFte": 1 },
+    "strategic_hybrid": { "independenceTarget": [25, 50], "vendorFte": 4, "clientFte": 3 },
+    "transition_hybrid": { "independenceTarget": [50, 75], "vendorFte": 2, "clientFte": 5 },
+    "steady_state_federated": { "independenceTarget": [85, 100], "vendorFte": 0.5, "clientFte": 7 }
+  },
+  "paceModifiers": {
+    "Quick Win": 0.7,
+    "Strategic Bet": 1.0,
+    "Fill-In": 1.2,
+    "Watchlist": 1.5
+  }
+}
+Step 3: Create Derivation Function
+typescriptfunction deriveCapabilityDefaults(useCase) {
+  const archetype = mapToArchetype(useCase.tomPhase, useCase.quadrant);
+  const pace = paceModifiers[useCase.quadrant];
+  const baselineFte = getTShirtFte(useCase.tShirtSize);
+  
+  return {
+    independencePercentage: calculateCurrentIndependence(useCase),
+    staffing: {
+      vendorFte: archetype.vendorFte * baselineFte,
+      clientFte: archetype.clientFte * baselineFte
+    },
+    projectedCurve: generate18MonthStaffingCurve(archetype, pace),
+    ktMilestones: getDefaultMilestones(archetype),
+    derived: true,
+    derivedAt: new Date()
+  };
+}
+```
+
+### Step 4: Auto-Populate on Use Case Save/Load
+
+When a use case is created or updated, if `capability_transition` is empty or marked as derived, recalculate based on current attributes.
+
+---
+
+## Implementation Prompt for Replit Agent
+```
+PHASE A: BENCHMARK ENGINE FOUNDATION
+
+OBJECTIVE: Implement auto-derivation of capability defaults so the Capability Transition 
+dashboard shows real data for all 126 use cases based on their existing attributes.
+
+=== STEP 1: SCHEMA UPDATES ===
+
+1.1 Add to metadata_config table:
+    capability_benchmark_config JSONB
+
+1.2 Add to use_cases table:
+    capability_transition JSONB
+
+Checkpoint after schema migration.
+
+=== STEP 2: BENCHMARK CONFIGURATION ===
+
+Populate capability_benchmark_config with:
+
+{
+  "archetypes": {
+    "foundation_centralized": { 
+      "independenceRange": [0, 25], 
+      "vendorFteMultiplier": 1.0, 
+      "clientFteMultiplier": 0.15,
+      "transitionMonths": 18
+    },
+    "foundation_coe": { 
+      "independenceRange": [0, 25], 
+      "vendorFteMultiplier": 0.9, 
+      "clientFteMultiplier": 0.2,
+      "transitionMonths": 15
+    },
+    "strategic_hybrid": { 
+      "independenceRange": [25, 50], 
+      "vendorFteMultiplier": 0.7, 
+      "clientFteMultiplier": 0.4,
+      "transitionMonths": 12
+    },
+    "transition_hybrid": { 
+      "independenceRange": [50, 75], 
+      "vendorFteMultiplier": 0.4, 
+      "clientFteMultiplier": 0.7,
+      "transitionMonths": 9
+    },
+    "steady_state_federated": { 
+      "independenceRange": [85, 100], 
+      "vendorFteMultiplier": 0.1, 
+      "clientFteMultiplier": 1.0,
+      "transitionMonths": 3
+    }
+  },
+  "paceModifiers": {
+    "Quick Win": 0.7,
+    "Strategic Bet": 1.0,
+    "Experimental": 1.2,
+    "Watchlist": 1.5
+  },
+  "tShirtBaseFte": {
+    "XS": 2,
+    "S": 3,
+    "M": 5,
+    "L": 8,
+    "XL": 12
+  },
+  "ktMilestones": [
+    { "id": "m1", "name": "Process Documentation", "defaultMonth": 2 },
+    { "id": "m2", "name": "Shadow Training Complete", "defaultMonth": 4 },
+    { "id": "m3", "name": "Supervised Operation", "defaultMonth": 6 },
+    { "id": "m4", "name": "Independent Operation", "defaultMonth": 9 },
+    { "id": "m5", "name": "Troubleshooting Mastery", "defaultMonth": 12 },
+    { "id": "m6", "name": "Full Ownership", "defaultMonth": 15 }
+  ]
+}
+
+Checkpoint after config populated.
+
+=== STEP 3: DERIVATION FUNCTION ===
+
+Create shared/calculations/deriveCapabilityDefaults.ts:
+
+Input: Use case with tomPhase, quadrant, tShirtSize, deploymentStatus
+Output: capabilityTransition object with:
+  - independencePercentage (derived from phase + deployment status)
+  - staffing.vendorFte (derived from t-shirt + archetype)
+  - staffing.clientFte (derived from t-shirt + archetype)
+  - staffing.projectedCurve (18-month array)
+  - ktMilestones (with status based on deployment)
+  - derived: true
+  - derivedAt: timestamp
+
+Logic:
+1. Map tomPhase to base archetype
+2. Apply quadrant pace modifier
+3. Calculate FTE from t-shirt × archetype multipliers
+4. Generate 18-month staffing curve
+5. Set milestone completion based on deployment status
+
+Checkpoint after function tested.
+
+=== STEP 4: API INTEGRATION ===
+
+Modify GET /api/use-cases/:id and GET /api/use-cases:
+- If capability_transition is null, call deriveCapabilityDefaults()
+- Return derived data with "derived: true" flag
+
+Modify PUT /api/use-cases/:id:
+- If capability fields manually changed, set "derived: false"
+- If related fields (tomPhase, quadrant, tShirtSize) changed and derived=true, recalculate
+
+Checkpoint after API working.
+
+=== STEP 5: BATCH DERIVATION ===
+
+Create endpoint: POST /api/capability/derive-all
+
+Iterates all 126 use cases and applies deriveCapabilityDefaults() to those with:
+- capability_transition IS NULL OR
+- capability_transition.derived = true
+
+Returns summary: { updated: 126, errors: 0 }
+
+Run batch derivation.
+
+Checkpoint after all use cases have derived capability data.
+
+=== STEP 6: VERIFY DASHBOARD ===
+
+Confirm Capability Transition dashboard now shows:
+- Portfolio independence % (should be mix based on phases)
+- Staffing chart (vendor + client FTE over time)
+- Use cases tracked (126)
+
+Take screenshot of populated dashboard.
+
+=== VALIDATION CRITERIA ===
+
+□ Schema migrations applied
+□ Benchmark config in metadata_config
+□ deriveCapabilityDefaults() function working
+□ API returns derived capability data
+□ Batch derivation updates all 126 use cases
+□ Dashboard shows non-zero values
+□ CRUD modal shows "Calculated" badge on derived fields
+
+Why This Order Matters
+If you do this first...You get...Benchmark EngineDashboard populated, demo-ready, scalableUI tweaksEmpty dashboard, no data to showSample data only10 use cases work, 116 still emptyValue RealizationAnother empty dashboard
+The Benchmark Engine is the multiplier that makes everything else work.

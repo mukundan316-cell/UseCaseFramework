@@ -3,10 +3,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient, apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Users, TrendingUp, GraduationCap, CheckCircle2, Clock, Target,
-  Loader2, AlertCircle, HelpCircle, ArrowUpRight, Building2, UserCheck
+  Loader2, AlertCircle, HelpCircle, ArrowUpRight, Building2, UserCheck, Sparkles
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, Tooltip as RechartsTooltip } from 'recharts';
 import type { 
@@ -28,6 +30,33 @@ export default function CapabilityTransitionView() {
     queryKey: ['/api/capability/config'],
   });
 
+  const { toast } = useToast();
+
+  const deriveAllMutation = useMutation({
+    mutationFn: async (overwriteExisting: boolean) => {
+      const response = await apiRequest('/api/capability/derive-all', {
+        method: 'POST',
+        body: JSON.stringify({ overwriteExisting }),
+      });
+      return response;
+    },
+    onSuccess: (data: { derived: number; skipped: number; total: number }) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/capability/portfolio-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/capability/staffing-projection'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      toast({
+        title: 'Capability Defaults Derived',
+        description: `Auto-populated ${data.derived} use cases from benchmark data (${data.skipped} skipped)`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Derivation Failed',
+        description: 'Failed to derive capability defaults. Please try again.',
+        variant: 'destructive',
+      });
+    },
+  });
 
   const isLoading = summaryLoading || projectionLoading || configLoading;
 
@@ -78,25 +107,63 @@ export default function CapabilityTransitionView() {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        <div className="text-center py-2">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Capability Transition - "Teach Us to Fish"</h3>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Track knowledge transfer progress, staffing curves, and path to self-sufficiency across your AI portfolio.
-          </p>
+        <div className="flex items-center justify-between py-2">
+          <div className="text-center flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Capability Transition - "Teach Us to Fish"</h3>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Track knowledge transfer progress, staffing curves, and path to self-sufficiency across your AI portfolio.
+            </p>
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => deriveAllMutation.mutate(true)}
+                disabled={deriveAllMutation.isPending}
+                className="shrink-0"
+                data-testid="button-derive-capability-defaults"
+              >
+                {deriveAllMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                )}
+                Derive Defaults
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Auto-populate capability data from use case attributes</p>
+              <p className="text-xs text-muted-foreground">(TOM phase, quadrant, t-shirt size)</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {!hasCapabilityData && (
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="py-6">
               <div className="text-center space-y-3">
-                <Users className="h-10 w-10 text-blue-500 mx-auto" />
+                <Sparkles className="h-10 w-10 text-blue-500 mx-auto" />
                 <p className="text-blue-800 font-medium">
-                  No capability transition data yet
+                  Auto-derive capability data from benchmarks
                 </p>
                 <p className="text-blue-600 text-sm max-w-md mx-auto">
-                  Add staffing information (Vendor FTE, Client FTE, Independence %) to your use cases via the 
-                  Capability Transition tab in the use case editor to track knowledge transfer and self-sufficiency progress.
+                  Click "Derive Defaults" above to automatically populate staffing curves, independence projections, 
+                  and KT milestones based on each use case's TOM phase, quadrant placement, and t-shirt size.
                 </p>
+                <Button
+                  variant="default"
+                  onClick={() => deriveAllMutation.mutate(true)}
+                  disabled={deriveAllMutation.isPending}
+                  data-testid="button-derive-capability-defaults-cta"
+                >
+                  {deriveAllMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  )}
+                  Derive Capability Defaults
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -28,6 +28,20 @@ export interface Certification {
   estimatedHours: number;
 }
 
+// Benchmark archetype for auto-deriving capability defaults
+export interface BenchmarkArchetype {
+  independenceRange: [number, number];
+  vendorFteMultiplier: number;
+  clientFteMultiplier: number;
+  transitionMonths: number;
+}
+
+export interface CapabilityBenchmarkConfig {
+  archetypes: Record<string, BenchmarkArchetype>;
+  paceModifiers: Record<string, number>;
+  tShirtBaseFte: Record<string, number>;
+}
+
 export interface CapabilityTransitionConfig {
   enabled: string;
   independenceTargets: {
@@ -39,6 +53,7 @@ export interface CapabilityTransitionConfig {
   knowledgeTransferMilestones: KnowledgeTransferMilestone[];
   roleTransitions: RoleTransition[];
   certifications: Certification[];
+  benchmarkConfig?: CapabilityBenchmarkConfig;
 }
 
 export interface IndependenceHistoryEntry {
@@ -116,6 +131,15 @@ export interface UseCaseCapabilityTransition {
   knowledgeTransfer: KnowledgeTransfer;
   training: Training;
   selfSufficiencyTarget: SelfSufficiencyTarget;
+  // Benchmark derivation tracking
+  derived?: boolean;
+  derivedAt?: string;
+  derivedFrom?: {
+    tomPhase?: string;
+    quadrant?: string;
+    tShirtSize?: string;
+    operatingModel?: string;
+  };
 }
 
 export interface PortfolioCapabilitySummary {
@@ -493,4 +517,233 @@ export function generateAggregateStaffingProjection(
   });
   
   return projections;
+}
+
+// =============================================================================
+// BENCHMARK-DRIVEN CAPABILITY DERIVATION
+// Auto-derives capability defaults from use case attributes
+// =============================================================================
+
+export const DEFAULT_BENCHMARK_CONFIG: CapabilityBenchmarkConfig = {
+  archetypes: {
+    foundation_centralized: { 
+      independenceRange: [0, 15], 
+      vendorFteMultiplier: 1.0, 
+      clientFteMultiplier: 0.1,
+      transitionMonths: 18
+    },
+    foundation_coe: { 
+      independenceRange: [5, 25], 
+      vendorFteMultiplier: 0.9, 
+      clientFteMultiplier: 0.2,
+      transitionMonths: 15
+    },
+    strategic_hybrid: { 
+      independenceRange: [25, 50], 
+      vendorFteMultiplier: 0.6, 
+      clientFteMultiplier: 0.5,
+      transitionMonths: 12
+    },
+    transition_hybrid: { 
+      independenceRange: [50, 75], 
+      vendorFteMultiplier: 0.35, 
+      clientFteMultiplier: 0.75,
+      transitionMonths: 9
+    },
+    steady_state_federated: { 
+      independenceRange: [85, 100], 
+      vendorFteMultiplier: 0.1, 
+      clientFteMultiplier: 1.0,
+      transitionMonths: 3
+    }
+  },
+  paceModifiers: {
+    'Quick Win': 0.7,
+    'Strategic Bet': 1.0,
+    'Experimental': 1.2,
+    'Watchlist': 1.5
+  },
+  tShirtBaseFte: {
+    XS: 2,
+    S: 3,
+    M: 5,
+    L: 8,
+    XL: 12
+  }
+};
+
+export interface UseCaseForDerivation {
+  id: string;
+  title?: string;
+  tomPhase?: string | null;
+  quadrant?: string | null;
+  tShirtSize?: string | null;
+  deploymentStatus?: string | null;
+  useCaseStatus?: string | null;
+  capabilityTransition?: UseCaseCapabilityTransition | null;
+}
+
+function mapTomPhaseToArchetypeKey(tomPhase: string | null | undefined, operatingModel?: string): string {
+  const phase = (tomPhase || 'foundation').toLowerCase();
+  const model = (operatingModel || 'coe').toLowerCase();
+  
+  if (phase.includes('foundation')) {
+    return model.includes('centralized') ? 'foundation_centralized' : 'foundation_coe';
+  }
+  if (phase.includes('strategic')) {
+    return 'strategic_hybrid';
+  }
+  if (phase.includes('transition')) {
+    return 'transition_hybrid';
+  }
+  if (phase.includes('steady') || phase.includes('state')) {
+    return 'steady_state_federated';
+  }
+  return 'foundation_coe';
+}
+
+function getQuadrantFromScores(impactScore?: number, effortScore?: number): string {
+  const impact = impactScore || 2.5;
+  const effort = effortScore || 2.5;
+  
+  if (impact >= 2.5 && effort < 2.5) return 'Quick Win';
+  if (impact >= 2.5 && effort >= 2.5) return 'Strategic Bet';
+  if (impact < 2.5 && effort < 2.5) return 'Experimental';
+  return 'Watchlist';
+}
+
+function deriveIndependenceFromDeploymentStatus(deploymentStatus: string | null | undefined): number {
+  const status = (deploymentStatus || '').toLowerCase();
+  if (status === 'production') return 65;
+  if (status === 'pilot') return 40;
+  if (status === 'poc') return 20;
+  return 10;
+}
+
+function generateStaffingCurve(
+  baseFte: number, 
+  archetype: BenchmarkArchetype, 
+  paceModifier: number
+): { current: CurrentStaffing; planned: PlannedStaffing } {
+  const vendorFte = Math.round(baseFte * archetype.vendorFteMultiplier * 10) / 10;
+  const clientFte = Math.round(baseFte * archetype.clientFteMultiplier * 10) / 10;
+  
+  const transitionRate = 1 / paceModifier;
+  
+  const month6Vendor = Math.round(vendorFte * (1 - 0.25 * transitionRate) * 10) / 10;
+  const month6Client = Math.round((baseFte - month6Vendor) * 10) / 10;
+  
+  const month12Vendor = Math.round(vendorFte * (1 - 0.6 * transitionRate) * 10) / 10;
+  const month12Client = Math.round((baseFte - month12Vendor) * 10) / 10;
+  
+  const month18Vendor = Math.round(vendorFte * (1 - 0.85 * transitionRate) * 10) / 10;
+  const month18Client = Math.round((baseFte - month18Vendor) * 10) / 10;
+  
+  return {
+    current: {
+      vendor: { total: vendorFte, byRole: {} },
+      client: { total: clientFte, byRole: {} }
+    },
+    planned: {
+      month6: { vendor: Math.max(0, month6Vendor), client: month6Client },
+      month12: { vendor: Math.max(0, month12Vendor), client: month12Client },
+      month18: { vendor: Math.max(0.5, month18Vendor), client: month18Client }
+    }
+  };
+}
+
+function deriveKtMilestones(
+  deploymentStatus: string | null | undefined,
+  config: CapabilityTransitionConfig
+): KnowledgeTransfer {
+  const status = (deploymentStatus || '').toLowerCase();
+  const milestones = config.knowledgeTransferMilestones || [];
+  
+  let completedCount = 0;
+  if (status === 'production') completedCount = 4;
+  else if (status === 'pilot') completedCount = 2;
+  else if (status === 'poc') completedCount = 1;
+  
+  const completed = milestones.slice(0, completedCount).map(m => m.id);
+  const inProgress = completedCount < milestones.length 
+    ? [milestones[completedCount].id] 
+    : [];
+  
+  return {
+    completedMilestones: completed,
+    inProgressMilestones: inProgress,
+    milestoneNotes: {}
+  };
+}
+
+export function deriveCapabilityDefaults(
+  useCase: UseCaseForDerivation,
+  config: CapabilityTransitionConfig,
+  benchmarkConfig?: CapabilityBenchmarkConfig
+): UseCaseCapabilityTransition {
+  const benchmark = benchmarkConfig || DEFAULT_BENCHMARK_CONFIG;
+  
+  const archetypeKey = mapTomPhaseToArchetypeKey(useCase.tomPhase);
+  const archetype = benchmark.archetypes[archetypeKey] || benchmark.archetypes.foundation_coe;
+  
+  const quadrant = useCase.quadrant || getQuadrantFromScores();
+  const paceModifier = benchmark.paceModifiers[quadrant] || 1.0;
+  
+  const tShirtSize = useCase.tShirtSize || 'M';
+  const baseFte = benchmark.tShirtBaseFte[tShirtSize] || 5;
+  
+  const staffing = generateStaffingCurve(baseFte, archetype, paceModifier);
+  
+  const independenceFromDeployment = deriveIndependenceFromDeploymentStatus(useCase.deploymentStatus);
+  const [minIndependence, maxIndependence] = archetype.independenceRange;
+  const independencePercentage = Math.min(
+    maxIndependence, 
+    Math.max(minIndependence, independenceFromDeployment)
+  );
+  
+  const ktProgress = deriveKtMilestones(useCase.deploymentStatus, config);
+  
+  const now = new Date();
+  const targetMonths = Math.round(archetype.transitionMonths * paceModifier);
+  const targetDate = new Date(now.getTime() + targetMonths * 30 * 24 * 60 * 60 * 1000);
+  
+  return {
+    independencePercentage,
+    independenceHistory: [
+      {
+        date: now.toISOString().slice(0, 7),
+        percentage: independencePercentage,
+        note: 'Auto-derived from use case attributes'
+      }
+    ],
+    staffing,
+    knowledgeTransfer: ktProgress,
+    training: {
+      completedCertifications: [],
+      plannedCertifications: [],
+      totalTrainingHoursCompleted: 0,
+      totalTrainingHoursPlanned: baseFte * 20
+    },
+    selfSufficiencyTarget: {
+      targetDate: targetDate.toISOString().slice(0, 10),
+      targetIndependence: 90,
+      advisoryRetainer: independencePercentage >= 75 ? 'true' : 'false'
+    },
+    derived: true,
+    derivedAt: now.toISOString(),
+    derivedFrom: {
+      tomPhase: useCase.tomPhase || undefined,
+      quadrant: quadrant,
+      tShirtSize: tShirtSize,
+      operatingModel: 'coe_led'
+    }
+  };
+}
+
+export function shouldRecalculateCapability(
+  existingCapability: UseCaseCapabilityTransition | null | undefined
+): boolean {
+  if (!existingCapability) return true;
+  if (existingCapability.derived === true) return true;
+  return false;
 }
