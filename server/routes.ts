@@ -719,11 +719,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { title, description, excludeId } = req.body;
       
-      if (!title || !description) {
-        return res.status(400).json({ error: "Title and description are required" });
+      if (!title) {
+        return res.status(400).json({ error: "Title is required" });
       }
       
-      const similarCases = await storage.findSimilarUseCases(title, description, excludeId);
+      const similarCases = await storage.findSimilarUseCases(title, description || '', excludeId);
       res.json({ 
         hasDuplicates: similarCases.length > 0,
         similarCases 
