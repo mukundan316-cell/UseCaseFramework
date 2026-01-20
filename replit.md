@@ -64,6 +64,21 @@ Automated population of capability transition data (staffing curves, independenc
 
 Key files: `shared/capabilityTransition.ts` (DEFAULT_BENCHMARK_CONFIG, deriveCapabilityDefaults), `client/src/components/insights/CapabilityTransitionView.tsx`
 
+### Database-Driven Configuration Architecture (Jan 2026)
+All framework features are now fully driven by `metadata_config` table in the database:
+
+- **Pattern**: Backend uses `metadata?.config || DEFAULT_CONFIG` - DB-first with fallback only for pristine databases
+- **Seed Script**: `server/seed.ts` populates complete configuration on first run including:
+  - T-shirt sizing: UK benchmark rates (£/day) per role, overhead multipliers, size-to-days mapping
+  - Value Realization: 9 insurance-specific KPIs with benchmarks and process mappings
+  - Capability Transition: Archetypes with staffing trajectories, pace modifiers
+  - TOM Phases: Governance gates for each phase transition
+  - Time Estimation: Multipliers for questionnaire duration calculations
+- **Frontend**: All components fetch configuration from API endpoints (`/api/value/config`, `/api/tom/config`, etc.) rather than using hardcoded defaults
+- **Shared Utilities**: Calculation functions accept injected config parameters for testability and DB-driven behavior
+
+Key files: `server/seed.ts`, `shared/schema.ts` (metadataConfig table), all `shared/*.ts` calculation modules
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion
