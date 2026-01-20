@@ -30,7 +30,11 @@ const DEFAULT_COLORS = [
   '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#84CC16'
 ];
 
-export default function PhaseManagementLegoBlock() {
+interface PhaseManagementLegoBlockProps {
+  clientId?: string;
+}
+
+export default function PhaseManagementLegoBlock({ clientId = 'default' }: PhaseManagementLegoBlockProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -48,20 +52,21 @@ export default function PhaseManagementLegoBlock() {
   });
 
   const { data: tomConfig, isLoading } = useQuery<TomConfig>({
-    queryKey: ['/api/tom/config'],
+    queryKey: ['/api/tom/config', clientId],
+    queryFn: () => fetch(`/api/tom/config?clientId=${clientId}`).then(r => r.json()),
   });
 
   const updatePhasesMutation = useMutation({
     mutationFn: async (phases: TomPhase[]) => {
-      return apiRequest('/api/tom/phases', {
+      return apiRequest(`/api/tom/phases?clientId=${clientId}`, {
         method: 'PUT',
         body: JSON.stringify({ phases }),
         headers: { 'Content-Type': 'application/json' },
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tom/config'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/config', clientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary', clientId] });
       toast({ title: 'Phases Updated', description: 'Phase configuration saved successfully.' });
     },
     onError: () => {
@@ -71,11 +76,11 @@ export default function PhaseManagementLegoBlock() {
 
   const loadPresetPhasesMutation = useMutation({
     mutationFn: async (presetId: string) => {
-      return apiRequest(`/api/tom/phases/load-preset/${presetId}`, { method: 'POST' });
+      return apiRequest(`/api/tom/phases/load-preset/${presetId}?clientId=${clientId}`, { method: 'POST' });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tom/config'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/config', clientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary', clientId] });
       toast({ title: 'Preset Loaded', description: 'Preset phases loaded successfully.' });
     },
     onError: () => {
