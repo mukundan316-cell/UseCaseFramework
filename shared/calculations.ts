@@ -902,14 +902,35 @@ export function calculateRAIGate(useCase: any): GovernanceGateStatus {
 /**
  * Calculate complete governance status for a use case
  * Returns status of all 3 gates and overall activation eligibility
+ * 
+ * SEQUENTIAL GATING: Gates must be completed in order:
+ * 1. Operating Model must pass before Intake can show as complete
+ * 2. Intake must pass (and Operating Model) before RAI can show as complete
  */
 export function calculateGovernanceStatus(useCase: any): GovernanceStatus {
-  const operatingModel = calculateOperatingModelGate(useCase);
-  const intake = calculateIntakeGate(useCase);
-  const rai = calculateRAIGate(useCase);
+  // Calculate raw gate status (independent of sequence)
+  const operatingModelRaw = calculateOperatingModelGate(useCase);
+  const intakeRaw = calculateIntakeGate(useCase);
+  const raiRaw = calculateRAIGate(useCase);
+
+  // Apply sequential gating - gates can only be "passed" if prior gates are complete
+  // Operating Model is the first gate - no modification needed
+  const operatingModel = operatingModelRaw;
+  
+  // Intake can only be "passed" if Operating Model is also passed
+  const intake: GovernanceGateStatus = {
+    ...intakeRaw,
+    passed: operatingModel.passed && intakeRaw.passed
+  };
+  
+  // RAI can only be "passed" if both Operating Model and Intake are passed
+  const rai: GovernanceGateStatus = {
+    ...raiRaw,
+    passed: operatingModel.passed && intakeRaw.passed && raiRaw.passed
+  };
 
   const allPassed = operatingModel.passed && intake.passed && rai.passed;
-  const overallProgress = Math.round((operatingModel.progress + intake.progress + rai.progress) / 3);
+  const overallProgress = Math.round((operatingModel.progress + intakeRaw.progress + raiRaw.progress) / 3);
 
   // Determine status based on gate completion
   let status: 'none' | 'pending' | 'in_review' | 'complete' = 'none';
@@ -917,7 +938,7 @@ export function calculateGovernanceStatus(useCase: any): GovernanceStatus {
     status = 'complete';
   } else if (operatingModel.passed || intake.passed || rai.passed) {
     status = 'in_review';
-  } else if (operatingModel.progress > 0 || intake.progress > 0 || rai.progress > 0) {
+  } else if (operatingModel.progress > 0 || intakeRaw.progress > 0 || raiRaw.progress > 0) {
     status = 'pending';
   }
 

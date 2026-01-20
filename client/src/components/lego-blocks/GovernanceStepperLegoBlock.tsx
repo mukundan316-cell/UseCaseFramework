@@ -12,17 +12,27 @@ interface GovernanceStepperLegoBlockProps {
 function GateStep({ 
   gate, 
   isLast,
-  stepNumber 
+  stepNumber,
+  isBlocked,
+  blockedBy
 }: { 
   gate: GovernanceGateStatus; 
   isLast: boolean;
   stepNumber: number;
+  isBlocked?: boolean;
+  blockedBy?: string;
 }) {
   const getStepIcon = () => {
-    if (gate.passed) {
+    if (gate.passed && !isBlocked) {
       return (
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white">
           <Check className="h-4 w-4" />
+        </div>
+      );
+    } else if (isBlocked) {
+      return (
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-300 text-gray-500">
+          <Lock className="h-4 w-4" />
         </div>
       );
     } else if (gate.progress > 0) {
@@ -47,8 +57,10 @@ function GateStep({
   };
 
   const getStatusBadge = () => {
-    if (gate.passed) {
+    if (gate.passed && !isBlocked) {
       return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">Complete</Badge>;
+    } else if (isBlocked) {
+      return <Badge variant="outline" className="bg-gray-100 text-gray-500 border-gray-200 text-xs">Waiting</Badge>;
     } else if (gate.progress > 0) {
       return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">{gate.progress}%</Badge>;
     } else {
@@ -62,7 +74,11 @@ function GateStep({
         <TooltipTrigger asChild>
           <div className="flex flex-col items-center gap-1 cursor-help">
             {getStepIcon()}
-            <span className={`text-xs font-medium text-center max-w-[80px] ${gate.passed ? 'text-green-700' : gate.progress > 0 ? 'text-amber-700' : 'text-gray-500'}`}>
+            <span className={`text-xs font-medium text-center max-w-[80px] ${
+              gate.passed && !isBlocked ? 'text-green-700' : 
+              isBlocked ? 'text-gray-400' :
+              gate.progress > 0 ? 'text-amber-700' : 'text-gray-500'
+            }`}>
               {gate.name}
             </span>
             {getStatusBadge()}
@@ -71,7 +87,14 @@ function GateStep({
         <TooltipContent side="bottom" className="max-w-xs">
           <div className="space-y-2">
             <p className="font-semibold">{gate.name} Gate</p>
-            {gate.passed ? (
+            {isBlocked ? (
+              <div className="text-gray-600 text-sm">
+                <p className="flex items-center gap-1"><Lock className="h-3 w-3" /> Waiting for {blockedBy} gate to complete</p>
+                {gate.missingFields.length === 0 && gate.progress === 100 && (
+                  <p className="text-xs text-amber-600 mt-1">All fields filled - unlock by completing prior gate</p>
+                )}
+              </div>
+            ) : gate.passed ? (
               <p className="text-green-600 text-sm">All requirements met</p>
             ) : (
               <>
@@ -98,7 +121,7 @@ function GateStep({
       </Tooltip>
       
       {!isLast && (
-        <div className={`w-12 h-0.5 mx-2 ${gate.passed ? 'bg-green-500' : 'bg-gray-200'}`} />
+        <div className={`w-12 h-0.5 mx-2 ${gate.passed && !isBlocked ? 'bg-green-500' : 'bg-gray-200'}`} />
       )}
     </div>
   );
@@ -119,20 +142,37 @@ export default function GovernanceStepperLegoBlock({
     return (
       <div className={`flex items-center gap-2 ${className}`}>
         <div className="flex items-center gap-1">
-          {gates.map((gate, idx) => (
-            <Tooltip key={gate.gate}>
-              <TooltipTrigger asChild>
-                <div 
-                  className={`w-3 h-3 rounded-full cursor-help ${
-                    gate.passed ? 'bg-green-500' : gate.progress > 0 ? 'bg-amber-500' : 'bg-gray-300'
-                  }`}
-                />
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p className="font-medium">{gate.name}: {gate.passed ? 'Complete' : `${gate.progress}%`}</p>
-              </TooltipContent>
-            </Tooltip>
-          ))}
+          {gates.map((gate, idx) => {
+            // Determine if this gate is blocked by a prerequisite
+            let isBlocked = false;
+            let blockedBy = '';
+            if (idx === 1) {
+              isBlocked = !governanceStatus.operatingModel.passed;
+              blockedBy = 'Operating Model';
+            } else if (idx === 2) {
+              isBlocked = !governanceStatus.intake.passed || !governanceStatus.operatingModel.passed;
+              blockedBy = !governanceStatus.operatingModel.passed ? 'Operating Model' : 'Intake';
+            }
+            
+            return (
+              <Tooltip key={gate.gate}>
+                <TooltipTrigger asChild>
+                  <div 
+                    className={`w-3 h-3 rounded-full cursor-help ${
+                      gate.passed && !isBlocked ? 'bg-green-500' : 
+                      isBlocked ? 'bg-gray-300' :
+                      gate.progress > 0 ? 'bg-amber-500' : 'bg-gray-300'
+                    }`}
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p className="font-medium">
+                    {gate.name}: {isBlocked ? `Waiting for ${blockedBy}` : gate.passed ? 'Complete' : `${gate.progress}%`}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
         </div>
         {governanceStatus.canActivate ? (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
@@ -179,14 +219,29 @@ export default function GovernanceStepperLegoBlock({
       </div>
       
       <div className="flex items-start justify-center">
-        {gates.map((gate, idx) => (
-          <GateStep 
-            key={gate.gate} 
-            gate={gate} 
-            isLast={idx === gates.length - 1}
-            stepNumber={idx + 1}
-          />
-        ))}
+        {gates.map((gate, idx) => {
+          // Determine if this gate is blocked by a prerequisite
+          let isBlocked = false;
+          let blockedBy = '';
+          if (idx === 1) { // Intake gate - blocked if Operating Model not passed
+            isBlocked = !governanceStatus.operatingModel.passed;
+            blockedBy = 'Operating Model';
+          } else if (idx === 2) { // RAI gate - blocked if Intake not passed
+            isBlocked = !governanceStatus.intake.passed || !governanceStatus.operatingModel.passed;
+            blockedBy = !governanceStatus.operatingModel.passed ? 'Operating Model' : 'Intake';
+          }
+          
+          return (
+            <GateStep 
+              key={gate.gate} 
+              gate={gate} 
+              isLast={idx === gates.length - 1}
+              stepNumber={idx + 1}
+              isBlocked={isBlocked}
+              blockedBy={blockedBy}
+            />
+          );
+        })}
         
         <div className="flex items-center">
           <div className={`w-12 h-0.5 mx-2 ${governanceStatus.canActivate ? 'bg-green-500' : 'bg-gray-200'}`} />

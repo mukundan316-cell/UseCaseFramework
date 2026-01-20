@@ -113,8 +113,11 @@ export default function CapabilityTransitionView() {
           <div className="text-center flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Capability Transition - "Teach Us to Fish"</h3>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Track knowledge transfer progress, staffing curves, and path to self-sufficiency across your AI portfolio.
+              Track knowledge transfer progress, staffing curves, and path to self-sufficiency across the reference library.
             </p>
+            <Badge variant="outline" className="mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200">
+              Reference Library Analytics
+            </Badge>
           </div>
           <Tooltip>
             <TooltipTrigger asChild>

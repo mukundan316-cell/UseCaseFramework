@@ -200,8 +200,11 @@ export default function ValueRealizationView() {
         <div className="text-center py-2">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Portfolio Value Realization</h3>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Track investment returns and value generation across {metrics?.totalUseCases || 0} use cases.
+            Track investment returns and value generation across {metrics?.totalUseCases || 0} use cases in the reference library.
           </p>
+          <Badge variant="outline" className="mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200">
+            Reference Library Analytics
+          </Badge>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
