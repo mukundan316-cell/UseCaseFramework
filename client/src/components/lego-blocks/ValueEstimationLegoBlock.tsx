@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,8 +13,8 @@ import {
   getApplicableKpis, 
   deriveValueEstimates, 
   calculateTotalEstimatedValue,
-  DEFAULT_VALUE_REALIZATION_CONFIG,
-  type UseCaseScores
+  type UseCaseScores,
+  type ValueRealizationConfig
 } from '@shared/valueRealization';
 import {
   Tooltip,
@@ -43,7 +44,12 @@ export default function ValueEstimationLegoBlock({
   selectedKpis = [],
   onKpiSelectionChange
 }: ValueEstimationLegoBlockProps) {
-  const kpiLibrary = DEFAULT_VALUE_REALIZATION_CONFIG.kpiLibrary;
+  // Fetch KPI library from DB via API instead of hardcoded defaults
+  const { data: valueConfig } = useQuery<ValueRealizationConfig>({
+    queryKey: ['/api/value/config'],
+  });
+  
+  const kpiLibrary = valueConfig?.kpiLibrary || {};
 
   const { applicableKpis, valueEstimates, totalValue } = useMemo(() => {
     if (!processes?.length) {

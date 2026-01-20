@@ -1,33 +1,53 @@
 /**
- * Time Estimation Constants
- * Centralized constants for consistent time estimation across the entire application
+ * Time Estimation Utilities
+ * Formula-driven from database configuration per replit.md
  */
 
+export interface TimeEstimationConfig {
+  minMultiplier: number;
+  maxMultiplier: number;
+}
+
+/**
+ * Calculate time estimation range for given question count
+ * Uses DB-persisted multipliers from metadata_config.timeEstimationConfig
+ */
+export function calculateTimeRange(
+  questionCount: number,
+  config: TimeEstimationConfig
+): { min: number; max: number } {
+  return {
+    min: Math.ceil(questionCount * config.minMultiplier),
+    max: Math.ceil(questionCount * config.maxMultiplier)
+  };
+}
+
+/**
+ * Format time estimation as a readable string
+ */
+export function formatTimeRange(
+  questionCount: number,
+  config: TimeEstimationConfig
+): string {
+  const { min, max } = calculateTimeRange(questionCount, config);
+  return `${min}-${max} min`;
+}
+
+/**
+ * Default config - only used as fallback when DB config unavailable
+ * Prefer loading from metadata_config.timeEstimationConfig
+ */
+export const DEFAULT_TIME_ESTIMATION_CONFIG: TimeEstimationConfig = {
+  minMultiplier: 2.5,
+  maxMultiplier: 4
+};
+
+/**
+ * Convenience wrapper for client-side usage
+ * Uses default config for backward compatibility
+ * Prefer fetching config from API for DB-driven values
+ */
 export const TIME_ESTIMATION = {
-  /**
-   * Time multipliers for question-based estimation
-   * Used for calculating estimated completion time based on question count
-   */
-  MIN_MULTIPLIER: 2.5, // Minimum minutes per question
-  MAX_MULTIPLIER: 4,   // Maximum minutes per question
-  
-  /**
-   * Calculate time estimation range for given question count
-   * @param questionCount - Number of questions
-   * @returns Object with min and max time estimates in minutes
-   */
-  calculateRange: (questionCount: number) => ({
-    min: Math.ceil(questionCount * TIME_ESTIMATION.MIN_MULTIPLIER),
-    max: Math.ceil(questionCount * TIME_ESTIMATION.MAX_MULTIPLIER)
-  }),
-  
-  /**
-   * Format time estimation as a readable string
-   * @param questionCount - Number of questions  
-   * @returns Formatted string like "15-24 min"
-   */
-  formatRange: (questionCount: number): string => {
-    const { min, max } = TIME_ESTIMATION.calculateRange(questionCount);
-    return `${min}-${max} min`;
-  }
-} as const;
+  formatRange: (questionCount: number, config = DEFAULT_TIME_ESTIMATION_CONFIG) =>
+    formatTimeRange(questionCount, config)
+};

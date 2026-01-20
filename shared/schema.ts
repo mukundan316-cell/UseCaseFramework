@@ -523,6 +523,11 @@ export const metadataConfig = pgTable('metadata_config', {
       tShirtBaseFte: Record<string, number>;
     };
   }>(),
+  // Time Estimation Configuration for questionnaires
+  timeEstimationConfig: jsonb('time_estimation_config').$type<{
+    minMultiplier: number;
+    maxMultiplier: number;
+  }>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
