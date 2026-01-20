@@ -129,6 +129,36 @@ Database-driven Target Operating Model supporting multiple client configurations
 
 Key files: `shared/tom.ts` (DEFAULT_TOM_CONFIG, TomConfig types), `client/src/components/lego-blocks/TomConfigurationLegoBlock.tsx`, `PhaseManagementLegoBlock.tsx`
 
+## Foundation Layer - Verified Status (Jan 2026)
+
+This section documents the verified end-to-end functionality for the three Foundation Layer topics.
+
+### Topic 5: AI Operating Model ✅ WORKING
+- **TOM Presets**: 5 operating models available (Centralized CoE, Federated, Hybrid, CoE-Led, RSA Enterprise TOM)
+- **Phase Distribution**: Visible in Insights → Operating Model tab with live counts
+- **Governance Bodies**: 4 defined (Innovation Board, AI SteerCo, Working Group, Business Owner Review) with cadences
+- **Auto-Derivation**: TOM phase auto-derives when use case status changes via `server/derivation.ts`
+- **Phase Timestamps**: `phaseEnteredAt` field tracks when use cases enter each phase
+- **Admin UI**: TomConfigurationLegoBlock in Admin → TOM tab for preset switching and configuration
+
+### Topic 3: AI Intake & Prioritization ✅ WORKING
+- **Use Case Form**: 10-lever scoring framework with sliders in CRUD modal
+- **Quadrant Calculation**: Auto-calculates Impact/Effort scores and assigns quadrant (Quick Win, Strategic Bet, Experimental, Watchlist)
+- **Intake Entry Point**: "Add Use Case" button in Explorer → Reference Library tab
+- **Portfolio Filtering**: Explorer shows quadrant tabs, LOB filters, segment filters, type filters
+- **Duplicate Detection**: Automatic similarity matching (>60% threshold) with warning alerts
+
+### Topic 8: Responsible AI ✅ WORKING
+- **RAI Dashboard**: Visible in Insights → Responsible AI tab showing governance score (94%)
+- **5 Governance Dimensions**: Explainability, Customer Harm Risk, Human Accountability, Data Location, Third Party Model
+- **Risk Distribution**: Shows Low/Medium/High risk counts across portfolio
+- **CRUD Fields**: All RAI fields editable in use case modal (explainabilityRequired, customerHarmRisk, dataOutsideUkEu, humanAccountability)
+- **Compliance Tracking**: 117/125 fully assessed, 8 partially assessed
+
+### Navigation
+- All features accessible via tab navigation from home page: Dashboard View, Explorer, Insights, AI Assessment, Admin
+- Insights page has direct URL support: `/insights/operating-model`, `/insights/responsible-ai`, etc.
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion
