@@ -119,6 +119,35 @@ export const useCases: any = pgTable("use_cases", {
   phaseEnteredAt: timestamp("phase_entered_at"), // Auto-updated when derived phase changes
   tomOverrideReason: text("tom_override_reason"), // Reason for manual phase override
   
+  // Governance Lifecycle (Foundation Layer: Operating Model → Intake → RAI → Activation)
+  governanceStatus: text("governance_status").default('none'), // 'none', 'pending', 'in_review', 'complete', 'rejected'
+  legacyActivationFlag: text("legacy_activation_flag").default('false'), // 'true' for pre-governance activations
+  governancePendingReason: text("governance_pending_reason"), // Explanation for pending status
+  
+  // Gate 1: Operating Model Alignment
+  operatingModelApproval: text("operating_model_approval").default('pending'), // 'pending', 'approved', 'rejected', 'not_required'
+  operatingModelApprovedAt: timestamp("operating_model_approved_at"),
+  operatingModelApprovedBy: text("operating_model_approved_by"),
+  operatingModelNotes: text("operating_model_notes"),
+  
+  // Gate 2: Intake Decision (Prioritization)
+  intakeDecision: text("intake_decision").default('pending'), // 'pending', 'approved', 'rejected', 'deferred'
+  intakeDecisionAt: timestamp("intake_decision_at"),
+  intakeDecisionBy: text("intake_decision_by"),
+  intakeDecisionNotes: text("intake_decision_notes"),
+  intakePriorityRank: integer("intake_priority_rank"), // Numeric ranking from prioritization
+  
+  // Gate 3: Responsible AI Assurance
+  raiAssurance: text("rai_assurance").default('pending'), // 'pending', 'approved', 'conditionally_approved', 'rejected'
+  raiAssuranceAt: timestamp("rai_assurance_at"),
+  raiAssuranceBy: text("rai_assurance_by"),
+  raiAssuranceNotes: text("rai_assurance_notes"),
+  raiRiskLevel: text("rai_risk_level"), // 'low', 'medium', 'high', 'critical'
+  
+  // Final Activation (after all gates pass)
+  governanceCompletedAt: timestamp("governance_completed_at"),
+  governanceCompletedBy: text("governance_completed_by"),
+  
   // Value Realization tracking
   valueRealization: jsonb("value_realization").$type<{
     selectedKpis: string[];
@@ -265,6 +294,36 @@ export const insertChangeLogSchema = createInsertSchema(useCaseChangeLog).omit({
 export type UseCaseChangeLog = typeof useCaseChangeLog.$inferSelect;
 export type InsertUseCaseChangeLog = z.infer<typeof insertChangeLogSchema>;
 
+// Governance Audit Log table for Foundation Layer compliance tracking
+export const governanceAuditLog = pgTable("governance_audit_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  useCaseId: varchar("use_case_id").notNull(),
+  useCaseMeaningfulId: text("use_case_meaningful_id"),
+  gateType: text("gate_type").notNull(), // 'operating_model', 'intake_decision', 'rai_assurance', 'activation', 'deactivation'
+  action: text("action").notNull(), // 'approved', 'rejected', 'deferred', 'conditionally_approved', 'escalated'
+  actor: text("actor").notNull(), // Who made the decision
+  actorRole: text("actor_role"), // Role of the decision maker
+  previousStatus: text("previous_status"),
+  newStatus: text("new_status"),
+  notes: text("notes"),
+  evidence: jsonb("evidence").$type<{
+    documents?: string[];
+    assessmentScores?: Record<string, number>;
+    riskFactors?: string[];
+    conditions?: string[];
+  }>(),
+  tomPhaseAtDecision: text("tom_phase_at_decision"), // TOM phase when decision was made
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGovernanceAuditLogSchema = createInsertSchema(governanceAuditLog).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type GovernanceAuditLog = typeof governanceAuditLog.$inferSelect;
+export type InsertGovernanceAuditLog = z.infer<typeof insertGovernanceAuditLogSchema>;
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -368,6 +427,23 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   tomPhase: z.union([z.string(), z.null()]).optional(),
   tomPhaseOverride: z.union([z.string(), z.null()]).optional(),
   tomOverrideReason: z.union([z.string(), z.null()]).optional(),
+  
+  // Governance Lifecycle fields (Foundation Layer gates)
+  governanceStatus: z.enum(['none', 'pending', 'in_review', 'complete', 'rejected']).default('none'),
+  legacyActivationFlag: z.enum(['true', 'false']).default('false'),
+  governancePendingReason: z.union([z.string(), z.null()]).optional(),
+  operatingModelApproval: z.enum(['pending', 'approved', 'rejected', 'not_required']).default('pending'),
+  operatingModelApprovedBy: z.union([z.string(), z.null()]).optional(),
+  operatingModelNotes: z.union([z.string(), z.null()]).optional(),
+  intakeDecision: z.enum(['pending', 'approved', 'rejected', 'deferred']).default('pending'),
+  intakeDecisionBy: z.union([z.string(), z.null()]).optional(),
+  intakeDecisionNotes: z.union([z.string(), z.null()]).optional(),
+  intakePriorityRank: z.number().int().nullable().optional(),
+  raiAssurance: z.enum(['pending', 'approved', 'conditionally_approved', 'rejected']).default('pending'),
+  raiAssuranceBy: z.union([z.string(), z.null()]).optional(),
+  raiAssuranceNotes: z.union([z.string(), z.null()]).optional(),
+  raiRiskLevel: z.enum(['low', 'medium', 'high', 'critical']).nullable().optional(),
+  governanceCompletedBy: z.union([z.string(), z.null()]).optional(),
   
   // Duplicate Detection fields - allow null for optional values
   duplicateStatus: z.enum(['unique', 'potential_duplicate', 'confirmed_duplicate', 'reviewed_not_duplicate']).default('unique'),

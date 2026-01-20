@@ -88,7 +88,7 @@ export default function ScoringModelManagementBlock() {
     return DEFAULT_SCORING_MODEL;
   });
 
-  const [quadrantThreshold, setQuadrantThreshold] = useState(scoringModel.formulas.quadrantThreshold);
+  const [quadrantThreshold, setQuadrantThreshold] = useState(scoringModel?.formulas?.quadrantThreshold ?? DEFAULT_SCORING_MODEL.formulas.quadrantThreshold);
 
   const updateLeverWeight = (categoryKey: keyof ScoringModel['categories'], leverKey: string, newWeight: number) => {
     setScoringModel((prev: ScoringModel) => ({

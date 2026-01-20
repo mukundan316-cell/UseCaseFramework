@@ -4,6 +4,7 @@
 This project is a production-ready strategic platform designed to prioritize AI use cases within Hexaware. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform aims to streamline AI strategy and decision-making by enabling efficient management, evaluation, and tracking of AI initiatives, ultimately supporting Hexaware's business vision and market potential in the AI domain.
 
 ## Recent Changes (January 2026)
+- **Governance Workflow System**: Implemented Foundation Layer governance gates (Operating Model → Intake & Prioritization → Responsible AI → Activation). Use cases must pass all three gates before entering active portfolio. Includes `governance_audit_log` table for compliance tracking, legacy flag for pre-governance activations (24 use cases), and API endpoints for gate processing.
 - **Value Realization Improvements**: Fixed KPI-derived value estimation to properly aggregate £45/hr hourly rates, displaying £12.8M total across 72 use cases with estimates
 - **Insights Tab Consistency**: Standardized all four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) with matching layout patterns including summary cards, distribution charts, and use case tables
 - **Project Cleanup**: Removed 20 unused LEGO-block components, temp screenshot images, and outdated planning documentation
@@ -47,6 +48,7 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 - **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations with override protection.
 - **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table, providing a flexible and configurable system with default fallbacks.
 - **Compliance Features**: Duplicate detection, full audit trail (`use_case_change_log`), and role evolution tracking within capability transitions.
+- **Governance Workflow**: Foundation Layer gates (Operating Model → Intake → RAI) must be cleared before use cases enter active portfolio. Schema includes `governance_audit_log` table and governance fields in `use_cases`. Legacy activation flag marks pre-governance use cases.
 - **Navigation**: All features accessible via tab navigation from home page: Dashboard View, Explorer, Insights, AI Assessment, Admin.
 
 ### Insights Dashboard Structure

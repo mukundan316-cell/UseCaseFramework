@@ -1,5 +1,5 @@
 import { 
-  users, useCases, metadataConfig, responseSessions, useCaseChangeLog,
+  users, useCases, metadataConfig, responseSessions, useCaseChangeLog, governanceAuditLog,
   type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig,
   type ResponseSession, type InsertResponseSession, type UseCaseChangeLog, type InsertUseCaseChangeLog
 } from "@shared/schema";
@@ -205,6 +205,26 @@ export interface IStorage {
   // Audit Trail (Topic 8.2 - Markel 9 Topics)
   getUseCaseChangeLog(useCaseId: string): Promise<UseCaseChangeLog[]>;
   getAllChangeLogs(limit?: number): Promise<UseCaseChangeLog[]>;
+  
+  // Governance Workflow (Foundation Layer gates)
+  getGovernancePendingUseCases(): Promise<UseCase[]>;
+  getGovernanceSummary(): Promise<{
+    pending: number;
+    inReview: number;
+    complete: number;
+    rejected: number;
+    byGate: {
+      operatingModel: { pending: number; approved: number; rejected: number };
+      intake: { pending: number; approved: number; rejected: number; deferred: number };
+      rai: { pending: number; approved: number; conditionallyApproved: number; rejected: number };
+    };
+    legacyActivated: number;
+  }>;
+  submitForGovernance(id: string, reason: string, submittedBy: string): Promise<UseCase | undefined>;
+  processOperatingModelGate(id: string, decision: 'approved' | 'rejected' | 'not_required', notes: string, actor: string): Promise<UseCase | undefined>;
+  processIntakeGate(id: string, decision: 'approved' | 'rejected' | 'deferred', notes: string, actor: string, priorityRank?: number): Promise<UseCase | undefined>;
+  processRaiGate(id: string, decision: 'approved' | 'conditionally_approved' | 'rejected', notes: string, actor: string, riskLevel?: string): Promise<UseCase | undefined>;
+  getGovernanceAuditLog(useCaseId: string): Promise<any[]>;
 }
 
 /**
@@ -1119,6 +1139,267 @@ export class DatabaseStorage implements IStorage {
       .from(useCaseChangeLog)
       .orderBy(sql`created_at DESC`)
       .limit(limit);
+    return logs;
+  }
+  
+  // ==================== GOVERNANCE WORKFLOW IMPLEMENTATION ====================
+  
+  async getGovernancePendingUseCases(): Promise<UseCase[]> {
+    const results = await db.select()
+      .from(useCases)
+      .where(sql`governance_status IN ('pending', 'in_review')`)
+      .orderBy(sql`created_at DESC`);
+    return results;
+  }
+  
+  async getGovernanceSummary(): Promise<{
+    pending: number;
+    inReview: number;
+    complete: number;
+    rejected: number;
+    byGate: {
+      operatingModel: { pending: number; approved: number; rejected: number };
+      intake: { pending: number; approved: number; rejected: number; deferred: number };
+      rai: { pending: number; approved: number; conditionallyApproved: number; rejected: number };
+    };
+    legacyActivated: number;
+  }> {
+    const allUseCases = await db.select().from(useCases);
+    
+    const summary = {
+      pending: 0,
+      inReview: 0,
+      complete: 0,
+      rejected: 0,
+      byGate: {
+        operatingModel: { pending: 0, approved: 0, rejected: 0 },
+        intake: { pending: 0, approved: 0, rejected: 0, deferred: 0 },
+        rai: { pending: 0, approved: 0, conditionallyApproved: 0, rejected: 0 }
+      },
+      legacyActivated: 0
+    };
+    
+    for (const uc of allUseCases) {
+      // Main governance status
+      if (uc.governanceStatus === 'pending') summary.pending++;
+      else if (uc.governanceStatus === 'in_review') summary.inReview++;
+      else if (uc.governanceStatus === 'complete') summary.complete++;
+      else if (uc.governanceStatus === 'rejected') summary.rejected++;
+      
+      // Operating Model gate
+      if (uc.operatingModelApproval === 'pending') summary.byGate.operatingModel.pending++;
+      else if (uc.operatingModelApproval === 'approved') summary.byGate.operatingModel.approved++;
+      else if (uc.operatingModelApproval === 'rejected') summary.byGate.operatingModel.rejected++;
+      
+      // Intake gate
+      if (uc.intakeDecision === 'pending') summary.byGate.intake.pending++;
+      else if (uc.intakeDecision === 'approved') summary.byGate.intake.approved++;
+      else if (uc.intakeDecision === 'rejected') summary.byGate.intake.rejected++;
+      else if (uc.intakeDecision === 'deferred') summary.byGate.intake.deferred++;
+      
+      // RAI gate
+      if (uc.raiAssurance === 'pending') summary.byGate.rai.pending++;
+      else if (uc.raiAssurance === 'approved') summary.byGate.rai.approved++;
+      else if (uc.raiAssurance === 'conditionally_approved') summary.byGate.rai.conditionallyApproved++;
+      else if (uc.raiAssurance === 'rejected') summary.byGate.rai.rejected++;
+      
+      // Legacy flag
+      if (uc.legacyActivationFlag === 'true') summary.legacyActivated++;
+    }
+    
+    return summary;
+  }
+  
+  async submitForGovernance(id: string, reason: string, submittedBy: string): Promise<UseCase | undefined> {
+    const [useCase] = await db
+      .update(useCases)
+      .set({
+        governanceStatus: 'pending',
+        governancePendingReason: reason,
+        operatingModelApproval: 'pending',
+        intakeDecision: 'pending',
+        raiAssurance: 'pending'
+      })
+      .where(eq(useCases.id, id))
+      .returning();
+    
+    if (useCase) {
+      // Log to governance audit
+      await db.insert(governanceAuditLog).values({
+        useCaseId: useCase.id,
+        useCaseMeaningfulId: useCase.meaningfulId,
+        gateType: 'submission',
+        action: 'submitted',
+        actor: submittedBy,
+        notes: reason,
+        tomPhaseAtDecision: useCase.tomPhase
+      });
+    }
+    
+    return useCase || undefined;
+  }
+  
+  async processOperatingModelGate(id: string, decision: 'approved' | 'rejected' | 'not_required', notes: string, actor: string): Promise<UseCase | undefined> {
+    const [existing] = await db.select().from(useCases).where(eq(useCases.id, id));
+    if (!existing) return undefined;
+    
+    const updates: Partial<UseCase> = {
+      operatingModelApproval: decision,
+      operatingModelApprovedAt: new Date(),
+      operatingModelApprovedBy: actor,
+      operatingModelNotes: notes
+    };
+    
+    // If rejected, mark governance as rejected
+    if (decision === 'rejected') {
+      updates.governanceStatus = 'rejected';
+    } else {
+      updates.governanceStatus = 'in_review';
+    }
+    
+    const [useCase] = await db
+      .update(useCases)
+      .set(updates)
+      .where(eq(useCases.id, id))
+      .returning();
+    
+    // Log to governance audit
+    await db.insert(governanceAuditLog).values({
+      useCaseId: useCase.id,
+      useCaseMeaningfulId: useCase.meaningfulId,
+      gateType: 'operating_model',
+      action: decision,
+      actor: actor,
+      previousStatus: existing.operatingModelApproval,
+      newStatus: decision,
+      notes: notes,
+      tomPhaseAtDecision: useCase.tomPhase
+    });
+    
+    return useCase || undefined;
+  }
+  
+  async processIntakeGate(id: string, decision: 'approved' | 'rejected' | 'deferred', notes: string, actor: string, priorityRank?: number): Promise<UseCase | undefined> {
+    const [existing] = await db.select().from(useCases).where(eq(useCases.id, id));
+    if (!existing) return undefined;
+    
+    // Gate sequencing validation: Operating Model must be approved first
+    if (existing.operatingModelApproval !== 'approved' && existing.operatingModelApproval !== 'not_required') {
+      throw new Error('GATE_SEQUENCE_ERROR: Operating Model gate must be approved before Intake decision');
+    }
+    
+    const updates: Partial<UseCase> = {
+      intakeDecision: decision,
+      intakeDecisionAt: new Date(),
+      intakeDecisionBy: actor,
+      intakeDecisionNotes: notes,
+      intakePriorityRank: priorityRank || null
+    };
+    
+    // If rejected, mark governance as rejected
+    if (decision === 'rejected') {
+      updates.governanceStatus = 'rejected';
+    }
+    
+    const [useCase] = await db
+      .update(useCases)
+      .set(updates)
+      .where(eq(useCases.id, id))
+      .returning();
+    
+    // Log to governance audit
+    await db.insert(governanceAuditLog).values({
+      useCaseId: useCase.id,
+      useCaseMeaningfulId: useCase.meaningfulId,
+      gateType: 'intake_decision',
+      action: decision,
+      actor: actor,
+      previousStatus: existing.intakeDecision,
+      newStatus: decision,
+      notes: notes,
+      tomPhaseAtDecision: useCase.tomPhase
+    });
+    
+    return useCase || undefined;
+  }
+  
+  async processRaiGate(id: string, decision: 'approved' | 'conditionally_approved' | 'rejected', notes: string, actor: string, riskLevel?: string): Promise<UseCase | undefined> {
+    const [existing] = await db.select().from(useCases).where(eq(useCases.id, id));
+    if (!existing) return undefined;
+    
+    // Gate sequencing validation: Operating Model and Intake must be approved first
+    if (existing.operatingModelApproval !== 'approved' && existing.operatingModelApproval !== 'not_required') {
+      throw new Error('GATE_SEQUENCE_ERROR: Operating Model gate must be approved before RAI assurance');
+    }
+    if (existing.intakeDecision !== 'approved') {
+      throw new Error('GATE_SEQUENCE_ERROR: Intake decision must be approved before RAI assurance');
+    }
+    
+    const updates: Partial<UseCase> = {
+      raiAssurance: decision,
+      raiAssuranceAt: new Date(),
+      raiAssuranceBy: actor,
+      raiAssuranceNotes: notes,
+      raiRiskLevel: riskLevel || null
+    };
+    
+    // Check if all gates will be complete after this update
+    const allGatesApproved = 
+      (existing.operatingModelApproval === 'approved' || existing.operatingModelApproval === 'not_required') &&
+      existing.intakeDecision === 'approved' &&
+      (decision === 'approved' || decision === 'conditionally_approved');
+    
+    if (decision === 'rejected') {
+      updates.governanceStatus = 'rejected';
+    } else if (allGatesApproved) {
+      updates.governanceStatus = 'complete';
+      updates.governanceCompletedAt = new Date();
+      updates.governanceCompletedBy = actor;
+      // Auto-activate to active portfolio
+      updates.libraryTier = 'active';
+      updates.activationDate = new Date();
+    }
+    
+    const [useCase] = await db
+      .update(useCases)
+      .set(updates)
+      .where(eq(useCases.id, id))
+      .returning();
+    
+    // Log to governance audit
+    await db.insert(governanceAuditLog).values({
+      useCaseId: useCase.id,
+      useCaseMeaningfulId: useCase.meaningfulId,
+      gateType: 'rai_assurance',
+      action: decision,
+      actor: actor,
+      previousStatus: existing.raiAssurance,
+      newStatus: decision,
+      notes: notes,
+      tomPhaseAtDecision: useCase.tomPhase
+    });
+    
+    // If fully activated, log activation
+    if (allGatesApproved) {
+      await db.insert(governanceAuditLog).values({
+        useCaseId: useCase.id,
+        useCaseMeaningfulId: useCase.meaningfulId,
+        gateType: 'activation',
+        action: 'activated',
+        actor: actor,
+        notes: 'All governance gates cleared - auto-activated to active portfolio',
+        tomPhaseAtDecision: useCase.tomPhase
+      });
+    }
+    
+    return useCase || undefined;
+  }
+  
+  async getGovernanceAuditLog(useCaseId: string): Promise<any[]> {
+    const logs = await db.select()
+      .from(governanceAuditLog)
+      .where(eq(governanceAuditLog.useCaseId, useCaseId))
+      .orderBy(sql`created_at DESC`);
     return logs;
   }
 }
