@@ -1455,9 +1455,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const metadata = await storage.getMetadataConfig();
       
-      // Always try to return DB-stored formulas first
+      // Always try to return DB-stored formulas first, enriched with live TOM config
       if ((metadata as any)?.derivationFormulas) {
-        res.json((metadata as any).derivationFormulas);
+        const formulas = (metadata as any).derivationFormulas;
+        // Enrich with live TOM config
+        formulas.tom = {
+          enabled: metadata?.tomConfig?.enabled,
+          activePreset: metadata?.tomConfig?.activePreset,
+          phases: Object.keys(metadata?.tomConfig?.phases || {})
+        };
+        res.json(formulas);
         return;
       }
       

@@ -22,39 +22,47 @@ import {
 } from "@/components/ui/tooltip";
 
 interface DerivationFormulas {
-  scoring: {
-    impactScore: {
+  scoring?: {
+    impactScore?: {
       formula: string;
-      description: string;
-      levers: string[];
+      description?: string;
+      levers?: string[];
       weights?: Record<string, number>;
     };
-    effortScore: {
+    effortScore?: {
       formula: string;
-      description: string;
-      levers: string[];
+      description?: string;
+      levers?: string[];
       weights?: Record<string, number>;
     };
-    quadrant: {
+    quadrant?: {
       formula: string;
-      threshold?: { impactMidpoint: number; effortMidpoint: number };
+      description?: string;
+      thresholdDefault?: number;
     };
   };
-  valueRealization: {
-    roiFormula?: string;
-    breakevenFormula?: string;
-    defaultCurrency?: string;
+  valueRealization?: {
+    roi?: { formula: string; description?: string };
+    breakeven?: { formula: string; description?: string };
+    kpiMatching?: { formula: string; description?: string };
+    maturityLevel?: { formula: string; description?: string };
   };
-  capability: {
-    archetypes?: Record<string, any>;
-    paceModifiers?: Record<string, number>;
-    tShirtBaseFte?: Record<string, number>;
+  capability?: {
+    baseFte?: { formula: string; description?: string; values?: Record<string, number> };
+    transitionSpeed?: { formula: string; description?: string; values?: Record<string, number> };
+    independence?: { formula: string; description?: string; archetypes?: Record<string, any> };
   };
-  tom: {
-    enabled?: string;
+  tomPhase?: {
+    formula?: string;
+    description?: string;
+    overrideField?: string;
+  };
+  tom?: {
+    enabled?: string | boolean;
     activePreset?: string;
     phases?: string[];
   };
+  lastUpdated?: string;
 }
 
 export default function DerivationRulesLegoBlock() {
@@ -182,15 +190,22 @@ export default function DerivationRulesLegoBlock() {
             
             <FormulaCard
               title="ROI Calculation"
-              formula={formulas?.valueRealization?.roiFormula || '((cumulativeValue - totalInvestment) / totalInvestment) × 100'}
-              description="Return on Investment as a percentage"
+              formula={formulas?.valueRealization?.roi?.formula || '((cumulativeValue - totalInvestment) / totalInvestment) × 100'}
+              description={formulas?.valueRealization?.roi?.description || "Return on Investment as a percentage"}
               icon={TrendingUp}
             />
             
             <FormulaCard
               title="Breakeven Month"
-              formula={formulas?.valueRealization?.breakevenFormula || 'totalInvestment / monthlyValue'}
-              description="Number of months until investment is recovered"
+              formula={formulas?.valueRealization?.breakeven?.formula || 'totalInvestment / monthlyValue'}
+              description={formulas?.valueRealization?.breakeven?.description || "Number of months until investment is recovered"}
+              icon={Target}
+            />
+            
+            <FormulaCard
+              title="KPI Matching"
+              formula={formulas?.valueRealization?.kpiMatching?.formula || 'Match use case processes to KPI applicableProcesses'}
+              description={formulas?.valueRealization?.kpiMatching?.description || "Fuzzy matching of processes to KPIs"}
               icon={Target}
             />
             
@@ -211,48 +226,46 @@ export default function DerivationRulesLegoBlock() {
               How capability transition staffing and timelines are derived.
             </div>
             
-            {formulas?.capability?.tShirtBaseFte && (
+            {formulas?.capability?.baseFte && (
               <div className="p-4 rounded-lg border bg-card">
                 <h4 className="font-medium text-sm mb-2">Base FTE by T-Shirt Size</h4>
+                <code className="text-xs bg-muted px-2 py-1 rounded block mb-2">
+                  {formulas.capability.baseFte.formula}
+                </code>
                 <div className="flex flex-wrap gap-2">
-                  {Object.entries(formulas.capability.tShirtBaseFte).map(([size, fte]) => (
+                  {formulas.capability.baseFte.values && Object.entries(formulas.capability.baseFte.values).map(([size, fte]) => (
                     <Badge key={size} variant="outline">
-                      {size}: {fte} FTE
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {formulas?.capability?.paceModifiers && (
-              <div className="p-4 rounded-lg border bg-card">
-                <h4 className="font-medium text-sm mb-2">Transition Speed by Quadrant</h4>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(formulas.capability.paceModifiers).map(([quadrant, modifier]) => (
-                    <Badge key={quadrant} variant="secondary">
-                      {quadrant}: {modifier}x
+                      {size}: {String(fte)} FTE
                     </Badge>
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Lower multiplier = faster transition (Quick Wins move fastest)
+                  {formulas.capability.baseFte.description}
                 </p>
               </div>
             )}
             
-            {formulas?.capability?.archetypes && (
+            {formulas?.capability?.transitionSpeed && (
               <div className="p-4 rounded-lg border bg-card">
-                <h4 className="font-medium text-sm mb-2">Independence Archetypes</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.entries(formulas.capability.archetypes).map(([archetype, config]: [string, any]) => (
-                    <div key={archetype} className="text-xs p-2 bg-muted rounded">
-                      <span className="font-medium">{archetype.replace(/_/g, ' ')}</span>
-                      <div className="text-muted-foreground">
-                        Independence: {config.independenceRange?.[0]}-{config.independenceRange?.[1]}%
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <h4 className="font-medium text-sm mb-2">Transition Speed by Quadrant</h4>
+                <code className="text-xs bg-muted px-2 py-1 rounded block mb-2">
+                  {formulas.capability.transitionSpeed.formula}
+                </code>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {formulas.capability.transitionSpeed.description}
+                </p>
+              </div>
+            )}
+            
+            {formulas?.capability?.independence && (
+              <div className="p-4 rounded-lg border bg-card">
+                <h4 className="font-medium text-sm mb-2">Independence Levels</h4>
+                <code className="text-xs bg-muted px-2 py-1 rounded block mb-2">
+                  {formulas.capability.independence.formula}
+                </code>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {formulas.capability.independence.description}
+                </p>
               </div>
             )}
           </TabsContent>
@@ -264,8 +277,8 @@ export default function DerivationRulesLegoBlock() {
             
             <div className="p-4 rounded-lg border bg-card">
               <div className="flex items-center gap-2 mb-3">
-                <Badge variant={formulas?.tom?.enabled === 'true' ? 'default' : 'secondary'}>
-                  {formulas?.tom?.enabled === 'true' ? 'Enabled' : 'Disabled'}
+                <Badge variant={formulas?.tom?.enabled === 'true' || formulas?.tom?.enabled === true ? 'default' : 'secondary'}>
+                  {formulas?.tom?.enabled === 'true' || formulas?.tom?.enabled === true ? 'Enabled' : 'Disabled'}
                 </Badge>
                 {formulas?.tom?.activePreset && (
                   <Badge variant="outline">{formulas.tom.activePreset}</Badge>

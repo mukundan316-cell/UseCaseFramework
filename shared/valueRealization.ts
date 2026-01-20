@@ -218,40 +218,65 @@ export function aggregatePortfolioValue(
   let breakevenCount = 0;
 
   for (const uc of useCases) {
-    const vr = uc.valueRealization;
-    if (!vr?.investment) continue;
+    const vr = uc.valueRealization as any;
+    if (!vr) continue;
+    
+    let investment = 0;
+    let value = 0;
+    let hasTracking = false;
+    
+    // Check for manually tracked investment data first
+    if (vr.investment) {
+      investment = vr.investment.initialInvestment + (vr.investment.ongoingMonthlyCost * 12);
+      value = vr.calculatedMetrics?.cumulativeValueGbp || 0;
+      hasTracking = true;
 
-    const investment = vr.investment.initialInvestment + (vr.investment.ongoingMonthlyCost * 12);
-    const value = vr.calculatedMetrics?.cumulativeValueGbp || 0;
-
-    summary.totalInvestment += investment;
-    summary.cumulativeValue += value;
-    summary.useCasesWithValue++;
-
-    const phaseId = uc.derivedPhase?.id || 'unknown';
-    if (!summary.byPhase[phaseId]) {
-      summary.byPhase[phaseId] = { investment: 0, value: 0, count: 0 };
+      summary.totalInvestment += investment;
+      summary.cumulativeValue += value;
+      summary.useCasesWithValue++;
     }
-    summary.byPhase[phaseId].investment += investment;
-    summary.byPhase[phaseId].value += value;
-    summary.byPhase[phaseId].count++;
-
-    const quadrant = uc.quadrant || 'unknown';
-    if (!summary.byQuadrant[quadrant]) {
-      summary.byQuadrant[quadrant] = { investment: 0, value: 0, count: 0 };
+    // Fall back to auto-derived estimates (from KPI matching)
+    else if (vr.totalEstimatedValue || vr.kpiEstimates) {
+      const estimatedValue = vr.totalEstimatedValue?.max || vr.totalEstimatedValue?.min || 0;
+      const kpiValue = vr.kpiEstimates?.reduce((sum: number, kpi: any) => 
+        sum + (kpi.estimatedAnnualValueGbp || 0), 0) || 0;
+      value = estimatedValue || kpiValue;
+      
+      if (value > 0) {
+        summary.cumulativeValue += value;
+        summary.useCasesWithValue++;
+      }
+    } else {
+      continue;
     }
-    summary.byQuadrant[quadrant].investment += investment;
-    summary.byQuadrant[quadrant].value += value;
-    summary.byQuadrant[quadrant].count++;
 
-    if (vr.calculatedMetrics?.projectedBreakevenMonth) {
-      const now = new Date();
-      const breakeven = new Date(vr.calculatedMetrics.projectedBreakevenMonth);
-      const months = (breakeven.getFullYear() - now.getFullYear()) * 12 + 
-                    (breakeven.getMonth() - now.getMonth());
-      if (months > 0) {
-        totalBreakevenMonths += months;
-        breakevenCount++;
+    // Track by phase and quadrant (only for tracked values, not estimates)
+    if (hasTracking) {
+      const phaseId = uc.derivedPhase?.id || 'unknown';
+      if (!summary.byPhase[phaseId]) {
+        summary.byPhase[phaseId] = { investment: 0, value: 0, count: 0 };
+      }
+      summary.byPhase[phaseId].investment += investment;
+      summary.byPhase[phaseId].value += value;
+      summary.byPhase[phaseId].count++;
+
+      const quadrant = uc.quadrant || 'unknown';
+      if (!summary.byQuadrant[quadrant]) {
+        summary.byQuadrant[quadrant] = { investment: 0, value: 0, count: 0 };
+      }
+      summary.byQuadrant[quadrant].investment += investment;
+      summary.byQuadrant[quadrant].value += value;
+      summary.byQuadrant[quadrant].count++;
+
+      if (vr.calculatedMetrics?.projectedBreakevenMonth) {
+        const now = new Date();
+        const breakeven = new Date(vr.calculatedMetrics.projectedBreakevenMonth);
+        const months = (breakeven.getFullYear() - now.getFullYear()) * 12 + 
+                      (breakeven.getMonth() - now.getMonth());
+        if (months > 0) {
+          totalBreakevenMonths += months;
+          breakevenCount++;
+        }
       }
     }
   }
