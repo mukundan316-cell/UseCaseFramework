@@ -11,8 +11,8 @@ interface ResponsiveTabsListLegoBlockProps {
  * LEGO Block: Responsive Tabs List
  * 
  * A reusable wrapper for TabsList that provides:
- * - Flexible layout instead of fixed grid columns
- * - Horizontal scrolling on overflow (mobile/narrow screens)
+ * - Flexible layout with wrap for multiple rows when needed
+ * - All tabs visible without scrolling
  * - Consistent spacing and styling across the app
  * 
  * Usage:
@@ -20,10 +20,7 @@ interface ResponsiveTabsListLegoBlockProps {
  * With:    <ResponsiveTabsListLegoBlock>
  * 
  * This solves the tab label overlap issue when labels are too long
- * for equal-width grid columns.
- * 
- * Note: Uses !flex to override the base TabsList inline-flex class
- * for deterministic layout behavior.
+ * for equal-width grid columns, and ensures all tabs are visible.
  */
 export default function ResponsiveTabsListLegoBlock({ 
   children, 
@@ -32,9 +29,9 @@ export default function ResponsiveTabsListLegoBlock({
   return (
     <TabsList 
       className={cn(
-        "!flex w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent",
-        "[&>*]:flex-shrink-0 [&>*]:min-w-fit",
-        "gap-1",
+        "!flex flex-wrap w-full h-auto min-h-[40px]",
+        "[&>*]:flex-shrink-0",
+        "gap-1 p-1",
         className
       )}
     >

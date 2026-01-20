@@ -1332,39 +1332,60 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                 </div>
 
-                {/* Value Realization Section */}
+                {/* Value Realization Section - Auto-suggested based on processes */}
                 <div className="space-y-4">
                   <h4 className="font-medium text-gray-900">Value Realization</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="successMetrics" className="text-sm font-semibold">Success Metrics / KPIs</Label>
+                  
+                  {/* Auto-suggested KPIs and Value Estimation based on selected processes */}
+                  <ValueEstimationLegoBlock
+                    processes={(form.watch('processes') as string[]) || []}
+                    scores={{
+                      dataReadiness: scores.dataReadiness || null,
+                      technicalComplexity: scores.technicalComplexity || null,
+                      adoptionReadiness: scores.adoptionReadiness || null,
+                      changeImpact: scores.changeImpact || null,
+                      modelRisk: scores.modelRisk || null
+                    }}
+                    compact={false}
+                  />
+                  
+                  {/* Manual Override Fields */}
+                  <div className="border-t pt-4 mt-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-sm font-medium text-gray-700">Manual Override (Optional)</span>
+                      <span className="text-xs text-gray-500">Use these fields to override system estimates</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="successMetrics" className="text-sm font-semibold">Custom Success Metrics / KPIs</Label>
+                        <Textarea
+                          id="successMetrics"
+                          rows={2}
+                          placeholder="e.g., Reduce manual review time by 30%, Increase quote-to-bind ratio by 5%"
+                          className="mt-1"
+                          {...form.register('successMetrics')}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="estimatedValue" className="text-sm font-semibold">Override Estimated Value (£)</Label>
+                        <Input
+                          id="estimatedValue"
+                          placeholder="e.g., £2.5M annual savings"
+                          className="mt-1"
+                          {...form.register('estimatedValue')}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <Label htmlFor="valueMeasurementApproach" className="text-sm font-semibold">Value Measurement Approach</Label>
                       <Textarea
-                        id="successMetrics"
+                        id="valueMeasurementApproach"
                         rows={2}
-                        placeholder="e.g., Reduce manual review time by 30%, Increase quote-to-bind ratio by 5%"
+                        placeholder="How will success be tracked and reported?"
                         className="mt-1"
-                        {...form.register('successMetrics')}
+                        {...form.register('valueMeasurementApproach')}
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="estimatedValue" className="text-sm font-semibold">Estimated Value (£)</Label>
-                      <Input
-                        id="estimatedValue"
-                        placeholder="e.g., £2.5M annual savings"
-                        className="mt-1"
-                        {...form.register('estimatedValue')}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="valueMeasurementApproach" className="text-sm font-semibold">Value Measurement Approach</Label>
-                    <Textarea
-                      id="valueMeasurementApproach"
-                      rows={2}
-                      placeholder="How will success be tracked and reported?"
-                      className="mt-1"
-                      {...form.register('valueMeasurementApproach')}
-                    />
                   </div>
                 </div>
 
@@ -1938,27 +1959,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               />
             )}
             
-            {/* Resource Planning: T-shirt Sizing + Value Estimation */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <TShirtSizingDisplayLegoBlock
-                impactScore={currentImpactScore}
-                effortScore={currentEffortScore}
-                quadrant={currentQuadrant}
-                useCaseId={useCase?.id}
-                useCaseTitle={form.watch('title')}
-              />
-              <ValueEstimationLegoBlock
-                processes={(form.watch('processes') as string[]) || []}
-                scores={{
-                  dataReadiness: scores.dataReadiness || null,
-                  technicalComplexity: scores.technicalComplexity || null,
-                  adoptionReadiness: scores.adoptionReadiness || null,
-                  changeImpact: scores.changeImpact || null,
-                  modelRisk: scores.modelRisk || null
-                }}
-                compact={false}
-              />
-            </div>
+            {/* Resource Planning: T-shirt Sizing */}
+            <TShirtSizingDisplayLegoBlock
+              impactScore={currentImpactScore}
+              effortScore={currentEffortScore}
+              quadrant={currentQuadrant}
+              useCaseId={useCase?.id}
+              useCaseTitle={form.watch('title')}
+            />
                   </div>
                 ) : (
                   <Card className="bg-gray-50 border-dashed border-2">
