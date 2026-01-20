@@ -497,6 +497,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // If valueRealization was updated with investment data, calculate metrics
+      if (validatedData.valueRealization) {
+        const vr = validatedData.valueRealization as any;
+        if (vr.investment && (vr.investment.initialInvestment > 0 || vr.investment.ongoingMonthlyCost > 0)) {
+          try {
+            const { 
+              deriveValueEstimates, 
+              calculateTotalEstimatedValue, 
+              calculateRoi, 
+              calculateBreakevenMonth,
+              DEFAULT_VALUE_REALIZATION_CONFIG 
+            } = await import("@shared/valueRealization");
+            
+            const kpiLibrary = DEFAULT_VALUE_REALIZATION_CONFIG.kpiLibrary;
+            const processes = (updatedUseCase.processes as string[]) || [];
+            const scores = {
+              dataReadiness: updatedUseCase.dataReadiness,
+              technicalComplexity: updatedUseCase.technicalComplexity,
+              adoptionReadiness: updatedUseCase.adoptionReadiness,
+              changeImpact: updatedUseCase.changeImpact,
+              modelRisk: updatedUseCase.modelRisk
+            };
+            
+            const selectedKpis = vr.selectedKpis || [];
+            const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary, 1000);
+            const selectedEstimates = valueEstimates.filter((e: any) => selectedKpis.includes(e.kpiId));
+            const totalValue = calculateTotalEstimatedValue(selectedEstimates);
+            
+            const estimatedAnnualValue = (totalValue.min + totalValue.max) / 2;
+            const totalInvestment = (vr.investment.initialInvestment || 0) + ((vr.investment.ongoingMonthlyCost || 0) * 12);
+            const currentRoi = calculateRoi(estimatedAnnualValue, totalInvestment);
+            const monthlyValue = estimatedAnnualValue / 12;
+            const projectedBreakevenMonth = calculateBreakevenMonth(totalInvestment, monthlyValue);
+            
+            // Update with calculated metrics
+            const updatedVR = {
+              ...vr,
+              calculatedMetrics: {
+                currentRoi,
+                projectedBreakevenMonth,
+                cumulativeValueGbp: estimatedAnnualValue,
+                lastCalculated: new Date().toISOString()
+              }
+            };
+            
+            await storage.updateUseCase(id, { valueRealization: updatedVR } as any);
+            const finalUseCase = await storage.getAllUseCases().then(cases => cases.find(c => c.id === id));
+            if (finalUseCase) {
+              return res.json(mapUseCaseToFrontend(finalUseCase));
+            }
+          } catch (calcError) {
+            console.error("Value calculation error:", calcError);
+            // Continue with original response if calculation fails
+          }
+        }
+      }
+      
       res.json(mapUseCaseToFrontend(updatedUseCase));
     } catch (error) {
       console.error("Error updating use case:", error);
@@ -1002,6 +1059,204 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error seeding Value config:", error);
       res.status(500).json({ error: "Failed to seed Value Realization configuration" });
+    }
+  });
+
+  // PUT /api/use-cases/:id/value - Update value realization data for a use case
+  app.put("/api/use-cases/:id/value", async (req, res) => {
+    try {
+      const id = req.params.id;
+      if (!id) {
+        return res.status(400).json({ error: "Invalid use case ID" });
+      }
+      
+      const allUseCases = await storage.getAllUseCases();
+      const useCase = allUseCases.find(uc => uc.id === id);
+      if (!useCase) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      
+      const { investment, selectedKpis, kpiValues } = req.body;
+      
+      // Import value realization utilities
+      const { 
+        deriveValueEstimates, 
+        calculateTotalEstimatedValue, 
+        calculateRoi, 
+        calculateBreakevenMonth,
+        DEFAULT_VALUE_REALIZATION_CONFIG 
+      } = await import("@shared/valueRealization");
+      
+      const kpiLibrary = DEFAULT_VALUE_REALIZATION_CONFIG.kpiLibrary;
+      const processes = (useCase.processes as string[]) || [];
+      const scores = {
+        dataReadiness: useCase.dataReadiness,
+        technicalComplexity: useCase.technicalComplexity,
+        adoptionReadiness: useCase.adoptionReadiness,
+        changeImpact: useCase.changeImpact,
+        modelRisk: useCase.modelRisk
+      };
+      
+      // Calculate value estimates based on selected KPIs
+      const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary, 1000);
+      const selectedEstimates = valueEstimates.filter(e => selectedKpis?.includes(e.kpiId));
+      const totalValue = calculateTotalEstimatedValue(selectedEstimates);
+      
+      // Calculate annual value (use midpoint of range)
+      const estimatedAnnualValue = (totalValue.min + totalValue.max) / 2;
+      
+      // Calculate investment (initial + 12 months ongoing)
+      const totalInvestment = (investment?.initialInvestment || 0) + ((investment?.ongoingMonthlyCost || 0) * 12);
+      
+      // Calculate ROI and breakeven
+      const currentRoi = calculateRoi(estimatedAnnualValue, totalInvestment);
+      const monthlyValue = estimatedAnnualValue / 12;
+      const projectedBreakevenMonth = calculateBreakevenMonth(totalInvestment, monthlyValue);
+      
+      // Build the value realization object
+      const existingValueRealization = (useCase.valueRealization as any) || {};
+      const updatedValueRealization = {
+        ...existingValueRealization,
+        selectedKpis: selectedKpis || [],
+        kpiValues: kpiValues || existingValueRealization.kpiValues || {},
+        investment: {
+          initialInvestment: investment?.initialInvestment || 0,
+          ongoingMonthlyCost: investment?.ongoingMonthlyCost || 0,
+          currency: investment?.currency || 'GBP'
+        },
+        tracking: existingValueRealization.tracking || { entries: [] },
+        calculatedMetrics: {
+          currentRoi,
+          projectedBreakevenMonth,
+          cumulativeValueGbp: estimatedAnnualValue,
+          lastCalculated: new Date().toISOString()
+        }
+      };
+      
+      // Update the use case
+      const result = await storage.updateUseCase(id, {
+        valueRealization: updatedValueRealization
+      });
+      
+      res.json({
+        success: true,
+        useCase: result,
+        calculatedMetrics: updatedValueRealization.calculatedMetrics,
+        estimatedValue: { min: totalValue.min, max: totalValue.max }
+      });
+    } catch (error) {
+      console.error("Error updating use case value:", error);
+      res.status(500).json({ error: "Failed to update use case value data" });
+    }
+  });
+
+  // POST /api/value/seed-sample-data - Seed sample value data for demo purposes
+  app.post("/api/value/seed-sample-data", async (req, res) => {
+    try {
+      const { 
+        deriveValueEstimates, 
+        calculateTotalEstimatedValue, 
+        calculateRoi, 
+        calculateBreakevenMonth,
+        DEFAULT_VALUE_REALIZATION_CONFIG,
+        PROCESS_KPI_MAPPING
+      } = await import("@shared/valueRealization");
+      
+      const kpiLibrary = DEFAULT_VALUE_REALIZATION_CONFIG.kpiLibrary;
+      const allUseCases = await storage.getAllUseCases();
+      
+      // Find use cases with processes populated
+      const useCasesWithProcesses = allUseCases.filter(uc => 
+        Array.isArray(uc.processes) && uc.processes.length > 0
+      ).slice(0, 10);
+      
+      if (useCasesWithProcesses.length === 0) {
+        return res.status(400).json({ error: "No use cases with processes found" });
+      }
+      
+      // Sample investment data patterns (based on T-shirt sizing)
+      const investmentPatterns = [
+        { initial: 150000, ongoing: 5000, size: 'M' },
+        { initial: 350000, ongoing: 12000, size: 'L' },
+        { initial: 80000, ongoing: 3000, size: 'S' },
+        { initial: 250000, ongoing: 8000, size: 'M' },
+        { initial: 500000, ongoing: 15000, size: 'XL' },
+        { initial: 120000, ongoing: 4000, size: 'S' },
+        { initial: 200000, ongoing: 7000, size: 'M' },
+        { initial: 450000, ongoing: 14000, size: 'L' },
+        { initial: 100000, ongoing: 3500, size: 'S' },
+        { initial: 300000, ongoing: 10000, size: 'M' }
+      ];
+      
+      const seededUseCases = [];
+      
+      for (let i = 0; i < useCasesWithProcesses.length; i++) {
+        const uc = useCasesWithProcesses[i];
+        const investmentPattern = investmentPatterns[i % investmentPatterns.length];
+        const processes = (uc.processes as string[]) || [];
+        
+        // Get scores from use case
+        const scores = {
+          dataReadiness: uc.dataReadiness || 3,
+          technicalComplexity: uc.technicalComplexity || 3,
+          adoptionReadiness: uc.adoptionReadiness || 3,
+          changeImpact: uc.changeImpact || 3,
+          modelRisk: uc.modelRisk || 3
+        };
+        
+        // Get applicable KPIs for this use case's processes
+        const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary, 1000);
+        const selectedKpis = valueEstimates.slice(0, 3).map(e => e.kpiId);
+        
+        // Calculate values
+        const selectedEstimates = valueEstimates.filter(e => selectedKpis.includes(e.kpiId));
+        const totalValue = calculateTotalEstimatedValue(selectedEstimates);
+        const estimatedAnnualValue = (totalValue.min + totalValue.max) / 2;
+        const totalInvestment = investmentPattern.initial + (investmentPattern.ongoing * 12);
+        const currentRoi = calculateRoi(estimatedAnnualValue, totalInvestment);
+        const monthlyValue = estimatedAnnualValue / 12;
+        const projectedBreakevenMonth = calculateBreakevenMonth(totalInvestment, monthlyValue);
+        
+        // Build value realization object
+        const valueRealization = {
+          selectedKpis,
+          kpiValues: {},
+          investment: {
+            initialInvestment: investmentPattern.initial,
+            ongoingMonthlyCost: investmentPattern.ongoing,
+            currency: 'GBP'
+          },
+          tracking: { entries: [] },
+          calculatedMetrics: {
+            currentRoi,
+            projectedBreakevenMonth,
+            cumulativeValueGbp: estimatedAnnualValue,
+            lastCalculated: new Date().toISOString()
+          }
+        };
+        
+        // Update the use case
+        await storage.updateUseCase(uc.id, { valueRealization });
+        
+        seededUseCases.push({
+          id: uc.id,
+          title: uc.title,
+          processes,
+          investment: investmentPattern,
+          selectedKpis,
+          estimatedValue: { min: totalValue.min, max: totalValue.max },
+          calculatedRoi: currentRoi
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: `Seeded value data for ${seededUseCases.length} use cases`,
+        useCases: seededUseCases
+      });
+    } catch (error) {
+      console.error("Error seeding sample value data:", error);
+      res.status(500).json({ error: "Failed to seed sample value data" });
     }
   });
 

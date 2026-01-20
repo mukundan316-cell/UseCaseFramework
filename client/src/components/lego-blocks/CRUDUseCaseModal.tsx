@@ -123,6 +123,10 @@ const formSchema = z.object({
   // TOM Phase Override fields
   tomPhaseOverride: z.string().optional().nullable(),
   tomOverrideReason: z.string().optional(),
+  // Value Realization - Investment fields
+  initialInvestment: z.union([z.number(), z.string(), z.null()]).optional(),
+  ongoingMonthlyCost: z.union([z.number(), z.string(), z.null()]).optional(),
+  selectedKpis: z.array(z.string()).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -447,6 +451,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         // TOM Phase Override fields
         tomPhaseOverride: (useCase as any).tomPhaseOverride || null,
         tomOverrideReason: (useCase as any).tomOverrideReason || '',
+        // Value Realization fields - extract from JSONB
+        initialInvestment: (useCase as any).valueRealization?.investment?.initialInvestment || null,
+        ongoingMonthlyCost: (useCase as any).valueRealization?.investment?.ongoingMonthlyCost || null,
+        selectedKpis: (useCase as any).valueRealization?.selectedKpis || [],
       };
       
       // Update scores state first
@@ -583,6 +591,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       presentationUrl: '',
       presentationPdfUrl: '',
       presentationFileName: '',
+      // Value Realization fields
+      initialInvestment: null,
+      ongoingMonthlyCost: null,
+      selectedKpis: [],
       ...scores,
     };
     form.reset(defaultData);
@@ -743,7 +755,30 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           changedData.libraryTier = 'active';
         }
         
-        // Validation constraints removed to allow free form submission
+        // Package Value Realization data into JSONB structure
+        const hasInvestmentData = sanitizedData.initialInvestment || sanitizedData.ongoingMonthlyCost || (sanitizedData.selectedKpis && sanitizedData.selectedKpis.length > 0);
+        if (hasInvestmentData) {
+          const existingValueRealization = (useCase as any).valueRealization || {};
+          changedData.valueRealization = {
+            ...existingValueRealization,
+            selectedKpis: sanitizedData.selectedKpis || [],
+            investment: {
+              initialInvestment: Number(sanitizedData.initialInvestment) || 0,
+              ongoingMonthlyCost: Number(sanitizedData.ongoingMonthlyCost) || 0,
+              currency: 'GBP'
+            },
+            calculatedMetrics: existingValueRealization.calculatedMetrics || {
+              currentRoi: null,
+              projectedBreakevenMonth: null,
+              cumulativeValueGbp: null,
+              lastCalculated: null
+            }
+          };
+          // Remove flat investment fields from changedData
+          delete changedData.initialInvestment;
+          delete changedData.ongoingMonthlyCost;
+          delete changedData.selectedKpis;
+        }
         
         const result = await updateUseCase(useCase.id, changedData);
         
@@ -816,6 +851,31 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             }
           }
         });
+        
+        // Package Value Realization data into JSONB structure for create mode
+        const hasInvestmentData = sanitizedData.initialInvestment || sanitizedData.ongoingMonthlyCost || (sanitizedData.selectedKpis && sanitizedData.selectedKpis.length > 0);
+        if (hasInvestmentData) {
+          createData.valueRealization = {
+            selectedKpis: sanitizedData.selectedKpis || [],
+            kpiValues: {},
+            investment: {
+              initialInvestment: Number(sanitizedData.initialInvestment) || 0,
+              ongoingMonthlyCost: Number(sanitizedData.ongoingMonthlyCost) || 0,
+              currency: 'GBP'
+            },
+            tracking: { entries: [] },
+            calculatedMetrics: {
+              currentRoi: null,
+              projectedBreakevenMonth: null,
+              cumulativeValueGbp: null,
+              lastCalculated: null
+            }
+          };
+          // Remove flat investment fields from createData
+          delete createData.initialInvestment;
+          delete createData.ongoingMonthlyCost;
+          delete createData.selectedKpis;
+        }
         
         const result = await addUseCase(createData);
         
@@ -1336,6 +1396,44 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 <div className="space-y-4">
                   <h4 className="font-medium text-gray-900">Value Realization</h4>
                   
+                  {/* Investment Entry Section */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Target className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-800">Investment & Cost</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="initialInvestment" className="text-sm font-semibold text-gray-700">
+                          Initial Investment (£) *
+                        </Label>
+                        <Input
+                          id="initialInvestment"
+                          type="number"
+                          placeholder="e.g., 150000"
+                          className="mt-1 bg-white"
+                          data-testid="input-initial-investment"
+                          {...form.register('initialInvestment', { valueAsNumber: true })}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Implementation, licensing, training</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="ongoingMonthlyCost" className="text-sm font-semibold text-gray-700">
+                          Ongoing Monthly Cost (£)
+                        </Label>
+                        <Input
+                          id="ongoingMonthlyCost"
+                          type="number"
+                          placeholder="e.g., 5000"
+                          className="mt-1 bg-white"
+                          data-testid="input-ongoing-monthly-cost"
+                          {...form.register('ongoingMonthlyCost', { valueAsNumber: true })}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Maintenance, support, licensing</p>
+                      </div>
+                    </div>
+                  </div>
+                  
                   {/* Auto-suggested KPIs and Value Estimation based on selected processes */}
                   <ValueEstimationLegoBlock
                     processes={(form.watch('processes') as string[]) || []}
@@ -1347,6 +1445,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       modelRisk: scores.modelRisk || null
                     }}
                     compact={false}
+                    onKpiSelectionChange={(kpis) => form.setValue('selectedKpis', kpis)}
+                    selectedKpis={form.watch('selectedKpis') || []}
+                    showSelection={true}
                   />
                   
                   {/* Manual Override Fields */}

@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   TrendingUp, 
   Lightbulb,
@@ -27,6 +28,9 @@ interface ValueEstimationLegoBlockProps {
   className?: string;
   volumeMultiplier?: number;
   compact?: boolean;
+  showSelection?: boolean;
+  selectedKpis?: string[];
+  onKpiSelectionChange?: (kpis: string[]) => void;
 }
 
 export default function ValueEstimationLegoBlock({
@@ -34,7 +38,10 @@ export default function ValueEstimationLegoBlock({
   scores,
   className = '',
   volumeMultiplier = 1000,
-  compact = false
+  compact = false,
+  showSelection = false,
+  selectedKpis = [],
+  onKpiSelectionChange
 }: ValueEstimationLegoBlockProps) {
   const kpiLibrary = DEFAULT_VALUE_REALIZATION_CONFIG.kpiLibrary;
 
@@ -57,6 +64,26 @@ export default function ValueEstimationLegoBlock({
       totalValue: total
     };
   }, [processes, scores, kpiLibrary, volumeMultiplier]);
+
+  // Auto-select all suggested KPIs when processes change (if selection mode is enabled)
+  useEffect(() => {
+    if (showSelection && onKpiSelectionChange && valueEstimates.length > 0) {
+      const suggestedKpiIds = valueEstimates.map(e => e.kpiId);
+      // Only auto-select if no KPIs are currently selected
+      if (selectedKpis.length === 0 && suggestedKpiIds.length > 0) {
+        onKpiSelectionChange(suggestedKpiIds);
+      }
+    }
+  }, [valueEstimates, showSelection, onKpiSelectionChange, selectedKpis.length]);
+
+  const handleKpiToggle = (kpiId: string, checked: boolean) => {
+    if (!onKpiSelectionChange) return;
+    if (checked) {
+      onKpiSelectionChange([...selectedKpis, kpiId]);
+    } else {
+      onKpiSelectionChange(selectedKpis.filter(id => id !== kpiId));
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
@@ -211,26 +238,53 @@ export default function ValueEstimationLegoBlock({
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Lightbulb className="h-4 w-4 text-amber-500" />
-            <span className="text-sm font-medium">Suggested KPIs</span>
+            <span className="text-sm font-medium">
+              {showSelection ? 'Select KPIs to Track' : 'Suggested KPIs'}
+            </span>
             <span className="text-xs text-gray-500">
               (Based on: {processes.slice(0, 2).join(', ')}{processes.length > 2 ? ` +${processes.length - 2}` : ''})
             </span>
+            {showSelection && selectedKpis.length > 0 && (
+              <Badge variant="secondary" className="text-xs">
+                {selectedKpis.length} selected
+              </Badge>
+            )}
           </div>
 
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {valueEstimates.slice(0, 5).map((estimate) => {
+            {valueEstimates.slice(0, 8).map((estimate) => {
               const hasMonetaryValue = estimate.estimatedAnnualValueGbp && 
                 (estimate.estimatedAnnualValueGbp.min > 0 || estimate.estimatedAnnualValueGbp.max > 0);
+              const isSelected = selectedKpis.includes(estimate.kpiId);
               return (
                 <div 
                   key={estimate.kpiId}
                   className={`flex items-center justify-between p-2 rounded border text-sm ${
-                    hasMonetaryValue ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
+                    showSelection && isSelected 
+                      ? 'bg-indigo-50 border-indigo-300' 
+                      : hasMonetaryValue 
+                        ? 'bg-green-50 border-green-200' 
+                        : 'bg-gray-50 border-gray-200'
                   }`}
                 >
+                  {showSelection && (
+                    <div className="mr-3 flex-shrink-0">
+                      <Checkbox
+                        id={`kpi-${estimate.kpiId}`}
+                        checked={isSelected}
+                        onCheckedChange={(checked) => handleKpiToggle(estimate.kpiId, checked === true)}
+                        data-testid={`checkbox-kpi-${estimate.kpiId}`}
+                      />
+                    </div>
+                  )}
                   <div className="flex-1">
                     <div className="flex items-center gap-1">
-                      <span className="font-medium text-gray-800">{estimate.kpiName}</span>
+                      <label 
+                        htmlFor={showSelection ? `kpi-${estimate.kpiId}` : undefined}
+                        className={`font-medium text-gray-800 ${showSelection ? 'cursor-pointer' : ''}`}
+                      >
+                        {estimate.kpiName}
+                      </label>
                       {hasMonetaryValue && (
                         <span className="text-xs text-green-600" title="Contributes to monetary value">
                           (£)
@@ -263,9 +317,9 @@ export default function ValueEstimationLegoBlock({
                 </div>
               );
             })}
-            {valueEstimates.length > 5 && (
+            {valueEstimates.length > 8 && (
               <div className="text-xs text-center text-gray-500 py-1">
-                + {valueEstimates.length - 5} more KPIs available
+                + {valueEstimates.length - 8} more KPIs available
               </div>
             )}
           </div>
