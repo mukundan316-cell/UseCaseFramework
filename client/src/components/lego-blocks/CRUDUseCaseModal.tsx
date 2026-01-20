@@ -20,7 +20,8 @@ import ScoreOverrideLegoBlock from './ScoreOverrideLegoBlock';
 import { UseCase } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
-import { calculateImpactScore, calculateEffortScore, calculateQuadrant } from '@shared/calculations';
+import { calculateImpactScore, calculateEffortScore, calculateQuadrant, calculateGovernanceStatus } from '@shared/calculations';
+import GovernanceStepperLegoBlock from './GovernanceStepperLegoBlock';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { derivePhase, type TomConfig } from '@shared/tom';
 import { ContextualProcessActivityField } from './ProcessActivityManager';
@@ -292,6 +293,31 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
   // Get current values from form for real-time calculations
   const formValues = form.watch();
+
+  // Calculate governance status from current form values
+  const governanceStatus = React.useMemo(() => {
+    const useCaseData = {
+      primaryBusinessOwner: formValues.primaryBusinessOwner,
+      useCaseStatus: formValues.useCaseStatus,
+      businessFunction: formValues.businessFunction,
+      revenueImpact: scores.revenueImpact,
+      costSavings: scores.costSavings,
+      riskReduction: scores.riskReduction,
+      brokerPartnerExperience: scores.brokerPartnerExperience,
+      strategicFit: scores.strategicFit,
+      dataReadiness: scores.dataReadiness,
+      technicalComplexity: scores.technicalComplexity,
+      changeImpact: scores.changeImpact,
+      modelRisk: scores.modelRisk,
+      adoptionReadiness: scores.adoptionReadiness,
+      explainabilityRequired: formValues.explainabilityRequired,
+      customerHarmRisk: formValues.customerHarmRisk,
+      humanAccountability: formValues.humanAccountability,
+      dataOutsideUkEu: formValues.dataOutsideUkEu,
+      thirdPartyModel: formValues.thirdPartyModel,
+    };
+    return calculateGovernanceStatus(useCaseData);
+  }, [formValues, scores]);
   
   // Extract weights from metadata or use defaults for real-time calculations
   // Use centralized weight utilities for consistency
@@ -1211,6 +1237,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           </p>
         </div>
 
+        {/* Governance Gates Stepper - Shows progress through 3 gates before activation */}
+        <GovernanceStepperLegoBlock 
+          governanceStatus={governanceStatus} 
+          className="mb-4"
+        />
+
         <Form {...form}>
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -1409,6 +1441,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     onDashboardToggle={handleDashboardToggle}
                     onActivationReasonChange={handleActivationReasonChange}
                     onDeactivationReasonChange={handleDeactivationReasonChange}
+                    governanceStatus={governanceStatus}
                     className="mb-6"
                   />
                 )}
@@ -1491,6 +1524,53 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
               {/* Tab 3: Implementation & Governance */}
               <TabsContent value="implementation" className="space-y-4 mt-6">
+                {/* Gate Status Indicators - Inline summary for each gate */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                  {/* Operating Model Gate */}
+                  <div className={`p-3 rounded-lg border ${governanceStatus.operatingModel.passed ? 'bg-green-50 border-green-200' : governanceStatus.operatingModel.progress > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">Operating Model</span>
+                      <Badge variant="outline" className={`text-xs ${governanceStatus.operatingModel.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {governanceStatus.operatingModel.passed ? 'Complete' : `${governanceStatus.operatingModel.progress}%`}
+                      </Badge>
+                    </div>
+                    {governanceStatus.operatingModel.missingFields.length > 0 && (
+                      <ul className="text-xs text-red-600 list-disc ml-4">
+                        {governanceStatus.operatingModel.missingFields.map(f => <li key={f}>{f}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                  
+                  {/* Intake Gate */}
+                  <div className={`p-3 rounded-lg border ${governanceStatus.intake.passed ? 'bg-green-50 border-green-200' : governanceStatus.intake.progress > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">Intake & Scoring</span>
+                      <Badge variant="outline" className={`text-xs ${governanceStatus.intake.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {governanceStatus.intake.passed ? 'Complete' : `${governanceStatus.intake.progress}%`}
+                      </Badge>
+                    </div>
+                    {!governanceStatus.intake.passed && (
+                      <p className="text-xs text-muted-foreground">Complete all 10 scoring levers in Assessment tab</p>
+                    )}
+                  </div>
+                  
+                  {/* RAI Gate */}
+                  <div className={`p-3 rounded-lg border ${governanceStatus.rai.passed ? 'bg-green-50 border-green-200' : governanceStatus.rai.progress > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">Responsible AI</span>
+                      <Badge variant="outline" className={`text-xs ${governanceStatus.rai.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {governanceStatus.rai.passed ? 'Complete' : `${governanceStatus.rai.progress}%`}
+                      </Badge>
+                    </div>
+                    {governanceStatus.rai.missingFields.length > 0 && (
+                      <ul className="text-xs text-red-600 list-disc ml-4">
+                        {governanceStatus.rai.missingFields.slice(0, 2).map(f => <li key={f}>{f}</li>)}
+                        {governanceStatus.rai.missingFields.length > 2 && <li>+{governanceStatus.rai.missingFields.length - 2} more</li>}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+
                 {/* Project Management Section */}
                 <div className="space-y-4">
                   <h4 className="font-medium text-gray-900">Project Management</h4>

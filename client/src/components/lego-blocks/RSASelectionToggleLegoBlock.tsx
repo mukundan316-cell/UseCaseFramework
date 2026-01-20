@@ -1,11 +1,13 @@
 import React from 'react';
-import { Target, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { Target, AlertCircle, CheckCircle, Info, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import type { GovernanceStatus } from '@shared/calculations';
 
 interface RSASelectionToggleLegoBlockProps {
   isActiveForRsa: 'true' | 'false' | null;
@@ -18,6 +20,7 @@ interface RSASelectionToggleLegoBlockProps {
   onActivationReasonChange: (reason: string) => void;
   onDeactivationReasonChange?: (reason: string) => void;
   className?: string;
+  governanceStatus?: GovernanceStatus;
 }
 
 /**
@@ -43,10 +46,19 @@ export default function RSASelectionToggleLegoBlock({
   onDashboardToggle,
   onActivationReasonChange,
   onDeactivationReasonChange,
-  className = ''
+  className = '',
+  governanceStatus
 }: RSASelectionToggleLegoBlockProps) {
   
+  // Check if activation is blocked by governance gates
+  const canActivate = governanceStatus?.canActivate ?? true;
+  const isGovernanceBlocked = governanceStatus && !governanceStatus.canActivate;
+  
   const handleRSAToggle = (checked: boolean) => {
+    // Block activation if governance gates not passed
+    if (checked && isGovernanceBlocked) {
+      return;
+    }
     onRSAToggle(checked ? 'true' : 'false');
     // Auto-disable dashboard visibility when RSA is deactivated
     if (!checked && isDashboardVisible === 'true') {
@@ -103,10 +115,31 @@ export default function RSASelectionToggleLegoBlock({
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Governance Blocked Warning */}
+        {isGovernanceBlocked && (
+          <Alert className="bg-amber-50 border-amber-200">
+            <Lock className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800">
+              <span className="font-medium">Activation blocked:</span> Complete all 3 governance gates before activating this use case.
+              {governanceStatus && (
+                <ul className="mt-1 text-sm list-disc ml-4">
+                  {!governanceStatus.operatingModel.passed && <li>Operating Model ({governanceStatus.operatingModel.progress}%)</li>}
+                  {!governanceStatus.intake.passed && <li>Intake & Prioritization ({governanceStatus.intake.progress}%)</li>}
+                  {!governanceStatus.rai.passed && <li>Responsible AI ({governanceStatus.rai.progress}%)</li>}
+                </ul>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Primary RSA Toggle */}
-        <div className="flex items-center justify-between p-4 rounded-lg border-2 border-gray-300 bg-white hover:border-rsa-blue/50 transition-all duration-200">
+        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 ${
+          isGovernanceBlocked 
+            ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed' 
+            : 'border-gray-300 bg-white hover:border-rsa-blue/50'
+        }`}>
           <div className="flex-1">
-            <Label htmlFor="rsa-active" className="text-base font-medium text-gray-900 cursor-pointer">
+            <Label htmlFor="rsa-active" className={`text-base font-medium cursor-pointer ${isGovernanceBlocked ? 'text-gray-500' : 'text-gray-900'}`}>
               Include in Hexaware Active Portfolio
             </Label>
             <p className="text-sm text-gray-600 mt-1">
@@ -114,23 +147,36 @@ export default function RSASelectionToggleLegoBlock({
             </p>
           </div>
           <div className="flex items-center ml-4">
-            <div className={`px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
-              isActiveForRsa === 'true'
-                ? 'bg-green-50 border-green-300 text-green-800' 
-                : 'bg-gray-50 border-gray-300 text-gray-600'
-            }`}>
-              <Switch 
-                id="rsa-active"
-                checked={isActiveForRsa === 'true'}
-                onCheckedChange={handleRSAToggle}
-                className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-400 scale-110"
-              />
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={`px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
+                  isGovernanceBlocked
+                    ? 'bg-gray-100 border-gray-200 text-gray-400'
+                    : isActiveForRsa === 'true'
+                      ? 'bg-green-50 border-green-300 text-green-800' 
+                      : 'bg-gray-50 border-gray-300 text-gray-600'
+                }`}>
+                  <Switch 
+                    id="rsa-active"
+                    checked={isActiveForRsa === 'true'}
+                    onCheckedChange={handleRSAToggle}
+                    disabled={isGovernanceBlocked}
+                    className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-400 scale-110"
+                  />
+                </div>
+              </TooltipTrigger>
+              {isGovernanceBlocked && (
+                <TooltipContent side="left" className="max-w-xs">
+                  <p className="font-medium text-red-600">Cannot activate</p>
+                  <p className="text-sm">Complete all 3 governance gates first</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
             <div className="ml-2 text-xs font-medium">
               <div className={`transition-all duration-200 ${
-                isActiveForRsa === 'true' ? 'text-green-700' : 'text-gray-500'
+                isGovernanceBlocked ? 'text-gray-400' : isActiveForRsa === 'true' ? 'text-green-700' : 'text-gray-500'
               }`}>
-                {isActiveForRsa === 'true' ? 'YES' : 'NO'}
+                {isGovernanceBlocked ? <Lock className="h-3 w-3" /> : isActiveForRsa === 'true' ? 'YES' : 'NO'}
               </div>
             </div>
           </div>

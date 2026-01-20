@@ -50,7 +50,9 @@ import ReusableButton from './ReusableButton';
 import PresentationPreviewBlock from './PresentationPreviewBlock';
 import TShirtSizingDisplayLegoBlock from './TShirtSizingDisplayLegoBlock';
 import AuditTimelineLegoBlock from './AuditTimelineLegoBlock';
-import { History } from 'lucide-react';
+import GovernanceStepperLegoBlock from './GovernanceStepperLegoBlock';
+import { History, Lock } from 'lucide-react';
+import { calculateGovernanceStatus } from '@shared/calculations';
 
 interface UseCaseDetailDrawerProps {
   isOpen: boolean;
@@ -716,6 +718,25 @@ export default function UseCaseDetailDrawer({
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 space-y-4">
+              {/* Governance Gate Status Summary */}
+              {(() => {
+                const governanceStatus = calculateGovernanceStatus(useCase as any);
+                return (
+                  <div className="mb-4">
+                    <GovernanceStepperLegoBlock 
+                      governanceStatus={governanceStatus}
+                      compact={true}
+                    />
+                    {!governanceStatus.canActivate && (
+                      <div className="mt-2 flex items-center gap-2 text-amber-600 text-sm bg-amber-50 p-2 rounded border border-amber-200">
+                        <Lock className="h-4 w-4" />
+                        <span>Complete all gates to activate this use case</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+              
               {hasGovernanceData ? (
                 <>
                   <FieldDisplay 

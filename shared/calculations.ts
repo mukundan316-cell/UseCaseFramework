@@ -713,3 +713,224 @@ export function getDefaultTShirtSizingConfig(): TShirtSizingConfig {
     benefitRangePct: 0.20
   };
 }
+
+/**
+ * Governance Gate Calculation Utilities
+ * Foundation Layer: Operating Model → Intake & Prioritization → Responsible AI → Activation
+ */
+
+export interface GovernanceGateStatus {
+  gate: 'operating_model' | 'intake' | 'rai';
+  name: string;
+  passed: boolean;
+  completedFields: string[];
+  missingFields: string[];
+  progress: number; // 0-100
+}
+
+export interface GovernanceStatus {
+  operatingModel: GovernanceGateStatus;
+  intake: GovernanceGateStatus;
+  rai: GovernanceGateStatus;
+  allPassed: boolean;
+  overallProgress: number; // 0-100
+  canActivate: boolean;
+  status: 'none' | 'pending' | 'in_review' | 'complete';
+}
+
+/**
+ * Calculate Operating Model gate status
+ * Required: primaryBusinessOwner, useCaseStatus (not Discovery), businessFunction
+ */
+export function calculateOperatingModelGate(useCase: any): GovernanceGateStatus {
+  // Helper to check if a string value is present and non-empty
+  const isNonEmptyString = (v: any): boolean => {
+    return typeof v === 'string' && v.trim() !== '';
+  };
+
+  const requiredFields = [
+    { key: 'primaryBusinessOwner', label: 'Primary Business Owner', validator: isNonEmptyString },
+    { 
+      key: 'useCaseStatus', 
+      label: 'Use Case Status (not Discovery)', 
+      validator: (v: any) => {
+        // Must be a non-empty string AND not equal to 'Discovery' (case-insensitive)
+        if (!isNonEmptyString(v)) return false;
+        return v.toLowerCase() !== 'discovery';
+      }
+    },
+    { key: 'businessFunction', label: 'Business Function', validator: isNonEmptyString }
+  ];
+
+  const completedFields: string[] = [];
+  const missingFields: string[] = [];
+
+  requiredFields.forEach(field => {
+    const value = useCase[field.key];
+    const isComplete = field.validator(value);
+    
+    if (isComplete) {
+      completedFields.push(field.label);
+    } else {
+      missingFields.push(field.label);
+    }
+  });
+
+  const progress = Math.round((completedFields.length / requiredFields.length) * 100);
+
+  return {
+    gate: 'operating_model',
+    name: 'Operating Model',
+    passed: missingFields.length === 0,
+    completedFields,
+    missingFields,
+    progress
+  };
+}
+
+/**
+ * Calculate Intake & Prioritization gate status
+ * Required: All 10 scoring levers must be set to valid scores (1-5)
+ * Scores of 0 are considered incomplete (not yet scored by user)
+ */
+export function calculateIntakeGate(useCase: any): GovernanceGateStatus {
+  // Helper to validate scoring lever value - must be explicitly set to 1-5
+  const isValidScore = (v: any): boolean => {
+    if (v === null || v === undefined) return false;
+    const num = typeof v === 'number' ? v : parseFloat(String(v));
+    // Must be >= 1 AND <= 5 (0 is default/unscored)
+    return !isNaN(num) && num >= 1 && num <= 5;
+  };
+
+  const impactFields = [
+    { key: 'revenueImpact', label: 'Revenue Impact' },
+    { key: 'costSavings', label: 'Cost Savings' },
+    { key: 'riskReduction', label: 'Risk Reduction' },
+    { key: 'brokerPartnerExperience', label: 'Broker/Partner Experience' },
+    { key: 'strategicFit', label: 'Strategic Fit' }
+  ];
+
+  const effortFields = [
+    { key: 'dataReadiness', label: 'Data Readiness' },
+    { key: 'technicalComplexity', label: 'Technical Complexity' },
+    { key: 'changeImpact', label: 'Change Impact' },
+    { key: 'modelRisk', label: 'Model Risk' },
+    { key: 'adoptionReadiness', label: 'Adoption Readiness' }
+  ];
+
+  const allFields = [...impactFields, ...effortFields];
+  const completedFields: string[] = [];
+  const missingFields: string[] = [];
+
+  allFields.forEach(field => {
+    const value = useCase[field.key];
+    const isComplete = isValidScore(value);
+    
+    if (isComplete) {
+      completedFields.push(field.label);
+    } else {
+      missingFields.push(field.label);
+    }
+  });
+
+  const progress = Math.round((completedFields.length / allFields.length) * 100);
+
+  return {
+    gate: 'intake',
+    name: 'Intake & Prioritization',
+    passed: missingFields.length === 0,
+    completedFields,
+    missingFields,
+    progress
+  };
+}
+
+/**
+ * Calculate Responsible AI gate status
+ * Required: All 5 RAI fields must be explicitly answered
+ * Boolean fields must be 'true' or 'false', select fields must have a valid selection
+ */
+export function calculateRAIGate(useCase: any): GovernanceGateStatus {
+  // Helper to check if a boolean string field is explicitly answered
+  const isBooleanStringSet = (v: any): boolean => {
+    return v === 'true' || v === 'false';
+  };
+
+  // Helper to check if a select field has a valid non-empty value
+  const isSelectFieldSet = (v: any): boolean => {
+    return typeof v === 'string' && v.trim() !== '' && v !== 'undefined' && v !== 'null';
+  };
+
+  const requiredFields = [
+    { key: 'explainabilityRequired', label: 'Explainability Required', validator: isBooleanStringSet },
+    { key: 'customerHarmRisk', label: 'Customer Harm Risk', validator: isSelectFieldSet },
+    { key: 'humanAccountability', label: 'Human Accountability', validator: isBooleanStringSet },
+    { key: 'dataOutsideUkEu', label: 'Data Outside UK/EU', validator: isBooleanStringSet },
+    { key: 'thirdPartyModel', label: 'Third Party Model', validator: isBooleanStringSet }
+  ];
+
+  const completedFields: string[] = [];
+  const missingFields: string[] = [];
+
+  requiredFields.forEach(field => {
+    const value = useCase[field.key];
+    const isComplete = field.validator(value);
+    
+    if (isComplete) {
+      completedFields.push(field.label);
+    } else {
+      missingFields.push(field.label);
+    }
+  });
+
+  const progress = Math.round((completedFields.length / requiredFields.length) * 100);
+
+  return {
+    gate: 'rai',
+    name: 'Responsible AI',
+    passed: missingFields.length === 0,
+    completedFields,
+    missingFields,
+    progress
+  };
+}
+
+/**
+ * Calculate complete governance status for a use case
+ * Returns status of all 3 gates and overall activation eligibility
+ */
+export function calculateGovernanceStatus(useCase: any): GovernanceStatus {
+  const operatingModel = calculateOperatingModelGate(useCase);
+  const intake = calculateIntakeGate(useCase);
+  const rai = calculateRAIGate(useCase);
+
+  const allPassed = operatingModel.passed && intake.passed && rai.passed;
+  const overallProgress = Math.round((operatingModel.progress + intake.progress + rai.progress) / 3);
+
+  // Determine status based on gate completion
+  let status: 'none' | 'pending' | 'in_review' | 'complete' = 'none';
+  if (allPassed) {
+    status = 'complete';
+  } else if (operatingModel.passed || intake.passed || rai.passed) {
+    status = 'in_review';
+  } else if (operatingModel.progress > 0 || intake.progress > 0 || rai.progress > 0) {
+    status = 'pending';
+  }
+
+  return {
+    operatingModel,
+    intake,
+    rai,
+    allPassed,
+    overallProgress,
+    canActivate: allPassed,
+    status
+  };
+}
+
+/**
+ * Get a simple governance status string for database storage
+ */
+export function getGovernanceStatusString(useCase: any): 'none' | 'pending' | 'in_review' | 'complete' {
+  return calculateGovernanceStatus(useCase).status;
+}
