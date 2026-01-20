@@ -754,9 +754,9 @@ export function calculateOperatingModelGate(useCase: any): GovernanceGateStatus 
       key: 'useCaseStatus', 
       label: 'Use Case Status (not Discovery)', 
       validator: (v: any) => {
-        // Must be a non-empty string AND not equal to 'Discovery' (case-insensitive)
+        // Must be a non-empty string AND not equal to 'Discovery' (case-insensitive, trimmed)
         if (!isNonEmptyString(v)) return false;
-        return v.toLowerCase() !== 'discovery';
+        return v.trim().toLowerCase() !== 'discovery';
       }
     },
     { key: 'businessFunction', label: 'Business Function', validator: isNonEmptyString }
@@ -852,13 +852,17 @@ export function calculateIntakeGate(useCase: any): GovernanceGateStatus {
  */
 export function calculateRAIGate(useCase: any): GovernanceGateStatus {
   // Helper to check if a boolean string field is explicitly answered
+  // Accepts both 'true'/'false' strings AND actual booleans for backend compatibility
   const isBooleanStringSet = (v: any): boolean => {
+    if (typeof v === 'boolean') return true;
     return v === 'true' || v === 'false';
   };
 
   // Helper to check if a select field has a valid non-empty value
   const isSelectFieldSet = (v: any): boolean => {
-    return typeof v === 'string' && v.trim() !== '' && v !== 'undefined' && v !== 'null';
+    if (typeof v !== 'string') return false;
+    const trimmed = v.trim();
+    return trimmed !== '' && trimmed !== 'undefined' && trimmed !== 'null';
   };
 
   const requiredFields = [

@@ -4,7 +4,7 @@ import {
   type ResponseSession, type InsertResponseSession, type UseCaseChangeLog, type InsertUseCaseChangeLog
 } from "@shared/schema";
 import type { QuestionAnswer } from "@shared/questionnaireTypes";
-import { calculateTShirtSize, getDefaultTShirtSizingConfig, type TShirtSizingConfig } from "@shared/calculations";
+import { calculateTShirtSize, getDefaultTShirtSizingConfig, type TShirtSizingConfig, calculateGovernanceStatus, getGovernanceStatusString } from "@shared/calculations";
 import { db } from "./db";
 import { eq, sql, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -423,6 +423,22 @@ export class DatabaseStorage implements IStorage {
       cleanData.duplicateStatus = 'unique';
     }
     
+    // Calculate and set governance status for new use cases
+    cleanData.governanceStatus = getGovernanceStatusString(cleanData);
+    
+    // GOVERNANCE ENFORCEMENT: Block activation on create if governance gates are incomplete
+    if (cleanData.isActiveForRsa === 'true') {
+      const governanceStatus = calculateGovernanceStatus(cleanData);
+      if (!governanceStatus.canActivate) {
+        throw new Error(
+          `Cannot activate use case on creation: Governance gates incomplete. ` +
+          `Operating Model: ${governanceStatus.operatingModel.progress}%, ` +
+          `Intake: ${governanceStatus.intake.progress}%, ` +
+          `Responsible AI: ${governanceStatus.rai.progress}%`
+        );
+      }
+    }
+    
     const [useCase] = await db
       .insert(useCases)
       .values(cleanData)
@@ -486,12 +502,16 @@ export class DatabaseStorage implements IStorage {
         return;
       }
       
-      // Handle boolean string fields - simplified validation
+      // Handle boolean string fields - normalize booleans to strings and validate
       if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 
            'thirdPartyModel', 'humanAccountability', 'horizontalUseCase', 'hasPresentation'].includes(key)) {
-        if (typeof value === 'string' && ['true', 'false'].includes(value)) {
+        // Normalize actual booleans to string representation
+        if (typeof value === 'boolean') {
+          cleanUpdates[key] = value ? 'true' : 'false';
+        } else if (typeof value === 'string' && ['true', 'false'].includes(value)) {
           cleanUpdates[key] = value;
         }
+        // Invalid values are silently dropped
         return;
       }
       
@@ -519,6 +539,38 @@ export class DatabaseStorage implements IStorage {
     // Get current use case before update for audit trail
     const [beforeUseCase] = await db.select().from(useCases).where(eq(useCases.id, id));
     if (!beforeUseCase) return undefined;
+    
+    // Always recalculate governance status on update
+    const proposedState = { ...beforeUseCase, ...cleanUpdates };
+    const governanceStatus = calculateGovernanceStatus(proposedState);
+    cleanUpdates.governanceStatus = governanceStatus.status;
+    
+    // Determine what the final activation state would be
+    // Handle both string 'true' and boolean true for legacy data compatibility
+    const proposedActiveRaw = cleanUpdates.isActiveForRsa ?? beforeUseCase.isActiveForRsa;
+    const proposedActiveState = proposedActiveRaw === 'true' || proposedActiveRaw === true;
+    const wasActiveRaw = beforeUseCase.isActiveForRsa;
+    const wasActive = wasActiveRaw === 'true' || wasActiveRaw === true;
+    const isNewActivation = (cleanUpdates.isActiveForRsa === 'true' || cleanUpdates.isActiveForRsa === true) && !wasActive;
+    
+    // GOVERNANCE ENFORCEMENT: Enforce gates when trying to activate OR when already active
+    if (proposedActiveState) {
+      if (!governanceStatus.canActivate) {
+        // If this is a new activation attempt, block it with an error
+        if (isNewActivation) {
+          throw new Error(
+            `Cannot activate use case: Governance gates incomplete. ` +
+            `Operating Model: ${governanceStatus.operatingModel.progress}%, ` +
+            `Intake: ${governanceStatus.intake.progress}%, ` +
+            `Responsible AI: ${governanceStatus.rai.progress}%`
+          );
+        }
+        // If already active but gates became incomplete, auto-deactivate
+        cleanUpdates.isActiveForRsa = 'false';
+        cleanUpdates.isDashboardVisible = 'false';
+        cleanUpdates.deactivationReason = 'Auto-deactivated: Governance gates incomplete';
+      }
+    }
     
     if (shouldRecalculateTShirtSizing) {
       // Calculate new T-shirt sizing with updated scores
