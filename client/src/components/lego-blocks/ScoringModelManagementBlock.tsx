@@ -75,12 +75,25 @@ export default function ScoringModelManagementBlock() {
   const { toast } = useToast();
   
   // Initialize scoring model from metadata or use defaults
-  const [scoringModel, setScoringModel] = useState(() => {
+  const [scoringModel, setScoringModel] = useState<ScoringModel>(() => {
     if (metadata?.scoringModel) {
       try {
-        return typeof metadata.scoringModel === 'string' 
+        const parsed = typeof metadata.scoringModel === 'string' 
           ? JSON.parse(metadata.scoringModel) 
           : metadata.scoringModel;
+        // Deep merge with defaults to ensure all properties exist
+        return {
+          ...DEFAULT_SCORING_MODEL,
+          ...parsed,
+          categories: {
+            ...DEFAULT_SCORING_MODEL.categories,
+            ...parsed?.categories
+          },
+          formulas: {
+            ...DEFAULT_SCORING_MODEL.formulas,
+            ...parsed?.formulas
+          }
+        };
       } catch {
         return DEFAULT_SCORING_MODEL;
       }
@@ -88,7 +101,9 @@ export default function ScoringModelManagementBlock() {
     return DEFAULT_SCORING_MODEL;
   });
 
-  const [quadrantThreshold, setQuadrantThreshold] = useState(scoringModel?.formulas?.quadrantThreshold ?? DEFAULT_SCORING_MODEL.formulas.quadrantThreshold);
+  const [quadrantThreshold, setQuadrantThreshold] = useState(
+    scoringModel.formulas?.quadrantThreshold ?? DEFAULT_SCORING_MODEL.formulas.quadrantThreshold
+  );
 
   const updateLeverWeight = (categoryKey: keyof ScoringModel['categories'], leverKey: string, newWeight: number) => {
     setScoringModel((prev: ScoringModel) => ({
