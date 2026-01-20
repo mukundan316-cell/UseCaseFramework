@@ -1260,6 +1260,321 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // =============================================================================
+  // CAPABILITY TRANSITION API ENDPOINTS ("Teach Us to Fish")
+  // =============================================================================
+
+  app.get("/api/capability/config", async (req, res) => {
+    try {
+      const metadata = await storage.getMetadataConfig();
+      const { DEFAULT_CAPABILITY_TRANSITION_CONFIG } = await import("@shared/capabilityTransition");
+      
+      if (!metadata?.capabilityTransitionConfig) {
+        res.json(DEFAULT_CAPABILITY_TRANSITION_CONFIG);
+        return;
+      }
+      res.json(metadata.capabilityTransitionConfig);
+    } catch (error) {
+      console.error("Error fetching capability config:", error);
+      res.status(500).json({ error: "Failed to fetch capability transition config" });
+    }
+  });
+
+  app.put("/api/capability/config", async (req, res) => {
+    try {
+      const config = req.body;
+      
+      const currentMetadata = await storage.getMetadataConfig();
+      if (!currentMetadata) {
+        res.status(404).json({ error: "Metadata config not found" });
+        return;
+      }
+      
+      await storage.updateMetadataConfig({
+        ...currentMetadata,
+        capabilityTransitionConfig: config
+      });
+      
+      res.json({ success: true, config });
+    } catch (error) {
+      console.error("Error updating capability config:", error);
+      res.status(500).json({ error: "Failed to update capability transition config" });
+    }
+  });
+
+  app.get("/api/use-cases/:id/capability", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const useCase = await storage.getAllUseCases().then(cases => cases.find(c => c.id === id));
+      
+      if (!useCase) {
+        res.status(404).json({ error: "Use case not found" });
+        return;
+      }
+      
+      const { DEFAULT_USE_CASE_CAPABILITY_TRANSITION } = await import("@shared/capabilityTransition");
+      
+      res.json(useCase.capabilityTransition || DEFAULT_USE_CASE_CAPABILITY_TRANSITION);
+    } catch (error) {
+      console.error("Error fetching use case capability:", error);
+      res.status(500).json({ error: "Failed to fetch capability transition data" });
+    }
+  });
+
+  app.put("/api/use-cases/:id/capability", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const capabilityTransition = req.body;
+      const { calculateIndependenceFromStaffing } = await import("@shared/capabilityTransition");
+      
+      const useCase = await storage.getAllUseCases().then(cases => cases.find(c => c.id === id));
+      if (!useCase) {
+        res.status(404).json({ error: "Use case not found" });
+        return;
+      }
+      
+      // Auto-calculate independence if staffing data provided
+      if (capabilityTransition.staffing?.current) {
+        const calculatedIndependence = calculateIndependenceFromStaffing(capabilityTransition.staffing.current);
+        capabilityTransition.independencePercentage = calculatedIndependence;
+        
+        // Add to history if percentage changed
+        const existingHistory = capabilityTransition.independenceHistory || [];
+        const lastEntry = existingHistory[existingHistory.length - 1];
+        if (!lastEntry || lastEntry.percentage !== calculatedIndependence) {
+          capabilityTransition.independenceHistory = [
+            ...existingHistory,
+            {
+              date: new Date().toISOString().slice(0, 7),
+              percentage: calculatedIndependence,
+              note: 'Auto-calculated from staffing update'
+            }
+          ];
+        }
+      }
+      
+      await storage.updateUseCase(id, { capabilityTransition });
+      
+      res.json({ success: true, capabilityTransition });
+    } catch (error) {
+      console.error("Error updating use case capability:", error);
+      res.status(500).json({ error: "Failed to update capability transition data" });
+    }
+  });
+
+  app.get("/api/capability/portfolio-summary", async (req, res) => {
+    try {
+      const useCases = await storage.getAllUseCases();
+      const metadata = await storage.getMetadataConfig();
+      const { 
+        aggregatePortfolioCapability, 
+        DEFAULT_CAPABILITY_TRANSITION_CONFIG 
+      } = await import("@shared/capabilityTransition");
+      
+      const config = metadata?.capabilityTransitionConfig || DEFAULT_CAPABILITY_TRANSITION_CONFIG;
+      
+      const useCasesWithCapability = useCases.map(uc => ({
+        capabilityTransition: uc.capabilityTransition || null,
+        valueRealization: uc.valueRealization || null
+      }));
+      
+      const summary = aggregatePortfolioCapability(useCasesWithCapability, config);
+      
+      res.json(summary);
+    } catch (error) {
+      console.error("Error fetching capability portfolio summary:", error);
+      res.status(500).json({ error: "Failed to fetch portfolio capability summary" });
+    }
+  });
+
+  app.get("/api/capability/staffing-projection", async (req, res) => {
+    try {
+      const useCases = await storage.getAllUseCases();
+      const { generateAggregateStaffingProjection } = await import("@shared/capabilityTransition");
+      
+      const useCasesWithCapability = useCases.map(uc => ({
+        capabilityTransition: uc.capabilityTransition || null
+      }));
+      
+      const projection = generateAggregateStaffingProjection(useCasesWithCapability);
+      
+      res.json(projection);
+    } catch (error) {
+      console.error("Error fetching staffing projection:", error);
+      res.status(500).json({ error: "Failed to fetch staffing projection" });
+    }
+  });
+
+  // POST /api/capability/seed-default - Seed default capability transition config
+  app.post("/api/capability/seed-default", async (req, res) => {
+    try {
+      const { DEFAULT_CAPABILITY_TRANSITION_CONFIG } = await import("@shared/capabilityTransition");
+      const currentMetadata = await storage.getMetadataConfig();
+      
+      if (!currentMetadata) {
+        res.status(404).json({ error: "Metadata config not found" });
+        return;
+      }
+      
+      await storage.updateMetadataConfig({
+        ...currentMetadata,
+        capabilityTransitionConfig: DEFAULT_CAPABILITY_TRANSITION_CONFIG
+      });
+      
+      res.json({ 
+        success: true, 
+        message: "Seeded default capability transition config",
+        config: DEFAULT_CAPABILITY_TRANSITION_CONFIG 
+      });
+    } catch (error) {
+      console.error("Error seeding capability config:", error);
+      res.status(500).json({ error: "Failed to seed capability transition config" });
+    }
+  });
+
+  // POST /api/capability/seed-sample-data - Seed sample capability data for demo
+  app.post("/api/capability/seed-sample-data", async (req, res) => {
+    try {
+      const useCases = await storage.getAllUseCases();
+      const { DEFAULT_CAPABILITY_TRANSITION_CONFIG } = await import("@shared/capabilityTransition");
+      
+      // Sample data patterns for different stages
+      const samplePatterns = [
+        { 
+          name: 'early',
+          independencePercentage: 15,
+          vendorFte: 5, clientFte: 1,
+          month6: { vendor: 4, client: 2 },
+          month12: { vendor: 2, client: 4 },
+          month18: { vendor: 0.5, client: 5 },
+          completedMilestones: ['kt_001'],
+          inProgressMilestones: ['kt_002'],
+          trainingCompleted: 24, trainingPlanned: 120
+        },
+        {
+          name: 'mid',
+          independencePercentage: 45,
+          vendorFte: 3.5, clientFte: 3,
+          month6: { vendor: 2, client: 4.5 },
+          month12: { vendor: 0.5, client: 5.5 },
+          month18: { vendor: 0, client: 6 },
+          completedMilestones: ['kt_001', 'kt_002', 'kt_003'],
+          inProgressMilestones: ['kt_004'],
+          trainingCompleted: 72, trainingPlanned: 120
+        },
+        {
+          name: 'late',
+          independencePercentage: 75,
+          vendorFte: 1.5, clientFte: 5,
+          month6: { vendor: 0.5, client: 6 },
+          month12: { vendor: 0, client: 6.5 },
+          month18: { vendor: 0, client: 6.5 },
+          completedMilestones: ['kt_001', 'kt_002', 'kt_003', 'kt_004', 'kt_005'],
+          inProgressMilestones: ['kt_006'],
+          trainingCompleted: 104, trainingPlanned: 120
+        },
+        {
+          name: 'complete',
+          independencePercentage: 95,
+          vendorFte: 0.5, clientFte: 6,
+          month6: { vendor: 0, client: 6 },
+          month12: { vendor: 0, client: 6 },
+          month18: { vendor: 0, client: 6 },
+          completedMilestones: ['kt_001', 'kt_002', 'kt_003', 'kt_004', 'kt_005', 'kt_006'],
+          inProgressMilestones: [],
+          trainingCompleted: 120, trainingPlanned: 120
+        }
+      ];
+      
+      // Select use cases with value tracking to seed capability data
+      const useCasesWithValue = useCases.filter(uc => 
+        uc.valueRealization?.investment?.initialInvestment &&
+        uc.deploymentStatus === 'Production'
+      ).slice(0, 8);
+      
+      const seededUseCases: any[] = [];
+      const now = new Date();
+      
+      for (let i = 0; i < useCasesWithValue.length; i++) {
+        const uc = useCasesWithValue[i];
+        const pattern = samplePatterns[i % samplePatterns.length];
+        
+        const capabilityTransition = {
+          independencePercentage: pattern.independencePercentage,
+          independenceHistory: [
+            { date: new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000).toISOString().slice(0, 7), percentage: 5, note: 'Project kickoff' },
+            { date: new Date(now.getTime() - 120 * 24 * 60 * 60 * 1000).toISOString().slice(0, 7), percentage: Math.round(pattern.independencePercentage * 0.4), note: 'Initial onboarding complete' },
+            { date: now.toISOString().slice(0, 7), percentage: pattern.independencePercentage, note: 'Current state' }
+          ],
+          staffing: {
+            current: {
+              vendor: { 
+                total: pattern.vendorFte, 
+                byRole: { 'Solution Architect': 0.5, 'Data Engineer': pattern.vendorFte * 0.4, 'ML Engineer': pattern.vendorFte * 0.3, 'BA': pattern.vendorFte * 0.2 }
+              },
+              client: { 
+                total: pattern.clientFte, 
+                byRole: { 'Data Engineer': pattern.clientFte * 0.4, 'ML Engineer': pattern.clientFte * 0.3, 'BA': pattern.clientFte * 0.3 }
+              }
+            },
+            planned: {
+              month6: pattern.month6,
+              month12: pattern.month12,
+              month18: pattern.month18
+            }
+          },
+          knowledgeTransfer: {
+            completedMilestones: pattern.completedMilestones,
+            inProgressMilestones: pattern.inProgressMilestones,
+            milestoneNotes: pattern.completedMilestones.reduce((acc: any, msId: string, idx: number) => {
+              acc[msId] = {
+                completedDate: new Date(now.getTime() - (pattern.completedMilestones.length - idx) * 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+                signedOffBy: ['John Smith', 'Jane Doe', 'Bob Wilson'][idx % 3],
+                artifacts: ['documentation.pdf', 'handover_notes.docx']
+              };
+              return acc;
+            }, {})
+          },
+          training: {
+            completedCertifications: [
+              { certId: 'cert_001', personName: 'Alice Brown', completedDate: new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10) },
+              { certId: 'cert_004', personName: 'Bob Wilson', completedDate: new Date(now.getTime() - 45 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10) }
+            ],
+            plannedCertifications: pattern.trainingCompleted < pattern.trainingPlanned ? [
+              { certId: 'cert_002', personName: 'Alice Brown', targetDate: new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10) },
+              { certId: 'cert_003', personName: 'Carol Davis', targetDate: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10) }
+            ] : [],
+            totalTrainingHoursCompleted: pattern.trainingCompleted,
+            totalTrainingHoursPlanned: pattern.trainingPlanned
+          },
+          selfSufficiencyTarget: {
+            targetDate: new Date(now.getTime() + (pattern.independencePercentage >= 85 ? 0 : 180) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+            targetIndependence: 90,
+            advisoryRetainer: pattern.independencePercentage >= 85 ? 'true' : 'false'
+          }
+        };
+        
+        await storage.updateUseCase(uc.id, { capabilityTransition });
+        
+        seededUseCases.push({
+          id: uc.id,
+          title: uc.title,
+          independencePercentage: pattern.independencePercentage,
+          stage: pattern.name
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: `Seeded capability data for ${seededUseCases.length} use cases`,
+        useCases: seededUseCases
+      });
+    } catch (error) {
+      console.error("Error seeding sample capability data:", error);
+      res.status(500).json({ error: "Failed to seed sample capability data" });
+    }
+  });
+
   // Section progress tracking is handled by the blob storage system via questionnaire routes
 
   // Register questionnaire routes (blob storage based)

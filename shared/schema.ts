@@ -153,6 +153,55 @@ export const useCases: any = pgTable("use_cases", {
     };
   }>(),
   
+  // Capability Transition tracking ("Teach Us to Fish")
+  capabilityTransition: jsonb("capability_transition").$type<{
+    independencePercentage: number;
+    independenceHistory: Array<{
+      date: string;
+      percentage: number;
+      note: string;
+    }>;
+    staffing: {
+      current: {
+        vendor: { total: number; byRole: Record<string, number> };
+        client: { total: number; byRole: Record<string, number> };
+      };
+      planned: {
+        month6: { vendor: number; client: number };
+        month12: { vendor: number; client: number };
+        month18: { vendor: number; client: number };
+      };
+    };
+    knowledgeTransfer: {
+      completedMilestones: string[];
+      inProgressMilestones: string[];
+      milestoneNotes: Record<string, {
+        completedDate: string;
+        signedOffBy: string;
+        artifacts: string[];
+      }>;
+    };
+    training: {
+      completedCertifications: Array<{
+        certId: string;
+        personName: string;
+        completedDate: string;
+      }>;
+      plannedCertifications: Array<{
+        certId: string;
+        personName: string;
+        targetDate: string;
+      }>;
+      totalTrainingHoursCompleted: number;
+      totalTrainingHoursPlanned: number;
+    };
+    selfSufficiencyTarget: {
+      targetDate: string;
+      targetIndependence: number;
+      advisoryRetainer: string;
+    };
+  }>(),
+  
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -432,6 +481,37 @@ export const metadataConfig = pgTable('metadata_config', {
       defaultCurrency: string;
       fiscalYearStart: number;
     };
+  }>(),
+  // Capability Transition Configuration ("Teach Us to Fish")
+  capabilityTransitionConfig: jsonb('capability_transition_config').$type<{
+    enabled: string;
+    independenceTargets: {
+      foundation: { min: number; max: number; description: string };
+      strategic: { min: number; max: number; description: string };
+      transition: { min: number; max: number; description: string };
+      steadyState: { min: number; max: number; description: string };
+    };
+    knowledgeTransferMilestones: Array<{
+      id: string;
+      name: string;
+      description: string;
+      phase: 'foundation' | 'strategic' | 'transition' | 'steadyState';
+      order: number;
+      requiredArtifacts: string[];
+    }>;
+    roleTransitions: Array<{
+      role: string;
+      vendorStartFte: number;
+      clientEndFte: number;
+      transitionMonth: number;
+    }>;
+    certifications: Array<{
+      id: string;
+      name: string;
+      description: string;
+      targetAudience: string[];
+      estimatedHours: number;
+    }>;
   }>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });

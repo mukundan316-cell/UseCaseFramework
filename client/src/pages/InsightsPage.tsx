@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Target, Users, Shield } from 'lucide-react';
 import InsightsPlaceholderLegoBlock from '@/components/lego-blocks/InsightsPlaceholderLegoBlock';
 import TomPhaseBreakdownLegoBlock from '@/components/lego-blocks/TomPhaseBreakdownLegoBlock';
 import ValueRealizationView from '@/components/insights/ValueRealizationView';
+import CapabilityTransitionView from '@/components/insights/CapabilityTransitionView';
 
 type InsightsSubTab = 'value-realization' | 'operating-model' | 'capability-transition' | 'responsible-ai';
 
@@ -64,12 +65,7 @@ export default function InsightsPage({ defaultTab = 'value-realization' }: Insig
             </TabsContent>
 
             <TabsContent value="capability-transition" className="space-y-6">
-              <InsightsPlaceholderLegoBlock
-                title="Capability Transition"
-                description="Track staffing curves, independence metrics, and knowledge transfer milestones as capabilities mature."
-                icon={Users}
-                comingSoon={true}
-              />
+              <CapabilityTransitionView />
             </TabsContent>
 
             <TabsContent value="responsible-ai" className="space-y-6">

@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target } from 'lucide-react';
+import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import { ScoreDropdownLegoBlock } from './ScoreDropdownLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
@@ -127,6 +127,10 @@ const formSchema = z.object({
   initialInvestment: z.union([z.number(), z.string(), z.null()]).optional(),
   ongoingMonthlyCost: z.union([z.number(), z.string(), z.null()]).optional(),
   selectedKpis: z.array(z.string()).optional(),
+  // Capability Transition fields
+  capabilityVendorFte: z.union([z.number(), z.string(), z.null()]).optional(),
+  capabilityClientFte: z.union([z.number(), z.string(), z.null()]).optional(),
+  capabilityIndependence: z.union([z.number(), z.string(), z.null()]).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -455,6 +459,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         initialInvestment: (useCase as any).valueRealization?.investment?.initialInvestment || null,
         ongoingMonthlyCost: (useCase as any).valueRealization?.investment?.ongoingMonthlyCost || null,
         selectedKpis: (useCase as any).valueRealization?.selectedKpis || [],
+        // Capability Transition fields - extract from JSONB
+        capabilityVendorFte: (useCase as any).capabilityTransition?.staffing?.current?.vendor?.total || null,
+        capabilityClientFte: (useCase as any).capabilityTransition?.staffing?.current?.client?.total || null,
+        capabilityIndependence: (useCase as any).capabilityTransition?.independencePercentage || null,
       };
       
       // Update scores state first
@@ -595,6 +603,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       initialInvestment: null,
       ongoingMonthlyCost: null,
       selectedKpis: [],
+      // Capability Transition fields
+      capabilityVendorFte: null,
+      capabilityClientFte: null,
+      capabilityIndependence: null,
       ...scores,
     };
     form.reset(defaultData);
@@ -780,6 +792,73 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           delete changedData.selectedKpis;
         }
         
+        // Package Capability Transition data into JSONB structure
+        // Only save if user has intentionally entered capability data (valid non-NaN numeric values)
+        const vendorFteVal = sanitizedData.capabilityVendorFte;
+        const clientFteVal = sanitizedData.capabilityClientFte;
+        const independenceVal = sanitizedData.capabilityIndependence;
+        
+        // Helper to check if a value is a valid number (not null, undefined, empty string, or NaN)
+        const isValidNumber = (val: any): boolean => {
+          if (val === null || val === undefined || val === '') return false;
+          const num = Number(val);
+          return !isNaN(num);
+        };
+        
+        const hasValidVendorFte = isValidNumber(vendorFteVal);
+        const hasValidClientFte = isValidNumber(clientFteVal);
+        const hasValidIndependence = isValidNumber(independenceVal);
+        const hasCapabilityData = hasValidVendorFte || hasValidClientFte || hasValidIndependence;
+        
+        if (hasCapabilityData) {
+          const existingCapability = (useCase as any).capabilityTransition || {};
+          const vendorFte = hasValidVendorFte ? Number(vendorFteVal) : (existingCapability?.staffing?.current?.vendor?.total || 0);
+          const clientFte = hasValidClientFte ? Number(clientFteVal) : (existingCapability?.staffing?.current?.client?.total || 0);
+          const totalFte = vendorFte + clientFte;
+          const calculatedIndependence = totalFte > 0 ? Math.round((clientFte / totalFte) * 100) : 0;
+          // Use manual independence if provided, otherwise calculate from staffing, or keep existing
+          const finalIndependence = hasValidIndependence
+            ? Number(independenceVal) 
+            : (existingCapability?.independencePercentage ?? calculatedIndependence);
+          
+          changedData.capabilityTransition = {
+            ...existingCapability,
+            independencePercentage: finalIndependence,
+            staffing: {
+              ...existingCapability.staffing,
+              current: {
+                vendor: { total: vendorFte, byRole: existingCapability?.staffing?.current?.vendor?.byRole || {} },
+                client: { total: clientFte, byRole: existingCapability?.staffing?.current?.client?.byRole || {} }
+              },
+              planned: existingCapability?.staffing?.planned || {
+                month6: { vendor: 0, client: 0 },
+                month12: { vendor: 0, client: 0 },
+                month18: { vendor: 0, client: 0 }
+              }
+            },
+            knowledgeTransfer: existingCapability.knowledgeTransfer || {
+              completedMilestones: [],
+              inProgressMilestones: [],
+              milestoneNotes: {}
+            },
+            training: existingCapability.training || {
+              completedCertifications: [],
+              plannedCertifications: [],
+              totalTrainingHoursCompleted: 0,
+              totalTrainingHoursPlanned: 0
+            },
+            selfSufficiencyTarget: existingCapability.selfSufficiencyTarget || {
+              targetDate: '',
+              targetIndependence: 90,
+              advisoryRetainer: 'false'
+            }
+          };
+          // Remove flat capability fields from changedData
+          delete changedData.capabilityVendorFte;
+          delete changedData.capabilityClientFte;
+          delete changedData.capabilityIndependence;
+        }
+        
         const result = await updateUseCase(useCase.id, changedData);
         
         // Force refresh of all queries to ensure UI updates
@@ -875,6 +954,71 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           delete createData.initialInvestment;
           delete createData.ongoingMonthlyCost;
           delete createData.selectedKpis;
+        }
+        
+        // Package Capability Transition data into JSONB structure for create mode
+        // Create capability data if any valid numeric value provided (including zero for vendor-only or early-stage scenarios)
+        const vendorFteValCreate = sanitizedData.capabilityVendorFte;
+        const clientFteValCreate = sanitizedData.capabilityClientFte;
+        const independenceValCreate = sanitizedData.capabilityIndependence;
+        
+        // Helper to check if a value is a valid number (not null, undefined, empty string, or NaN)
+        const isValidNumberCreate = (val: any): boolean => {
+          if (val === null || val === undefined || val === '') return false;
+          const num = Number(val);
+          return !isNaN(num);
+        };
+        
+        const hasValidVendorFteCreate = isValidNumberCreate(vendorFteValCreate);
+        const hasValidClientFteCreate = isValidNumberCreate(clientFteValCreate);
+        const hasValidIndependenceCreate = isValidNumberCreate(independenceValCreate);
+        const hasCapabilityDataCreate = hasValidVendorFteCreate || hasValidClientFteCreate || hasValidIndependenceCreate;
+        
+        if (hasCapabilityDataCreate) {
+          const vendorFte = hasValidVendorFteCreate ? Number(vendorFteValCreate) : 0;
+          const clientFte = hasValidClientFteCreate ? Number(clientFteValCreate) : 0;
+          const totalFte = vendorFte + clientFte;
+          const calculatedIndependence = totalFte > 0 ? Math.round((clientFte / totalFte) * 100) : 0;
+          // Use manual independence if provided, otherwise calculate from staffing
+          const finalIndependenceCreate = hasValidIndependenceCreate
+            ? Number(independenceValCreate) 
+            : calculatedIndependence;
+          
+          createData.capabilityTransition = {
+            independencePercentage: finalIndependenceCreate,
+            independenceHistory: [],
+            staffing: {
+              current: {
+                vendor: { total: vendorFte, byRole: {} },
+                client: { total: clientFte, byRole: {} }
+              },
+              planned: {
+                month6: { vendor: 0, client: 0 },
+                month12: { vendor: 0, client: 0 },
+                month18: { vendor: 0, client: 0 }
+              }
+            },
+            knowledgeTransfer: {
+              completedMilestones: [],
+              inProgressMilestones: [],
+              milestoneNotes: {}
+            },
+            training: {
+              completedCertifications: [],
+              plannedCertifications: [],
+              totalTrainingHoursCompleted: 0,
+              totalTrainingHoursPlanned: 0
+            },
+            selfSufficiencyTarget: {
+              targetDate: '',
+              targetIndependence: 90,
+              advisoryRetainer: 'false'
+            }
+          };
+          // Remove flat capability fields from createData
+          delete createData.capabilityVendorFte;
+          delete createData.capabilityClientFte;
+          delete createData.capabilityIndependence;
         }
         
         const result = await addUseCase(createData);
@@ -1525,6 +1669,65 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       className="mt-1"
                       {...form.register('integrationRequirements')}
                     />
+                  </div>
+                </div>
+
+                {/* Capability Transition Section */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900">Capability Transition</h4>
+                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Users className="h-4 w-4 text-purple-600" />
+                      <span className="text-sm font-medium text-purple-800">Staffing & Independence</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="capabilityVendorFte" className="text-sm font-semibold text-gray-700">
+                          Hexaware FTE
+                        </Label>
+                        <Input
+                          id="capabilityVendorFte"
+                          type="number"
+                          step="0.5"
+                          placeholder="e.g., 3.5"
+                          className="mt-1 bg-white"
+                          data-testid="input-capability-vendor-fte"
+                          {...form.register('capabilityVendorFte', { valueAsNumber: true })}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Current vendor team size</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="capabilityClientFte" className="text-sm font-semibold text-gray-700">
+                          Client FTE
+                        </Label>
+                        <Input
+                          id="capabilityClientFte"
+                          type="number"
+                          step="0.5"
+                          placeholder="e.g., 2.0"
+                          className="mt-1 bg-white"
+                          data-testid="input-capability-client-fte"
+                          {...form.register('capabilityClientFte', { valueAsNumber: true })}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Current client team size</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="capabilityIndependence" className="text-sm font-semibold text-gray-700">
+                          Independence %
+                        </Label>
+                        <Input
+                          id="capabilityIndependence"
+                          type="number"
+                          min="0"
+                          max="100"
+                          placeholder="Auto-calculated or manual"
+                          className="mt-1 bg-white"
+                          data-testid="input-capability-independence"
+                          {...form.register('capabilityIndependence', { valueAsNumber: true })}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Client / (Client + Vendor) × 100</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
