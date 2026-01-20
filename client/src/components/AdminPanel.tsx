@@ -512,13 +512,13 @@ export default function AdminPanel() {
               {/* Assessment Statistics */}
               <div className="space-y-6">
                 <AssessmentStatsLegoBlock 
-                  questionnaireId="11f4eaf5-0bcd-4963-9ace-84045ecbb79a"
+                  questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b"
                 />
                 
                 {/* Question Configuration */}
                 <QuestionConfigurationLegoBlock 
                   className="w-full"
-                  questionnaireId="11f4eaf5-0bcd-4963-9ace-84045ecbb79a"
+                  questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b"
                 />
                 
                 {/* Question Template Library */}

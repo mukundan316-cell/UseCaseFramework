@@ -1279,6 +1279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/tom/phase-summary", async (req, res) => {
     try {
       const clientId = (req.query.clientId as string) || 'default';
+      const scope = (req.query.scope as string) || 'all';
       const metadata = await storage.getMetadataConfigById(clientId);
       const { ensureTomConfig, calculatePhaseSummary, mergePresetProfile } = await import("@shared/tom");
       const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
@@ -1287,7 +1288,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ enabled: false, summary: {} });
       }
       
-      const useCases = await storage.getAllUseCases();
+      // Use dashboard (active portfolio) use cases when scope=dashboard
+      const useCases = scope === 'dashboard' 
+        ? await storage.getDashboardUseCases() 
+        : await storage.getAllUseCases();
+      
       const summary = calculatePhaseSummary(
         useCases.map(uc => ({
           useCaseStatus: uc.useCaseStatus,

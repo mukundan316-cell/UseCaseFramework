@@ -99,7 +99,7 @@ export default function OperatingModelView() {
   });
 
   const { data: phaseSummary, isLoading: summaryLoading } = useQuery<PhaseSummary>({
-    queryKey: ['/api/tom/phase-summary'],
+    queryKey: ['/api/tom/phase-summary?scope=all'],
     enabled: tomConfig?.enabled === 'true',
   });
 

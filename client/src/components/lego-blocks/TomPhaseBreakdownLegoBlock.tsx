@@ -17,13 +17,17 @@ interface PhaseSummary {
   phases: Array<{ id: string; name: string; color: string; count: number }>;
 }
 
-export default function TomPhaseBreakdownLegoBlock() {
+interface TomPhaseBreakdownLegoBlockProps {
+  scope?: 'dashboard' | 'all';
+}
+
+export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomPhaseBreakdownLegoBlockProps) {
   const { data: tomConfig } = useQuery<TomConfig>({
     queryKey: ['/api/tom/config'],
   });
 
   const { data: phaseSummary, isLoading } = useQuery<PhaseSummary>({
-    queryKey: ['/api/tom/phase-summary'],
+    queryKey: [`/api/tom/phase-summary?scope=${scope}`],
     enabled: tomConfig?.enabled === 'true',
   });
 
@@ -99,7 +103,7 @@ export default function TomPhaseBreakdownLegoBlock() {
         </div>
 
         <div className="text-xs text-muted-foreground text-center">
-          {totalUseCases} use cases across {phaseSummary?.phases.filter(p => p.count > 0).length} active phases
+          {totalUseCases} {scope === 'dashboard' ? 'active portfolio' : 'reference library'} use cases across {phaseSummary?.phases.filter(p => p.count > 0).length || 0} phases
         </div>
       </CardContent>
     </Card>
