@@ -7,7 +7,14 @@ Strategic AI use case prioritization platform for Hexaware featuring comprehensi
 npm run dev  # Starts application on port 5000
 ```
 
-## Latest Accomplishments (Q4 2024 - Q1 2025)
+## Latest Accomplishments (Jan 2026)
+- ✅ **Value Realization System**: KPI-based ROI tracking with 9 insurance-specific metrics
+- ✅ **Capability Transition**: "Teach Us to Fish" staffing curves and independence projections
+- ✅ **Markel 9 Topics Compliance**: Duplicate detection, full audit trails, role evolution tracking
+- ✅ **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults
+- ✅ **Database-Driven Config**: All features driven by metadata_config table
+
+## Previous Accomplishments (Q4 2024 - Q1 2025)
 - ✅ **LEGO Component System**: 60% maintenance reduction through 3-phase rationalization
 - ✅ **AI Inventory Integration**: 126 total records with full governance tracking
 - ✅ **Enhanced T-shirt Sizing**: Configurable cost estimation and timeline projection
@@ -21,6 +28,10 @@ npm run dev  # Starts application on port 5000
 - **AI Use Case Management**: Complete CRUD with 10-lever scoring framework and automated recalculation
 - **Assessment System**: 6-section AI maturity questionnaire with 25+ advanced question types  
 - **Analytics Dashboard**: AI Value Matrix with interactive charts and quadrant-based ROI analysis
+- **Value Realization**: KPI-based ROI tracking with industry benchmarks and confidence levels
+- **Capability Transition**: Staffing curves, KT milestones, and path to self-sufficiency
+- **Target Operating Model (TOM)**: 4 presets with phase-based governance gates
+- **Markel 9 Topics Compliance**: Duplicate detection, audit trails, role evolution tracking
 - **File Management System**: PowerPoint/image→PDF conversion with 50MB limit
 - **PDF Export System**: Professional reports for use cases, assessments, and portfolios
 - **Excel Import/Export**: Multi-worksheet structure with comprehensive validation

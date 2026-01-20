@@ -101,6 +101,23 @@ UK benchmark costs with 6 professional roles:
 - 50MB file limit
 - Local filesystem storage
 
+### 💰 Value Realization *(Jan 2026)*
+- 9 insurance-specific KPIs with industry benchmarks
+- ROI tracking with confidence levels (high/medium/low)
+- Auto-matched KPIs based on process selection
+- Portfolio-level value aggregation
+
+### 🎓 Capability Transition *(Jan 2026)*
+- "Teach Us to Fish" staffing curves
+- Knowledge transfer milestone tracking
+- Independence projections (vendor → client)
+- Role evolution tracking
+
+### ✅ Markel 9 Topics Compliance *(Jan 2026)*
+- Duplicate detection (>60% similarity warning)
+- Full audit trail on all changes
+- Role evolution with transition history
+
 ---
 
 ## Common Use Cases

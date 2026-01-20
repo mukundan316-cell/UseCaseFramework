@@ -37,6 +37,10 @@ The Hexaware AI Use Case Value Framework is a production-ready strategic platfor
 - **Manual Override System**: Flexible scoring adjustments with comprehensive audit trails
 - **User Feedback Integration**: Continuous improvement through contextual feedback collection
 - **LEGO Component Architecture**: Rationalized, reusable components with 60% maintenance reduction
+- **Value Realization** *(Jan 2026)*: KPI-based ROI tracking with 9 insurance-specific metrics and industry benchmarks
+- **Capability Transition** *(Jan 2026)*: "Teach Us to Fish" staffing curves, KT milestones, and independence projections
+- **Target Operating Model** *(Jan 2026)*: 4 presets (Centralized CoE, Federated, Hybrid, CoE-Led) with phase-based governance
+- **Markel 9 Topics Compliance** *(Jan 2026)*: Duplicate detection, full audit trails, role evolution tracking
 
 ## Value Framework & Scoring System
 

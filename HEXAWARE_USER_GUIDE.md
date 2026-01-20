@@ -19,6 +19,10 @@ This guide will help you navigate and use the Hexaware AI Use Case Value Framewo
 9. [T-shirt Sizing](#t-shirt-sizing)
 10. [Attaching Presentations](#attaching-presentations)
 11. [Admin Features](#admin-features)
+12. [Insights Dashboard](#insights-dashboard) *(New Jan 2026)*
+13. [Value Realization](#value-realization) *(New Jan 2026)*
+14. [Capability Transition](#capability-transition) *(New Jan 2026)*
+15. [Governance & Compliance](#governance-and-compliance) *(New Jan 2026)*
 
 ---
 
@@ -429,3 +433,95 @@ The Hexaware AI Use Case Framework is designed to help you:
 Start by exploring the three libraries, then dive deeper into use cases that interest you. Use the scoring system to prioritize your initiatives, and leverage the assessment tool to discover new opportunities.
 
 **Happy prioritizing!**
+
+---
+
+## Insights Dashboard
+
+*(Added January 2026)*
+
+The Insights tab provides portfolio-level analytics across four key views:
+
+### Value Realization
+Track ROI across your AI portfolio with KPI-based metrics including Claims Processing Time, First Contact Resolution, and other insurance-specific indicators.
+
+### Operating Model
+View how your use cases map across the Target Operating Model phases (Foundation, Strategic, Transition, Steady State) with governance requirements.
+
+### Capability Transition
+Monitor the "Teach Us to Fish" journey - track staffing curves, knowledge transfer milestones, and path to client self-sufficiency.
+
+### Responsible AI
+Review governance compliance across your portfolio with risk assessments and policy adherence metrics.
+
+---
+
+## Value Realization
+
+*(Added January 2026)*
+
+Track the actual business value delivered by your AI initiatives:
+
+1. **Navigate to Insights** → Value Realization tab
+2. **View Portfolio Metrics**: Total investment, cumulative value, ROI, and breakeven time
+3. **KPI Tracking**: See which KPIs are improving and by how much
+4. **Confidence Levels**: Each estimate has high/medium/low confidence based on data quality
+
+### Setting Up Value Tracking for a Use Case
+1. Open a use case and go to the **Implementation** tab
+2. Select relevant **Processes** and **Activities**
+3. The system auto-matches KPIs based on your selections
+4. Enter baseline and target values for each KPI
+5. Track actual values as the project progresses
+
+---
+
+## Capability Transition
+
+*(Added January 2026)*
+
+The "Teach Us to Fish" framework tracks how AI capabilities transfer from Hexaware to client teams:
+
+### Portfolio Dashboard
+- **Independence Score**: Percentage of capability owned by client teams
+- **Staffing Split**: Current Hexaware vs Client FTE allocation
+- **KT Progress**: Knowledge transfer milestones completed
+- **Target Date**: Projected full independence timeline
+
+### Use Case Level
+Each use case with capability tracking shows:
+- **Staffing Curve**: Projected FTE transition over 18 months
+- **Training Progress**: Hours completed vs planned
+- **Role Evolution**: How specific roles transition from vendor to client ownership
+
+### Auto-Derivation
+Click "Derive Defaults" to auto-populate capability data based on:
+- TOM phase and quadrant placement
+- T-shirt size (determines base FTE)
+- Industry benchmarks for your operating model
+
+---
+
+## Governance and Compliance
+
+*(Added January 2026)*
+
+The platform includes Markel 9 Topics compliance features:
+
+### Duplicate Detection
+When creating or editing use cases, the system automatically checks for potential duplicates:
+- Shows warning if >60% similarity found with existing use cases
+- Displays top 3 matches with similarity scores
+- Prevents accidental duplicate creation
+
+### Audit Trail
+Every change is logged for compliance:
+- View change history in the use case detail drawer under "Change History"
+- See who made changes, when, and what was modified
+- Before/after snapshots for all field updates
+
+### Role Evolution Tracking
+Track how roles transition from vendor to client ownership:
+- Baseline, current, and target ownership states
+- Transition history with dates and notes
+- Confidence levels for transition timelines
