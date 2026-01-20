@@ -64,6 +64,18 @@ Automated population of capability transition data (staffing curves, independenc
 
 Key files: `shared/capabilityTransition.ts` (DEFAULT_BENCHMARK_CONFIG, deriveCapabilityDefaults), `client/src/components/insights/CapabilityTransitionView.tsx`
 
+### Auto-Derivation System (Jan 2026)
+Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations:
+
+- **Creation Hook**: When creating a new use case, automatically derives TOM phase, value estimates (if processes specified), and capability defaults
+- **Update Hook**: Smart change detection triggers selective re-derivation only when relevant fields change (status→TOM, processes/scores→Value, size/quadrant/TOM→Capability)
+- **Override Protection**: Only overwrites derived fields when `derived===true` or field is absent; manual entries are preserved
+- **Phase Timeline**: `phaseEnteredAt` timestamp auto-updates when derived TOM phase changes, enabling phase duration tracking
+- **Bulk Derivation**: `POST /api/derive/all` endpoint backfills all use cases while respecting manual overrides
+- **Derivation Chain**: TOM (status changes) → Value (processes/scores) → Capability (size/quadrant/TOM)
+
+Key files: `server/derivation.ts`, `server/routes.ts` (POST/PUT handlers), `shared/tomDerivation.ts`
+
 ### Database-Driven Configuration Architecture (Jan 2026)
 All framework features are now fully driven by `metadata_config` table in the database:
 
