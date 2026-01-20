@@ -5,5 +5,35 @@ server/public
 vite.config.ts.*
 *.tar.gz
 
+# Temporary files
+*.tmp
+*.bak
+*.orig
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Build artifacts
+build/
+.parcel-cache/
+
+# Test coverage
+coverage/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Uploads (user content)
+uploads/
+
 # Temporary questionnaire storage (development only)
 temp-questionnaire-storage/responses/
