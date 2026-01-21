@@ -114,8 +114,24 @@ export default function TomConfigurationLegoBlock() {
     updateMutation.mutate({ enabled: checked ? 'true' : 'false' });
   };
 
+  const loadPresetPhasesMutation = useMutation({
+    mutationFn: async (presetId: string) => {
+      return apiRequest(`/api/tom/phases/load-preset/${presetId}?clientId=${selectedClientId}`, { method: 'POST' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/config', selectedClientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary', selectedClientId] });
+    },
+  });
+
   const handlePresetChange = (preset: string) => {
+    // Update the active preset AND load the phases from that preset
     updateMutation.mutate({ activePreset: preset });
+    loadPresetPhasesMutation.mutate(preset);
+    toast({
+      title: 'Preset Applied',
+      description: 'Operating model preset and lifecycle phases updated.',
+    });
   };
 
   if (isLoading) {
@@ -208,6 +224,9 @@ export default function TomConfigurationLegoBlock() {
 
           <div className="space-y-3">
             <Label>Operating Model Preset</Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Selecting a preset will automatically configure both the operating model and lifecycle phases
+            </p>
             <Select value={tomConfig.activePreset} onValueChange={handlePresetChange}>
               <SelectTrigger className="w-full max-w-md" data-testid="select-tom-preset">
                 <SelectValue placeholder="Select preset" />

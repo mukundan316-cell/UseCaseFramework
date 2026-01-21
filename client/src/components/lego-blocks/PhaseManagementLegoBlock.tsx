@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Layers, Plus, Pencil, Trash2, GripVertical, Loader2, RotateCcw } from 'lucide-react';
+import { Layers, Plus, Pencil, Trash2, GripVertical, Loader2 } from 'lucide-react';
 import type { TomPhase, TomConfig, TomGovernanceBody } from '@shared/tom';
 
 interface PhaseFormData {
@@ -91,20 +91,6 @@ export default function PhaseManagementLegoBlock() {
     },
     onError: () => {
       toast({ title: 'Update Failed', description: 'Failed to update phases.', variant: 'destructive' });
-    },
-  });
-
-  const loadPresetPhasesMutation = useMutation({
-    mutationFn: async (presetId: string) => {
-      return apiRequest(`/api/tom/phases/load-preset/${presetId}?clientId=${clientId}`, { method: 'POST' });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tom/config', clientId] });
-      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary', clientId] });
-      toast({ title: 'Preset Loaded', description: 'Preset phases loaded successfully.' });
-    },
-    onError: () => {
-      toast({ title: 'Load Failed', description: 'Failed to load preset phases.', variant: 'destructive' });
     },
   });
 
@@ -219,7 +205,6 @@ export default function PhaseManagementLegoBlock() {
 
   const phases = tomConfig?.phases || [];
   const governanceBodies = tomConfig?.governanceBodies || [];
-  const presets = tomConfig?.presets || {};
 
   return (
     <Card>
@@ -235,20 +220,6 @@ export default function PhaseManagementLegoBlock() {
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <Select onValueChange={(preset) => loadPresetPhasesMutation.mutate(preset)}>
-              <SelectTrigger className="w-[180px]" data-testid="select-load-preset">
-                <RotateCcw className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Load Preset" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(presets).map(([key, preset]) => (
-                  <SelectItem key={key} value={key} data-testid={`preset-load-${key}`}>
-                    {preset.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" data-testid="button-add-phase">
