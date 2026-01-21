@@ -50,9 +50,12 @@ export default function CapabilityTransitionView({ scope = 'all' }: CapabilityTr
       return response;
     },
     onSuccess: (data: { derived: number; skipped: number; total: number }) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/capability/portfolio-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/capability/staffing-projection'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/capability/portfolio-summary?scope=all'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/capability/portfolio-summary?scope=dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/capability/staffing-projection?scope=all'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/capability/staffing-projection?scope=dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases/dashboard'] });
       toast({
         title: 'Capability Defaults Derived',
         description: `Auto-populated ${data.derived} use cases from benchmark data (${data.skipped} skipped)`,
