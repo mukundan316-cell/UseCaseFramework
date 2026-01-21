@@ -120,10 +120,10 @@ export default function CapabilityTransitionView({ scope = 'all' }: CapabilityTr
           <div className="text-center flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Capability Transition - "Teach Us to Fish"</h3>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Track knowledge transfer progress, staffing curves, and path to self-sufficiency across the reference library.
+              Track knowledge transfer progress, staffing curves, and path to self-sufficiency across the {scope === 'active' ? 'active portfolio' : 'reference library'}.
             </p>
-            <Badge variant="outline" className="mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200">
-              Reference Library Analytics
+            <Badge variant="outline" className={`mt-2 text-xs ${scope === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+              {scope === 'active' ? 'Active Portfolio' : 'Reference Library Analytics'}
             </Badge>
           </div>
           <Tooltip>

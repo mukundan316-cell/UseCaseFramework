@@ -1461,7 +1461,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/value/portfolio-summary", async (req, res) => {
     try {
-      const useCases = await storage.getAllUseCases();
+      const scope = req.query.scope as string | undefined;
+      const useCases = scope === 'dashboard' 
+        ? await storage.getDashboardUseCases() 
+        : await storage.getAllUseCases();
       const metadata = await storage.getMetadataConfig();
       const tomModule = await import("@shared/tom");
       const { aggregatePortfolioValue } = await import("@shared/valueRealization");
@@ -2076,7 +2079,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/capability/portfolio-summary", async (req, res) => {
     try {
-      const useCases = await storage.getAllUseCases();
+      const scope = req.query.scope as string | undefined;
+      const useCases = scope === 'dashboard' 
+        ? await storage.getDashboardUseCases() 
+        : await storage.getAllUseCases();
       const metadata = await storage.getMetadataConfig();
       const { 
         aggregatePortfolioCapability, 
@@ -2101,7 +2107,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/capability/staffing-projection", async (req, res) => {
     try {
-      const useCases = await storage.getAllUseCases();
+      const scope = req.query.scope as string | undefined;
+      const useCases = scope === 'dashboard' 
+        ? await storage.getDashboardUseCases() 
+        : await storage.getAllUseCases();
       const { generateAggregateStaffingProjection } = await import("@shared/capabilityTransition");
       
       const useCasesWithCapability = useCases.map(uc => ({

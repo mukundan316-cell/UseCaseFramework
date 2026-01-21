@@ -181,10 +181,10 @@ export default function ResponsibleAIPortfolioView({ scope = 'all' }: Responsibl
         <div className="text-center py-2">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Responsible AI Governance</h3>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Portfolio-wide view of AI governance, risk assessments, and compliance status across {metrics.totalUseCases} use cases in the reference library.
+            Portfolio-wide view of AI governance, risk assessments, and compliance status across {metrics.totalUseCases} use cases in the {scope === 'active' ? 'active portfolio' : 'reference library'}.
           </p>
-          <Badge variant="outline" className="mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200">
-            Reference Library Analytics
+          <Badge variant="outline" className={`mt-2 text-xs ${scope === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+            {scope === 'active' ? 'Active Portfolio' : 'Reference Library Analytics'}
           </Badge>
         </div>
 
