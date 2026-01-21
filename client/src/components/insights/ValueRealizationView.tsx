@@ -149,13 +149,20 @@ function getDisplayValue(vr: UseCase['valueRealization']): { min: number; max: n
   return null;
 }
 
-export default function ValueRealizationView() {
+interface ValueRealizationViewProps {
+  scope?: 'active' | 'all';
+}
+
+export default function ValueRealizationView({ scope = 'all' }: ValueRealizationViewProps) {
+  const useCasesEndpoint = scope === 'active' ? '/api/use-cases/dashboard' : '/api/use-cases';
+  const summaryEndpoint = scope === 'active' ? '/api/value/portfolio-summary?scope=dashboard' : '/api/value/portfolio-summary?scope=all';
+  
   const { data: useCases, isLoading: useCasesLoading } = useQuery<UseCase[]>({
-    queryKey: ['/api/use-cases'],
+    queryKey: [useCasesEndpoint],
   });
 
   const { data: portfolioSummary, isLoading: summaryLoading, isError: summaryError } = useQuery<PortfolioValueSummary>({
-    queryKey: ['/api/value/portfolio-summary'],
+    queryKey: [summaryEndpoint],
   });
 
   const { data: valueConfig, isLoading: configLoading } = useQuery<ValueRealizationConfig>({

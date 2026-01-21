@@ -19,13 +19,20 @@ import type {
 import RoleEvolutionLegoBlock from '@/components/lego-blocks/RoleEvolutionLegoBlock';
 import AuditTimelineLegoBlock from '@/components/lego-blocks/AuditTimelineLegoBlock';
 
-export default function CapabilityTransitionView() {
+interface CapabilityTransitionViewProps {
+  scope?: 'active' | 'all';
+}
+
+export default function CapabilityTransitionView({ scope = 'all' }: CapabilityTransitionViewProps) {
+  const summaryEndpoint = scope === 'active' ? '/api/capability/portfolio-summary?scope=dashboard' : '/api/capability/portfolio-summary?scope=all';
+  const projectionEndpoint = scope === 'active' ? '/api/capability/staffing-projection?scope=dashboard' : '/api/capability/staffing-projection?scope=all';
+  
   const { data: portfolioSummary, isLoading: summaryLoading, isError: summaryError } = useQuery<PortfolioCapabilitySummary>({
-    queryKey: ['/api/capability/portfolio-summary'],
+    queryKey: [summaryEndpoint],
   });
 
   const { data: staffingProjection, isLoading: projectionLoading } = useQuery<StaffingProjectionPoint[]>({
-    queryKey: ['/api/capability/staffing-projection'],
+    queryKey: [projectionEndpoint],
   });
 
   const { data: config, isLoading: configLoading } = useQuery<CapabilityTransitionConfig>({

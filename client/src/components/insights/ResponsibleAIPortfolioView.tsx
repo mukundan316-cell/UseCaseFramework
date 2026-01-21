@@ -142,9 +142,15 @@ function FieldIndicator({ value, label }: { value: string | null; label: string 
   );
 }
 
-export default function ResponsibleAIPortfolioView() {
+interface ResponsibleAIPortfolioViewProps {
+  scope?: 'active' | 'all';
+}
+
+export default function ResponsibleAIPortfolioView({ scope = 'all' }: ResponsibleAIPortfolioViewProps) {
+  const useCasesEndpoint = scope === 'active' ? '/api/use-cases/dashboard' : '/api/use-cases';
+  
   const { data: useCases, isLoading, isError } = useQuery<UseCase[]>({
-    queryKey: ['/api/use-cases'],
+    queryKey: [useCasesEndpoint],
   });
 
   if (isLoading) {

@@ -89,9 +89,16 @@ function getPhaseIcon(phaseName: string) {
   return <Target className="h-4 w-4" />;
 }
 
-export default function OperatingModelView() {
+interface OperatingModelViewProps {
+  scope?: 'active' | 'all';
+}
+
+export default function OperatingModelView({ scope = 'all' }: OperatingModelViewProps) {
+  const useCasesEndpoint = scope === 'active' ? '/api/use-cases/dashboard' : '/api/use-cases';
+  const phaseSummaryEndpoint = scope === 'active' ? '/api/tom/phase-summary?scope=dashboard' : '/api/tom/phase-summary?scope=all';
+  
   const { data: useCases, isLoading: useCasesLoading, isError: useCasesError } = useQuery<UseCase[]>({
-    queryKey: ['/api/use-cases'],
+    queryKey: [useCasesEndpoint],
   });
 
   const { data: tomConfig } = useQuery<TomConfig>({
@@ -99,7 +106,7 @@ export default function OperatingModelView() {
   });
 
   const { data: phaseSummary, isLoading: summaryLoading } = useQuery<PhaseSummary>({
-    queryKey: ['/api/tom/phase-summary?scope=all'],
+    queryKey: [phaseSummaryEndpoint],
     enabled: tomConfig?.enabled === 'true',
   });
 
