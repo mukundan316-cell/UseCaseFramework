@@ -405,18 +405,25 @@ export class QuestionnaireService {
             return null;
           }
 
-          // Count first-level elements (panels/questions) per page
+          // Count questions from both formats
           let questionCount = 0;
-          if (definition.pages) {
+          
+          // Survey.js format: pages with elements
+          if (definition.pages && Array.isArray(definition.pages)) {
             definition.pages.forEach((page: any) => {
-              if (page.elements) {
-                questionCount += page.elements.length; // Count all first-level elements
+              if (page.elements && Array.isArray(page.elements)) {
+                questionCount += page.elements.length;
               }
             });
           }
+          
+          // Internal format: sections with questions array
+          if (questionCount === 0 && definition.questions && Array.isArray(definition.questions)) {
+            questionCount = definition.questions.length;
+          }
 
           return {
-            id: id, // Use the folder name as ID
+            id: id,
             title: definition.title || 'Untitled Section',
             questions: questionCount
           };

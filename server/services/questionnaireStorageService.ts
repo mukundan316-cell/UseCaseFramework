@@ -216,13 +216,27 @@ export class QuestionnaireStorageService {
   }
 
   /**
-   * Get all definition IDs by scanning questionnaire folders
+   * Get all definition IDs by scanning questionnaire folders and JSON files
    */
   async getAllDefinitionIds(): Promise<string[]> {
     try {
       const entries = await fs.promises.readdir(this.questionnairesDir, { withFileTypes: true });
-      // Return directory names as definition IDs
-      return entries.filter(entry => entry.isDirectory()).map(entry => entry.name);
+      const ids: string[] = [];
+      
+      // Include directory names as definition IDs
+      entries.filter(entry => entry.isDirectory()).forEach(entry => {
+        ids.push(entry.name);
+      });
+      
+      // Include flat JSON files (extract ID from filename)
+      entries.filter(entry => entry.isFile() && entry.name.endsWith('.json')).forEach(entry => {
+        const id = entry.name.replace('.json', '');
+        if (!ids.includes(id)) {
+          ids.push(id);
+        }
+      });
+      
+      return ids;
     } catch (error) {
       console.error('Failed to get definition IDs:', error);
       return [];
