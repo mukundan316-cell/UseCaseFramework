@@ -62,12 +62,15 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
         const questionnaires = await response.json();
         setAvailableQuestionnaires(questionnaires);
         
-        // Set first questionnaire as default if none selected and immediately load its stats
+        // Set "Current AI & Data Capabilities" as default, or fall back to first questionnaire
         if (!selectedQuestionnaireId && questionnaires.length > 0) {
-          const firstId = questionnaires[0].id;
-          setSelectedQuestionnaireId(firstId);
-          // Load stats immediately for the first questionnaire
-          loadStats(firstId);
+          const aiCapabilities = questionnaires.find((q: any) => 
+            q.title?.toLowerCase().includes('current ai') || 
+            q.title?.toLowerCase().includes('ai & data capabilities')
+          );
+          const defaultId = aiCapabilities?.id || questionnaires[0].id;
+          setSelectedQuestionnaireId(defaultId);
+          loadStats(defaultId);
         }
       }
     } catch (error) {
