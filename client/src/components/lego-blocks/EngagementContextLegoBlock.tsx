@@ -88,18 +88,27 @@ export default function EngagementContextLegoBlock({
           onValueChange={onEngagementChange}
           disabled={!selectedClientId || engagementsLoading}
         >
-          <SelectTrigger className="w-[220px] h-8 text-sm" data-testid="select-engagement-context">
-            <SelectValue placeholder={engagementsLoading ? "Loading..." : "Select Engagement"} />
+          <SelectTrigger className="min-w-[200px] h-8 text-sm" data-testid="select-engagement-context">
+            <SelectValue placeholder={engagementsLoading ? "Loading..." : "Select Engagement"}>
+              {selectedEngagement && (
+                <span className="flex items-center gap-2 truncate">
+                  <span className="truncate">{selectedEngagement.name}</span>
+                  {selectedEngagement.isDefault === 'true' && (
+                    <Badge variant="secondary" className="text-xs px-1 py-0 shrink-0">Default</Badge>
+                  )}
+                </span>
+              )}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {engagements.map((engagement) => (
               <SelectItem key={engagement.id} value={engagement.id} data-testid={`engagement-option-${engagement.id}`}>
-                <div className="flex items-center gap-2">
+                <span className="flex items-center gap-2">
                   <span>{engagement.name}</span>
                   {engagement.isDefault === 'true' && (
                     <Badge variant="secondary" className="text-xs px-1 py-0">Default</Badge>
                   )}
-                </div>
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
