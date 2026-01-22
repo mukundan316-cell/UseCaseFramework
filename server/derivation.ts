@@ -126,14 +126,50 @@ export function getDefaultConfigs(metadata: any): DerivationConfigs {
   };
 }
 
-export interface EngagementTomContext {
+export interface EngagementConfigContext {
   tomPresetId: string;
   tomPhasesJson?: any;
+  governanceConfig?: {
+    customGates?: Array<{
+      id: string;
+      name: string;
+      requiredFields: string[];
+      order: number;
+    }>;
+    governanceBodies?: Array<{
+      id: string;
+      name: string;
+      description?: string;
+      approvalRequired?: boolean;
+    }>;
+  };
+  valueConfig?: {
+    kpiTargets?: Record<string, { target: number; baseline?: number }>;
+    benchmarks?: Record<string, { industry: number; bestInClass: number }>;
+    revenueMultiplier?: number;
+    costMultiplier?: number;
+  };
+  capabilityConfig?: {
+    knowledgeTransferMilestones?: Array<{
+      id: string;
+      name: string;
+      targetWeek: number;
+      criteria: string[];
+    }>;
+    independenceThresholds?: {
+      targetVendorRatio: number;
+      targetClientRatio: number;
+      targetWeeks: number;
+    };
+  };
 }
+
+// Legacy alias for backward compatibility
+export type EngagementTomContext = EngagementConfigContext;
 
 export function getConfigsFromEngagement(
   metadata: any,
-  engagement?: EngagementTomContext | null
+  engagement?: EngagementConfigContext | null
 ): DerivationConfigs {
   const baseConfigs = getDefaultConfigs(metadata);
   
@@ -141,22 +177,86 @@ export function getConfigsFromEngagement(
     return baseConfigs;
   }
 
-  // Start with base TOM config
+  // 1. TOM Config: merge engagement preset into base config
   let tomConfig = { ...baseConfigs.tomConfig };
-  
-  // Override activePreset with engagement's locked preset
   if (engagement.tomPresetId) {
     tomConfig.activePreset = engagement.tomPresetId;
+    // Auto-enable TOM when preset is selected
+    if (engagement.tomPresetId !== 'none') {
+      tomConfig.enabled = 'true';
+    }
   }
-  
-  // If engagement has custom phases, use them (preserving preset structure)
   if (engagement.tomPhasesJson && Array.isArray(engagement.tomPhasesJson)) {
     tomConfig.phases = engagement.tomPhasesJson;
   }
 
+  // 2. Value Config: merge engagement value settings into calculationConfig
+  let valueConfig = { ...baseConfigs.valueConfig };
+  if (engagement.valueConfig) {
+    // Merge KPI targets into kpiLibrary (override specific KPI definitions)
+    if (engagement.valueConfig.kpiTargets) {
+      valueConfig.kpiLibrary = { ...valueConfig.kpiLibrary };
+      for (const [kpiId, targets] of Object.entries(engagement.valueConfig.kpiTargets)) {
+        if (valueConfig.kpiLibrary[kpiId]) {
+          valueConfig.kpiLibrary[kpiId] = {
+            ...valueConfig.kpiLibrary[kpiId],
+            // Store engagement targets as custom metadata
+            engagementTarget: targets.target,
+            engagementBaseline: targets.baseline
+          } as any;
+        }
+      }
+    }
+    // Auto-enable value tracking when engagement has config
+    if (Object.keys(engagement.valueConfig).length > 0) {
+      valueConfig.enabled = 'true';
+    }
+  }
+
+  // 3. Capability Config: merge engagement capability settings
+  let capabilityConfig = { ...baseConfigs.capabilityConfig };
+  if (engagement.capabilityConfig) {
+    // Override knowledge transfer milestones if provided
+    if (engagement.capabilityConfig.knowledgeTransferMilestones) {
+      // Map simplified engagement milestones to full config structure
+      const phaseMap: Record<number, 'foundation' | 'strategic' | 'transition' | 'steadyState'> = {
+        0: 'foundation', 1: 'foundation',
+        2: 'strategic', 3: 'strategic',
+        4: 'transition', 5: 'transition',
+        6: 'steadyState', 7: 'steadyState'
+      };
+      capabilityConfig.knowledgeTransferMilestones = engagement.capabilityConfig.knowledgeTransferMilestones.map((m, idx) => ({
+        id: m.id,
+        name: m.name,
+        description: m.criteria.join('; '),
+        phase: phaseMap[idx] || 'foundation',
+        order: idx + 1,
+        requiredArtifacts: m.criteria
+      }));
+    }
+    // Override independence targets if thresholds provided
+    if (engagement.capabilityConfig.independenceThresholds) {
+      const t = engagement.capabilityConfig.independenceThresholds;
+      // Map engagement thresholds to min/max percentages for steadyState
+      capabilityConfig.independenceTargets = {
+        ...capabilityConfig.independenceTargets,
+        steadyState: {
+          min: Math.round(t.targetClientRatio * 100),
+          max: Math.round(t.targetClientRatio * 100),
+          description: `Client at ${Math.round(t.targetClientRatio * 100)}% by week ${t.targetWeeks}`
+        }
+      };
+    }
+    // Auto-enable capability tracking when engagement has config
+    if (Object.keys(engagement.capabilityConfig).length > 0) {
+      capabilityConfig.enabled = 'true';
+    }
+  }
+
   return {
-    ...baseConfigs,
-    tomConfig
+    tomConfig,
+    valueConfig,
+    capabilityConfig
   };
 }
 

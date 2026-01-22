@@ -764,6 +764,40 @@ export const engagements = pgTable("engagements", {
   tomPresetId: text("tom_preset_id").notNull(), // Locked TOM preset: 'hybrid', 'coe_led', 'federated', etc.
   tomPresetLocked: text("tom_preset_locked").notNull().default('false'), // 'true' once confirmed, cannot be changed
   tomPhasesJson: jsonb("tom_phases_json"), // Customizable phases within the locked preset
+  // Engagement-level config overrides (nullable = inherit from metadata)
+  governanceConfig: jsonb("governance_config").$type<{
+    customGates?: Array<{
+      id: string;
+      name: string;
+      requiredFields: string[];
+      order: number;
+    }>;
+    governanceBodies?: Array<{
+      id: string;
+      name: string;
+      description?: string;
+      approvalRequired?: boolean;
+    }>;
+  }>(), // Custom governance gates for this engagement
+  valueConfig: jsonb("value_config").$type<{
+    kpiTargets?: Record<string, { target: number; baseline?: number }>;
+    benchmarks?: Record<string, { industry: number; bestInClass: number }>;
+    revenueMultiplier?: number;
+    costMultiplier?: number;
+  }>(), // Custom value realization settings
+  capabilityConfig: jsonb("capability_config").$type<{
+    knowledgeTransferMilestones?: Array<{
+      id: string;
+      name: string;
+      targetWeek: number;
+      criteria: string[];
+    }>;
+    independenceThresholds?: {
+      targetVendorRatio: number;
+      targetClientRatio: number;
+      targetWeeks: number;
+    };
+  }>(), // Custom capability transition settings
   startDate: timestamp("start_date"),
   endDate: timestamp("end_date"),
   status: text("status").notNull().default('active'), // 'active', 'completed', 'on_hold', 'cancelled'
