@@ -740,7 +740,8 @@ export interface GovernanceStatus {
 
 /**
  * Calculate Operating Model gate status
- * Required: primaryBusinessOwner, useCaseStatus (not Discovery), businessFunction
+ * Required: primaryBusinessOwner only (simplified from previous 3 requirements)
+ * Status defaults to Discovery automatically, TOM derives from engagement preset
  */
 export function calculateOperatingModelGate(useCase: any): GovernanceGateStatus {
   // Helper to check if a string value is present and non-empty
@@ -748,18 +749,10 @@ export function calculateOperatingModelGate(useCase: any): GovernanceGateStatus 
     return typeof v === 'string' && v.trim() !== '';
   };
 
+  // Simplified gate - only requires Primary Business Owner
+  // Status defaults to Discovery automatically, TOM derives from engagement preset
   const requiredFields = [
-    { key: 'primaryBusinessOwner', label: 'Primary Business Owner', validator: isNonEmptyString },
-    { 
-      key: 'useCaseStatus', 
-      label: 'Use Case Status (not Discovery)', 
-      validator: (v: any) => {
-        // Must be a non-empty string AND not equal to 'Discovery' (case-insensitive, trimmed)
-        if (!isNonEmptyString(v)) return false;
-        return v.trim().toLowerCase() !== 'discovery';
-      }
-    },
-    { key: 'businessFunction', label: 'Business Function', validator: isNonEmptyString }
+    { key: 'primaryBusinessOwner', label: 'Primary Business Owner', validator: isNonEmptyString }
   ];
 
   const completedFields: string[] = [];

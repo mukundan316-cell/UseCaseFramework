@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users } from 'lucide-react';
+import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users, Shield } from 'lucide-react';
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import { ScoreDropdownLegoBlock } from './ScoreDropdownLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
@@ -234,6 +234,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       isDashboardVisible: 'false',
       libraryTier: 'reference',
       activationReason: '',
+      useCaseStatus: 'Discovery', // Default to Discovery for new use cases
       ...scores,
     },
   });
@@ -697,7 +698,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         problemStatement: data.problemStatement || '',
         useCaseType: data.useCaseType || '',
         primaryBusinessOwner: data.primaryBusinessOwner || '',
-        useCaseStatus: data.useCaseStatus || '',
+        useCaseStatus: data.useCaseStatus || 'Discovery',
         keyDependencies: data.keyDependencies || '',
         implementationTimeline: data.implementationTimeline || '',
         successMetrics: data.successMetrics || '',
@@ -1269,27 +1270,23 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               <ResponsiveTabsListLegoBlock>
                 <TabsTrigger value="basic" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Basic Information
+                  Essentials
                 </TabsTrigger>
-                <TabsTrigger value="business" className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4" />
-                  Business Context
-                </TabsTrigger>
-                <TabsTrigger value="implementation" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Implementation & Governance
-                </TabsTrigger>
-                <TabsTrigger value="presentation" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Use case definition
-                </TabsTrigger>
-                {/* Hexaware Framework Assessment - Hidden for AI Inventory per user request */}
+                {/* Scoring tab - Hidden for AI Inventory per user request */}
                 {form.watch('librarySource') !== 'ai_inventory' && (
                   <TabsTrigger value="assessment" className="flex items-center gap-2">
                     <BarChart3 className="h-4 w-4" />
-                    Hexaware Framework Assessment
+                    Scoring & Value
                   </TabsTrigger>
                 )}
+                <TabsTrigger value="rai" className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Responsible AI
+                </TabsTrigger>
+                <TabsTrigger value="details" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Details
+                </TabsTrigger>
               </ResponsiveTabsListLegoBlock>
 
               {/* Tab 1: Basic Information */}
@@ -1447,8 +1444,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 )}
               </TabsContent>
 
-              {/* Tab 2: Business Context */}
-              <TabsContent value="business" className="space-y-4 mt-6">
+              {/* Tab: Details - Business Context, Technical Implementation, Optional Fields */}
+              <TabsContent value="details" className="space-y-4 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Processes Multi-Select - LEGO Component */}
               <MultiSelectField
@@ -1520,10 +1517,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 className="w-full"
               />
             </div>
-              </TabsContent>
-
-              {/* Tab 3: Implementation & Governance */}
-              <TabsContent value="implementation" className="space-y-4 mt-6">
+                
+                {/* Implementation & Technical Details Section */}
+                <div className="border-t pt-6 mt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Implementation Details</h3>
                 {/* Gate Status Indicators - Inline summary for each gate */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                   {/* Operating Model Gate */}
@@ -2249,10 +2246,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     </div>
                   </div>
                 )}
-              </TabsContent>
+                </div>
 
-              {/* Tab 4: Use case definition */}
-              <TabsContent value="presentation" className="space-y-4 mt-6">
+                {/* Use Case Definition Section */}
+                <div className="border-t pt-6 mt-6">
                 <div className="space-y-6">
                   <div className="flex items-center gap-2 mb-4">
                     <FileText className="h-5 w-5 text-blue-600" />
@@ -2302,9 +2299,148 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     <p>Upload PowerPoint presentations (.pptx, .ppt) or PDF files to provide detailed information about this use case. Files will be automatically converted to PDF for preview.</p>
                   </div>
                 </div>
+                </div>
               </TabsContent>
 
-              {/* Tab 5: RSA Framework Assessment - Available for all source types except Reference Library context */}
+              {/* Tab: Responsible AI */}
+              <TabsContent value="rai" className="space-y-4 mt-6">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Shield className="h-5 w-5 text-purple-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">Responsible AI Assessment</h3>
+                    <Badge variant="outline" className={`text-xs ${governanceStatus.rai.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      {governanceStatus.rai.passed ? 'Complete' : `${governanceStatus.rai.progress}%`}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Answer these 5 questions to complete the Responsible AI governance gate.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="explainabilityRequired"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Is explainability required?</FormLabel>
+                          <Select 
+                            onValueChange={(value) => field.onChange(value === 'yes' ? 'true' : value === 'no' ? 'false' : undefined)} 
+                            value={field.value === 'true' ? 'yes' : field.value === 'false' ? 'no' : undefined}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="customerHarmRisk"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Customer harm risk?</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value || undefined}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="dataOutsideUkEu"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Data processing outside UK/EU?</FormLabel>
+                          <Select 
+                            onValueChange={(value) => field.onChange(value)} 
+                            value={field.value || undefined}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="true">Yes</SelectItem>
+                              <SelectItem value="false">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="thirdPartyModel"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Third party model?</FormLabel>
+                          <Select 
+                            onValueChange={(value) => field.onChange(value)} 
+                            value={field.value || undefined}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="true">Yes</SelectItem>
+                              <SelectItem value="false">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="humanAccountability"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">Human accountability required?</FormLabel>
+                          <Select 
+                            onValueChange={(value) => field.onChange(value)} 
+                            value={field.value || undefined}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="true">Yes</SelectItem>
+                              <SelectItem value="false">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Tab: Scoring & Value - RSA Framework Assessment - Available for all source types except Reference Library context */}
               {(context as string) !== 'reference' && (
                 <TabsContent value="assessment" className="space-y-4 mt-6">
                 {rsaSelection.isActiveForRsa ? (
