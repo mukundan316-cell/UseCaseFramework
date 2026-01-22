@@ -1,0 +1,49 @@
+Audit Findings: Intent vs. Implementation
+Based on the Replit Agent's code review and your stated architecture, here are the logical inconsistencies I've identified:
+✅ What's Correctly Aligned
+ComponentStatusNotesClient → Engagement hierarchy✅Schema supports 1:manyUse Cases linked to Engagements✅Backfilled in commit 69f8fb1TOM Preset per Engagement✅getConfigsFromEngagement() overrides TOM preset/phasesTOM Phase derivation logic✅derivePhase() in shared/tom.ts works correctlyInsights scope toggle✅Active Portfolio vs Reference Library functional
+
+⚠️ Logical Inconsistencies to Address
+1. Engagement Scope Leakage for Value & Capability Configs
+Issue: The Replit Agent confirmed that getConfigsFromEngagement() only overrides TOM preset/phases from the engagement — Value Realization and Capability Transition configs still come from global metadata.
+Expected Behavior (per your intent): Since each engagement has its own TOM setup, the downstream features (Value Realization KPIs, Capability Transition benchmarks) should also derive from engagement-specific configurations, not global.
+Current Impact: If you have two engagements with different operating models (e.g., one Centralized CoE, one Federated), they will share the same value/capability benchmark configs — which defeats the configurability promise.
+
+2. TOM Disabled by Default
+Issue: DEFAULT_TOM_CONFIG.enabled: 'false' in shared/tom.ts line 74.
+Expected Behavior: If an engagement is created and a TOM preset is selected, TOM should be implicitly enabled for that engagement.
+Current Impact: Dashboard may show "TOM Disabled" unless metadata explicitly enables it, creating confusion for users who've already configured an engagement.
+
+3. Governance Gates: Engagement-Scoped or Global?
+Clarification Needed: The audit mentions governance gates exist, but I couldn't confirm from the response whether the governance configuration (the 3 gates: Operating Model → Intake → RAI) is:
+
+Stored per engagement (as your architecture implies), OR
+Applied globally from metadata_config
+
+Why This Matters: Different clients may have different governance requirements. A strict insurance client might require all 5 RAI fields, while an internal Hexaware engagement might have relaxed gates.
+
+4. Capability Transition Not Auto-Derived on Use Case Creation
+Issue: The capability_transition JSONB field starts empty. Data only populates when a user explicitly clicks "Derive All".
+Expected Behavior (per your architecture): If use cases flow downstream from TOM phases, and capability defaults derive from TOM phase + Quadrant + T-shirt size, this derivation should happen automatically when:
+
+A use case is created/updated with the required inputs
+Or at minimum, during the CRUD save operation
+
+Current Impact: New use cases in the Capability Transition Insights tab show empty/null values until manual derivation, making the dashboard appear broken.
+
+5. Use Case Status → TOM Phase Mapping: Engagement-Specific?
+Issue: The derivePhase() function uses mappedStatuses from the phase config. But if the TOM phases come from the engagement's preset, are the status-to-phase mappings also engagement-specific?
+Example Concern:
+
+Engagement A uses a 7-phase model where "PoC" maps to Phase 3
+Engagement B uses a 4-phase model where "PoC" maps to Phase 2
+If the mapping isn't engagement-scoped, use cases could derive the wrong phase
+
+
+Questions to Confirm Before Recommendations
+
+Should Value Realization and Capability Transition configs also cascade from engagement? (Currently they don't)
+Should TOM be auto-enabled when an engagement selects a preset? (Currently defaults to disabled)
+Is governance configuration intended to be engagement-specific or global?
+Should capability defaults auto-derive on use case save/update, or remain manual?
+For the status-to-phase mapping, should different engagements support different mappings? (e.g., "PoC" means Phase 3 in one engagement, Phase 2 in another)

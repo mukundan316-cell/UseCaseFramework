@@ -58,12 +58,29 @@ function computeRAIMetrics(useCases: UseCase[]): RAIMetrics {
     thirdParty: 0
   };
 
+  // Helper to check if a field has a valid non-empty value (handles null, undefined, empty string, whitespace)
+  const hasValidValue = (value: string | null | undefined): boolean => {
+    if (value === null || value === undefined) return false;
+    const trimmed = String(value).trim();
+    return trimmed !== '' && trimmed.toLowerCase() !== 'null' && trimmed.toLowerCase() !== 'undefined';
+  };
+
+  // Normalize risk value to standard enum
+  const normalizeRiskLevel = (value: string | null | undefined): 'low' | 'medium' | 'high' | null => {
+    if (!hasValidValue(value)) return null;
+    const normalized = String(value).toLowerCase().trim();
+    if (['low', 'none', 'minimal', 'negligible'].includes(normalized)) return 'low';
+    if (['medium', 'moderate', 'mid'].includes(normalized)) return 'medium';
+    if (['high', 'critical', 'severe', 'significant'].includes(normalized)) return 'high';
+    return null; // Unknown values treated as unassessed
+  };
+
   useCases.forEach(uc => {
-    const hasExplainability = uc.explainabilityRequired !== null && uc.explainabilityRequired !== '';
-    const hasHarmRisk = uc.customerHarmRisk !== null && uc.customerHarmRisk !== '';
-    const hasAccountability = uc.humanAccountability !== null && uc.humanAccountability !== '';
-    const hasDataLocation = uc.dataOutsideUkEu !== null && uc.dataOutsideUkEu !== '';
-    const hasThirdParty = uc.thirdPartyModel !== null && uc.thirdPartyModel !== '';
+    const hasExplainability = hasValidValue(uc.explainabilityRequired);
+    const hasHarmRisk = hasValidValue(uc.customerHarmRisk);
+    const hasAccountability = hasValidValue(uc.humanAccountability);
+    const hasDataLocation = hasValidValue(uc.dataOutsideUkEu);
+    const hasThirdParty = hasValidValue(uc.thirdPartyModel);
 
     if (hasExplainability) fieldCoverage.explainability++;
     if (hasHarmRisk) fieldCoverage.customerHarm++;
@@ -81,17 +98,14 @@ function computeRAIMetrics(useCases: UseCase[]): RAIMetrics {
       incomplete++;
     }
 
-    if (hasHarmRisk) {
-      const risk = uc.customerHarmRisk?.toLowerCase() || '';
-      if (risk === 'low' || risk === 'none') {
-        riskDistribution.low++;
-      } else if (risk === 'medium' || risk === 'moderate') {
-        riskDistribution.medium++;
-      } else if (risk === 'high' || risk === 'critical') {
-        riskDistribution.high++;
-      } else {
-        riskDistribution.unassessed++;
-      }
+    // Risk distribution uses normalized values for consistency
+    const normalizedRisk = normalizeRiskLevel(uc.customerHarmRisk);
+    if (normalizedRisk === 'low') {
+      riskDistribution.low++;
+    } else if (normalizedRisk === 'medium') {
+      riskDistribution.medium++;
+    } else if (normalizedRisk === 'high') {
+      riskDistribution.high++;
     } else {
       riskDistribution.unassessed++;
     }

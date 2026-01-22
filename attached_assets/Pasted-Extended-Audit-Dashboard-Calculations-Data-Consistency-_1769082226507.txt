@@ -1,0 +1,141 @@
+Extended Audit: Dashboard Calculations & Data Consistency
+What I See Across the 4 Insights Tabs:
+TabKey MetricsObservationsValue Realization71 with estimates, 53 no data, £12.5M totalQuadrant totals: 99+22+3+1 = 125 ✓Operating Model125 in Foundation (100%), 0 in other phasesAll status = "Defined", 0 In Progress/DeployedCapability Transition10% independence, 230.3/98.7 FTE splitKT Progress: 4/750 (0.5%)Responsible AI117 fully assessed, 8 partial, 94% scoreBut Customer Harm shows 94 "Unassessed"
+
+⚠️ Additional Calculation & Data Inconsistencies
+10. All 125 Use Cases Stuck in "Foundation" Phase
+What I See: Operating Model tab shows:
+
+Foundation: 125 (100%)
+Strategic: 0 (0%)
+Transition: 0 (0%)
+Steady State: 0 (0%)
+
+What I Also See: Status Coverage shows:
+
+Defined: 125
+In Progress: 0
+Deployed/Live: 0
+
+The Problem: If TOM phase derivation uses useCaseStatus → mappedStatuses, and all use cases have status = "Defined" or "Discovery", they ALL map to Foundation. This means:
+
+The TOM phase derivation is technically working
+But the status field isn't being updated as use cases progress
+OR the status-to-phase mapping is too coarse (multiple statuses map to Foundation)
+
+Business Impact: The TOM dashboard is useless for tracking AI delivery progress if everything shows Foundation.
+
+11. RAI Assessment Metrics Contradict Each Other
+What I See:
+
+Summary Cards: 117 Fully Assessed, 8 Partially Assessed, 0 Not Assessed
+Customer Harm Risk Distribution: Low 9 + Medium 15 + High 5 = 29 assessed, 94 Unassessed
+
+The Contradiction: How can 117 be "Fully Assessed" if Customer Harm Risk shows 94 unassessed?
+Root Cause Hypothesis: The "Fully Assessed" calculation likely checks if ANY RAI field is filled (≥1 field), not ALL 5 fields. The field coverage shows:
+
+Explainability: 118/125 (94%)
+Customer Harm Risk: 125/125 (100%) ← But distribution shows 94 unassessed?
+Human Accountability: 117/125 (94%)
+Data Location: 117/125 (94%)
+Third-Party Model: 117/125 (94%)
+
+Possible Bug: The "125/125" for Customer Harm Risk might be counting use cases that have the field (even if null), not use cases with actual values.
+
+12. Value Tier vs Quadrant Misalignment
+What I See:
+
+Value Tier Distribution: High 17, Medium 54, Low 0, Not Estimated 53 = 124 (missing 1?)
+Value by Quadrant: Experimental 99 (£5.8M), Strategic Bet 22 (£4.8M), Watchlist 1 (£571K), Quick Win 3 (£519K) = 125
+
+The Issue:
+
+53 use cases have "No Value Data" but they're still assigned to quadrants
+Quadrant assignment uses Impact/Effort scores, but Value Tier uses estimated £ value
+These are two different classification systems being shown together
+
+Logical Question: Should use cases without value estimates even appear in Value Realization insights? They inflate the quadrant counts without contributing real value data.
+
+13. Capability Transition Aggregation Source Unclear
+What I See:
+
+Portfolio Independence: 10%
+Staffing Split: 230.3 Hexaware / 98.7 Client FTE
+KT Progress: 4/750
+
+The Question: If capability_transition isn't auto-populated on use case creation (per finding #4), where is this aggregated data coming from?
+Possibilities:
+
+Someone manually ran "Derive All" at some point
+A subset of use cases have manually-entered capability data
+Default values are being aggregated (not real data)
+
+Verification Needed: Check if the staffing curve chart reflects actual derived data or placeholder defaults.
+
+14. Quadrant Distribution vs Governance Gates Paradox
+What I See:
+
+99 Experimental (Low Value, Low Effort)
+22 Strategic Bet (High Value, High Effort)
+3 Quick Win (High Value, Low Effort)
+1 Watchlist (Low Value, High Effort)
+
+The Paradox: Per governance logic, use cases need Intake & Prioritization gate (all 10 levers scored 1-5) to pass. But if 99 are "Experimental" (low scores on both axes), it means:
+
+Either scoring levers ARE filled (gate should pass)
+OR quadrant assignment works without complete scoring (gate logic mismatch)
+
+Why This Matters: The Value Realization tab shows Reference Library (all use cases), but if these haven't passed gates, their value estimates shouldn't be treated as "portfolio value" in business terms.
+
+🔧 Admin Setup Considerations
+Based on the context bar showing "Hexaware > AI Strategy Initiative > Default > TOM: Hybrid (Locked)", I can infer the admin setup state:
+15. Single Default Engagement for All Use Cases
+What I See: All 125 use cases appear linked to "AI Strategy Initiative" engagement under "Hexaware" client.
+The Issue: This is the seeded default engagement. For true multi-tenant operation:
+
+Different clients should have their own engagements
+Different engagements should have different TOM presets
+The "Locked" status suggests TOM preset can't be changed mid-stream (good!)
+
+But: If this is a demo/reference library, having all 125 use cases under one engagement makes sense. The question is: Is there a workflow to bulk-move use cases to a new engagement when creating a client-specific engagement?
+
+16. TOM Preset "Hybrid" but All Phases Show Foundation Only
+What I See: TOM preset is "Hybrid (Locked)" but the phase distribution shows only Foundation phase populated.
+Expected for Hybrid Model: Should have multiple active phases representing different maturity levels across the portfolio.
+What This Suggests: Either:
+
+The Hybrid preset only defines Foundation phase
+OR the phase configuration for Hybrid preset isn't correctly loaded
+OR use case statuses don't map to other phases in this preset
+
+
+Complete Extended Audit Summary
+#FindingCategoryPriorityStatus1Value/Capability configs not engagement-scopedMulti-tenant🔴 HighCONFIRMED2TOM disabled by defaultUX🟡 MediumCONFIRMED3Governance Bodies globalMulti-tenant🔴 HighCONFIRMED4Capability not auto-derivedData Quality🟡 MediumCONFIRMED5Status→Phase mappingDerivation✅ Working—6Gate requirements hardcodedMulti-tenant🔴 HighCONFIRMED7Bodies vs Gates conflatedArchitecture🟡 MediumCONFIRMED8Sequential gate UXUX🟡 MediumCONFIRMED9Active Portfolio uses global gatesMulti-tenant🔴 HighCONFIRMED10All use cases stuck in FoundationData/Config🔴 HighNEW11RAI metrics contradictCalculation Bug🔴 HighNEW12Value Tier vs Quadrant mismatchLogic🟡 MediumNEW13Capability aggregation source unclearData Quality🟡 MediumNEW14Quadrant assignment vs Gate logicLogic🟡 MediumNEW15Single default engagementAdmin Setup🟡 MediumNEW16Hybrid preset shows only FoundationConfig🔴 HighNEW
+
+Revised Implementation Plan
+Phase 0 — Immediate Data/Bug Fixes (Before Multi-tenant)
+
+Fix RAI calculation bug — Verify "Fully Assessed" logic counts use cases with ALL 5 fields vs ANY field
+Verify Hybrid TOM preset phase definitions — Check if mappedStatuses for Strategic/Transition/Steady State are configured
+Audit use case status distribution — Why are all 125 "Defined"? Should some be "In Progress" or "Deployed"?
+
+Phase 1 — Critical Multi-tenant Fixes
+
+Add governanceConfig, valueConfig, capabilityConfig to engagements
+Extend getConfigsFromEngagement() for all config types
+Refactor calculateGovernanceStatus() to read engagement config
+Auto-enable TOM when engagement selects preset
+
+Phase 2 — Calculation & Derivation Fixes
+
+Auto-derive capability on use case create/update
+Add "Derive All" for value estimation on engagement setup
+Fix Value Tier calculation to exclude use cases without estimates
+Clarify Active Portfolio vs Reference Library business logic
+
+Phase 3 — UX & Architecture
+
+Fix sequential gate display contradiction
+Separate Governance Bodies from Use Case Gates in schema
+Add bulk use case migration tool for new engagements
+Add engagement-level KPI targets for Value Realization

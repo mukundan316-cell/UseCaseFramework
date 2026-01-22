@@ -1,0 +1,28 @@
+ Agreement with Plan + Strategic Recommendations
+Phase 0 — Immediate Data/Bug Fixes
+I Agree. This is the right sequencing. You can't evaluate multi-tenant fixes properly if the baseline data is inconsistent.
+TaskMy AdditionFix RAI calculation bugAlso add data migration: Normalize existing customerHarmRisk values to expected enum ('low', 'medium', 'high', 'none')Verify Hybrid TOM presetCheck all 4 presets (Centralized CoE, Federated, Hybrid, CoE-Led) have complete phase definitionsAudit use case statusCreate a status progression workflow — if use cases are meant to move through statuses, document the expected lifecycle
+Critical Add for Phase 0:
+
+Task 0.4: Validate scoring lever data — Per finding #14, quadrants can be assigned with partial scores (defaults to 0). Audit how many use cases have 0-value levers vs. proper 1-5 scores. This affects both gate calculation AND value estimation accuracy.
+
+
+Phase 1 — Critical Multi-tenant Fixes
+I Agree. This is the architectural foundation.
+TaskMy RecommendationAdd configs to engagementsUse JSONB with clear schema validation (Zod) to prevent malformed configsExtend getConfigsFromEngagement()Add fallback chain: Engagement config → Client config (future) → Global metadata → Hardcoded defaultsRefactor gate calculationKeep backward compatibility: If engagement has no governanceConfig, fall back to current hardcoded behaviorAuto-enable TOMMake this a one-way operation — selecting preset enables TOM, but clearing preset shouldn't auto-disable
+
+Phase 2 — Calculation & Derivation Fixes
+I Agree. These are the "make it work properly" fixes.
+TaskMy RecommendationAuto-derive capabilityTrigger on create AND update when relevant fields change (T-shirt size, quadrant, TOM phase)Bulk derive valueAdd progress indicator — deriving 125+ use cases takes timeFix Value Tier calculationOption to consider: Should Reference Library show value metrics at all, or only Active Portfolio?Clarify Active vs ReferenceDocument this clearly in VALUE_FRAMEWORK_GUIDE.md
+
+Phase 3 — UX & Architecture
+I Agree. These are polish items that improve clarity.
+TaskMy RecommendationFix sequential gate displayShow actual % with clear "Blocked by: X" label instead of "Waiting"Separate Bodies from GatesCreate distinct schema sections: governance.bodies[] (WHO) and governance.gates[] (WHAT)Bulk migration toolEssential for real client work — ability to clone use cases from Reference Library to new engagementEngagement-level KPI targetsTie to Value Realization config — each engagement can have different baseline/target expectations
+
+One Architectural Consideration
+Before Replit Agent executes, confirm this design decision:
+Should the Reference Library (126 use cases) remain engagement-agnostic or always belong to an engagement?
+OptionProsConsA: Reference Library is globalClean separation of "templates" vs "active work"Requires cloning logic to bring into engagementB: Reference Library belongs to default engagementCurrent behavior, simplerMulti-tenant confusion when viewing across engagementsC: Reference Library has no engagement, active use cases require engagementMost flexibleRequires nullable engagementId + business logic changes
+My recommendation: Option C — It aligns with your stated architecture where engagement is the operational container, but allows a "library" of reference use cases that aren't yet assigned to any client work.
+
+Suggested Prompt for Replit Agent

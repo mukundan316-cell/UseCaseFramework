@@ -576,6 +576,76 @@ const effectiveQuadrant = useCase.manualQuadrant ??
 3. **Validation Planning**: Internal capability assessment and third-party requirements
 4. **Stakeholder Communication**: Automated notification and reporting workflows
 
+### Foundation Layer Governance Gates
+
+Before a use case can enter the **Active Portfolio** (for value tracking and deployment), it must pass three sequential governance gates. Gates are auto-calculated from field completeness:
+
+#### Gate 1: Operating Model Alignment
+Required fields:
+- Primary Business Owner (non-empty)
+- Use Case Status (must not be "Discovery")
+- Business Function (non-empty)
+
+#### Gate 2: Intake & Prioritization
+Required: All 10 scoring levers must have values 1-5 (not 0):
+- **Impact Levers**: Revenue Impact, Cost Savings, Risk Reduction, Broker/Partner Experience, Strategic Fit
+- **Effort Levers**: Data Readiness, Technical Complexity, Change Impact, Model Risk, Adoption Readiness
+
+#### Gate 3: Responsible AI Assurance
+Required: All 5 RAI fields must be answered:
+- Explainability Required (true/false)
+- Customer Harm Risk (low/medium/high)
+- Human Accountability (true/false)
+- Data Outside UK/EU (true/false)
+- Third Party Model (true/false)
+
+#### Sequential Blocking
+Gates must be completed in order:
+1. Operating Model must pass before Intake can show as "Complete"
+2. Intake must pass before RAI can show as "Complete"
+3. All 3 gates must pass before activation
+
+### Use Case Status Lifecycle
+
+Use cases progress through these statuses, which drive TOM phase derivation:
+
+| Status | TOM Phase | Description |
+|--------|-----------|-------------|
+| **Discovery** | Foundation | Initial exploration, not yet prioritized |
+| **Backlog** | Foundation | Prioritized but not started |
+| **On Hold** | Foundation | Temporarily paused |
+| **In-flight** | Strategic | Active development/pilot |
+| **Implemented** | Transition | Deployed to production |
+| *(Manual)* | Steady State | Full client ownership (manual assignment only) |
+
+#### Expected Status Progression
+```
+Discovery → Backlog → In-flight → Implemented → (Manual: Steady State)
+                 ↓
+              On Hold (temporary pause, can resume)
+```
+
+### Active Portfolio vs Reference Library
+
+| View | Description | Use Case Filter |
+|------|-------------|-----------------|
+| **Active Portfolio** | Use cases that passed all 3 governance gates | `governanceStatus = 'complete'` |
+| **Reference Library** | All use cases for planning and analysis | No filter |
+
+**Important**: Value Realization metrics in Active Portfolio represent actual tracked value. Reference Library metrics are estimates for planning purposes only.
+
+### Data Quality Requirements
+
+For accurate dashboard insights, ensure:
+
+1. **Scoring Levers**: All 10 levers should have values 1-5 (not 0). Zero values indicate incomplete scoring and block Intake gate.
+
+2. **Status Progression**: Update `useCaseStatus` as use cases progress through the lifecycle. Use cases stuck in "Discovery" will all appear in Foundation phase.
+
+3. **RAI Fields**: All 5 fields must have valid values matching expected options (low/medium/high for risk, true/false for boolean fields).
+
+4. **Customer Harm Risk Values**: Use standard values: `low`, `medium`, `high`. Other values (none, minimal, moderate, critical, severe, significant) are normalized automatically.
+
 ## Assessment System Integration
 
 ### Survey.js Platform Features
