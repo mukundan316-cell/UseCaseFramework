@@ -60,7 +60,14 @@ function GateStep({
     if (gate.passed && !isBlocked) {
       return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">Complete</Badge>;
     } else if (isBlocked) {
-      return <Badge variant="outline" className="bg-gray-100 text-gray-500 border-gray-200 text-xs">Waiting</Badge>;
+      // Show actual progress % even when blocked, with blocked indicator
+      const readyText = gate.progress === 100 ? 'Ready' : `${gate.progress}%`;
+      return (
+        <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200 text-xs flex items-center gap-1">
+          <Lock className="h-2.5 w-2.5" />
+          {readyText}
+        </Badge>
+      );
     } else if (gate.progress > 0) {
       return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">{gate.progress}%</Badge>;
     } else {
