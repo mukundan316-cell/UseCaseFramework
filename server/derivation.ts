@@ -190,23 +190,10 @@ export function getConfigsFromEngagement(
     tomConfig.phases = engagement.tomPhasesJson;
   }
 
-  // 2. Value Config: merge engagement value settings into calculationConfig
+  // 2. Value Config: keep base config, engagement kpiTargets are used for UI display only
+  // (Engagement-level targets don't modify derivation formulas - they set goals for tracking)
   let valueConfig = { ...baseConfigs.valueConfig };
   if (engagement.valueConfig) {
-    // Merge KPI targets into kpiLibrary (override specific KPI definitions)
-    if (engagement.valueConfig.kpiTargets) {
-      valueConfig.kpiLibrary = { ...valueConfig.kpiLibrary };
-      for (const [kpiId, targets] of Object.entries(engagement.valueConfig.kpiTargets)) {
-        if (valueConfig.kpiLibrary[kpiId]) {
-          valueConfig.kpiLibrary[kpiId] = {
-            ...valueConfig.kpiLibrary[kpiId],
-            // Store engagement targets as custom metadata
-            engagementTarget: targets.target,
-            engagementBaseline: targets.baseline
-          } as any;
-        }
-      }
-    }
     // Auto-enable value tracking when engagement has config
     if (Object.keys(engagement.valueConfig).length > 0) {
       valueConfig.enabled = 'true';
@@ -257,6 +244,26 @@ export function getConfigsFromEngagement(
     tomConfig,
     valueConfig,
     capabilityConfig
+  };
+}
+
+/**
+ * Get engagement-level value targets for UI display (not derivation).
+ * Derivation uses kpiLibrary for formulas; these targets are goals for tracking.
+ */
+export function getEngagementValueTargets(engagement?: EngagementConfigContext | null): {
+  kpiTargets: Record<string, { target: number; baseline?: number }>;
+  multipliers: { revenue?: number; cost?: number };
+} {
+  if (!engagement?.valueConfig) {
+    return { kpiTargets: {}, multipliers: {} };
+  }
+  return {
+    kpiTargets: engagement.valueConfig.kpiTargets || {},
+    multipliers: {
+      revenue: engagement.valueConfig.revenueMultiplier,
+      cost: engagement.valueConfig.costMultiplier
+    }
   };
 }
 
