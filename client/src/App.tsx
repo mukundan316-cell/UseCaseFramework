@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { UseCaseProvider } from "./contexts/UseCaseContext";
+import { EngagementProvider } from "./contexts/EngagementContext";
 import HomePage from "./pages/HomePage";
 import RSAAssessmentLandingPage from "./components/RSAAssessmentLandingPage";
 import SurveyJsAssessment from "./pages/SurveyJsAssessment";
@@ -81,8 +82,10 @@ function App() {
           <TooltipProvider>
             <ErrorBoundary>
               <UseCaseProvider>
-                <Toaster />
-                <Router />
+                <EngagementProvider>
+                  <Toaster />
+                  <Router />
+                </EngagementProvider>
               </UseCaseProvider>
             </ErrorBoundary>
           </TooltipProvider>

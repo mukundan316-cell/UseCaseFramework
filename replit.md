@@ -4,7 +4,8 @@
 This project is a production-ready strategic platform designed to prioritize AI use cases within Hexaware. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform aims to streamline AI strategy and decision-making by enabling efficient management, evaluation, and tracking of AI initiatives, ultimately supporting Hexaware's business vision and market potential in the AI domain.
 
 ## Recent Changes (January 2026)
-- **Unified TOM Preset & Phases (Latest)**: Combined Operating Model Preset and Lifecycle Phases into a unified system. Selecting a preset now automatically loads the corresponding lifecycle phases, eliminating configuration disconnect.
+- **Multi-Tenant Client/Engagement Management (Latest)**: Added database tables (`clients`, `engagements`) with full CRUD APIs. Engagement context bar displays at top of portal showing selected client and engagement. TOM presets are locked per engagement to prevent mid-stream changes. Default "Hexaware" client with "AI Strategy Initiative" engagement seeded automatically.
+- **Unified TOM Preset & Phases**: Combined Operating Model Preset and Lifecycle Phases into a unified system. Selecting a preset now automatically loads the corresponding lifecycle phases, eliminating configuration disconnect.
 - **Questionnaire Restoration**: Restored "Current AI & Data Capabilities" questionnaire with 200+ elements across 6 pages from git history. Fixed questionnaire storage service to support both directory-based and flat JSON file formats. Admin Assessment tab now shows both questionnaires with accurate question counts.
 - **Insights Scope Toggle**: Added scope toggle to Insights page allowing users to switch between "Active Portfolio" (use cases that passed governance) and "Reference Library" (all use cases for planning). All 4 Insights tabs now respect the selected scope with dynamic API endpoints and badge styling.
 - **Sequential Governance Gate UI**: Updated GovernanceStepperLegoBlock to show "Waiting" status with lock icons for gates blocked by prerequisites. Intake gate waits for Operating Model; RAI gate waits for Intake. Tooltips explain which prior gate is blocking.
@@ -37,7 +38,7 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 
 ### Feature Specifications
 - **Core Data Management**: Full CRUD operations for AI use cases, including a 10-lever scoring framework with automated recalculation and manual override support.
-- **Data Model**: `use_cases`, `file_attachments`, `metadata_config`, `response_sessions`, and `users` entities. `metadata_config` centralizes dropdown options, scoring logic, T-shirt sizing, and Target Operating Model (TOM) configuration.
+- **Data Model**: `clients`, `engagements`, `use_cases`, `file_attachments`, `metadata_config`, `response_sessions`, and `users` entities. Client → Engagement (1:many), Engagement → Use Cases (1:many) hierarchy. `metadata_config` centralizes dropdown options, scoring logic, T-shirt sizing, and Target Operating Model (TOM) configuration.
 - **Target Operating Model (TOM)**: Configurable layer mapping use cases to lifecycle phases based on status, supporting four operating model presets. Features API endpoints and UI for configuration and visualization. Supports multi-client configurations.
 - **Analytics**: Interactive matrix plots, executive dashboards, and PDF export with ROI explanations.
 - **Assessment System**: Multi-questionnaire platform using Survey.js for dynamic workflows.

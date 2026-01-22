@@ -1,12 +1,20 @@
 import React from 'react';
 import { Brain, PlusCircle, Sparkle, Search, Settings, ClipboardCheck } from 'lucide-react';
 import { useUseCases } from '../contexts/UseCaseContext';
+import { useEngagement } from '../contexts/EngagementContext';
 import { TabType } from '../types';
 import RSAHeader from './RSAHeader';
 import TabButton from './lego-blocks/TabButton';
+import EngagementContextLegoBlock from './lego-blocks/EngagementContextLegoBlock';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { activeTab, setActiveTab } = useUseCases();
+  const { 
+    selectedClientId, 
+    selectedEngagementId, 
+    setSelectedClientId, 
+    setSelectedEngagementId 
+  } = useEngagement();
 
   const tabs = [
     { id: 'dashboard' as TabType, label: 'Dashboard View', icon: Sparkle },
@@ -38,6 +46,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
       </div>
+
+      {/* Engagement Context Bar */}
+      <EngagementContextLegoBlock
+        selectedClientId={selectedClientId}
+        selectedEngagementId={selectedEngagementId}
+        onClientChange={setSelectedClientId}
+        onEngagementChange={setSelectedEngagementId}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

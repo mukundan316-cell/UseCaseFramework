@@ -1,7 +1,9 @@
 import { 
   users, useCases, metadataConfig, responseSessions, useCaseChangeLog, governanceAuditLog,
+  clients, engagements,
   type User, type UseCase, type InsertUser, type InsertUseCase, type MetadataConfig,
-  type ResponseSession, type InsertResponseSession, type UseCaseChangeLog, type InsertUseCaseChangeLog
+  type ResponseSession, type InsertResponseSession, type UseCaseChangeLog, type InsertUseCaseChangeLog,
+  type Client, type InsertClient, type Engagement, type InsertEngagement
 } from "@shared/schema";
 import type { QuestionAnswer } from "@shared/questionnaireTypes";
 import { calculateTShirtSize, getDefaultTShirtSizingConfig, type TShirtSizingConfig, calculateGovernanceStatus, getGovernanceStatusString } from "@shared/calculations";
@@ -225,6 +227,25 @@ export interface IStorage {
   processIntakeGate(id: string, decision: 'approved' | 'rejected' | 'deferred', notes: string, actor: string, priorityRank?: number): Promise<UseCase | undefined>;
   processRaiGate(id: string, decision: 'approved' | 'conditionally_approved' | 'rejected', notes: string, actor: string, riskLevel?: string): Promise<UseCase | undefined>;
   getGovernanceAuditLog(useCaseId: string): Promise<any[]>;
+  
+  // Client & Engagement Management
+  getAllClients(): Promise<Client[]>;
+  getClient(id: string): Promise<Client | undefined>;
+  createClient(client: InsertClient): Promise<Client>;
+  updateClient(id: string, client: Partial<Client>): Promise<Client | undefined>;
+  deleteClient(id: string): Promise<boolean>;
+  
+  getAllEngagements(): Promise<Engagement[]>;
+  getEngagementsByClient(clientId: string): Promise<Engagement[]>;
+  getEngagement(id: string): Promise<Engagement | undefined>;
+  getDefaultEngagement(): Promise<Engagement | undefined>;
+  createEngagement(engagement: InsertEngagement): Promise<Engagement>;
+  updateEngagement(id: string, engagement: Partial<Engagement>): Promise<Engagement | undefined>;
+  lockEngagementTom(id: string): Promise<Engagement | undefined>;
+  deleteEngagement(id: string): Promise<boolean>;
+  
+  // Use case filtering by engagement
+  getUseCasesByEngagement(engagementId: string): Promise<UseCase[]>;
 }
 
 /**
@@ -1453,6 +1474,114 @@ export class DatabaseStorage implements IStorage {
       .where(eq(governanceAuditLog.useCaseId, useCaseId))
       .orderBy(sql`created_at DESC`);
     return logs;
+  }
+
+  // Client Management
+  async getAllClients(): Promise<Client[]> {
+    const result = await db.select().from(clients).orderBy(clients.name);
+    return result;
+  }
+
+  async getClient(id: string): Promise<Client | undefined> {
+    const result = await db.select().from(clients).where(eq(clients.id, id));
+    return result[0];
+  }
+
+  async createClient(client: InsertClient): Promise<Client> {
+    const result = await db.insert(clients).values({
+      ...client,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
+    return result[0];
+  }
+
+  async updateClient(id: string, updates: Partial<Client>): Promise<Client | undefined> {
+    const result = await db.update(clients)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(clients.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteClient(id: string): Promise<boolean> {
+    const result = await db.delete(clients).where(eq(clients.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Engagement Management
+  async getAllEngagements(): Promise<Engagement[]> {
+    const result = await db.select().from(engagements).orderBy(engagements.name);
+    return result;
+  }
+
+  async getEngagementsByClient(clientId: string): Promise<Engagement[]> {
+    const result = await db.select()
+      .from(engagements)
+      .where(eq(engagements.clientId, clientId))
+      .orderBy(engagements.name);
+    return result;
+  }
+
+  async getEngagement(id: string): Promise<Engagement | undefined> {
+    const result = await db.select().from(engagements).where(eq(engagements.id, id));
+    return result[0];
+  }
+
+  async getDefaultEngagement(): Promise<Engagement | undefined> {
+    const result = await db.select()
+      .from(engagements)
+      .where(eq(engagements.isDefault, 'true'));
+    return result[0];
+  }
+
+  async createEngagement(engagement: InsertEngagement): Promise<Engagement> {
+    const result = await db.insert(engagements).values({
+      ...engagement,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
+    return result[0];
+  }
+
+  async updateEngagement(id: string, updates: Partial<Engagement>): Promise<Engagement | undefined> {
+    // Prevent changing TOM preset if already locked
+    const existing = await this.getEngagement(id);
+    if (existing?.tomPresetLocked === 'true' && updates.tomPresetId && updates.tomPresetId !== existing.tomPresetId) {
+      throw new Error('Cannot change TOM preset - it is already locked for this engagement');
+    }
+    
+    const result = await db.update(engagements)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(engagements.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async lockEngagementTom(id: string): Promise<Engagement | undefined> {
+    const result = await db.update(engagements)
+      .set({ tomPresetLocked: 'true', updatedAt: new Date() })
+      .where(eq(engagements.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteEngagement(id: string): Promise<boolean> {
+    // Check if engagement has use cases
+    const useCasesInEngagement = await this.getUseCasesByEngagement(id);
+    if (useCasesInEngagement.length > 0) {
+      throw new Error('Cannot delete engagement with existing use cases');
+    }
+    const result = await db.delete(engagements).where(eq(engagements.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Use case filtering by engagement
+  async getUseCasesByEngagement(engagementId: string): Promise<UseCase[]> {
+    const result = await db.select()
+      .from(useCases)
+      .where(eq(useCases.engagementId, engagementId));
+    return result;
   }
 }
 

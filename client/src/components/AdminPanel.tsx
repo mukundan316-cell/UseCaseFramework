@@ -20,6 +20,7 @@ import TomConfigurationLegoBlock from './lego-blocks/TomConfigurationLegoBlock';
 import PhaseManagementLegoBlock from './lego-blocks/PhaseManagementLegoBlock';
 import KpiLibraryManagementLegoBlock from './lego-blocks/KpiLibraryManagementLegoBlock';
 import DerivationRulesLegoBlock from './lego-blocks/DerivationRulesLegoBlock';
+import ClientEngagementManagementLegoBlock from './lego-blocks/ClientEngagementManagementLegoBlock';
 
 export default function AdminPanel() {
   const { 
@@ -542,6 +543,8 @@ export default function AdminPanel() {
                   This drives use case phase assignments based on status and deployment states.
                 </p>
               </div>
+              
+              <ClientEngagementManagementLegoBlock />
               
               <TomConfigurationLegoBlock />
               

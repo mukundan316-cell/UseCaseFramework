@@ -12,6 +12,7 @@ export const users = pgTable("users", {
 export const useCases: any = pgTable("use_cases", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   meaningfulId: varchar("meaningful_id").unique(), // Human-readable ID like HEX_INT_001
+  engagementId: varchar("engagement_id"), // Links use case to client engagement (optional for backward compatibility)
   title: text("title").notNull(),
   description: text("description").notNull(),
   problemStatement: text("problem_statement"),
@@ -732,6 +733,53 @@ export const insertResponseSessionSchema = createInsertSchema(responseSessions).
 
 export type ResponseSession = typeof responseSessions.$inferSelect;
 export type InsertResponseSession = z.infer<typeof insertResponseSessionSchema>;
+
+// Client/Engagement Management - Multi-tenant support with locked TOM presets
+export const clients = pgTable("clients", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description"),
+  industry: text("industry"),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  isActive: text("is_active").notNull().default('true'), // 'true' or 'false'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertClientSchema = createInsertSchema(clients).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Client = typeof clients.$inferSelect;
+export type InsertClient = z.infer<typeof insertClientSchema>;
+
+export const engagements = pgTable("engagements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clientId: varchar("client_id").notNull().references(() => clients.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  tomPresetId: text("tom_preset_id").notNull(), // Locked TOM preset: 'hybrid', 'coe_led', 'federated', etc.
+  tomPresetLocked: text("tom_preset_locked").notNull().default('false'), // 'true' once confirmed, cannot be changed
+  tomPhasesJson: jsonb("tom_phases_json"), // Customizable phases within the locked preset
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  status: text("status").notNull().default('active'), // 'active', 'completed', 'on_hold', 'cancelled'
+  isDefault: text("is_default").notNull().default('false'), // 'true' for default engagement
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertEngagementSchema = createInsertSchema(engagements).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Engagement = typeof engagements.$inferSelect;
+export type InsertEngagement = z.infer<typeof insertEngagementSchema>;
 
 
 
