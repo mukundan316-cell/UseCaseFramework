@@ -12,7 +12,20 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users, Shield } from 'lucide-react';
+import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users, Shield, User, Tag, TrendingUp, Wrench, Eye, AlertTriangle, UserCheck, Globe, Briefcase, DollarSign, Clock, Layers, Rocket, PoundSterling } from 'lucide-react';
+
+// Section Header Component for consistent sub-section styling
+const SectionHeader = ({ icon: Icon, title, description }: { icon: React.ElementType; title: string; description?: string }) => (
+  <div className="flex items-start gap-3 pb-3 mb-4 border-b border-gray-200">
+    <div className="p-2 bg-gray-100 rounded-lg">
+      <Icon className="h-4 w-4 text-gray-600" />
+    </div>
+    <div>
+      <h4 className="font-semibold text-gray-900">{title}</h4>
+      {description && <p className="text-sm text-gray-500 mt-0.5">{description}</p>}
+    </div>
+  </div>
+);
 import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import { ScoreDropdownLegoBlock } from './ScoreDropdownLegoBlock';
 import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
@@ -1269,164 +1282,194 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <ResponsiveTabsListLegoBlock>
                 <TabsTrigger value="basic" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Essentials
+                  <Target className="h-4 w-4" />
+                  Operating Model
+                  <Badge variant="outline" className={`text-xs ml-1 ${governanceStatus.operatingModel.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                    {governanceStatus.operatingModel.passed ? '✓' : `${governanceStatus.operatingModel.progress}%`}
+                  </Badge>
                 </TabsTrigger>
                 {/* Scoring tab - Hidden for AI Inventory per user request */}
                 {form.watch('librarySource') !== 'ai_inventory' && (
                   <TabsTrigger value="assessment" className="flex items-center gap-2">
                     <BarChart3 className="h-4 w-4" />
-                    Scoring & Value
+                    Intake & Scoring
+                    <Badge variant="outline" className={`text-xs ml-1 ${governanceStatus.intake.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      {governanceStatus.intake.passed ? '✓' : `${governanceStatus.intake.progress}%`}
+                    </Badge>
                   </TabsTrigger>
                 )}
                 <TabsTrigger value="rai" className="flex items-center gap-2">
                   <Shield className="h-4 w-4" />
                   Responsible AI
+                  <Badge variant="outline" className={`text-xs ml-1 ${governanceStatus.rai.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                    {governanceStatus.rai.passed ? '✓' : `${governanceStatus.rai.progress}%`}
+                  </Badge>
                 </TabsTrigger>
                 <TabsTrigger value="details" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
+                  <Layers className="h-4 w-4" />
                   Details
                 </TabsTrigger>
               </ResponsiveTabsListLegoBlock>
 
-              {/* Tab 1: Basic Information */}
-              <TabsContent value="basic" className="space-y-4 mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Meaningful ID Field - Read-only for existing use cases with IDs */}
-                  {mode === 'edit' && useCase?.meaningfulId && (
-                    <div>
-                      <Label className="text-sm font-semibold">
-                        Use Case ID
-                      </Label>
-                      <div className="mt-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
-                        <span className="font-mono text-sm text-rsa-blue font-medium">
-                          {useCase.meaningfulId}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        This ID is automatically assigned and cannot be changed
-                      </p>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <Label htmlFor="title" className="text-sm font-semibold">
-                      Use Case Title <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="title"
-                      placeholder="e.g., Automated Claims Triage"
-                      className="mt-1"
-                      {...form.register('title')}
-                      data-testid="input-title"
-                    />
-                    {form.formState.errors.title && (
-                      <p className="text-sm text-red-600 mt-1" data-testid="error-title">
-                        {form.formState.errors.title.message}
-                      </p>
-                    )}
-                    
-                    {/* Duplicate Detection Warning (Topic 3.4) */}
-                    {isCheckingDuplicates && (
-                      <p className="mt-2 text-xs text-muted-foreground" data-testid="checking-duplicates">
-                        Checking for similar use cases...
-                      </p>
-                    )}
-                    {!isCheckingDuplicates && similarUseCases.length > 0 && (
-                      <Alert className="mt-2 border-amber-500 bg-amber-50" data-testid="alert-duplicate-warning">
-                        <AlertCircle className="h-4 w-4 text-amber-600" />
-                        <AlertDescription className="text-amber-800 text-sm">
-                          <strong>Potential duplicates found:</strong>
-                          <ul className="mt-1 ml-4 list-disc">
-                            {similarUseCases.slice(0, 3).map((similar) => (
-                              <li key={similar.meaningfulId}>
-                                {similar.meaningfulId}: {similar.title} ({Math.round(similar.similarityScore * 100)}% match)
-                              </li>
-                            ))}
-                          </ul>
-                          <p className="mt-1 text-xs">Consider reviewing existing use cases before creating a new one.</p>
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                  
-                  {/* For new use cases, ID field is hidden - auto-generated after creation */}
-                  
-                  <div>
-                    <Label className="text-sm font-semibold">Use Case Type</Label>
-                    <Select key={`useCaseType-${mode}-${useCase?.id}`} value={form.watch('useCaseType') || ''} onValueChange={(value) => form.setValue('useCaseType', value)}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sortedMetadata.getSortedUseCaseTypes().filter(type => type && type.trim()).map(type => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-semibold">Source Type</Label>
-                    <Select key={`librarySource-${mode}-${useCase?.id}`} value={form.watch('librarySource') || 'internal'} onValueChange={(value) => form.setValue('librarySource', value)}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select source type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sortedMetadata.getSortedItems('sourceTypes', metadata?.sourceTypes || ['internal']).filter(source => source && source.trim()).map(source => (
-                          <SelectItem key={source} value={source}>
-                            {source.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    {/* AI Inventory Selection Hint */}
-                    {form.watch('librarySource') === 'ai_inventory' && (
-                      <div className="mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <FolderOpen className="w-4 h-4 text-emerald-600" />
-                          <p className="text-sm text-emerald-800 font-medium">AI Inventory Item Selected</p>
+              {/* Tab 1: Operating Model - Gate 1 Requirements */}
+              <TabsContent value="basic" className="space-y-6 mt-6">
+                {/* Section 1: Use Case Identity */}
+                <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
+                  <SectionHeader icon={FileText} title="Use Case Identity" description="Basic information to identify this use case" />
+                  <div className="space-y-4">
+                    {/* Meaningful ID Field - Read-only for existing use cases */}
+                    {mode === 'edit' && useCase?.meaningfulId && (
+                      <div>
+                        <Label className="text-sm font-semibold">Use Case ID</Label>
+                        <div className="mt-1 px-3 py-2 bg-white border border-gray-200 rounded-md">
+                          <span className="font-mono text-sm text-rsa-blue font-medium">{useCase.meaningfulId}</span>
                         </div>
-                        <p className="text-sm text-emerald-700 mt-1">
-                          AI Inventory governance fields are available on the <strong>"Implementation & Governance"</strong> tab below the Hexaware Ethical Principles section.
-                        </p>
                       </div>
                     )}
+                    <div>
+                      <Label htmlFor="title" className="text-sm font-semibold">
+                        Use Case Title <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="title"
+                        placeholder="e.g., Automated Claims Triage"
+                        className="mt-1 bg-white"
+                        {...form.register('title')}
+                        data-testid="input-title"
+                      />
+                      {form.formState.errors.title && (
+                        <p className="text-sm text-red-600 mt-1" data-testid="error-title">{form.formState.errors.title.message}</p>
+                      )}
+                      {isCheckingDuplicates && (
+                        <p className="mt-2 text-xs text-muted-foreground">Checking for similar use cases...</p>
+                      )}
+                      {!isCheckingDuplicates && similarUseCases.length > 0 && (
+                        <Alert className="mt-2 border-amber-500 bg-amber-50">
+                          <AlertCircle className="h-4 w-4 text-amber-600" />
+                          <AlertDescription className="text-amber-800 text-sm">
+                            <strong>Potential duplicates:</strong>
+                            <ul className="mt-1 ml-4 list-disc">
+                              {similarUseCases.slice(0, 3).map((similar) => (
+                                <li key={similar.meaningfulId}>{similar.meaningfulId}: {similar.title}</li>
+                              ))}
+                            </ul>
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="description" className="text-sm font-semibold">
+                        Description <span className="text-red-500">*</span>
+                      </Label>
+                      <Textarea
+                        id="description"
+                        rows={3}
+                        placeholder="Brief description of what this use case does and its AI/automation approach..."
+                        className="mt-1 bg-white"
+                        {...form.register('description')}
+                        data-testid="textarea-description"
+                      />
+                      {form.formState.errors.description && (
+                        <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <Label htmlFor="problemStatement" className="text-sm font-semibold">Problem Statement / Business Need</Label>
-                  <Textarea
-                    id="problemStatement"
-                    rows={3}
-                    placeholder="Describe the specific business problem or need this use case addresses (e.g., 'Our current claims processing time is 25% higher than industry average, leading to poor customer satisfaction and increased operational costs.')"
-                    className="mt-1"
-                    {...form.register('problemStatement')}
-                  />
-                  {form.formState.errors.problemStatement && (
-                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.problemStatement.message}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="description" className="text-sm font-semibold">
-                    AI/Automation or Solution considerations <span className="text-red-500">*</span>
-                  </Label>
-                  <Textarea
-                    id="description"
-                    rows={3}
-                    placeholder="Brief description of what this use case does..."
-                    className="mt-1"
-                    {...form.register('description')}
-                    data-testid="textarea-description"
-                  />
-                  {form.formState.errors.description && (
-                    <p className="text-sm text-red-600 mt-1" data-testid="error-description">
-                      {form.formState.errors.description.message}
-                    </p>
-                  )}
                 </div>
 
-                {/* RSA Portfolio Selection - Hidden for AI Inventory types */}
+                {/* Section 2: Ownership - Contains Gate 1 Required Field */}
+                <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-100">
+                  <SectionHeader icon={User} title="Ownership" description="Required for Operating Model gate" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold">
+                        Primary Business Owner <span className="text-red-500">*</span>
+                        <Badge variant="outline" className="ml-2 text-xs bg-blue-100 text-blue-700">Gate Required</Badge>
+                      </Label>
+                      <Input
+                        placeholder="e.g., John Smith"
+                        className="mt-1 bg-white"
+                        value={form.watch('primaryBusinessOwner') || ''}
+                        onChange={(e) => form.setValue('primaryBusinessOwner', e.target.value)}
+                        data-testid="input-primary-owner"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">The accountable person for this use case</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">Business Function</Label>
+                      <Select 
+                        value={form.watch('businessFunction') || ''} 
+                        onValueChange={(value) => form.setValue('businessFunction', value)}
+                      >
+                        <SelectTrigger className="mt-1 bg-white">
+                          <SelectValue placeholder="Select function..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {['Marketing', 'CIO', 'Claims', 'Underwriting', 'Finance', 'HR', 'Operations', 'Customer Service'].map(fn => (
+                            <SelectItem key={fn} value={fn}>{fn}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Classification */}
+                <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
+                  <SectionHeader icon={Tag} title="Classification" description="Status and source categorization" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold">Status</Label>
+                      <Select 
+                        value={form.watch('useCaseStatus') || 'Discovery'} 
+                        onValueChange={(value) => form.setValue('useCaseStatus', value)}
+                      >
+                        <SelectTrigger className="mt-1 bg-white">
+                          <SelectValue placeholder="Select status..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Discovery">Discovery</SelectItem>
+                          <SelectItem value="Backlog">Backlog</SelectItem>
+                          <SelectItem value="In-flight">In-flight</SelectItem>
+                          <SelectItem value="Implemented">Implemented</SelectItem>
+                          <SelectItem value="On Hold">On Hold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">Source Type</Label>
+                      <Select 
+                        value={form.watch('librarySource') || 'internal'} 
+                        onValueChange={(value) => form.setValue('librarySource', value)}
+                      >
+                        <SelectTrigger className="mt-1 bg-white">
+                          <SelectValue placeholder="Select source..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {sortedMetadata.getSortedItems('sourceTypes', metadata?.sourceTypes || ['internal']).filter(source => source && source.trim()).map(source => (
+                            <SelectItem key={source} value={source}>
+                              {source.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {form.watch('librarySource') === 'ai_inventory' && (
+                        <p className="text-xs text-emerald-600 mt-1">AI Inventory governance fields available in Details tab</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Horizontal Use Case - Conditional */}
+                  <div className="mt-4">
+                    <HorizontalUseCaseLegoBlock
+                      isHorizontalUseCase={form.watch('horizontalUseCase') || 'false'}
+                      selectedTypes={form.watch('horizontalUseCaseTypes') || []}
+                      onHorizontalUseCaseChange={(value) => form.setValue('horizontalUseCase', value)}
+                      onTypesChange={(types) => form.setValue('horizontalUseCaseTypes', types)}
+                    />
+                  </div>
+                </div>
+
+                {/* Portfolio Activation Toggle */}
                 {form.watch('librarySource') !== 'ai_inventory' && (
                   <RSASelectionToggleLegoBlock
                     isActiveForRsa={rsaSelection.isActiveForRsa}
@@ -1439,162 +1482,89 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     onActivationReasonChange={handleActivationReasonChange}
                     onDeactivationReasonChange={handleDeactivationReasonChange}
                     governanceStatus={governanceStatus}
-                    className="mb-6"
                   />
                 )}
               </TabsContent>
 
-              {/* Tab: Details - Business Context, Technical Implementation, Optional Fields */}
-              <TabsContent value="details" className="space-y-4 mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Processes Multi-Select - LEGO Component */}
-              <MultiSelectField
-                label="Processes"
-                items={sortedMetadata.getSortedProcesses()}
-                selectedItems={(form.watch('processes') as string[]) || []}
-                onSelectionChange={(newItems) => {
-                  form.setValue('processes', newItems);
-                }}
-                helpText="Select one or more business processes"
-              />
-              {/* Process Activities handled by LEGO component below */}
-              <div className="flex items-center justify-center text-sm text-gray-500 italic">
-                Multi-select Process Activities available below
-              </div>
-            </div>
-            {/* Multi-Select Business Context - Enhanced LEGO Components */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Lines of Business Multi-Select */}
-              <MultiSelectField
-                label="Lines of Business"
-                items={sortedMetadata.getSortedLinesOfBusiness()}
-                selectedItems={(form.watch('linesOfBusiness') as string[]) || []}
-                onSelectionChange={(newItems) => {
-                  form.setValue('linesOfBusiness', newItems);
-                }}
-                helpText="Select one or more lines of business"
-              />
-              
-              {/* Business Segments Multi-Select */}
-              <MultiSelectField
-                label="Business Segments"
-                items={sortedMetadata.getSortedBusinessSegments()}
-                selectedItems={(form.watch('businessSegments') as string[]) || []}
-                onSelectionChange={(newItems) => {
-                  form.setValue('businessSegments', newItems);
-                }}
-                helpText="Select one or more business segments"
-              />
-              
-              {/* Geographies Multi-Select */}
-              <MultiSelectField
-                label="Geographies"
-                items={sortedMetadata.getSortedGeographies()}
-                selectedItems={(form.watch('geographies') as string[]) || []}
-                onSelectionChange={(newItems) => {
-                  form.setValue('geographies', newItems);
-                }}
-                helpText="Select one or more geographic markets"
-              />
-              
-              {/* Process Activities - LEGO Contextual Component */}
-              <ContextualProcessActivityField
-                selectedProcesses={(form.watch('processes') as string[]) || []}
-                selectedActivities={(form.watch('activities') as string[]) || []}
-                onActivitiesChange={(newItems) => {
-                  form.setValue('activities', newItems);
-                }}
-                helpText={(form.watch('processes') as string[])?.length > 0 ? "Activities filtered by selected processes" : "Select processes first to enable activities"}
-                placeholder={!((form.watch('processes') as string[])?.length > 0) ? "Select processes first" : "Select activities..."}
-              />
-
-              {/* Horizontal Use Case Selection - LEGO Component */}
-              <HorizontalUseCaseLegoBlock
-                isHorizontalUseCase={form.watch('horizontalUseCase') || 'false'}
-                selectedTypes={(form.watch('horizontalUseCaseTypes') as string[]) || []}
-                onHorizontalUseCaseChange={(value: 'true' | 'false') => form.setValue('horizontalUseCase', value)}
-                onTypesChange={(types) => form.setValue('horizontalUseCaseTypes', types)}
-                className="w-full"
-              />
-            </div>
-                
-                {/* Implementation & Technical Details Section */}
-                <div className="border-t pt-6 mt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Implementation Details</h3>
-                {/* Gate Status Indicators - Inline summary for each gate */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                  {/* Operating Model Gate */}
-                  <div className={`p-3 rounded-lg border ${governanceStatus.operatingModel.passed ? 'bg-green-50 border-green-200' : governanceStatus.operatingModel.progress > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">Operating Model</span>
-                      <Badge variant="outline" className={`text-xs ${governanceStatus.operatingModel.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {governanceStatus.operatingModel.passed ? 'Complete' : `${governanceStatus.operatingModel.progress}%`}
-                      </Badge>
-                    </div>
-                    {governanceStatus.operatingModel.missingFields.length > 0 && (
-                      <ul className="text-xs text-red-600 list-disc ml-4">
-                        {governanceStatus.operatingModel.missingFields.map(f => <li key={f}>{f}</li>)}
-                      </ul>
-                    )}
+              {/* Tab 4: Details - Additional Context and Configuration */}
+              <TabsContent value="details" className="space-y-6 mt-6">
+                {/* Section 1: Business Context */}
+                <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
+                  <SectionHeader icon={Briefcase} title="Business Context" description="Problem statement, processes, and organizational scope" />
+                  
+                  {/* Problem Statement */}
+                  <div className="mb-4">
+                    <Label htmlFor="problemStatement" className="text-sm font-semibold">Problem Statement / Business Need</Label>
+                    <Textarea
+                      id="problemStatement"
+                      rows={2}
+                      placeholder="Describe the specific business problem this use case addresses..."
+                      className="mt-1 bg-white"
+                      {...form.register('problemStatement')}
+                    />
                   </div>
                   
-                  {/* Intake Gate */}
-                  <div className={`p-3 rounded-lg border ${governanceStatus.intake.passed ? 'bg-green-50 border-green-200' : governanceStatus.intake.progress > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">Intake & Scoring</span>
-                      <Badge variant="outline" className={`text-xs ${governanceStatus.intake.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {governanceStatus.intake.passed ? 'Complete' : `${governanceStatus.intake.progress}%`}
-                      </Badge>
-                    </div>
-                    {!governanceStatus.intake.passed && (
-                      <p className="text-xs text-muted-foreground">Complete all 10 scoring levers in Assessment tab</p>
-                    )}
-                  </div>
-                  
-                  {/* RAI Gate */}
-                  <div className={`p-3 rounded-lg border ${governanceStatus.rai.passed ? 'bg-green-50 border-green-200' : governanceStatus.rai.progress > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">Responsible AI</span>
-                      <Badge variant="outline" className={`text-xs ${governanceStatus.rai.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {governanceStatus.rai.passed ? 'Complete' : `${governanceStatus.rai.progress}%`}
-                      </Badge>
-                    </div>
-                    {governanceStatus.rai.missingFields.length > 0 && (
-                      <ul className="text-xs text-red-600 list-disc ml-4">
-                        {governanceStatus.rai.missingFields.slice(0, 2).map(f => <li key={f}>{f}</li>)}
-                        {governanceStatus.rai.missingFields.length > 2 && <li>+{governanceStatus.rai.missingFields.length - 2} more</li>}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-
-                {/* Project Management Section */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Project Management</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Processes */}
+                    <MultiSelectField
+                      label="Processes"
+                      items={sortedMetadata.getSortedProcesses()}
+                      selectedItems={(form.watch('processes') as string[]) || []}
+                      onSelectionChange={(newItems) => form.setValue('processes', newItems)}
+                      helpText="Select one or more business processes"
+                    />
+                    {/* Process Activities */}
+                    <ContextualProcessActivityField
+                      selectedProcesses={(form.watch('processes') as string[]) || []}
+                      selectedActivities={(form.watch('activities') as string[]) || []}
+                      onActivitiesChange={(newItems) => form.setValue('activities', newItems)}
+                      helpText={(form.watch('processes') as string[])?.length > 0 ? "Filtered by processes" : "Select processes first"}
+                      placeholder={!((form.watch('processes') as string[])?.length > 0) ? "Select processes first" : "Select activities..."}
+                    />
+                    {/* Lines of Business */}
+                    <MultiSelectField
+                      label="Lines of Business"
+                      items={sortedMetadata.getSortedLinesOfBusiness()}
+                      selectedItems={(form.watch('linesOfBusiness') as string[]) || []}
+                      onSelectionChange={(newItems) => form.setValue('linesOfBusiness', newItems)}
+                      helpText="Select applicable lines of business"
+                    />
+                    {/* Business Segments */}
+                    <MultiSelectField
+                      label="Business Segments"
+                      items={sortedMetadata.getSortedBusinessSegments()}
+                      selectedItems={(form.watch('businessSegments') as string[]) || []}
+                      onSelectionChange={(newItems) => form.setValue('businessSegments', newItems)}
+                      helpText="Select target business segments"
+                    />
+                    {/* Geographies */}
+                    <MultiSelectField
+                      label="Geographies"
+                      items={sortedMetadata.getSortedGeographies()}
+                      selectedItems={(form.watch('geographies') as string[]) || []}
+                      onSelectionChange={(newItems) => form.setValue('geographies', newItems)}
+                      helpText="Select applicable regions"
+                    />
+                    {/* Use Case Type */}
                     <div>
-                      <Label htmlFor="primaryBusinessOwner" className="text-sm font-semibold">Primary Business Owner</Label>
-                      <Input
-                        id="primaryBusinessOwner"
-                        placeholder="e.g., John Smith, Claims Director"
-                        className="mt-1"
-                        {...form.register('primaryBusinessOwner')}
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold">Use Case Status</Label>
-                      <Select value={form.watch('useCaseStatus') || 'Discovery'} onValueChange={(value) => form.setValue('useCaseStatus', value)}>
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Select status" />
+                      <Label className="text-sm font-semibold">Use Case Type</Label>
+                      <Select value={form.watch('useCaseType') || ''} onValueChange={(value) => form.setValue('useCaseType', value)}>
+                        <SelectTrigger className="mt-1 bg-white">
+                          <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {useCaseStatusOptions.map(status => (
-                            <SelectItem key={status} value={status}>{status}</SelectItem>
+                          {sortedMetadata.getSortedUseCaseTypes().filter(type => type && type.trim()).map(type => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
+                </div>
+                
+                {/* Section 2: Implementation Planning */}
+                <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-100">
+                  <SectionHeader icon={Clock} title="Implementation Planning" description="Timeline, dependencies, and TOM phase configuration" />
                   
                   {/* TOM Phase Override - only visible when TOM is enabled */}
                   {isTomEnabled && tomConfig && (
@@ -1683,16 +1653,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                 </div>
 
-                {/* Value Realization Section - Auto-suggested based on processes */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Value Realization</h4>
+                {/* Section 3: Value Realization */}
+                <div className="bg-green-50/50 rounded-lg p-4 border border-green-100">
+                  <SectionHeader icon={PoundSterling} title="Value Realization" description="Investment, KPIs, and expected business value" />
                   
-                  {/* Investment Entry Section */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Target className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium text-blue-800">Investment & Cost</span>
-                    </div>
+                  {/* Investment Entry */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="initialInvestment" className="text-sm font-semibold text-gray-700">
@@ -1781,10 +1747,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                 </div>
 
-                {/* Technical Implementation Section */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Technical Implementation</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Section 4: Technical Details */}
+                <div className="bg-purple-50/50 rounded-lg p-4 border border-purple-100">
+                  <SectionHeader icon={Settings} title="Technical Details" description="AI/ML technologies, data sources, and integration requirements" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <MultiSelectField
                       label="AI/ML Technologies"
                       items={aiMlTechnologiesOptions}
@@ -1819,219 +1785,54 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                 </div>
 
-                {/* Capability Transition Section */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Capability Transition</h4>
-                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Users className="h-4 w-4 text-purple-600" />
-                      <span className="text-sm font-medium text-purple-800">Staffing & Independence</span>
+                {/* Section 5: Capability Transition */}
+                <div className="bg-orange-50/50 rounded-lg p-4 border border-orange-100">
+                  <SectionHeader icon={Users} title="Capability Transition" description="Staffing levels and client independence metrics" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="capabilityVendorFte" className="text-sm font-semibold">Hexaware FTE</Label>
+                      <Input
+                        id="capabilityVendorFte"
+                        type="number"
+                        step="0.5"
+                        placeholder="e.g., 3.5"
+                        className="mt-1 bg-white"
+                        data-testid="input-capability-vendor-fte"
+                        {...form.register('capabilityVendorFte', { valueAsNumber: true })}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Vendor team size</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="capabilityVendorFte" className="text-sm font-semibold text-gray-700">
-                          Hexaware FTE
-                        </Label>
-                        <Input
-                          id="capabilityVendorFte"
-                          type="number"
-                          step="0.5"
-                          placeholder="e.g., 3.5"
-                          className="mt-1 bg-white"
-                          data-testid="input-capability-vendor-fte"
-                          {...form.register('capabilityVendorFte', { valueAsNumber: true })}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Current vendor team size</p>
-                      </div>
-                      <div>
-                        <Label htmlFor="capabilityClientFte" className="text-sm font-semibold text-gray-700">
-                          Client FTE
-                        </Label>
-                        <Input
-                          id="capabilityClientFte"
-                          type="number"
-                          step="0.5"
-                          placeholder="e.g., 2.0"
-                          className="mt-1 bg-white"
-                          data-testid="input-capability-client-fte"
-                          {...form.register('capabilityClientFte', { valueAsNumber: true })}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Current client team size</p>
-                      </div>
-                      <div>
-                        <Label htmlFor="capabilityIndependence" className="text-sm font-semibold text-gray-700">
-                          Independence %
-                        </Label>
-                        <Input
-                          id="capabilityIndependence"
-                          type="number"
-                          min="0"
-                          max="100"
-                          placeholder="Auto-calculated or manual"
-                          className="mt-1 bg-white"
-                          data-testid="input-capability-independence"
-                          {...form.register('capabilityIndependence', { valueAsNumber: true })}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Client / (Client + Vendor) × 100</p>
-                      </div>
+                    <div>
+                      <Label htmlFor="capabilityClientFte" className="text-sm font-semibold">Client FTE</Label>
+                      <Input
+                        id="capabilityClientFte"
+                        type="number"
+                        step="0.5"
+                        placeholder="e.g., 2.0"
+                        className="mt-1 bg-white"
+                        data-testid="input-capability-client-fte"
+                        {...form.register('capabilityClientFte', { valueAsNumber: true })}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Client team size</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="capabilityIndependence" className="text-sm font-semibold">Independence %</Label>
+                      <Input
+                        id="capabilityIndependence"
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="Auto-calculated"
+                        className="mt-1 bg-white"
+                        data-testid="input-capability-independence"
+                        {...form.register('capabilityIndependence', { valueAsNumber: true })}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Client / (Client + Vendor) × 100</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Hexaware Ethical Principles Section */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Hexaware Ethical Principles</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="explainabilityRequired"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Is explainability required?</FormLabel>
-                          <Select 
-                            onValueChange={(value) => field.onChange(value === 'yes' ? 'true' : value === 'no' ? 'false' : undefined)} 
-                            value={field.value === 'true' ? 'yes' : field.value === 'false' ? 'no' : undefined}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="customerHarmRisk"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Customer harm risk?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || undefined}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="none">None</SelectItem>
-                              <SelectItem value="low">Low</SelectItem>
-                              <SelectItem value="medium">Medium</SelectItem>
-                              <SelectItem value="high">High</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="dataOutsideUkEu"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Data processing outside UK/EU?</FormLabel>
-                          <Select 
-                            onValueChange={(value) => field.onChange(value)} 
-                            value={field.value || undefined}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="thirdPartyModel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Third party model?</FormLabel>
-                          <Select 
-                            onValueChange={(value) => field.onChange(value)} 
-                            value={field.value || undefined}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="humanAccountability"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Human accountability required?</FormLabel>
-                          <Select 
-                            onValueChange={(value) => field.onChange(value)} 
-                            value={field.value || undefined}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="regulatoryCompliance"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Regulatory Compliance Score</FormLabel>
-                          <FormControl>
-                            <ScoreSliderLegoBlock
-                              label="Regulatory Compliance"
-                              field="regulatoryCompliance"
-                              value={field.value ?? 3}
-                              onChange={(fieldName, value) => {
-                                field.onChange(value);
-                                form.setValue('regulatoryCompliance', value);
-                              }}
-                              tooltip="Level of compliance with regulatory requirements"
-                              leftLabel="Low Compliance"
-                              rightLabel="High Compliance"
-                              minValue={1}
-                              maxValue={5}
-                              disabled={false}
-                              showTooltip={true}
-                              valueDisplay="inline"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+                {/* Note: RAI fields moved to dedicated Responsible AI tab */}
 
                 {/* AI Inventory Governance Section - Only show for AI inventory */}
                 {form.watch('librarySource') === 'ai_inventory' && (
@@ -2246,15 +2047,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     </div>
                   </div>
                 )}
-                </div>
 
-                {/* Use Case Definition Section */}
-                <div className="border-t pt-6 mt-6">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <FileText className="h-5 w-5 text-blue-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">Use Case Definition Document</h3>
-                  </div>
+                {/* Section 6: Use Case Definition Document */}
+                <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-100">
+                  <SectionHeader icon={FileText} title="Use Case Definition Document" description="Upload presentations or PDF documents for this use case" />
 
                   {/* Upload Component */}
                   <PresentationUploadBlock
@@ -2295,93 +2091,141 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   )}
 
                   {/* Help text */}
-                  <div className="text-sm text-gray-600 mt-4">
-                    <p>Upload PowerPoint presentations (.pptx, .ppt) or PDF files to provide detailed information about this use case. Files will be automatically converted to PDF for preview.</p>
-                  </div>
-                </div>
+                  <p className="text-sm text-gray-500 mt-4">
+                    Upload PowerPoint (.pptx, .ppt) or PDF files to document this use case. Files are auto-converted to PDF for preview.
+                  </p>
                 </div>
               </TabsContent>
 
-              {/* Tab: Responsible AI */}
-              <TabsContent value="rai" className="space-y-4 mt-6">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 mb-4">
+              {/* Tab 3: Responsible AI - Gate 3 Requirements */}
+              <TabsContent value="rai" className="space-y-6 mt-6">
+                {/* Header with progress */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-purple-600" />
                     <h3 className="text-lg font-semibold text-gray-900">Responsible AI Assessment</h3>
-                    <Badge variant="outline" className={`text-xs ${governanceStatus.rai.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                      {governanceStatus.rai.passed ? 'Complete' : `${governanceStatus.rai.progress}%`}
-                    </Badge>
                   </div>
-                  <p className="text-sm text-gray-600 mb-6">
-                    Answer these 5 questions to complete the Responsible AI governance gate.
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="explainabilityRequired"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Is explainability required?</FormLabel>
-                          <Select 
-                            onValueChange={(value) => field.onChange(value === 'yes' ? 'true' : value === 'no' ? 'false' : undefined)} 
-                            value={field.value === 'true' ? 'yes' : field.value === 'false' ? 'no' : undefined}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="customerHarmRisk"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Customer harm risk?</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || undefined}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="none">None</SelectItem>
-                              <SelectItem value="low">Low</SelectItem>
-                              <SelectItem value="medium">Medium</SelectItem>
-                              <SelectItem value="high">High</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <Badge variant="outline" className={`${governanceStatus.rai.passed ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
+                    {governanceStatus.rai.passed ? 'Gate Complete' : `${governanceStatus.rai.progress}% Complete`}
+                  </Badge>
+                </div>
+
+                {/* Section 1: Transparency */}
+                <div className="bg-purple-50/50 rounded-lg p-4 border border-purple-100">
+                  <SectionHeader icon={Eye} title="Transparency" description="Can the AI's decisions be explained?" />
+                  <FormField
+                    control={form.control}
+                    name="explainabilityRequired"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">
+                          Is explainability required? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
+                        </FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(value === 'yes' ? 'true' : value === 'no' ? 'false' : undefined)} 
+                          value={field.value === 'true' ? 'yes' : field.value === 'false' ? 'no' : undefined}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="bg-white">
+                              <SelectValue placeholder="Select..." />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="yes">Yes - Decisions must be explainable</SelectItem>
+                            <SelectItem value="no">No - Black box acceptable</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Section 2: Risk Assessment */}
+                <div className="bg-orange-50/50 rounded-lg p-4 border border-orange-100">
+                  <SectionHeader icon={AlertTriangle} title="Risk Assessment" description="Potential harm to customers" />
+                  <FormField
+                    control={form.control}
+                    name="customerHarmRisk"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">
+                          Customer harm risk level <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                          <FormControl>
+                            <SelectTrigger className="bg-white">
+                              <SelectValue placeholder="Select risk level..." />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="none">None - No potential for customer harm</SelectItem>
+                            <SelectItem value="low">Low - Minimal impact if errors occur</SelectItem>
+                            <SelectItem value="medium">Medium - Moderate potential impact</SelectItem>
+                            <SelectItem value="high">High - Significant potential harm</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Section 3: Accountability */}
+                <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-100">
+                  <SectionHeader icon={UserCheck} title="Accountability" description="Human oversight requirements" />
+                  <FormField
+                    control={form.control}
+                    name="humanAccountability"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">
+                          Human accountability required? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
+                        </FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(value)} 
+                          value={field.value || undefined}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="bg-white">
+                              <SelectValue placeholder="Select..." />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="true">Yes - Human must approve/review decisions</SelectItem>
+                            <SelectItem value="false">No - Fully automated acceptable</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Section 4: Data & Compliance */}
+                <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
+                  <SectionHeader icon={Globe} title="Data & Compliance" description="Data location and third-party considerations" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="dataOutsideUkEu"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Data processing outside UK/EU?</FormLabel>
+                          <FormLabel className="text-sm font-semibold">
+                            Data processing outside UK/EU? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
+                          </FormLabel>
                           <Select 
                             onValueChange={(value) => field.onChange(value)} 
                             value={field.value || undefined}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="bg-white">
                                 <SelectValue placeholder="Select..." />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
+                              <SelectItem value="true">Yes - Data processed outside UK/EU</SelectItem>
+                              <SelectItem value="false">No - Data stays within UK/EU</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -2393,43 +2237,21 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       name="thirdPartyModel"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Third party model?</FormLabel>
+                          <FormLabel className="text-sm font-semibold">
+                            Third party model? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
+                          </FormLabel>
                           <Select 
                             onValueChange={(value) => field.onChange(value)} 
                             value={field.value || undefined}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="bg-white">
                                 <SelectValue placeholder="Select..." />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="humanAccountability"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold text-gray-900">Human accountability required?</FormLabel>
-                          <Select 
-                            onValueChange={(value) => field.onChange(value)} 
-                            value={field.value || undefined}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
+                              <SelectItem value="true">Yes - Uses third-party AI/ML model</SelectItem>
+                              <SelectItem value="false">No - Internal/custom model only</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -2440,140 +2262,99 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 </div>
               </TabsContent>
 
-              {/* Tab: Scoring & Value - RSA Framework Assessment - Available for all source types except Reference Library context */}
+              {/* Tab 2: Intake & Scoring - Gate 2 Requirements */}
               {(context as string) !== 'reference' && (
-                <TabsContent value="assessment" className="space-y-4 mt-6">
+                <TabsContent value="assessment" className="space-y-6 mt-6">
                 {rsaSelection.isActiveForRsa ? (
                   <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Business Impact Levers */}
-              <div className="space-y-6">
-                <h4 className="font-medium text-green-700 text-sm uppercase tracking-wide">Business Impact Levers</h4>
-                {/* Strategic scoring fields available for all source types */}
-                <>
-                  <DropdownField
-                    field="revenueImpact"
-                    label="Revenue Impact"
-                    tooltip={sliderTooltips.revenueImpact}
-                  />
-                  <DropdownField
-                    field="costSavings"
-                    label="Cost Savings"
-                    tooltip={sliderTooltips.costSavings}
-                  />
-                </>
-                <DropdownField
-                  field="riskReduction"
-                  label="Risk Reduction"
-                  tooltip={sliderTooltips.riskReduction}
-                />
-                <DropdownField
-                  field="brokerPartnerExperience"
-                  label="Broker/Partner Experience"
-                  tooltip={sliderTooltips.brokerPartnerExperience}
-                />
-                <DropdownField
-                  field="strategicFit"
-                  label="Strategic Fit"
-                  tooltip={sliderTooltips.strategicFit}
-                />
-              </div>
-              {/* Implementation Effort Levers */}
-              <div className="space-y-6">
-                <h4 className="font-medium text-blue-700 text-sm uppercase tracking-wide">Implementation Effort Levers</h4>
-                <DropdownField
-                  field="dataReadiness"
-                  label="Data Readiness"
-                  tooltip={sliderTooltips.dataReadiness}
-                />
-                <DropdownField
-                  field="technicalComplexity"
-                  label="Technical Complexity"
-                  tooltip={sliderTooltips.technicalComplexity}
-                />
-                <DropdownField
-                  field="changeImpact"
-                  label="Change Impact"
-                  tooltip={sliderTooltips.changeImpact}
-                />
-                <DropdownField
-                  field="modelRisk"
-                  label="Model Risk"
-                  tooltip={sliderTooltips.modelRisk}
-                />
-                <DropdownField
-                  field="adoptionReadiness"
-                  label="Adoption Readiness"
-                  tooltip={sliderTooltips.adoptionReadiness}
-                />
-              </div>
-            </div>
-            
-            {/* Calculated Scores */}
-            <Card className="bg-gray-50">
-              <CardHeader>
-                <CardTitle className="text-lg">Calculated Scores</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 mb-1">
-                      {currentImpactScore.toFixed(1)}
+                    {/* Header with progress */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className="h-5 w-5 text-blue-600" />
+                        <h3 className="text-lg font-semibold text-gray-900">Intake & Prioritization Scoring</h3>
+                      </div>
+                      <Badge variant="outline" className={`${governanceStatus.intake.passed ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {governanceStatus.intake.passed ? 'Gate Complete' : `${governanceStatus.intake.progress}% Complete`}
+                      </Badge>
                     </div>
-                    <div className="text-sm text-gray-600">Impact Score</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-orange-600 mb-1">
-                      {currentEffortScore.toFixed(1)}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Section 1: Business Impact Levers */}
+                      <div className="bg-green-50/50 rounded-lg p-4 border border-green-100">
+                        <SectionHeader icon={TrendingUp} title="Business Impact Levers" description="Value and strategic alignment (5 required)" />
+                        <div className="space-y-4">
+                          <DropdownField field="revenueImpact" label="Revenue Impact" tooltip={sliderTooltips.revenueImpact} />
+                          <DropdownField field="costSavings" label="Cost Savings" tooltip={sliderTooltips.costSavings} />
+                          <DropdownField field="riskReduction" label="Risk Reduction" tooltip={sliderTooltips.riskReduction} />
+                          <DropdownField field="brokerPartnerExperience" label="Broker/Partner Experience" tooltip={sliderTooltips.brokerPartnerExperience} />
+                          <DropdownField field="strategicFit" label="Strategic Fit" tooltip={sliderTooltips.strategicFit} />
+                        </div>
+                      </div>
+
+                      {/* Section 2: Implementation Effort Levers */}
+                      <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-100">
+                        <SectionHeader icon={Wrench} title="Implementation Effort Levers" description="Complexity and readiness (5 required)" />
+                        <div className="space-y-4">
+                          <DropdownField field="dataReadiness" label="Data Readiness" tooltip={sliderTooltips.dataReadiness} />
+                          <DropdownField field="technicalComplexity" label="Technical Complexity" tooltip={sliderTooltips.technicalComplexity} />
+                          <DropdownField field="changeImpact" label="Change Impact" tooltip={sliderTooltips.changeImpact} />
+                          <DropdownField field="modelRisk" label="Model Risk" tooltip={sliderTooltips.modelRisk} />
+                          <DropdownField field="adoptionReadiness" label="Adoption Readiness" tooltip={sliderTooltips.adoptionReadiness} />
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">Effort Score</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-purple-600 bg-white px-4 py-2 rounded-lg">
-                      {currentQuadrant}
+            
+                    {/* Section 3: Calculated Scores */}
+                    <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
+                      <SectionHeader icon={Target} title="Calculated Scores" description="Auto-calculated from the 10 levers above" />
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="text-center p-4 bg-white rounded-lg border">
+                          <div className="text-3xl font-bold text-green-600 mb-1">{currentImpactScore.toFixed(1)}</div>
+                          <div className="text-sm text-gray-600">Impact Score</div>
+                        </div>
+                        <div className="text-center p-4 bg-white rounded-lg border">
+                          <div className="text-3xl font-bold text-orange-600 mb-1">{currentEffortScore.toFixed(1)}</div>
+                          <div className="text-sm text-gray-600">Effort Score</div>
+                        </div>
+                        <div className="text-center p-4 bg-white rounded-lg border">
+                          <div className="text-lg font-semibold text-purple-600">{currentQuadrant}</div>
+                          <div className="text-sm text-gray-600">Quadrant</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">Quadrant</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
             
-            {/* Manual Score Override Section - Show for Active RSA Use Cases */}
-            {rsaSelection.isActiveForRsa && (
-              <ScoreOverrideLegoBlock
-                form={form}
-                calculatedImpact={currentImpactScore}
-                calculatedEffort={currentEffortScore}
-                calculatedQuadrant={currentQuadrant}
-                onToggleChange={setIsOverrideEnabled}
-              />
-            )}
+                    {/* Score Override Section */}
+                    {rsaSelection.isActiveForRsa && (
+                      <ScoreOverrideLegoBlock
+                        form={form}
+                        calculatedImpact={currentImpactScore}
+                        calculatedEffort={currentEffortScore}
+                        calculatedQuadrant={currentQuadrant}
+                        onToggleChange={setIsOverrideEnabled}
+                      />
+                    )}
             
-            {/* Resource Planning: T-shirt Sizing */}
-            <TShirtSizingDisplayLegoBlock
-              impactScore={currentImpactScore}
-              effortScore={currentEffortScore}
-              quadrant={currentQuadrant}
-              useCaseId={useCase?.id}
-              useCaseTitle={form.watch('title')}
-            />
+                    {/* Resource Planning: T-shirt Sizing */}
+                    <TShirtSizingDisplayLegoBlock
+                      impactScore={currentImpactScore}
+                      effortScore={currentEffortScore}
+                      quadrant={currentQuadrant}
+                      useCaseId={useCase?.id}
+                      useCaseTitle={form.watch('title')}
+                    />
                   </div>
                 ) : (
                   <Card className="bg-gray-50 border-dashed border-2">
                     <CardContent className="p-8 text-center">
                       <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                      <h3 className="text-lg font-medium text-gray-700 mb-2">
-                        Scoring Available After Hexaware Portfolio Selection
-                      </h3>
+                      <h3 className="text-lg font-medium text-gray-700 mb-2">Scoring Available After Portfolio Selection</h3>
                       <p className="text-gray-600 mb-4">
-                        Use cases in the reference library can be browsed and selected. 
-                        Complete scoring and categorization becomes available once included in the Hexaware active portfolio.
+                        Complete scoring becomes available once included in the Hexaware active portfolio.
                       </p>
                       <Alert className="border-blue-200 bg-blue-50 text-left">
                         <AlertCircle className="h-4 w-4 text-blue-600" />
                         <AlertDescription className="text-blue-800">
-                          <strong>Library-First Workflow:</strong> All use cases start in the reference library. 
-                          Toggle "Include in Hexaware Active Portfolio" below to enable detailed assessment and scoring.
+                          Toggle "Include in Hexaware Active Portfolio" on the Operating Model tab to enable scoring.
                         </AlertDescription>
                       </Alert>
                     </CardContent>
