@@ -56,14 +56,14 @@ export default function ImprovedUseCaseExplorer({
   const [selectedDetailUseCase, setSelectedDetailUseCase] = useState<UseCase | null>(null);
   
   // Tab state with localStorage memory
-  const [activeTab, setActiveTab] = useState<'rsa_internal' | 'industry_standard' | 'inventory' | 'both'>(() => {
+  const [activeTab, setActiveTab] = useState<'internal' | 'industry_standard' | 'inventory' | 'both'>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('usecase-explorer-tab');
-      // Map old 'strategic' tab to 'rsa_internal' for backwards compatibility
-      if (stored === 'strategic') return 'rsa_internal';
-      return (stored as 'rsa_internal' | 'industry_standard' | 'inventory' | 'both') || 'rsa_internal';
+      // Map legacy tabs for backwards compatibility
+      if (stored === 'strategic' || stored === 'rsa_internal') return 'internal';
+      return (stored as 'internal' | 'industry_standard' | 'inventory' | 'both') || 'internal';
     }
-    return 'rsa_internal';
+    return 'internal';
   });
   
   // Save tab selection to localStorage and reset incompatible filters
@@ -80,7 +80,7 @@ export default function ImprovedUseCaseExplorer({
         activity: '',
         quadrant: ''
       }));
-    } else if (activeTab === 'rsa_internal' || activeTab === 'industry_standard') {
+    } else if (activeTab === 'internal' || activeTab === 'industry_standard') {
       // Reset inventory-only filters
       setFilters(prev => ({
         ...prev,
@@ -133,11 +133,11 @@ export default function ImprovedUseCaseExplorer({
     // Define library source types
     const librarySource = (useCase as any).librarySource;
     const isAiInventory = librarySource === 'ai_inventory';
-    const isRsaInternal = librarySource === 'rsa_internal';
+    const isInternal = librarySource === 'internal' || librarySource === 'rsa_internal'; // Legacy support
     const isIndustryStandard = librarySource === 'industry_standard';
     
     // Tab-based filtering for both active and reference contexts
-    if (activeTab === 'rsa_internal' && !isRsaInternal) return false;
+    if (activeTab === 'internal' && !isInternal) return false;
     if (activeTab === 'industry_standard' && !isIndustryStandard) return false;
     if (activeTab === 'inventory' && !isAiInventory) return false;
     // 'both' tab shows everything
@@ -193,7 +193,10 @@ export default function ImprovedUseCaseExplorer({
   });
   
   // Get counts for each tab
-  const rsaInternalCount = useCases.filter(uc => (uc as any).librarySource === 'rsa_internal').length;
+  const internalCount = useCases.filter(uc => {
+    const src = (uc as any).librarySource;
+    return src === 'internal' || src === 'rsa_internal'; // Legacy support
+  }).length;
   const industryStandardCount = useCases.filter(uc => (uc as any).librarySource === 'industry_standard').length;
   const inventoryCount = useCases.filter(uc => (uc as any).librarySource === 'ai_inventory').length;
   
@@ -205,14 +208,14 @@ export default function ImprovedUseCaseExplorer({
       tab: activeTab,
       timestamp: new Date().toISOString(),
       useCaseCount: {
-        rsaInternal: rsaInternalCount,
+        internal: internalCount,
         industryStandard: industryStandardCount,
         inventory: inventoryCount,
-        total: rsaInternalCount + industryStandardCount + inventoryCount
+        total: internalCount + industryStandardCount + inventoryCount
       }
     };
     console.log('[RSA-AI-Telemetry]', telemetryData);
-  }, [activeTab, rsaInternalCount, industryStandardCount, inventoryCount]);
+  }, [activeTab, internalCount, industryStandardCount, inventoryCount]);
   
   useEffect(() => {
     // Filter usage telemetry
@@ -254,7 +257,7 @@ export default function ImprovedUseCaseExplorer({
     // Light telemetry for detail view interactions
     const telemetryData = {
       action: 'detail_view_open',
-      useCaseType: (useCase as any).librarySource || 'rsa_internal',
+      useCaseType: (useCase as any).librarySource || 'internal',
       hasScores: useCase.impactScore !== undefined && useCase.effortScore !== undefined,
       currentTab: activeTab,
       timestamp: new Date().toISOString()
@@ -286,17 +289,18 @@ export default function ImprovedUseCaseExplorer({
         {/* Tab Navigation */}
         <div className="flex items-center space-x-2 mt-4 bg-gray-100 p-2 rounded-lg w-fit border-2 border-gray-200 shadow-sm">
           <button
-            onClick={() => setActiveTab('rsa_internal')}
+            onClick={() => setActiveTab('internal')}
+            data-testid="tab-internal"
             className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 border-2 ${
-              activeTab === 'rsa_internal' 
+              activeTab === 'internal' 
                 ? 'bg-white text-blue-600 shadow-md border-blue-200 ring-2 ring-blue-100' 
                 : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 border-transparent'
             }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>Hexaware Internal</span>
+            <span>Internal</span>
             <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-medium">
-              {rsaInternalCount}
+              {internalCount}
             </span>
           </button>
           <button
@@ -337,13 +341,13 @@ export default function ImprovedUseCaseExplorer({
           >
             All Items
             <span className="ml-2 bg-gray-200 text-gray-800 text-xs px-2 py-0.5 rounded-full font-medium">
-              {rsaInternalCount + industryStandardCount + inventoryCount}
+              {internalCount + industryStandardCount + inventoryCount}
             </span>
           </button>
         </div>
         
         <p className="text-sm text-gray-500 mt-3">
-          Showing {filteredUseCases.length} of {rsaInternalCount + industryStandardCount + inventoryCount} total items
+          Showing {filteredUseCases.length} of {internalCount + industryStandardCount + inventoryCount} total items
         </p>
       </div>
 

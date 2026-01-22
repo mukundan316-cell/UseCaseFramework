@@ -11,14 +11,15 @@ export interface SourceStyleConfig {
 
 export const getSourceConfig = (librarySource: string): SourceStyleConfig => {
   switch (librarySource) {
-    case 'rsa_internal':
+    case 'internal':
+    case 'rsa_internal': // Legacy support during migration
       return {
         borderColor: '#1e40af', // blue-800
         badgeColor: '#1e40af',
         badgeBackground: '#dbeafe', // blue-100
         iconColor: '#2563eb', // blue-600
-        label: 'Hexaware Internal',
-        description: 'Contributed by Hexaware internal teams and employees'
+        label: 'Internal',
+        description: 'Internal use cases from Hexaware teams'
       };
     case 'industry_standard':
       return {
@@ -36,7 +37,7 @@ export const getSourceConfig = (librarySource: string): SourceStyleConfig => {
         badgeBackground: '#ede9fe', // purple-100
         iconColor: '#8b5cf6', // purple-500
         label: 'AI Inventory',
-        description: 'AI tools imported from SharePoint inventory'
+        description: 'AI tools from inventory tracking'
       };
     default:
       return {
@@ -53,7 +54,8 @@ export const getSourceConfig = (librarySource: string): SourceStyleConfig => {
 // Function to get a subtle background tint based on source
 export const getSourceBackgroundTint = (librarySource: string): string => {
   switch (librarySource) {
-    case 'rsa_internal':
+    case 'internal':
+    case 'rsa_internal': // Legacy support
       return 'bg-blue-50/30'; // Very subtle blue tint
     case 'industry_standard':
       return 'bg-green-50/30'; // Very subtle green tint
@@ -65,7 +67,7 @@ export const getSourceBackgroundTint = (librarySource: string): string => {
 };
 
 export const getAllSourceTypes = () => [
-  'rsa_internal', 
+  'internal', 
   'industry_standard',
   'ai_inventory'
 ];

@@ -15,7 +15,8 @@ export default function SourceLegend({ className = '', showTitle = true }: Sourc
   
   // Icon mapping for source types
   const iconMapping: Record<string, any> = {
-    'rsa_internal': Building2,
+    'internal': Building2,
+    'rsa_internal': Building2, // Legacy support
     'industry_standard': Users,
     'ai_inventory': FolderOpen
   };

@@ -58,7 +58,7 @@ const formSchema = z.object({
   useCaseType: z.string().optional(),
   activity: z.string().optional(),
   // Source type selection
-  librarySource: z.string().default('rsa_internal'), // Now dynamic from metadata
+  librarySource: z.string().default('internal'), // Now dynamic from metadata
   // Tab 3: Implementation & Governance fields
   primaryBusinessOwner: z.string().optional(),
   useCaseStatus: z.string().optional(),
@@ -229,7 +229,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       businessSegment: '',
       geography: '',
       useCaseType: '',
-      librarySource: 'rsa_internal',
+      librarySource: 'internal',
       isActiveForRsa: 'false',
       isDashboardVisible: 'false',
       libraryTier: 'reference',
@@ -418,7 +418,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         description: useCase.description || '',
         problemStatement: (useCase as any).problemStatement || '',
         useCaseType: useCase.useCaseType || '',
-        librarySource: (useCase as any).librarySource || 'rsa_internal',
+        librarySource: (useCase as any).librarySource || 'internal',
         // Multi-select arrays only
         processes: (useCase as any).processes || [],
         activities: (useCase as any).activities || [],
@@ -531,7 +531,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         description: '',
         problemStatement: '',
         useCaseType: '',
-        librarySource: 'rsa_internal',
+        librarySource: 'internal',
         // Multi-select arrays
         processes: [],
         activities: [],
@@ -607,7 +607,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       description: '',
       problemStatement: '',
       useCaseType: '',
-      librarySource: 'rsa_internal',
+      librarySource: 'internal',
       processes: [],
       activities: [],
       linesOfBusiness: [],
@@ -1370,12 +1370,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   </div>
                   <div>
                     <Label className="text-sm font-semibold">Source Type</Label>
-                    <Select key={`librarySource-${mode}-${useCase?.id}`} value={form.watch('librarySource') || 'rsa_internal'} onValueChange={(value) => form.setValue('librarySource', value)}>
+                    <Select key={`librarySource-${mode}-${useCase?.id}`} value={form.watch('librarySource') || 'internal'} onValueChange={(value) => form.setValue('librarySource', value)}>
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Select source type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {sortedMetadata.getSortedItems('sourceTypes', metadata?.sourceTypes || ['rsa_internal']).filter(source => source && source.trim()).map(source => (
+                        {sortedMetadata.getSortedItems('sourceTypes', metadata?.sourceTypes || ['internal']).filter(source => source && source.trim()).map(source => (
                           <SelectItem key={source} value={source}>
                             {source.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                           </SelectItem>

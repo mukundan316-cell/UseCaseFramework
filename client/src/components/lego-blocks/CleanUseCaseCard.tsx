@@ -52,8 +52,8 @@ export default function CleanUseCaseCard({
   };
   
   // Get source-based styling
-  const sourceConfig = getSourceConfig(useCase.librarySource || 'rsa_internal');
-  const sourceBgTint = getSourceBackgroundTint(useCase.librarySource || 'rsa_internal');
+  const sourceConfig = getSourceConfig(useCase.librarySource || 'internal');
+  const sourceBgTint = getSourceBackgroundTint(useCase.librarySource || 'internal');
   
   // Combine quadrant and source styling
   const bgClass = hasScores 
@@ -138,7 +138,7 @@ export default function CleanUseCaseCard({
               >
                 {useCase.librarySource === 'ai_inventory' ? (
                   <FolderOpen className="w-3 h-3 mr-1" />
-                ) : (useCase.librarySource || 'rsa_internal') === 'rsa_internal' ? (
+                ) : (useCase.librarySource === 'internal' || useCase.librarySource === 'rsa_internal') ? (
                   <Building2 className="w-3 h-3 mr-1" />
                 ) : (
                   <Users className="w-3 h-3 mr-1" />

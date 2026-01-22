@@ -75,7 +75,7 @@ export const useCases: any = pgTable("use_cases", {
   activationDate: timestamp("activation_date").defaultNow(),
   activationReason: text("activation_reason"), // Required when isActiveForRsa = 'true'
   deactivationReason: text("deactivation_reason"),
-  librarySource: text("library_source").notNull().default('rsa_internal'), // 'rsa_internal', 'industry_standard', 'ai_inventory'
+  librarySource: text("library_source").notNull().default('internal'), // 'internal', 'industry_standard', 'ai_inventory'
   
   // AI Inventory specific fields
   aiInventoryStatus: text("ai_inventory_status"), // 'Active', 'Proof_of_Concept', 'Pending_Closure', 'Obsolete', 'Inactive'
@@ -373,7 +373,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   isActiveForRsa: z.enum(['true', 'false']).default('false'),
   isDashboardVisible: z.enum(['true', 'false']).default('false'),
   libraryTier: z.enum(['active', 'reference']).default('reference'),
-  librarySource: z.enum(['rsa_internal', 'hexaware_external', 'industry_standard', 'imported', 'ai_inventory']).default('rsa_internal'),
+  librarySource: z.enum(['internal', 'industry_standard', 'ai_inventory']).default('internal'),
   activationReason: z.union([z.string(), z.null()]).optional(),
   deactivationReason: z.union([z.string(), z.null()]).optional(),
   // Manual override fields - simplified per replit.md, allow null for clearing
@@ -477,7 +477,7 @@ export const metadataConfig = pgTable('metadata_config', {
   geographies: text('geographies').array().notNull(),
   useCaseTypes: text('use_case_types').array().notNull(),
   activities: text('activities').array().notNull().default(sql`'{}'`),
-  sourceTypes: text('source_types').array().notNull().default(sql`'{"rsa_internal","industry_standard","ai_inventory"}'`),
+  sourceTypes: text('source_types').array().notNull().default(sql`'{"internal","industry_standard","ai_inventory"}'`),
   // Tab 3 Implementation & Governance LOVs
   useCaseStatuses: text('use_case_statuses').array().notNull().default(sql`'{"Discovery","Backlog","In-flight","Implemented","On Hold"}'`),
   aiMlTechnologies: text('ai_ml_technologies').array().notNull().default(sql`'{"Machine Learning","Deep Learning","Natural Language Processing","Computer Vision","Predictive Analytics","Large Language Models","Reinforcement Learning","Rule-based Systems"}'`),

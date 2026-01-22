@@ -86,7 +86,7 @@ export default function UseCaseDetailDrawer({
   const hasOverrides = hasManualOverrides(useCase as any);
   
   // Get source styling
-  const sourceConfig = getSourceConfig(useCase.librarySource || 'rsa_internal');
+  const sourceConfig = getSourceConfig(useCase.librarySource || 'internal');
   
   // Check data availability for conditional rendering
   const extendedUseCase = useCase as any; // Cast to access extended fields
@@ -222,7 +222,7 @@ export default function UseCaseDetailDrawer({
                 >
                   {isAiInventory ? (
                     <FolderOpen className="w-3 h-3 mr-1" />
-                  ) : useCase.librarySource === 'rsa_internal' ? (
+                  ) : (useCase.librarySource === 'internal' || useCase.librarySource === 'rsa_internal') ? (
                     <Building2 className="w-3 h-3 mr-1" />
                   ) : (
                     <Users className="w-3 h-3 mr-1" />
