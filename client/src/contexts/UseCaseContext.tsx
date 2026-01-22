@@ -3,6 +3,7 @@ import { UseCase, UseCaseFormData, FilterState, TabType } from '../types';
 import { MetadataConfig } from '@shared/schema';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient';
+import { useEngagement } from './EngagementContext';
 
 interface UseCaseContextType {
   useCases: UseCase[];
@@ -57,29 +58,41 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [filters, setFiltersState] = useState<FilterState>(initialFilters);
   const queryClient = useQueryClient();
+  const { selectedEngagementId } = useEngagement();
 
-  // Database-first data fetching per REFERENCE.md compliance
-  const { data: useCases = [] } = useQuery({
-    queryKey: ['/api/use-cases'],
+  // Build endpoint URLs with engagement filter - used directly as queryKey
+  const useCasesEndpoint = selectedEngagementId 
+    ? `/api/use-cases?engagementId=${selectedEngagementId}` 
+    : '/api/use-cases';
+  const dashboardEndpoint = selectedEngagementId 
+    ? `/api/use-cases/dashboard?engagementId=${selectedEngagementId}` 
+    : '/api/use-cases/dashboard';
+  const referenceEndpoint = selectedEngagementId 
+    ? `/api/use-cases/reference?engagementId=${selectedEngagementId}` 
+    : '/api/use-cases/reference';
+
+  // Helper to invalidate all use case queries (matches any URL starting with /api/use-cases)
+  const invalidateAllUseCaseQueries = () => {
+    queryClient.invalidateQueries({
+      predicate: (query) => {
+        const key = query.queryKey[0];
+        return typeof key === 'string' && key.startsWith('/api/use-cases');
+      }
+    });
+  };
+
+  // Database-first data fetching - uses default fetcher
+  const { data: useCases = [] } = useQuery<UseCase[]>({
+    queryKey: [useCasesEndpoint],
   });
 
-  // Two-tier system queries
-  const { data: dashboardUseCases = [] } = useQuery({
-    queryKey: ['/api/use-cases', 'dashboard'],
-    queryFn: async () => {
-      const response = await fetch('/api/use-cases/dashboard');
-      if (!response.ok) throw new Error('Failed to fetch dashboard use cases');
-      return response.json() as Promise<UseCase[]>;
-    }
+  // Two-tier system queries - engagement-scoped, uses default fetcher
+  const { data: dashboardUseCases = [] } = useQuery<UseCase[]>({
+    queryKey: [dashboardEndpoint],
   });
 
-  const { data: referenceUseCases = [] } = useQuery({
-    queryKey: ['/api/use-cases', 'reference'],
-    queryFn: async () => {
-      const response = await fetch('/api/use-cases/reference');
-      if (!response.ok) throw new Error('Failed to fetch reference use cases');
-      return response.json() as Promise<UseCase[]>;
-    }
+  const { data: referenceUseCases = [] } = useQuery<UseCase[]>({
+    queryKey: [referenceEndpoint],
   });
 
   const { data: metadata } = useQuery<MetadataConfig>({
@@ -89,10 +102,15 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
   // Mutations for database operations
   const addUseCaseMutation = useMutation({
     mutationFn: async (data: UseCaseFormData) => {
+      // Include engagementId in the request body for auto-assignment
+      const requestData = {
+        ...data,
+        engagementId: selectedEngagementId || undefined
+      };
       const response = await fetch('/api/use-cases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(requestData),
       });
       if (!response.ok) {
         const error = await response.json();
@@ -101,7 +119,8 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      // Invalidate all use case queries to refetch with current engagement
+      invalidateAllUseCaseQueries();
     }
   });
 
@@ -120,11 +139,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       // Force invalidate all use case related queries to prevent stale data
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
-      // Also invalidate individual use case queries
-      queryClient.invalidateQueries({ queryKey: ['/api'] });
+      invalidateAllUseCaseQueries();
     }
   });
 
@@ -141,7 +156,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       return;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      invalidateAllUseCaseQueries();
     }
   });
 
@@ -403,9 +418,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+      invalidateAllUseCaseQueries();
     }
   });
 
@@ -423,9 +436,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+      invalidateAllUseCaseQueries();
     }
   });
 
@@ -441,8 +452,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
+      invalidateAllUseCaseQueries();
     }
   });
 
@@ -460,9 +470,7 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
+      invalidateAllUseCaseQueries();
     }
   });
 

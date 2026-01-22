@@ -81,12 +81,12 @@ function App() {
         <ErrorBoundary>
           <TooltipProvider>
             <ErrorBoundary>
-              <UseCaseProvider>
-                <EngagementProvider>
+              <EngagementProvider>
+                <UseCaseProvider>
                   <Toaster />
                   <Router />
-                </EngagementProvider>
-              </UseCaseProvider>
+                </UseCaseProvider>
+              </EngagementProvider>
             </ErrorBoundary>
           </TooltipProvider>
         </ErrorBoundary>

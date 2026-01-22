@@ -126,6 +126,40 @@ export function getDefaultConfigs(metadata: any): DerivationConfigs {
   };
 }
 
+export interface EngagementTomContext {
+  tomPresetId: string;
+  tomPhasesJson?: any;
+}
+
+export function getConfigsFromEngagement(
+  metadata: any,
+  engagement?: EngagementTomContext | null
+): DerivationConfigs {
+  const baseConfigs = getDefaultConfigs(metadata);
+  
+  if (!engagement) {
+    return baseConfigs;
+  }
+
+  // Start with base TOM config
+  let tomConfig = { ...baseConfigs.tomConfig };
+  
+  // Override activePreset with engagement's locked preset
+  if (engagement.tomPresetId) {
+    tomConfig.activePreset = engagement.tomPresetId;
+  }
+  
+  // If engagement has custom phases, use them (preserving preset structure)
+  if (engagement.tomPhasesJson && Array.isArray(engagement.tomPhasesJson)) {
+    tomConfig.phases = engagement.tomPhasesJson;
+  }
+
+  return {
+    ...baseConfigs,
+    tomConfig
+  };
+}
+
 export function shouldTriggerDerivation(
   changedFields: Record<string, any>,
   existingUseCase?: UseCaseForDerivation

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useQuery } from '@tanstack/react-query';
+import { useEngagement } from '@/contexts/EngagementContext';
 import { 
   Shield, CheckCircle2, AlertTriangle, XCircle, 
   Loader2, AlertCircle, HelpCircle, Users, Eye, MapPin, Building2
@@ -147,7 +148,10 @@ interface ResponsibleAIPortfolioViewProps {
 }
 
 export default function ResponsibleAIPortfolioView({ scope = 'all' }: ResponsibleAIPortfolioViewProps) {
-  const useCasesEndpoint = scope === 'active' ? '/api/use-cases/dashboard' : '/api/use-cases';
+  const { selectedEngagementId } = useEngagement();
+  const useCasesEndpoint = scope === 'active' 
+    ? (selectedEngagementId ? `/api/use-cases/dashboard?engagementId=${selectedEngagementId}` : '/api/use-cases/dashboard')
+    : (selectedEngagementId ? `/api/use-cases?engagementId=${selectedEngagementId}` : '/api/use-cases');
   
   const { data: useCases, isLoading, isError } = useQuery<UseCase[]>({
     queryKey: [useCasesEndpoint],

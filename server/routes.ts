@@ -11,7 +11,7 @@ import exportRoutes from "./routes/export.routes";
 import importRoutes from "./routes/import.routes";
 import presentationRoutes from "./routes/presentations";
 import { derivePhase, type TomConfig } from "@shared/tom";
-import { deriveAllFields, getDefaultConfigs, shouldTriggerDerivation, type UseCaseForDerivation } from "./derivation";
+import { deriveAllFields, getDefaultConfigs, getConfigsFromEngagement, shouldTriggerDerivation, type UseCaseForDerivation, type EngagementTomContext } from "./derivation";
 
 import { questionnaireServiceInstance } from './services/questionnaireService';
 import { db } from './db';
@@ -79,11 +79,29 @@ interface DerivedPhaseInfo {
   matchedBy?: 'status' | 'deployment' | 'priority' | 'manual';
 }
 
-async function enrichUseCasesWithTomPhase(useCases: UseCaseFrontend[]): Promise<(UseCaseFrontend & { derivedPhase?: DerivedPhaseInfo })[]> {
+async function enrichUseCasesWithTomPhase(
+  useCases: UseCaseFrontend[], 
+  engagementId?: string
+): Promise<(UseCaseFrontend & { derivedPhase?: DerivedPhaseInfo })[]> {
   try {
     const metadata = await storage.getMetadataConfig();
     const { ensureTomConfig, mergePresetProfile } = await import("@shared/tom");
-    const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
+    
+    // Get engagement-specific TOM config if engagementId is provided
+    let engagementTomContext: EngagementTomContext | null = null;
+    if (engagementId) {
+      const engagement = await storage.getEngagement(engagementId);
+      if (engagement) {
+        engagementTomContext = {
+          tomPresetId: engagement.tomPresetId,
+          tomPhasesJson: engagement.tomPhasesJson
+        };
+      }
+    }
+    
+    // Use engagement-aware config derivation
+    const configs = getConfigsFromEngagement(metadata, engagementTomContext);
+    const tomConfig = mergePresetProfile(ensureTomConfig(configs.tomConfig));
     
     if (tomConfig.enabled !== 'true') {
       return useCases;
@@ -108,11 +126,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const questionnaireService = questionnaireServiceInstance;
   
   // Use Case routes - All Use Cases (for library browsing)
+  // Supports ?engagementId= query param for engagement-scoped filtering
   app.get("/api/use-cases", async (req, res) => {
     try {
-      const useCases = await storage.getAllUseCases();
+      const engagementId = req.query.engagementId as string | undefined;
+      let useCases = await storage.getAllUseCases();
+      
+      // Filter by engagement if specified
+      if (engagementId) {
+        useCases = useCases.filter(uc => uc.engagementId === engagementId);
+      }
+      
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
-      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases);
+      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases, engagementId);
       res.json(enrichedUseCases);
     } catch (error) {
       console.error("Error fetching all use cases:", error);
@@ -121,11 +147,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Two-tier library system routes
+  // Supports ?engagementId= query param for engagement-scoped filtering
   app.get("/api/use-cases/dashboard", async (req, res) => {
     try {
-      const useCases = await storage.getDashboardUseCases();
+      const engagementId = req.query.engagementId as string | undefined;
+      let useCases = await storage.getDashboardUseCases();
+      
+      if (engagementId) {
+        useCases = useCases.filter(uc => uc.engagementId === engagementId);
+      }
+      
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
-      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases);
+      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases, engagementId);
       res.json(enrichedUseCases);
     } catch (error) {
       console.error("Error fetching dashboard use cases:", error);
@@ -135,9 +168,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/use-cases/active", async (req, res) => {
     try {
-      const useCases = await storage.getActiveUseCases();
+      const engagementId = req.query.engagementId as string | undefined;
+      let useCases = await storage.getActiveUseCases();
+      
+      if (engagementId) {
+        useCases = useCases.filter(uc => uc.engagementId === engagementId);
+      }
+      
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
-      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases);
+      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases, engagementId);
       res.json(enrichedUseCases);
     } catch (error) {
       console.error("Error fetching active use cases:", error);
@@ -147,9 +186,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/use-cases/reference", async (req, res) => {
     try {
-      const useCases = await storage.getReferenceLibraryUseCases();
+      const engagementId = req.query.engagementId as string | undefined;
+      let useCases = await storage.getReferenceLibraryUseCases();
+      
+      if (engagementId) {
+        useCases = useCases.filter(uc => uc.engagementId === engagementId);
+      }
+      
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
-      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases);
+      const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases, engagementId);
       res.json(enrichedUseCases);
     } catch (error) {
       console.error("Error fetching reference library use cases:", error);
@@ -349,6 +394,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const validatedData = insertUseCaseSchema.parse(req.body);
       
+      // Auto-assign engagementId from request body or default engagement
+      let engagementId = validatedData.engagementId as string | null;
+      if (!engagementId) {
+        // Get default engagement for auto-assignment
+        const allEngagements = await storage.getAllEngagements();
+        const defaultEngagement = allEngagements.find(e => e.isDefault === 'true');
+        if (defaultEngagement) {
+          engagementId = defaultEngagement.id;
+        }
+      }
+      
       // Get current metadata for weights
       const metadata = await storage.getMetadataConfig();
       // Use centralized weight utilities for consistency
@@ -389,6 +445,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActiveForRsa: (validatedData.isActiveForRsa as string) || 'false',
         isDashboardVisible: (validatedData.isDashboardVisible as string) || 'false',
         libraryTier: (validatedData.libraryTier as string) || 'reference',
+        // Auto-assign to selected or default engagement
+        engagementId,
         impactScore,
         effortScore,
         quadrant
@@ -399,7 +457,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Auto-derive TOM phase, value estimates, and capability defaults
       try {
         const derivedMetadata = await storage.getMetadataConfig();
-        const configs = getDefaultConfigs(derivedMetadata);
+        
+        // Get engagement context for TOM derivation
+        let engagementContext: EngagementTomContext | null = null;
+        if (engagementId) {
+          const engagement = await storage.getEngagement(engagementId);
+          if (engagement) {
+            engagementContext = {
+              tomPresetId: engagement.tomPresetId,
+              tomPhasesJson: engagement.tomPhasesJson
+            };
+          }
+        }
+        
+        const configs = getConfigsFromEngagement(derivedMetadata, engagementContext);
         
         const useCaseForDerivation: UseCaseForDerivation = {
           id: newUseCase.id,
@@ -667,10 +738,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (triggers.value || triggers.capability) {
         try {
           const derivedMetadata = await storage.getMetadataConfig();
-          const configs = getDefaultConfigs(derivedMetadata);
           
           // Refresh use case data after phase update
           const refreshedUseCase = await storage.getAllUseCases().then(cases => cases.find(c => c.id === id));
+          
+          // Get engagement context for TOM derivation
+          let engagementContext: EngagementTomContext | null = null;
+          if (refreshedUseCase?.engagementId) {
+            const engagement = await storage.getEngagement(refreshedUseCase.engagementId);
+            if (engagement) {
+              engagementContext = {
+                tomPresetId: engagement.tomPresetId,
+                tomPhasesJson: engagement.tomPhasesJson
+              };
+            }
+          }
+          
+          const configs = getConfigsFromEngagement(derivedMetadata, engagementContext);
           if (refreshedUseCase) {
             const useCaseForDerivation: UseCaseForDerivation = {
               id: refreshedUseCase.id,
@@ -2136,7 +2220,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const useCases = await storage.getAllUseCases();
       const metadata = await storage.getMetadataConfig();
-      const configs = getDefaultConfigs(metadata);
+      const allEngagements = await storage.getAllEngagements();
+      
+      // Build a map of engagement configs for efficient lookup
+      const engagementConfigMap = new Map<string, EngagementTomContext>();
+      for (const engagement of allEngagements) {
+        engagementConfigMap.set(engagement.id, {
+          tomPresetId: engagement.tomPresetId,
+          tomPhasesJson: engagement.tomPhasesJson
+        });
+      }
       
       const results = {
         total: useCases.length,
@@ -2148,6 +2241,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       for (const useCase of useCases) {
         try {
+          // Get engagement-specific TOM config for this use case
+          const engagementContext = useCase.engagementId 
+            ? engagementConfigMap.get(useCase.engagementId) || null 
+            : null;
+          const configs = getConfigsFromEngagement(metadata, engagementContext);
+          
           const useCaseForDerivation: UseCaseForDerivation = {
             id: useCase.id,
             title: useCase.title,
