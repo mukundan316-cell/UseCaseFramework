@@ -64,7 +64,7 @@ export default function EngagementContextLegoBlock({
   }
 
   return (
-    <div className={`flex items-center gap-4 px-4 py-2 bg-muted/30 border-b ${className}`}>
+    <div className={`flex items-center gap-4 py-2 ${className}`}>
       <div className="flex items-center gap-2">
         <Building2 className="h-4 w-4 text-muted-foreground" />
         <Select value={selectedClientId || ''} onValueChange={onClientChange}>

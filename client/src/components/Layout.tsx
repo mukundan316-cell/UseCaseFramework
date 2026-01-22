@@ -48,12 +48,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Engagement Context Bar */}
-      <EngagementContextLegoBlock
-        selectedClientId={selectedClientId}
-        selectedEngagementId={selectedEngagementId}
-        onClientChange={setSelectedClientId}
-        onEngagementChange={setSelectedEngagementId}
-      />
+      <div className="bg-muted/30 border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <EngagementContextLegoBlock
+            selectedClientId={selectedClientId}
+            selectedEngagementId={selectedEngagementId}
+            onClientChange={setSelectedClientId}
+            onEngagementChange={setSelectedEngagementId}
+          />
+        </div>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
