@@ -1,6 +1,6 @@
 import { db } from './db';
-import { metadataConfig } from '@shared/schema';
-import { eq } from "drizzle-orm";
+import { metadataConfig, useCases, clients, engagements } from '@shared/schema';
+import { eq, isNull } from "drizzle-orm";
 import { QuestionnaireDemoService } from './services/questionnaireDemo';
 import fs from 'fs';
 import path from 'path';
@@ -23,9 +23,71 @@ export async function seedDatabase() {
     // Always ensure questionnaire storage is initialized
     await seedQuestionnaireStorage();
     
+    // Ensure default client/engagement and backfill use cases
+    await ensureEngagementBackfill();
+    
     console.log('Use case database ready for user input');
   } catch (error) {
     console.error('Error seeding database:', error);
+  }
+}
+
+/**
+ * Ensures default client/engagement exists and backfills use cases with engagementId
+ * This establishes engagement as the container for all use cases
+ */
+async function ensureEngagementBackfill() {
+  try {
+    // Check if default client exists
+    let clientResult = await db.select().from(clients).where(eq(clients.name, "Hexaware"));
+    let clientId: string;
+    
+    if (clientResult.length === 0) {
+      const [newClient] = await db.insert(clients).values({
+        name: "Hexaware",
+        description: "Default Hexaware client for AI use case portfolio",
+        industry: "Technology",
+        isActive: "true"
+      }).returning();
+      clientId = newClient.id;
+      console.log("Created default client: Hexaware");
+    } else {
+      clientId = clientResult[0].id;
+    }
+
+    // Check if default engagement exists
+    let engagementResult = await db.select().from(engagements).where(eq(engagements.isDefault, "true"));
+    let engagementId: string;
+    
+    if (engagementResult.length === 0) {
+      const [newEngagement] = await db.insert(engagements).values({
+        clientId,
+        name: "AI Strategy Initiative",
+        description: "Default engagement for AI use case portfolio management",
+        tomPresetId: "hybrid",
+        tomPresetLocked: "true",
+        isDefault: "true",
+        status: "active"
+      }).returning();
+      engagementId = newEngagement.id;
+      console.log("Created default engagement: AI Strategy Initiative (TOM: hybrid, locked)");
+    } else {
+      engagementId = engagementResult[0].id;
+      // Ensure TOM is locked on existing default engagement
+      if (engagementResult[0].tomPresetLocked !== "true") {
+        await db.update(engagements).set({ tomPresetLocked: "true" }).where(eq(engagements.id, engagementId));
+      }
+    }
+
+    // Backfill any use cases without engagementId
+    const orphanedUseCases = await db.select({ id: useCases.id }).from(useCases).where(isNull(useCases.engagementId));
+    
+    if (orphanedUseCases.length > 0) {
+      await db.update(useCases).set({ engagementId }).where(isNull(useCases.engagementId));
+      console.log(`Backfilled ${orphanedUseCases.length} use cases with engagementId: ${engagementId}`);
+    }
+  } catch (error) {
+    console.error("Error in engagement backfill:", error);
   }
 }
 
