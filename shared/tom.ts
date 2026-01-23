@@ -44,6 +44,7 @@ export interface TomPhase {
   dataRequirements?: PhaseDataRequirements;
   unlockedFeatures?: string[];
   phaseDefaults?: PhaseDefaults;
+  staffingRatio?: StaffingRatio; // SSOT: Consolidated from presetProfiles[].staffingRatios
 }
 
 export interface TomGovernanceBody {
@@ -228,6 +229,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           manualOnly: false,
           governanceGate: 'innovation_board',
           expectedDurationWeeks: 4,
+          staffingRatio: { vendor: 0.3, client: 0.7 },
           dataRequirements: {
             entry: ['title', 'description'],
             exit: ['primaryBusinessOwner', 'strategicAlignment']
@@ -265,6 +267,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           manualOnly: false,
           governanceGate: 'ai_steerco',
           expectedDurationWeeks: 6,
+          staffingRatio: { vendor: 0.5, client: 0.5 },
           dataRequirements: {
             entry: ['primaryBusinessOwner'],
             exit: ['scoringComplete', 'raiAssessment']
@@ -302,6 +305,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           manualOnly: false,
           governanceGate: 'ai_steerco',
           expectedDurationWeeks: 8,
+          staffingRatio: { vendor: 0.75, client: 0.25 },
           dataRequirements: {
             entry: ['scoringComplete'],
             exit: ['processMapping']
@@ -339,6 +343,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           manualOnly: false,
           governanceGate: 'working_group',
           expectedDurationWeeks: 12,
+          staffingRatio: { vendor: 0.8, client: 0.2 },
           dataRequirements: {
             entry: ['processMapping'],
             exit: ['tshirtSizing', 'capabilityData']
@@ -376,6 +381,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           manualOnly: false,
           governanceGate: 'business_owner',
           expectedDurationWeeks: 10,
+          staffingRatio: { vendor: 0.5, client: 0.5 },
           dataRequirements: {
             entry: ['tshirtSizing'],
             exit: ['investmentData', 'kpiData']
@@ -413,6 +419,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           manualOnly: true,
           governanceGate: 'none',
           expectedDurationWeeks: null,
+          staffingRatio: { vendor: 0.15, client: 0.85 },
           dataRequirements: {
             entry: ['kpiData'],
             exit: ['valueRealization']
@@ -454,6 +461,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       manualOnly: false,
       governanceGate: 'ai_steerco',
       expectedDurationWeeks: 8,
+      staffingRatio: { vendor: 0.6, client: 0.4 },
       dataRequirements: {
         entry: ['title', 'description', 'primaryBusinessOwner'],
         exit: ['scoringComplete', 'raiAssessment']
@@ -491,6 +499,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       manualOnly: false,
       governanceGate: 'working_group',
       expectedDurationWeeks: 16,
+      staffingRatio: { vendor: 0.5, client: 0.5 },
       dataRequirements: {
         entry: ['scoringComplete'],
         exit: ['processMapping', 'tshirtSizing']
@@ -528,6 +537,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       manualOnly: false,
       governanceGate: 'business_owner',
       expectedDurationWeeks: 12,
+      staffingRatio: { vendor: 0.35, client: 0.65 },
       dataRequirements: {
         entry: ['processMapping'],
         exit: ['investmentData', 'capabilityData']
@@ -565,6 +575,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       manualOnly: true,
       governanceGate: 'none',
       expectedDurationWeeks: null,
+      staffingRatio: { vendor: 0.15, client: 0.85 },
       dataRequirements: {
         entry: ['investmentData', 'capabilityData'],
         exit: ['kpiData', 'valueRealization']

@@ -142,11 +142,11 @@ export default function PhaseManagementLegoBlock() {
     });
   };
 
-  const handleAdd = async () => {
+  const handleAdd = () => {
     if (!tomConfig || !formData.name.trim()) return;
     
     const phaseId = formData.id || formData.name.toLowerCase().replace(/\s+/g, '_');
-    const newPhase: TomPhase = {
+    const newPhase = {
       id: phaseId,
       name: formData.name,
       description: formData.description,
@@ -158,38 +158,16 @@ export default function PhaseManagementLegoBlock() {
       manualOnly: formData.manualOnly,
       governanceGate: formData.governanceGate,
       expectedDurationWeeks: formData.expectedDurationWeeks,
-      phaseDefaults: formData.phaseDefaults
+      phaseDefaults: formData.phaseDefaults,
+      staffingRatio: formData.staffingRatio
     };
     
-    const activePreset = tomConfig.activePreset || 'hybrid';
-    const phaseKey = phaseId.toLowerCase().replace(/\s+/g, '_');
-    const updatedStaffingRatios = {
-      ...tomConfig.presetProfiles?.[activePreset]?.staffingRatios,
-      [phaseKey]: formData.staffingRatio
-    };
-    
-    const updatedPresetProfiles = {
-      ...tomConfig.presetProfiles,
-      [activePreset]: {
-        ...tomConfig.presetProfiles?.[activePreset],
-        staffingRatios: updatedStaffingRatios
-      }
-    };
-    
-    try {
-      await apiRequest('PATCH', `/api/tom/config?clientId=${clientId}`, {
-        presetProfiles: updatedPresetProfiles
-      });
-    } catch (error) {
-      console.error('Failed to add staffing ratios for new phase:', error);
-    }
-    
-    updatePhasesMutation.mutate([...tomConfig.phases, newPhase]);
+    updatePhasesMutation.mutate([...tomConfig.phases, newPhase as TomPhase]);
     setIsAddOpen(false);
     resetForm();
   };
 
-  const handleEdit = async () => {
+  const handleEdit = () => {
     if (!tomConfig || !editingPhase || !formData.name.trim()) return;
     
     const updatedPhases = tomConfig.phases.map(phase => 
@@ -202,33 +180,11 @@ export default function PhaseManagementLegoBlock() {
             governanceGate: formData.governanceGate,
             expectedDurationWeeks: formData.expectedDurationWeeks,
             manualOnly: formData.manualOnly,
-            phaseDefaults: formData.phaseDefaults
+            phaseDefaults: formData.phaseDefaults,
+            staffingRatio: formData.staffingRatio
           }
         : phase
     );
-    
-    const activePreset = tomConfig.activePreset || 'hybrid';
-    const phaseKey = editingPhase.id.toLowerCase().replace(/\s+/g, '_');
-    const updatedStaffingRatios = {
-      ...tomConfig.presetProfiles?.[activePreset]?.staffingRatios,
-      [phaseKey]: formData.staffingRatio
-    };
-    
-    const updatedPresetProfiles = {
-      ...tomConfig.presetProfiles,
-      [activePreset]: {
-        ...tomConfig.presetProfiles?.[activePreset],
-        staffingRatios: updatedStaffingRatios
-      }
-    };
-    
-    try {
-      await apiRequest('PATCH', `/api/tom/config?clientId=${clientId}`, {
-        presetProfiles: updatedPresetProfiles
-      });
-    } catch (error) {
-      console.error('Failed to update staffing ratios:', error);
-    }
     
     updatePhasesMutation.mutate(updatedPhases);
     setEditingPhase(null);
@@ -263,10 +219,6 @@ export default function PhaseManagementLegoBlock() {
 
   const openEditDialog = (phase: TomPhase) => {
     setEditingPhase(phase);
-    const activePreset = tomConfig?.activePreset || 'hybrid';
-    const presetProfile = tomConfig?.presetProfiles?.[activePreset];
-    const phaseKey = phase.id.toLowerCase().replace(/\s+/g, '_');
-    const existingStaffingRatio = presetProfile?.staffingRatios?.[phaseKey] as StaffingRatio | undefined;
     
     setFormData({
       id: phase.id,
@@ -279,7 +231,7 @@ export default function PhaseManagementLegoBlock() {
       mappedDeployments: phase.mappedDeployments,
       manualOnly: phase.manualOnly,
       phaseDefaults: phase.phaseDefaults || DEFAULT_PHASE_DEFAULTS,
-      staffingRatio: existingStaffingRatio || { vendor: 0.5, client: 0.5 }
+      staffingRatio: (phase as any).staffingRatio || { vendor: 0.5, client: 0.5 }
     });
   };
 
