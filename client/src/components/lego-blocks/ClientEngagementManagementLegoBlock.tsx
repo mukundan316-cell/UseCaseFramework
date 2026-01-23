@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { Building2, Briefcase, Plus, Lock, Trash2, Pencil, Users, Target } from 'lucide-react';
 import type { Client, Engagement } from '@shared/schema';
+import { CURRENCY_CONFIG, type CurrencyCode } from '@/hooks/useCurrency';
 
 interface ClientFormData {
   name: string;
@@ -18,6 +19,7 @@ interface ClientFormData {
   industry: string;
   contactName: string;
   contactEmail: string;
+  currency: CurrencyCode;
 }
 
 interface EngagementFormData {
@@ -44,7 +46,7 @@ export default function ClientEngagementManagementLegoBlock() {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   
   const [clientForm, setClientForm] = useState<ClientFormData>({
-    name: '', description: '', industry: '', contactName: '', contactEmail: ''
+    name: '', description: '', industry: '', contactName: '', contactEmail: '', currency: 'GBP'
   });
   const [engagementForm, setEngagementForm] = useState<EngagementFormData>({
     clientId: '', name: '', description: '', tomPresetId: 'hybrid'
@@ -67,7 +69,7 @@ export default function ClientEngagementManagementLegoBlock() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
       setIsClientDialogOpen(false);
-      setClientForm({ name: '', description: '', industry: '', contactName: '', contactEmail: '' });
+      setClientForm({ name: '', description: '', industry: '', contactName: '', contactEmail: '', currency: 'GBP' });
       toast({ title: 'Client Created', description: 'New client added successfully.' });
     },
     onError: () => {
@@ -179,6 +181,24 @@ export default function ClientEngagementManagementLegoBlock() {
                         placeholder="Brief description"
                         data-testid="input-client-description"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="client-currency">Currency</Label>
+                      <Select 
+                        value={clientForm.currency} 
+                        onValueChange={(value) => setClientForm({ ...clientForm, currency: value as CurrencyCode })}
+                      >
+                        <SelectTrigger id="client-currency" data-testid="select-client-currency">
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(CURRENCY_CONFIG).map(([code, config]) => (
+                            <SelectItem key={code} value={code} data-testid={`option-currency-${code}`}>
+                              {config.symbol} {config.name} ({config.code})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <DialogFooter>
@@ -306,9 +326,16 @@ export default function ClientEngagementManagementLegoBlock() {
                         </div>
                         <div>
                           <h4 className="font-medium">{client.name}</h4>
-                          {client.industry && (
-                            <p className="text-sm text-muted-foreground">{client.industry}</p>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {client.industry && (
+                              <p className="text-sm text-muted-foreground">{client.industry}</p>
+                            )}
+                            {client.currency && (
+                              <Badge variant="secondary" className="text-xs">
+                                {CURRENCY_CONFIG[client.currency as CurrencyCode]?.symbol || client.currency}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

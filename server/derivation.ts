@@ -5,13 +5,15 @@ import {
   calculateTotalEstimatedValue,
   DEFAULT_VALUE_REALIZATION_CONFIG,
   type ValueRealizationConfig,
-  type UseCaseScores 
+  type UseCaseScores,
+  type ValueEstimateOptions
 } from "@shared/valueRealization";
 import { 
   deriveCapabilityDefaults, 
   DEFAULT_CAPABILITY_TRANSITION_CONFIG,
   type CapabilityTransitionConfig 
 } from "@shared/capabilityTransition";
+import { getHourlyRate, type CurrencyCode } from "@shared/currency";
 
 export interface DerivationConfigs {
   tomConfig: TomConfig;
@@ -46,10 +48,17 @@ export interface DerivedFields {
   capabilityTransition?: any;
 }
 
+export interface DerivationOptions {
+  overwriteValue?: boolean;
+  overwriteCapability?: boolean;
+  currencyCode?: CurrencyCode;
+  hourlyRate?: number;
+}
+
 export function deriveAllFields(
   useCase: UseCaseForDerivation,
   configs: DerivationConfigs,
-  options: { overwriteValue?: boolean; overwriteCapability?: boolean } = {}
+  options: DerivationOptions = {}
 ): DerivedFields {
   const derived: DerivedFields = {};
 
@@ -92,7 +101,10 @@ export function deriveAllFields(
     };
 
     const kpiLibrary = configs.valueConfig.kpiLibrary || {};
-    const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary);
+    const currencyCode = options.currencyCode || 'GBP';
+    const hourlyRate = options.hourlyRate ?? getHourlyRate(currencyCode);
+    const valueOptions: ValueEstimateOptions = { hourlyRate, currencyCode };
+    const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary, 1000, valueOptions);
     const totalValue = calculateTotalEstimatedValue(valueEstimates);
 
     // Merge with existing data to preserve investment, selectedKpis, calculatedMetrics

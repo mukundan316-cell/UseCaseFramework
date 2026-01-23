@@ -471,8 +471,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const derivedMetadata = await storage.getMetadataConfig();
         
-        // Get engagement context for TOM derivation
+        // Get engagement context for TOM derivation and client currency
         let engagementContext: EngagementTomContext | null = null;
+        let clientCurrency: string = 'GBP';
         if (engagementId) {
           const engagement = await storage.getEngagement(engagementId);
           if (engagement) {
@@ -480,6 +481,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               tomPresetId: engagement.tomPresetId,
               tomPhasesJson: engagement.tomPhasesJson
             };
+            // Get client currency for value calculations
+            const client = await storage.getClient(engagement.clientId);
+            if (client?.currency) {
+              clientCurrency = client.currency;
+            }
           }
         }
         
@@ -504,7 +510,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const derived = deriveAllFields(useCaseForDerivation, configs, {
           overwriteValue: true,
-          overwriteCapability: true
+          overwriteCapability: true,
+          currencyCode: clientCurrency as any
         });
         
         // Always set phaseEnteredAt on creation for TOM phase timeline tracking
@@ -759,8 +766,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Refresh use case data after phase update
           const refreshedUseCase = await storage.getAllUseCases().then(cases => cases.find(c => c.id === id));
           
-          // Get engagement context for TOM derivation
+          // Get engagement context for TOM derivation and client currency
           let engagementContext: EngagementTomContext | null = null;
+          let clientCurrency: string = 'GBP';
           if (refreshedUseCase?.engagementId) {
             const engagement = await storage.getEngagement(refreshedUseCase.engagementId);
             if (engagement) {
@@ -768,6 +776,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 tomPresetId: engagement.tomPresetId,
                 tomPhasesJson: engagement.tomPhasesJson
               };
+              const client = await storage.getClient(engagement.clientId);
+              if (client?.currency) {
+                clientCurrency = client.currency;
+              }
             }
           }
           
@@ -798,7 +810,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const derived = deriveAllFields(useCaseForDerivation, configs, {
               overwriteValue: canOverwriteValue,
               overwriteCapability: triggers.capability && 
-                (!refreshedUseCase.capabilityTransition || refreshedUseCase.capabilityTransition?.derived === true)
+                (!refreshedUseCase.capabilityTransition || refreshedUseCase.capabilityTransition?.derived === true),
+              currencyCode: clientCurrency as any
             });
             
             // Only update derived fields if not manually set
@@ -2250,13 +2263,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const useCases = await storage.getAllUseCases();
       const metadata = await storage.getMetadataConfig();
       const allEngagements = await storage.getAllEngagements();
+      const allClients = await storage.getAllClients();
       
-      // Build a map of engagement configs for efficient lookup
-      const engagementConfigMap = new Map<string, EngagementTomContext>();
+      // Build maps for efficient lookup
+      const clientCurrencyMap = new Map<string, string>();
+      for (const client of allClients) {
+        clientCurrencyMap.set(client.id, client.currency || 'GBP');
+      }
+      
+      const engagementConfigMap = new Map<string, EngagementTomContext & { clientCurrency: string }>();
       for (const engagement of allEngagements) {
         engagementConfigMap.set(engagement.id, {
           tomPresetId: engagement.tomPresetId,
-          tomPhasesJson: engagement.tomPhasesJson
+          tomPhasesJson: engagement.tomPhasesJson,
+          clientCurrency: clientCurrencyMap.get(engagement.clientId) || 'GBP'
         });
       }
       
@@ -2270,10 +2290,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       for (const useCase of useCases) {
         try {
-          // Get engagement-specific TOM config for this use case
-          const engagementContext = useCase.engagementId 
+          // Get engagement-specific TOM config and client currency for this use case
+          const engagementData = useCase.engagementId 
             ? engagementConfigMap.get(useCase.engagementId) || null 
             : null;
+          const engagementContext = engagementData ? { tomPresetId: engagementData.tomPresetId, tomPhasesJson: engagementData.tomPhasesJson } : null;
+          const clientCurrency = engagementData?.clientCurrency || 'GBP';
           const configs = getConfigsFromEngagement(metadata, engagementContext);
           
           const useCaseForDerivation: UseCaseForDerivation = {
@@ -2296,7 +2318,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const derived = deriveAllFields(useCaseForDerivation, configs, {
             overwriteValue: overwriteValue && 
               (!useCase.valueRealization || useCase.valueRealization?.derived === true),
-            overwriteCapability
+            overwriteCapability,
+            currencyCode: clientCurrency as any
           });
           
           // Set phaseEnteredAt if TOM phase derived and not already set

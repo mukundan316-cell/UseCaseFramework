@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useQuery } from '@tanstack/react-query';
 import { useEngagement } from '@/contexts/EngagementContext';
+import { useCurrency } from '@/hooks/useCurrency';
 import { 
   TrendingUp, DollarSign, Clock, Target, 
   Loader2, AlertCircle, HelpCircle, ArrowUpRight, BarChart3, PieChart
@@ -41,15 +42,6 @@ interface ValueMetrics {
   };
 }
 
-function formatCurrency(value: number, currency: string = 'GBP'): string {
-  if (value >= 1000000) {
-    return `${currency === 'GBP' ? '£' : '$'}${(value / 1000000).toFixed(1)}M`;
-  }
-  if (value >= 1000) {
-    return `${currency === 'GBP' ? '£' : '$'}${(value / 1000).toFixed(0)}K`;
-  }
-  return `${currency === 'GBP' ? '£' : '$'}${value.toFixed(0)}`;
-}
 
 function formatRoi(roi: number | null): string {
   if (roi === null) return 'N/A';
@@ -160,6 +152,7 @@ interface ValueRealizationViewProps {
 
 export default function ValueRealizationView({ scope = 'all' }: ValueRealizationViewProps) {
   const { selectedEngagementId, selectedClientId } = useEngagement();
+  const { formatCompact: formatCurrency } = useCurrency();
   const useCasesEndpoint = scope === 'active' 
     ? (selectedEngagementId ? `/api/use-cases/dashboard?engagementId=${selectedEngagementId}` : '/api/use-cases/dashboard')
     : (selectedEngagementId ? `/api/use-cases?engagementId=${selectedEngagementId}` : '/api/use-cases');

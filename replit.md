@@ -36,7 +36,7 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 - **Security**: Input sanitization, parameterized queries, and secure session management.
 - **Performance**: Client-side PDF generation, debounced search, and optimized rendering.
 - **T-shirt Sizing**: Implements UK benchmark compliance for cost and timeline estimations.
-- **Value Realization System**: KPI-based ROI tracking for use cases, including a KPI library, process mapping, and automated value estimation based on maturity scores. Uses £45/hr for hour-based KPI estimates.
+- **Value Realization System**: KPI-based ROI tracking for use cases, including a KPI library, process mapping, and automated value estimation based on maturity scores. Multi-currency support (GBP, USD, EUR, CAD) with configurable hourly rates per currency (default: £45/hr GBP, $55/hr USD, €50/hr EUR, C$60/hr CAD).
 - **Capability Transition Benchmark Derivation**: Automated population of capability transition data from use case attributes, using benchmark archetypes and pace modifiers.
 - **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations with override protection.
 - **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table.

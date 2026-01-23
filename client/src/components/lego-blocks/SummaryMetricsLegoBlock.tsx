@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { BarChart3, Target, TrendingUp, Sparkles, Users, Award, Zap, Calendar, DollarSign, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useUseCases } from '../../contexts/UseCaseContext';
+import { useCurrency } from '@/hooks/useCurrency';
 import { calculateTShirtSize } from '@shared/calculations';
 import { getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 
@@ -21,6 +22,7 @@ export default function SummaryMetricsLegoBlock() {
     filters,
     metadata 
   } = useUseCases();
+  const { symbol: currencySymbol, formatCompact } = useCurrency();
 
   const filteredUseCases = getFilteredUseCases();
   const quadrantCounts = getQuadrantCounts();
@@ -56,10 +58,10 @@ export default function SummaryMetricsLegoBlock() {
       }
     });
 
-    const formatCurrency = (amount: number) => {
-      if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
-      if (amount >= 1000) return `£${(amount / 1000).toFixed(0)}K`;
-      return `£${Math.round(amount).toLocaleString()}`;
+    const formatCurrencyValue = (amount: number) => {
+      if (amount >= 1000000) return `${currencySymbol}${(amount / 1000000).toFixed(1)}M`;
+      if (amount >= 1000) return `${currencySymbol}${(amount / 1000).toFixed(0)}K`;
+      return `${currencySymbol}${Math.round(amount).toLocaleString()}`;
     };
 
     const formatDuration = (weeks: number) => {
@@ -70,11 +72,11 @@ export default function SummaryMetricsLegoBlock() {
 
     return {
       totalCostRange: validProjects > 0 ? 
-        `${formatCurrency(totalCostMin)} - ${formatCurrency(totalCostMax)}` : '£0',
+        `${formatCurrencyValue(totalCostMin)} - ${formatCurrencyValue(totalCostMax)}` : `${currencySymbol}0`,
       totalTimelineRange: validProjects > 0 ?
         `${formatDuration(totalWeeksMin)} - ${formatDuration(totalWeeksMax)}` : '0w',
       validProjects,
-      avgCostPerProject: validProjects > 0 ? formatCurrency(totalCostMin / validProjects) : '£0'
+      avgCostPerProject: validProjects > 0 ? formatCurrencyValue(totalCostMin / validProjects) : `${currencySymbol}0`
     };
   }, [filteredUseCases, metadata]);
 

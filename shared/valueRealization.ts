@@ -407,12 +407,19 @@ function isHourBasedUnit(unit: string): boolean {
 
 const DEFAULT_HOURLY_RATE_GBP = 45;
 
+export interface ValueEstimateOptions {
+  hourlyRate?: number;
+  currencyCode?: string;
+}
+
 export function deriveValueEstimates(
   processes: string[],
   scores: UseCaseScores,
   kpiLibrary: Record<string, KpiDefinition>,
-  volumeMultiplier: number = 1000
+  volumeMultiplier: number = 1000,
+  options: ValueEstimateOptions = {}
 ): ValueEstimateResult[] {
+  const hourlyRate = options.hourlyRate ?? DEFAULT_HOURLY_RATE_GBP;
   const applicableKpis = getApplicableKpis(processes, kpiLibrary);
   const results: ValueEstimateResult[] = [];
 
@@ -443,8 +450,8 @@ export function deriveValueEstimates(
       const annualMultiplier = 12;
       
       estimatedAnnualValueGbp = {
-        min: Math.round(monthlyHoursMin * DEFAULT_HOURLY_RATE_GBP * annualMultiplier),
-        max: Math.round(monthlyHoursMax * DEFAULT_HOURLY_RATE_GBP * annualMultiplier)
+        min: Math.round(monthlyHoursMin * hourlyRate * annualMultiplier),
+        max: Math.round(monthlyHoursMax * hourlyRate * annualMultiplier)
       };
     } else if (expectedRange) {
       const monthlyHoursMin = expectedRange.min;
@@ -452,8 +459,8 @@ export function deriveValueEstimates(
       const annualMultiplier = 12;
       
       estimatedAnnualValueGbp = {
-        min: Math.round(monthlyHoursMin * DEFAULT_HOURLY_RATE_GBP * annualMultiplier),
-        max: Math.round(monthlyHoursMax * DEFAULT_HOURLY_RATE_GBP * annualMultiplier)
+        min: Math.round(monthlyHoursMin * hourlyRate * annualMultiplier),
+        max: Math.round(monthlyHoursMax * hourlyRate * annualMultiplier)
       };
     }
 

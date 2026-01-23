@@ -742,6 +742,7 @@ export const clients = pgTable("clients", {
   industry: text("industry"),
   contactName: text("contact_name"),
   contactEmail: text("contact_email"),
+  currency: text("currency").notNull().default('GBP'), // 'GBP', 'USD', 'EUR', 'CAD'
   isActive: text("is_active").notNull().default('true'), // 'true' or 'false'
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
