@@ -30,8 +30,9 @@ export function useCurrency(): UseCurrencyResult {
     enabled: !!selectedClientId,
   });
   
+  const clientCurrency = client?.currency;
+  
   return useMemo(() => {
-    const clientCurrency = client?.currency;
     const currencyCode = (clientCurrency && clientCurrency in CURRENCY_CONFIG) 
       ? clientCurrency as CurrencyCode 
       : DEFAULT_CURRENCY;
@@ -55,7 +56,7 @@ export function useCurrency(): UseCurrencyResult {
         return formatter.format(value);
       }
     };
-  }, [client]);
+  }, [clientCurrency, selectedClientId]);
 }
 
 export { CURRENCY_CONFIG, type CurrencyCode, type CurrencyConfig };

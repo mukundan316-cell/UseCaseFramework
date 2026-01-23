@@ -5,6 +5,7 @@ import { getQuadrantBackgroundColor, getQuadrantColor } from '../../utils/calcul
 import { getEffectiveImpactScore, getEffectiveEffortScore, getEffectiveQuadrant, hasManualOverrides } from '@shared/utils/scoreOverride';
 import { getSourceConfig, getSourceBackgroundTint } from '../../utils/sourceColors';
 import { APP_CONFIG } from '@shared/constants/app-config';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface CleanUseCaseCardProps {
   useCase: UseCase;
@@ -25,6 +26,7 @@ export default function CleanUseCaseCard({
   onView,
   showRSAActions = false
 }: CleanUseCaseCardProps) {
+  const { formatCompact } = useCurrency();
   
   // Get quadrant-based styling for RSA cases with scores
   // Using consistent string types per replit.md - no transformation needed
@@ -425,7 +427,7 @@ export default function CleanUseCaseCard({
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-8a7 7 0 1114 0 7 7 0 01-14 0z" clipRule="evenodd" />
                     </svg>
                     {(useCase as any).estimatedCostMin && (useCase as any).estimatedCostMax ? 
-                      `£${((useCase as any).estimatedCostMin / 1000).toFixed(0)}k-£${((useCase as any).estimatedCostMax / 1000).toFixed(0)}k` : 
+                      `${formatCompact((useCase as any).estimatedCostMin)}-${formatCompact((useCase as any).estimatedCostMax)}` : 
                       'Cost TBD'
                     }
                   </div>

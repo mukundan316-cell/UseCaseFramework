@@ -10,6 +10,7 @@ import {
   TrendingUp, Filter, Download, RotateCcw, ZoomIn,
   BarChart3, Target, AlertTriangle 
 } from 'lucide-react';
+import { useCurrency } from '@/hooks/useCurrency';
 
 /**
  * Interactive Charts for Executive Dashboard
@@ -27,6 +28,7 @@ export const InteractiveCharts: React.FC<InteractiveChartsProps> = ({
   onFilter, 
   onExport 
 }) => {
+  const { formatCompact } = useCurrency();
   const [selectedQuadrant, setSelectedQuadrant] = useState<string | null>(null);
   const [chartView, setChartView] = useState<'bubble' | 'scatter' | 'heatmap'>('bubble');
 
@@ -47,7 +49,7 @@ export const InteractiveCharts: React.FC<InteractiveChartsProps> = ({
     color: getQuadrantColor(uc.quadrant),
     tShirtSize: (uc as any).tShirtSize,
     estimatedCost: (uc as any).estimatedCostMin && (uc as any).estimatedCostMax ? 
-      `£${((uc as any).estimatedCostMin / 1000).toFixed(0)}k-£${((uc as any).estimatedCostMax / 1000).toFixed(0)}k` : null,
+      `${formatCompact((uc as any).estimatedCostMin)}-${formatCompact((uc as any).estimatedCostMax)}` : null,
     estimatedWeeks: (uc as any).estimatedWeeksMin && (uc as any).estimatedWeeksMax ? 
       `${(uc as any).estimatedWeeksMin}-${(uc as any).estimatedWeeksMax} weeks` : null
   }));

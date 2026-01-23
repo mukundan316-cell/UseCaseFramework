@@ -15,6 +15,7 @@ import { UseCase } from '../../types';
 import { useEngagement } from '../../contexts/EngagementContext';
 import { useQuery } from '@tanstack/react-query';
 import type { TomConfig } from '@shared/tom';
+import { useCurrency } from '@/hooks/useCurrency';
 
 // Safe color utility with fallback
 const getSafePhaseColor = (color: string | undefined): string => {
@@ -64,6 +65,7 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
     type: '', title: '', content: ''
   });
   const { selectedClientId } = useEngagement();
+  const { symbol: currencySymbol, formatCompact } = useCurrency();
 
   // Fetch TOM config to show TOM Phase column when enabled
   const { data: tomConfig } = useQuery<TomConfig>({
@@ -101,10 +103,10 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
       // Calculate annual benefit using size-based multipliers
       const benefitCalc = calculateAnnualBenefitRange(effectiveImpact, sizing?.size || null, tShirtConfig);
       const annualBenefit = benefitCalc.benefitMin && benefitCalc.benefitMax 
-        ? `£${Math.round(benefitCalc.benefitMin/1000)}K–£${Math.round(benefitCalc.benefitMax/1000)}K`
-        : effectiveImpact >= 4 ? '£500K+' : 
-          effectiveImpact >= 3 ? '£200K-500K' : 
-          effectiveImpact >= 2 ? '£50K-200K' : '£0-50K';
+        ? `${formatCompact(benefitCalc.benefitMin)}–${formatCompact(benefitCalc.benefitMax)}`
+        : effectiveImpact >= 4 ? `${currencySymbol}500K+` : 
+          effectiveImpact >= 3 ? `${currencySymbol}200K-500K` : 
+          effectiveImpact >= 2 ? `${currencySymbol}50K-200K` : `${currencySymbol}0-50K`;
       
       // Calculate ROI range based on quadrant
       const roiRange = effectiveQuadrant === 'Quick Win' ? '150-400%' :
@@ -195,14 +197,9 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
     return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
   };
 
-  const formatCurrency = (min: number | null, max: number | null) => {
+  const formatCurrencyRange = (min: number | null, max: number | null) => {
     if (!min || !max) return 'TBD';
-    const formatAmount = (amount: number) => {
-      if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
-      if (amount >= 1000) return `£${(amount / 1000).toFixed(0)}K`;
-      return `£${Math.round(amount).toLocaleString()}`;
-    };
-    return `${formatAmount(min)} - ${formatAmount(max)}`;
+    return `${formatCompact(min)} - ${formatCompact(max)}`;
   };
 
   const formatDuration = (min: number | null, max: number | null) => {
@@ -244,8 +241,8 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
     
     return (
       <div className="space-y-1">
-        <div className="font-medium">{formatCurrency(row.costMin, row.costMax)}</div>
-        <div className="text-xs">{row.teamSize} × £{Math.round(avgDailyRate)}/day × {Math.round(avgWeeks)} weeks × {overhead}x overhead</div>
+        <div className="font-medium">{formatCurrencyRange(row.costMin, row.costMax)}</div>
+        <div className="text-xs">{row.teamSize} × {currencySymbol}{Math.round(avgDailyRate)}/day × {Math.round(avgWeeks)} weeks × {overhead}x overhead</div>
         <div className="text-xs text-blue-400">Click Cost Range header for rate details</div>
       </div>
     );
@@ -272,7 +269,7 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
     return (
       <div className="space-y-1">
         <div className="font-medium">{row.annualBenefit}</div>
-        <div className="text-xs">Impact {row.impact.toFixed(1)} × £{getBenefitMultiplier(row.tshirtSize)}K multiplier = {row.annualBenefit}</div>
+        <div className="text-xs">Impact {row.impact.toFixed(1)} × {currencySymbol}{getBenefitMultiplier(row.tshirtSize)}K multiplier = {row.annualBenefit}</div>
         <div className="text-xs text-blue-400">Click Annual Benefit header for calculation details</div>
       </div>
     );
@@ -359,7 +356,7 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
   const getCostExplanation = () => {
     const tShirtConfig = metadata?.tShirtSizing;
     const roles = tShirtConfig?.roles || [];
-    const roleRates = roles.map((role: any) => `• ${role.type}: £${role.dailyRateGBP}/day`).join('\n');
+    const roleRates = roles.map((role: any) => `• ${role.type}: ${currencySymbol}${role.dailyRateGBP}/day`).join('\n');
     const overhead = tShirtConfig?.overheadMultiplier || 1.35;
 
     return {
@@ -389,7 +386,7 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
       'XL': tShirtConfig?.benefitMultipliers?.XL || 400
     };
 
-    const multiplierList = Object.entries(multipliers).map(([size, mult]) => `• ${size}: £${mult}K per impact point`).join('\n');
+    const multiplierList = Object.entries(multipliers).map(([size, mult]) => `• ${size}: ${currencySymbol}${mult}K per impact point`).join('\n');
 
     return {
       title: 'Annual Benefit Calculation',
@@ -695,7 +692,7 @@ Each lever scored 1-5, then weighted and averaged. Higher scores indicate greate
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="font-mono text-sm cursor-help">
-                          {formatCurrency(row.costMin, row.costMax)}
+                          {formatCurrencyRange(row.costMin, row.costMax)}
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>

@@ -15,6 +15,7 @@ import { Layers, Plus, Pencil, Trash2, GripVertical, Loader2, Sparkles } from 'l
 import type { TomPhase, TomConfig, TomGovernanceBody, PhaseDefaults } from '@shared/tom';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface StaffingRatio {
   vendor: number;
@@ -63,6 +64,7 @@ const DEFAULT_COLORS = [
 export default function PhaseManagementLegoBlock() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { symbol: currencySymbol } = useCurrency();
   const [isAddOpen, setIsAddOpen] = useState(false);
   
   // Sync with TomConfigurationLegoBlock's client selection via localStorage
@@ -559,7 +561,7 @@ function PhaseDefaultsForm({
         <h4 className="font-medium text-sm">Value Realization Defaults</h4>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Expected Value Min (£)</Label>
+            <Label className="text-xs text-muted-foreground">Expected Value Min ({currencySymbol})</Label>
             <Input
               type="number"
               value={defaults.valueRealization.expectedValueRangeMin ?? ''}
@@ -569,7 +571,7 @@ function PhaseDefaultsForm({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Expected Value Max (£)</Label>
+            <Label className="text-xs text-muted-foreground">Expected Value Max ({currencySymbol})</Label>
             <Input
               type="number"
               value={defaults.valueRealization.expectedValueRangeMax ?? ''}

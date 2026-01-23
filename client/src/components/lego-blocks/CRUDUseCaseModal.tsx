@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users, Shield, User, Tag, TrendingUp, Wrench, Eye, AlertTriangle, UserCheck, Globe, Briefcase, DollarSign, Clock, Layers, Rocket, PoundSterling } from 'lucide-react';
+import { useCurrency } from '@/hooks/useCurrency';
 
 // Section Header Component for consistent sub-section styling
 const SectionHeader = ({ icon: Icon, title, description }: { icon: React.ElementType; title: string; description?: string }) => (
@@ -171,6 +172,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const queryClient = useQueryClient();
   const sortedMetadata = useSortedMetadata();
   const { selectedClientId } = useEngagement();
+  const { symbol: currencySymbol } = useCurrency();
 
   // TOM Configuration query
   const { data: tomConfig } = useQuery<TomConfig>({
@@ -1725,7 +1727,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="initialInvestment" className="text-sm font-semibold text-gray-700">
-                          Initial Investment (£) *
+                          Initial Investment ({currencySymbol}) *
                         </Label>
                         <Input
                           id="initialInvestment"
@@ -1739,7 +1741,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       </div>
                       <div>
                         <Label htmlFor="ongoingMonthlyCost" className="text-sm font-semibold text-gray-700">
-                          Ongoing Monthly Cost (£)
+                          Ongoing Monthly Cost ({currencySymbol})
                         </Label>
                         <Input
                           id="ongoingMonthlyCost"
@@ -1788,10 +1790,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         />
                       </div>
                       <div>
-                        <Label htmlFor="estimatedValue" className="text-sm font-semibold">Override Estimated Value (£)</Label>
+                        <Label htmlFor="estimatedValue" className="text-sm font-semibold">Override Estimated Value ({currencySymbol})</Label>
                         <Input
                           id="estimatedValue"
-                          placeholder="e.g., £2.5M annual savings"
+                          placeholder={`e.g., ${currencySymbol}2.5M annual savings`}
                           className="mt-1"
                           {...form.register('estimatedValue')}
                         />

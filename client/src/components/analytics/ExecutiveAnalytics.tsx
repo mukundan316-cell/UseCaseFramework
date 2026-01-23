@@ -17,6 +17,7 @@ import { calculateTShirtSize } from '@shared/calculations';
 import { getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 import type { UseCase } from '../../types';
 import AdvancedMetrics from './AdvancedMetrics';
+import { useCurrency } from '@/hooks/useCurrency';
 
 /**
  * Executive Analytics Dashboard Enhancement
@@ -41,6 +42,7 @@ interface AnalyticsMetric {
 
 export default function ExecutiveAnalytics() {
   const { useCases, dashboardUseCases, getQuadrantCounts, metadata } = useUseCases();
+  const { formatCompact } = useCurrency();
   const [selectedView, setSelectedView] = useState<'overview' | 'performance' | 'risk' | 'investment'>('overview');
   const [drillDownData, setDrillDownData] = useState<any>(null);
 
@@ -433,16 +435,14 @@ export default function ExecutiveAnalytics() {
                               }
                             });
 
-                            const formatCurrency = (amount: number) => {
-                              if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
-                              if (amount >= 1000) return `£${(amount / 1000).toFixed(0)}K`;
-                              return `£${Math.round(amount).toLocaleString()}`;
+                            const formatCurrencyLocal = (amount: number) => {
+                              return formatCompact(amount);
                             };
 
                             if (analytics.quickWinCount > 0) {
-                              return `Execute ${analytics.quickWinCount} Quick Wins requiring ${formatCurrency(quickWinCost)} investment over ${Math.round(quickWinWeeks/4)} months, while planning ${analytics.strategicBetCount} Strategic Bets with ${formatCurrency(strategicBetCost)} budget allocation.`;
+                              return `Execute ${analytics.quickWinCount} Quick Wins requiring ${formatCurrencyLocal(quickWinCost)} investment over ${Math.round(quickWinWeeks/4)} months, while planning ${analytics.strategicBetCount} Strategic Bets with ${formatCurrencyLocal(strategicBetCost)} budget allocation.`;
                             } else {
-                              return `Focus on ${analytics.strategicBetCount} Strategic Bet initiatives requiring ${formatCurrency(strategicBetCost)} investment and ${Math.round(strategicBetWeeks/4)} month timeline for capability building.`;
+                              return `Focus on ${analytics.strategicBetCount} Strategic Bet initiatives requiring ${formatCurrencyLocal(strategicBetCost)} investment and ${Math.round(strategicBetWeeks/4)} month timeline for capability building.`;
                             }
                           } else {
                             return analytics.quickWinCount > 0 ? 

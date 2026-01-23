@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useCurrency } from '@/hooks/useCurrency';
 import {
   Tooltip,
   TooltipContent,
@@ -127,6 +128,7 @@ const PACE_MODIFIER_EXPLANATIONS = [
 
 export default function DerivationRulesLegoBlock() {
   const { toast } = useToast();
+  const { symbol: currencySymbol, hourlyRate } = useCurrency();
   const [activeTab, setActiveTab] = useState('value');
   const [editedFormulas, setEditedFormulas] = useState<DerivationFormulas>({});
   const [hasChanges, setHasChanges] = useState(false);
@@ -336,7 +338,7 @@ export default function DerivationRulesLegoBlock() {
                 <ArrowRight className="w-3 h-3 text-gray-400" />
                 <Badge variant="outline" className="bg-white dark:bg-gray-800">KPI Match</Badge>
                 <ArrowRight className="w-3 h-3 text-gray-400" />
-                <Badge variant="outline" className="bg-white dark:bg-gray-800">£45/hr Rate</Badge>
+                <Badge variant="outline" className="bg-white dark:bg-gray-800">{currencySymbol}{hourlyRate}/hr Rate</Badge>
                 <ArrowRight className="w-3 h-3 text-gray-400" />
                 <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">Value Est.</Badge>
               </div>
@@ -476,7 +478,7 @@ export default function DerivationRulesLegoBlock() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold">£</span>
+                      <span className="text-lg font-bold">{currencySymbol}</span>
                       <Input
                         type="number"
                         value={displayFormulas?.valueRealization?.hourlyRate || 45}

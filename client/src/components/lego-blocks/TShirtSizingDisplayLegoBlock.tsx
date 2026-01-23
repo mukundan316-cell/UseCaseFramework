@@ -18,6 +18,7 @@ import {
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { calculateTShirtSize } from '@shared/calculations';
 import { useToast } from '@/hooks/use-toast';
+import { useCurrency } from '@/hooks/useCurrency';
 
 /**
  * LEGO Block: T-shirt Sizing Display
@@ -45,6 +46,7 @@ export default function TShirtSizingDisplayLegoBlock({
   const { metadata } = useUseCases();
   const tShirtConfig = metadata?.tShirtSizing;
   const { toast } = useToast();
+  const { symbol: currencySymbol, formatCompact } = useCurrency();
   
   // Feedback state
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -72,7 +74,7 @@ export default function TShirtSizingDisplayLegoBlock({
           useCaseTitle: useCaseTitle || 'Unknown',
           currentTShirtSize: sizing?.size || 'Unknown',
           currentCostRange: sizing?.estimatedCostMin && sizing?.estimatedCostMax 
-            ? `${formatCurrency(sizing.estimatedCostMin)} - ${formatCurrency(sizing.estimatedCostMax)}`
+            ? `${formatCurrencyValue(sizing.estimatedCostMin)} - ${formatCurrencyValue(sizing.estimatedCostMax)}`
             : 'Unknown',
           currentTimeline: sizing?.estimatedWeeksMin && sizing?.estimatedWeeksMax
             ? `${formatDuration(sizing.estimatedWeeksMin)} - ${formatDuration(sizing.estimatedWeeksMax)}`
@@ -163,12 +165,10 @@ export default function TShirtSizingDisplayLegoBlock({
   const sizeConfig = tShirtConfig?.sizes.find((s: any) => s.name === sizing.size);
   const sizeColor = sizeConfig?.color || '#6B7280';
 
-  // Format currency
-  const formatCurrency = (amount: number | null) => {
+  // Format currency using dynamic currency from client context
+  const formatCurrencyValue = (amount: number | null) => {
     if (!amount) return 'TBD';
-    if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
-    if (amount >= 1000) return `£${(amount / 1000).toFixed(0)}K`;
-    return `£${Math.round(amount).toLocaleString()}`;
+    return formatCompact(amount);
   };
 
   // Format duration
@@ -219,7 +219,7 @@ export default function TShirtSizingDisplayLegoBlock({
                       <div className="font-medium mb-2">Current Estimate:</div>
                       <div>Size: <Badge className="text-white" style={{ backgroundColor: sizeColor }}>{sizing.size}</Badge></div>
                       <div>Cost: {sizing.estimatedCostMin && sizing.estimatedCostMax 
-                        ? `${formatCurrency(sizing.estimatedCostMin)} - ${formatCurrency(sizing.estimatedCostMax)}`
+                        ? `${formatCurrencyValue(sizing.estimatedCostMin)} - ${formatCurrencyValue(sizing.estimatedCostMax)}`
                         : 'TBD'}</div>
                       <div>Timeline: {sizing.estimatedWeeksMin && sizing.estimatedWeeksMax
                         ? `${formatDuration(sizing.estimatedWeeksMin)} - ${formatDuration(sizing.estimatedWeeksMax)}`
@@ -268,7 +268,7 @@ export default function TShirtSizingDisplayLegoBlock({
               <div className="text-sm font-medium">Investment</div>
               <div className="text-xs text-gray-600">
                 {sizing.estimatedCostMin && sizing.estimatedCostMax 
-                  ? `${formatCurrency(sizing.estimatedCostMin)} - ${formatCurrency(sizing.estimatedCostMax)}`
+                  ? `${formatCurrencyValue(sizing.estimatedCostMin)} - ${formatCurrencyValue(sizing.estimatedCostMax)}`
                   : 'TBD'
                 }
               </div>
@@ -318,7 +318,7 @@ export default function TShirtSizingDisplayLegoBlock({
           <div className="flex items-start gap-1">
             <TrendingUp className="h-3 w-3 mt-0.5 flex-shrink-0" />
             <span>
-              <strong>Strategy:</strong> {getStrategyRecommendation(quadrant, sizing)}
+              <strong>Strategy:</strong> {getStrategyRecommendation(quadrant, sizing, currencySymbol)}
             </span>
           </div>
         </div>
@@ -327,22 +327,22 @@ export default function TShirtSizingDisplayLegoBlock({
   );
 }
 
-function getStrategyRecommendation(quadrant: string, sizing: any): string {
+function getStrategyRecommendation(quadrant: string, sizing: any, currencySymbol: string): string {
   const cost = sizing.estimatedCostMin;
   const weeks = sizing.estimatedWeeksMin;
 
   switch (quadrant) {
     case 'Quick Win':
-      return `Prioritize immediately - ${cost ? `£${Math.round(cost/1000)}K` : 'low'} investment with ${weeks ? `${Math.round(weeks)} weeks` : 'fast'} delivery`;
+      return `Prioritize immediately - ${cost ? `${currencySymbol}${Math.round(cost/1000)}K` : 'low'} investment with ${weeks ? `${Math.round(weeks)} weeks` : 'fast'} delivery`;
     
     case 'Strategic Bet':
-      return `Plan carefully with adequate resources - ${cost ? `£${Math.round(cost/1000)}K` : 'significant'} investment requires ${weeks ? `${Math.round(weeks/4)} months` : 'extended timeline'}`;
+      return `Plan carefully with adequate resources - ${cost ? `${currencySymbol}${Math.round(cost/1000)}K` : 'significant'} investment requires ${weeks ? `${Math.round(weeks/4)} months` : 'extended timeline'}`;
     
     case 'Experimental':
-      return `Consider for capability building - ${cost ? `£${Math.round(cost/1000)}K` : 'modest'} investment in ${weeks ? `${Math.round(weeks)} weeks` : 'short timeframe'}`;
+      return `Consider for capability building - ${cost ? `${currencySymbol}${Math.round(cost/1000)}K` : 'modest'} investment in ${weeks ? `${Math.round(weeks)} weeks` : 'short timeframe'}`;
     
     case 'Watchlist':
-      return `Monitor for future potential - ${cost ? `£${Math.round(cost/1000)}K` : 'high'} cost may not justify ${weeks ? `${Math.round(weeks/4)} month` : 'extended'} effort`;
+      return `Monitor for future potential - ${cost ? `${currencySymbol}${Math.round(cost/1000)}K` : 'high'} cost may not justify ${weeks ? `${Math.round(weeks/4)} month` : 'extended'} effort`;
     
     default:
       return 'Evaluate against business priorities and available resources';

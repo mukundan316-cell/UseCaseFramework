@@ -17,6 +17,7 @@ import {
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { calculateTShirtSize } from '@shared/calculations';
 import { getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
+import { useCurrency } from '@/hooks/useCurrency';
 
 /**
  * LEGO Block: Resource Planning Metrics
@@ -25,6 +26,7 @@ import { getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/
  */
 export default function ResourcePlanningMetricsLegoBlock() {
   const { useCases, getFilteredUseCases, metadata } = useUseCases();
+  const { symbol: currencySymbol, formatCompact } = useCurrency();
   
   const filteredUseCases = getFilteredUseCases();
   const tShirtConfig = metadata?.tShirtSizing;
@@ -144,15 +146,8 @@ export default function ResourcePlanningMetricsLegoBlock() {
     };
   }, [filteredUseCases, tShirtConfig]);
 
-  // Format currency with RSA styling
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `£${(amount / 1000000).toFixed(1)}M`;
-    } else if (amount >= 1000) {
-      return `£${(amount / 1000).toFixed(0)}K`;
-    }
-    return `£${Math.round(amount).toLocaleString()}`;
-  };
+  // Format currency with RSA styling - uses dynamic currency from useCurrency hook
+  const formatCurrency = (amount: number) => formatCompact(amount);
 
   // Format duration
   const formatDuration = (weeks: number) => {

@@ -152,7 +152,7 @@ interface ValueRealizationViewProps {
 
 export default function ValueRealizationView({ scope = 'all' }: ValueRealizationViewProps) {
   const { selectedEngagementId, selectedClientId } = useEngagement();
-  const { formatCompact: formatCurrency } = useCurrency();
+  const { formatCompact: formatCurrency, symbol: currencySymbol } = useCurrency();
   const useCasesEndpoint = scope === 'active' 
     ? (selectedEngagementId ? `/api/use-cases/dashboard?engagementId=${selectedEngagementId}` : '/api/use-cases/dashboard')
     : (selectedEngagementId ? `/api/use-cases?engagementId=${selectedEngagementId}` : '/api/use-cases');
@@ -310,7 +310,7 @@ export default function ValueRealizationView({ scope = 'all' }: ValueRealization
                 <ArrowUpRight className="h-8 w-8 text-purple-600" />
                 <div>
                   <p className="text-2xl font-bold text-purple-900">
-                    {hasValueData ? formatCurrency(portfolioSummary.cumulativeValue) : '£0'}
+                    {hasValueData ? formatCurrency(portfolioSummary.cumulativeValue) : `${currencySymbol}0`}
                   </p>
                   <Progress value={coverageRate} className="w-20 h-2 mt-1" />
                 </div>
@@ -333,21 +333,21 @@ export default function ValueRealizationView({ scope = 'all' }: ValueRealization
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    High Value (&gt;£200K)
+                    High Value (&gt;{currencySymbol}200K)
                   </span>
                   <span className="font-medium">{metrics?.valueTiers.high || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                    Medium Value (£50K-£200K)
+                    Medium Value ({currencySymbol}50K-{currencySymbol}200K)
                   </span>
                   <span className="font-medium">{metrics?.valueTiers.medium || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    Low Value (&lt;£50K)
+                    Low Value (&lt;{currencySymbol}50K)
                   </span>
                   <span className="font-medium">{metrics?.valueTiers.low || 0}</span>
                 </div>

@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface ValueEstimationLegoBlockProps {
   processes: string[];
@@ -44,6 +45,8 @@ export default function ValueEstimationLegoBlock({
   selectedKpis = [],
   onKpiSelectionChange
 }: ValueEstimationLegoBlockProps) {
+  const { formatCompact, symbol: currencySymbol } = useCurrency();
+  
   // Fetch KPI library from DB via API instead of hardcoded defaults
   const { data: valueConfig } = useQuery<ValueRealizationConfig>({
     queryKey: ['/api/value/config'],
@@ -92,9 +95,7 @@ export default function ValueEstimationLegoBlock({
   };
 
   const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
-    if (amount >= 1000) return `£${Math.round(amount / 1000)}K`;
-    return `£${Math.round(amount).toLocaleString()}`;
+    return formatCompact(amount);
   };
 
   const getMaturityColor = (level: string) => {
@@ -293,7 +294,7 @@ export default function ValueEstimationLegoBlock({
                       </label>
                       {hasMonetaryValue && (
                         <span className="text-xs text-green-600" title="Contributes to monetary value">
-                          (£)
+                          ({currencySymbol})
                         </span>
                       )}
                     </div>

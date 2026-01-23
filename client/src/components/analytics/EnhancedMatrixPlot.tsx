@@ -21,6 +21,7 @@ import { isScoreAboveThreshold, isScoreBelowOrEqualThreshold, formatScore } from
 import PortfolioTableView from './PortfolioTableView';
 import { useQuery } from '@tanstack/react-query';
 import type { TomConfig } from '@shared/tom';
+import { useCurrency } from '@/hooks/useCurrency';
 
 /**
  * Enhanced Matrix Plot for Executive Dashboard
@@ -30,6 +31,7 @@ import type { TomConfig } from '@shared/tom';
 export default function EnhancedMatrixPlot() {
   const { useCases, dashboardUseCases, metadata } = useUseCases();
   const { selectedClientId } = useEngagement();
+  const { formatCompact } = useCurrency();
   const [selectedQuadrant, setSelectedQuadrant] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -168,12 +170,10 @@ export default function EnhancedMatrixPlot() {
         ? calculateTShirtSize(data.y, data.x, tShirtConfig)
         : null;
 
-      // Format currency
-      const formatCurrency = (amount: number | null) => {
+      // Format currency using dynamic currency from client context
+      const formatCurrencyValue = (amount: number | null) => {
         if (!amount) return 'TBD';
-        if (amount >= 1000000) return `£${(amount / 1000000).toFixed(1)}M`;
-        if (amount >= 1000) return `£${(amount / 1000).toFixed(0)}K`;
-        return `£${Math.round(amount).toLocaleString()}`;
+        return formatCompact(amount);
       };
 
       // Format duration
@@ -227,7 +227,7 @@ export default function EnhancedMatrixPlot() {
                     {sizing.size}
                   </span></p>
                   {sizing.estimatedCostMin && sizing.estimatedCostMax && (
-                    <p><span className="font-medium">Investment:</span> {formatCurrency(sizing.estimatedCostMin)} - {formatCurrency(sizing.estimatedCostMax)}</p>
+                    <p><span className="font-medium">Investment:</span> {formatCurrencyValue(sizing.estimatedCostMin)} - {formatCurrencyValue(sizing.estimatedCostMax)}</p>
                   )}
                   {sizing.estimatedWeeksMin && sizing.estimatedWeeksMax && (
                     <p><span className="font-medium">Timeline:</span> {formatDuration(sizing.estimatedWeeksMin)} - {formatDuration(sizing.estimatedWeeksMax)}</p>
