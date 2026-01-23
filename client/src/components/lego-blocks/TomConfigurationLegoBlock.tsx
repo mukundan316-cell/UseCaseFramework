@@ -265,13 +265,13 @@ export default function TomConfigurationLegoBlock() {
               <div className="space-y-3">
                 <Label>Staffing Ratios by Phase</Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {(tomConfig?.phases || []).filter(p => (p as any).staffingRatio).map((phase) => (
+                  {(tomConfig?.phases || []).filter(p => p.staffingRatio).map((phase) => (
                     <div key={phase.id} className="rounded-lg border p-3 text-center">
                       <div className="text-xs text-muted-foreground capitalize mb-1">{phase.name}</div>
                       <div className="text-sm">
-                        <span className="text-blue-600 font-medium">{Math.round(((phase as any).staffingRatio?.vendor || 0) * 100)}%</span>
+                        <span className="text-blue-600 font-medium">{Math.round((phase.staffingRatio?.vendor || 0) * 100)}%</span>
                         <span className="text-muted-foreground mx-1">/</span>
-                        <span className="text-green-600 font-medium">{Math.round(((phase as any).staffingRatio?.client || 0) * 100)}%</span>
+                        <span className="text-green-600 font-medium">{Math.round((phase.staffingRatio?.client || 0) * 100)}%</span>
                       </div>
                       <div className="text-xs text-muted-foreground">Vendor / Client</div>
                     </div>

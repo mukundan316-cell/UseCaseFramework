@@ -231,7 +231,7 @@ export default function PhaseManagementLegoBlock() {
       mappedDeployments: phase.mappedDeployments,
       manualOnly: phase.manualOnly,
       phaseDefaults: phase.phaseDefaults || DEFAULT_PHASE_DEFAULTS,
-      staffingRatio: (phase as any).staffingRatio || { vendor: 0.5, client: 0.5 }
+      staffingRatio: phase.staffingRatio || { vendor: 0.5, client: 0.5 }
     });
   };
 

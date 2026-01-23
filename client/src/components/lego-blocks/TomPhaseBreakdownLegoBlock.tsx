@@ -29,7 +29,8 @@ export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomP
   });
 
   const { data: phaseSummary, isLoading } = useQuery<PhaseSummary>({
-    queryKey: [`/api/tom/phase-summary?scope=${scope}`],
+    queryKey: ['/api/tom/phase-summary', selectedClientId, scope],
+    queryFn: () => fetch(`/api/tom/phase-summary?scope=${scope}${selectedClientId ? `&clientId=${selectedClientId}` : ''}`).then(res => res.json()),
     enabled: tomConfig?.enabled === 'true',
   });
 
