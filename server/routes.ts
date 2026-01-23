@@ -1239,6 +1239,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client-specific TOM config (path parameter version for TanStack Query default queryFn)
+  app.get("/api/tom/config/:clientId", async (req, res) => {
+    try {
+      const clientId = req.params.clientId || 'default';
+      const metadata = await storage.getMetadataConfigById(clientId);
+      const { ensureTomConfig } = await import("@shared/tom");
+      const tomConfig = ensureTomConfig(metadata?.tomConfig);
+      res.json(tomConfig);
+    } catch (error) {
+      console.error("Error fetching TOM config:", error);
+      res.status(500).json({ error: "Failed to fetch TOM configuration" });
+    }
+  });
+
   app.put("/api/tom/config", async (req, res) => {
     try {
       const clientId = (req.query.clientId as string) || 'default';
