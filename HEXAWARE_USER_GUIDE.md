@@ -23,6 +23,7 @@ This guide will help you navigate and use the Hexaware AI Use Case Value Framewo
 13. [Value Realization](#value-realization) *(New Jan 2026)*
 14. [Capability Transition](#capability-transition) *(New Jan 2026)*
 15. [Governance & Compliance](#governance-and-compliance) *(New Jan 2026)*
+16. [Phase Transition Governance](#phase-transition-governance) *(New Jan 2026)*
 
 ---
 
@@ -525,3 +526,33 @@ Track how roles transition from vendor to client ownership:
 - Baseline, current, and target ownership states
 - Transition history with dates and notes
 - Confidence levels for transition timelines
+
+### Phase Transition Governance
+
+*(Added January 2026)*
+
+When changing a use case status that would trigger a TOM phase transition, the system checks if exit requirements are complete:
+
+**What Happens:**
+1. When you change the status (e.g., from "Discovery" to "In Progress"), the system calculates if this triggers a phase change
+2. If exit requirements for the current phase are incomplete, a **warning dialog** appears
+3. The dialog shows:
+   - Current phase badge and new phase badge
+   - List of met requirements (green checkmark)
+   - List of pending requirements (amber icon)
+4. You can **Cancel** to go back, or **Proceed Anyway** after providing a justification reason
+
+**Why This Matters:**
+- Ensures governance oversight without blocking work
+- Creates an audit trail of phase transitions
+- Aligns with industry standards (NIST AI RMF, ISO 42001)
+- Justification reasons are stored in `lastPhaseTransitionReason` for compliance
+
+**Viewing Phase Readiness:**
+- Open any use case detail drawer to see the **Phase Readiness** section
+- Shows current TOM phase with readiness percentage
+- Tooltips display pending entry/exit requirements
+- Helps you understand what data to complete for smooth phase progression
+
+**Soft Progressive Capture:**
+The system provides guidance without hard blocking - you can always proceed with work even if requirements are incomplete, but you'll be aware of what's pending.
