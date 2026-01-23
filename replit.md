@@ -3,30 +3,6 @@
 ## Overview
 This project is a production-ready strategic platform designed to prioritize AI use cases within Hexaware. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform aims to streamline AI strategy and decision-making by enabling efficient management, evaluation, and tracking of AI initiatives, ultimately supporting Hexaware's business vision and market potential in the AI domain.
 
-## Recent Changes (January 2026)
-- **Matrix Modal Field Mapping Fix (Latest)**: Fixed Business Unit field showing blank in matrix plot modal despite database having value. Corrected field mappings from singular (`lineOfBusiness`, `businessSegment`) to plural camelCase (`linesOfBusiness`, `businessSegments`) with proper array joining. Added `businessFunction` field for Business Unit display.
-- **Scoring Workflow Fix**: Fixed fundamental workflow issue where users couldn't access scoring questions in Reference Library. Removed `context !== 'reference'` and `isActiveForRsa` conditionals that were blocking Scoring tab. Updated ScoreDropdownLegoBlock to handle value 0 as "Not Scored" state with amber visual styling and "Select a score..." placeholder. Gate progress correctly shows 0% when all scores are 0.
-- **CRUD Modal Visual Hierarchy**: Restructured all 4 tabs with consistent sub-section styling. Details tab now has 6 color-coded sections (Business Context, Implementation Planning, Value Realization, Technical Details, Capability Transition, Documents). Added reusable SectionHeader component with icons and descriptions. Removed duplicate RAI fields from Details tab (moved to dedicated RAI tab). Each section uses distinct background colors for visual separation.
-- **Governance & UX Simplification**: Simplified Operating Model gate to require only Primary Business Owner (removed Business Function and status requirements). New use cases now default to "Discovery" status automatically. Restructured CRUD modal from 5 cluttered tabs into 4 intuitive tabs: Essentials, Scoring & Value, Responsible AI (new dedicated tab with progress badge), and Details (merged content).
-- **Source Type Cleanup**: Simplified librarySource from 5 legacy values to 3 clean values: 'internal', 'industry_standard', 'ai_inventory'. Migrated 48 database records from 'rsa_internal' to 'internal'. Updated all UI components with legacy fallback support for smooth transition.
-- **Engagement Config Extension**: Extended `getConfigsFromEngagement()` to support governanceConfig, valueConfig, and capabilityConfig with proper merge logic. Added three JSONB fields to engagements table for per-engagement customization. Auto-enables TOM/Value/Capability when engagement selects a preset.
-- **Sequential Gate UX Improvement**: GovernanceStepperLegoBlock now shows actual % progress with lock icon when blocked by prior gates (instead of just "Waiting"). Users can see field completion status even when a gate is waiting on predecessors.
-- **RAI Normalization**: ResponsibleAIPortfolioView normalizes customerHarmRisk values to handle null/undefined/whitespace and maps synonyms (none→low, critical→high).
-- **Governance Documentation**: VALUE_FRAMEWORK_GUIDE.md now includes comprehensive sections on Foundation Layer Governance Gates, Use Case Status Lifecycle, Active Portfolio vs Reference Library, and Data Quality Requirements.
-- **Engagement-Centric Architecture**: Use cases now derive TOM phases from their engagement's locked preset instead of global config. API routes support `?engagementId=` query param for scoped filtering. UseCaseContext and Insights views use engagement-aware queries with standard TanStack Query pattern (endpoint URL as queryKey, no custom queryFn). Backend `enrichUseCasesWithTomPhase()` uses `getConfigsFromEngagement()` for per-engagement TOM derivation.
-- **Multi-Tenant Client/Engagement Management**: Added database tables (`clients`, `engagements`) with full CRUD APIs. Engagement context bar displays at top of portal showing selected client and engagement. TOM presets are locked per engagement to prevent mid-stream changes. Default "Hexaware" client with "AI Strategy Initiative" engagement seeded automatically.
-- **Unified TOM Preset & Phases**: Combined Operating Model Preset and Lifecycle Phases into a unified system. Selecting a preset now automatically loads the corresponding lifecycle phases, eliminating configuration disconnect.
-- **Questionnaire Restoration**: Restored "Current AI & Data Capabilities" questionnaire with 200+ elements across 6 pages from git history. Fixed questionnaire storage service to support both directory-based and flat JSON file formats. Admin Assessment tab now shows both questionnaires with accurate question counts.
-- **Insights Scope Toggle**: Added scope toggle to Insights page allowing users to switch between "Active Portfolio" (use cases that passed governance) and "Reference Library" (all use cases for planning). All 4 Insights tabs now respect the selected scope with dynamic API endpoints and badge styling.
-- **Sequential Governance Gate UI**: Updated GovernanceStepperLegoBlock to show "Waiting" status with lock icons for gates blocked by prerequisites. Intake gate waits for Operating Model; RAI gate waits for Intake. Tooltips explain which prior gate is blocking.
-- **Questionnaire Auto-Seeding**: Fixed Admin Assessment questionnaire loading by adding auto-initialization in seed.ts. Questionnaire storage now reads both flat JSON files and subdirectories. Demo questionnaire seeded automatically on startup.
-- **Governance Workflow Enforcement**: Complete governance enforcement requiring all 3 Foundation Layer gates to pass before use case activation. Auto-calculation from field completeness (no manual approval). Backend blocks activation API calls when gates incomplete and auto-deactivates already-active cases if gates regress. No legacy grandfathering - all 125 use cases reset to reference library.
-- **Governance Workflow System**: Implemented Foundation Layer governance gates (Operating Model → Intake & Prioritization → Responsible AI → Activation). Use cases must pass all three gates before entering active portfolio. Includes `governance_audit_log` table for compliance tracking.
-- **Value Realization Improvements**: Fixed KPI-derived value estimation to properly aggregate £45/hr hourly rates, displaying £12.8M total across 72 use cases with estimates
-- **Insights Tab Consistency**: Standardized all four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) with matching layout patterns including summary cards, distribution charts, and use case tables
-- **Project Cleanup**: Removed 20 unused LEGO-block components, temp screenshot images, and outdated planning documentation
-- **Bulk Value Derivation**: Added `/api/value/derive-all` endpoint for batch processing of value estimates across all use cases
-
 ## User Preferences
 - **Communication**: Simple, everyday language
 - **Architecture**: LEGO-style reusable components
@@ -48,12 +24,12 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 
 ### Feature Specifications
 - **Core Data Management**: Full CRUD operations for AI use cases, including a 10-lever scoring framework with automated recalculation and manual override support.
-- **Data Model**: `clients`, `engagements`, `use_cases`, `file_attachments`, `metadata_config`, `response_sessions`, and `users` entities. Client → Engagement (1:many), Engagement → Use Cases (1:many) hierarchy. `metadata_config` centralizes dropdown options, scoring logic, T-shirt sizing, and Target Operating Model (TOM) configuration.
-- **Target Operating Model (TOM)**: Configurable layer mapping use cases to lifecycle phases based on status, supporting four operating model presets. Features API endpoints and UI for configuration and visualization. Supports multi-client configurations.
+- **Data Model**: `clients`, `engagements`, `use_cases`, `file_attachments`, `metadata_config`, `response_sessions`, and `users` entities, forming a Client → Engagement → Use Cases hierarchy. `metadata_config` centralizes dropdown options, scoring logic, T-shirt sizing, and Target Operating Model (TOM) configuration.
+- **Target Operating Model (TOM)**: Configurable layer mapping use cases to lifecycle phases based on status, supporting four operating model presets. Supports multi-client configurations.
 - **Analytics**: Interactive matrix plots, executive dashboards, and PDF export with ROI explanations.
 - **Assessment System**: Multi-questionnaire platform using Survey.js for dynamic workflows.
 - **File Management**: Local filesystem storage (`uploads/`) for various file types, with metadata tracking and a 50MB per file limit.
-- **Modularity**: ~65 active LEGO components for reusability (pruned from 85+).
+- **Modularity**: ~65 active LEGO components for reusability.
 - **Validation**: Minimal validation (title + description) using Zod schemas and centralized configuration.
 - **Excel Integration**: Multi-worksheet import/export with auto-ID generation.
 - **API Design**: RESTful patterns with structured error responses and server-side validation.
@@ -61,53 +37,24 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 - **Performance**: Client-side PDF generation, debounced search, and optimized rendering.
 - **T-shirt Sizing**: Implements UK benchmark compliance for cost and timeline estimations.
 - **Value Realization System**: KPI-based ROI tracking for use cases, including a KPI library, process mapping, and automated value estimation based on maturity scores. Uses £45/hr for hour-based KPI estimates.
-- **Capability Transition Benchmark Derivation**: Automated population of capability transition data (staffing curves, independence projections) from use case attributes, using benchmark archetypes and pace modifiers.
+- **Capability Transition Benchmark Derivation**: Automated population of capability transition data from use case attributes, using benchmark archetypes and pace modifiers.
 - **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations with override protection.
-- **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table, providing a flexible and configurable system with default fallbacks.
+- **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table.
 - **Compliance Features**: Duplicate detection, full audit trail (`use_case_change_log`), and role evolution tracking within capability transitions.
-- **Governance Workflow**: Foundation Layer gates (Operating Model → Intake → RAI) must be cleared before use cases enter active portfolio. Auto-calculated from field completeness:
-  - Operating Model: Primary Business Owner, Use Case Status (not Discovery), Business Function
-  - Intake & Prioritization: All 10 scoring levers (1-5 range, 0 = incomplete)
-  - Responsible AI: All 5 RAI fields answered (explainability, customer harm risk, human accountability, data location, third-party model)
-  Backend enforcement blocks activation API calls and auto-deactivates if gates regress. Visual stepper in CRUD modal shows real-time gate progress.
+- **Governance Workflow**: Foundation Layer gates (Operating Model → Intake & Prioritization → Responsible AI → Activation) must be cleared before use cases enter active portfolio. Auto-calculated from field completeness. Backend enforcement blocks activation API calls and auto-deactivates if gates regress. Visual stepper in CRUD modal shows real-time gate progress.
 - **Navigation**: All features accessible via tab navigation from home page: Dashboard View, Explorer, Insights, AI Assessment, Admin.
 
 ### Insights Dashboard Structure
-All four Insights tabs follow a consistent pattern:
+All four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) follow a consistent pattern:
 1. **Summary Cards**: 4 key metrics with icons and help tooltips
 2. **Distribution Charts**: Visual breakdowns (bar charts, progress bars)
 3. **Use Case Table**: Detailed list with status badges and key metrics
 
-Tabs:
-- **Value Realization**: Portfolio value tracking (£12.8M estimated, 72 use cases with estimates)
-- **Operating Model**: TOM phase distribution and lifecycle management
-- **Capability Transition**: Staffing projections and independence metrics
-- **Responsible AI**: RAI compliance scoring and risk assessment
-
-## Project Structure (Key Directories)
-```
-client/src/
-├── components/
-│   ├── insights/          # 4 Insights tab views
-│   ├── lego-blocks/       # ~65 reusable LEGO components
-│   ├── analytics/         # Dashboard and chart components
-│   └── ui/                # shadcn/ui primitives
-├── pages/                 # Route pages
-└── lib/                   # Utilities and API client
-server/
-├── routes.ts              # All API endpoints
-├── derivation.ts          # Value/TOM/capability derivation logic
-└── storage.ts             # Database interface
-shared/
-├── schema.ts              # Drizzle ORM schema
-└── valueRealization.ts    # Value calculation utilities
-```
-
 ## External Dependencies
 
-- **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion
+- **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion, Radix UI primitives
 - **Data Management**: Drizzle ORM, TanStack Query, Zod
 - **File Processing**: PDFKit, Survey.js, LibreOffice, Multer
 - **Database**: PostgreSQL (@neondatabase/serverless)
 - **Session Management**: express-session, connect-pg-simple
-- **Specialized**: Survey.js ecosystem, Radix UI primitives
+- **Specialized**: Survey.js ecosystem
