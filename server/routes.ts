@@ -1458,6 +1458,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client-specific phase summary (path parameter version for TanStack Query default queryFn)
+  app.get("/api/tom/phase-summary/:clientId", async (req, res) => {
+    try {
+      const clientId = req.params.clientId || 'default';
+      const scope = (req.query.scope as string) || 'all';
+      const metadata = await storage.getMetadataConfigById(clientId);
+      const { ensureTomConfig, calculatePhaseSummary, mergePresetProfile } = await import("@shared/tom");
+      const { calculateGovernanceStatus } = await import("@shared/calculations");
+      const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
+      
+      if (tomConfig.enabled !== 'true') {
+        return res.json({ enabled: false, summary: {} });
+      }
+      
+      const useCases = scope === 'dashboard' 
+        ? await storage.getDashboardUseCases() 
+        : await storage.getAllUseCases();
+      
+      const summary = calculatePhaseSummary(
+        useCases.map(uc => {
+          const govStatus = calculateGovernanceStatus(uc);
+          return {
+            useCaseStatus: uc.useCaseStatus,
+            deploymentStatus: uc.deploymentStatus,
+            tomPhaseOverride: uc.tomPhaseOverride,
+            governanceGates: {
+              operatingModelPassed: govStatus.operatingModel.passed,
+              intakePassed: govStatus.intake.passed,
+              raiPassed: govStatus.rai.passed
+            }
+          };
+        }),
+        tomConfig
+      );
+      
+      res.json({ 
+        enabled: true, 
+        summary,
+        phases: tomConfig.phases.map(p => ({
+          id: p.id,
+          name: p.name,
+          color: p.color,
+          count: summary[p.id] || 0
+        })),
+        unphasedCount: summary['unphased'] || 0
+      });
+    } catch (error) {
+      console.error("Error calculating TOM phase summary:", error);
+      res.status(500).json({ error: "Failed to calculate phase summary" });
+    }
+  });
+
   app.post("/api/tom/seed-default", async (req, res) => {
     try {
       const { DEFAULT_TOM_CONFIG } = await import("@shared/tom");

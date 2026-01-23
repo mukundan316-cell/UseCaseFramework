@@ -862,7 +862,7 @@ export function calculateRAIGate(useCase: any): GovernanceGateStatus {
     { key: 'explainabilityRequired', label: 'Explainability Required', validator: isBooleanStringSet },
     { key: 'customerHarmRisk', label: 'Customer Harm Risk', validator: isSelectFieldSet },
     { key: 'humanAccountability', label: 'Human Accountability', validator: isBooleanStringSet },
-    { key: 'dataOutsideUkEu', label: 'Data Outside UK/EU', validator: isBooleanStringSet },
+    { key: 'dataOutsideUkEu', label: 'Cross-Border Data Transfer', validator: isBooleanStringSet },
     { key: 'thirdPartyModel', label: 'Third Party Model', validator: isBooleanStringSet }
   ];
 

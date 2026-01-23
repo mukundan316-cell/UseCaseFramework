@@ -800,7 +800,7 @@ export default function UseCaseDetailDrawer({
                   />
 
                   <FieldDisplay 
-                    label="Data Outside UK/EU"
+                    label="Cross-Border Data Transfer"
                     value={extendedUseCase.dataOutsideUkEu}
                     icon={Network}
                   />

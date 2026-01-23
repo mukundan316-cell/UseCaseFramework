@@ -391,7 +391,7 @@ export default function ResponsibleAIPortfolioView({ scope = 'all' }: Responsibl
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-600 flex items-center gap-2">
-                      <MapPin className="h-4 w-4" /> Data Location (UK/EU)
+                      <MapPin className="h-4 w-4" /> Cross-Border Data Transfer
                     </span>
                     <span className="text-sm font-medium">{metrics.fieldCoverage.dataLocation}/{metrics.totalUseCases}</span>
                   </div>
@@ -444,7 +444,7 @@ export default function ResponsibleAIPortfolioView({ scope = 'all' }: Responsibl
                     <th className="text-center py-3 px-2 font-medium text-gray-600">
                       <Tooltip>
                         <TooltipTrigger><MapPin className="h-4 w-4 mx-auto" /></TooltipTrigger>
-                        <TooltipContent>Data Outside UK/EU</TooltipContent>
+                        <TooltipContent>Cross-Border Data Transfer</TooltipContent>
                       </Tooltip>
                     </th>
                     <th className="text-center py-3 px-2 font-medium text-gray-600">

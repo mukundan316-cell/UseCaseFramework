@@ -2277,7 +2277,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-semibold">
-                            Data processing outside UK/EU? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
+                            Cross-border data transfer? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
                           </FormLabel>
                           <Select 
                             onValueChange={(value) => field.onChange(value)} 
@@ -2289,8 +2289,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="true">Yes - Data processed outside UK/EU</SelectItem>
-                              <SelectItem value="false">No - Data stays within UK/EU</SelectItem>
+                              <SelectItem value="true">Yes - Data transferred across jurisdictions</SelectItem>
+                              <SelectItem value="false">No - Data stays within local jurisdiction</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />

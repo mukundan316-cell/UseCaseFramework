@@ -491,7 +491,7 @@ export class ExcelImportService {
         // RSA Ethical Principles - use defaults instead of null to match schema requirements
         explainabilityRequired: ExcelImportService.parseBoolean(getValue('Explainability Required')) || 'false',
         customerHarmRisk: getValue('Customer Harm Risk') || null,
-        dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')) || 'false',
+        dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Cross-Border Data Transfer')) || 'false',
         thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')) || 'false',
         humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
         regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')),
@@ -557,7 +557,7 @@ export class ExcelImportService {
         // RSA Ethical Principles for AI Inventory
         explainabilityRequired: ExcelImportService.parseBoolean(getValue('Explainability Required')) || 'false',
         customerHarmRisk: getValue('Customer Harm Risk') || null,
-        dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Data Outside UK/EU')) || 'false',
+        dataOutsideUkEu: ExcelImportService.parseBoolean(getValue('Cross-Border Data Transfer')) || 'false',
         thirdPartyModel: ExcelImportService.parseBoolean(getValue('Third Party Model')) || 'false',
         humanAccountability: ExcelImportService.parseBoolean(getValue('Human Accountability')) || 'false',
         regulatoryCompliance: ExcelImportService.parseNumber(getValue('Regulatory Compliance (1-5)')),

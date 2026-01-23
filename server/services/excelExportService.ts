@@ -555,7 +555,7 @@ export class ExcelExportService {
       [''],
       ['BOOLEAN FIELDS (true/false)'],
       ['Examples: true, false (not "Yes", "No", "Y", "N")'],
-      ['Used for: Explainability Required, Data Outside UK/EU, etc.'],
+      ['Used for: Explainability Required, Cross-Border Data Transfer, etc.'],
       [''],
       ['ARRAY FIELDS (semicolon-separated)'],
       ['Examples: "Machine Learning; Natural Language Processing"'],
@@ -766,7 +766,7 @@ export class ExcelExportService {
       'AI/ML Technologies', 'Data Sources', 'Stakeholder Groups',
       'Horizontal Use Case', 'Horizontal Use Case Types', 'Integration Requirements',
       // RSA Ethical Principles
-      'Explainability Required', 'Customer Harm Risk', 'Data Outside UK/EU',
+      'Explainability Required', 'Customer Harm Risk', 'Cross-Border Data Transfer',
       'Third Party Model', 'Human Accountability',
       // AI Inventory Specific
       'Business Function', 'AI Inventory Status', 'Deployment Status', 'AI or Model',
@@ -878,7 +878,7 @@ export class ExcelExportService {
       'AI/ML Technologies', 'Data Sources', 'Stakeholder Groups',
       'Horizontal Use Case', 'Horizontal Use Case Types', 'Integration Requirements',
       // RSA Ethical Principles
-      'Explainability Required', 'Customer Harm Risk', 'Data Outside UK/EU',
+      'Explainability Required', 'Customer Harm Risk', 'Cross-Border Data Transfer',
       'Third Party Model', 'Human Accountability', 'Regulatory Compliance (1-5)',
       // Strategic-specific fields (excluding manual override system fields)
       'Activation Reason',
@@ -911,7 +911,7 @@ export class ExcelExportService {
       'Policy Governance', 'Validation Responsibility', 'Informed By',
       'Third Party Provided Model',
       // RSA Ethical Principles
-      'Explainability Required', 'Customer Harm Risk', 'Data Outside UK/EU',
+      'Explainability Required', 'Customer Harm Risk', 'Cross-Border Data Transfer',
       'Third Party Model', 'Human Accountability', 'Regulatory Compliance (1-5)',
       // Portfolio fields
       'Portfolio Status', 'Library Source', 'Has Presentation'
@@ -1000,7 +1000,7 @@ export class ExcelExportService {
       // RSA Ethical Principles (6)
       'Explainability Required',
       'Customer Harm Risk',
-      'Data Outside UK/EU',
+      'Cross-Border Data Transfer',
       'Third Party Model',
       'Human Accountability',
       'Regulatory Compliance (1-5)',
@@ -1140,7 +1140,7 @@ export class ExcelExportService {
       'Third Party Provided Model',
       'Explainability Required',
       'Customer Harm Risk',
-      'Data Outside UK/EU',
+      'Cross-Border Data Transfer',
       'Third Party Model',
       'Human Accountability',
       'Regulatory Compliance (1-5)',
