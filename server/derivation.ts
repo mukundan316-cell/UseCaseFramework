@@ -328,6 +328,10 @@ export interface PhaseDefaultsApplication {
   independenceFts?: number | null;
   targetIndependence?: number | null;
   currentIndependence?: number | null;
+  expectedValueMin?: number | null;
+  expectedValueMax?: number | null;
+  riskTier?: string | null;
+  raiAssessmentRequired?: string;
 }
 
 export function applyPhaseDefaults(
@@ -365,6 +369,26 @@ export function applyPhaseDefaults(
     }
     if (ct.currentIndependence !== null && (useCase.currentIndependence === null || useCase.currentIndependence === undefined)) {
       result.currentIndependence = ct.currentIndependence;
+    }
+  }
+
+  if (defaults.valueRealization) {
+    const vr = defaults.valueRealization;
+    if (vr.expectedValueRangeMin !== null && (useCase.expectedValueMin === null || useCase.expectedValueMin === undefined)) {
+      result.expectedValueMin = vr.expectedValueRangeMin;
+    }
+    if (vr.expectedValueRangeMax !== null && (useCase.expectedValueMax === null || useCase.expectedValueMax === undefined)) {
+      result.expectedValueMax = vr.expectedValueRangeMax;
+    }
+  }
+
+  if (defaults.responsibleAI) {
+    const rai = defaults.responsibleAI;
+    if (rai.riskTier !== null && (useCase.riskTier === null || useCase.riskTier === undefined)) {
+      result.riskTier = rai.riskTier;
+    }
+    if (rai.assessmentRequired && (useCase.raiAssessmentRequired === null || useCase.raiAssessmentRequired === undefined)) {
+      result.raiAssessmentRequired = 'true';
     }
   }
 
