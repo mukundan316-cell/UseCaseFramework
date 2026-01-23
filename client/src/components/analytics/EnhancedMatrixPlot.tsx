@@ -13,6 +13,7 @@ import {
   AlertTriangle, Sparkles, Users, DollarSign, HelpCircle, Info, Table, BarChart3, Eye
 } from 'lucide-react';
 import { useUseCases } from '../../contexts/UseCaseContext';
+import { useEngagement } from '../../contexts/EngagementContext';
 import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore } from '@shared/utils/scoreOverride';
 import { APP_CONFIG } from '@shared/constants/app-config';
 import { calculateTShirtSize } from '@shared/calculations';
@@ -28,6 +29,7 @@ import type { TomConfig } from '@shared/tom';
 
 export default function EnhancedMatrixPlot() {
   const { useCases, dashboardUseCases, metadata } = useUseCases();
+  const { selectedClientId } = useEngagement();
   const [selectedQuadrant, setSelectedQuadrant] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -36,7 +38,7 @@ export default function EnhancedMatrixPlot() {
 
   // Fetch TOM config for phase filter
   const { data: tomConfig, isError: tomConfigError } = useQuery<TomConfig>({
-    queryKey: ['/api/tom/config'],
+    queryKey: ['/api/tom/config', selectedClientId],
   });
   
   // Safe color utility with fallback

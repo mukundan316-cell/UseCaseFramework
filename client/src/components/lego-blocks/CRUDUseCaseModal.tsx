@@ -51,7 +51,7 @@ import ValueEstimationLegoBlock from './ValueEstimationLegoBlock';
 import TShirtSizingDisplayLegoBlock from './TShirtSizingDisplayLegoBlock';
 import GovernanceGuideLegoBlock from './GovernanceGuideLegoBlock';
 import { HelpCircle } from 'lucide-react';
-
+import { useEngagement } from '@/contexts/EngagementContext';
 
 const formSchema = z.object({
   // Minimal validation - only title and description are required, relaxed character limits
@@ -170,10 +170,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const sortedMetadata = useSortedMetadata();
+  const { selectedClientId } = useEngagement();
 
   // TOM Configuration query
   const { data: tomConfig } = useQuery<TomConfig>({
-    queryKey: ['/api/tom/config'],
+    queryKey: ['/api/tom/config', selectedClientId],
   });
   const isTomEnabled = tomConfig?.enabled === 'true';
   const tomPhases = tomConfig?.phases || [];

@@ -12,6 +12,7 @@ import SourceLegend from './SourceLegend';
 import UseCaseDetailDrawer from './UseCaseDetailDrawer';
 import { getSourceConfig } from '../../utils/sourceColors';
 import { useSortedMetadata } from '../../hooks/useSortedMetadata';
+import { useEngagement } from '../../contexts/EngagementContext';
 import { useQuery } from '@tanstack/react-query';
 import type { TomConfig } from '@shared/tom';
 
@@ -107,10 +108,11 @@ export default function ImprovedUseCaseExplorer({
     // TOM Phase filter
     tomPhase: ''
   });
+  const { selectedClientId } = useEngagement();
 
   // Fetch TOM config for phase filter options
   const { data: tomConfig, isError: tomConfigError } = useQuery<TomConfig>({
-    queryKey: ['/api/tom/config'],
+    queryKey: ['/api/tom/config', selectedClientId],
   });
 
   // Safe color utility with fallback

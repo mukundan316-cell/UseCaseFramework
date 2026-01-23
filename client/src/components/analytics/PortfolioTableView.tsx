@@ -12,6 +12,7 @@ import { getEffectiveQuadrant, getEffectiveImpactScore, getEffectiveEffortScore 
 import { calculateTShirtSize, calculateAnnualBenefitRange } from '@shared/calculations';
 import { formatScore } from '@shared/utils/scoreFormatting';
 import { UseCase } from '../../types';
+import { useEngagement } from '../../contexts/EngagementContext';
 import { useQuery } from '@tanstack/react-query';
 import type { TomConfig } from '@shared/tom';
 
@@ -62,10 +63,11 @@ export default function PortfolioTableView({ useCases, metadata, onViewUseCase, 
   const [dialogContent, setDialogContent] = useState<{type: string; title: string; content: string}>({
     type: '', title: '', content: ''
   });
+  const { selectedClientId } = useEngagement();
 
   // Fetch TOM config to show TOM Phase column when enabled
   const { data: tomConfig } = useQuery<TomConfig>({
-    queryKey: ['/api/tom/config'],
+    queryKey: ['/api/tom/config', selectedClientId],
   });
   const showTomPhase = tomConfig?.enabled === 'true';
 

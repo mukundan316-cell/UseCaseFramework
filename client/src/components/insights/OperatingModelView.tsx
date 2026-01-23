@@ -100,7 +100,7 @@ interface OperatingModelViewProps {
 }
 
 export default function OperatingModelView({ scope = 'all' }: OperatingModelViewProps) {
-  const { selectedEngagementId } = useEngagement();
+  const { selectedEngagementId, selectedClientId } = useEngagement();
   const useCasesEndpoint = scope === 'active' 
     ? (selectedEngagementId ? `/api/use-cases/dashboard?engagementId=${selectedEngagementId}` : '/api/use-cases/dashboard')
     : (selectedEngagementId ? `/api/use-cases?engagementId=${selectedEngagementId}` : '/api/use-cases');
@@ -111,7 +111,7 @@ export default function OperatingModelView({ scope = 'all' }: OperatingModelView
   });
 
   const { data: tomConfig } = useQuery<TomConfig>({
-    queryKey: ['/api/tom/config'],
+    queryKey: ['/api/tom/config', selectedClientId],
   });
 
   const { data: phaseSummary, isLoading: summaryLoading } = useQuery<PhaseSummary>({

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
+import { useEngagement } from '@/contexts/EngagementContext';
 import { Target, Loader2 } from 'lucide-react';
 import type { TomConfig } from '@shared/tom';
 
@@ -22,8 +23,9 @@ interface TomPhaseBreakdownLegoBlockProps {
 }
 
 export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomPhaseBreakdownLegoBlockProps) {
+  const { selectedClientId } = useEngagement();
   const { data: tomConfig } = useQuery<TomConfig>({
-    queryKey: ['/api/tom/config'],
+    queryKey: ['/api/tom/config', selectedClientId],
   });
 
   const { data: phaseSummary, isLoading } = useQuery<PhaseSummary>({
