@@ -16,6 +16,11 @@ import type { TomPhase, TomConfig, TomGovernanceBody, PhaseDefaults } from '@sha
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 
+interface StaffingRatio {
+  vendor: number;
+  client: number;
+}
+
 interface PhaseFormData {
   id: string;
   name: string;
@@ -27,6 +32,7 @@ interface PhaseFormData {
   mappedDeployments: string[];
   manualOnly: boolean;
   phaseDefaults: PhaseDefaults;
+  staffingRatio: StaffingRatio;
 }
 
 const DEFAULT_PHASE_DEFAULTS: PhaseDefaults = {
@@ -93,7 +99,8 @@ export default function PhaseManagementLegoBlock() {
     mappedStatuses: [],
     mappedDeployments: [],
     manualOnly: false,
-    phaseDefaults: DEFAULT_PHASE_DEFAULTS
+    phaseDefaults: DEFAULT_PHASE_DEFAULTS,
+    staffingRatio: { vendor: 0.5, client: 0.5 }
   });
 
   const { data: tomConfig, isLoading } = useQuery<TomConfig>({
@@ -130,15 +137,17 @@ export default function PhaseManagementLegoBlock() {
       mappedStatuses: [],
       mappedDeployments: [],
       manualOnly: false,
-      phaseDefaults: DEFAULT_PHASE_DEFAULTS
+      phaseDefaults: DEFAULT_PHASE_DEFAULTS,
+      staffingRatio: { vendor: 0.5, client: 0.5 }
     });
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!tomConfig || !formData.name.trim()) return;
     
+    const phaseId = formData.id || formData.name.toLowerCase().replace(/\s+/g, '_');
     const newPhase: TomPhase = {
-      id: formData.id || formData.name.toLowerCase().replace(/\s+/g, '_'),
+      id: phaseId,
       name: formData.name,
       description: formData.description,
       order: tomConfig.phases.length + 1,
@@ -152,12 +161,35 @@ export default function PhaseManagementLegoBlock() {
       phaseDefaults: formData.phaseDefaults
     };
     
+    const activePreset = tomConfig.activePreset || 'hybrid';
+    const phaseKey = phaseId.toLowerCase().replace(/\s+/g, '_');
+    const updatedStaffingRatios = {
+      ...tomConfig.presetProfiles?.[activePreset]?.staffingRatios,
+      [phaseKey]: formData.staffingRatio
+    };
+    
+    const updatedPresetProfiles = {
+      ...tomConfig.presetProfiles,
+      [activePreset]: {
+        ...tomConfig.presetProfiles?.[activePreset],
+        staffingRatios: updatedStaffingRatios
+      }
+    };
+    
+    try {
+      await apiRequest('PATCH', `/api/tom/config?clientId=${clientId}`, {
+        presetProfiles: updatedPresetProfiles
+      });
+    } catch (error) {
+      console.error('Failed to add staffing ratios for new phase:', error);
+    }
+    
     updatePhasesMutation.mutate([...tomConfig.phases, newPhase]);
     setIsAddOpen(false);
     resetForm();
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (!tomConfig || !editingPhase || !formData.name.trim()) return;
     
     const updatedPhases = tomConfig.phases.map(phase => 
@@ -174,6 +206,29 @@ export default function PhaseManagementLegoBlock() {
           }
         : phase
     );
+    
+    const activePreset = tomConfig.activePreset || 'hybrid';
+    const phaseKey = editingPhase.id.toLowerCase().replace(/\s+/g, '_');
+    const updatedStaffingRatios = {
+      ...tomConfig.presetProfiles?.[activePreset]?.staffingRatios,
+      [phaseKey]: formData.staffingRatio
+    };
+    
+    const updatedPresetProfiles = {
+      ...tomConfig.presetProfiles,
+      [activePreset]: {
+        ...tomConfig.presetProfiles?.[activePreset],
+        staffingRatios: updatedStaffingRatios
+      }
+    };
+    
+    try {
+      await apiRequest('PATCH', `/api/tom/config?clientId=${clientId}`, {
+        presetProfiles: updatedPresetProfiles
+      });
+    } catch (error) {
+      console.error('Failed to update staffing ratios:', error);
+    }
     
     updatePhasesMutation.mutate(updatedPhases);
     setEditingPhase(null);
@@ -208,6 +263,11 @@ export default function PhaseManagementLegoBlock() {
 
   const openEditDialog = (phase: TomPhase) => {
     setEditingPhase(phase);
+    const activePreset = tomConfig?.activePreset || 'hybrid';
+    const presetProfile = tomConfig?.presetProfiles?.[activePreset];
+    const phaseKey = phase.id.toLowerCase().replace(/\s+/g, '_');
+    const existingStaffingRatio = presetProfile?.staffingRatios?.[phaseKey] as StaffingRatio | undefined;
+    
     setFormData({
       id: phase.id,
       name: phase.name,
@@ -218,7 +278,8 @@ export default function PhaseManagementLegoBlock() {
       mappedStatuses: phase.mappedStatuses,
       mappedDeployments: phase.mappedDeployments,
       manualOnly: phase.manualOnly,
-      phaseDefaults: phase.phaseDefaults || DEFAULT_PHASE_DEFAULTS
+      phaseDefaults: phase.phaseDefaults || DEFAULT_PHASE_DEFAULTS,
+      staffingRatio: existingStaffingRatio || { vendor: 0.5, client: 0.5 }
     });
   };
 
@@ -376,6 +437,8 @@ export default function PhaseManagementLegoBlock() {
                           <PhaseDefaultsForm 
                             defaults={formData.phaseDefaults}
                             onChange={(defaults) => setFormData(prev => ({ ...prev, phaseDefaults: defaults }))}
+                            staffingRatio={formData.staffingRatio}
+                            onStaffingChange={(ratio) => setFormData(prev => ({ ...prev, staffingRatio: ratio }))}
                           />
                         </TabsContent>
                       </Tabs>
@@ -408,10 +471,14 @@ export default function PhaseManagementLegoBlock() {
 
 function PhaseDefaultsForm({
   defaults,
-  onChange
+  onChange,
+  staffingRatio,
+  onStaffingChange
 }: {
   defaults: PhaseDefaults;
   onChange: (defaults: PhaseDefaults) => void;
+  staffingRatio: StaffingRatio;
+  onStaffingChange: (ratio: StaffingRatio) => void;
 }) {
   const updateCapability = (field: string, value: number | null) => {
     onChange({
@@ -434,12 +501,50 @@ function PhaseDefaultsForm({
     });
   };
 
+  const handleVendorChange = (vendorPercent: number) => {
+    const vendor = Math.max(0, Math.min(100, vendorPercent)) / 100;
+    const client = 1 - vendor;
+    onStaffingChange({ vendor, client });
+  };
+
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         Configure default values that pre-populate when use cases enter this phase. Users can override these.
       </p>
       
+      <div className="space-y-4">
+        <h4 className="font-medium text-sm">Staffing Ratio</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Vendor %</Label>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              value={Math.round(staffingRatio.vendor * 100)}
+              onChange={(e) => handleVendorChange(Number(e.target.value))}
+              data-testid="input-staffing-vendor"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Client %</Label>
+            <Input
+              type="number"
+              value={Math.round(staffingRatio.client * 100)}
+              disabled
+              className="bg-muted"
+              data-testid="input-staffing-client"
+            />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Adjust vendor percentage - client percentage auto-calculates to maintain 100% total.
+        </p>
+      </div>
+
+      <Separator />
+
       <div className="space-y-4">
         <h4 className="font-medium text-sm">Capability Transition Defaults</h4>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
