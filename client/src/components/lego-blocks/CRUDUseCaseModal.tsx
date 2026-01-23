@@ -48,6 +48,8 @@ import HorizontalUseCaseLegoBlock from './HorizontalUseCaseLegoBlock';
 import LoadingState from '@/components/ui/loading-state';
 import ValueEstimationLegoBlock from './ValueEstimationLegoBlock';
 import TShirtSizingDisplayLegoBlock from './TShirtSizingDisplayLegoBlock';
+import GovernanceGuideLegoBlock from './GovernanceGuideLegoBlock';
+import { HelpCircle } from 'lucide-react';
 
 
 const formSchema = z.object({
@@ -1309,6 +1311,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   <Layers className="h-4 w-4" />
                   Details
                 </TabsTrigger>
+                <TabsTrigger value="guide" className="flex items-center gap-2" data-testid="tab-guide">
+                  <HelpCircle className="h-4 w-4" />
+                  Guide
+                </TabsTrigger>
               </ResponsiveTabsListLegoBlock>
 
               {/* Tab 1: Operating Model - Gate 1 Requirements */}
@@ -2341,6 +2347,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     useCaseTitle={form.watch('title')}
                   />
                 </div>
+              </TabsContent>
+
+              {/* Tab 5: Governance Guide - User Help */}
+              <TabsContent value="guide" className="mt-6">
+                <GovernanceGuideLegoBlock
+                  currentGates={{
+                    operatingModel: governanceStatus.operatingModel.passed,
+                    intake: governanceStatus.intake.passed,
+                    rai: governanceStatus.rai.passed,
+                    activation: governanceStatus.operatingModel.passed && governanceStatus.intake.passed && governanceStatus.rai.passed
+                  }}
+                />
               </TabsContent>
             </Tabs>
 
