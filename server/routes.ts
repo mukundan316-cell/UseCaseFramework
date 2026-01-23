@@ -10,7 +10,7 @@ import recommendationRoutes from "./routes/recommendations";
 import exportRoutes from "./routes/export.routes";
 import importRoutes from "./routes/import.routes";
 import presentationRoutes from "./routes/presentations";
-import { derivePhase, type TomConfig, type GovernanceGateInput } from "@shared/tom";
+import { derivePhase, calculatePhaseReadiness, type TomConfig, type GovernanceGateInput, type UseCaseDataForReadiness } from "@shared/tom";
 import { calculateGovernanceStatus } from "@shared/calculations";
 import { deriveAllFields, getDefaultConfigs, getConfigsFromEngagement, shouldTriggerDerivation, applyPhaseDefaults, type UseCaseForDerivation, type EngagementTomContext } from "./derivation";
 
@@ -746,11 +746,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Only update phaseEnteredAt if phase actually changed
         if (newDerivedPhaseId !== oldDerivedPhaseId) {
-          await storage.updateUseCase(id, { 
+          // Phase transition detected - apply phase defaults and record transition
+          const phaseTransitionUpdates: Record<string, any> = { 
             phaseEnteredAt: new Date(),
             tomPhase: newDerivedPhaseId
-          } as any);
-          console.log(`Phase changed for ${id}: ${oldDerivedPhaseId} → ${newDerivedPhaseId}, updated phaseEnteredAt and tomPhase`);
+          };
+          
+          // Apply phase defaults for the new phase (only to empty fields)
+          // This is TOM-config agnostic - works with any preset's phases
+          if (newDerivedPhaseId && oldDerivedPhaseId) {
+            const phaseDefaults = applyPhaseDefaults(updatedUseCase, oldDerivedPhaseId, newDerivedPhaseId, tomConfig);
+            if (Object.keys(phaseDefaults).length > 0) {
+              Object.assign(phaseTransitionUpdates, phaseDefaults);
+              console.log(`Phase defaults applied for ${id}: ${JSON.stringify(Object.keys(phaseDefaults))}`);
+            }
+          }
+          
+          // Record phase transition reason if provided
+          if (validatedData.phaseTransitionReason) {
+            phaseTransitionUpdates.lastPhaseTransitionReason = validatedData.phaseTransitionReason;
+          }
+          
+          await storage.updateUseCase(id, phaseTransitionUpdates as any);
+          console.log(`Phase changed for ${id}: ${oldDerivedPhaseId} → ${newDerivedPhaseId}, updated phaseEnteredAt, tomPhase, and applied defaults`);
         } else if (updatedUseCase.tomPhase !== newDerivedPhaseId) {
           // Ensure tomPhase field is always in sync
           await storage.updateUseCase(id, { tomPhase: newDerivedPhaseId } as any);

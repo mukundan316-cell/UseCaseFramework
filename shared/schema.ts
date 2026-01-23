@@ -118,6 +118,7 @@ export const useCases: any = pgTable("use_cases", {
   tomPhase: text("tom_phase"), // Derived or overridden phase: 'foundation', 'strategic', 'transition', 'steady_state'
   tomPhaseOverride: text("tom_phase_override"), // Manual phase override: 'foundation', 'strategic', 'transition', 'steady_state'
   phaseEnteredAt: timestamp("phase_entered_at"), // Auto-updated when derived phase changes
+  lastPhaseTransitionReason: text("last_phase_transition_reason"), // Reason for last phase transition (especially when exit requirements not met)
   tomOverrideReason: text("tom_override_reason"), // Reason for manual phase override
   
   // Governance Lifecycle (Foundation Layer: Operating Model → Intake → RAI → Activation)
@@ -427,6 +428,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   // TOM Phase fields - allow null for clearing overrides
   tomPhase: z.union([z.string(), z.null()]).optional(),
   tomPhaseOverride: z.union([z.string(), z.null()]).optional(),
+  phaseTransitionReason: z.union([z.string(), z.null()]).optional(), // Reason for transitioning phase when exit requirements not met
   tomOverrideReason: z.union([z.string(), z.null()]).optional(),
   
   // Governance Lifecycle fields (Foundation Layer gates)

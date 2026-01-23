@@ -141,6 +141,8 @@ const formSchema = z.object({
   // TOM Phase Override fields
   tomPhaseOverride: z.string().optional().nullable(),
   tomOverrideReason: z.string().optional(),
+  // Phase transition reason (when proceeding without completed exit requirements)
+  phaseTransitionReason: z.string().optional(),
   // Value Realization - Investment fields
   initialInvestment: z.union([z.number(), z.string(), z.null()]).optional(),
   ongoingMonthlyCost: z.union([z.number(), z.string(), z.null()]).optional(),
@@ -214,6 +216,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   // Manual override toggle state - managed by ScoreOverrideLegoBlock
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(false);
 
+  // Phase transition warning state
+  const [showPhaseTransitionWarning, setShowPhaseTransitionWarning] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState<string | null>(null);
+  const [phaseTransitionReason, setPhaseTransitionReason] = useState('');
+
   // Tab state management
   const [activeTab, setActiveTab] = useState('basic');
 
@@ -254,6 +261,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       libraryTier: 'reference',
       activationReason: '',
       useCaseStatus: 'Discovery', // Default to Discovery for new use cases
+      phaseTransitionReason: '', // Phase transition override reason
       ...scores,
     },
   });
@@ -340,6 +348,57 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const handleDeactivationReasonChange = (reason: string) => {
     setRsaSelection(prev => ({ ...prev, deactivationReason: reason }));
     form.setValue('deactivationReason', reason);
+  };
+
+  // Phase transition handler - checks if status change would trigger phase change with incomplete exit requirements
+  const handleStatusChange = (newStatus: string) => {
+    if (!isTomEnabled || !tomConfig) {
+      // TOM not enabled, just set the status directly
+      form.setValue('useCaseStatus', newStatus);
+      return;
+    }
+
+    // Calculate what the new phase would be with the new status
+    const newPhaseResult = derivePhase(
+      newStatus,
+      form.watch('deploymentStatus') || null,
+      form.watch('tomPhaseOverride') || null,
+      tomConfig
+    );
+    const newPhaseId = newPhaseResult?.id || null;
+    const currentPhaseId = currentDerivedPhase?.id || null;
+
+    // Check if phase would change
+    if (newPhaseId && currentPhaseId && newPhaseId !== currentPhaseId && currentPhaseId !== 'unphased' && currentPhaseId !== 'disabled') {
+      // Phase would change - check if exit requirements are met
+      if (phaseReadiness && !phaseReadiness.canProgress) {
+        // Exit requirements not met - show warning dialog
+        setPendingStatusChange(newStatus);
+        setShowPhaseTransitionWarning(true);
+        return;
+      }
+    }
+
+    // Either no phase change, or exit requirements are met - proceed directly
+    form.setValue('useCaseStatus', newStatus);
+  };
+
+  // Confirm phase transition with reason
+  const confirmPhaseTransition = () => {
+    if (pendingStatusChange) {
+      form.setValue('useCaseStatus', pendingStatusChange);
+      form.setValue('phaseTransitionReason', phaseTransitionReason);
+    }
+    setShowPhaseTransitionWarning(false);
+    setPendingStatusChange(null);
+    setPhaseTransitionReason('');
+  };
+
+  // Cancel phase transition
+  const cancelPhaseTransition = () => {
+    setShowPhaseTransitionWarning(false);
+    setPendingStatusChange(null);
+    setPhaseTransitionReason('');
   };
 
   // Get current values from form for real-time calculations
@@ -540,6 +599,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         // TOM Phase Override fields
         tomPhaseOverride: (useCase as any).tomPhaseOverride || null,
         tomOverrideReason: (useCase as any).tomOverrideReason || '',
+        phaseTransitionReason: '',
         // Value Realization fields - extract from JSONB
         initialInvestment: (useCase as any).valueRealization?.investment?.initialInvestment || null,
         ongoingMonthlyCost: (useCase as any).valueRealization?.investment?.ongoingMonthlyCost || null,
@@ -788,7 +848,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         horizontalUseCaseTypes: data.horizontalUseCaseTypes || [],
         // TOM Phase Override fields - preserve null for auto-derivation
         tomPhaseOverride: data.tomPhaseOverride || null,
-        tomOverrideReason: data.tomOverrideReason || ''
+        tomOverrideReason: data.tomOverrideReason || '',
+        // Phase transition reason - only set when overriding incomplete exit requirements
+        phaseTransitionReason: data.phaseTransitionReason || ''
       };
       
       
@@ -1241,6 +1303,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   }
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -1486,9 +1549,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       <Label className="text-sm font-semibold">Status</Label>
                       <Select 
                         value={form.watch('useCaseStatus') || 'Discovery'} 
-                        onValueChange={(value) => form.setValue('useCaseStatus', value)}
+                        onValueChange={handleStatusChange}
                       >
-                        <SelectTrigger className="mt-1 bg-white">
+                        <SelectTrigger className="mt-1 bg-white" data-testid="select-use-case-status">
                           <SelectValue placeholder="Select status..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -2433,5 +2496,65 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         </Form>
       </DialogContent>
     </Dialog>
+
+    {/* Phase Transition Warning Dialog */}
+    <Dialog open={showPhaseTransitionWarning} onOpenChange={cancelPhaseTransition}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            Phase Transition Warning
+          </DialogTitle>
+          <DialogDescription>
+            You are about to transition to the next phase, but some exit requirements are not complete.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          {phaseReadiness && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p className="text-sm font-medium text-amber-800 mb-2">Pending Exit Requirements:</p>
+              <ul className="text-sm text-amber-700 space-y-1">
+                {phaseReadiness.exitRequirementsPending.map((req: string) => (
+                  <li key={req} className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    {req.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          <div>
+            <Label htmlFor="phaseTransitionReason" className="text-sm font-medium">
+              Reason for proceeding without completion <span className="text-red-500">*</span>
+            </Label>
+            <Textarea
+              id="phaseTransitionReason"
+              placeholder="Explain why you are proceeding without completing exit requirements..."
+              value={phaseTransitionReason}
+              onChange={(e) => setPhaseTransitionReason(e.target.value)}
+              className="mt-1.5"
+              rows={3}
+              data-testid="input-phase-transition-reason"
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={cancelPhaseTransition} data-testid="button-cancel-transition">
+            Cancel
+          </Button>
+          <Button 
+            onClick={confirmPhaseTransition} 
+            disabled={!phaseTransitionReason.trim()}
+            data-testid="button-confirm-transition"
+          >
+            Proceed Anyway
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
