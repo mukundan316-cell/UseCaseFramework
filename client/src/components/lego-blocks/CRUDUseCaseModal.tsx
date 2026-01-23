@@ -36,7 +36,8 @@ import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant, calculateGovernanceStatus } from '@shared/calculations';
 import GovernanceStepperLegoBlock from './GovernanceStepperLegoBlock';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { derivePhase, type TomConfig } from '@shared/tom';
+import { derivePhase, calculatePhaseReadiness, type TomConfig, type UseCaseDataForReadiness } from '@shared/tom';
+import PhaseReadinessLegoBlock from './PhaseReadinessLegoBlock';
 import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -268,6 +269,37 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       tomConfig
     );
   }, [isTomEnabled, tomConfig, watchedStatus, watchedDeploymentStatus, watchedTomOverride]);
+
+  const phaseReadiness = React.useMemo(() => {
+    if (!isTomEnabled || !tomConfig || !currentDerivedPhase || currentDerivedPhase.id === 'unphased' || currentDerivedPhase.id === 'disabled') {
+      return null;
+    }
+    const formValues = form.getValues();
+    const useCaseData: UseCaseDataForReadiness = {
+      title: formValues.title,
+      description: formValues.description,
+      primaryBusinessOwner: formValues.primaryBusinessOwner,
+      processes: formValues.processes,
+      activities: formValues.activities,
+      revenueImpact: formValues.revenueImpact,
+      costSavings: formValues.costSavings,
+      riskReduction: formValues.riskReduction,
+      brokerPartnerExperience: formValues.brokerPartnerExperience,
+      strategicFit: formValues.strategicFit,
+      technicalComplexity: formValues.technicalComplexity,
+      dataReadiness: formValues.dataReadiness,
+      organizationalReadiness: formValues.changeImpact,
+      integrationComplexity: formValues.modelRisk,
+      regulatoryCompliance: formValues.adoptionReadiness,
+      raiQuestionnaireComplete: (useCase as any)?.raiQuestionnaireComplete ?? null,
+      investmentCostGbp: (useCase as any)?.investmentCostGbp ?? null,
+      runCostPerYearGbp: (useCase as any)?.runCostPerYearGbp ?? null,
+      targetIndependence: (useCase as any)?.targetIndependence ?? null,
+      currentIndependence: (useCase as any)?.currentIndependence ?? null,
+      selectedKpis: (useCase as any)?.selectedKpis ?? null
+    };
+    return calculatePhaseReadiness(useCaseData, currentDerivedPhase.id, tomConfig);
+  }, [isTomEnabled, tomConfig, currentDerivedPhase, form, useCase]);
 
   const handleSliderChange = (field: keyof typeof scores, value: number) => {
     const newScores = { ...scores, [field]: value };
@@ -1259,6 +1291,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           className="mb-4"
         />
 
+        {/* Phase Readiness Indicator - Soft Progressive Guidance */}
+        {isTomEnabled && phaseReadiness && mode === 'edit' && (
+          <PhaseReadinessLegoBlock 
+            readiness={phaseReadiness}
+            onTabChange={setActiveTab}
+            compact={false}
+          />
+        )}
+
         <Form {...form}>
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -1298,6 +1339,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     <Badge variant="outline" className={`text-xs ml-1 ${governanceStatus.intake.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                       {governanceStatus.intake.passed ? '✓' : `${governanceStatus.intake.progress}%`}
                     </Badge>
+                    {phaseReadiness?.recommendedTab === 'assessment' && !governanceStatus.intake.passed && (
+                      <Badge variant="outline" className="text-xs ml-1 bg-amber-100 text-amber-700 border-amber-300">
+                        Focus
+                      </Badge>
+                    )}
                   </TabsTrigger>
                 )}
                 <TabsTrigger value="rai" className="flex items-center gap-2">
@@ -1306,10 +1352,20 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   <Badge variant="outline" className={`text-xs ml-1 ${governanceStatus.rai.passed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                     {governanceStatus.rai.passed ? '✓' : `${governanceStatus.rai.progress}%`}
                   </Badge>
+                  {phaseReadiness?.recommendedTab === 'rai' && !governanceStatus.rai.passed && (
+                    <Badge variant="outline" className="text-xs ml-1 bg-amber-100 text-amber-700 border-amber-300">
+                      Focus
+                    </Badge>
+                  )}
                 </TabsTrigger>
                 <TabsTrigger value="details" className="flex items-center gap-2">
                   <Layers className="h-4 w-4" />
                   Details
+                  {phaseReadiness?.recommendedTab === 'details' && (
+                    <Badge variant="outline" className="text-xs ml-1 bg-amber-100 text-amber-700 border-amber-300">
+                      Focus
+                    </Badge>
+                  )}
                 </TabsTrigger>
                 <TabsTrigger value="guide" className="flex items-center gap-2" data-testid="tab-guide">
                   <HelpCircle className="h-4 w-4" />

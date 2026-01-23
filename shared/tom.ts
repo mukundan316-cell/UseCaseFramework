@@ -1,3 +1,8 @@
+export interface PhaseDataRequirements {
+  entry: string[];
+  exit: string[];
+}
+
 export interface TomPhase {
   id: string;
   name: string;
@@ -10,6 +15,8 @@ export interface TomPhase {
   manualOnly: boolean;
   governanceGate: string;
   expectedDurationWeeks: number | null;
+  dataRequirements?: PhaseDataRequirements;
+  unlockedFeatures?: string[];
 }
 
 export interface TomGovernanceBody {
@@ -193,7 +200,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           mappedDeployments: [],
           manualOnly: false,
           governanceGate: 'innovation_board',
-          expectedDurationWeeks: 4
+          expectedDurationWeeks: 4,
+          dataRequirements: {
+            entry: ['title', 'description'],
+            exit: ['primaryBusinessOwner', 'strategicAlignment']
+          },
+          unlockedFeatures: ['overview']
         },
         {
           id: 'assessment',
@@ -206,7 +218,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           mappedDeployments: [],
           manualOnly: false,
           governanceGate: 'ai_steerco',
-          expectedDurationWeeks: 6
+          expectedDurationWeeks: 6,
+          dataRequirements: {
+            entry: ['primaryBusinessOwner'],
+            exit: ['scoringComplete', 'raiAssessment']
+          },
+          unlockedFeatures: ['overview', 'scoring', 'rai']
         },
         {
           id: 'foundation',
@@ -219,7 +236,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           mappedDeployments: [],
           manualOnly: false,
           governanceGate: 'ai_steerco',
-          expectedDurationWeeks: 8
+          expectedDurationWeeks: 8,
+          dataRequirements: {
+            entry: ['scoringComplete'],
+            exit: ['processMapping']
+          },
+          unlockedFeatures: ['overview', 'scoring', 'rai', 'details']
         },
         {
           id: 'build',
@@ -232,7 +254,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           mappedDeployments: ['PoC', 'Pilot'],
           manualOnly: false,
           governanceGate: 'working_group',
-          expectedDurationWeeks: 12
+          expectedDurationWeeks: 12,
+          dataRequirements: {
+            entry: ['processMapping'],
+            exit: ['tshirtSizing', 'capabilityData']
+          },
+          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability']
         },
         {
           id: 'scale',
@@ -245,7 +272,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           mappedDeployments: ['Production'],
           manualOnly: false,
           governanceGate: 'business_owner',
-          expectedDurationWeeks: 10
+          expectedDurationWeeks: 10,
+          dataRequirements: {
+            entry: ['tshirtSizing'],
+            exit: ['investmentData', 'kpiData']
+          },
+          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi']
         },
         {
           id: 'operate',
@@ -258,7 +290,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           mappedDeployments: [],
           manualOnly: true,
           governanceGate: 'none',
-          expectedDurationWeeks: null
+          expectedDurationWeeks: null,
+          dataRequirements: {
+            entry: ['kpiData'],
+            exit: ['valueRealization']
+          },
+          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi', 'valueRealization']
         }
       ]
     }
@@ -275,7 +312,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       mappedDeployments: [],
       manualOnly: false,
       governanceGate: 'ai_steerco',
-      expectedDurationWeeks: 8
+      expectedDurationWeeks: 8,
+      dataRequirements: {
+        entry: ['title', 'description', 'primaryBusinessOwner'],
+        exit: ['scoringComplete', 'raiAssessment']
+      },
+      unlockedFeatures: ['overview', 'scoring', 'rai']
     },
     {
       id: 'strategic',
@@ -288,7 +330,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       mappedDeployments: ['PoC', 'Pilot'],
       manualOnly: false,
       governanceGate: 'working_group',
-      expectedDurationWeeks: 16
+      expectedDurationWeeks: 16,
+      dataRequirements: {
+        entry: ['scoringComplete'],
+        exit: ['processMapping', 'tshirtSizing']
+      },
+      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing']
     },
     {
       id: 'transition',
@@ -301,7 +348,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       mappedDeployments: ['Production'],
       manualOnly: false,
       governanceGate: 'business_owner',
-      expectedDurationWeeks: 12
+      expectedDurationWeeks: 12,
+      dataRequirements: {
+        entry: ['processMapping'],
+        exit: ['investmentData', 'capabilityData']
+      },
+      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment']
     },
     {
       id: 'steady_state',
@@ -314,7 +366,12 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       mappedDeployments: [],
       manualOnly: true,
       governanceGate: 'none',
-      expectedDurationWeeks: null
+      expectedDurationWeeks: null,
+      dataRequirements: {
+        entry: ['investmentData', 'capabilityData'],
+        exit: ['kpiData', 'valueRealization']
+      },
+      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi', 'valueRealization']
     }
   ],
   governanceBodies: [
@@ -526,4 +583,177 @@ export function calculatePhaseSummary(
   }
 
   return summary;
+}
+
+export interface PhaseReadinessResult {
+  currentPhase: TomPhase | null;
+  nextPhase: TomPhase | null;
+  entryRequirementsMet: string[];
+  entryRequirementsPending: string[];
+  exitRequirementsMet: string[];
+  exitRequirementsPending: string[];
+  readinessPercent: number;
+  canProgress: boolean;
+  recommendedTab: string;
+}
+
+export interface UseCaseDataForReadiness {
+  title?: string | null;
+  description?: string | null;
+  primaryBusinessOwner?: string | null;
+  processes?: string[] | null;
+  activities?: string[] | null;
+  revenueImpact?: number | null;
+  costSavings?: number | null;
+  riskReduction?: number | null;
+  brokerPartnerExperience?: number | null;
+  strategicFit?: number | null;
+  technicalComplexity?: number | null;
+  dataReadiness?: number | null;
+  organizationalReadiness?: number | null;
+  integrationComplexity?: number | null;
+  regulatoryCompliance?: number | null;
+  raiQuestionnaireComplete?: string | null;
+  investmentCostGbp?: number | null;
+  runCostPerYearGbp?: number | null;
+  targetIndependence?: number | null;
+  currentIndependence?: number | null;
+  selectedKpis?: string[] | null;
+}
+
+export function checkDataRequirement(
+  requirement: string,
+  useCase: UseCaseDataForReadiness
+): boolean {
+  switch (requirement) {
+    case 'title':
+      return Boolean(useCase.title && useCase.title.trim().length > 0);
+    case 'description':
+      return Boolean(useCase.description && useCase.description.trim().length > 0);
+    case 'primaryBusinessOwner':
+      return Boolean(useCase.primaryBusinessOwner && useCase.primaryBusinessOwner.trim().length > 0);
+    case 'scoringComplete':
+      const hasImpactScores = [
+        useCase.revenueImpact,
+        useCase.costSavings,
+        useCase.riskReduction,
+        useCase.brokerPartnerExperience,
+        useCase.strategicFit
+      ].some(s => s !== null && s !== undefined);
+      const hasEffortScores = [
+        useCase.technicalComplexity,
+        useCase.dataReadiness,
+        useCase.organizationalReadiness,
+        useCase.integrationComplexity,
+        useCase.regulatoryCompliance
+      ].some(s => s !== null && s !== undefined);
+      return hasImpactScores && hasEffortScores;
+    case 'strategicAlignment':
+      return Boolean(useCase.strategicFit !== null && useCase.strategicFit !== undefined);
+    case 'raiAssessment':
+      return useCase.raiQuestionnaireComplete === 'true';
+    case 'processMapping':
+      const hasProcesses = Array.isArray(useCase.processes) && useCase.processes.length > 0;
+      const hasActivities = Array.isArray(useCase.activities) && useCase.activities.length > 0;
+      return hasProcesses || hasActivities;
+    case 'tshirtSizing':
+      return Boolean(useCase.investmentCostGbp && useCase.investmentCostGbp > 0);
+    case 'investmentData':
+      return Boolean(useCase.investmentCostGbp && useCase.investmentCostGbp > 0);
+    case 'capabilityData':
+      return Boolean(
+        useCase.targetIndependence !== null && 
+        useCase.targetIndependence !== undefined &&
+        useCase.currentIndependence !== null &&
+        useCase.currentIndependence !== undefined
+      );
+    case 'kpiData':
+      return Array.isArray(useCase.selectedKpis) && useCase.selectedKpis.length > 0;
+    case 'valueRealization':
+      return Array.isArray(useCase.selectedKpis) && useCase.selectedKpis.length > 0;
+    default:
+      return false;
+  }
+}
+
+export function getRequirementLabel(requirement: string): string {
+  const labels: Record<string, string> = {
+    title: 'Title',
+    description: 'Description',
+    primaryBusinessOwner: 'Business Owner',
+    strategicAlignment: 'Strategic Alignment',
+    scoringComplete: '10-Lever Scoring',
+    raiAssessment: 'RAI Assessment',
+    processMapping: 'Process & Activity Mapping',
+    tshirtSizing: 'T-Shirt Sizing',
+    investmentData: 'Investment Data',
+    capabilityData: 'Capability Transition Data',
+    kpiData: 'KPI Selection',
+    valueRealization: 'Value Realization Data'
+  };
+  return labels[requirement] || requirement;
+}
+
+export const REQUIREMENT_TAB_MAPPING: Record<string, string> = {
+  title: 'basic',
+  description: 'basic',
+  primaryBusinessOwner: 'basic',
+  strategicAlignment: 'assessment',
+  scoringComplete: 'assessment',
+  raiAssessment: 'rai',
+  processMapping: 'details',
+  tshirtSizing: 'details',
+  investmentData: 'details',
+  capabilityData: 'details',
+  kpiData: 'details',
+  valueRealization: 'details'
+};
+
+export function calculatePhaseReadiness(
+  useCase: UseCaseDataForReadiness,
+  currentPhaseId: string,
+  tomConfig: TomConfig
+): PhaseReadinessResult {
+  const currentPhase = tomConfig.phases.find(p => p.id === currentPhaseId) || null;
+  const nextPhaseIndex = currentPhase 
+    ? tomConfig.phases.findIndex(p => p.id === currentPhaseId) + 1 
+    : 0;
+  const nextPhase = nextPhaseIndex < tomConfig.phases.length 
+    ? tomConfig.phases[nextPhaseIndex] 
+    : null;
+
+  const entryRequirements = currentPhase?.dataRequirements?.entry || [];
+  const exitRequirements = currentPhase?.dataRequirements?.exit || [];
+
+  const entryRequirementsMet = entryRequirements.filter(r => checkDataRequirement(r, useCase));
+  const entryRequirementsPending = entryRequirements.filter(r => !checkDataRequirement(r, useCase));
+  const exitRequirementsMet = exitRequirements.filter(r => checkDataRequirement(r, useCase));
+  const exitRequirementsPending = exitRequirements.filter(r => !checkDataRequirement(r, useCase));
+
+  const totalRequirements = entryRequirements.length + exitRequirements.length;
+  const metRequirements = entryRequirementsMet.length + exitRequirementsMet.length;
+  const readinessPercent = totalRequirements > 0 
+    ? Math.round((metRequirements / totalRequirements) * 100) 
+    : 100;
+
+  const canProgress = exitRequirementsPending.length === 0;
+
+  let recommendedTab = 'basic';
+  const allPendingRequirements = [...entryRequirementsPending, ...exitRequirementsPending];
+  if (allPendingRequirements.length > 0) {
+    const firstPending = allPendingRequirements[0];
+    recommendedTab = REQUIREMENT_TAB_MAPPING[firstPending] || 'basic';
+  }
+
+  return {
+    currentPhase,
+    nextPhase,
+    entryRequirementsMet,
+    entryRequirementsPending,
+    exitRequirementsMet,
+    exitRequirementsPending,
+    readinessPercent,
+    canProgress,
+    recommendedTab
+  };
 }
