@@ -2412,8 +2412,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       for (const useCase of useCases) {
         const processes = useCase.processes || [];
-        const hasExistingTracked = useCase.valueRealization?.investment;
-        const shouldDerive = (overwriteExisting && !hasExistingTracked) || !useCase.valueRealization;
+        
+        // Check if kpiEstimates is missing or empty (the actual derived value data)
+        // This allows derivation even if investment/selectedKpis exist but kpiEstimates doesn't
+        const existingVR = useCase.valueRealization;
+        const hasKpiEstimates = existingVR?.kpiEstimates && existingVR.kpiEstimates.length > 0;
+        const shouldDerive = overwriteExisting || !hasKpiEstimates;
         
         if (shouldDerive && processes.length > 0) {
           const scores = {
@@ -2425,7 +2429,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary);
           const totalValue = calculateTotalEstimatedValue(valueEstimates);
           
+          // Merge with existing data to preserve investment, selectedKpis, calculatedMetrics
           const valueRealization = {
+            ...(existingVR || {}),
             derived: true,
             derivedAt: new Date().toISOString(),
             kpiEstimates: valueEstimates.map(est => ({

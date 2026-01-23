@@ -59,12 +59,15 @@ export function deriveAllFields(
     derived.tomPhase = phaseResult.id;
   }
 
-  // 2. Derive Value Estimates (only if processes exist and either overwriting or no existing data)
+  // 2. Derive Value Estimates (if processes exist and kpiEstimates is missing/empty or overwriting)
   const processes = useCase.processes || [];
+  const existingVR = useCase.valueRealization;
+  const hasKpiEstimates = existingVR?.kpiEstimates && existingVR.kpiEstimates.length > 0;
+  
   if (
     configs.valueConfig.enabled === 'true' &&
     processes.length > 0 &&
-    (options.overwriteValue || !useCase.valueRealization)
+    (options.overwriteValue || !hasKpiEstimates)
   ) {
     const scores: UseCaseScores = {
       dataReadiness: useCase.dataReadiness,
@@ -76,7 +79,9 @@ export function deriveAllFields(
     const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary);
     const totalValue = calculateTotalEstimatedValue(valueEstimates);
 
+    // Merge with existing data to preserve investment, selectedKpis, calculatedMetrics
     derived.valueRealization = {
+      ...(existingVR || {}),
       derived: true,
       derivedAt: new Date().toISOString(),
       kpiEstimates: valueEstimates.map(est => ({
