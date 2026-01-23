@@ -185,16 +185,16 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   });
 
   const [scores, setScores] = useState({
-    revenueImpact: 3,
-    costSavings: 3,
-    riskReduction: 3,
-    brokerPartnerExperience: 3,
-    strategicFit: 3,
-    dataReadiness: 3,
-    technicalComplexity: 3,
-    changeImpact: 3,
-    modelRisk: 3,
-    adoptionReadiness: 3,
+    revenueImpact: 0,
+    costSavings: 0,
+    riskReduction: 0,
+    brokerPartnerExperience: 0,
+    strategicFit: 0,
+    dataReadiness: 0,
+    technicalComplexity: 0,
+    changeImpact: 0,
+    modelRisk: 0,
+    adoptionReadiness: 0,
   });
   
   // Duplicate Detection State (Topic 3.4 - Markel 9 Topics)
