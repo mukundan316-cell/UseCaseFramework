@@ -12,7 +12,7 @@ import importRoutes from "./routes/import.routes";
 import presentationRoutes from "./routes/presentations";
 import { derivePhase, type TomConfig, type GovernanceGateInput } from "@shared/tom";
 import { calculateGovernanceStatus } from "@shared/calculations";
-import { deriveAllFields, getDefaultConfigs, getConfigsFromEngagement, shouldTriggerDerivation, type UseCaseForDerivation, type EngagementTomContext } from "./derivation";
+import { deriveAllFields, getDefaultConfigs, getConfigsFromEngagement, shouldTriggerDerivation, applyPhaseDefaults, type UseCaseForDerivation, type EngagementTomContext } from "./derivation";
 
 import { questionnaireServiceInstance } from './services/questionnaireService';
 import { db } from './db';
@@ -510,6 +510,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Always set phaseEnteredAt on creation for TOM phase timeline tracking
         if (derived.tomPhase) {
           (derived as any).phaseEnteredAt = new Date();
+          
+          // Apply phase defaults for the new phase (only to empty fields)
+          const phaseDefaults = applyPhaseDefaults(newUseCase, null, derived.tomPhase, configs.tomConfig);
+          Object.assign(derived, phaseDefaults);
         }
         
         if (Object.keys(derived).length > 0) {

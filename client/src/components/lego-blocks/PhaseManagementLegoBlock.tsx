@@ -10,8 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Layers, Plus, Pencil, Trash2, GripVertical, Loader2 } from 'lucide-react';
-import type { TomPhase, TomConfig, TomGovernanceBody } from '@shared/tom';
+import { Layers, Plus, Pencil, Trash2, GripVertical, Loader2, Sparkles } from 'lucide-react';
+import type { TomPhase, TomConfig, TomGovernanceBody, PhaseDefaults } from '@shared/tom';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 
 interface PhaseFormData {
   id: string;
@@ -34,6 +36,7 @@ export default function PhaseManagementLegoBlock() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [defaultsPhase, setDefaultsPhase] = useState<TomPhase | null>(null);
   
   // Sync with TomConfigurationLegoBlock's client selection via localStorage
   const [clientId, setClientId] = useState<string>(() => {
@@ -311,6 +314,16 @@ export default function PhaseManagementLegoBlock() {
                 </div>
                 
                 <div className="flex items-center gap-1">
+                  <Button 
+                    size="icon" 
+                    variant="ghost"
+                    onClick={() => setDefaultsPhase(phase)}
+                    data-testid={`button-defaults-${phase.id}`}
+                    title="Configure phase defaults"
+                  >
+                    <Sparkles className={`h-4 w-4 ${phase.phaseDefaults ? 'text-primary' : ''}`} />
+                  </Button>
+                  
                   <Dialog open={editingPhase?.id === phase.id} onOpenChange={(open) => !open && setEditingPhase(null)}>
                     <DialogTrigger asChild>
                       <Button 
@@ -356,7 +369,220 @@ export default function PhaseManagementLegoBlock() {
           )}
         </div>
       </CardContent>
+      
+      {defaultsPhase && (
+        <PhaseDefaultsDialog
+          phase={defaultsPhase}
+          onClose={() => setDefaultsPhase(null)}
+          onSave={(defaults) => {
+            if (!tomConfig) return;
+            const updatedPhases = tomConfig.phases.map(p => 
+              p.id === defaultsPhase.id ? { ...p, phaseDefaults: defaults } : p
+            );
+            updatePhasesMutation.mutate(updatedPhases);
+            setDefaultsPhase(null);
+          }}
+        />
+      )}
     </Card>
+  );
+}
+
+function PhaseDefaultsDialog({
+  phase,
+  onClose,
+  onSave
+}: {
+  phase: TomPhase;
+  onClose: () => void;
+  onSave: (defaults: PhaseDefaults) => void;
+}) {
+  const [defaults, setDefaults] = useState<PhaseDefaults>(() => 
+    phase.phaseDefaults || {
+      capabilityTransition: {
+        hexawareFts: null,
+        clientFts: null,
+        independenceFts: null,
+        targetIndependence: null,
+        currentIndependence: null
+      },
+      valueRealization: {
+        expectedValueRangeMin: null,
+        expectedValueRangeMax: null,
+        defaultKpiCategories: []
+      },
+      responsibleAI: {
+        riskTier: null,
+        assessmentRequired: false,
+        recommendedCheckpoints: []
+      }
+    }
+  );
+
+  const updateCapability = (field: string, value: number | null) => {
+    setDefaults(prev => ({
+      ...prev,
+      capabilityTransition: { ...prev.capabilityTransition, [field]: value }
+    }));
+  };
+
+  const updateValue = (field: string, value: number | null) => {
+    setDefaults(prev => ({
+      ...prev,
+      valueRealization: { ...prev.valueRealization, [field]: value }
+    }));
+  };
+
+  const updateRAI = (field: string, value: any) => {
+    setDefaults(prev => ({
+      ...prev,
+      responsibleAI: { ...prev.responsibleAI, [field]: value }
+    }));
+  };
+
+  return (
+    <Dialog open={true} onOpenChange={() => onClose()}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Phase Defaults: {phase.name}
+          </DialogTitle>
+          <DialogDescription>
+            Configure default values that pre-populate when use cases enter this phase. Users can override these.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6 py-4">
+          <div className="space-y-4">
+            <h4 className="font-medium text-sm">Capability Transition Defaults</h4>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Hexaware FTS</Label>
+                <Input
+                  type="number"
+                  value={defaults.capabilityTransition.hexawareFts ?? ''}
+                  onChange={(e) => updateCapability('hexawareFts', e.target.value ? Number(e.target.value) : null)}
+                  placeholder="0"
+                  data-testid="input-defaults-hexaware-fts"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Client FTS</Label>
+                <Input
+                  type="number"
+                  value={defaults.capabilityTransition.clientFts ?? ''}
+                  onChange={(e) => updateCapability('clientFts', e.target.value ? Number(e.target.value) : null)}
+                  placeholder="0"
+                  data-testid="input-defaults-client-fts"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Independence %</Label>
+                <Input
+                  type="number"
+                  value={defaults.capabilityTransition.independenceFts ?? ''}
+                  onChange={(e) => updateCapability('independenceFts', e.target.value ? Number(e.target.value) : null)}
+                  placeholder="0"
+                  data-testid="input-defaults-independence-fts"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Target Indep.</Label>
+                <Input
+                  type="number"
+                  value={defaults.capabilityTransition.targetIndependence ?? ''}
+                  onChange={(e) => updateCapability('targetIndependence', e.target.value ? Number(e.target.value) : null)}
+                  placeholder="0"
+                  data-testid="input-defaults-target-independence"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Current Indep.</Label>
+                <Input
+                  type="number"
+                  value={defaults.capabilityTransition.currentIndependence ?? ''}
+                  onChange={(e) => updateCapability('currentIndependence', e.target.value ? Number(e.target.value) : null)}
+                  placeholder="0"
+                  data-testid="input-defaults-current-independence"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <h4 className="font-medium text-sm">Value Realization Defaults</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Expected Value Min (£)</Label>
+                <Input
+                  type="number"
+                  value={defaults.valueRealization.expectedValueRangeMin ?? ''}
+                  onChange={(e) => updateValue('expectedValueRangeMin', e.target.value ? Number(e.target.value) : null)}
+                  placeholder="0"
+                  data-testid="input-defaults-value-min"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Expected Value Max (£)</Label>
+                <Input
+                  type="number"
+                  value={defaults.valueRealization.expectedValueRangeMax ?? ''}
+                  onChange={(e) => updateValue('expectedValueRangeMax', e.target.value ? Number(e.target.value) : null)}
+                  placeholder="0"
+                  data-testid="input-defaults-value-max"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <h4 className="font-medium text-sm">Responsible AI Defaults</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Risk Tier</Label>
+                <Select 
+                  value={defaults.responsibleAI.riskTier || ''} 
+                  onValueChange={(v) => updateRAI('riskTier', v || null)}
+                >
+                  <SelectTrigger data-testid="select-defaults-risk-tier">
+                    <SelectValue placeholder="Select tier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2 pt-5">
+                <Switch
+                  id="defaults-assessment-required"
+                  checked={defaults.responsibleAI.assessmentRequired}
+                  onCheckedChange={(v) => updateRAI('assessmentRequired', v)}
+                  data-testid="toggle-defaults-assessment-required"
+                />
+                <Label htmlFor="defaults-assessment-required" className="text-sm">
+                  RAI Assessment Required
+                </Label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={() => onSave(defaults)} data-testid="button-save-defaults">
+            Save Defaults
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

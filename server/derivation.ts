@@ -1,4 +1,4 @@
-import { derivePhase, DEFAULT_TOM_CONFIG, type TomConfig, type GovernanceGateInput } from "@shared/tom";
+import { derivePhase, DEFAULT_TOM_CONFIG, type TomConfig, type GovernanceGateInput, type PhaseDefaults } from "@shared/tom";
 import { calculateGovernanceStatus } from "@shared/calculations";
 import { 
   deriveValueEstimates, 
@@ -320,4 +320,58 @@ export function shouldTriggerDerivation(
   }
 
   return triggers;
+}
+
+export interface PhaseDefaultsApplication {
+  hexawareFts?: number | null;
+  clientFts?: number | null;
+  independenceFts?: number | null;
+  targetIndependence?: number | null;
+  currentIndependence?: number | null;
+}
+
+export function applyPhaseDefaults(
+  useCase: any,
+  currentPhaseId: string | null,
+  newPhaseId: string,
+  tomConfig: TomConfig
+): PhaseDefaultsApplication {
+  const result: PhaseDefaultsApplication = {};
+  
+  if (!newPhaseId || currentPhaseId === newPhaseId) {
+    return result;
+  }
+
+  const newPhase = tomConfig.phases.find(p => p.id === newPhaseId);
+  if (!newPhase?.phaseDefaults) {
+    return result;
+  }
+
+  const defaults = newPhase.phaseDefaults;
+
+  if (defaults.capabilityTransition) {
+    const ct = defaults.capabilityTransition;
+    if (ct.hexawareFts !== null && (useCase.hexawareFts === null || useCase.hexawareFts === undefined)) {
+      result.hexawareFts = ct.hexawareFts;
+    }
+    if (ct.clientFts !== null && (useCase.clientFts === null || useCase.clientFts === undefined)) {
+      result.clientFts = ct.clientFts;
+    }
+    if (ct.independenceFts !== null && (useCase.independenceFts === null || useCase.independenceFts === undefined)) {
+      result.independenceFts = ct.independenceFts;
+    }
+    if (ct.targetIndependence !== null && (useCase.targetIndependence === null || useCase.targetIndependence === undefined)) {
+      result.targetIndependence = ct.targetIndependence;
+    }
+    if (ct.currentIndependence !== null && (useCase.currentIndependence === null || useCase.currentIndependence === undefined)) {
+      result.currentIndependence = ct.currentIndependence;
+    }
+  }
+
+  return result;
+}
+
+export function getPhaseDefaults(phaseId: string, tomConfig: TomConfig): PhaseDefaults | null {
+  const phase = tomConfig.phases.find(p => p.id === phaseId);
+  return phase?.phaseDefaults || null;
 }

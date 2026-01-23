@@ -320,6 +320,7 @@ export default function TomConfigurationLegoBlock() {
           ))}
         </CardContent>
       </Card>
+
     </div>
   );
 }
@@ -434,3 +435,4 @@ function GovernanceBodyCard({ body }: { body: TomGovernanceBody }) {
     </div>
   );
 }
+
