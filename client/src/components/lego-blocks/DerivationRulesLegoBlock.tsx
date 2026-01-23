@@ -466,13 +466,13 @@ export default function DerivationRulesLegoBlock() {
 
                 <div className="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-800">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-purple-800 dark:text-purple-200">Hourly Rate (GBP)</h4>
+                    <h4 className="font-medium text-purple-800 dark:text-purple-200">Hourly Rate ({currencySymbol})</h4>
                     <Tooltip>
                       <TooltipTrigger>
                         <Info className="w-4 h-4 text-purple-600" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Used to convert hour-based KPI estimates to GBP value</p>
+                        <p>Used to convert hour-based KPI estimates to monetary value</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>

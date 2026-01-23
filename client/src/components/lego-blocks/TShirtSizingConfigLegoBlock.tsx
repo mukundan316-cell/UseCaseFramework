@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
 import ResponsiveTabsListLegoBlock from './ResponsiveTabsListLegoBlock';
 import { useToast } from '@/hooks/use-toast';
 import { useUseCases } from '@/contexts/UseCaseContext';
+import { useCurrency } from '@/hooks/useCurrency';
 import { 
   Shirt, 
   Users, 
@@ -89,6 +90,7 @@ interface TShirtSizingConfig {
 export default function TShirtSizingConfigLegoBlock() {
   const { updateMetadata, metadata } = useUseCases();
   const { toast } = useToast();
+  const { symbol: currencySymbol } = useCurrency();
   
   // Get current T-shirt sizing config or use defaults
   const getCurrentConfig = (): TShirtSizingConfig => {
@@ -360,10 +362,10 @@ export default function TShirtSizingConfigLegoBlock() {
         errors[`role-type-${index}`] = 'Role type is required';
       }
       if (role.dailyRateGBP < 1) {
-        errors[`role-rate-${index}`] = 'Daily rate must be at least £1';
+        errors[`role-rate-${index}`] = 'Daily rate must be at least 1';
       }
       if (role.dailyRateGBP > 2000) {
-        errors[`role-rate-${index}`] = 'Daily rate seems unusually high (max £2000)';
+        errors[`role-rate-${index}`] = 'Daily rate seems unusually high (max 2000)';
       }
     });
 
@@ -384,7 +386,7 @@ export default function TShirtSizingConfigLegoBlock() {
         const previousMultiplier = config.benefitMultipliers[previousSize];
         
         if (currentMultiplier < previousMultiplier) {
-          errors['benefit-progression'] = `Benefit multipliers should increase with size. ${currentSize} (£${(currentMultiplier/1000).toFixed(0)}K) should be greater than ${previousSize} (£${(previousMultiplier/1000).toFixed(0)}K)`;
+          errors['benefit-progression'] = `Benefit multipliers should increase with size. ${currentSize} (${(currentMultiplier/1000).toFixed(0)}K) should be greater than ${previousSize} (${(previousMultiplier/1000).toFixed(0)}K)`;
           break;
         }
       }
@@ -845,7 +847,7 @@ export default function TShirtSizingConfigLegoBlock() {
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor={`benefit-multiplier-${size.name}`}>Benefit per Impact Point (GBP)</Label>
+                        <Label htmlFor={`benefit-multiplier-${size.name}`}>Benefit per Impact Point ({currencySymbol})</Label>
                         <Input
                           id={`benefit-multiplier-${size.name}`}
                           type="number"
@@ -864,7 +866,7 @@ export default function TShirtSizingConfigLegoBlock() {
                           className="mt-1"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          £{(multiplier / 1000).toFixed(0)}K per impact point
+                          {currencySymbol}{(multiplier / 1000).toFixed(0)}K per impact point
                         </p>
                       </div>
                     </div>
@@ -947,7 +949,7 @@ export default function TShirtSizingConfigLegoBlock() {
                         {size.name}
                       </Badge>
                       <div className="text-sm font-medium">
-                        £{(minBenefit/1000).toFixed(0)}K - £{(maxBenefit/1000).toFixed(0)}K
+                        {currencySymbol}{(minBenefit/1000).toFixed(0)}K - {currencySymbol}{(maxBenefit/1000).toFixed(0)}K
                       </div>
                     </div>
                   );
@@ -974,7 +976,7 @@ export default function TShirtSizingConfigLegoBlock() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="font-medium">{role.type}</span>
-                        <Badge variant="outline">£{role.dailyRateGBP}/day</Badge>
+                        <Badge variant="outline">{currencySymbol}{role.dailyRateGBP}/day</Badge>
                       </div>
                       <div className="flex gap-1">
                         <Button
@@ -1033,7 +1035,7 @@ export default function TShirtSizingConfigLegoBlock() {
                           )}
                         </div>
                         <div>
-                          <Label htmlFor={`role-rate-${index}`}>Daily Rate (GBP)</Label>
+                          <Label htmlFor={`role-rate-${index}`}>Daily Rate ({currencySymbol})</Label>
                           <Input
                             id={`role-rate-${index}`}
                             type="number"
@@ -1297,7 +1299,7 @@ export default function TShirtSizingConfigLegoBlock() {
                           {size.name}
                         </Badge>
                         <div className="text-sm font-medium">
-                          £{minCost.toLocaleString()} - £{maxCost.toLocaleString()}
+                          {currencySymbol}{minCost.toLocaleString()} - {currencySymbol}{maxCost.toLocaleString()}
                         </div>
                       </div>
                     );
