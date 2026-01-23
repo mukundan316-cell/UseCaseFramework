@@ -92,3 +92,63 @@ All four Insights tabs (Value Realization, Operating Model, Capability Transitio
 - **Database**: PostgreSQL (@neondatabase/serverless)
 - **Session Management**: express-session, connect-pg-simple
 - **Specialized**: Survey.js ecosystem
+
+## Data Architecture Notes
+
+### Value Realization JSONB Structure
+The `value_realization` JSONB column stores KPI-based ROI tracking data. The actual runtime structure (from derivation.ts) is:
+```typescript
+interface ValueRealizationStored {
+  // Auto-derived fields (derivation.ts)
+  derived: boolean;           // True when auto-derived from use case attributes
+  derivedAt: string;          // ISO timestamp of last derivation
+  kpiEstimates: Array<{       // Array of maturity-based value estimates
+    kpiId: string;
+    kpiName: string;
+    maturityLevel: 'advanced' | 'developing' | 'foundational';
+    expectedRange: { min: number; max: number };
+    confidence: 'high' | 'medium' | 'low';
+    estimatedAnnualValueGbp: number;  // Calculated from maturity tier
+    benchmarkProcess: string;
+  }>;
+  totalEstimatedValue: number;  // Sum of all kpiEstimates annual values
+  lastUpdated: string;          // ISO timestamp
+  
+  // Manual entry fields (CRUD modal via shared/valueRealization.ts types)
+  selectedKpis?: string[];      // User-selected KPIs from library
+  kpiValues?: Record<string, KpiValue>;  // Detailed KPI measurements
+  investment?: InvestmentData;  // Investment tracking
+  tracking?: { entries: TrackingEntry[] }; // Monthly actuals
+  calculatedMetrics?: CalculatedMetrics;  // ROI calculations
+  
+  // Phase defaults tracking (from applyPhaseDefaults)
+  phaseDefaultsApplied?: string;
+  phaseDefaultsAppliedAt?: string;
+  expectedValueRangeMin?: number;   // Phase-based expected value defaults
+  expectedValueRangeMax?: number;   // Phase-based expected value defaults
+}
+```
+
+**Data Population Strategy:**
+- `derived`, `derivedAt`, `kpiEstimates`, `totalEstimatedValue`, `lastUpdated` - Auto-populated by `deriveAllFields()` in derivation.ts based on process mapping and scoring levers
+- `phaseDefaultsApplied`, `phaseDefaultsAppliedAt`, `expectedValueRangeMin`, `expectedValueRangeMax` - Auto-populated by `applyPhaseDefaults()` when use case enters a new TOM phase
+- `selectedKpis`, `kpiValues`, `investment`, `tracking`, `calculatedMetrics` - Optional manual entry fields via CRUD modal (defined in shared/valueRealization.ts)
+- Insights dashboard aggregates `totalEstimatedValue` across use cases for portfolio value display
+- **Note**: The runtime JSONB structure (from derivation.ts) extends beyond the shared/valueRealization.ts TypeScript interfaces - JSONB flexibility allows this divergence for auto-derived fields
+
+### Capability Transition JSONB Structure
+The `capability_transition` JSONB stores staffing model and knowledge transfer data:
+- `derived: true` - All records auto-derived from use case attributes
+- `staffingModel` - Populated at runtime when viewing Insights, not stored
+- Staffing curves computed from benchmark archetypes based on t-shirt sizing
+
+### Portfolio Visibility Flags
+- `is_active_for_rsa`: Controls whether use case appears in Hexaware Active Portfolio
+- `is_dashboard_visible`: Controls dashboard metrics visibility
+- **Business Rule**: When `library_tier='active'` and `is_active_for_rsa='true'`, `is_dashboard_visible` should also be 'true'
+
+### Data Quality Maintenance (January 2026)
+- Cleaned `legacy_activation_flag` column (deprecated governance field - only used for legacy count in stats)
+- Removed 40 orphaned file attachments (test upload artifacts with NULL use_case_id; no use cases referenced them via presentation_file_id/presentation_pdf_file_id; no files existed on disk)
+- Fixed 1 RSA/Dashboard visibility flag inconsistency where `is_active_for_rsa=true` but `is_dashboard_visible=false` (aligns with activation logic in storage.ts)
+- All 126 use cases have complete scoring, TOM phase, and governance data
