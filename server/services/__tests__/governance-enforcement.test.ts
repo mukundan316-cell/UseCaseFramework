@@ -21,9 +21,16 @@ import {
 } from '../governance-enforcement';
 import type { TomConfig } from '../../../shared/tom';
 
-const mockTomConfig = {
+const mockTomConfig: TomConfig = {
   enabled: 'true',
   activePreset: 'hybrid',
+  presets: {
+    hybrid: { name: 'Hybrid', description: 'Hybrid preset' },
+    governance: { name: 'Governance', description: 'Governance preset' }
+  },
+  presetProfiles: {},
+  governanceBodies: [],
+  derivationRules: { matchOrder: ['status', 'deployment'], fallbackBehavior: 'default', nullDeploymentHandling: 'ignore' },
   phases: [
     { 
       id: 'foundation', 
@@ -31,13 +38,13 @@ const mockTomConfig = {
       order: 1, 
       color: '#3B82F6', 
       description: 'Initial phase',
-      priority: 'high',
-      mappedStatuses: ['Discovery'],
+      priority: 1,
+      mappedStatuses: ['Discovery', 'Backlog'],
       mappedDeployments: [],
-      icon: 'foundation',
-      isDefault: true,
-      allowedTransitions: ['incubate'],
-      dataRequirements: { entry: [], exit: ['raiRiskTier'] }, 
+      manualOnly: false,
+      governanceGate: 'gate1',
+      expectedDurationWeeks: 4,
+      dataRequirements: { entry: [], exit: ['raiAssessment'] }, 
       unlockedFeatures: [] 
     },
     { 
@@ -46,23 +53,17 @@ const mockTomConfig = {
       order: 2, 
       color: '#10B981', 
       description: 'Development phase',
-      priority: 'medium',
+      priority: 2,
       mappedStatuses: ['In-flight', 'Implemented'],
       mappedDeployments: [],
-      icon: 'incubate',
-      isDefault: false,
-      allowedTransitions: [],
+      manualOnly: false,
+      governanceGate: 'gate2',
+      expectedDurationWeeks: 8,
       dataRequirements: { entry: [], exit: [] }, 
       unlockedFeatures: [] 
     }
-  ],
-  statusPhaseMapping: {
-    'Discovery': 'foundation',
-    'In-flight': 'incubate',
-    'Implemented': 'incubate'
-  },
-  disabledPhaseStatuses: ['Cancelled', 'Parked']
-} as TomConfig;
+  ]
+};
 
 describe('Governance Enforcement', () => {
   describe('Gate 1 - Operating Model', () => {
@@ -163,19 +164,24 @@ describe('Governance Enforcement', () => {
 
     // Base use case with ALL governance requirements met (canActivate = true)
     // Gate 1: primaryBusinessOwner, businessFunction, useCaseStatus != Discovery
-    // Gate 2: ALL 5 scoring fields (1-5 range)
+    // Gate 2: ALL 10 scoring fields (5 impact + 5 effort, 1-5 range)
     // Gate 3: explainabilityRequired, customerHarmRisk, humanAccountability, dataOutsideUkEu, thirdPartyModel
     const fullyCompliantUseCase = {
       id: 'test-1',
       useCaseStatus: 'In-flight',
       primaryBusinessOwner: 'John Doe',
       businessFunction: 'IT',
-      // Gate 2 - All 5 scoring fields (1-5 range)
+      // Gate 2 - All 10 scoring fields (5 impact + 5 effort, 1-5 range)
       revenueImpact: 4,
       costSavings: 3,
       riskReduction: 3,
       brokerPartnerExperience: 4,
       strategicFit: 5,
+      dataReadiness: 4,
+      technicalComplexity: 3,
+      changeImpact: 3,
+      modelRisk: 2,
+      adoptionReadiness: 4,
       // Gate 3 - RAI fields (actual required fields from calculateRAIGate)
       explainabilityRequired: 'true',
       customerHarmRisk: 'Low',
@@ -192,7 +198,7 @@ describe('Governance Enforcement', () => {
       };
       const result = checkGovernanceRegression(currentUseCase, updates);
       assert.strictEqual(result.shouldDeactivate, true);
-      assert.strictEqual(result.regressedGate, 'gate1_operating_model');
+      assert.strictEqual(result.regressedGate, 'Operating Model');
     });
 
     it('triggers auto-deactivation when businessFunction removed from active use case', () => {
@@ -205,7 +211,7 @@ describe('Governance Enforcement', () => {
       };
       const result = checkGovernanceRegression(currentUseCase, updates);
       assert.strictEqual(result.shouldDeactivate, true);
-      assert.strictEqual(result.regressedGate, 'gate1_operating_model');
+      assert.strictEqual(result.regressedGate, 'Operating Model');
     });
 
     it('bypasses deactivation for legacy use cases (pre-2026-01-24)', () => {
@@ -261,7 +267,7 @@ describe('Governance Enforcement', () => {
 
     it('requires justification when exit requirements incomplete', () => {
       const useCase = {
-        raiRiskTier: null,
+        raiQuestionnaireComplete: null,
         useCaseStatus: 'Discovery'
       };
       const result = checkPhaseTransitionRequirements(
@@ -278,7 +284,7 @@ describe('Governance Enforcement', () => {
 
     it('allows transition when justification provided', () => {
       const useCase = {
-        raiRiskTier: null,
+        raiQuestionnaireComplete: null,
         useCaseStatus: 'Discovery'
       };
       const result = checkPhaseTransitionRequirements(
@@ -294,7 +300,7 @@ describe('Governance Enforcement', () => {
 
     it('allows transition when exit requirements are met', () => {
       const useCase = {
-        raiRiskTier: 'Low',
+        raiQuestionnaireComplete: 'true',
         useCaseStatus: 'Discovery'
       };
       const result = checkPhaseTransitionRequirements(
@@ -306,12 +312,12 @@ describe('Governance Enforcement', () => {
         governanceGates
       );
       assert.strictEqual(result.allowed, true);
-      assert.strictEqual(result.requiresJustification, false);
+      assert.strictEqual(result.requiresJustification, false); // No justification needed when requirements met
     });
 
     it('identifies current and target phases correctly', () => {
       const useCase = {
-        raiRiskTier: null,
+        raiQuestionnaireComplete: null,
         useCaseStatus: 'Discovery'
       };
       const result = checkPhaseTransitionRequirements(
@@ -360,12 +366,17 @@ describe('Governance Enforcement', () => {
         primaryBusinessOwner: 'John Doe',
         businessFunction: 'IT',
         useCaseStatus: 'Backlog',
-        // Gate 2: All 5 scoring fields
+        // Gate 2: All 10 scoring fields (5 impact + 5 effort)
         revenueImpact: 4,
         costSavings: 3,
         riskReduction: 3,
         brokerPartnerExperience: 4,
         strategicFit: 5,
+        dataReadiness: 4,
+        technicalComplexity: 3,
+        changeImpact: 3,
+        modelRisk: 2,
+        adoptionReadiness: 4,
         // Gate 3: RAI fields (actual required fields)
         explainabilityRequired: 'true',
         customerHarmRisk: 'Low',
