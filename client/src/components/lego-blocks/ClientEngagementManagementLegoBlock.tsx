@@ -44,6 +44,8 @@ export default function ClientEngagementManagementLegoBlock() {
   const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
   const [isEngagementDialogOpen, setIsEngagementDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [editingClientId, setEditingClientId] = useState<string | null>(null);
+  const [editingEngagementId, setEditingEngagementId] = useState<string | null>(null);
   
   const [clientForm, setClientForm] = useState<ClientFormData>({
     name: '', description: '', industry: '', contactName: '', contactEmail: '', currency: 'GBP'
@@ -69,6 +71,7 @@ export default function ClientEngagementManagementLegoBlock() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
       setIsClientDialogOpen(false);
+      setEditingClientId(null);
       setClientForm({ name: '', description: '', industry: '', contactName: '', contactEmail: '', currency: 'GBP' });
       toast({ title: 'Client Created', description: 'New client added successfully.' });
     },
@@ -76,6 +79,51 @@ export default function ClientEngagementManagementLegoBlock() {
       toast({ title: 'Error', description: 'Failed to create client.', variant: 'destructive' });
     },
   });
+
+  const updateClientMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ClientFormData }) => apiRequest(`/api/clients/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      setIsClientDialogOpen(false);
+      setEditingClientId(null);
+      setClientForm({ name: '', description: '', industry: '', contactName: '', contactEmail: '', currency: 'GBP' });
+      toast({ title: 'Client Updated', description: 'Client details updated successfully.' });
+    },
+    onError: () => {
+      toast({ title: 'Error', description: 'Failed to update client.', variant: 'destructive' });
+    },
+  });
+
+  const handleOpenEditClient = (client: Client) => {
+    setEditingClientId(client.id);
+    setClientForm({
+      name: client.name || '',
+      description: client.description || '',
+      industry: client.industry || '',
+      contactName: client.contactName || '',
+      contactEmail: client.contactEmail || '',
+      currency: (client.currency as CurrencyCode) || 'GBP',
+    });
+    setIsClientDialogOpen(true);
+  };
+
+  const handleCloseClientDialog = () => {
+    setIsClientDialogOpen(false);
+    setEditingClientId(null);
+    setClientForm({ name: '', description: '', industry: '', contactName: '', contactEmail: '', currency: 'GBP' });
+  };
+
+  const handleSaveClient = () => {
+    if (editingClientId) {
+      updateClientMutation.mutate({ id: editingClientId, data: clientForm });
+    } else {
+      createClientMutation.mutate(clientForm);
+    }
+  };
 
   const createEngagementMutation = useMutation({
     mutationFn: (data: EngagementFormData) => apiRequest('/api/engagements', {
@@ -86,6 +134,7 @@ export default function ClientEngagementManagementLegoBlock() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/engagements'] });
       setIsEngagementDialogOpen(false);
+      setEditingEngagementId(null);
       setEngagementForm({ clientId: '', name: '', description: '', tomPresetId: 'hybrid' });
       toast({ title: 'Engagement Created', description: 'New engagement added successfully.' });
     },
@@ -93,6 +142,49 @@ export default function ClientEngagementManagementLegoBlock() {
       toast({ title: 'Error', description: 'Failed to create engagement.', variant: 'destructive' });
     },
   });
+
+  const updateEngagementMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<EngagementFormData> }) => apiRequest(`/api/engagements/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/engagements'] });
+      setIsEngagementDialogOpen(false);
+      setEditingEngagementId(null);
+      setEngagementForm({ clientId: '', name: '', description: '', tomPresetId: 'hybrid' });
+      toast({ title: 'Engagement Updated', description: 'Engagement details updated successfully.' });
+    },
+    onError: () => {
+      toast({ title: 'Error', description: 'Failed to update engagement.', variant: 'destructive' });
+    },
+  });
+
+  const handleOpenEditEngagement = (engagement: Engagement) => {
+    setEditingEngagementId(engagement.id);
+    setEngagementForm({
+      clientId: engagement.clientId || '',
+      name: engagement.name || '',
+      description: engagement.description || '',
+      tomPresetId: engagement.tomPresetId || 'hybrid',
+    });
+    setIsEngagementDialogOpen(true);
+  };
+
+  const handleCloseEngagementDialog = () => {
+    setIsEngagementDialogOpen(false);
+    setEditingEngagementId(null);
+    setEngagementForm({ clientId: '', name: '', description: '', tomPresetId: 'hybrid' });
+  };
+
+  const handleSaveEngagement = () => {
+    if (editingEngagementId) {
+      updateEngagementMutation.mutate({ id: editingEngagementId, data: engagementForm });
+    } else {
+      createEngagementMutation.mutate(engagementForm);
+    }
+  };
 
   const lockTomMutation = useMutation({
     mutationFn: (engagementId: string) => apiRequest(`/api/engagements/${engagementId}/lock-tom`, {
@@ -139,7 +231,7 @@ export default function ClientEngagementManagementLegoBlock() {
               </CardDescription>
             </div>
             <div className="flex gap-2">
-              <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
+              <Dialog open={isClientDialogOpen} onOpenChange={(open) => !open && handleCloseClientDialog()}>
                 <DialogTrigger asChild>
                   <Button size="sm" variant="outline" data-testid="button-add-client">
                     <Plus className="h-4 w-4 mr-1" />
@@ -148,8 +240,10 @@ export default function ClientEngagementManagementLegoBlock() {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Add New Client</DialogTitle>
-                    <DialogDescription>Create a new client organization</DialogDescription>
+                    <DialogTitle>{editingClientId ? 'Edit Client' : 'Add New Client'}</DialogTitle>
+                    <DialogDescription>
+                      {editingClientId ? 'Update client details and currency settings' : 'Create a new client organization'}
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
@@ -203,17 +297,17 @@ export default function ClientEngagementManagementLegoBlock() {
                   </div>
                   <DialogFooter>
                     <Button 
-                      onClick={() => createClientMutation.mutate(clientForm)}
-                      disabled={!clientForm.name || createClientMutation.isPending}
+                      onClick={handleSaveClient}
+                      disabled={!clientForm.name || createClientMutation.isPending || updateClientMutation.isPending}
                       data-testid="button-save-client"
                     >
-                      Create Client
+                      {editingClientId ? 'Save Changes' : 'Create Client'}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
 
-              <Dialog open={isEngagementDialogOpen} onOpenChange={setIsEngagementDialogOpen}>
+              <Dialog open={isEngagementDialogOpen} onOpenChange={(open) => !open && handleCloseEngagementDialog()}>
                 <DialogTrigger asChild>
                   <Button size="sm" data-testid="button-add-engagement">
                     <Plus className="h-4 w-4 mr-1" />
@@ -222,8 +316,10 @@ export default function ClientEngagementManagementLegoBlock() {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Add New Engagement</DialogTitle>
-                    <DialogDescription>Create a new engagement with a locked TOM preset</DialogDescription>
+                    <DialogTitle>{editingEngagementId ? 'Edit Engagement' : 'Add New Engagement'}</DialogTitle>
+                    <DialogDescription>
+                      {editingEngagementId ? 'Update engagement details' : 'Create a new engagement with a locked TOM preset'}
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
@@ -291,11 +387,11 @@ export default function ClientEngagementManagementLegoBlock() {
                   </div>
                   <DialogFooter>
                     <Button 
-                      onClick={() => createEngagementMutation.mutate(engagementForm)}
-                      disabled={!engagementForm.clientId || !engagementForm.name || createEngagementMutation.isPending}
+                      onClick={handleSaveEngagement}
+                      disabled={!engagementForm.clientId || !engagementForm.name || createEngagementMutation.isPending || updateEngagementMutation.isPending}
                       data-testid="button-save-engagement"
                     >
-                      Create Engagement
+                      {editingEngagementId ? 'Save Changes' : 'Create Engagement'}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -343,6 +439,14 @@ export default function ClientEngagementManagementLegoBlock() {
                           <Users className="h-3 w-3 mr-1" />
                           {clientEngagements.length} engagement{clientEngagements.length !== 1 ? 's' : ''}
                         </Badge>
+                        <Button 
+                          size="icon" 
+                          variant="ghost"
+                          onClick={() => handleOpenEditClient(client)}
+                          data-testid={`button-edit-client-${client.id}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                         {clientEngagements.length === 0 && (
                           <Button 
                             size="icon" 
@@ -389,6 +493,15 @@ export default function ClientEngagementManagementLegoBlock() {
                                   <Lock className="h-3 w-3 ml-1" />
                                 )}
                               </Badge>
+                              <Button 
+                                size="icon" 
+                                variant="ghost"
+                                className="h-7 w-7"
+                                onClick={() => handleOpenEditEngagement(engagement)}
+                                data-testid={`button-edit-engagement-${engagement.id}`}
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
                               {engagement.tomPresetLocked !== 'true' && (
                                 <Button 
                                   size="sm" 
