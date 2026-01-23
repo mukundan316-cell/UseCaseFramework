@@ -180,4 +180,29 @@ router.get('/excel/use-case/:id', async (req, res) => {
   }
 });
 
+/**
+ * Export all use cases as JSON backup for schema migration
+ * GET /api/export/backup/use-cases
+ */
+router.get('/backup/use-cases', async (req, res) => {
+  try {
+    const { storage } = await import('../storage');
+    const useCases = await storage.getAllUseCases();
+    
+    const backup = {
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+      totalCount: useCases.length,
+      useCases: useCases
+    };
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename=use-cases-backup.json');
+    res.json(backup);
+  } catch (error) {
+    console.error('Use case backup export error:', error);
+    res.status(500).json({ error: 'Failed to export use case backup' });
+  }
+});
+
 export default router;

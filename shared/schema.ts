@@ -9,10 +9,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
-// NOTE: Using 'any' type temporarily due to JSONB field type mismatches between schema definitions and runtime usage.
-// Technical debt: The valueRealization and capabilityTransition JSONB types need alignment with actual usage patterns.
-// See LSP diagnostics for specific field mismatches: derived, kpiEstimates, roleEvolution, presentationUrl, etc.
-export const useCases: any = pgTable("use_cases", {
+export const useCases = pgTable("use_cases", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   meaningfulId: varchar("meaningful_id").unique(), // Human-readable ID like HEX_INT_001
   engagementId: varchar("engagement_id"), // Links use case to client engagement (optional for backward compatibility)
@@ -190,6 +187,18 @@ export const useCases: any = pgTable("use_cases", {
       cumulativeValueGbp: number | null;
       lastCalculated: string | null;
     };
+    // Derivation tracking fields (auto-populated by system)
+    derived?: boolean;
+    derivedAt?: string;
+    kpiEstimates?: Array<{
+      kpiId: string;
+      kpiName: string;
+      maturityLevel: 'advanced' | 'developing' | 'foundational';
+      expectedRange: { min: number; max: number };
+      confidence: 'high' | 'medium' | 'low';
+      estimatedAnnualValueGbp: { min: number; max: number } | null;
+      benchmarkProcess: string | null;
+    }>;
   }>(),
   
   // Capability Transition tracking ("Teach Us to Fish")
@@ -255,6 +264,15 @@ export const useCases: any = pgTable("use_cases", {
       confidenceLevel: 'high' | 'medium' | 'low';
       targetTransitionDate: string | null;
     }>;
+    // Derivation tracking fields (auto-populated by system)
+    derived?: boolean;
+    derivedAt?: string;
+    derivedFrom?: {
+      tomPhase?: string;
+      quadrant?: string;
+      tShirtSize?: string;
+      operatingModel?: string;
+    };
   }>(),
   
   // Duplicate Detection fields (Topic 3.4 - Markel 9 Topics)

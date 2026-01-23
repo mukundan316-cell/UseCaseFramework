@@ -2618,7 +2618,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.set('Expires', '0');
     
     try {
-      const userEmail = 'antonm1@hexaware.com'; // TODO: Get from session/auth
+      // Get user email from query parameter or use configured default
+      // Note: Production should use proper session-based authentication
+      const userEmail = (req.query.userEmail as string) || process.env.DEFAULT_USER_EMAIL || 'user@hexaware.com';
       
       // Get all questionnaire definitions
       const definitions = await questionnaireServiceInstance.getAllDefinitions();
