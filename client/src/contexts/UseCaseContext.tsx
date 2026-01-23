@@ -71,12 +71,19 @@ export function UseCaseProvider({ children }: { children: ReactNode }) {
     ? `/api/use-cases/reference?engagementId=${selectedEngagementId}` 
     : '/api/use-cases/reference';
 
-  // Helper to invalidate all use case queries (matches any URL starting with /api/use-cases)
+  // Helper to invalidate all use case queries and related Insights data
   const invalidateAllUseCaseQueries = () => {
     queryClient.invalidateQueries({
       predicate: (query) => {
         const key = query.queryKey[0];
-        return typeof key === 'string' && key.startsWith('/api/use-cases');
+        if (typeof key !== 'string') return false;
+        // Invalidate all use case queries
+        if (key.startsWith('/api/use-cases')) return true;
+        // Invalidate Insights-related queries that depend on use case data
+        if (key.startsWith('/api/tom/phase-summary')) return true;
+        if (key.startsWith('/api/value/portfolio-summary')) return true;
+        if (key.startsWith('/api/capability')) return true;
+        return false;
       }
     });
   };
