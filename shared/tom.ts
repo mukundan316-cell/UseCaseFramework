@@ -3,6 +3,32 @@ export interface PhaseDataRequirements {
   exit: string[];
 }
 
+export interface CapabilityTransitionDefaults {
+  hexawareFts: number | null;
+  clientFts: number | null;
+  independenceFts: number | null;
+  targetIndependence: number | null;
+  currentIndependence: number | null;
+}
+
+export interface ValueRealizationDefaults {
+  expectedValueRangeMin: number | null;
+  expectedValueRangeMax: number | null;
+  defaultKpiCategories: string[];
+}
+
+export interface ResponsibleAIDefaults {
+  riskTier: string | null;
+  assessmentRequired: boolean;
+  recommendedCheckpoints: string[];
+}
+
+export interface PhaseDefaults {
+  capabilityTransition: CapabilityTransitionDefaults;
+  valueRealization: ValueRealizationDefaults;
+  responsibleAI: ResponsibleAIDefaults;
+}
+
 export interface TomPhase {
   id: string;
   name: string;
@@ -17,6 +43,7 @@ export interface TomPhase {
   expectedDurationWeeks: number | null;
   dataRequirements?: PhaseDataRequirements;
   unlockedFeatures?: string[];
+  phaseDefaults?: PhaseDefaults;
 }
 
 export interface TomGovernanceBody {
@@ -205,7 +232,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
             entry: ['title', 'description'],
             exit: ['primaryBusinessOwner', 'strategicAlignment']
           },
-          unlockedFeatures: ['overview']
+          unlockedFeatures: ['overview'],
+          phaseDefaults: {
+            capabilityTransition: {
+              hexawareFts: 2,
+              clientFts: 1,
+              independenceFts: 5,
+              targetIndependence: 10,
+              currentIndependence: 0
+            },
+            valueRealization: {
+              expectedValueRangeMin: null,
+              expectedValueRangeMax: null,
+              defaultKpiCategories: []
+            },
+            responsibleAI: {
+              riskTier: 'low',
+              assessmentRequired: false,
+              recommendedCheckpoints: ['initial_screening']
+            }
+          }
         },
         {
           id: 'assessment',
@@ -223,7 +269,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
             entry: ['primaryBusinessOwner'],
             exit: ['scoringComplete', 'raiAssessment']
           },
-          unlockedFeatures: ['overview', 'scoring', 'rai']
+          unlockedFeatures: ['overview', 'scoring', 'rai'],
+          phaseDefaults: {
+            capabilityTransition: {
+              hexawareFts: 4,
+              clientFts: 1,
+              independenceFts: 10,
+              targetIndependence: 20,
+              currentIndependence: 5
+            },
+            valueRealization: {
+              expectedValueRangeMin: null,
+              expectedValueRangeMax: null,
+              defaultKpiCategories: []
+            },
+            responsibleAI: {
+              riskTier: 'medium',
+              assessmentRequired: true,
+              recommendedCheckpoints: ['bias_review', 'data_privacy']
+            }
+          }
         },
         {
           id: 'foundation',
@@ -241,7 +306,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
             entry: ['scoringComplete'],
             exit: ['processMapping']
           },
-          unlockedFeatures: ['overview', 'scoring', 'rai', 'details']
+          unlockedFeatures: ['overview', 'scoring', 'rai', 'details'],
+          phaseDefaults: {
+            capabilityTransition: {
+              hexawareFts: 6,
+              clientFts: 2,
+              independenceFts: 20,
+              targetIndependence: 35,
+              currentIndependence: 15
+            },
+            valueRealization: {
+              expectedValueRangeMin: 25000,
+              expectedValueRangeMax: 100000,
+              defaultKpiCategories: ['efficiency']
+            },
+            responsibleAI: {
+              riskTier: 'medium',
+              assessmentRequired: true,
+              recommendedCheckpoints: ['model_validation', 'fairness_testing']
+            }
+          }
         },
         {
           id: 'build',
@@ -259,7 +343,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
             entry: ['processMapping'],
             exit: ['tshirtSizing', 'capabilityData']
           },
-          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability']
+          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability'],
+          phaseDefaults: {
+            capabilityTransition: {
+              hexawareFts: 8,
+              clientFts: 2,
+              independenceFts: 30,
+              targetIndependence: 50,
+              currentIndependence: 25
+            },
+            valueRealization: {
+              expectedValueRangeMin: 50000,
+              expectedValueRangeMax: 250000,
+              defaultKpiCategories: ['efficiency', 'quality']
+            },
+            responsibleAI: {
+              riskTier: 'medium',
+              assessmentRequired: true,
+              recommendedCheckpoints: ['pilot_evaluation', 'user_feedback']
+            }
+          }
         },
         {
           id: 'scale',
@@ -277,7 +380,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
             entry: ['tshirtSizing'],
             exit: ['investmentData', 'kpiData']
           },
-          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi']
+          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi'],
+          phaseDefaults: {
+            capabilityTransition: {
+              hexawareFts: 4,
+              clientFts: 5,
+              independenceFts: 55,
+              targetIndependence: 75,
+              currentIndependence: 50
+            },
+            valueRealization: {
+              expectedValueRangeMin: 150000,
+              expectedValueRangeMax: 600000,
+              defaultKpiCategories: ['efficiency', 'quality', 'cost_savings']
+            },
+            responsibleAI: {
+              riskTier: 'high',
+              assessmentRequired: true,
+              recommendedCheckpoints: ['production_monitoring', 'incident_response']
+            }
+          }
         },
         {
           id: 'operate',
@@ -295,7 +417,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
             entry: ['kpiData'],
             exit: ['valueRealization']
           },
-          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi', 'valueRealization']
+          unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi', 'valueRealization'],
+          phaseDefaults: {
+            capabilityTransition: {
+              hexawareFts: 1,
+              clientFts: 8,
+              independenceFts: 90,
+              targetIndependence: 95,
+              currentIndependence: 85
+            },
+            valueRealization: {
+              expectedValueRangeMin: 300000,
+              expectedValueRangeMax: 1500000,
+              defaultKpiCategories: ['efficiency', 'quality', 'cost_savings', 'revenue']
+            },
+            responsibleAI: {
+              riskTier: 'low',
+              assessmentRequired: false,
+              recommendedCheckpoints: ['annual_review', 'continuous_monitoring']
+            }
+          }
         }
       ]
     }
@@ -317,7 +458,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
         entry: ['title', 'description', 'primaryBusinessOwner'],
         exit: ['scoringComplete', 'raiAssessment']
       },
-      unlockedFeatures: ['overview', 'scoring', 'rai']
+      unlockedFeatures: ['overview', 'scoring', 'rai'],
+      phaseDefaults: {
+        capabilityTransition: {
+          hexawareFts: 5,
+          clientFts: 1,
+          independenceFts: 10,
+          targetIndependence: 20,
+          currentIndependence: 5
+        },
+        valueRealization: {
+          expectedValueRangeMin: null,
+          expectedValueRangeMax: null,
+          defaultKpiCategories: []
+        },
+        responsibleAI: {
+          riskTier: 'medium',
+          assessmentRequired: true,
+          recommendedCheckpoints: ['bias_review', 'data_privacy']
+        }
+      }
     },
     {
       id: 'strategic',
@@ -335,7 +495,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
         entry: ['scoringComplete'],
         exit: ['processMapping', 'tshirtSizing']
       },
-      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing']
+      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing'],
+      phaseDefaults: {
+        capabilityTransition: {
+          hexawareFts: 8,
+          clientFts: 2,
+          independenceFts: 20,
+          targetIndependence: 40,
+          currentIndependence: 15
+        },
+        valueRealization: {
+          expectedValueRangeMin: 50000,
+          expectedValueRangeMax: 200000,
+          defaultKpiCategories: ['efficiency', 'quality']
+        },
+        responsibleAI: {
+          riskTier: 'medium',
+          assessmentRequired: true,
+          recommendedCheckpoints: ['model_validation', 'fairness_testing']
+        }
+      }
     },
     {
       id: 'transition',
@@ -353,7 +532,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
         entry: ['processMapping'],
         exit: ['investmentData', 'capabilityData']
       },
-      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment']
+      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment'],
+      phaseDefaults: {
+        capabilityTransition: {
+          hexawareFts: 4,
+          clientFts: 4,
+          independenceFts: 50,
+          targetIndependence: 70,
+          currentIndependence: 40
+        },
+        valueRealization: {
+          expectedValueRangeMin: 100000,
+          expectedValueRangeMax: 500000,
+          defaultKpiCategories: ['efficiency', 'quality', 'cost_savings']
+        },
+        responsibleAI: {
+          riskTier: 'high',
+          assessmentRequired: true,
+          recommendedCheckpoints: ['production_monitoring', 'incident_response']
+        }
+      }
     },
     {
       id: 'steady_state',
@@ -371,7 +569,26 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
         entry: ['investmentData', 'capabilityData'],
         exit: ['kpiData', 'valueRealization']
       },
-      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi', 'valueRealization']
+      unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi', 'valueRealization'],
+      phaseDefaults: {
+        capabilityTransition: {
+          hexawareFts: 1,
+          clientFts: 7,
+          independenceFts: 85,
+          targetIndependence: 95,
+          currentIndependence: 80
+        },
+        valueRealization: {
+          expectedValueRangeMin: 200000,
+          expectedValueRangeMax: 1000000,
+          defaultKpiCategories: ['efficiency', 'quality', 'cost_savings', 'revenue']
+        },
+        responsibleAI: {
+          riskTier: 'low',
+          assessmentRequired: false,
+          recommendedCheckpoints: ['annual_review', 'continuous_monitoring']
+        }
+      }
     }
   ],
   governanceBodies: [
