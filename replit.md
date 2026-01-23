@@ -59,11 +59,26 @@ All four Insights tabs (Value Realization, Operating Model, Capability Transitio
 - Updated valueRealization JSONB type to include: `derived`, `derivedAt`, `kpiEstimates` fields
 - Updated capabilityTransition JSONB type to include: `derived`, `derivedAt`, `derivedFrom` fields
 - All JSONB types now align with runtime usage patterns in routes.ts and derivation.ts
+- Fixed 10 TypeScript LSP errors in server/routes.ts:
+  - Corrected property name mismatches (`lineOfBusiness` → `linesOfBusiness`)
+  - Removed obsolete `presentationUrl`/`presentationPdfUrl` references
+  - Added proper type guards for null filtering
+  - Added all required valueRealization fields (`selectedKpis`, `kpiValues`, `investment`, `tracking`, `calculatedMetrics`)
+- Added `roleEvolution: RoleEvolutionEntry[]` field to `UseCaseCapabilityTransition` interface for role change audit trail
 
 ### API Enhancements
 - Added backup export endpoint: `GET /api/export/backup/use-cases` for JSON data export
 - User session endpoint now uses configurable email (query param, env var, or default) instead of hardcoded value
 - Status dropdown in CRUD modal uses dynamic metadata options (metadata-driven principle)
+
+### URL-Based Navigation
+- Added direct URL routes for tab navigation:
+  - `/explorer` - Direct access to Explorer view
+  - `/dashboard` - Direct access to Dashboard view
+  - `/admin` - Direct access to Admin view
+  - `/insights` and `/insights/:subTab` - Direct access to Insights pages
+- Implemented `TabSyncedHomePage` component to sync URL with activeTab context state
+- Enables bookmarking and sharing direct links to specific platform sections
 
 ### Schema Additions
 - Added `raiRiskTier` and `raiAssessmentRequired` columns for phase-based Responsible AI defaults
