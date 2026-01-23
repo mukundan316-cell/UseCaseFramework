@@ -1,0 +1,47 @@
+Original Design Intent:
+
+User creates a use case with just title + description (minimum)
+Use case is saved to "Reference Library" (not active)
+User gradually fills in fields across sessions
+Once all 3 gates pass → use case can be "activated" into Active Portfolio
+Current Issue:
+After changing scores to start at 0, the sliders might have a problem. The sliders have a range of 1-5, but initial value is now 0. This could mean:
+
+Visual problem: Slider shows at position 0, but min value is 1
+Interaction problem: When user moves slider, it might not register correctly
+Validation problem: The 0 value might cause form issues
+Let me check the slider component behavior:
+
+I see the issue! The slider has min={1} but the initial value is now 0. This creates problems:
+
+Visual glitch: Slider shows value "0" but slider track starts at 1
+Usability issue: User sees "0" but can't set it back to 0 once they touch the slider
+Let me check the form submission to understand what blocks creating:
+
+Let me check if there are validation requirements blocking the save:
+
+Based on my analysis, here's what I found:
+
+Current Flow Analysis
+Original Design Intent:
+
+User creates use case with just title + description (minimum required)
+Use case saved to Reference Library (not active)
+User fills in gates progressively
+Once all 3 gates pass → can activate to Active Portfolio
+Issues Found:
+
+Slider Min/Max Mismatch: Sliders have min=1 but scores now start at 0. This creates:
+
+Visual confusion: Shows "0" in the badge but slider track starts at "1"
+Once user touches slider, they can only pick 1-5 (can't go back to "unscored")
+"Not Scored" State Missing: There's no visual distinction between "not yet scored" (0) and "scored as 1"
+
+Form Should Still Save: Only title + description are required - gates shouldn't block creation
+
+Proposed Fix
+The sliders should visually show an "unscored" state when value is 0:
+
+Show "Not Scored" placeholder instead of "0"
+Slider handle positioned before the 1 mark or hidden
+Once user interacts, they set a real score (1-5)
