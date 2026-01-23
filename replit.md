@@ -42,6 +42,7 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 - **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table.
 - **Compliance Features**: Duplicate detection, full audit trail (`use_case_change_log`), and role evolution tracking within capability transitions.
 - **Governance Workflow**: Foundation Layer gates (Operating Model → Intake & Prioritization → Responsible AI → Activation) must be cleared before use cases enter active portfolio. Auto-calculated from field completeness. Backend enforcement blocks activation API calls and auto-deactivates if gates regress. Visual stepper in CRUD modal shows real-time gate progress.
+- **Soft Progressive Data Capture**: Phase-aligned guidance system that shows users what data to complete for each TOM phase. Each phase has entry/exit dataRequirements and unlockedFeatures defined in metadata. PhaseReadinessLegoBlock displays current phase, readiness percentage, and pending requirements. CRUD modal tabs show "Focus" badges for recommended tabs. No hard blocking - all tabs remain accessible. Metadata-driven via REQUIREMENT_TAB_MAPPING constant. Supports both 4-phase hybrid and 6-phase RSA TOM presets with phase-agnostic functionality.
 - **Navigation**: All features accessible via tab navigation from home page: Dashboard View, Explorer, Insights, AI Assessment, Admin.
 
 ### Insights Dashboard Structure
