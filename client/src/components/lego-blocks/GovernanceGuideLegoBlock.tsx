@@ -15,7 +15,7 @@ interface GateStep {
   title: string;
   subtitle: string;
   icon: ElementType;
-  requirement: string;
+  requirements: string[];
   principle: string;
   color: string;
   bgClass: string;
@@ -28,8 +28,12 @@ const gates: GateStep[] = [
     title: 'Operating Model',
     subtitle: 'Accountability',
     icon: User,
-    requirement: 'Primary Business Owner',
-    principle: 'Every AI needs a named owner',
+    requirements: [
+      'Primary Business Owner',
+      'Business Function assigned',
+      'Status beyond Discovery'
+    ],
+    principle: 'Accountability and organizational alignment must be established before AI work begins',
     color: '#3C2CDA',
     bgClass: 'bg-[#3C2CDA]',
     borderClass: 'border-[#3C2CDA]'
@@ -39,7 +43,7 @@ const gates: GateStep[] = [
     title: 'Intake & Prioritization',
     subtitle: 'Assessment',
     icon: BarChart3,
-    requirement: 'Complete 10-lever scoring',
+    requirements: ['Complete 10-lever scoring (Impact & Effort)'],
     principle: 'Must be properly assessed before building',
     color: '#1D86FF',
     bgClass: 'bg-[#1D86FF]',
@@ -50,7 +54,7 @@ const gates: GateStep[] = [
     title: 'Responsible AI',
     subtitle: 'Compliance',
     icon: Shield,
-    requirement: 'RAI questionnaire complete',
+    requirements: ['Complete RAI questionnaire (5 fields)'],
     principle: 'Must clear ethical/compliance review',
     color: '#14CBDE',
     bgClass: 'bg-[#14CBDE]',
@@ -61,7 +65,7 @@ const gates: GateStep[] = [
     title: 'Activation',
     subtitle: 'Enter Portfolio',
     icon: Rocket,
-    requirement: 'All gates passed',
+    requirements: ['All gates passed'],
     principle: 'Ready for TOM lifecycle tracking',
     color: '#07125E',
     bgClass: 'bg-[#07125E]',
@@ -154,14 +158,19 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
                   <p className="text-xs text-gray-500" data-testid={`text-gate-subtitle-${gate.id}`}>{gate.subtitle}</p>
                   
                   <div className="mt-2 space-y-1">
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="text-sm" data-testid={`text-gate-requirement-${gate.id}`}>
                       <span className="text-gray-400">Requires:</span>
-                      <span 
-                        className={status === 'pending' ? 'text-gray-500' : 'text-gray-700'}
-                        data-testid={`text-gate-requirement-${gate.id}`}
-                      >
-                        {gate.requirement}
-                      </span>
+                      {gate.requirements.length === 1 ? (
+                        <span className={`ml-2 ${status === 'pending' ? 'text-gray-500' : 'text-gray-700'}`}>
+                          {gate.requirements[0]}
+                        </span>
+                      ) : (
+                        <ul className={`list-disc list-inside mt-1 ${status === 'pending' ? 'text-gray-500' : 'text-gray-700'}`}>
+                          {gate.requirements.map((req, i) => (
+                            <li key={i} className="text-sm">{req}</li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                     <p className="text-xs text-gray-400 italic" data-testid={`text-gate-principle-${gate.id}`}>
                       "{gate.principle}"

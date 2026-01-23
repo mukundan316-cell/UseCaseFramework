@@ -1553,7 +1553,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                   <SectionHeader icon={Tag} title="Classification" description="Status and source categorization" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-semibold">Status</Label>
+                      <Label className="text-sm font-semibold flex items-center gap-2">
+                        Status
+                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700">Gate Required</Badge>
+                      </Label>
                       <Select 
                         value={form.watch('useCaseStatus') || 'Discovery'} 
                         onValueChange={handleStatusChange}
@@ -1569,6 +1572,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                           ))}
                         </SelectContent>
                       </Select>
+                      {form.watch('useCaseStatus') === 'Discovery' && (
+                        <div className="flex items-center gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-amber-700 text-sm" data-testid="warning-discovery-status">
+                          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                          <span>Use cases in Discovery cannot pass Gate 1. Change status to proceed with governance.</span>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <Label className="text-sm font-semibold">Source Type</Label>
@@ -2123,7 +2132,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                         name="businessFunction"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Business Function</FormLabel>
+                            <FormLabel className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                              Business Function
+                              <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700">Gate Required</Badge>
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="e.g., Marketing, CIO, Claims, CFU..."
