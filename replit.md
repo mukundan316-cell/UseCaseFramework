@@ -52,6 +52,23 @@ All four Insights tabs (Value Realization, Operating Model, Capability Transitio
 2. **Distribution Charts**: Visual breakdowns (bar charts, progress bars)
 3. **Use Case Table**: Detailed list with status badges and key metrics
 
+## Recent Technical Improvements (January 2026)
+
+### Type Safety Cleanup
+- Removed `any` type from `useCases` table definition - full TypeScript type safety achieved
+- Updated valueRealization JSONB type to include: `derived`, `derivedAt`, `kpiEstimates` fields
+- Updated capabilityTransition JSONB type to include: `derived`, `derivedAt`, `derivedFrom` fields
+- All JSONB types now align with runtime usage patterns in routes.ts and derivation.ts
+
+### API Enhancements
+- Added backup export endpoint: `GET /api/export/backup/use-cases` for JSON data export
+- User session endpoint now uses configurable email (query param, env var, or default) instead of hardcoded value
+- Status dropdown in CRUD modal uses dynamic metadata options (metadata-driven principle)
+
+### Schema Additions
+- Added `raiRiskTier` and `raiAssessmentRequired` columns for phase-based Responsible AI defaults
+- Phase defaults auto-population correctly maps to JSONB structure paths
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion, Radix UI primitives
