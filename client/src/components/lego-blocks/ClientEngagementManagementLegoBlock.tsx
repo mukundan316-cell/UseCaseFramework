@@ -86,8 +86,10 @@ export default function ClientEngagementManagementLegoBlock() {
       body: JSON.stringify(data),
       headers: { 'Content-Type': 'application/json' },
     }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      // Invalidate both the client list and the individual client query (for useCurrency hook)
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${variables.id}`] });
       setIsClientDialogOpen(false);
       setEditingClientId(null);
       setClientForm({ name: '', description: '', industry: '', contactName: '', contactEmail: '', currency: 'GBP' });
