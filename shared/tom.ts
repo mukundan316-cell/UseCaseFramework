@@ -985,3 +985,147 @@ export function calculatePhaseReadiness(
     recommendedTab
   };
 }
+
+// ============================================
+// PHASE TRANSITION DETECTION UTILITIES
+// Implements Phase Transition Governance per replit.md:
+// "When changing use case status triggers a phase transition, 
+//  the system checks if exit requirements are met."
+// Aligns with NAIC Model Bulletin, NIST AI RMF, ISO 42001
+// ============================================
+
+export interface PhaseTransitionInfo {
+  hasTransition: boolean;
+  fromPhase: TomPhase | null;
+  toPhase: TomPhase | null;
+  fromPhaseId: string | null;
+  toPhaseId: string | null;
+  exitRequirementsMet: string[];
+  exitRequirementsPending: string[];
+  canProgressWithoutWarning: boolean;
+  isExitingUnphasedOrDisabled: boolean;
+}
+
+export interface PhaseTransitionCheckInput {
+  currentStatus: string | null;
+  currentDeployment: string | null;
+  currentOverride: string | null;
+  newStatus: string | null;
+  newDeployment: string | null;
+  newOverride: string | null;
+  useCaseData: UseCaseDataForReadiness;
+  governanceGates?: GovernanceGateInput;
+}
+
+/**
+ * Detects if a status/deployment/override change will trigger a phase transition.
+ * Returns detailed information about the transition including exit requirement status.
+ * 
+ * Per replit.md: "Transitions from unphased/disabled states bypass this check 
+ * since they have no exit requirements."
+ */
+export function detectPhaseTransition(
+  input: PhaseTransitionCheckInput,
+  tomConfig: TomConfig
+): PhaseTransitionInfo {
+  const result: PhaseTransitionInfo = {
+    hasTransition: false,
+    fromPhase: null,
+    toPhase: null,
+    fromPhaseId: null,
+    toPhaseId: null,
+    exitRequirementsMet: [],
+    exitRequirementsPending: [],
+    canProgressWithoutWarning: true,
+    isExitingUnphasedOrDisabled: false
+  };
+
+  // If TOM is not enabled, no transition tracking needed
+  if (tomConfig.enabled !== 'true') {
+    return result;
+  }
+
+  // Derive current phase
+  const currentDerived = derivePhase(
+    input.currentStatus,
+    input.currentDeployment,
+    input.currentOverride,
+    tomConfig,
+    input.governanceGates
+  );
+
+  // Derive new phase after changes
+  const newDerived = derivePhase(
+    input.newStatus,
+    input.newDeployment,
+    input.newOverride,
+    tomConfig,
+    input.governanceGates
+  );
+
+  result.fromPhaseId = currentDerived.id;
+  result.toPhaseId = newDerived.id;
+
+  // Check if phase actually changes
+  if (currentDerived.id === newDerived.id) {
+    return result;
+  }
+
+  result.hasTransition = true;
+
+  // Find actual phase objects
+  result.fromPhase = tomConfig.phases.find(p => p.id === currentDerived.id) || null;
+  result.toPhase = tomConfig.phases.find(p => p.id === newDerived.id) || null;
+
+  // Check if exiting from unphased/disabled/unmapped - these have no exit requirements
+  const bypassStates = ['unphased', 'disabled', 'unmapped'];
+  if (bypassStates.includes(currentDerived.id)) {
+    result.isExitingUnphasedOrDisabled = true;
+    result.canProgressWithoutWarning = true;
+    return result;
+  }
+
+  // Calculate exit requirements for current phase
+  if (result.fromPhase?.dataRequirements?.exit) {
+    const exitReqs = result.fromPhase.dataRequirements.exit;
+    result.exitRequirementsMet = exitReqs.filter(r => checkDataRequirement(r, input.useCaseData));
+    result.exitRequirementsPending = exitReqs.filter(r => !checkDataRequirement(r, input.useCaseData));
+  }
+
+  // Determine if warning is needed
+  // Per replit.md: Show warning if "requirements are incomplete (canProgress=false)"
+  result.canProgressWithoutWarning = result.exitRequirementsPending.length === 0;
+
+  return result;
+}
+
+/**
+ * Simple helper to check if a phase transition warning dialog should be shown.
+ * Returns true if:
+ * - TOM is enabled
+ * - Phase will change
+ * - Current phase has incomplete exit requirements
+ * - Not exiting from unphased/disabled state
+ */
+export function shouldShowPhaseTransitionWarning(
+  transitionInfo: PhaseTransitionInfo
+): boolean {
+  return (
+    transitionInfo.hasTransition &&
+    !transitionInfo.isExitingUnphasedOrDisabled &&
+    !transitionInfo.canProgressWithoutWarning
+  );
+}
+
+/**
+ * Format exit requirements into a user-friendly summary for display in warning dialog.
+ */
+export function formatExitRequirementsSummary(
+  met: string[],
+  pending: string[]
+): { metLabels: string[]; pendingLabels: string[] } {
+  return {
+    metLabels: met.map(r => getRequirementLabel(r)),
+    pendingLabels: pending.map(r => getRequirementLabel(r))
+  };
+}

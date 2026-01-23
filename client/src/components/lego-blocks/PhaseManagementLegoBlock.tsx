@@ -434,6 +434,8 @@ function PhaseDefaultsForm({
   staffingRatio: StaffingRatio;
   onStaffingChange: (ratio: StaffingRatio) => void;
 }) {
+  const { symbol: currencySymbol } = useCurrency();
+  
   const updateCapability = (field: string, value: number | null) => {
     onChange({
       ...defaults,

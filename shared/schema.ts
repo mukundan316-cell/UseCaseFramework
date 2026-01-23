@@ -453,7 +453,8 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   // TOM Phase fields - allow null for clearing overrides
   tomPhase: z.union([z.string(), z.null()]).optional(),
   tomPhaseOverride: z.union([z.string(), z.null()]).optional(),
-  phaseTransitionReason: z.union([z.string(), z.null()]).optional(), // Reason for transitioning phase when exit requirements not met
+  phaseTransitionReason: z.union([z.string(), z.null()]).optional(), // Legacy field for phase transition reason
+  lastPhaseTransitionReason: z.union([z.string(), z.null()]).optional(), // Reason for last phase transition (audit trail)
   tomOverrideReason: z.union([z.string(), z.null()]).optional(),
   
   // Responsible AI Phase Defaults

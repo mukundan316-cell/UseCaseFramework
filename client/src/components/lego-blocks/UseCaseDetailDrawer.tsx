@@ -51,8 +51,11 @@ import PresentationPreviewBlock from './PresentationPreviewBlock';
 import TShirtSizingDisplayLegoBlock from './TShirtSizingDisplayLegoBlock';
 import AuditTimelineLegoBlock from './AuditTimelineLegoBlock';
 import GovernanceStepperLegoBlock from './GovernanceStepperLegoBlock';
-import { History, Lock } from 'lucide-react';
+import { History, Lock, Info, CircleCheck, CircleDashed } from 'lucide-react';
 import { calculateGovernanceStatus } from '@shared/calculations';
+import { calculatePhaseReadiness, getRequirementLabel, derivePhase, ensureTomConfig } from '@shared/tom';
+import { useUseCases } from '@/contexts/UseCaseContext';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface UseCaseDetailDrawerProps {
   isOpen: boolean;
@@ -75,6 +78,9 @@ export default function UseCaseDetailDrawer({
   onDelete
 }: UseCaseDetailDrawerProps) {
   
+  // Get metadata for TOM config
+  const { metadata } = useUseCases();
+  
   if (!useCase) return null;
 
   // Get effective scores and overrides - only consider meaningful scoring (> 0)
@@ -84,6 +90,12 @@ export default function UseCaseDetailDrawer({
   const effectiveEffort = hasScores ? getEffectiveEffortScore(useCase as any) : undefined;
   const effectiveQuadrant = hasScores ? getEffectiveQuadrant(useCase as any) : '';
   const hasOverrides = hasManualOverrides(useCase as any);
+  
+  // Calculate phase readiness for TOM governance
+  const tomConfig = ensureTomConfig(metadata?.tomConfig);
+  const derivedPhaseResult = derivePhase(useCase as any, tomConfig);
+  const phaseReadiness = calculatePhaseReadiness(useCase as any, tomConfig);
+  const currentPhase = tomConfig.phases.find(p => p.id === derivedPhaseResult.phaseId);
   
   // Get source styling
   const sourceConfig = getSourceConfig(useCase.librarySource || 'internal');
@@ -260,6 +272,108 @@ export default function UseCaseDetailDrawer({
             </div>
           </div>
         </SheetHeader>
+
+        {/* Phase Readiness Section - TOM Governance */}
+        {currentPhase && phaseReadiness && (
+          <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Badge 
+                  variant="outline" 
+                  className={`font-medium ${
+                    currentPhase.id === 'foundation' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                    currentPhase.id === 'strategic' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                    currentPhase.id === 'implementation' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                    currentPhase.id === 'operational' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                    'bg-gray-50 text-gray-700 border-gray-200'
+                  }`}
+                >
+                  {currentPhase.name}
+                </Badge>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Phase Readiness: {Math.round(phaseReadiness.overallReadinessPercent)}%
+                </span>
+              </div>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm">
+                  <p className="text-sm">Phase readiness measures completion of entry and exit requirements for the current TOM phase.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            
+            {/* Requirements Summary */}
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              {/* Entry Requirements */}
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-gray-600 dark:text-gray-300">Entry Requirements</div>
+                <div className="flex flex-wrap gap-1">
+                  {phaseReadiness.entryRequirementsMet.length > 0 && (
+                    <Badge variant="secondary" className="text-xs bg-green-50 text-green-700 border-green-200">
+                      <CircleCheck className="w-3 h-3 mr-1" />
+                      {phaseReadiness.entryRequirementsMet.length} Met
+                    </Badge>
+                  )}
+                  {phaseReadiness.entryRequirementsPending.length > 0 && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Badge variant="secondary" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                          <CircleDashed className="w-3 h-3 mr-1" />
+                          {phaseReadiness.entryRequirementsPending.length} Pending
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <div className="text-sm">
+                          <p className="font-medium mb-1">Pending Entry Requirements:</p>
+                          <ul className="list-disc pl-4 space-y-0.5">
+                            {phaseReadiness.entryRequirementsPending.map((req: string, i: number) => (
+                              <li key={i}>{getRequirementLabel(req)}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              </div>
+              
+              {/* Exit Requirements */}
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-gray-600 dark:text-gray-300">Exit Requirements</div>
+                <div className="flex flex-wrap gap-1">
+                  {phaseReadiness.exitRequirementsMet.length > 0 && (
+                    <Badge variant="secondary" className="text-xs bg-green-50 text-green-700 border-green-200">
+                      <CircleCheck className="w-3 h-3 mr-1" />
+                      {phaseReadiness.exitRequirementsMet.length} Met
+                    </Badge>
+                  )}
+                  {phaseReadiness.exitRequirementsPending.length > 0 && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Badge variant="secondary" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                          <CircleDashed className="w-3 h-3 mr-1" />
+                          {phaseReadiness.exitRequirementsPending.length} Pending
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <div className="text-sm">
+                          <p className="font-medium mb-1">Pending Exit Requirements:</p>
+                          <ul className="list-disc pl-4 space-y-0.5">
+                            {phaseReadiness.exitRequirementsPending.map((req: string, i: number) => (
+                              <li key={i}>{getRequirementLabel(req)}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Accordion type="multiple" defaultValue={isAiInventory ? ["lifecycle", "overview", "business", "governance", "implementation"] : ["overview", "business"]} className="space-y-2">
           

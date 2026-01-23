@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users, Shield, User, Tag, TrendingUp, Wrench, Eye, AlertTriangle, UserCheck, Globe, Briefcase, DollarSign, Clock, Layers, Rocket, PoundSterling } from 'lucide-react';
+import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users, Shield, User, Tag, TrendingUp, Wrench, Eye, AlertTriangle, UserCheck, Globe, Briefcase, DollarSign, Clock, Layers, Rocket, PoundSterling, ArrowRight, CheckCircle2, Circle } from 'lucide-react';
 import { useCurrency } from '@/hooks/useCurrency';
 
 // Section Header Component for consistent sub-section styling
@@ -37,7 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { calculateImpactScore, calculateEffortScore, calculateQuadrant, calculateGovernanceStatus } from '@shared/calculations';
 import GovernanceStepperLegoBlock from './GovernanceStepperLegoBlock';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { derivePhase, calculatePhaseReadiness, type TomConfig, type UseCaseDataForReadiness } from '@shared/tom';
+import { derivePhase, calculatePhaseReadiness, getRequirementLabel, type TomConfig, type UseCaseDataForReadiness } from '@shared/tom';
 import PhaseReadinessLegoBlock from './PhaseReadinessLegoBlock';
 import { ContextualProcessActivityField } from './ProcessActivityManager';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1044,6 +1044,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           delete changedData.capabilityClientFte;
           delete changedData.capabilityIndependence;
         }
+        
+        // Map phaseTransitionReason to lastPhaseTransitionReason for database persistence
+        // Per replit.md: "The override reason is stored in lastPhaseTransitionReason for audit purposes"
+        if (changedData.phaseTransitionReason) {
+          changedData.lastPhaseTransitionReason = changedData.phaseTransitionReason;
+        }
+        delete changedData.phaseTransitionReason;
         
         const result = await updateUseCase(useCase.id, changedData);
         
@@ -2497,37 +2504,92 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       </DialogContent>
     </Dialog>
 
-    {/* Phase Transition Warning Dialog */}
+    {/* Phase Transition Warning Dialog - Per replit.md Phase Transition Governance */}
     <Dialog open={showPhaseTransitionWarning} onOpenChange={cancelPhaseTransition}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg" data-testid="phase-transition-warning-dialog">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            Phase Transition Warning
+            Phase Transition - Incomplete Exit Requirements
           </DialogTitle>
           <DialogDescription>
-            You are about to transition to the next phase, but some exit requirements are not complete.
+            This change will move the use case to a new phase, but exit requirements 
+            for the current phase are not complete. Please review and provide a reason for proceeding.
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
+          {/* Phase Transition Visualization */}
+          {phaseReadiness?.currentPhase && (
+            <div className="flex items-center justify-center gap-3 py-2">
+              <Badge 
+                className="font-medium text-white"
+                style={{ backgroundColor: phaseReadiness.currentPhase.color }}
+                data-testid="phase-from-badge"
+              >
+                <Layers className="h-3 w-3 mr-1" />
+                {phaseReadiness.currentPhase.name}
+              </Badge>
+              <ArrowRight className="h-5 w-5 text-muted-foreground" />
+              {phaseReadiness.nextPhase ? (
+                <Badge 
+                  className="font-medium text-white"
+                  style={{ backgroundColor: phaseReadiness.nextPhase.color }}
+                  data-testid="phase-to-badge"
+                >
+                  <Layers className="h-3 w-3 mr-1" />
+                  {phaseReadiness.nextPhase.name}
+                </Badge>
+              ) : (
+                <Badge variant="outline" data-testid="phase-to-badge">
+                  Next Phase
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* Exit Requirements Status */}
           {phaseReadiness && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-              <p className="text-sm font-medium text-amber-800 mb-2">Pending Exit Requirements:</p>
-              <ul className="text-sm text-amber-700 space-y-1">
-                {phaseReadiness.exitRequirementsPending.map((req: string) => (
-                  <li key={req} className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                    {req.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                  </li>
-                ))}
-              </ul>
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Exit Requirements for {phaseReadiness.currentPhase?.name || 'Current Phase'}
+              </p>
+              
+              {phaseReadiness.exitRequirementsMet.length > 0 && (
+                <div className="space-y-1">
+                  {phaseReadiness.exitRequirementsMet.map((req: string) => (
+                    <div 
+                      key={req} 
+                      className="flex items-center gap-2 text-sm text-green-600"
+                      data-testid={`exit-req-met-${req}`}
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>{getRequirementLabel(req)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {phaseReadiness.exitRequirementsPending.length > 0 && (
+                <div className="space-y-1">
+                  {phaseReadiness.exitRequirementsPending.map((req: string) => (
+                    <div 
+                      key={req} 
+                      className="flex items-center gap-2 text-sm text-amber-600"
+                      data-testid={`exit-req-pending-${req}`}
+                    >
+                      <Circle className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>{getRequirementLabel(req)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           
           <div>
             <Label htmlFor="phaseTransitionReason" className="text-sm font-medium">
-              Reason for proceeding without completion <span className="text-red-500">*</span>
+              Reason for Proceeding <span className="text-destructive">*</span>
             </Label>
             <Textarea
               id="phaseTransitionReason"
@@ -2548,6 +2610,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           <Button 
             onClick={confirmPhaseTransition} 
             disabled={!phaseTransitionReason.trim()}
+            className="bg-amber-600 hover:bg-amber-700"
             data-testid="button-confirm-transition"
           >
             Proceed Anyway

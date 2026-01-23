@@ -762,9 +762,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
           
-          // Record phase transition reason if provided
-          if (validatedData.phaseTransitionReason) {
-            phaseTransitionUpdates.lastPhaseTransitionReason = validatedData.phaseTransitionReason;
+          // Record phase transition reason if provided (can come from either field)
+          if (validatedData.lastPhaseTransitionReason || validatedData.phaseTransitionReason) {
+            phaseTransitionUpdates.lastPhaseTransitionReason = validatedData.lastPhaseTransitionReason || validatedData.phaseTransitionReason;
           }
           
           await storage.updateUseCase(id, phaseTransitionUpdates as any);
