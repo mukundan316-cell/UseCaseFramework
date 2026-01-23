@@ -71,6 +71,37 @@ All four Insights tabs (Value Realization, Operating Model, Capability Transitio
 - User session endpoint now uses configurable email (query param, env var, or default) instead of hardcoded value
 - Status dropdown in CRUD modal uses dynamic metadata options (metadata-driven principle)
 
+### Governance Enforcement API Responses
+The `PUT /api/use-cases/:id` endpoint now includes backend governance enforcement with the following responses:
+
+**403 GOVERNANCE_INCOMPLETE** - Returned when attempting to activate a use case with incomplete governance gates:
+```json
+{
+  "error": "GOVERNANCE_INCOMPLETE",
+  "message": "Cannot activate use case - governance gates incomplete",
+  "details": {
+    "failedGates": ["gate1_operating_model", "gate2_intake"],
+    "requiredFields": { "gate1": ["primaryBusinessOwner"], "gate2": ["strategicFit"] }
+  }
+}
+```
+
+**400 PHASE_TRANSITION_REQUIRES_JUSTIFICATION** - Returned when phase transition requires justification for incomplete requirements:
+```json
+{
+  "error": "PHASE_TRANSITION_REQUIRES_JUSTIFICATION",
+  "message": "Phase transition requires justification",
+  "details": {
+    "currentPhase": "foundation",
+    "targetPhase": "incubate",
+    "missingRequirements": ["raiRiskTier", "raiAssessmentRequired"],
+    "requiresJustification": true
+  }
+}
+```
+
+**Governance Enforcement Date**: Use cases created before 2026-01-24 are legacy and receive warnings (LEGACY_GOVERNANCE_WARNING) but are not auto-deactivated. Post-enforcement date use cases are auto-deactivated to "Backlog" if governance gates regress.
+
 ### URL-Based Navigation
 - Added direct URL routes for tab navigation:
   - `/explorer` - Direct access to Explorer view

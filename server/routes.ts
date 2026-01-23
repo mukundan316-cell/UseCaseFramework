@@ -13,6 +13,14 @@ import presentationRoutes from "./routes/presentations";
 import { derivePhase, calculatePhaseReadiness, type TomConfig, type GovernanceGateInput, type UseCaseDataForReadiness } from "@shared/tom";
 import { calculateGovernanceStatus } from "@shared/calculations";
 import { deriveAllFields, getDefaultConfigs, getConfigsFromEngagement, shouldTriggerDerivation, applyPhaseDefaults, type UseCaseForDerivation, type EngagementTomContext } from "./derivation";
+import {
+  checkActivationAllowed,
+  checkGovernanceRegression,
+  checkPhaseTransitionRequirements,
+  buildActivationBlockedResponse,
+  buildPhaseTransitionRequiredResponse,
+  ACTIVATION_STATUSES
+} from './services/governance-enforcement';
 
 import { questionnaireServiceInstance } from './services/questionnaireService';
 import { db } from './db';
@@ -602,6 +610,130 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateSchema = insertUseCaseSchema.partial();
       const validatedData = updateSchema.parse(req.body);
       
+      // ========================================
+      // GOVERNANCE ENFORCEMENT
+      // Per replit.md: "Backend enforcement blocks activation API calls 
+      // and auto-deactivates if gates regress"
+      // ========================================
+      
+      // Always fetch current use case first for governance checks
+      const currentUseCaseForGovernance = await storage.getAllUseCases().then(cases => 
+        cases.find(c => c.id === id)
+      );
+      
+      if (!currentUseCaseForGovernance) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      
+      // 1. ACTIVATION BLOCKING: Check if trying to move to an active status
+      if (validatedData.useCaseStatus && 
+          validatedData.useCaseStatus !== currentUseCaseForGovernance.useCaseStatus) {
+        const targetStatus = validatedData.useCaseStatus;
+        
+        // Merge proposed updates with current data for accurate governance check
+        const proposedState = { ...currentUseCaseForGovernance, ...validatedData };
+        const activationCheck = checkActivationAllowed(proposedState, targetStatus);
+        
+        if (activationCheck.blocked) {
+          // Log blocked activation attempt
+          await storage.createGovernanceAuditLog({
+            useCaseId: id,
+            useCaseMeaningfulId: currentUseCaseForGovernance.meaningfulId || undefined,
+            gateType: 'activation',
+            action: 'ACTIVATION_BLOCKED',
+            notes: `Attempted to move to status "${targetStatus}" but governance gates incomplete`,
+            tomPhaseAtDecision: currentUseCaseForGovernance.tomPhase || undefined
+          });
+          
+          return res.status(403).json(buildActivationBlockedResponse(activationCheck));
+        }
+        
+        // 2. PHASE TRANSITION ENFORCEMENT: Check if status change triggers phase transition
+        const metadataForGovernance = await storage.getMetadataConfig();
+        const tomConfigForGovernance = metadataForGovernance?.tomConfig as TomConfig | null;
+        
+        if (tomConfigForGovernance?.enabled === 'true') {
+          // Calculate governance gates for phase derivation
+          const governanceStatus = calculateGovernanceStatus(proposedState);
+          const governanceGates: GovernanceGateInput = {
+            operatingModelPassed: governanceStatus.operatingModel.passed,
+            intakePassed: governanceStatus.intake.passed,
+            raiPassed: governanceStatus.rai.passed
+          };
+          
+          // phaseTransitionJustification comes from req.body but isn't in schema
+          const justification = req.body.phaseTransitionJustification as string | undefined;
+          
+          const phaseCheck = checkPhaseTransitionRequirements(
+            proposedState,
+            currentUseCaseForGovernance.useCaseStatus,
+            targetStatus,
+            tomConfigForGovernance,
+            justification,
+            governanceGates
+          );
+          
+          if (!phaseCheck.allowed) {
+            return res.status(400).json(buildPhaseTransitionRequiredResponse(phaseCheck));
+          }
+          
+          // If justification was required and provided, store it
+          if (phaseCheck.requiresJustification && justification) {
+            validatedData.lastPhaseTransitionReason = justification;
+            
+            // Log phase transition override
+            await storage.createGovernanceAuditLog({
+              useCaseId: id,
+              useCaseMeaningfulId: currentUseCaseForGovernance.meaningfulId || undefined,
+              gateType: 'phase_transition',
+              action: 'PHASE_TRANSITION_OVERRIDE',
+              notes: `Phase transition ${phaseCheck.currentPhase} → ${phaseCheck.targetPhase} with incomplete requirements. Justification: ${justification}`,
+              previousStatus: currentUseCaseForGovernance.useCaseStatus || undefined,
+              newStatus: targetStatus,
+              tomPhaseAtDecision: phaseCheck.currentPhase
+            });
+          }
+        }
+      }
+      
+      // 3. GOVERNANCE REGRESSION CHECK: Check if updates would cause gate regression
+      const regressionCheck = checkGovernanceRegression(currentUseCaseForGovernance, validatedData);
+      
+      if (regressionCheck.shouldDeactivate) {
+        // Auto-deactivate: force status back to Backlog
+        validatedData.useCaseStatus = 'Backlog';
+        
+        // Log auto-deactivation
+        await storage.createGovernanceAuditLog({
+          useCaseId: id,
+          useCaseMeaningfulId: currentUseCaseForGovernance.meaningfulId || undefined,
+          gateType: regressionCheck.regressedGate || 'governance',
+          action: 'AUTO_DEACTIVATION',
+          notes: regressionCheck.reason,
+          previousStatus: currentUseCaseForGovernance.useCaseStatus || undefined,
+          newStatus: 'Backlog',
+          tomPhaseAtDecision: currentUseCaseForGovernance.tomPhase || undefined
+        });
+        
+        console.log(`Auto-deactivated use case ${id}: ${regressionCheck.reason}`);
+      } else if (regressionCheck.isLegacyUseCase && regressionCheck.reason) {
+        // Legacy use case: log warning but don't deactivate
+        await storage.createGovernanceAuditLog({
+          useCaseId: id,
+          useCaseMeaningfulId: currentUseCaseForGovernance.meaningfulId || undefined,
+          gateType: regressionCheck.regressedGate || 'governance',
+          action: 'LEGACY_GOVERNANCE_WARNING',
+          notes: regressionCheck.reason,
+          tomPhaseAtDecision: currentUseCaseForGovernance.tomPhase || undefined
+        });
+        
+        console.log(`Legacy governance warning for use case ${id}: ${regressionCheck.reason}`);
+      }
+      
+      // ========================================
+      // END GOVERNANCE ENFORCEMENT
+      // ========================================
+
       // Handle multi-select arrays for updates - no backward compatibility needed
       // Arrays are now the primary data format
 
@@ -619,10 +751,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           validatedData.modelRisk !== undefined ||
           validatedData.adoptionReadiness !== undefined) {
         
-        // Get current use case to fill in missing values
-        const currentUseCase = await storage.getAllUseCases().then(cases => 
-          cases.find(c => c.id === id)
-        );
+        // Use already-fetched current use case
+        const currentUseCase = currentUseCaseForGovernance;
         
         if (!currentUseCase) {
           return res.status(404).json({ error: "Use case not found" });

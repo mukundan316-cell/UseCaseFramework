@@ -740,8 +740,10 @@ export interface GovernanceStatus {
 
 /**
  * Calculate Operating Model gate status
- * Required: primaryBusinessOwner only (simplified from previous 3 requirements)
- * Status defaults to Discovery automatically, TOM derives from engagement preset
+ * Required: All 3 fields must be complete before entering TOM lifecycle
+ * - primaryBusinessOwner: Every AI initiative needs a named owner (NIST AI RMF)
+ * - businessFunction: Functional alignment required (ISO 42001)
+ * - useCaseStatus !== 'Discovery': Must progress beyond initial discovery
  */
 export function calculateOperatingModelGate(useCase: any): GovernanceGateStatus {
   // Helper to check if a string value is present and non-empty
@@ -749,10 +751,17 @@ export function calculateOperatingModelGate(useCase: any): GovernanceGateStatus 
     return typeof v === 'string' && v.trim() !== '';
   };
 
-  // Simplified gate - only requires Primary Business Owner
-  // Status defaults to Discovery automatically, TOM derives from engagement preset
+  // Helper to check if status is beyond Discovery
+  const isNotDiscoveryStatus = (v: any): boolean => {
+    if (typeof v !== 'string') return false;
+    return v.trim() !== '' && v !== 'Discovery';
+  };
+
+  // Full Gate 1 requirements per documentation
   const requiredFields = [
-    { key: 'primaryBusinessOwner', label: 'Primary Business Owner', validator: isNonEmptyString }
+    { key: 'primaryBusinessOwner', label: 'Primary Business Owner', validator: isNonEmptyString },
+    { key: 'businessFunction', label: 'Business Function', validator: isNonEmptyString },
+    { key: 'useCaseStatus', label: 'Status beyond Discovery', validator: isNotDiscoveryStatus }
   ];
 
   const completedFields: string[] = [];
