@@ -93,37 +93,41 @@ function computeValueMetrics(useCases: UseCase[]): ValueMetrics {
     }
     metrics.quadrantDistribution[quadrant].count++;
 
-    if (vr?.investment) {
+    // Check for tracking (investment data) - can coexist with estimates
+    const hasTracking = vr?.investment && (vr.investment.initialInvestment > 0 || vr.investment.ongoingMonthlyCost > 0);
+    if (hasTracking) {
       metrics.withTracking++;
-    } else {
-      const totalEstValue = vr?.totalEstimatedValue;
-      const kpiValue = getEstimatedValueFromKpis(vr);
+    }
+
+    // Check for estimates - independent of tracking status
+    const totalEstValue = vr?.totalEstimatedValue;
+    const kpiValue = getEstimatedValueFromKpis(vr);
+    
+    const hasDirectEstimate = totalEstValue && (totalEstValue.max > 0 || totalEstValue.min > 0);
+    const hasKpiEstimate = kpiValue.max > 0 || kpiValue.min > 0;
+    
+    if (hasDirectEstimate || hasKpiEstimate) {
+      metrics.withEstimates++;
       
-      const hasDirectEstimate = totalEstValue && (totalEstValue.max > 0 || totalEstValue.min > 0);
-      const hasKpiEstimate = kpiValue.max > 0 || kpiValue.min > 0;
+      const minValue = hasDirectEstimate ? totalEstValue!.min : kpiValue.min;
+      const maxValue = hasDirectEstimate ? totalEstValue!.max : kpiValue.max;
       
-      if (hasDirectEstimate || hasKpiEstimate) {
-        metrics.withEstimates++;
-        
-        const minValue = hasDirectEstimate ? totalEstValue!.min : kpiValue.min;
-        const maxValue = hasDirectEstimate ? totalEstValue!.max : kpiValue.max;
-        
-        metrics.totalEstimatedMin += minValue;
-        metrics.totalEstimatedMax += maxValue;
-        metrics.quadrantDistribution[quadrant].value += maxValue;
-        
-        const avgValue = (minValue + maxValue) / 2;
-        if (avgValue >= 200000) {
-          metrics.valueTiers.high++;
-        } else if (avgValue >= 50000) {
-          metrics.valueTiers.medium++;
-        } else {
-          metrics.valueTiers.low++;
-        }
+      metrics.totalEstimatedMin += minValue;
+      metrics.totalEstimatedMax += maxValue;
+      metrics.quadrantDistribution[quadrant].value += maxValue;
+      
+      const avgValue = (minValue + maxValue) / 2;
+      if (avgValue >= 200000) {
+        metrics.valueTiers.high++;
+      } else if (avgValue >= 50000) {
+        metrics.valueTiers.medium++;
       } else {
-        metrics.noValue++;
-        metrics.valueTiers.none++;
+        metrics.valueTiers.low++;
       }
+    } else if (!hasTracking) {
+      // Only count as "no value" if neither tracked nor estimated
+      metrics.noValue++;
+      metrics.valueTiers.none++;
     }
   });
 
