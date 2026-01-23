@@ -24,6 +24,7 @@ interface PhaseSummary {
   enabled: boolean;
   summary: Record<string, number>;
   phases: Array<{ id: string; name: string; color: string; count: number }>;
+  unphasedCount?: number;
 }
 
 interface TOMMetrics {
@@ -67,6 +68,10 @@ function computeTOMMetrics(useCases: UseCase[], phaseSummary: PhaseSummary | und
   const totalPhased = phases.reduce((sum, p) => sum + p.count, 0);
   const activePhases = phases.filter(p => p.count > 0).length;
 
+  // Use unphasedCount from API (governance-based) if available, otherwise calculate from difference
+  const unphasedFromApi = phaseSummary?.unphasedCount ?? (phaseSummary?.summary?.['unphased'] || 0);
+  const unphasedUseCases = unphasedFromApi > 0 ? unphasedFromApi : (total - totalPhased);
+
   const phaseDistribution = phases.map(p => ({
     ...p,
     percentage: total > 0 ? Math.round((p.count / total) * 100) : 0
@@ -75,7 +80,7 @@ function computeTOMMetrics(useCases: UseCase[], phaseSummary: PhaseSummary | und
   return {
     totalUseCases: total,
     phasedUseCases: totalPhased,
-    unphasedUseCases: total - totalPhased,
+    unphasedUseCases,
     activePhases,
     phaseDistribution,
     statusCoverage
@@ -202,8 +207,9 @@ export default function OperatingModelView({ scope = 'all' }: OperatingModelView
                   <TooltipTrigger>
                     <HelpCircle className="h-4 w-4 text-yellow-400" />
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Use cases not yet assigned to a phase</p>
+                  <TooltipContent className="max-w-xs">
+                    <p className="font-medium mb-1">Governance Gate Required</p>
+                    <p className="text-xs">Use cases must pass the Operating Model gate (assign a Primary Business Owner) before entering the TOM lifecycle. This aligns with AI governance best practices.</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -213,7 +219,7 @@ export default function OperatingModelView({ scope = 'all' }: OperatingModelView
                 <AlertTriangle className="h-8 w-8 text-yellow-600" />
                 <div>
                   <p className="text-2xl font-bold text-yellow-900">{metrics.unphasedUseCases}</p>
-                  <p className="text-sm text-yellow-600">Need assignment</p>
+                  <p className="text-sm text-yellow-600">Need Owner</p>
                 </div>
               </div>
             </CardContent>

@@ -68,7 +68,14 @@ export interface DerivedPhaseResult {
   name: string;
   color: string;
   isOverride: boolean;
-  matchedBy: 'status' | 'deployment' | 'priority' | 'manual' | 'disabled' | 'unmapped';
+  matchedBy: 'status' | 'deployment' | 'priority' | 'manual' | 'disabled' | 'unmapped' | 'governance_entry' | 'unphased';
+}
+
+// Governance status interface for gate-based phase assignment
+export interface GovernanceGateInput {
+  operatingModelPassed: boolean;
+  intakePassed?: boolean;
+  raiPassed?: boolean;
 }
 
 export const DEFAULT_TOM_CONFIG: TomConfig = {
@@ -391,12 +398,27 @@ export function derivePhase(
   useCaseStatus: string | null | undefined,
   deploymentStatus: string | null | undefined,
   tomPhaseOverride: string | null | undefined,
-  tomConfig: TomConfig
+  tomConfig: TomConfig,
+  governanceGates?: GovernanceGateInput
 ): DerivedPhaseResult {
   if (!tomConfig || tomConfig.enabled !== 'true') {
     return { id: 'disabled', name: 'TOM Disabled', color: '#6B7280', isOverride: false, matchedBy: 'disabled' };
   }
 
+  // GOVERNANCE GATE CHECK: Operating Model gate must be passed to enter TOM lifecycle
+  // This aligns with AI governance best practices (NIST AI RMF, ISO 42001):
+  // "Every AI initiative needs a named owner" before proceeding
+  if (governanceGates && !governanceGates.operatingModelPassed) {
+    return { 
+      id: 'unphased', 
+      name: 'Unphased', 
+      color: '#9CA3AF', 
+      isOverride: false, 
+      matchedBy: 'unphased' 
+    };
+  }
+
+  // Manual override takes precedence (if governance gate passed)
   if (tomPhaseOverride) {
     const overridePhase = tomConfig.phases.find(p => p.id === tomPhaseOverride);
     if (overridePhase) {
@@ -410,6 +432,7 @@ export function derivePhase(
     }
   }
 
+  // Find phases that match the current status
   const matchingPhases: TomPhase[] = [];
   for (const phase of tomConfig.phases) {
     if (phase.manualOnly) continue;
@@ -418,7 +441,24 @@ export function derivePhase(
     }
   }
 
+  // METADATA-DRIVEN ENTRY: If no status match but OM gate passed, 
+  // enter the FIRST phase of the active preset (works for any TOM preset)
   if (matchingPhases.length === 0) {
+    // Check if governance gates were provided (indicating gate-based flow)
+    if (governanceGates && governanceGates.operatingModelPassed) {
+      // Get phases sorted by order to find the entry phase
+      const sortedPhases = [...tomConfig.phases].sort((a, b) => a.order - b.order);
+      const entryPhase = sortedPhases.find(p => !p.manualOnly);
+      if (entryPhase) {
+        return {
+          id: entryPhase.id,
+          name: entryPhase.name,
+          color: entryPhase.color,
+          isOverride: false,
+          matchedBy: 'governance_entry'
+        };
+      }
+    }
     return { id: 'unmapped', name: 'Unmapped', color: '#9CA3AF', isOverride: false, matchedBy: 'unmapped' };
   }
 
@@ -461,6 +501,7 @@ export function calculatePhaseSummary(
     useCaseStatus: string | null;
     deploymentStatus: string | null;
     tomPhaseOverride: string | null;
+    governanceGates?: GovernanceGateInput;
   }>,
   tomConfig: TomConfig
 ): Record<string, number> {
@@ -471,13 +512,15 @@ export function calculatePhaseSummary(
   }
   summary['unmapped'] = 0;
   summary['disabled'] = 0;
+  summary['unphased'] = 0;
 
   for (const useCase of useCases) {
     const derived = derivePhase(
       useCase.useCaseStatus,
       useCase.deploymentStatus,
       useCase.tomPhaseOverride,
-      tomConfig
+      tomConfig,
+      useCase.governanceGates
     );
     summary[derived.id] = (summary[derived.id] || 0) + 1;
   }

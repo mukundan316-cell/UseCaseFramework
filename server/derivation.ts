@@ -1,4 +1,5 @@
-import { derivePhase, DEFAULT_TOM_CONFIG, type TomConfig } from "@shared/tom";
+import { derivePhase, DEFAULT_TOM_CONFIG, type TomConfig, type GovernanceGateInput } from "@shared/tom";
+import { calculateGovernanceStatus } from "@shared/calculations";
 import { 
   deriveValueEstimates, 
   calculateTotalEstimatedValue,
@@ -33,6 +34,10 @@ export interface UseCaseForDerivation {
   capabilityTransition?: any;
   valueRealization?: any;
   tomPhase?: string | null;
+  // Governance gate fields for Operating Model gate check
+  primaryBusinessOwner?: string | null;
+  businessFunction?: string | null;
+  governanceStatus?: any;
 }
 
 export interface DerivedFields {
@@ -48,13 +53,24 @@ export function deriveAllFields(
 ): DerivedFields {
   const derived: DerivedFields = {};
 
-  // 1. Derive TOM Phase (always recalculate - it's deterministic based on status)
+  // 1. Derive TOM Phase with governance gate check
+  // Per AI governance best practices (NIST AI RMF, ISO 42001):
+  // "Every AI initiative needs a named owner" - Operating Model gate must pass before entering TOM lifecycle
   if (configs.tomConfig.enabled === 'true') {
+    // Calculate governance status to determine if Operating Model gate is passed
+    const governanceStatus = calculateGovernanceStatus(useCase);
+    const governanceGates: GovernanceGateInput = {
+      operatingModelPassed: governanceStatus.operatingModel.passed,
+      intakePassed: governanceStatus.intake.passed,
+      raiPassed: governanceStatus.rai.passed
+    };
+
     const phaseResult = derivePhase(
       useCase.useCaseStatus,
       useCase.deploymentStatus,
       useCase.tomPhaseOverride,
-      configs.tomConfig
+      configs.tomConfig,
+      governanceGates
     );
     derived.tomPhase = phaseResult.id;
   }

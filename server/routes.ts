@@ -10,7 +10,8 @@ import recommendationRoutes from "./routes/recommendations";
 import exportRoutes from "./routes/export.routes";
 import importRoutes from "./routes/import.routes";
 import presentationRoutes from "./routes/presentations";
-import { derivePhase, type TomConfig } from "@shared/tom";
+import { derivePhase, type TomConfig, type GovernanceGateInput } from "@shared/tom";
+import { calculateGovernanceStatus } from "@shared/calculations";
 import { deriveAllFields, getDefaultConfigs, getConfigsFromEngagement, shouldTriggerDerivation, type UseCaseForDerivation, type EngagementTomContext } from "./derivation";
 
 import { questionnaireServiceInstance } from './services/questionnaireService';
@@ -76,7 +77,7 @@ interface DerivedPhaseInfo {
   name: string;
   color: string;
   isOverride: boolean;
-  matchedBy?: 'status' | 'deployment' | 'priority' | 'manual';
+  matchedBy?: 'status' | 'deployment' | 'priority' | 'manual' | 'governance_entry' | 'unphased';
 }
 
 async function enrichUseCasesWithTomPhase(
@@ -107,15 +108,27 @@ async function enrichUseCasesWithTomPhase(
       return useCases;
     }
     
-    return useCases.map(uc => ({
-      ...uc,
-      derivedPhase: derivePhase(
-        uc.useCaseStatus || null,
-        uc.deploymentStatus || null,
-        (uc as any).tomPhaseOverride || null,
-        tomConfig
-      ) as DerivedPhaseInfo
-    }));
+    // Calculate governance gates for each use case and derive phase with gate check
+    // Per AI governance best practices: use cases must pass Operating Model gate to enter TOM lifecycle
+    return useCases.map(uc => {
+      const govStatus = calculateGovernanceStatus(uc);
+      const governanceGates: GovernanceGateInput = {
+        operatingModelPassed: govStatus.operatingModel.passed,
+        intakePassed: govStatus.intake.passed,
+        raiPassed: govStatus.rai.passed
+      };
+      
+      return {
+        ...uc,
+        derivedPhase: derivePhase(
+          uc.useCaseStatus || null,
+          uc.deploymentStatus || null,
+          (uc as any).tomPhaseOverride || null,
+          tomConfig,
+          governanceGates
+        ) as DerivedPhaseInfo
+      };
+    });
   } catch (error) {
     console.error('Error enriching use cases with TOM phase:', error);
     return useCases;
@@ -1366,6 +1379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const scope = (req.query.scope as string) || 'all';
       const metadata = await storage.getMetadataConfigById(clientId);
       const { ensureTomConfig, calculatePhaseSummary, mergePresetProfile } = await import("@shared/tom");
+      const { calculateGovernanceStatus } = await import("@shared/calculations");
       const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
       
       if (tomConfig.enabled !== 'true') {
@@ -1377,12 +1391,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? await storage.getDashboardUseCases() 
         : await storage.getAllUseCases();
       
+      // Calculate phase summary with governance gate information for each use case
+      // Per AI governance best practices: use cases must pass Operating Model gate to enter TOM lifecycle
       const summary = calculatePhaseSummary(
-        useCases.map(uc => ({
-          useCaseStatus: uc.useCaseStatus,
-          deploymentStatus: uc.deploymentStatus,
-          tomPhaseOverride: uc.tomPhaseOverride
-        })),
+        useCases.map(uc => {
+          const govStatus = calculateGovernanceStatus(uc);
+          return {
+            useCaseStatus: uc.useCaseStatus,
+            deploymentStatus: uc.deploymentStatus,
+            tomPhaseOverride: uc.tomPhaseOverride,
+            governanceGates: {
+              operatingModelPassed: govStatus.operatingModel.passed,
+              intakePassed: govStatus.intake.passed,
+              raiPassed: govStatus.rai.passed
+            }
+          };
+        }),
         tomConfig
       );
       
@@ -1394,7 +1418,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: p.name,
           color: p.color,
           count: summary[p.id] || 0
-        }))
+        })),
+        unphasedCount: summary['unphased'] || 0
       });
     } catch (error) {
       console.error("Error calculating TOM phase summary:", error);

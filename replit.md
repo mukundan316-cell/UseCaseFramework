@@ -25,7 +25,7 @@ The platform adopts Hexaware's official branding, utilizing colors (#3C2CDA, #1D
 ### Feature Specifications
 - **Core Data Management**: Full CRUD operations for AI use cases, including a 10-lever scoring framework with automated recalculation and manual override support.
 - **Data Model**: `clients`, `engagements`, `use_cases`, `file_attachments`, `metadata_config`, `response_sessions`, and `users` entities, forming a Client → Engagement → Use Cases hierarchy. `metadata_config` centralizes dropdown options, scoring logic, T-shirt sizing, and Target Operating Model (TOM) configuration.
-- **Target Operating Model (TOM)**: Configurable layer mapping use cases to lifecycle phases based on status, supporting four operating model presets. Supports multi-client configurations.
+- **Target Operating Model (TOM)**: Configurable layer mapping use cases to lifecycle phases based on governance gates and status. Supports multiple presets (4-phase hybrid, 6-phase RSA TOM, custom). Gate-based phase assignment: use cases are "Unphased" until Operating Model gate passes (Primary Business Owner assigned), then enter first phase of active preset. Metadata-driven - no hardcoded phase names. Aligns with NIST AI RMF and ISO 42001 governance best practices.
 - **Analytics**: Interactive matrix plots, executive dashboards, and PDF export with ROI explanations.
 - **Assessment System**: Multi-questionnaire platform using Survey.js for dynamic workflows.
 - **File Management**: Local filesystem storage (`uploads/`) for various file types, with metadata tracking and a 50MB per file limit.
