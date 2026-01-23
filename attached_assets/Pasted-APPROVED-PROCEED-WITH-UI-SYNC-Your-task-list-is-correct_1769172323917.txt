@@ -1,0 +1,85 @@
+APPROVED - PROCEED WITH UI SYNC
+Your task list is correct. A few refinements:
+Task 1: GovernanceGuideLegoBlock.tsx (Lines 25-36)
+Update the Gate 1 section to:
+tsx{
+  gate: 1,
+  title: 'Operating Model',
+  subtitle: 'Accountability',
+  icon: UserIcon, // or whatever icon is used
+  requirements: [
+    'Primary Business Owner',
+    'Business Function assigned',
+    'Status beyond Discovery'
+  ],
+  principle: 'Accountability and organizational alignment must be established before AI work begins.'
+}
+If the component uses a single requirement string, change it to support an array:
+tsx// If currently:
+<p>Requires: {gate.requirement}</p>
+
+// Change to:
+<div>
+  <p className="font-medium">Requires:</p>
+  <ul className="list-disc list-inside text-sm">
+    {gate.requirements.map((req, i) => (
+      <li key={i}>{req}</li>
+    ))}
+  </ul>
+</div>
+
+Task 2 & 3: CRUDUseCaseModal.tsx - Gate Required Badges
+For Business Function (around line 2123):
+tsx<Label htmlFor="businessFunction" className="flex items-center gap-2">
+  Business Function
+  <Badge variant="outline" className="text-xs border-blue-500 text-blue-600">
+    Gate Required
+  </Badge>
+</Label>
+For Primary Business Owner - verify it already has the badge. If not, add it.
+
+Task 4: Discovery Status Warning
+Add this warning below the Status dropdown when Discovery is selected:
+tsx{formData.useCaseStatus === 'Discovery' && (
+  <div className="flex items-center gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-amber-700 text-sm">
+    <AlertTriangleIcon className="h-4 w-4" />
+    <span>Use cases in Discovery cannot pass Gate 1. Change status to proceed with governance.</span>
+  </div>
+)}
+
+Task 5: Verify GovernanceStepperLegoBlock
+Since the backend calculateOperatingModelGate was updated, the missingFields array should now include all 3 requirements when missing.
+Verify by:
+
+Create a new use case with NO fields filled
+Check that the Operating Model gate tooltip shows:
+
+"Primary Business Owner is required"
+"Business Function is required"
+"Use case must progress beyond Discovery status"
+
+
+
+If only "Primary Business Owner is required" shows, the frontend may be caching old gate calculation logic or there's a mismatch between frontend and backend calculations.
+Important: Check if there's a duplicate gate calculation in the frontend (e.g., in client/src/lib/calculations.ts or similar). If so, it needs to be updated to match the backend.
+
+Additional Check: Frontend Gate Calculation
+Search for any frontend-side gate calculation:
+bashgrep -r "calculateOperatingModelGate\|checkGate1\|operatingModel" client/src/
+If there's a frontend copy of the gate logic, it MUST be updated to match the backend. Otherwise the stepper will show different requirements than what the API actually enforces.
+
+PROCEED
+Please implement:
+
+✅ Task 1: Update GovernanceGuideLegoBlock.tsx
+✅ Task 2: Add badge to Business Function
+✅ Task 3: Verify/add badge to Primary Business Owner
+✅ Task 4: Add Discovery status warning
+✅ Task 5: Verify stepper shows all 3 Gate 1 requirements
+
+Provide screenshots of the updated UI when complete, showing:
+
+The Guide tab with all 3 Gate 1 requirements
+The form with badges on both Owner and Business Function
+The Discovery warning message
+The stepper tooltip with all 3 missing fields
