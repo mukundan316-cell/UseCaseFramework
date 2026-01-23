@@ -671,7 +671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         updatesWithScores = {
           ...validatedData,
-          linesOfBusiness: validatedData.linesOfBusiness || (validatedData.lineOfBusiness ? [validatedData.lineOfBusiness] : currentUseCase.linesOfBusiness),
+          linesOfBusiness: validatedData.linesOfBusiness || currentUseCase.linesOfBusiness,
           impactScore,
           effortScore,
           quadrant
@@ -931,15 +931,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Use case not found" });
       }
       
-      // Delete presentation files if they exist (supports both legacy URLs and new database file IDs)
-      if (useCase.presentationUrl || useCase.presentationPdfUrl || useCase.presentationFileId || useCase.presentationPdfFileId) {
+      // Delete presentation files if they exist (using database file IDs)
+      if (useCase.presentationFileId || useCase.presentationPdfFileId) {
         try {
           
-          // Handle new database-stored files
+          // Handle database-stored files
           const fileIdsToDelete = [
             useCase.presentationFileId,
             useCase.presentationPdfFileId
-          ].filter(Boolean);
+          ].filter((id): id is string => id !== null && id !== undefined);
           
           if (fileIdsToDelete.length > 0) {
             const { localFileService } = await import('./services/localFileService');
@@ -2006,7 +2006,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary);
       const totalValue = calculateTotalEstimatedValue(valueEstimates);
       
+      // Get existing value realization to preserve user data
+      const existingVR = (useCase.valueRealization as any) || {};
+      
       const derivedValueRealization = {
+        selectedKpis: existingVR.selectedKpis || [],
+        kpiValues: existingVR.kpiValues || {},
+        investment: existingVR.investment || null,
+        tracking: existingVR.tracking || { entries: [] },
+        calculatedMetrics: existingVR.calculatedMetrics || {
+          currentRoi: null,
+          projectedBreakevenMonth: null,
+          cumulativeValueGbp: null,
+          lastCalculated: null
+        },
         derived: true,
         derivedAt: new Date().toISOString(),
         kpiEstimates: valueEstimates.map(est => ({
@@ -2064,7 +2077,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary);
         const totalValue = calculateTotalEstimatedValue(valueEstimates);
         
+        // Get existing value realization to preserve user data
+        const existingVR = (useCase.valueRealization as any) || {};
+        
         const derivedValueRealization = {
+          selectedKpis: existingVR.selectedKpis || [],
+          kpiValues: existingVR.kpiValues || {},
+          investment: existingVR.investment || null,
+          tracking: existingVR.tracking || { entries: [] },
+          calculatedMetrics: existingVR.calculatedMetrics || {
+            currentRoi: null,
+            projectedBreakevenMonth: null,
+            cumulativeValueGbp: null,
+            lastCalculated: null
+          },
           derived: true,
           derivedAt: new Date().toISOString(),
           kpiEstimates: valueEstimates.map(est => ({
@@ -2567,7 +2593,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Merge with existing data to preserve investment, selectedKpis, calculatedMetrics
           const valueRealization = {
-            ...(existingVR || {}),
+            selectedKpis: existingVR?.selectedKpis || [],
+            kpiValues: existingVR?.kpiValues || {},
+            investment: existingVR?.investment || null,
+            tracking: existingVR?.tracking || { entries: [] },
+            calculatedMetrics: existingVR?.calculatedMetrics || {
+              currentRoi: null,
+              projectedBreakevenMonth: null,
+              cumulativeValueGbp: null,
+              lastCalculated: null
+            },
             derived: true,
             derivedAt: new Date().toISOString(),
             kpiEstimates: valueEstimates.map(est => ({

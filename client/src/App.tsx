@@ -1,10 +1,11 @@
 import { Switch, Route } from "wouter";
+import { useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ui/error-boundary";
-import { UseCaseProvider } from "./contexts/UseCaseContext";
+import { UseCaseProvider, useUseCases } from "./contexts/UseCaseContext";
 import { EngagementProvider } from "./contexts/EngagementContext";
 import HomePage from "./pages/HomePage";
 import RSAAssessmentLandingPage from "./components/RSAAssessmentLandingPage";
@@ -13,6 +14,17 @@ import AIRoadmapPage from "./pages/AIRoadmapPage";
 import InsightsPage from "./pages/InsightsPage";
 import { AssessmentSessionStart } from "./components/AssessmentSessionStart";
 import NotFound from "@/pages/not-found";
+import type { TabType } from "./types";
+
+function TabSyncedHomePage({ tab }: { tab: TabType }) {
+  const { setActiveTab } = useUseCases();
+  
+  useEffect(() => {
+    setActiveTab(tab);
+  }, [tab, setActiveTab]);
+  
+  return <HomePage />;
+}
 
 function Router() {
   return (
@@ -21,6 +33,24 @@ function Router() {
         <Route path="/" component={() => 
           <ErrorBoundary>
             <HomePage />
+          </ErrorBoundary>
+        } />
+        
+        <Route path="/explorer" component={() => 
+          <ErrorBoundary>
+            <TabSyncedHomePage tab="explorer" />
+          </ErrorBoundary>
+        } />
+        
+        <Route path="/dashboard" component={() => 
+          <ErrorBoundary>
+            <TabSyncedHomePage tab="dashboard" />
+          </ErrorBoundary>
+        } />
+        
+        <Route path="/admin" component={() => 
+          <ErrorBoundary>
+            <TabSyncedHomePage tab="admin" />
           </ErrorBoundary>
         } />
 

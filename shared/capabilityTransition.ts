@@ -124,6 +124,23 @@ export interface SelfSufficiencyTarget {
   advisoryRetainer: string;
 }
 
+export interface RoleEvolutionEntry {
+  roleId: string;
+  roleName: string;
+  baselineOwnership: 'vendor' | 'client' | 'shared';
+  currentOwnership: 'vendor' | 'client' | 'shared';
+  targetOwnership: 'vendor' | 'client' | 'shared';
+  transitionHistory: Array<{
+    date: string;
+    fromOwnership: 'vendor' | 'client' | 'shared';
+    toOwnership: 'vendor' | 'client' | 'shared';
+    note: string;
+    actor: string;
+  }>;
+  confidenceLevel: 'high' | 'medium' | 'low';
+  targetTransitionDate: string | null;
+}
+
 export interface UseCaseCapabilityTransition {
   independencePercentage: number;
   independenceHistory: IndependenceHistoryEntry[];
@@ -131,6 +148,7 @@ export interface UseCaseCapabilityTransition {
   knowledgeTransfer: KnowledgeTransfer;
   training: Training;
   selfSufficiencyTarget: SelfSufficiencyTarget;
+  roleEvolution: RoleEvolutionEntry[];
   // Benchmark derivation tracking
   derived?: boolean;
   derivedAt?: string;
@@ -288,7 +306,8 @@ export const DEFAULT_USE_CASE_CAPABILITY_TRANSITION: UseCaseCapabilityTransition
     targetDate: '',
     targetIndependence: 90,
     advisoryRetainer: 'false'
-  }
+  },
+  roleEvolution: []
 };
 
 export function calculateIndependenceFromStaffing(staffing: CurrentStaffing): number {
@@ -771,6 +790,7 @@ export function deriveCapabilityDefaults(
       targetIndependence: 90,
       advisoryRetainer: independencePercentage >= 75 ? 'true' : 'false'
     },
+    roleEvolution: [],
     derived: true,
     derivedAt: now.toISOString(),
     derivedFrom: {
