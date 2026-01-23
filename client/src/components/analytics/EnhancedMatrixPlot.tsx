@@ -106,8 +106,9 @@ export default function EnhancedMatrixPlot() {
         gradientColor: getQuadrantGradient(effectiveQuadrant),
         size: bubbleSize, // Keep for backward compatibility
         useCase: useCase,
-        lob: useCase.lineOfBusiness,
-        segment: useCase.businessSegment,
+        lob: Array.isArray(useCase.linesOfBusiness) ? useCase.linesOfBusiness.join(', ') : useCase.linesOfBusiness || '',
+        segment: Array.isArray(useCase.businessSegments) ? useCase.businessSegments.join(', ') : useCase.businessSegments || '',
+        businessFunction: useCase.businessFunction || '',
         isHighValue: isScoreAboveThreshold(effectiveImpact, APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.HIGH_VALUE_THRESHOLD),
         isLowEffort: isScoreBelowOrEqualThreshold(effectiveEffort, APP_CONFIG.EXECUTIVE_DASHBOARD.MATRIX_PLOT.LOW_EFFORT_THRESHOLD),
         impact: effectiveImpact,
@@ -209,7 +210,8 @@ export default function EnhancedMatrixPlot() {
             </div>
             <div className="pt-2 border-t border-gray-200">
               <p><span className="font-medium">Strategic Position:</span> {data.quadrant}</p>
-              <p><span className="font-medium">Business Unit:</span> {data.lob}</p>
+              <p><span className="font-medium">Business Unit:</span> {data.businessFunction || 'Not specified'}</p>
+              {data.lob && <p><span className="font-medium">Line of Business:</span> {data.lob}</p>}
               
               {/* T-shirt Sizing Information */}
               {sizing && sizing.size && !sizing.error ? (
