@@ -374,8 +374,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     label: string; 
     tooltip: string;
   }) => {
-    // Use form.watch to get current value, fallback to scores state
-    const currentValue = form.watch(field) ?? scores[field] ?? 3;
+    // Use form.watch to get current value, fallback to scores state (default 0 = not scored)
+    const currentValue = form.watch(field) ?? scores[field] ?? 0;
     
     // Get dropdown options from metadata
     const dropdownOptions = metadata?.scoringDropdownOptions?.[field] || [];
@@ -2263,20 +2263,18 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               </TabsContent>
 
               {/* Tab 2: Intake & Scoring - Gate 2 Requirements */}
-              {(context as string) !== 'reference' && (
-                <TabsContent value="assessment" className="space-y-6 mt-6">
-                {rsaSelection.isActiveForRsa ? (
-                  <div className="space-y-6">
-                    {/* Header with progress */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <BarChart3 className="h-5 w-5 text-blue-600" />
-                        <h3 className="text-lg font-semibold text-gray-900">Intake & Prioritization Scoring</h3>
-                      </div>
-                      <Badge variant="outline" className={`${governanceStatus.intake.passed ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {governanceStatus.intake.passed ? 'Gate Complete' : `${governanceStatus.intake.progress}% Complete`}
-                      </Badge>
+              <TabsContent value="assessment" className="space-y-6 mt-6">
+                <div className="space-y-6">
+                  {/* Header with progress */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-blue-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Intake & Prioritization Scoring</h3>
                     </div>
+                    <Badge variant="outline" className={`${governanceStatus.intake.passed ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                      {governanceStatus.intake.passed ? 'Gate Complete' : `${governanceStatus.intake.progress}% Complete`}
+                    </Badge>
+                  </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Section 1: Business Impact Levers */}
@@ -2334,34 +2332,16 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                       />
                     )}
             
-                    {/* Resource Planning: T-shirt Sizing */}
-                    <TShirtSizingDisplayLegoBlock
-                      impactScore={currentImpactScore}
-                      effortScore={currentEffortScore}
-                      quadrant={currentQuadrant}
-                      useCaseId={useCase?.id}
-                      useCaseTitle={form.watch('title')}
-                    />
-                  </div>
-                ) : (
-                  <Card className="bg-gray-50 border-dashed border-2">
-                    <CardContent className="p-8 text-center">
-                      <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                      <h3 className="text-lg font-medium text-gray-700 mb-2">Scoring Available After Portfolio Selection</h3>
-                      <p className="text-gray-600 mb-4">
-                        Complete scoring becomes available once included in the Hexaware active portfolio.
-                      </p>
-                      <Alert className="border-blue-200 bg-blue-50 text-left">
-                        <AlertCircle className="h-4 w-4 text-blue-600" />
-                        <AlertDescription className="text-blue-800">
-                          Toggle "Include in Hexaware Active Portfolio" on the Operating Model tab to enable scoring.
-                        </AlertDescription>
-                      </Alert>
-                    </CardContent>
-                  </Card>
-                )}
-                </TabsContent>
-              )}
+                  {/* Resource Planning: T-shirt Sizing */}
+                  <TShirtSizingDisplayLegoBlock
+                    impactScore={currentImpactScore}
+                    effortScore={currentEffortScore}
+                    quadrant={currentQuadrant}
+                    useCaseId={useCase?.id}
+                    useCaseTitle={form.watch('title')}
+                  />
+                </div>
+              </TabsContent>
             </Tabs>
 
             <DialogFooter>

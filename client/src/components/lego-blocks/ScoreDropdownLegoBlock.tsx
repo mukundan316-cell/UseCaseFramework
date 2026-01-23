@@ -47,7 +47,18 @@ export const ScoreDropdownLegoBlock: React.FC<ScoreDropdownLegoBlockProps> = ({
     }
   };
 
+  // Check if value is 0 (not scored yet)
+  const isNotScored = value === 0;
+  
   const renderValueDisplay = () => {
+    if (isNotScored) {
+      return (
+        <span className="font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded text-sm">
+          Not Scored
+        </span>
+      );
+    }
+    
     const selectedOption = options.find(opt => opt.value === value);
     
     switch (valueDisplay) {
@@ -67,7 +78,9 @@ export const ScoreDropdownLegoBlock: React.FC<ScoreDropdownLegoBlockProps> = ({
   };
 
   const selectedOption = options.find(opt => opt.value === value);
-  const displayValue = selectedOption ? `${selectedOption.value}: ${selectedOption.label}` : value.toString();
+  const displayValue = isNotScored 
+    ? 'Select a score...' 
+    : (selectedOption ? `${selectedOption.value}: ${selectedOption.label}` : value.toString());
 
   return (
     <div className={className}>
@@ -91,16 +104,16 @@ export const ScoreDropdownLegoBlock: React.FC<ScoreDropdownLegoBlockProps> = ({
       </div>
 
       <Select 
-        value={value.toString()} 
+        value={isNotScored ? undefined : value.toString()} 
         onValueChange={handleValueChange}
         disabled={disabled}
       >
         <SelectTrigger 
-          className="w-full"
+          className={`w-full ${isNotScored ? 'border-amber-300 bg-amber-50' : ''}`}
           data-testid={`dropdown-${field}`}
         >
-          <SelectValue placeholder={`Select ${label.toLowerCase()}`}>
-            {displayValue}
+          <SelectValue placeholder="Select a score...">
+            {isNotScored ? undefined : displayValue}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
