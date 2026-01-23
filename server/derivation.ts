@@ -335,14 +335,9 @@ export function shouldTriggerDerivation(
 }
 
 export interface PhaseDefaultsApplication {
-  hexawareFts?: number | null;
-  clientFts?: number | null;
-  independenceFts?: number | null;
-  targetIndependence?: number | null;
-  currentIndependence?: number | null;
-  expectedValueMin?: number | null;
-  expectedValueMax?: number | null;
-  riskTier?: string | null;
+  capabilityTransition?: any;
+  valueRealization?: any;
+  raiRiskTier?: string | null;
   raiAssessmentRequired?: string;
 }
 
@@ -364,43 +359,126 @@ export function applyPhaseDefaults(
   }
 
   const defaults = newPhase.phaseDefaults;
+  const existingCT = useCase.capabilityTransition || {};
+  const existingVR = useCase.valueRealization || {};
 
-  if (defaults.capabilityTransition) {
+  // Check for manual override protection - if capabilityTransition.derived is explicitly false, don't overwrite
+  const ctIsManuallySet = existingCT.derived === false;
+  const vrIsManuallySet = existingVR.derived === false;
+
+  // Apply Capability Transition defaults into JSONB structure
+  if (defaults.capabilityTransition && !ctIsManuallySet) {
     const ct = defaults.capabilityTransition;
-    if (ct.hexawareFts !== null && (useCase.hexawareFts === null || useCase.hexawareFts === undefined)) {
-      result.hexawareFts = ct.hexawareFts;
+    let shouldUpdateCT = false;
+    
+    // Build the capabilityTransition JSONB structure
+    const ctUpdate: any = { ...existingCT };
+    
+    // Staffing defaults - map hexawareFts/clientFts to staffing.current.vendor/client
+    if (ct.hexawareFts !== undefined || ct.clientFts !== undefined) {
+      const existingStaffing = existingCT.staffing || {};
+      const existingCurrent = existingStaffing.current || {};
+      
+      // Only set if current values are empty/zero
+      const existingVendorTotal = existingCurrent.vendor?.total;
+      const existingClientTotal = existingCurrent.client?.total;
+      
+      if (ct.hexawareFts !== null && (existingVendorTotal === null || existingVendorTotal === undefined || existingVendorTotal === 0)) {
+        ctUpdate.staffing = ctUpdate.staffing || {};
+        ctUpdate.staffing.current = ctUpdate.staffing.current || {};
+        ctUpdate.staffing.current.vendor = ctUpdate.staffing.current.vendor || { total: 0, byRole: {} };
+        ctUpdate.staffing.current.vendor.total = ct.hexawareFts;
+        shouldUpdateCT = true;
+      }
+      
+      if (ct.clientFts !== null && (existingClientTotal === null || existingClientTotal === undefined || existingClientTotal === 0)) {
+        ctUpdate.staffing = ctUpdate.staffing || {};
+        ctUpdate.staffing.current = ctUpdate.staffing.current || {};
+        ctUpdate.staffing.current.client = ctUpdate.staffing.current.client || { total: 0, byRole: {} };
+        ctUpdate.staffing.current.client.total = ct.clientFts;
+        shouldUpdateCT = true;
+      }
     }
-    if (ct.clientFts !== null && (useCase.clientFts === null || useCase.clientFts === undefined)) {
-      result.clientFts = ct.clientFts;
+    
+    // Independence defaults - map to independencePercentage and selfSufficiencyTarget
+    if (ct.currentIndependence !== null && ct.currentIndependence !== undefined) {
+      const existingIndependence = existingCT.independencePercentage;
+      if (existingIndependence === null || existingIndependence === undefined || existingIndependence === 0) {
+        ctUpdate.independencePercentage = ct.currentIndependence;
+        // Add to independence history
+        ctUpdate.independenceHistory = ctUpdate.independenceHistory || [];
+        ctUpdate.independenceHistory.push({
+          date: new Date().toISOString().slice(0, 7),
+          percentage: ct.currentIndependence,
+          note: `Phase default applied for ${newPhaseId}`
+        });
+        shouldUpdateCT = true;
+      }
     }
-    if (ct.independenceFts !== null && (useCase.independenceFts === null || useCase.independenceFts === undefined)) {
-      result.independenceFts = ct.independenceFts;
+    
+    if (ct.targetIndependence !== null && ct.targetIndependence !== undefined) {
+      const existingTarget = existingCT.selfSufficiencyTarget?.targetIndependence;
+      if (existingTarget === null || existingTarget === undefined || existingTarget === 0) {
+        ctUpdate.selfSufficiencyTarget = ctUpdate.selfSufficiencyTarget || {};
+        ctUpdate.selfSufficiencyTarget.targetIndependence = ct.targetIndependence;
+        shouldUpdateCT = true;
+      }
     }
-    if (ct.targetIndependence !== null && (useCase.targetIndependence === null || useCase.targetIndependence === undefined)) {
-      result.targetIndependence = ct.targetIndependence;
-    }
-    if (ct.currentIndependence !== null && (useCase.currentIndependence === null || useCase.currentIndependence === undefined)) {
-      result.currentIndependence = ct.currentIndependence;
+    
+    if (shouldUpdateCT) {
+      ctUpdate.phaseDefaultsApplied = newPhaseId;
+      ctUpdate.phaseDefaultsAppliedAt = new Date().toISOString();
+      result.capabilityTransition = ctUpdate;
     }
   }
 
-  if (defaults.valueRealization) {
+  // Apply Value Realization defaults into JSONB structure
+  if (defaults.valueRealization && !vrIsManuallySet) {
     const vr = defaults.valueRealization;
-    if (vr.expectedValueRangeMin !== null && (useCase.expectedValueMin === null || useCase.expectedValueMin === undefined)) {
-      result.expectedValueMin = vr.expectedValueRangeMin;
+    let shouldUpdateVR = false;
+    
+    const vrUpdate: any = { ...existingVR };
+    
+    // Expected value range defaults
+    if (vr.expectedValueRangeMin !== null && vr.expectedValueRangeMin !== undefined) {
+      const existingMin = existingVR.expectedValueRangeMin;
+      if (existingMin === null || existingMin === undefined) {
+        vrUpdate.expectedValueRangeMin = vr.expectedValueRangeMin;
+        shouldUpdateVR = true;
+      }
     }
-    if (vr.expectedValueRangeMax !== null && (useCase.expectedValueMax === null || useCase.expectedValueMax === undefined)) {
-      result.expectedValueMax = vr.expectedValueRangeMax;
+    
+    if (vr.expectedValueRangeMax !== null && vr.expectedValueRangeMax !== undefined) {
+      const existingMax = existingVR.expectedValueRangeMax;
+      if (existingMax === null || existingMax === undefined) {
+        vrUpdate.expectedValueRangeMax = vr.expectedValueRangeMax;
+        shouldUpdateVR = true;
+      }
+    }
+    
+    if (shouldUpdateVR) {
+      vrUpdate.phaseDefaultsApplied = newPhaseId;
+      vrUpdate.phaseDefaultsAppliedAt = new Date().toISOString();
+      result.valueRealization = vrUpdate;
     }
   }
 
+  // Apply Responsible AI defaults
   if (defaults.responsibleAI) {
     const rai = defaults.responsibleAI;
-    if (rai.riskTier !== null && (useCase.riskTier === null || useCase.riskTier === undefined)) {
-      result.riskTier = rai.riskTier;
+    
+    if (rai.riskTier !== null && rai.riskTier !== undefined) {
+      const existingRiskTier = useCase.raiRiskTier;
+      if (existingRiskTier === null || existingRiskTier === undefined) {
+        result.raiRiskTier = rai.riskTier;
+      }
     }
-    if (rai.assessmentRequired && (useCase.raiAssessmentRequired === null || useCase.raiAssessmentRequired === undefined)) {
-      result.raiAssessmentRequired = 'true';
+    
+    if (rai.assessmentRequired) {
+      const existingRequired = useCase.raiAssessmentRequired;
+      if (existingRequired === null || existingRequired === undefined) {
+        result.raiAssessmentRequired = 'true';
+      }
     }
   }
 

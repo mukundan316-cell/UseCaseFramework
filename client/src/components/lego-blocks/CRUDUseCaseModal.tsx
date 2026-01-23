@@ -1555,11 +1555,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                           <SelectValue placeholder="Select status..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Discovery">Discovery</SelectItem>
-                          <SelectItem value="Backlog">Backlog</SelectItem>
-                          <SelectItem value="In-flight">In-flight</SelectItem>
-                          <SelectItem value="Implemented">Implemented</SelectItem>
-                          <SelectItem value="On Hold">On Hold</SelectItem>
+                          {useCaseStatusOptions.filter(status => status && status.trim()).map(status => (
+                            <SelectItem key={status} value={status}>
+                              {status}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>

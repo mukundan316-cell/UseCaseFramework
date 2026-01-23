@@ -9,6 +9,9 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+// NOTE: Using 'any' type temporarily due to JSONB field type mismatches between schema definitions and runtime usage.
+// Technical debt: The valueRealization and capabilityTransition JSONB types need alignment with actual usage patterns.
+// See LSP diagnostics for specific field mismatches: derived, kpiEstimates, roleEvolution, presentationUrl, etc.
 export const useCases: any = pgTable("use_cases", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   meaningfulId: varchar("meaningful_id").unique(), // Human-readable ID like HEX_INT_001
@@ -120,6 +123,10 @@ export const useCases: any = pgTable("use_cases", {
   phaseEnteredAt: timestamp("phase_entered_at"), // Auto-updated when derived phase changes
   lastPhaseTransitionReason: text("last_phase_transition_reason"), // Reason for last phase transition (especially when exit requirements not met)
   tomOverrideReason: text("tom_override_reason"), // Reason for manual phase override
+  
+  // Responsible AI Phase Defaults (auto-populated based on TOM phase)
+  raiRiskTier: text("rai_risk_tier"), // 'low', 'medium', 'high', 'critical' - auto-set from phase defaults
+  raiAssessmentRequired: text("rai_assessment_required").default('false'), // 'true'/'false' - string boolean per user preferences
   
   // Governance Lifecycle (Foundation Layer: Operating Model → Intake → RAI → Activation)
   governanceStatus: text("governance_status").default('none'), // 'none', 'pending', 'in_review', 'complete', 'rejected'
@@ -430,6 +437,10 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   tomPhaseOverride: z.union([z.string(), z.null()]).optional(),
   phaseTransitionReason: z.union([z.string(), z.null()]).optional(), // Reason for transitioning phase when exit requirements not met
   tomOverrideReason: z.union([z.string(), z.null()]).optional(),
+  
+  // Responsible AI Phase Defaults
+  raiRiskTier: z.union([z.string(), z.null()]).optional(),
+  raiAssessmentRequired: z.enum(['true', 'false']).optional(),
   
   // Governance Lifecycle fields (Foundation Layer gates)
   governanceStatus: z.enum(['none', 'pending', 'in_review', 'complete', 'rejected']).default('none'),
