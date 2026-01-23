@@ -1,0 +1,140 @@
+FEEDBACK ON AGENT'S ADDITIONS
+✅ Agreed: All 5 Points Are Valid
+AdditionAssessmentNotesType Safety✅ CorrectEnsure UseCase type is imported from the actual schema, not redeclaredMissing getPhaseExitRequirements✅ Good catchSee my recommendation below for implementation approachStorage Method✅ CorrectUsing existing governanceAuditLog table (line 325) is the right approachError Handling✅ EssentialTypeScript strict mode errors should be addressedBackward Compatibility✅ CriticalThe legacyActivationFlag approach is sensible - see refinement below
+
+CLARIFICATIONS & REFINEMENTS
+1. On getPhaseExitRequirements
+Rather than creating a new function, I recommend leveraging the existing phase readiness infrastructure. Based on the replit.md documentation, there's already:
+Each phase has entry/exit dataRequirements and unlockedFeatures defined in metadata
+So the function should pull from metadata_config rather than hardcoding requirements:
+typescript// Recommended approach - pull from metadata
+export async function getPhaseExitRequirements(
+  phase: string, 
+  tomPreset: string = 'rsa-6-phase'
+): Promise<string[]> {
+  // Fetch from metadata_config where configType = 'tom' and preset matches
+  const tomConfig = await getMetadataConfig('tom', tomPreset);
+  const phaseConfig = tomConfig.phases.find(p => p.name === phase);
+  return phaseConfig?.exitRequirements || [];
+}
+If the metadata structure doesn't support this yet, a simpler approach is to use the existing calculatePhaseReadiness function and check if readiness < 100%:
+typescript// Simpler approach using existing function
+export function checkPhaseTransitionAllowed(useCase: UseCase): {
+  canProgress: boolean;
+  pendingRequirements: string[];
+} {
+  const readiness = calculatePhaseReadiness(useCase);
+  
+  if (readiness.percentage >= 100) {
+    return { canProgress: true, pendingRequirements: [] };
+  }
+  
+  return {
+    canProgress: false,
+    pendingRequirements: readiness.pending || []
+  };
+}
+
+2. On Backward Compatibility (legacyActivationFlag)
+The approach is correct, but I'd recommend a more explicit implementation:
+typescript// Option A: Use existing field
+// If the useCase has is_dashboard_visible = 'true' AND was created before 
+// this feature deployment, treat as legacy
+
+// Option B: Add migration timestamp check
+const GOVERNANCE_ENFORCEMENT_DATE = '2026-01-24T00:00:00Z';
+
+function isLegacyActiveUseCase(useCase: UseCase): boolean {
+  // Use cases that were already active before enforcement went live
+  // should not be auto-deactivated, but SHOULD be flagged for review
+  const isActive = ['In-flight', 'Implemented'].includes(useCase.useCaseStatus);
+  const createdBeforeEnforcement = new Date(useCase.createdAt) < new Date(GOVERNANCE_ENFORCEMENT_DATE);
+  
+  return isActive && createdBeforeEnforcement;
+}
+
+// In the regression check:
+if (regressionCheck.shouldDeactivate) {
+  if (isLegacyActiveUseCase(useCase)) {
+    // Don't auto-deactivate, but log a warning
+    await storage.createGovernanceAuditLog({
+      useCaseId: useCase.id,
+      action: 'LEGACY_GOVERNANCE_WARNING',
+      reason: `Legacy use case would fail Gate 1: ${regressionCheck.reason}`,
+      timestamp: new Date().toISOString(),
+      userId: 'system'
+    });
+    // Continue with update, don't block
+  } else {
+    // New use cases get full enforcement
+    updates.useCaseStatus = 'Backlog';
+    // ... full deactivation logic
+  }
+}
+Important: After deployment, generate a report of legacy use cases that don't pass governance so they can be remediated:
+sql-- Run after deployment to identify legacy issues
+SELECT 
+  id, 
+  title, 
+  use_case_status,
+  primary_business_owner,
+  business_function,
+  created_at
+FROM use_cases
+WHERE use_case_status IN ('In-flight', 'Implemented')
+AND created_at < '2026-01-24'
+AND (
+  primary_business_owner IS NULL 
+  OR primary_business_owner = ''
+  OR business_function IS NULL 
+  OR business_function = ''
+);
+```
+
+---
+
+### 3. On Task Ordering
+
+The agent's task list is good. I'd suggest this refined order for dependency management:
+```
+1. [Schema] Add any missing audit log fields if needed
+2. [Shared] Update Gate 1 in calculations.ts (add businessFunction + status checks)
+3. [Shared] Add/adapt getPhaseExitRequirements in tom.ts
+4. [Service] Create governance-enforcement.ts (new file)
+5. [Storage] Add createGovernanceAuditLog method
+6. [Routes] Integrate enforcement into PUT endpoint
+7. [Tests] Write unit tests for service
+8. [Tests] Write integration tests for API
+9. [Migration] Run legacy use case report
+
+ACCEPTANCE CRITERIA FOR COMPLETION
+Please confirm these pass before marking complete:
+Functional Tests
+
+ Gate 1 Enhanced: Creating a use case with empty businessFunction prevents Gate 1 from passing
+ Gate 1 Enhanced: Use case with status "Discovery" prevents Gate 1 from passing
+ Activation Blocking: API returns 403 when trying to set status to "In-flight" with incomplete governance
+ Auto-Deactivation: Removing primaryBusinessOwner from an active use case triggers deactivation to "Backlog"
+ Phase Transition: Changing status that causes phase change with incomplete exit requirements returns 400 asking for justification
+ Phase Transition Override: Providing phaseTransitionJustification allows the transition and stores reason
+ Legacy Bypass: Pre-existing active use cases don't get auto-deactivated (warning logged instead)
+ Audit Trail: All blocked activations and auto-deactivations appear in governance_audit_log
+
+Regression Tests
+
+ Existing CRUD: Normal create/read/update/delete operations still work
+ Dashboard: Governance stepper UI still displays correctly
+ Phase Derivation: TOM phase calculation unchanged for compliant use cases
+ Scoring: 10-lever scoring and quadrant calculation unchanged
+
+Documentation Updates
+
+ Update replit.md with new enforcement behavior
+ Update VALUE_FRAMEWORK_GUIDE.md Gate 1 section to match implementation
+ Add API error codes to documentation (403 GOVERNANCE_INCOMPLETE, 400 PHASE_TRANSITION_REQUIRES_JUSTIFICATION)
+
+
+ONE QUESTION FOR REPLIT AGENT
+Before proceeding, please confirm:
+Does calculatePhaseReadiness already exist in shared/tom.ts and return a structure with percentage and pending requirements?
+If yes, we can use it directly. If no, we'll need to either create getPhaseExitRequirements or adapt the existing phase derivation logic.

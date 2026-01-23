@@ -1,0 +1,67 @@
+PROCEED WITH IMPLEMENTATION
+Confirmed - the existing calculatePhaseReadiness function at line 940 in shared/tom.ts provides exactly what we need. Please proceed with the implementation using your refined task list.
+Final Implementation Notes
+1. Use Existing Phase Readiness
+In governance-enforcement.ts, import and use the existing function:
+typescriptimport { calculatePhaseReadiness, deriveTomPhase } from '../../shared/tom';
+
+// In checkPhaseTransition function:
+export function checkPhaseTransition(
+  useCase: UseCase,
+  targetStatus: string,
+  justification?: string,
+  tomConfig?: TomConfig  // Pass from route handler
+): PhaseTransitionResult {
+  const currentPhase = deriveTomPhase(useCase, tomConfig);
+  const targetPhase = deriveTomPhase({ ...useCase, useCaseStatus: targetStatus } as UseCase, tomConfig);
+
+  if (currentPhase === targetPhase) {
+    return { allowed: true, requiresJustification: false, currentPhase, targetPhase, pendingExitRequirements: [] };
+  }
+
+  // Use existing calculatePhaseReadiness for exit requirements
+  const readiness = calculatePhaseReadiness(useCase, currentPhase, tomConfig);
+  const pendingExit = readiness.exitRequirements?.filter(r => !r.met).map(r => r.label) || [];
+
+  if (pendingExit.length > 0 && !justification) {
+    return {
+      allowed: false,
+      requiresJustification: true,
+      currentPhase,
+      targetPhase,
+      pendingExitRequirements: pendingExit
+    };
+  }
+
+  return { allowed: true, requiresJustification: pendingExit.length > 0, currentPhase, targetPhase, pendingExitRequirements: pendingExit };
+}
+2. Legacy Bypass Constant
+Add at top of governance-enforcement.ts:
+typescript// Use cases active before this date bypass auto-deactivation (warning logged instead)
+export const GOVERNANCE_ENFORCEMENT_DATE = new Date('2026-01-24T00:00:00Z');
+3. Audit Log Action Types
+Ensure these action types are supported:
+typescripttype GovernanceAuditAction = 
+  | 'ACTIVATION_BLOCKED'
+  | 'AUTO_DEACTIVATION'
+  | 'PHASE_TRANSITION_OVERRIDE'
+  | 'LEGACY_GOVERNANCE_WARNING';
+4. Route Handler TOM Config
+In routes.ts, fetch the TOM config for the engagement before calling enforcement:
+typescript// In PUT /api/use-cases/:id
+const engagement = await storage.getEngagement(useCase.engagementId);
+const tomConfig = await getTomConfigForEngagement(engagement);
+
+const phaseCheck = checkPhaseTransition(useCase, updates.useCaseStatus, updates.phaseTransitionJustification, tomConfig);
+
+Checkpoint Request
+After completing each major task, please provide a brief status update:
+
+After Task 1-2 (Gate 1 + Service): Confirm Gate 1 now checks all 3 fields
+After Task 3-4 (Storage + Routes): Confirm API returns 403 on incomplete governance
+After Task 5-6 (Tests): Confirm all tests pass
+After Task 7 (Docs): Confirm documentation updated
+
+
+Go Ahead
+Please proceed with implementation. Start with Task 1: Update Gate 1 requirements in shared/calculations.ts.
