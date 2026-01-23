@@ -14,6 +14,7 @@ import { Layers, Plus, Pencil, Trash2, GripVertical, Loader2, Sparkles } from 'l
 import type { TomPhase, TomConfig, TomGovernanceBody, PhaseDefaults } from '@shared/tom';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PhaseFormData {
   id: string;
@@ -314,15 +315,22 @@ export default function PhaseManagementLegoBlock() {
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <Button 
-                    size="icon" 
-                    variant="ghost"
-                    onClick={() => setDefaultsPhase(phase)}
-                    data-testid={`button-defaults-${phase.id}`}
-                    title="Configure phase defaults"
-                  >
-                    <Sparkles className={`h-4 w-4 ${phase.phaseDefaults ? 'text-primary' : ''}`} />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        size="icon" 
+                        variant="ghost"
+                        onClick={() => setDefaultsPhase(phase)}
+                        data-testid={`button-defaults-${phase.id}`}
+                        className={phase.phaseDefaults ? 'text-amber-500 hover:text-amber-600' : 'text-muted-foreground'}
+                      >
+                        <Sparkles className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Configure phase defaults</p>
+                    </TooltipContent>
+                  </Tooltip>
                   
                   <Dialog open={editingPhase?.id === phase.id} onOpenChange={(open) => !open && setEditingPhase(null)}>
                     <DialogTrigger asChild>
