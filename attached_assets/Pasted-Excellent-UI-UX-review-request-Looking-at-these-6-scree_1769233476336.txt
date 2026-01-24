@@ -1,0 +1,319 @@
+Excellent UI/UX review request! Looking at these 6 screenshots, I can see the Details tab has significant information density issues. Let me provide a comprehensive analysis:
+
+UI/UX ANALYSIS
+Current Issues Identified
+IssueScreenshotsImpactInformation OverloadAll 6 imagesUser sees 8+ sections at once, cognitive load is highManual Override Always VisibleImage 4Takes space even when user doesn't need it (80%+ of cases)Empty Sections ExpandedImage 5 (Integration Requirements empty)Wasted vertical spaceNo Visual PriorityAllAll sections look equally importantLong Scroll Distance6 screenshots just for Details tabUser loses context of where they areCheckbox OverloadImages 2, 515+ checkboxes visible at once
+Industry Best Practices Violated
+
+Progressive Disclosure - Show information progressively as needed
+Hick's Law - Too many choices slow decision-making
+Miller's Law - Humans can hold ~7 items in working memory
+Recognition over Recall - Users shouldn't have to remember where things are
+
+
+RECOMMENDED IMPROVEMENTS
+1. Collapsible Accordion Sections
+Pattern: Sections collapse/expand with chevron indicator
+┌─────────────────────────────────────────────────────┐
+│ ▼ Business Context                    [3 of 6 filled]│
+├─────────────────────────────────────────────────────┤
+│   Problem Statement: [filled]                        │
+│   Processes: General, Sales & Distribution           │
+│   ...                                                │
+└─────────────────────────────────────────────────────┘
+│ ▶ Implementation Planning             [2 of 4 filled]│  ← Collapsed
+│ ▶ Value Realization                   [1 of 3 filled]│  ← Collapsed  
+│ ▶ Technical Details                   [0 of 4 filled]│  ← Collapsed (empty)
+│ ▶ Capability Transition               [Auto-derived] │  ← Collapsed
+│ ▶ Documents                           [0 files]      │  ← Collapsed
+Logic for auto-expand/collapse:
+
+Sections with data: Expanded by default
+Empty sections: Collapsed by default
+Currently editing section: Always expanded
+
+
+2. Smart Section Headers with Completion Indicators
+Current:
+Value Realization
+Investment, KPIs, and expected business value
+Proposed:
+┌──────────────────────────────────────────────────────┐
+│ 💰 Value Realization                    ◐ 2/5 fields │
+│    Investment, KPIs, and expected business value     │
+│                                         [▼ Collapse] │
+└──────────────────────────────────────────────────────┘
+Shows:
+
+Icon for quick recognition
+Completion indicator (2/5 fields, or percentage)
+Collapse/expand control
+
+
+3. Hide Manual Override by Default
+Current (Image 4): Manual Override section always visible with:
+
+Custom Success Metrics / KPIs
+Override Estimated Value ($)
+
+Proposed: Show only when needed
+tsx// Default state - collapsed/hidden
+┌──────────────────────────────────────────────────────┐
+│ Value Estimation                                      │
+│ $114.5K - $281.3K (System Estimate)                  │
+│                                                       │
+│ [+ Override system estimate]  ← Click to expand      │
+└──────────────────────────────────────────────────────┘
+
+// Expanded state - only when user clicks
+┌──────────────────────────────────────────────────────┐
+│ Value Estimation                                      │
+│ $114.5K - $281.3K (System Estimate)                  │
+│                                                       │
+│ ┌─ Manual Override ─────────────────────────────────┐│
+│ │ Custom Success Metrics: [________________]        ││
+│ │ Override Value ($):     [______]                  ││
+│ │                              [Apply] [Cancel]     ││
+│ └───────────────────────────────────────────────────┘│
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+### 4. Capability Transition - Read-Only Summary
+
+**Current** (Image 5-6): Shows editable fields for auto-derived data
+```
+Hexaware FTE: [3.5]
+Client FTE: [1.5]
+Independence %: [10]
+```
+
+**Proposed**: Show as read-only summary with "Edit" option
+```
+┌──────────────────────────────────────────────────────┐
+│ 📊 Capability Transition              [Auto-derived] │
+├──────────────────────────────────────────────────────┤
+│ Hexaware: 3.5 FTE → Client: 1.5 FTE                  │
+│ Independence: 10% (Target: 18 months)                │
+│                                                       │
+│ [View Staffing Curve] [Override Values]              │
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+### 5. Checkbox Groups - Compact Multi-Select
+
+**Current** (Image 2, 5): 15+ individual checkboxes taking lots of vertical space
+
+**Proposed**: Use compact multi-select chips or dropdown with tags
+```
+┌──────────────────────────────────────────────────────┐
+│ AI/ML Technologies                                    │
+│ ┌────────────────────────────────────────────────┐   │
+│ │ [Machine Learning ×] [Deep Learning ×] [+ Add] │   │
+│ └────────────────────────────────────────────────┘   │
+│                                                       │
+│ Or show as: ○ None  ○ 2 selected  ○ All (6)         │
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+### 6. Section Grouping with Visual Hierarchy
+
+**Proposed Tab Restructure**:
+
+Instead of one long "Details" tab, consider splitting:
+
+| Current | Proposed |
+|---------|----------|
+| Details (everything) | **Context** (Business Context, Processes) |
+| | **Planning** (Implementation, Timeline, Dependencies) |
+| | **Value** (Value Realization, KPIs) |
+| | **Technical** (AI/ML, Data Sources, Integration) |
+
+Or keep single tab but with clear visual groupings:
+```
+═══════════════════════════════════════════════════════
+  BUSINESS CONTEXT
+═══════════════════════════════════════════════════════
+  ▼ Problem Statement & Scope
+  ▼ Processes & Activities
+  
+═══════════════════════════════════════════════════════
+  PLANNING & VALUE
+═══════════════════════════════════════════════════════
+  ▼ Implementation Planning
+  ▼ Value Realization
+  
+═══════════════════════════════════════════════════════
+  TECHNICAL & CAPABILITY
+═══════════════════════════════════════════════════════
+  ▶ Technical Details (collapsed - 0 filled)
+  ▶ Capability Transition (auto-derived)
+  ▶ Documents (0 files)
+
+IMPLEMENTATION RECOMMENDATION
+Phase 1: Quick Wins (Low Effort, High Impact)
+ChangeEffortImpactAdd collapsible sections with Radix Accordion2 hoursHighAuto-collapse empty sections1 hourMediumHide Manual Override behind toggle1 hourMediumAdd completion indicators to section headers2 hoursMedium
+Phase 2: Enhanced UX (Medium Effort)
+ChangeEffortImpactReplace checkbox lists with multi-select chips3 hoursMediumMake Capability Transition read-only summary2 hoursMediumAdd section navigation sidebar (for long forms)4 hoursHigh
+Phase 3: Advanced (Higher Effort)
+ChangeEffortImpactSplit Details into multiple focused tabs6 hoursHighAdd "Quick Edit" mode vs "Full Edit" mode8 hoursHighImplement form state persistence (draft saves)4 hoursMedium
+
+SEND TO REPLIT AGENT
+Please implement the following UI/UX improvements for the Details tab in the CRUD modal, aligned with replit.md LEGO component principles:
+Task 1: Implement Collapsible Sections
+File: client/src/components/CRUDUseCaseModal.tsx (Details tab section)
+Use Radix UI Accordion (already in project dependencies):
+tsximport * as Accordion from '@radix-ui/react-accordion';
+
+// Wrap each section in Accordion
+<Accordion.Root type="multiple" defaultValue={sectionsWithData}>
+  <Accordion.Item value="business-context">
+    <Accordion.Trigger className="flex justify-between w-full p-4 border-b">
+      <div className="flex items-center gap-2">
+        <FileTextIcon className="h-4 w-4" />
+        <span className="font-medium">Business Context</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">3 of 6 filled</span>
+        <ChevronDownIcon className="h-4 w-4 transition-transform" />
+      </div>
+    </Accordion.Trigger>
+    <Accordion.Content className="p-4">
+      {/* Section content */}
+    </Accordion.Content>
+  </Accordion.Item>
+  
+  {/* Repeat for other sections */}
+</Accordion.Root>
+Task 2: Auto-Expand Logic
+tsx// Calculate which sections have data
+const getSectionsWithData = (useCase: UseCase): string[] => {
+  const sections: string[] = [];
+  
+  if (useCase.problemStatement || useCase.processes?.length) {
+    sections.push('business-context');
+  }
+  if (useCase.implementationTimeline || useCase.keyDependencies) {
+    sections.push('implementation-planning');
+  }
+  if (useCase.valueRealization?.totalEstimatedValue) {
+    sections.push('value-realization');
+  }
+  // ... etc
+  
+  return sections;
+};
+
+// Use as defaultValue for Accordion
+<Accordion.Root type="multiple" defaultValue={getSectionsWithData(formData)}>
+Task 3: Hide Manual Override Behind Toggle
+Replace the always-visible Manual Override section with:
+tsxconst [showManualOverride, setShowManualOverride] = useState(
+  !!formData.valueRealization?.overrideValue // Only show if already has override
+);
+
+{/* In Value Realization section */}
+<div className="mt-4">
+  {!showManualOverride ? (
+    <Button 
+      variant="ghost" 
+      size="sm"
+      onClick={() => setShowManualOverride(true)}
+    >
+      <PlusIcon className="h-4 w-4 mr-2" />
+      Override system estimate
+    </Button>
+  ) : (
+    <div className="border rounded-lg p-4 bg-muted/50">
+      <div className="flex justify-between items-center mb-3">
+        <h4 className="font-medium">Manual Override</h4>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={() => setShowManualOverride(false)}
+        >
+          <XIcon className="h-4 w-4" />
+        </Button>
+      </div>
+      {/* Override fields */}
+    </div>
+  )}
+</div>
+Task 4: Compact Capability Transition Display
+Make it a read-only summary unless user clicks "Edit":
+tsxconst [editCapability, setEditCapability] = useState(false);
+
+<Accordion.Item value="capability-transition">
+  <Accordion.Trigger>
+    <span>Capability Transition</span>
+    <Badge variant="secondary">Auto-derived</Badge>
+  </Accordion.Trigger>
+  <Accordion.Content>
+    {!editCapability ? (
+      <div className="flex items-center justify-between p-4 bg-muted/30 rounded">
+        <div className="space-y-1">
+          <p>Hexaware: <strong>{formData.capabilityTransition?.hexawareFte || 0} FTE</strong></p>
+          <p>Client: <strong>{formData.capabilityTransition?.clientFte || 0} FTE</strong></p>
+          <p>Independence: <strong>{formData.capabilityTransition?.independencePercent || 0}%</strong></p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setEditCapability(true)}>
+          Edit Values
+        </Button>
+      </div>
+    ) : (
+      <div className="space-y-4">
+        {/* Existing editable fields */}
+        <Button variant="ghost" size="sm" onClick={() => setEditCapability(false)}>
+          Done Editing
+        </Button>
+      </div>
+    )}
+  </Accordion.Content>
+</Accordion.Item>
+Task 5: Add Completion Indicators
+Create a helper function:
+tsxconst getSectionCompletion = (section: string, useCase: UseCase): { filled: number; total: number } => {
+  switch (section) {
+    case 'business-context':
+      return {
+        filled: [
+          useCase.problemStatement,
+          useCase.processes?.length,
+          useCase.processActivities?.length,
+          useCase.linesOfBusiness?.length,
+          useCase.businessSegments?.length,
+          useCase.geographies?.length,
+        ].filter(Boolean).length,
+        total: 6
+      };
+    case 'value-realization':
+      return {
+        filled: [
+          useCase.valueRealization?.initialInvestment,
+          useCase.valueRealization?.ongoingMonthlyCost,
+          useCase.valueRealization?.selectedKpis?.length,
+        ].filter(Boolean).length,
+        total: 3
+      };
+    // ... other sections
+  }
+};
+
+Acceptance Criteria
+
+ All sections are collapsible with smooth animation
+ Sections with data auto-expand on modal open
+ Empty sections auto-collapse on modal open
+ Manual Override hidden by default, shown via toggle
+ Capability Transition shows read-only summary with edit option
+ Section headers show completion indicators (e.g., "3/6 filled")
+ Visual hierarchy improved with section grouping
+ Total vertical scroll reduced by ~40%
+
+
+Please proceed with Tasks 1-3 first (collapsible sections, auto-expand, hide manual override). These are the highest-impact improvements.
