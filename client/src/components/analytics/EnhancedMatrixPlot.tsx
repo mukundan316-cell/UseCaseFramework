@@ -635,21 +635,10 @@ export default function EnhancedMatrixPlot() {
                       }}
                       axisLine={{ stroke: '#D1D5DB', strokeWidth: 1.5 }}
                       tickLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
-                      label={{ 
-                        value: 'Implementation Effort', 
-                        position: 'insideBottom', 
-                        offset: -20,
-                        style: { 
-                          textAnchor: 'middle',
-                          fontSize: '14px', 
-                          fontWeight: '600', 
-                          fill: '#374151' 
-                        } 
-                      }}
                     />
                     <YAxis 
                       type="number" 
-                      dataKey="y" 
+                      dataKey="jitteredY" 
                       domain={[0.5, 5.5]} 
                       name="Business Impact"
                       tickCount={6}
@@ -662,18 +651,6 @@ export default function EnhancedMatrixPlot() {
                       }}
                       axisLine={{ stroke: '#D1D5DB', strokeWidth: 1.5 }}
                       tickLine={{ stroke: '#D1D5DB', strokeWidth: 1 }}
-                      label={{ 
-                        value: 'Business Impact', 
-                        angle: -90, 
-                        position: 'insideLeft',
-                        offset: 15,
-                        style: { 
-                          textAnchor: 'middle',
-                          fontSize: '14px', 
-                          fontWeight: '600', 
-                          fill: '#374151' 
-                        } 
-                      }}
                     />
                     
                     <RechartsTooltip content={<CustomTooltip />} />
