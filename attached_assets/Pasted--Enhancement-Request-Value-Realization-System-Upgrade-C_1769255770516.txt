@@ -1,0 +1,57 @@
+# Enhancement Request: Value Realization System Upgrade
+
+## Context
+The current Value Realization system has a KPI Library linked to Process → Activity → KPI chain. This enhancement extends it to support enterprise insurance value governance requirements identified through competitive benchmarking.
+
+## Pre-Implementation Checklist
+Before making any changes:
+1. Read replit.md for architectural guardrails
+2. Review current Value Realization schema in `shared/schema.ts`
+3. Check `metadata_config` table for existing KPI library configuration
+4. Identify affected tables: `use_cases`, `metadata_config`, potentially new `value_governance` table
+
+## Required Enhancements
+
+### 1. Value Stream Taxonomy (Database Configuration)
+Add to KPI Library metadata a `valueStream` classification:
+- `operational_savings` - Direct cost reduction (FTE, process efficiency)
+- `cor_improvement` - Combined Operating Ratio impact (loss ratio + expense ratio)
+- `revenue_uplift` - Pricing optimization, cross-sell, retention
+
+Each KPI in the library should be tagged with its primary value stream.
+
+### 2. Governance Ownership Model (New Fields)
+Add to use case value tracking:
+- `businessSponsor` (text) - Executive owning the value target
+- `deliveryOwner` (text) - IT/CoE lead responsible for delivery
+- `valueValidator` (text) - Finance/Actuarial role who signs off
+- `governanceModel` (enum: 'business_led' | 'it_led' | 'joint') - Accountability model
+- `validationStatus` (enum: 'unvalidated' | 'pending_review' | 'finance_approved' | 'actuarial_approved' | 'fully_validated')
+
+### 3. Conservative Factor / Confidence Multiplier
+Add to value estimates:
+- `conservativeFactor` (decimal 0.0-1.0) - Multiplier applied to raw value estimate
+- `confidenceRationale` (text) - Why this confidence level was assigned
+- Default rules:
+  - 0.50 until actuarial validation
+  - 0.70 until finance audit
+  - 1.00 post full validation
+
+### 4. Insurance-Specific KPI Additions
+Add to KPI Library (via `metadata_config` or dedicated table):
+| KPI ID | KPI Name | Value Stream | Unit | Industry Benchmark |
+|--------|----------|--------------|------|-------------------|
+| INS001 | COR Points Improvement | cor_improvement | points | 0.5-2.0 pts/year |
+| INS002 | Loss Ratio Impact | cor_improvement | percentage | 1-3% reduction |
+| INS003 | Expense Ratio Impact | cor_improvement | percentage | 0.5-1.5% reduction |
+| INS004 | Claims Severity Reduction | cor_improvement | percentage | 10-20% reduction |
+| INS005 | Underwriting Cycle Time | operational_savings | days | 30-50% reduction |
+| INS006 | Quote-to-Bind Ratio | revenue_uplift | percentage | 5-15% improvement |
+| INS007 | Premium Leakage Reduction | revenue_uplift | percentage | 2-5% recovery |
+| INS008 | Claims Handling Cost | operational_savings | currency/claim | $20-50 reduction |
+| INS009 | First Notice of Loss Time | operational_savings | hours | 40-60% reduction |
+
+### 5. Phased Value Attribution
+Extend value tracking to support phase-aligned projections:
+- `valueByPhase` (JSONB) structure:
+```json
