@@ -54,7 +54,12 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 - **Security**: Input sanitization, parameterized queries, and secure session management.
 - **Performance**: Client-side PDF generation, debounced search, and optimized rendering.
 - **T-shirt Sizing**: Implements benchmark compliance for cost and timeline estimations.
-- **Value Realization System**: KPI-based ROI tracking for use cases, including a KPI library, process mapping, and automated value estimation. Supports multi-currency.
+- **Value Realization System**: KPI-based ROI tracking for use cases, including a KPI library, process mapping, and automated value estimation. Supports multi-currency. Enhanced with:
+  - **KPI Types**: financial, operational, strategic, compliance - enabling granular tracking of non-financial metrics
+  - **Value Streams**: 6 insurance-specific categories (operational_savings, cor_improvement, revenue_uplift, risk_mitigation, customer_experience, regulatory_compliance)
+  - **Value Confidence**: Conservative factor (50%-100%), 4-level validation workflow (unvalidated → pending_finance → pending_actuarial → fully_validated), adjusted value calculations
+  - **Governance Roles**: deliveryOwner, valueValidator, valueGovernanceModel fields for accountability tracking
+  - **Insights Dashboard**: Raw vs Adjusted Value comparison, Validation Status breakdown, Value Stream distribution, KPI Type analysis
 - **Capability Transition Benchmark Derivation**: Automated population of capability transition data from use case attributes, using benchmark archetypes.
 - **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations with override protection.
 - **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table.
