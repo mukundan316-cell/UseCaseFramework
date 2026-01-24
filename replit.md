@@ -22,6 +22,24 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 - **Backend**: Node.js 20.x with Express.js, PostgreSQL (Neon-backed) as the database, and Drizzle ORM.
 - **Development**: npm for package management, TypeScript 5.x, and tsx for hot-reloading. Both frontend and backend run on port 5000.
 
+### Modular Architecture (Refactored Jan 2026)
+- **Server Routes**: Domain-based modular structure in `server/routes/` with 17 specialized modules:
+  - `use-cases.routes.ts` - Core CRUD operations (856 lines)
+  - `value.routes.ts` - Value realization endpoints (438 lines)
+  - `responses.routes.ts` - Questionnaire responses (377 lines)
+  - `assessments.routes.ts` - Assessment management (379 lines)
+  - `capability.routes.ts` - Capability transitions (336 lines)
+  - `tom.routes.ts` - Target Operating Model (313 lines)
+  - `clients.routes.ts`, `metadata.routes.ts`, `governance.routes.ts`, `derivation.routes.ts`, `import.routes.ts`, `export.routes.ts`, and others
+- **CRUD Modal Tabs**: Modular tab components in `client/src/components/lego-blocks/crud-modal-tabs/`:
+  - `DetailsTab.tsx` - Overview and details (772 lines)
+  - `ScoringTab.tsx` - 10-lever scoring (143 lines)
+  - `OperatingModelTab.tsx` - TOM phase management (208 lines)
+  - `ResponsibleAITab.tsx` - AI governance (169 lines)
+  - `GuideTab.tsx` - Progressive guidance (15 lines)
+  - `utils.tsx` - Shared utilities (91 lines)
+- **Benefits**: Improved maintainability, faster IDE performance, clearer separation of concerns
+
 ### Feature Specifications
 - **Core Data Management**: Full CRUD for AI use cases, including a 10-lever scoring framework with automated recalculation and manual override.
 - **Data Model**: `clients`, `engagements`, `use_cases`, `file_attachments`, `metadata_config`, `response_sessions`, and `users` entities, forming a Client → Engagement → Use Cases hierarchy.
@@ -29,7 +47,7 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 - **Analytics**: Interactive matrix plots, executive dashboards, and PDF export with ROI explanations.
 - **Assessment System**: Multi-questionnaire platform using Survey.js.
 - **File Management**: Local filesystem storage (`uploads/`) with metadata tracking and a 50MB per file limit.
-- **Modularity**: ~65 active LEGO components for reusability.
+- **Modularity**: ~70 active LEGO components for reusability, with modular route and modal architectures.
 - **Validation**: Minimal validation using Zod schemas and centralized configuration.
 - **Excel Integration**: Multi-worksheet import/export with auto-ID generation.
 - **API Design**: RESTful patterns with structured error responses and server-side validation.
