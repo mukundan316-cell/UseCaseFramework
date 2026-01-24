@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { Response } from 'express';
 import { format } from 'date-fns';
 import { UseCaseDataExtractor } from './useCaseDataExtractor';
+import { DEFAULT_VALUE_REALIZATION_CONFIG } from '@shared/valueRealization';
 
 // Validation interfaces
 interface ValidationSummary {
@@ -776,6 +777,9 @@ export class ExcelExportService {
       // Portfolio Management
       'Use Case Status', 'Portfolio Status', 'Dashboard Visible', 'Library Source',
       'Activation Reason', 'Deactivation Reason',
+      // Governance and Value Confidence
+      'Delivery Owner', 'Value Validator', 'Value Governance Model',
+      'Conservative Factor', 'Validation Status',
       // Presentation
       'Presentation File Name', 'Has Presentation'
     ];
@@ -884,6 +888,9 @@ export class ExcelExportService {
       'Activation Reason',
       // Process details
       'Processes (Multi-select)', 'Process Activities',
+      // Governance and Value Confidence
+      'Delivery Owner', 'Value Validator', 'Value Governance Model',
+      'Conservative Factor', 'Validation Status',
       // Presentation fields
       'Presentation File Name', 'Has Presentation', 'Deactivation Reason'
     ];
@@ -913,6 +920,9 @@ export class ExcelExportService {
       // RSA Ethical Principles
       'Explainability Required', 'Customer Harm Risk', 'Cross-Border Data Transfer',
       'Third Party Model', 'Human Accountability', 'Regulatory Compliance (1-5)',
+      // Governance and Value Confidence
+      'Delivery Owner', 'Value Validator', 'Value Governance Model',
+      'Conservative Factor', 'Validation Status',
       // Portfolio fields
       'Portfolio Status', 'Library Source', 'Has Presentation'
     ];
@@ -923,6 +933,49 @@ export class ExcelExportService {
     return [
       useCase.portfolioStatus.isActiveForRsa ? 'Active Portfolio' : 'Reference Library',
       useCase.portfolioStatus.librarySource
+    ];
+  }
+
+  private static mapGovernanceFields(rawUseCase: any): any[] {
+    const vr = rawUseCase.valueRealization || {};
+    const vc = vr.valueConfidence || {};
+    const conservativeFactor = vc.conservativeFactor ?? 1.0;
+    const rawValue = parseFloat(rawUseCase.estimatedValue) || 0;
+    const adjustedValue = rawValue * conservativeFactor;
+    
+    return [
+      rawUseCase.deliveryOwner || '',
+      rawUseCase.valueValidator || '',
+      rawUseCase.valueGovernanceModel || '',
+      conservativeFactor,
+      vc.validationStatus || 'unvalidated',
+      rawValue > 0 ? rawValue : '',
+      rawValue > 0 ? adjustedValue.toFixed(2) : ''
+    ];
+  }
+
+  private static mapKpiMetadataFields(rawUseCase: any): any[] {
+    const vr = rawUseCase.valueRealization || {};
+    const selectedKpis: string[] = vr.selectedKpis || [];
+    const kpiLibrary = DEFAULT_VALUE_REALIZATION_CONFIG.kpiLibrary;
+    
+    // Extract unique KPI types and value streams from selected KPI IDs using the library
+    const kpiTypes = new Set<string>();
+    const valueStreams = new Set<string>();
+    
+    for (const kpiId of selectedKpis) {
+      const kpiDef = kpiLibrary[kpiId];
+      if (kpiDef) {
+        if (kpiDef.kpiType) kpiTypes.add(kpiDef.kpiType);
+        if (kpiDef.valueStream) valueStreams.add(kpiDef.valueStream);
+      }
+    }
+    
+    return [
+      selectedKpis.length > 0 ? selectedKpis.join('; ') : '',
+      selectedKpis.length,
+      kpiTypes.size > 0 ? Array.from(kpiTypes).join('; ') : '',
+      valueStreams.size > 0 ? Array.from(valueStreams).join('; ') : ''
     ];
   }
 
@@ -1011,6 +1064,19 @@ export class ExcelExportService {
       // Process details (2) - clear naming to show multi-select nature
       'Processes (Multi-select)',
       'Process Activities',
+      // Governance and Value Confidence (7)
+      'Delivery Owner',
+      'Value Validator',
+      'Value Governance Model',
+      'Conservative Factor',
+      'Validation Status',
+      'Raw Value (Estimated)',
+      'Adjusted Value',
+      // KPI Metadata (4)
+      'Selected KPIs',
+      'KPI Count',
+      'KPI Types',
+      'Value Streams',
       // Presentation and metadata (4)
       'Presentation File Name',
       'Has Presentation',
@@ -1073,6 +1139,12 @@ export class ExcelExportService {
         // Process details (2 fields) - multi-select arrays for processes and activities
         this.mapMultiSelectArray(useCase.multiSelectData.processes, useCase.basicInfo.process || ''),
         this.mapMultiSelectArray(useCase.multiSelectData.activities),
+        
+        // Governance and Value Confidence (7 fields)
+        ...this.mapGovernanceFields(rawUseCase),
+        
+        // KPI Metadata (4 fields)
+        ...this.mapKpiMetadataFields(rawUseCase),
         
         // Presentation fields
         rawUseCase.presentationFileName || '',
@@ -1146,6 +1218,19 @@ export class ExcelExportService {
       'Regulatory Compliance (1-5)',
       'Portfolio Status',
       'Library Source',
+      // Governance and Value Confidence (7)
+      'Delivery Owner',
+      'Value Validator',
+      'Value Governance Model',
+      'Conservative Factor',
+      'Validation Status',
+      'Raw Value (Estimated)',
+      'Adjusted Value',
+      // KPI Metadata (4)
+      'Selected KPIs',
+      'KPI Count',
+      'KPI Types',
+      'Value Streams',
       'Has Presentation',
       'Last Status Update',
       'Created Date'
@@ -1193,6 +1278,12 @@ export class ExcelExportService {
         
         // Portfolio fields (LEGO reused)
         ...this.mapPortfolioFields(useCase),
+        
+        // Governance and Value Confidence (7 fields)
+        ...this.mapGovernanceFields(rawUseCase),
+        
+        // KPI Metadata (4 fields)
+        ...this.mapKpiMetadataFields(rawUseCase),
         
         // Presentation and dates
         rawUseCase.hasPresentation === 'true' ? 'Yes' : 'No',
