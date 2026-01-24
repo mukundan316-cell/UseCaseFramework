@@ -1,16 +1,20 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
 import { useEngagement } from '@/contexts/EngagementContext';
 import { useCurrency } from '@/hooks/useCurrency';
 import { 
   TrendingUp, DollarSign, Clock, Target, 
-  Loader2, AlertCircle, HelpCircle, ArrowUpRight, BarChart3, PieChart
+  Loader2, AlertCircle, HelpCircle, ArrowUpRight, BarChart3, PieChart, ShieldCheck, Filter, Activity
 } from 'lucide-react';
-import type { PortfolioValueSummary, ValueRealizationConfig } from '@shared/valueRealization';
+import type { PortfolioValueSummary, ValueRealizationConfig, ValidationStatus } from '@shared/valueRealization';
 import type { TomConfig } from '@shared/tom';
+
+type ValueStream = 'operational_savings' | 'cor_improvement' | 'revenue_uplift' | 'risk_mitigation' | 'customer_experience' | 'regulatory_compliance' | null;
 
 interface UseCase {
   id: string;
@@ -21,8 +25,20 @@ interface UseCase {
   valueRealization?: {
     derived?: boolean;
     totalEstimatedValue?: { min: number; max: number; currency: string };
-    kpiEstimates?: Array<{ kpiId: string; kpiName: string; estimatedAnnualValueGbp?: { min: number; max: number } | null }>;
+    kpiEstimates?: Array<{ 
+      kpiId: string; 
+      kpiName: string; 
+      kpiType?: 'financial' | 'operational' | 'strategic' | 'compliance';
+      valueStream?: ValueStream;
+      estimatedAnnualValueGbp?: { min: number; max: number } | null;
+    }>;
     investment?: { initialInvestment: number; ongoingMonthlyCost: number };
+    valueConfidence?: {
+      conservativeFactor: number;
+      validationStatus: ValidationStatus;
+      adjustedValueGbp: number | null;
+      rationale: string | null;
+    };
   } | null;
 }
 
@@ -33,12 +49,26 @@ interface ValueMetrics {
   noValue: number;
   totalEstimatedMin: number;
   totalEstimatedMax: number;
+  totalAdjustedValue: number;
   quadrantDistribution: Record<string, { count: number; value: number }>;
   valueTiers: {
     high: number;
     medium: number;
     low: number;
     none: number;
+  };
+  validationBreakdown: {
+    unvalidated: number;
+    pending_finance: number;
+    pending_actuarial: number;
+    fully_validated: number;
+  };
+  valueStreamBreakdown: Record<string, { count: number; value: number }>;
+  kpiTypeBreakdown: {
+    financial: number;
+    operational: number;
+    strategic: number;
+    compliance: number;
   };
 }
 
@@ -72,8 +102,12 @@ function computeValueMetrics(useCases: UseCase[]): ValueMetrics {
     noValue: 0,
     totalEstimatedMin: 0,
     totalEstimatedMax: 0,
+    totalAdjustedValue: 0,
     quadrantDistribution: {},
-    valueTiers: { high: 0, medium: 0, low: 0, none: 0 }
+    valueTiers: { high: 0, medium: 0, low: 0, none: 0 },
+    validationBreakdown: { unvalidated: 0, pending_finance: 0, pending_actuarial: 0, fully_validated: 0 },
+    valueStreamBreakdown: {},
+    kpiTypeBreakdown: { financial: 0, operational: 0, strategic: 0, compliance: 0 }
   };
 
   useCases.forEach(uc => {
@@ -84,6 +118,28 @@ function computeValueMetrics(useCases: UseCase[]): ValueMetrics {
       metrics.quadrantDistribution[quadrant] = { count: 0, value: 0 };
     }
     metrics.quadrantDistribution[quadrant].count++;
+
+    // Track validation status
+    const validationStatus = vr?.valueConfidence?.validationStatus || 'unvalidated';
+    metrics.validationBreakdown[validationStatus]++;
+
+    // Track KPI types and value streams
+    if (vr?.kpiEstimates) {
+      vr.kpiEstimates.forEach(kpi => {
+        const kpiType = kpi.kpiType || 'financial';
+        metrics.kpiTypeBreakdown[kpiType]++;
+        
+        if (kpi.valueStream) {
+          if (!metrics.valueStreamBreakdown[kpi.valueStream]) {
+            metrics.valueStreamBreakdown[kpi.valueStream] = { count: 0, value: 0 };
+          }
+          metrics.valueStreamBreakdown[kpi.valueStream].count++;
+          if (kpi.estimatedAnnualValueGbp) {
+            metrics.valueStreamBreakdown[kpi.valueStream].value += kpi.estimatedAnnualValueGbp.max || 0;
+          }
+        }
+      });
+    }
 
     // Check for tracking (investment data) - can coexist with estimates
     const hasTracking = vr?.investment && (vr.investment.initialInvestment > 0 || vr.investment.ongoingMonthlyCost > 0);
@@ -107,6 +163,11 @@ function computeValueMetrics(useCases: UseCase[]): ValueMetrics {
       metrics.totalEstimatedMin += minValue;
       metrics.totalEstimatedMax += maxValue;
       metrics.quadrantDistribution[quadrant].value += maxValue;
+      
+      // Apply conservative factor for adjusted value
+      const conservativeFactor = vr?.valueConfidence?.conservativeFactor ?? 1;
+      const adjustedMax = maxValue * conservativeFactor;
+      metrics.totalAdjustedValue += adjustedMax;
       
       const avgValue = (minValue + maxValue) / 2;
       if (avgValue >= 200000) {
@@ -150,7 +211,24 @@ interface ValueRealizationViewProps {
   scope?: 'active' | 'all';
 }
 
+const VALUE_STREAM_LABELS: Record<string, string> = {
+  operational_savings: 'Operational Savings',
+  cor_improvement: 'COR Improvement',
+  revenue_uplift: 'Revenue Uplift',
+  risk_mitigation: 'Risk Mitigation',
+  customer_experience: 'Customer Experience',
+  regulatory_compliance: 'Regulatory Compliance'
+};
+
+const VALIDATION_STATUS_LABELS: Record<ValidationStatus, string> = {
+  unvalidated: 'Unvalidated',
+  pending_finance: 'Pending Finance',
+  pending_actuarial: 'Pending Actuarial',
+  fully_validated: 'Fully Validated'
+};
+
 export default function ValueRealizationView({ scope = 'all' }: ValueRealizationViewProps) {
+  const [valueStreamFilter, setValueStreamFilter] = useState<string>('all');
   const { selectedEngagementId, selectedClientId } = useEngagement();
   const { formatCompact: formatCurrency, symbol: currencySymbol } = useCurrency();
   const useCasesEndpoint = scope === 'active' 
@@ -205,14 +283,30 @@ export default function ValueRealizationView({ scope = 'all' }: ValueRealization
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        <div className="text-center py-2">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Portfolio Value Realization</h3>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Track investment returns and value generation across {metrics?.totalUseCases || 0} use cases in the {scope === 'active' ? 'active portfolio' : 'reference library'}.
-          </p>
-          <Badge variant="outline" className={`mt-2 text-xs ${scope === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
-            {scope === 'active' ? 'Active Portfolio' : 'Reference Library Analytics'}
-          </Badge>
+        <div className="flex items-start justify-between py-2">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Portfolio Value Realization</h3>
+            <p className="text-gray-600 max-w-2xl">
+              Track investment returns and value generation across {metrics?.totalUseCases || 0} use cases in the {scope === 'active' ? 'active portfolio' : 'reference library'}.
+            </p>
+            <Badge variant="outline" className={`mt-2 text-xs ${scope === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+              {scope === 'active' ? 'Active Portfolio' : 'Reference Library Analytics'}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2" data-testid="filter-value-stream">
+            <Filter className="h-4 w-4 text-gray-500" />
+            <Select value={valueStreamFilter} onValueChange={setValueStreamFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by Value Stream" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Value Streams</SelectItem>
+                {Object.entries(VALUE_STREAM_LABELS).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -319,7 +413,82 @@ export default function ValueRealizationView({ scope = 'all' }: ValueRealization
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Target className="h-5 w-5 text-indigo-500" />
+                Raw vs Adjusted Value
+              </CardTitle>
+              <CardDescription>Value comparison with conservative factor applied</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Raw Estimated Value</span>
+                  <span className="font-bold text-lg">{formatCurrency(metrics?.totalEstimatedMax || 0)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Adjusted Value (Conservative)</span>
+                  <span className="font-bold text-lg text-indigo-600">{formatCurrency(metrics?.totalAdjustedValue || 0)}</span>
+                </div>
+                <Progress 
+                  value={metrics?.totalEstimatedMax ? ((metrics.totalAdjustedValue || 0) / metrics.totalEstimatedMax) * 100 : 100} 
+                  className="h-2"
+                />
+                <p className="text-xs text-gray-500">
+                  {metrics?.totalEstimatedMax && metrics.totalAdjustedValue 
+                    ? `${Math.round((metrics.totalAdjustedValue / metrics.totalEstimatedMax) * 100)}% of raw value after adjustments`
+                    : 'No adjustments applied'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                Validation Status
+              </CardTitle>
+              <CardDescription>Value validation workflow progress</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    Fully Validated
+                  </span>
+                  <Badge variant="outline" className="bg-green-50 text-green-700">{metrics?.validationBreakdown.fully_validated || 0}</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    Pending Finance
+                  </span>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700">{metrics?.validationBreakdown.pending_finance || 0}</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                    Pending Actuarial
+                  </span>
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700">{metrics?.validationBreakdown.pending_actuarial || 0}</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                    Unvalidated
+                  </span>
+                  <Badge variant="outline" className="bg-gray-50 text-gray-700">{metrics?.validationBreakdown.unvalidated || 0}</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
@@ -391,7 +560,71 @@ export default function ValueRealizationView({ scope = 'all' }: ValueRealization
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Activity className="h-5 w-5 text-cyan-500" />
+                Value by Stream
+              </CardTitle>
+              <CardDescription>Insurance-specific value stream breakdown</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {metrics && Object.entries(metrics.valueStreamBreakdown).length > 0 ? (
+                  Object.entries(metrics.valueStreamBreakdown)
+                    .sort(([, a], [, b]) => b.value - a.value)
+                    .map(([stream, data]) => (
+                      <div key={stream}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm text-gray-600">{VALUE_STREAM_LABELS[stream] || stream}</span>
+                          <span className="text-sm font-medium">
+                            {data.count} ({data.value > 0 ? formatCurrency(data.value) : '-'})
+                          </span>
+                        </div>
+                        <Progress 
+                          value={metrics.totalEstimatedMax > 0 ? (data.value / metrics.totalEstimatedMax) * 100 : 0} 
+                          className="h-2" 
+                        />
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-4">No value stream data available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-violet-500" />
+              KPI Type Distribution
+            </CardTitle>
+            <CardDescription>Breakdown by financial vs non-financial KPIs</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-4 gap-4 text-center">
+              <div className="p-3 rounded-lg bg-green-50 border border-green-100">
+                <p className="text-2xl font-bold text-green-700">{metrics?.kpiTypeBreakdown.financial || 0}</p>
+                <p className="text-xs text-green-600">Financial</p>
+              </div>
+              <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
+                <p className="text-2xl font-bold text-blue-700">{metrics?.kpiTypeBreakdown.operational || 0}</p>
+                <p className="text-xs text-blue-600">Operational</p>
+              </div>
+              <div className="p-3 rounded-lg bg-purple-50 border border-purple-100">
+                <p className="text-2xl font-bold text-purple-700">{metrics?.kpiTypeBreakdown.strategic || 0}</p>
+                <p className="text-xs text-purple-600">Strategic</p>
+              </div>
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+                <p className="text-2xl font-bold text-amber-700">{metrics?.kpiTypeBreakdown.compliance || 0}</p>
+                <p className="text-xs text-amber-600">Compliance</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -405,8 +638,9 @@ export default function ValueRealizationView({ scope = 'all' }: ValueRealization
                   <tr className="border-b">
                     <th className="text-left py-3 px-2 font-medium text-gray-600">Use Case</th>
                     <th className="text-left py-3 px-2 font-medium text-gray-600">Status</th>
-                    <th className="text-right py-3 px-2 font-medium text-gray-600">Est. Min</th>
                     <th className="text-right py-3 px-2 font-medium text-gray-600">Est. Max</th>
+                    <th className="text-right py-3 px-2 font-medium text-gray-600">Adjusted</th>
+                    <th className="text-left py-3 px-2 font-medium text-gray-600">Validation</th>
                     <th className="text-left py-3 px-2 font-medium text-gray-600">KPIs</th>
                     <th className="text-left py-3 px-2 font-medium text-gray-600">Quadrant</th>
                   </tr>
@@ -417,6 +651,9 @@ export default function ValueRealizationView({ scope = 'all' }: ValueRealization
                     const vr = uc.valueRealization;
                     const kpiCount = vr?.kpiEstimates?.length || 0;
                     const displayValue = getDisplayValue(vr);
+                    const conservativeFactor = vr?.valueConfidence?.conservativeFactor ?? 1;
+                    const adjustedMax = displayValue?.max ? displayValue.max * conservativeFactor : null;
+                    const validationStatus = vr?.valueConfidence?.validationStatus || 'unvalidated';
                     return (
                       <tr key={uc.id} className="border-b hover-elevate" data-testid={`row-value-${uc.id}`}>
                         <td className="py-3 px-2 max-w-xs truncate" title={uc.title}>{uc.title}</td>
@@ -433,10 +670,27 @@ export default function ValueRealizationView({ scope = 'all' }: ValueRealization
                           </Badge>
                         </td>
                         <td className="py-3 px-2 text-right">
-                          {displayValue?.min ? formatCurrency(displayValue.min) : '-'}
+                          {displayValue?.max ? formatCurrency(displayValue.max) : '-'}
                         </td>
                         <td className="py-3 px-2 text-right">
-                          {displayValue?.max ? formatCurrency(displayValue.max) : '-'}
+                          {adjustedMax ? (
+                            <span className={conservativeFactor < 1 ? 'text-amber-600' : ''}>
+                              {formatCurrency(adjustedMax)}
+                            </span>
+                          ) : '-'}
+                        </td>
+                        <td className="py-3 px-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${
+                              validationStatus === 'fully_validated' ? 'bg-green-50 text-green-700' :
+                              validationStatus === 'pending_finance' ? 'bg-blue-50 text-blue-700' :
+                              validationStatus === 'pending_actuarial' ? 'bg-purple-50 text-purple-700' :
+                              'bg-gray-50 text-gray-500'
+                            }`}
+                          >
+                            {VALIDATION_STATUS_LABELS[validationStatus]}
+                          </Badge>
                         </td>
                         <td className="py-3 px-2">
                           {kpiCount > 0 ? (
