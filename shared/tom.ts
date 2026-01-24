@@ -422,7 +422,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
           staffingRatio: { vendor: 0.15, client: 0.85 },
           dataRequirements: {
             entry: ['kpiData'],
-            exit: ['valueRealization']
+            exit: ['valueRealization', 'validationFullyValidated']
           },
           unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi', 'valueRealization'],
           phaseDefaults: {
@@ -578,7 +578,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
       staffingRatio: { vendor: 0.15, client: 0.85 },
       dataRequirements: {
         entry: ['investmentData', 'capabilityData'],
-        exit: ['kpiData', 'valueRealization']
+        exit: ['kpiData', 'valueRealization', 'validationFullyValidated']
       },
       unlockedFeatures: ['overview', 'scoring', 'rai', 'details', 'tshirtSizing', 'capability', 'investment', 'kpi', 'valueRealization'],
       phaseDefaults: {
@@ -844,6 +844,11 @@ export interface UseCaseDataForReadiness {
   targetIndependence?: number | null;
   currentIndependence?: number | null;
   selectedKpis?: string[] | null;
+  valueRealization?: {
+    valueConfidence?: {
+      validationStatus?: string | null;
+    };
+  } | null;
 }
 
 export function checkDataRequirement(
@@ -896,6 +901,8 @@ export function checkDataRequirement(
       return Array.isArray(useCase.selectedKpis) && useCase.selectedKpis.length > 0;
     case 'valueRealization':
       return Array.isArray(useCase.selectedKpis) && useCase.selectedKpis.length > 0;
+    case 'validationFullyValidated':
+      return useCase.valueRealization?.valueConfidence?.validationStatus === 'fully_validated';
     default:
       return false;
   }
@@ -914,7 +921,8 @@ export function getRequirementLabel(requirement: string): string {
     investmentData: 'Investment Data',
     capabilityData: 'Capability Transition Data',
     kpiData: 'KPI Selection',
-    valueRealization: 'Value Realization Data'
+    valueRealization: 'Value Realization Data',
+    validationFullyValidated: 'Value Fully Validated'
   };
   return labels[requirement] || requirement;
 }
@@ -931,7 +939,8 @@ export const REQUIREMENT_TAB_MAPPING: Record<string, string> = {
   investmentData: 'details',
   capabilityData: 'details',
   kpiData: 'details',
-  valueRealization: 'details'
+  valueRealization: 'details',
+  validationFullyValidated: 'details'
 };
 
 export function calculatePhaseReadiness(
