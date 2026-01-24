@@ -939,6 +939,21 @@ export function calculatePhaseReadiness(
   currentPhaseId: string,
   tomConfig: TomConfig
 ): PhaseReadinessResult {
+  // Defensive null check for tomConfig
+  if (!tomConfig || !tomConfig.phases || !Array.isArray(tomConfig.phases)) {
+    return {
+      currentPhase: null,
+      nextPhase: null,
+      entryRequirementsMet: [],
+      entryRequirementsPending: [],
+      exitRequirementsMet: [],
+      exitRequirementsPending: [],
+      readinessPercent: 0,
+      canProgress: false,
+      recommendedTab: 'basic'
+    };
+  }
+  
   const currentPhase = tomConfig.phases.find(p => p.id === currentPhaseId) || null;
   const nextPhaseIndex = currentPhase 
     ? tomConfig.phases.findIndex(p => p.id === currentPhaseId) + 1 
