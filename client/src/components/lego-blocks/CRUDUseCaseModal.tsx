@@ -2,35 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
 import ResponsiveTabsListLegoBlock from './ResponsiveTabsListLegoBlock';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Plus, Edit, AlertCircle, FileText, Building2, Settings, BarChart3, FolderOpen, Target, Users, Shield, User, Tag, TrendingUp, Wrench, Eye, AlertTriangle, UserCheck, Globe, Briefcase, DollarSign, Clock, Layers, Rocket, PoundSterling, ArrowRight, CheckCircle2, Circle } from 'lucide-react';
+import { Form } from '@/components/ui/form';
+import { Plus, Edit, Target, Shield, BarChart3, Layers, HelpCircle, AlertTriangle, ArrowRight, CheckCircle2, Circle } from 'lucide-react';
 import { useCurrency } from '@/hooks/useCurrency';
-
-// Section Header Component for consistent sub-section styling
-const SectionHeader = ({ icon: Icon, title, description }: { icon: React.ElementType; title: string; description?: string }) => (
-  <div className="flex items-start gap-3 pb-3 mb-4 border-b border-gray-200">
-    <div className="p-2 bg-gray-100 rounded-lg">
-      <Icon className="h-4 w-4 text-gray-600" />
-    </div>
-    <div>
-      <h4 className="font-semibold text-gray-900">{title}</h4>
-      {description && <p className="text-sm text-gray-500 mt-0.5">{description}</p>}
-    </div>
-  </div>
-);
-import { ScoreSliderLegoBlock } from './ScoreSliderLegoBlock';
 import { ScoreDropdownLegoBlock } from './ScoreDropdownLegoBlock';
-import RSASelectionToggleLegoBlock from './RSASelectionToggleLegoBlock';
-import ScoreOverrideLegoBlock from './ScoreOverrideLegoBlock';
 import { UseCase } from '../../types';
 import { useUseCases } from '../../contexts/UseCaseContext';
 import { useToast } from '@/hooks/use-toast';
@@ -39,119 +21,26 @@ import GovernanceStepperLegoBlock from './GovernanceStepperLegoBlock';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { derivePhase, calculatePhaseReadiness, getRequirementLabel, type TomConfig, type UseCaseDataForReadiness } from '@shared/tom';
 import PhaseReadinessLegoBlock from './PhaseReadinessLegoBlock';
-import { ContextualProcessActivityField } from './ProcessActivityManager';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import MultiSelectField from './MultiSelectField';
 import { useSortedMetadata } from '@/hooks/useSortedMetadata';
-import PresentationUploadBlock from './PresentationUploadBlock';
-import PresentationPreviewBlock from './PresentationPreviewBlock';
-import HorizontalUseCaseLegoBlock from './HorizontalUseCaseLegoBlock';
-import LoadingState from '@/components/ui/loading-state';
-import ValueEstimationLegoBlock from './ValueEstimationLegoBlock';
-import TShirtSizingDisplayLegoBlock from './TShirtSizingDisplayLegoBlock';
-import GovernanceGuideLegoBlock from './GovernanceGuideLegoBlock';
-import { HelpCircle, ChevronDown, X } from 'lucide-react';
 import { useEngagement } from '@/contexts/EngagementContext';
-import { CollapsibleSectionItem, CollapsibleSectionsContainer } from './CollapsibleSectionLegoBlock';
-
-type SectionCompletionCounts = {
-  businessContext: { filled: number; total: number };
-  implementationPlanning: { filled: number; total: number };
-  valueRealization: { filled: number; total: number };
-  technicalDetails: { filled: number; total: number };
-  capabilityTransition: { filled: number; total: number };
-};
-
-const calculateSectionCompletion = (formData: FormData, isTomEnabled: boolean): SectionCompletionCounts => {
-  const hasStringValue = (val: unknown): boolean => {
-    if (val === null || val === undefined) return false;
-    if (typeof val === 'string') return val.trim().length > 0;
-    return false;
-  };
-  
-  const hasNumericValue = (val: unknown): boolean => {
-    if (val === null || val === undefined) return false;
-    if (typeof val === 'number') return !isNaN(val);
-    if (typeof val === 'string') return val.trim().length > 0 && !isNaN(Number(val));
-    return false;
-  };
-  
-  const hasArrayValue = (val: unknown): boolean => {
-    return Array.isArray(val) && val.length > 0;
-  };
-
-  return {
-    businessContext: {
-      filled: [
-        hasStringValue(formData.problemStatement),
-        hasArrayValue(formData.processes),
-        hasArrayValue(formData.activities),
-        hasArrayValue(formData.linesOfBusiness),
-        hasArrayValue(formData.businessSegments),
-        hasArrayValue(formData.geographies),
-        hasStringValue(formData.useCaseType),
-      ].filter(Boolean).length,
-      total: 7,
-    },
-    implementationPlanning: {
-      filled: [
-        hasStringValue(formData.keyDependencies),
-        hasStringValue(formData.implementationTimeline),
-        ...(isTomEnabled ? [hasStringValue(formData.tomPhaseOverride)] : []),
-      ].filter(Boolean).length,
-      total: isTomEnabled ? 3 : 2,
-    },
-    valueRealization: {
-      filled: [
-        hasNumericValue(formData.initialInvestment),
-        hasNumericValue(formData.ongoingMonthlyCost),
-        hasArrayValue(formData.selectedKpis),
-      ].filter(Boolean).length,
-      total: 3,
-    },
-    technicalDetails: {
-      filled: [
-        hasArrayValue(formData.aiMlTechnologies),
-        hasArrayValue(formData.dataSources),
-        hasArrayValue(formData.stakeholderGroups),
-        hasStringValue(formData.integrationRequirements),
-      ].filter(Boolean).length,
-      total: 4,
-    },
-    capabilityTransition: {
-      filled: [
-        hasNumericValue(formData.capabilityVendorFte),
-        hasNumericValue(formData.capabilityClientFte),
-        hasNumericValue(formData.capabilityIndependence),
-      ].filter(Boolean).length,
-      total: 3,
-    },
-  };
-};
-
-const getInitialExpandedSections = (counts: SectionCompletionCounts): string[] => {
-  const sections: string[] = [];
-  if (counts.businessContext.filled > 0) sections.push('business-context');
-  if (counts.implementationPlanning.filled > 0) sections.push('implementation-planning');
-  if (counts.valueRealization.filled > 0) sections.push('value-realization');
-  if (counts.technicalDetails.filled > 0) sections.push('technical-details');
-  if (counts.capabilityTransition.filled > 0) sections.push('capability-transition');
-  if (sections.length === 0) sections.push('business-context');
-  return sections;
-};
+import { 
+  OperatingModelTab, 
+  DetailsTab, 
+  ResponsibleAITab, 
+  ScoringTab, 
+  GuideTab,
+  calculateSectionCompletion,
+  getInitialExpandedSections,
+  type ScoresState 
+} from './crud-modal-tabs';
 
 const formSchema = z.object({
-  // Minimal validation - only title and description are required, relaxed character limits
   title: z.string().min(1, "Please enter a title for this use case").max(200, "Title must be shorter than 200 characters"),
   description: z.string().min(1, "Please provide a brief description").max(2000, "Description must be shorter than 2000 characters"),
-  // Meaningful ID field - auto-generated if empty
   meaningfulId: z.string().optional(),
-  // All other fields are optional to minimize validation barriers
   problemStatement: z.string().optional(),
   process: z.string().optional(),
   lineOfBusiness: z.string().optional(),
-  // Multi-select arrays (optional)
   processes: z.array(z.string()).optional(),
   activities: z.array(z.string()).optional(),
   businessSegments: z.array(z.string()).optional(),
@@ -161,9 +50,7 @@ const formSchema = z.object({
   geography: z.string().optional(),
   useCaseType: z.string().optional(),
   activity: z.string().optional(),
-  // Source type selection
-  librarySource: z.string().default('internal'), // Now dynamic from metadata
-  // Tab 3: Implementation & Governance fields
+  librarySource: z.string().default('internal'),
   primaryBusinessOwner: z.string().optional(),
   useCaseStatus: z.string().optional(),
   keyDependencies: z.string().optional(),
@@ -175,30 +62,25 @@ const formSchema = z.object({
   aiMlTechnologies: z.array(z.string()).optional(),
   dataSources: z.array(z.string()).optional(),
   stakeholderGroups: z.array(z.string()).optional(),
-  // RSA Portfolio Management
   isActiveForRsa: z.union([z.literal('true'), z.literal('false'), z.string()]).default('false'),
   isDashboardVisible: z.union([z.literal('true'), z.literal('false'), z.string()]).default('false'),
   libraryTier: z.union([z.literal('active'), z.literal('reference'), z.string()]).default('reference'),
   activationReason: z.string().optional(),
-  // Enhanced RSA Framework - Business Impact Levers (all optional - no validation restrictions)
   revenueImpact: z.number().optional(),
   costSavings: z.number().optional(),
   riskReduction: z.number().optional(),
   brokerPartnerExperience: z.number().optional(),
   strategicFit: z.number().optional(),
-  // Implementation Effort Levers (all optional)
   dataReadiness: z.number().optional(),
   technicalComplexity: z.number().optional(),
   changeImpact: z.number().optional(),
   modelRisk: z.number().optional(),
   adoptionReadiness: z.number().optional(),
-  // RSA Ethical Principles (all optional) - moved to Tab 3, consistent string enums per replit.md
   explainabilityRequired: z.enum(['true', 'false']).optional(),
   customerHarmRisk: z.string().optional(),
   dataOutsideUkEu: z.enum(['true', 'false']).optional(),
   thirdPartyModel: z.enum(['true', 'false']).optional(),
   humanAccountability: z.enum(['true', 'false']).optional(),
-  // AI Inventory Governance Fields (all optional)
   aiOrModel: z.string().optional(),
   riskToCustomers: z.string().optional(),
   riskToRsa: z.string().optional(),
@@ -207,10 +89,9 @@ const formSchema = z.object({
   rsaPolicyGovernance: z.string().optional(),
   validationResponsibility: z.string().optional(),
   informedBy: z.string().optional(),
-  // Manual Score Override fields (completely optional, no validation when empty)
   manualImpactScore: z.union([z.number(), z.string(), z.null()]).optional(),
   manualEffortScore: z.union([z.number(), z.string(), z.null()]).optional(),
-  manualQuadrant: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
+  manualQuadrant: z.union([z.string(), z.null()]).optional(),
   overrideReason: z.union([z.string(), z.null()]).optional(),
   businessFunction: z.string().optional(),
   thirdPartyProvidedModel: z.string().optional(),
@@ -218,23 +99,17 @@ const formSchema = z.object({
   deploymentStatus: z.string().optional(),
   deactivationReason: z.string().optional(),
   regulatoryCompliance: z.union([z.number(), z.null()]).optional(),
-  // Horizontal Use Case fields - following replit.md string boolean pattern
   horizontalUseCase: z.enum(['true', 'false']).default('false'),
   horizontalUseCaseTypes: z.array(z.string()).optional(),
-  // Presentation fields
   presentationUrl: z.string().optional(),
   presentationPdfUrl: z.string().optional(),
   presentationFileName: z.string().optional(),
-  // TOM Phase Override fields
   tomPhaseOverride: z.string().optional().nullable(),
   tomOverrideReason: z.string().optional(),
-  // Phase transition reason (when proceeding without completed exit requirements)
   phaseTransitionReason: z.string().optional(),
-  // Value Realization - Investment fields
   initialInvestment: z.union([z.number(), z.string(), z.null()]).optional(),
   ongoingMonthlyCost: z.union([z.number(), z.string(), z.null()]).optional(),
   selectedKpis: z.array(z.string()).optional(),
-  // Capability Transition fields
   capabilityVendorFte: z.union([z.number(), z.string(), z.null()]).optional(),
   capabilityClientFte: z.union([z.number(), z.string(), z.null()]).optional(),
   capabilityIndependence: z.union([z.number(), z.string(), z.null()]).optional(),
@@ -250,11 +125,6 @@ interface CRUDUseCaseModalProps {
   context?: 'reference' | 'active' | 'dashboard';
 }
 
-/**
- * LEGO Block: CRUD Modal for Use Case Management
- * Reusable modal component supporting both create and edit operations
- * Follows database-first architecture with full RSA framework compliance
- */
 export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, context = 'active' }: CRUDUseCaseModalProps) {
   const { addUseCase, updateUseCase, metadata } = useUseCases();
   const { toast } = useToast();
@@ -263,14 +133,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
   const { selectedClientId } = useEngagement();
   const { symbol: currencySymbol } = useCurrency();
 
-  // TOM Configuration query
   const { data: tomConfig } = useQuery<TomConfig>({
     queryKey: ['/api/tom/config', selectedClientId],
   });
   const isTomEnabled = tomConfig?.enabled === 'true';
   const tomPhases = tomConfig?.phases || [];
 
-  // RSA Portfolio state management
   const [rsaSelection, setRsaSelection] = useState({
     isActiveForRsa: 'false' as 'true' | 'false',
     isDashboardVisible: 'false' as 'true' | 'false',
@@ -279,7 +147,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     deactivationReason: '',
   });
 
-  const [scores, setScores] = useState({
+  const [scores, setScores] = useState<ScoresState>({
     revenueImpact: 0,
     costSavings: 0,
     riskReduction: 0,
@@ -292,37 +160,26 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     adoptionReadiness: 0,
   });
   
-  // Duplicate Detection State (Topic 3.4 - Markel 9 Topics)
   const [similarUseCases, setSimilarUseCases] = useState<Array<{
     meaningfulId: string;
     title: string;
     similarityScore: number;
   }>>([]);
   const [isCheckingDuplicates, setIsCheckingDuplicates] = useState(false);
-
-  // Manual override toggle state - managed by ScoreOverrideLegoBlock
   const [isOverrideEnabled, setIsOverrideEnabled] = useState(false);
-
-  // Phase transition warning state
   const [showPhaseTransitionWarning, setShowPhaseTransitionWarning] = useState(false);
   const [pendingStatusChange, setPendingStatusChange] = useState<string | null>(null);
   const [phaseTransitionReason, setPhaseTransitionReason] = useState('');
-
-  // Tab state management
   const [activeTab, setActiveTab] = useState('basic');
-
-  // Details tab collapsible section state
   const [showManualOverride, setShowManualOverride] = useState(false);
   const [editCapabilityTransition, setEditCapabilityTransition] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>(['business-context']);
 
-  // Dynamic options from database metadata (replacing hardcoded arrays)
   const useCaseStatusOptions = sortedMetadata.getSortedItems('useCaseStatuses', metadata?.useCaseStatuses || []);
   const aiMlTechnologiesOptions = sortedMetadata.getSortedItems('aiMlTechnologies', metadata?.aiMlTechnologies || []);
   const dataSourcesOptions = sortedMetadata.getSortedItems('dataSources', metadata?.dataSources || []);
   const stakeholderGroupsOptions = sortedMetadata.getSortedItems('stakeholderGroups', metadata?.stakeholderGroups || []);
 
-  // Tooltip definitions
   const sliderTooltips = {
     revenueImpact: "Potential for new revenue, premium growth, or market expansion",
     costSavings: "Direct operational cost reductions and efficiency gains",
@@ -352,13 +209,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       isDashboardVisible: 'false',
       libraryTier: 'reference',
       activationReason: '',
-      useCaseStatus: 'Discovery', // Default to Discovery for new use cases
-      phaseTransitionReason: '', // Phase transition override reason
+      useCaseStatus: 'Discovery',
+      phaseTransitionReason: '',
       ...scores,
     },
   });
 
-  // Compute derived TOM phase based on current form values (for live preview)
   const watchedStatus = form.watch('useCaseStatus');
   const watchedDeploymentStatus = form.watch('deploymentStatus');
   const watchedTomOverride = form.watch('tomPhaseOverride');
@@ -404,13 +260,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     return calculatePhaseReadiness(useCaseData, currentDerivedPhase.id, tomConfig);
   }, [isTomEnabled, tomConfig, currentDerivedPhase, form, useCase]);
 
-  const handleSliderChange = (field: keyof typeof scores, value: number) => {
+  const handleSliderChange = (field: keyof ScoresState, value: number) => {
     const newScores = { ...scores, [field]: value };
     setScores(newScores);
     form.setValue(field, value);
   };
 
-  // RSA Selection handlers
   const handleRSAToggle = (active: 'true' | 'false') => {
     setRsaSelection(prev => ({
       ...prev,
@@ -419,8 +274,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     }));
     form.setValue('isActiveForRsa', active);
     form.setValue('libraryTier', active === 'true' ? 'active' : 'reference');
-    
-    // If deactivating, also disable dashboard visibility
     if (active === 'false') {
       setRsaSelection(prev => ({ ...prev, isDashboardVisible: 'false' }));
       form.setValue('isDashboardVisible', 'false');
@@ -442,15 +295,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     form.setValue('deactivationReason', reason);
   };
 
-  // Phase transition handler - checks if status change would trigger phase change with incomplete exit requirements
   const handleStatusChange = (newStatus: string) => {
     if (!isTomEnabled || !tomConfig) {
-      // TOM not enabled, just set the status directly
       form.setValue('useCaseStatus', newStatus);
       return;
     }
-
-    // Calculate what the new phase would be with the new status
     const newPhaseResult = derivePhase(
       newStatus,
       form.watch('deploymentStatus') || null,
@@ -459,23 +308,16 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     );
     const newPhaseId = newPhaseResult?.id || null;
     const currentPhaseId = currentDerivedPhase?.id || null;
-
-    // Check if phase would change
     if (newPhaseId && currentPhaseId && newPhaseId !== currentPhaseId && currentPhaseId !== 'unphased' && currentPhaseId !== 'disabled') {
-      // Phase would change - check if exit requirements are met
       if (phaseReadiness && !phaseReadiness.canProgress) {
-        // Exit requirements not met - show warning dialog
         setPendingStatusChange(newStatus);
         setShowPhaseTransitionWarning(true);
         return;
       }
     }
-
-    // Either no phase change, or exit requirements are met - proceed directly
     form.setValue('useCaseStatus', newStatus);
   };
 
-  // Confirm phase transition with reason
   const confirmPhaseTransition = () => {
     if (pendingStatusChange) {
       form.setValue('useCaseStatus', pendingStatusChange);
@@ -486,17 +328,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     setPhaseTransitionReason('');
   };
 
-  // Cancel phase transition
   const cancelPhaseTransition = () => {
     setShowPhaseTransitionWarning(false);
     setPendingStatusChange(null);
     setPhaseTransitionReason('');
   };
 
-  // Get current values from form for real-time calculations
   const formValues = form.watch();
 
-  // Calculate governance status from current form values
   const governanceStatus = React.useMemo(() => {
     const useCaseData = {
       primaryBusinessOwner: formValues.primaryBusinessOwner,
@@ -521,8 +360,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     return calculateGovernanceStatus(useCaseData);
   }, [formValues, scores]);
   
-  // Extract weights from metadata or use defaults for real-time calculations
-  // Use centralized weight utilities for consistency
   const businessImpactWeights = metadata?.scoringModel?.businessValue || {
     revenueImpact: 20, costSavings: 20, riskReduction: 20, brokerPartnerExperience: 20, strategicFit: 20
   };
@@ -552,70 +389,20 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
 
   const currentQuadrant = calculateQuadrant(currentImpactScore, currentEffortScore, threshold);
 
-  // DropdownField component for scoring interface - using LEGO dropdown component
-  const DropdownField = ({ 
-    field, 
-    label, 
-    tooltip 
-  }: { 
-    field: keyof typeof scores; 
-    label: string; 
-    tooltip: string;
-  }) => {
-    // Use form.watch to get current value, fallback to scores state (default 0 = not scored)
-    const currentValue = form.watch(field) ?? scores[field] ?? 0;
-    
-    // Get dropdown options from metadata
-    const dropdownOptions = metadata?.scoringDropdownOptions?.[field] || [];
-    
-    // Fallback to basic options if metadata not available
-    const defaultOptions = [
-      {value: 1, label: "1", description: "Lowest"},
-      {value: 2, label: "2", description: "Low"},
-      {value: 3, label: "3", description: "Moderate"},
-      {value: 4, label: "4", description: "High"},
-      {value: 5, label: "5", description: "Highest"}
-    ];
-    
-    const options = dropdownOptions.length > 0 ? dropdownOptions : defaultOptions;
-    
-    return (
-      <ScoreDropdownLegoBlock
-        label={label}
-        field={field}
-        value={currentValue}
-        onChange={(field, value) => handleSliderChange(field as keyof typeof scores, value)}
-        options={options}
-        tooltip={tooltip}
-        valueDisplay="badge"
-      />
-    );
-  };
-
-  // Initialize form with existing data for edit mode
   useEffect(() => {
     if (mode === 'edit' && useCase) {
-      // RSA selection state initialization
       const rsaActive = (useCase as any).isActiveForRsa === 'true' || (useCase as any).isActiveForRsa === true;
       const dashboardVisible = (useCase as any).isDashboardVisible === 'true' || (useCase as any).isDashboardVisible === true;
-      
-      // Initialize override toggle state based on existing manual overrides
       const hasManualOverrides = !!(
         (useCase as any).manualImpactScore || 
         (useCase as any).manualEffortScore || 
         (useCase as any).manualQuadrant
       );
       setIsOverrideEnabled(hasManualOverrides);
-      
-      // Initialize Details tab collapsible section states
       const hasValueOverride = !!((useCase as any).successMetrics || (useCase as any).estimatedValue || (useCase as any).valueMeasurementApproach);
       setShowManualOverride(hasValueOverride);
-      
-      // Show capability transition edit mode only if values are filled (otherwise read-only summary)
       const hasCapabilityData = !!((useCase as any).capabilityVendorFte || (useCase as any).capabilityClientFte || (useCase as any).capabilityIndependence);
       setEditCapabilityTransition(hasCapabilityData);
-      
-      // Calculate initial expanded sections based on existing data
       const initialCounts = calculateSectionCompletion(useCase as any, isTomEnabled);
       setExpandedSections(getInitialExpandedSections(initialCounts));
       
@@ -633,18 +420,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         problemStatement: (useCase as any).problemStatement || '',
         useCaseType: useCase.useCaseType || '',
         librarySource: (useCase as any).librarySource || 'internal',
-        // Multi-select arrays only
         processes: (useCase as any).processes || [],
         activities: (useCase as any).activities || [],
         linesOfBusiness: (useCase as any).linesOfBusiness || [],
         businessSegments: (useCase as any).businessSegments || [],
         geographies: (useCase as any).geographies || [],
-        // RSA Portfolio fields
         isActiveForRsa: rsaActive ? 'true' : 'false',
         isDashboardVisible: dashboardVisible ? 'true' : 'false',
         libraryTier: (useCase as any).libraryTier || (rsaActive ? 'active' : 'reference'),
         activationReason: (useCase as any).activationReason || '',
-        // Map all enhanced framework dimensions - now properly mapped from API
         revenueImpact: (useCase as any).revenueImpact ?? 3,
         costSavings: (useCase as any).costSavings ?? 3,
         riskReduction: (useCase as any).riskReduction ?? 3,
@@ -655,13 +439,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         changeImpact: (useCase as any).changeImpact ?? 3,
         modelRisk: (useCase as any).modelRisk ?? 3,
         adoptionReadiness: (useCase as any).adoptionReadiness ?? 3,
-        // RSA Ethical Principles - preserve boolean false values, only default null/undefined
         explainabilityRequired: (useCase as any).explainabilityRequired !== null && (useCase as any).explainabilityRequired !== undefined ? (useCase as any).explainabilityRequired : undefined,
         customerHarmRisk: (useCase as any).customerHarmRisk || undefined,
         dataOutsideUkEu: (useCase as any).dataOutsideUkEu !== null && (useCase as any).dataOutsideUkEu !== undefined ? (useCase as any).dataOutsideUkEu : undefined,
         thirdPartyModel: (useCase as any).thirdPartyModel !== null && (useCase as any).thirdPartyModel !== undefined ? (useCase as any).thirdPartyModel : undefined,
         humanAccountability: (useCase as any).humanAccountability !== null && (useCase as any).humanAccountability !== undefined ? (useCase as any).humanAccountability : undefined,
-        // AI Inventory Governance Fields
         aiOrModel: (useCase as any).aiOrModel || undefined,
         riskToCustomers: (useCase as any).riskToCustomers || undefined,
         riskToRsa: (useCase as any).riskToRsa || undefined,
@@ -676,12 +458,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         deploymentStatus: (useCase as any).deploymentStatus || '',
         deactivationReason: (useCase as any).deactivationReason || '',
         regulatoryCompliance: (useCase as any).regulatoryCompliance ?? 3,
-        // Manual override fields
         manualImpactScore: (useCase as any).manualImpactScore,
         manualEffortScore: (useCase as any).manualEffortScore,
         manualQuadrant: (useCase as any).manualQuadrant,
         overrideReason: (useCase as any).overrideReason || '',
-        // Tab 3: Implementation & Governance fields
         primaryBusinessOwner: (useCase as any).primaryBusinessOwner || '',
         useCaseStatus: (useCase as any).useCaseStatus || 'Discovery',
         keyDependencies: (useCase as any).keyDependencies || '',
@@ -693,28 +473,22 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         aiMlTechnologies: (useCase as any).aiMlTechnologies || [],
         dataSources: (useCase as any).dataSources || [],
         stakeholderGroups: (useCase as any).stakeholderGroups || [],
-        // Horizontal Use Case fields
         horizontalUseCase: ((useCase as any).horizontalUseCase === 'true' ? 'true' : 'false') as 'true' | 'false',
         horizontalUseCaseTypes: (useCase as any).horizontalUseCaseTypes || [],
-        // Presentation fields
         presentationUrl: (useCase as any).presentationUrl || '',
         presentationPdfUrl: (useCase as any).presentationPdfUrl || '',
         presentationFileName: (useCase as any).presentationFileName || '',
-        // TOM Phase Override fields
         tomPhaseOverride: (useCase as any).tomPhaseOverride || null,
         tomOverrideReason: (useCase as any).tomOverrideReason || '',
         phaseTransitionReason: '',
-        // Value Realization fields - extract from JSONB
         initialInvestment: (useCase as any).valueRealization?.investment?.initialInvestment || null,
         ongoingMonthlyCost: (useCase as any).valueRealization?.investment?.ongoingMonthlyCost || null,
         selectedKpis: (useCase as any).valueRealization?.selectedKpis || [],
-        // Capability Transition fields - extract from JSONB
         capabilityVendorFte: (useCase as any).capabilityTransition?.staffing?.current?.vendor?.total || null,
         capabilityClientFte: (useCase as any).capabilityTransition?.staffing?.current?.client?.total || null,
         capabilityIndependence: (useCase as any).capabilityTransition?.independencePercentage || null,
       };
       
-      // Update scores state first
       setScores({
         revenueImpact: formData.revenueImpact,
         costSavings: formData.costSavings,
@@ -728,10 +502,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         adoptionReadiness: formData.adoptionReadiness,
       });
       
-      // Reset form with all data
       form.reset(formData);
     } else {
-      // Reset for create mode with default scores and RSA selection
       setIsOverrideEnabled(false);
       setRsaSelection({
         isActiveForRsa: 'false',
@@ -747,18 +519,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         problemStatement: '',
         useCaseType: '',
         librarySource: 'internal',
-        // Multi-select arrays
         processes: [],
         activities: [],
         linesOfBusiness: [],
         businessSegments: [],
         geographies: [],
-        // RSA Portfolio defaults
         isActiveForRsa: 'false',
         isDashboardVisible: 'false',
         libraryTier: 'reference',
         activationReason: '',
-        // Tab 3: Implementation & Governance defaults
         primaryBusinessOwner: '',
         useCaseStatus: 'Discovery',
         keyDependencies: '',
@@ -770,10 +539,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         aiMlTechnologies: [],
         dataSources: [],
         stakeholderGroups: [],
-        // Horizontal Use Case defaults
         horizontalUseCase: 'false' as 'true' | 'false',
         horizontalUseCaseTypes: [],
-        // Presentation defaults
         presentationUrl: '',
         presentationPdfUrl: '',
         presentationFileName: '',
@@ -783,18 +550,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     }
   }, [mode, useCase, form]);
 
-  // Handle tab switching when library source changes to AI Inventory
   useEffect(() => {
     const currentLibrarySource = form.watch('librarySource');
-    // If AI Inventory is selected and current tab is assessment (which is hidden), switch to basic tab
     if (currentLibrarySource === 'ai_inventory' && activeTab === 'assessment') {
       setActiveTab('basic');
     }
   }, [form.watch('librarySource'), activeTab]);
 
-  // Helper function to reset form to clean defaults
   const resetFormToDefaults = () => {
-    // Reset all state to defaults
     setIsOverrideEnabled(false);
     setActiveTab('basic');
     setShowManualOverride(false);
@@ -851,11 +614,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       presentationUrl: '',
       presentationPdfUrl: '',
       presentationFileName: '',
-      // Value Realization fields
       initialInvestment: null,
       ongoingMonthlyCost: null,
       selectedKpis: [],
-      // Capability Transition fields
       capabilityVendorFte: null,
       capabilityClientFte: null,
       capabilityIndependence: null,
@@ -864,7 +625,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     form.reset(defaultData);
   };
   
-  // Duplicate Detection Effect (Topic 3.4 - Markel 9 Topics)
   const watchedTitle = form.watch('title');
   const watchedDescription = form.watch('description');
   
@@ -898,18 +658,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       }
     };
     
-    // Debounce the duplicate check
     const timeoutId = setTimeout(checkForDuplicates, 500);
     return () => clearTimeout(timeoutId);
   }, [watchedTitle, watchedDescription, mode, useCase?.id]);
 
   const onSubmit = async (data: FormData) => {
     try {
-      
-      // Convert any null values to appropriate defaults for submission
       const sanitizedData = {
         ...data,
-        // Convert null values to empty strings for text fields
         title: data.title || '',
         description: data.description || '',
         problemStatement: data.problemStatement || '',
@@ -931,11 +687,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         modelOwner: data.modelOwner || '',
         rsaPolicyGovernance: data.rsaPolicyGovernance || '',
         informedBy: data.informedBy || '',
-        // Presentation fields
         presentationUrl: data.presentationUrl || '',
         presentationPdfUrl: data.presentationPdfUrl || '',
         presentationFileName: data.presentationFileName || '',
-        // Additional presentation fields from upload (these might not be in form schema)
         presentationFileId: (data as any).presentationFileId || (window as any).pendingPresentationData?.presentationFileId || '',
         presentationPdfFileId: (data as any).presentationPdfFileId || (window as any).pendingPresentationData?.presentationPdfFileId || '',
         hasPresentation: (data as any).hasPresentation || (window as any).pendingPresentationData?.hasPresentation || 'false',
@@ -946,85 +700,35 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         deploymentStatus: data.deploymentStatus || '',
         deactivationReason: data.deactivationReason || '',
         overrideReason: data.overrideReason || '',
-        // CRITICAL: Preserve manual override null values - DO NOT convert to empty strings
         manualImpactScore: data.manualImpactScore,
         manualEffortScore: data.manualEffortScore, 
         manualQuadrant: data.manualQuadrant,
-        // Horizontal Use Case fields
         horizontalUseCase: data.horizontalUseCase || 'false',
         horizontalUseCaseTypes: data.horizontalUseCaseTypes || [],
-        // TOM Phase Override fields - preserve null for auto-derivation
         tomPhaseOverride: data.tomPhaseOverride || null,
         tomOverrideReason: data.tomOverrideReason || '',
-        // Phase transition reason - only set when overriding incomplete exit requirements
         phaseTransitionReason: data.phaseTransitionReason || ''
       };
       
-      
       if (mode === 'edit' && useCase) {
-        // For edit mode, only send changed fields to prevent overwriting unchanged values
-        const originalData = {
-          title: useCase.title,
-          description: useCase.description,
-          problemStatement: (useCase as any).problemStatement,
-          process: useCase.process,
-          lineOfBusiness: useCase.lineOfBusiness,
-          businessSegment: useCase.businessSegment,
-          geography: useCase.geography,
-          useCaseType: useCase.useCaseType,
-          activity: (useCase as any).activity,
-          revenueImpact: (useCase as any).revenueImpact,
-          costSavings: (useCase as any).costSavings,
-          riskReduction: (useCase as any).riskReduction,
-          brokerPartnerExperience: (useCase as any).brokerPartnerExperience,
-          strategicFit: (useCase as any).strategicFit,
-          dataReadiness: (useCase as any).dataReadiness,
-          technicalComplexity: (useCase as any).technicalComplexity,
-          changeImpact: (useCase as any).changeImpact,
-          modelRisk: (useCase as any).modelRisk,
-          adoptionReadiness: (useCase as any).adoptionReadiness,
-          // Manual override fields
-          manualImpactScore: (useCase as any).manualImpactScore,
-          manualEffortScore: (useCase as any).manualEffortScore,
-          manualQuadrant: (useCase as any).manualQuadrant,
-          overrideReason: (useCase as any).overrideReason,
-          // TOM Phase Override fields
-          tomPhaseOverride: (useCase as any).tomPhaseOverride,
-          tomOverrideReason: (useCase as any).tomOverrideReason,
-        };
-        
-        // For now, send all data to avoid change detection issues
-        // TODO: Optimize to only send changed fields once working
-        
-        // Include real-time calculated scores in the submission
-        // These are calculated on the frontend and need to be sent to the server
         const changedData: any = { 
           ...sanitizedData,
-          // Include current calculated scores (these will trigger recalculation on server)
           impactScore: currentImpactScore,
           effortScore: currentEffortScore,
           quadrant: currentQuadrant
         };
         
-        
-        // Remove meaningfulId from submission data - it's auto-generated server-side
         delete changedData.meaningfulId;
         
-        // Handle data type conversions and null values for robust persistence
         Object.keys(changedData).forEach(key => {
           const value = changedData[key];
-          
-          // IMPORTANT: Do not convert empty strings to null for required fields (title, description)
           if (value === '' || value === 'null' || value === 'undefined') {
-            // Keep empty strings for required fields to avoid validation errors
             if (['title', 'description'].includes(key)) {
               changedData[key] = '';
             } else {
               changedData[key] = null;
             }
           }
-          
-          // Handle boolean fields stored as text in database
           if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability', 'horizontalUseCase', 'hasPresentation'].includes(key)) {
             if (typeof value === 'boolean') {
               changedData[key] = value.toString();
@@ -1034,18 +738,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               changedData[key] = 'false';
             }
           }
-          
-          // Handle numeric fields that might come as strings - ALLOW null values to pass through
           if (['manualImpactScore', 'manualEffortScore', 'regulatoryCompliance'].includes(key)) {
             if (value === null || value === undefined) {
-              changedData[key] = null; // Explicitly set null values
+              changedData[key] = null;
             } else {
               const numValue = Number(value);
               changedData[key] = isNaN(numValue) ? null : numValue;
             }
           }
-          
-          // Handle timestamp fields that need proper Date conversion
           if (['presentationUploadedAt'].includes(key)) {
             if (value === null || value === undefined || value === '') {
               changedData[key] = null;
@@ -1055,12 +755,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           }
         });
         
-        // Auto-promote to active tier if marked for dashboard visibility
         if (sanitizedData.isDashboardVisible === 'true' || sanitizedData.isActiveForRsa === 'true') {
           changedData.libraryTier = 'active';
         }
         
-        // Package Value Realization data into JSONB structure
         const hasInvestmentData = sanitizedData.initialInvestment || sanitizedData.ongoingMonthlyCost || (sanitizedData.selectedKpis && sanitizedData.selectedKpis.length > 0);
         if (hasInvestmentData) {
           const existingValueRealization = (useCase as any).valueRealization || {};
@@ -1079,19 +777,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               lastCalculated: null
             }
           };
-          // Remove flat investment fields from changedData
           delete changedData.initialInvestment;
           delete changedData.ongoingMonthlyCost;
           delete changedData.selectedKpis;
         }
         
-        // Package Capability Transition data into JSONB structure
-        // Only save if user has intentionally entered capability data (valid non-NaN numeric values)
         const vendorFteVal = sanitizedData.capabilityVendorFte;
         const clientFteVal = sanitizedData.capabilityClientFte;
         const independenceVal = sanitizedData.capabilityIndependence;
         
-        // Helper to check if a value is a valid number (not null, undefined, empty string, or NaN)
         const isValidNumber = (val: any): boolean => {
           if (val === null || val === undefined || val === '') return false;
           const num = Number(val);
@@ -1109,7 +803,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           const clientFte = hasValidClientFte ? Number(clientFteVal) : (existingCapability?.staffing?.current?.client?.total || 0);
           const totalFte = vendorFte + clientFte;
           const calculatedIndependence = totalFte > 0 ? Math.round((clientFte / totalFte) * 100) : 0;
-          // Use manual independence if provided, otherwise calculate from staffing, or keep existing
           const finalIndependence = hasValidIndependence
             ? Number(independenceVal) 
             : (existingCapability?.independencePercentage ?? calculatedIndependence);
@@ -1146,14 +839,11 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               advisoryRetainer: 'false'
             }
           };
-          // Remove flat capability fields from changedData
           delete changedData.capabilityVendorFte;
           delete changedData.capabilityClientFte;
           delete changedData.capabilityIndependence;
         }
         
-        // Map phaseTransitionReason to lastPhaseTransitionReason for database persistence
-        // Per replit.md: "The override reason is stored in lastPhaseTransitionReason for audit purposes"
         if (changedData.phaseTransitionReason) {
           changedData.lastPhaseTransitionReason = changedData.phaseTransitionReason;
         }
@@ -1161,12 +851,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         
         const result = await updateUseCase(useCase.id, changedData);
         
-        // Force refresh of all queries to ensure UI updates
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
         
-        // Clear pending presentation data after successful save
         delete (window as any).pendingPresentationData;
         
         toast({
@@ -1174,34 +862,23 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           description: `"${sanitizedData.title}" has been updated. Scores: Impact ${currentImpactScore.toFixed(1)}, Effort ${currentEffortScore.toFixed(1)}`,
         });
         
-        // Reset form state to defaults after successful operation
         resetFormToDefaults();
       } else {
-        
-        // Apply same data transformations for create mode
         const createData: any = { ...sanitizedData };
-        
-        // Include calculated scores for new use cases
         createData.impactScore = currentImpactScore;
         createData.effortScore = currentEffortScore;
         createData.quadrant = currentQuadrant;
-        
-        // Remove meaningfulId from submission data - it's auto-generated server-side  
         delete createData.meaningfulId;
         
-        // Handle data type conversions for create
         Object.keys(createData).forEach(key => {
           const value = createData[key];
-          
           if (value === '' || value === 'null' || value === 'undefined') {
-            // Keep empty strings for required fields to avoid validation errors
             if (['title', 'description'].includes(key)) {
               createData[key] = '';
             } else {
               createData[key] = null;
             }
           }
-          
           if (['isActiveForRsa', 'isDashboardVisible', 'explainabilityRequired', 'dataOutsideUkEu', 'thirdPartyModel', 'humanAccountability', 'horizontalUseCase', 'hasPresentation'].includes(key)) {
             if (typeof value === 'boolean') {
               createData[key] = value.toString();
@@ -1211,17 +888,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               createData[key] = 'false';
             }
           }
-          
           if (['manualImpactScore', 'manualEffortScore', 'regulatoryCompliance'].includes(key)) {
             if (value === null || value === undefined) {
-              createData[key] = null; // Explicitly set null values
+              createData[key] = null;
             } else {
               const numValue = Number(value);
               createData[key] = isNaN(numValue) ? null : numValue;
             }
           }
-          
-          // Handle timestamp fields that need proper Date conversion
           if (['presentationUploadedAt'].includes(key)) {
             if (value === null || value === undefined || value === '') {
               createData[key] = null;
@@ -1231,7 +905,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           }
         });
         
-        // Package Value Realization data into JSONB structure for create mode
         const hasInvestmentData = sanitizedData.initialInvestment || sanitizedData.ongoingMonthlyCost || (sanitizedData.selectedKpis && sanitizedData.selectedKpis.length > 0);
         if (hasInvestmentData) {
           createData.valueRealization = {
@@ -1250,19 +923,15 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               lastCalculated: null
             }
           };
-          // Remove flat investment fields from createData
           delete createData.initialInvestment;
           delete createData.ongoingMonthlyCost;
           delete createData.selectedKpis;
         }
         
-        // Package Capability Transition data into JSONB structure for create mode
-        // Create capability data if any valid numeric value provided (including zero for vendor-only or early-stage scenarios)
         const vendorFteValCreate = sanitizedData.capabilityVendorFte;
         const clientFteValCreate = sanitizedData.capabilityClientFte;
         const independenceValCreate = sanitizedData.capabilityIndependence;
         
-        // Helper to check if a value is a valid number (not null, undefined, empty string, or NaN)
         const isValidNumberCreate = (val: any): boolean => {
           if (val === null || val === undefined || val === '') return false;
           const num = Number(val);
@@ -1279,7 +948,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           const clientFte = hasValidClientFteCreate ? Number(clientFteValCreate) : 0;
           const totalFte = vendorFte + clientFte;
           const calculatedIndependence = totalFte > 0 ? Math.round((clientFte / totalFte) * 100) : 0;
-          // Use manual independence if provided, otherwise calculate from staffing
           const finalIndependenceCreate = hasValidIndependenceCreate
             ? Number(independenceValCreate) 
             : calculatedIndependence;
@@ -1315,7 +983,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               advisoryRetainer: 'false'
             }
           };
-          // Remove flat capability fields from createData
           delete createData.capabilityVendorFte;
           delete createData.capabilityClientFte;
           delete createData.capabilityIndependence;
@@ -1323,12 +990,10 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         
         const result = await addUseCase(createData);
         
-        // Force refresh for create operations too
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'dashboard'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/use-cases', 'reference'] });
         
-        // Clear pending presentation data after successful save
         delete (window as any).pendingPresentationData;
         
         toast({
@@ -1337,10 +1002,7 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         });
       }
       
-      // Reset form state to defaults after successful operation
       resetFormToDefaults();
-      
-      // Close modal after successful save
       onClose();
     } catch (error) {
       console.error('Submit error:', error);
@@ -1348,10 +1010,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       let errorMessage = "An unexpected error occurred. Please try again.";
       let errorTitle = `Error ${mode === 'edit' ? 'updating' : 'creating'} use case`;
       
-      // Handle different error types with user-friendly messages
       if (error instanceof Error) {
         const errorText = error.message.toLowerCase();
-        
         if (errorText.includes('validation')) {
           errorTitle = "Please check your entries";
           if (errorText.includes('title')) {
@@ -1376,16 +1036,13 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         }
       }
       
-      // Handle API response errors with validation details
       if ((error as any)?.response?.data) {
         const responseData = (error as any).response.data;
         if (responseData.type === 'validation' && responseData.issues) {
           errorTitle = responseData.error || "Please check the following";
-          // Display user-friendly error messages with better formatting
           errorMessage = Array.isArray(responseData.issues) 
             ? responseData.issues.join('\n• ') 
             : responseData.message || "Please check your entries and try again.";
-          // Add bullet point to first item if multiple issues
           if (Array.isArray(responseData.issues) && responseData.issues.length > 1) {
             errorMessage = '• ' + errorMessage;
           }
@@ -1395,7 +1052,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         }
       }
       
-      // Show validation errors if available from backend
       if ((error as any)?.issues) {
         const validationIssues = (error as any).issues;
         if (Array.isArray(validationIssues) && validationIssues.length > 0) {
@@ -1430,7 +1086,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           </DialogDescription>
         </DialogHeader>
 
-        {/* TOM Phase Badge - Shows derived phase when TOM is enabled */}
         {isTomEnabled && currentDerivedPhase && mode === 'edit' && (
           <div className="flex items-center gap-2 px-1 py-2 mb-2 bg-slate-50 dark:bg-slate-900 rounded-lg border">
             <Target className="h-4 w-4 text-muted-foreground" />
@@ -1458,20 +1113,17 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           </div>
         )}
 
-        {/* Form Requirements Guide */}
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
             <span className="font-medium">Quick start:</span> Only <span className="text-red-500">*</span> required fields need to be filled to create a use case. All other fields are optional and can be added later.
           </p>
         </div>
 
-        {/* Governance Gates Stepper - Shows progress through 3 gates before activation */}
         <GovernanceStepperLegoBlock 
           governanceStatus={governanceStatus} 
           className="mb-4"
         />
 
-        {/* Phase Readiness Indicator - Soft Progressive Guidance */}
         {isTomEnabled && phaseReadiness && mode === 'edit' && (
           <PhaseReadinessLegoBlock 
             readiness={phaseReadiness}
@@ -1483,15 +1135,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         <Form {...form}>
           <form onSubmit={(e) => {
             e.preventDefault();
-            
-            // Check for form validation errors and provide user feedback
             const errors = form.formState.errors;
             if (Object.keys(errors).length > 0) {
               const errorMessages = Object.entries(errors).map(([field, error]) => {
                 const fieldLabel = field === 'title' ? 'Title' : field === 'description' ? 'Description' : field;
                 return `${fieldLabel}: ${error?.message || 'Invalid value'}`;
               });
-              
               toast({
                 title: "Please fix the following issues",
                 description: errorMessages.join('\n'),
@@ -1499,7 +1148,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               });
               return;
             }
-            
             onSubmit(form.getValues() as FormData);
           }} className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -1511,7 +1159,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                     {governanceStatus.operatingModel.passed ? '✓' : `${governanceStatus.operatingModel.progress}%`}
                   </Badge>
                 </TabsTrigger>
-                {/* Scoring tab - Hidden for AI Inventory per user request */}
                 {form.watch('librarySource') !== 'ai_inventory' && (
                   <TabsTrigger value="assessment" className="flex items-center gap-2">
                     <BarChart3 className="h-4 w-4" />
@@ -1553,1210 +1200,76 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
                 </TabsTrigger>
               </ResponsiveTabsListLegoBlock>
 
-              {/* Tab 1: Operating Model - Gate 1 Requirements */}
               <TabsContent value="basic" className="space-y-6 mt-6">
-                {/* Section 1: Use Case Identity */}
-                <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
-                  <SectionHeader icon={FileText} title="Use Case Identity" description="Basic information to identify this use case" />
-                  <div className="space-y-4">
-                    {/* Meaningful ID Field - Read-only for existing use cases */}
-                    {mode === 'edit' && useCase?.meaningfulId && (
-                      <div>
-                        <Label className="text-sm font-semibold">Use Case ID</Label>
-                        <div className="mt-1 px-3 py-2 bg-white border border-gray-200 rounded-md">
-                          <span className="font-mono text-sm text-rsa-blue font-medium">{useCase.meaningfulId}</span>
-                        </div>
-                      </div>
-                    )}
-                    <div>
-                      <Label htmlFor="title" className="text-sm font-semibold">
-                        Use Case Title <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="title"
-                        placeholder="e.g., Automated Claims Triage"
-                        className="mt-1 bg-white"
-                        {...form.register('title')}
-                        data-testid="input-title"
-                      />
-                      {form.formState.errors.title && (
-                        <p className="text-sm text-red-600 mt-1" data-testid="error-title">{form.formState.errors.title.message}</p>
-                      )}
-                      {isCheckingDuplicates && (
-                        <p className="mt-2 text-xs text-muted-foreground">Checking for similar use cases...</p>
-                      )}
-                      {!isCheckingDuplicates && similarUseCases.length > 0 && (
-                        <Alert className="mt-2 border-amber-500 bg-amber-50">
-                          <AlertCircle className="h-4 w-4 text-amber-600" />
-                          <AlertDescription className="text-amber-800 text-sm">
-                            <strong>Potential duplicates:</strong>
-                            <ul className="mt-1 ml-4 list-disc">
-                              {similarUseCases.slice(0, 3).map((similar) => (
-                                <li key={similar.meaningfulId}>{similar.meaningfulId}: {similar.title}</li>
-                              ))}
-                            </ul>
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-                    <div>
-                      <Label htmlFor="description" className="text-sm font-semibold">
-                        Description <span className="text-red-500">*</span>
-                      </Label>
-                      <Textarea
-                        id="description"
-                        rows={3}
-                        placeholder="Brief description of what this use case does and its AI/automation approach..."
-                        className="mt-1 bg-white"
-                        {...form.register('description')}
-                        data-testid="textarea-description"
-                      />
-                      {form.formState.errors.description && (
-                        <p className="text-sm text-red-600 mt-1">{form.formState.errors.description.message}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 2: Ownership - Contains Gate 1 Required Field */}
-                <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-100">
-                  <SectionHeader icon={User} title="Ownership" description="Required for Operating Model gate" />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold">
-                        Primary Business Owner <span className="text-red-500">*</span>
-                        <Badge variant="outline" className="ml-2 text-xs bg-blue-100 text-blue-700">Gate Required</Badge>
-                      </Label>
-                      <Input
-                        placeholder="e.g., John Smith"
-                        className="mt-1 bg-white"
-                        value={form.watch('primaryBusinessOwner') || ''}
-                        onChange={(e) => form.setValue('primaryBusinessOwner', e.target.value)}
-                        data-testid="input-primary-owner"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">The accountable person for this use case</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold">Business Function</Label>
-                      <Select 
-                        value={form.watch('businessFunction') || ''} 
-                        onValueChange={(value) => form.setValue('businessFunction', value)}
-                      >
-                        <SelectTrigger className="mt-1 bg-white">
-                          <SelectValue placeholder="Select function..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {['Marketing', 'CIO', 'Claims', 'Underwriting', 'Finance', 'HR', 'Operations', 'Customer Service'].map(fn => (
-                            <SelectItem key={fn} value={fn}>{fn}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 3: Classification */}
-                <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
-                  <SectionHeader icon={Tag} title="Classification" description="Status and source categorization" />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold flex items-center gap-2">
-                        Status
-                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700">Gate Required</Badge>
-                      </Label>
-                      <Select 
-                        value={form.watch('useCaseStatus') || 'Discovery'} 
-                        onValueChange={handleStatusChange}
-                      >
-                        <SelectTrigger className="mt-1 bg-white" data-testid="select-use-case-status">
-                          <SelectValue placeholder="Select status..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {useCaseStatusOptions.filter(status => status && status.trim()).map(status => (
-                            <SelectItem key={status} value={status}>
-                              {status}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {form.watch('useCaseStatus') === 'Discovery' && (
-                        <div className="flex items-center gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-amber-700 text-sm" data-testid="warning-discovery-status">
-                          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                          <span>Use cases in Discovery cannot pass Gate 1. Change status to proceed with governance.</span>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold">Source Type</Label>
-                      <Select 
-                        value={form.watch('librarySource') || 'internal'} 
-                        onValueChange={(value) => form.setValue('librarySource', value)}
-                      >
-                        <SelectTrigger className="mt-1 bg-white">
-                          <SelectValue placeholder="Select source..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {sortedMetadata.getSortedItems('sourceTypes', metadata?.sourceTypes || ['internal']).filter(source => source && source.trim()).map(source => (
-                            <SelectItem key={source} value={source}>
-                              {source.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {form.watch('librarySource') === 'ai_inventory' && (
-                        <p className="text-xs text-emerald-600 mt-1">AI Inventory governance fields available in Details tab</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Horizontal Use Case - Conditional */}
-                  <div className="mt-4">
-                    <HorizontalUseCaseLegoBlock
-                      isHorizontalUseCase={form.watch('horizontalUseCase') || 'false'}
-                      selectedTypes={form.watch('horizontalUseCaseTypes') || []}
-                      onHorizontalUseCaseChange={(value) => form.setValue('horizontalUseCase', value)}
-                      onTypesChange={(types) => form.setValue('horizontalUseCaseTypes', types)}
-                    />
-                  </div>
-                </div>
-
-                {/* Portfolio Activation Toggle */}
-                {form.watch('librarySource') !== 'ai_inventory' && (
-                  <RSASelectionToggleLegoBlock
-                    isActiveForRsa={rsaSelection.isActiveForRsa}
-                    isDashboardVisible={rsaSelection.isDashboardVisible}
-                    activationReason={rsaSelection.activationReason}
-                    deactivationReason={rsaSelection.deactivationReason}
-                    libraryTier={rsaSelection.libraryTier}
-                    onRSAToggle={handleRSAToggle}
-                    onDashboardToggle={handleDashboardToggle}
-                    onActivationReasonChange={handleActivationReasonChange}
-                    onDeactivationReasonChange={handleDeactivationReasonChange}
-                    governanceStatus={governanceStatus}
-                  />
-                )}
-              </TabsContent>
-
-              {/* Tab 4: Details - Additional Context and Configuration */}
-              <TabsContent value="details" className="mt-6">
-                {(() => {
-                  const watchedFormData = {
-                    problemStatement: form.watch('problemStatement'),
-                    processes: form.watch('processes'),
-                    activities: form.watch('activities'),
-                    linesOfBusiness: form.watch('linesOfBusiness'),
-                    businessSegments: form.watch('businessSegments'),
-                    geographies: form.watch('geographies'),
-                    useCaseType: form.watch('useCaseType'),
-                    keyDependencies: form.watch('keyDependencies'),
-                    implementationTimeline: form.watch('implementationTimeline'),
-                    tomPhaseOverride: form.watch('tomPhaseOverride'),
-                    initialInvestment: form.watch('initialInvestment'),
-                    ongoingMonthlyCost: form.watch('ongoingMonthlyCost'),
-                    selectedKpis: form.watch('selectedKpis'),
-                    aiMlTechnologies: form.watch('aiMlTechnologies'),
-                    dataSources: form.watch('dataSources'),
-                    stakeholderGroups: form.watch('stakeholderGroups'),
-                    integrationRequirements: form.watch('integrationRequirements'),
-                    capabilityVendorFte: form.watch('capabilityVendorFte'),
-                    capabilityClientFte: form.watch('capabilityClientFte'),
-                    capabilityIndependence: form.watch('capabilityIndependence'),
-                  };
-                  const sectionCounts = calculateSectionCompletion(watchedFormData as any, isTomEnabled);
-                  
-                  return (
-                    <CollapsibleSectionsContainer 
-                      expandedSections={expandedSections}
-                      onExpandedChange={setExpandedSections}
-                    >
-                      {/* Section 1: Business Context */}
-                      <CollapsibleSectionItem
-                        id="business-context"
-                        icon={Briefcase}
-                        title="Business Context"
-                        description="Problem statement, processes, and organizational scope"
-                        filledCount={sectionCounts.businessContext.filled}
-                        totalCount={sectionCounts.businessContext.total}
-                        colorScheme="gray"
-                      >
-                        {/* Problem Statement */}
-                        <div className="mb-4">
-                          <Label htmlFor="problemStatement" className="text-sm font-semibold">Problem Statement / Business Need</Label>
-                          <Textarea
-                            id="problemStatement"
-                            rows={2}
-                            placeholder="Describe the specific business problem this use case addresses..."
-                            className="mt-1 bg-white"
-                            {...form.register('problemStatement')}
-                          />
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Processes */}
-                          <MultiSelectField
-                            label="Processes"
-                            items={sortedMetadata.getSortedProcesses()}
-                            selectedItems={(form.watch('processes') as string[]) || []}
-                            onSelectionChange={(newItems) => form.setValue('processes', newItems)}
-                            helpText="Select one or more business processes"
-                          />
-                          {/* Process Activities */}
-                          <ContextualProcessActivityField
-                            selectedProcesses={(form.watch('processes') as string[]) || []}
-                            selectedActivities={(form.watch('activities') as string[]) || []}
-                            onActivitiesChange={(newItems) => form.setValue('activities', newItems)}
-                            helpText={(form.watch('processes') as string[])?.length > 0 ? "Filtered by processes" : "Select processes first"}
-                            placeholder={!((form.watch('processes') as string[])?.length > 0) ? "Select processes first" : "Select activities..."}
-                          />
-                          {/* Lines of Business */}
-                          <MultiSelectField
-                            label="Lines of Business"
-                            items={sortedMetadata.getSortedLinesOfBusiness()}
-                            selectedItems={(form.watch('linesOfBusiness') as string[]) || []}
-                            onSelectionChange={(newItems) => form.setValue('linesOfBusiness', newItems)}
-                            helpText="Select applicable lines of business"
-                          />
-                          {/* Business Segments */}
-                          <MultiSelectField
-                            label="Business Segments"
-                            items={sortedMetadata.getSortedBusinessSegments()}
-                            selectedItems={(form.watch('businessSegments') as string[]) || []}
-                            onSelectionChange={(newItems) => form.setValue('businessSegments', newItems)}
-                            helpText="Select target business segments"
-                          />
-                          {/* Geographies */}
-                          <MultiSelectField
-                            label="Geographies"
-                            items={sortedMetadata.getSortedGeographies()}
-                            selectedItems={(form.watch('geographies') as string[]) || []}
-                            onSelectionChange={(newItems) => form.setValue('geographies', newItems)}
-                            helpText="Select applicable regions"
-                          />
-                          {/* Use Case Type */}
-                          <div>
-                            <Label className="text-sm font-semibold">Use Case Type</Label>
-                            <Select value={form.watch('useCaseType') || ''} onValueChange={(value) => form.setValue('useCaseType', value)}>
-                              <SelectTrigger className="mt-1 bg-white">
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {sortedMetadata.getSortedUseCaseTypes().filter(type => type && type.trim()).map(type => (
-                                  <SelectItem key={type} value={type}>{type}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </CollapsibleSectionItem>
-                      
-                      {/* Section 2: Implementation Planning */}
-                      <CollapsibleSectionItem
-                        id="implementation-planning"
-                        icon={Clock}
-                        title="Implementation Planning"
-                        description="Timeline, dependencies, and TOM phase configuration"
-                        filledCount={sectionCounts.implementationPlanning.filled}
-                        totalCount={sectionCounts.implementationPlanning.total}
-                        colorScheme="blue"
-                      >
-                        {/* TOM Phase Override - only visible when TOM is enabled */}
-                        {isTomEnabled && tomConfig && (
-                          <div className="space-y-3 p-4 mb-4 bg-muted/30 rounded-lg border border-dashed">
-                            {/* Current Derived Phase Badge - with defensive guards */}
-                            {currentDerivedPhase?.id && currentDerivedPhase.id !== 'disabled' && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">Current TOM Phase:</span>
-                                <Badge 
-                                  style={{ 
-                                    backgroundColor: currentDerivedPhase?.color ?? '#6B7280',
-                                    color: 'white'
-                                  }}
-                                  className="no-default-hover-elevate no-default-active-elevate"
-                                  data-testid="badge-current-tom-phase"
-                                >
-                                  {currentDerivedPhase?.name ?? 'Loading...'}
-                                  {currentDerivedPhase?.isOverride === true && ' (Override)'}
-                                </Badge>
-                              </div>
-                            )}
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label className="text-sm font-semibold flex items-center gap-2">
-                                  TOM Phase Override
-                                  <span className="text-xs font-normal text-muted-foreground">(Optional)</span>
-                                </Label>
-                                <Select 
-                                  value={form.watch('tomPhaseOverride') || '_auto'} 
-                                  onValueChange={(value) => form.setValue('tomPhaseOverride', value === '_auto' ? null : value)}
-                                >
-                                  <SelectTrigger className="mt-1" data-testid="select-tom-phase-override">
-                                    <SelectValue placeholder="Auto-derive from status" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="_auto">Auto-derive from status</SelectItem>
-                                    {tomPhases.map(phase => (
-                                      <SelectItem key={phase.id} value={phase.id}>
-                                        <div className="flex items-center gap-2">
-                                          <div 
-                                            className="w-2 h-2 rounded-full" 
-                                            style={{ backgroundColor: phase.color }}
-                                          />
-                                          {phase.name}
-                                        </div>
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <Label htmlFor="tomOverrideReason" className="text-sm font-semibold">Override Reason</Label>
-                                <Input
-                                  id="tomOverrideReason"
-                                  placeholder="Why is manual phase assignment needed?"
-                                  className="mt-1"
-                                  disabled={!form.watch('tomPhaseOverride')}
-                                  {...form.register('tomOverrideReason')}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="keyDependencies" className="text-sm font-semibold">Key Dependencies</Label>
-                            <Textarea
-                              id="keyDependencies"
-                              rows={2}
-                              placeholder="e.g., Guidewire API completion, Project Atlas data feeds"
-                              className="mt-1"
-                              {...form.register('keyDependencies')}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="implementationTimeline" className="text-sm font-semibold">Implementation Timeline</Label>
-                            <Input
-                              id="implementationTimeline"
-                              placeholder="e.g., Q2 2024 - Q4 2024"
-                              className="mt-1"
-                              {...form.register('implementationTimeline')}
-                            />
-                          </div>
-                        </div>
-                      </CollapsibleSectionItem>
-
-                      {/* Section 3: Value Realization */}
-                      <CollapsibleSectionItem
-                        id="value-realization"
-                        icon={PoundSterling}
-                        title="Value Realization"
-                        description="Investment, KPIs, and expected business value"
-                        filledCount={sectionCounts.valueRealization.filled}
-                        totalCount={sectionCounts.valueRealization.total}
-                        colorScheme="green"
-                      >
-                        {/* Investment Entry */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label htmlFor="initialInvestment" className="text-sm font-semibold text-gray-700">
-                                Initial Investment ({currencySymbol}) *
-                              </Label>
-                              <Input
-                                id="initialInvestment"
-                                type="number"
-                                placeholder="e.g., 150000"
-                                className="mt-1 bg-white"
-                                data-testid="input-initial-investment"
-                                {...form.register('initialInvestment', { valueAsNumber: true })}
-                              />
-                              <p className="text-xs text-gray-500 mt-1">Implementation, licensing, training</p>
-                            </div>
-                            <div>
-                              <Label htmlFor="ongoingMonthlyCost" className="text-sm font-semibold text-gray-700">
-                                Ongoing Monthly Cost ({currencySymbol})
-                              </Label>
-                              <Input
-                                id="ongoingMonthlyCost"
-                                type="number"
-                                placeholder="e.g., 5000"
-                                className="mt-1 bg-white"
-                                data-testid="input-ongoing-monthly-cost"
-                                {...form.register('ongoingMonthlyCost', { valueAsNumber: true })}
-                              />
-                              <p className="text-xs text-gray-500 mt-1">Maintenance, support, licensing</p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Auto-suggested KPIs and Value Estimation based on selected processes */}
-                        <ValueEstimationLegoBlock
-                          processes={(form.watch('processes') as string[]) || []}
-                          scores={{
-                            dataReadiness: scores.dataReadiness || null,
-                            technicalComplexity: scores.technicalComplexity || null,
-                            adoptionReadiness: scores.adoptionReadiness || null,
-                            changeImpact: scores.changeImpact || null,
-                            modelRisk: scores.modelRisk || null
-                          }}
-                          compact={false}
-                          onKpiSelectionChange={(kpis) => form.setValue('selectedKpis', kpis)}
-                          selectedKpis={form.watch('selectedKpis') || []}
-                          showSelection={true}
-                        />
-                        
-                        {/* Manual Override - Hidden by default behind toggle */}
-                        <div className="border-t pt-4 mt-4">
-                          {!showManualOverride ? (
-                            <Button 
-                              type="button"
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => setShowManualOverride(true)}
-                              className="text-gray-600 hover:text-gray-900"
-                              data-testid="button-show-manual-override"
-                            >
-                              <Plus className="h-4 w-4 mr-2" />
-                              Override system estimate
-                            </Button>
-                          ) : (
-                            <div className="border rounded-lg p-4 bg-muted/30">
-                              <div className="flex justify-between items-center mb-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-700">Manual Override</span>
-                                  <span className="text-xs text-gray-500">Override system estimates</span>
-                                </div>
-                                <Button 
-                                  type="button"
-                                  variant="ghost" 
-                                  size="icon"
-                                  onClick={() => setShowManualOverride(false)}
-                                  className="h-8 w-8"
-                                  data-testid="button-hide-manual-override"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <Label htmlFor="successMetrics" className="text-sm font-semibold">Custom Success Metrics / KPIs</Label>
-                                  <Textarea
-                                    id="successMetrics"
-                                    rows={2}
-                                    placeholder="e.g., Reduce manual review time by 30%, Increase quote-to-bind ratio by 5%"
-                                    className="mt-1"
-                                    {...form.register('successMetrics')}
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="estimatedValue" className="text-sm font-semibold">Override Estimated Value ({currencySymbol})</Label>
-                                  <Input
-                                    id="estimatedValue"
-                                    placeholder={`e.g., ${currencySymbol}2.5M annual savings`}
-                                    className="mt-1"
-                                    {...form.register('estimatedValue')}
-                                  />
-                                </div>
-                              </div>
-                              <div className="mt-3">
-                                <Label htmlFor="valueMeasurementApproach" className="text-sm font-semibold">Value Measurement Approach</Label>
-                                <Textarea
-                                  id="valueMeasurementApproach"
-                                  rows={2}
-                                  placeholder="How will success be tracked and reported?"
-                                  className="mt-1"
-                                  {...form.register('valueMeasurementApproach')}
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </CollapsibleSectionItem>
-
-                      {/* Section 4: Technical Details */}
-                      <CollapsibleSectionItem
-                        id="technical-details"
-                        icon={Settings}
-                        title="Technical Details"
-                        description="AI/ML technologies, data sources, and integration requirements"
-                        filledCount={sectionCounts.technicalDetails.filled}
-                        totalCount={sectionCounts.technicalDetails.total}
-                        colorScheme="purple"
-                      >
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                          <MultiSelectField
-                            label="AI/ML Technologies"
-                            items={aiMlTechnologiesOptions}
-                            selectedItems={form.watch('aiMlTechnologies') || []}
-                            onSelectionChange={(newItems) => form.setValue('aiMlTechnologies', newItems)}
-                            helpText="Select relevant AI/ML technologies"
-                          />
-                          <MultiSelectField
-                            label="Data Sources"
-                            items={dataSourcesOptions}
-                            selectedItems={form.watch('dataSources') || []}
-                            onSelectionChange={(newItems) => form.setValue('dataSources', newItems)}
-                            helpText="Select required data sources"
-                          />
-                          <MultiSelectField
-                            label="Stakeholder Groups"
-                            items={stakeholderGroupsOptions}
-                            selectedItems={form.watch('stakeholderGroups') || []}
-                            onSelectionChange={(newItems) => form.setValue('stakeholderGroups', newItems)}
-                            helpText="Select involved stakeholder groups"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="integrationRequirements" className="text-sm font-semibold">Integration Requirements</Label>
-                          <Textarea
-                            id="integrationRequirements"
-                            rows={2}
-                            placeholder="System touchpoints, API needs, data flows"
-                            className="mt-1"
-                            {...form.register('integrationRequirements')}
-                          />
-                        </div>
-                      </CollapsibleSectionItem>
-
-                      {/* Section 5: Capability Transition */}
-                      <CollapsibleSectionItem
-                        id="capability-transition"
-                        icon={Users}
-                        title="Capability Transition"
-                        description="Staffing levels and client independence metrics"
-                        filledCount={sectionCounts.capabilityTransition.filled}
-                        totalCount={sectionCounts.capabilityTransition.total}
-                        colorScheme="orange"
-                      >
-                        {!editCapabilityTransition ? (
-                          /* Read-only summary view */
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                              <div className="flex items-center gap-6">
-                                <div className="text-center">
-                                  <p className="text-xs text-gray-500">Hexaware FTE</p>
-                                  <p className="text-lg font-semibold text-gray-900">
-                                    {form.watch('capabilityVendorFte') || '—'}
-                                  </p>
-                                </div>
-                                <ArrowRight className="h-4 w-4 text-gray-400" />
-                                <div className="text-center">
-                                  <p className="text-xs text-gray-500">Client FTE</p>
-                                  <p className="text-lg font-semibold text-gray-900">
-                                    {form.watch('capabilityClientFte') || '—'}
-                                  </p>
-                                </div>
-                                <div className="text-center border-l pl-6">
-                                  <p className="text-xs text-gray-500">Independence</p>
-                                  <p className="text-lg font-semibold text-orange-600">
-                                    {form.watch('capabilityIndependence') ? `${form.watch('capabilityIndependence')}%` : '—'}
-                                  </p>
-                                </div>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setEditCapabilityTransition(true)}
-                                data-testid="button-edit-capability"
-                              >
-                                <Edit className="h-3 w-3 mr-1" />
-                                Edit
-                              </Button>
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              Values auto-derived from use case attributes. Click Edit to override.
-                            </p>
-                          </div>
-                        ) : (
-                          /* Editable view */
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm text-gray-600">Edit staffing values</span>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setEditCapabilityTransition(false)}
-                                data-testid="button-done-capability"
-                              >
-                                Done
-                              </Button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div>
-                                <Label htmlFor="capabilityVendorFte" className="text-sm font-semibold">Hexaware FTE</Label>
-                                <Input
-                                  id="capabilityVendorFte"
-                                  type="number"
-                                  step="0.5"
-                                  placeholder="e.g., 3.5"
-                                  className="mt-1 bg-white"
-                                  data-testid="input-capability-vendor-fte"
-                                  {...form.register('capabilityVendorFte', { valueAsNumber: true })}
-                                />
-                                <p className="text-xs text-gray-500 mt-1">Vendor team size</p>
-                              </div>
-                              <div>
-                                <Label htmlFor="capabilityClientFte" className="text-sm font-semibold">Client FTE</Label>
-                                <Input
-                                  id="capabilityClientFte"
-                                  type="number"
-                                  step="0.5"
-                                  placeholder="e.g., 2.0"
-                                  className="mt-1 bg-white"
-                                  data-testid="input-capability-client-fte"
-                                  {...form.register('capabilityClientFte', { valueAsNumber: true })}
-                                />
-                                <p className="text-xs text-gray-500 mt-1">Client team size</p>
-                              </div>
-                              <div>
-                                <Label htmlFor="capabilityIndependence" className="text-sm font-semibold">Independence %</Label>
-                                <Input
-                                  id="capabilityIndependence"
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  placeholder="Auto-calculated"
-                                  className="mt-1 bg-white"
-                                  data-testid="input-capability-independence"
-                                  {...form.register('capabilityIndependence', { valueAsNumber: true })}
-                                />
-                                <p className="text-xs text-gray-500 mt-1">Client / (Client + Vendor) × 100</p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </CollapsibleSectionItem>
-                    </CollapsibleSectionsContainer>
-                  );
-                })()}
-
-                {/* Note: RAI fields moved to dedicated Responsible AI tab */}
-
-                {/* AI Inventory Governance Section - Only show for AI inventory */}
-                {form.watch('librarySource') === 'ai_inventory' && (
-                  <div className="space-y-4 border-l-4 border-emerald-500 pl-4 bg-emerald-50/30 p-4 rounded-lg">
-                    <h4 className="font-medium text-emerald-800 text-lg flex items-center gap-2">
-                      <FolderOpen className="h-5 w-5" />
-                      AI Inventory Governance
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="aiOrModel"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">AI or Model Classification</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value || undefined}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select classification..." />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="AI">AI</SelectItem>
-                                <SelectItem value="Model">Model</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="validationResponsibility"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Validation Responsibility</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value || undefined}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select responsibility..." />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="Internal">Internal</SelectItem>
-                                <SelectItem value="Third Party">Third Party</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="riskToCustomers"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Risk to Customers</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Describe potential risks to customers..."
-                                className="mt-1"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="riskToRsa"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Risk to Hexaware</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Describe Hexaware-specific risks..."
-                                className="mt-1"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="dataUsed"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Data Sources Used</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Describe data sources and types used..."
-                                className="mt-1"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="modelOwner"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Model Owner</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Owner contact information..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="rsaPolicyGovernance"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Hexaware Policy Governance</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Governance framework reference..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="informedBy"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Informed By</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Stakeholder information..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="businessFunction"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                              Business Function
-                              <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700">Gate Required</Badge>
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g., Marketing, CIO, Claims, CFU..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="thirdPartyProvidedModel"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Third Party Provided Model</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value || undefined}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select..." />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="Yes">Yes</SelectItem>
-                                <SelectItem value="No">No</SelectItem>
-                                <SelectItem value="Select">Select</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="deploymentStatus"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">Deployment Status</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value || undefined}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select deployment status..." />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="production">Production</SelectItem>
-                                <SelectItem value="staging">Staging</SelectItem>
-                                <SelectItem value="development">Development</SelectItem>
-                                <SelectItem value="local">Local</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Section 6: Use Case Definition Document */}
-                <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-100">
-                  <SectionHeader icon={FileText} title="Use Case Definition Document" description="Upload presentations or PDF documents for this use case" />
-
-                  {/* Upload Component */}
-                  <PresentationUploadBlock
-                    onUploadComplete={(result) => {
-                      // Update form with presentation data
-                      form.setValue('presentationUrl', result.presentationUrl);
-                      form.setValue('presentationPdfUrl', result.presentationPdfUrl);
-                      form.setValue('presentationFileName', result.presentationFileName);
-                      
-                      // Store additional fields in a way that will be accessible during form submission
-                      // Using a ref or state would be better, but for now we'll store in window temporarily
-                      (window as any).pendingPresentationData = {
-                        presentationFileId: result.presentationFileId,
-                        presentationPdfFileId: result.presentationPdfFileId,
-                        hasPresentation: result.hasPresentation || 'true',
-                        presentationUploadedAt: new Date().toISOString()
-                      };
-                      
-                      // Show success message and keep modal open so user can see preview
-                      toast({
-                        title: "File uploaded successfully",
-                        description: "Your presentation is now available for preview below. You can save when ready.",
-                      });
-                    }}
-                  />
-
-                  {/* Preview Component - shown when there's a presentation */}
-                  {(form.watch('presentationPdfUrl') || (useCase as any)?.presentationPdfUrl) && (
-                    <div className="mt-6">
-                      <PresentationPreviewBlock
-                        presentationUrl={form.watch('presentationUrl') || (useCase as any)?.presentationUrl}
-                        presentationPdfUrl={form.watch('presentationPdfUrl') || (useCase as any)?.presentationPdfUrl}
-                        presentationFileName={form.watch('presentationFileName') || (useCase as any)?.presentationFileName}
-                        hasPresentation="true"
-                        showTitle={false}
-                      />
-                    </div>
-                  )}
-
-                  {/* Help text */}
-                  <p className="text-sm text-gray-500 mt-4">
-                    Upload PowerPoint (.pptx, .ppt) or PDF files to document this use case. Files are auto-converted to PDF for preview.
-                  </p>
-                </div>
-              </TabsContent>
-
-              {/* Tab 3: Responsible AI - Gate 3 Requirements */}
-              <TabsContent value="rai" className="space-y-6 mt-6">
-                {/* Header with progress */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-purple-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">Responsible AI Assessment</h3>
-                  </div>
-                  <Badge variant="outline" className={`${governanceStatus.rai.passed ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
-                    {governanceStatus.rai.passed ? 'Gate Complete' : `${governanceStatus.rai.progress}% Complete`}
-                  </Badge>
-                </div>
-
-                {/* Section 1: Transparency */}
-                <div className="bg-purple-50/50 rounded-lg p-4 border border-purple-100">
-                  <SectionHeader icon={Eye} title="Transparency" description="Can the AI's decisions be explained?" />
-                  <FormField
-                    control={form.control}
-                    name="explainabilityRequired"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-semibold">
-                          Is explainability required? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
-                        </FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(value === 'yes' ? 'true' : value === 'no' ? 'false' : undefined)} 
-                          value={field.value === 'true' ? 'yes' : field.value === 'false' ? 'no' : undefined}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="bg-white">
-                              <SelectValue placeholder="Select..." />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="yes">Yes - Decisions must be explainable</SelectItem>
-                            <SelectItem value="no">No - Black box acceptable</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Section 2: Risk Assessment */}
-                <div className="bg-orange-50/50 rounded-lg p-4 border border-orange-100">
-                  <SectionHeader icon={AlertTriangle} title="Risk Assessment" description="Potential harm to customers" />
-                  <FormField
-                    control={form.control}
-                    name="customerHarmRisk"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-semibold">
-                          Customer harm risk level <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
-                        </FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value || undefined}>
-                          <FormControl>
-                            <SelectTrigger className="bg-white">
-                              <SelectValue placeholder="Select risk level..." />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="none">None - No potential for customer harm</SelectItem>
-                            <SelectItem value="low">Low - Minimal impact if errors occur</SelectItem>
-                            <SelectItem value="medium">Medium - Moderate potential impact</SelectItem>
-                            <SelectItem value="high">High - Significant potential harm</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Section 3: Accountability */}
-                <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-100">
-                  <SectionHeader icon={UserCheck} title="Accountability" description="Human oversight requirements" />
-                  <FormField
-                    control={form.control}
-                    name="humanAccountability"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-semibold">
-                          Human accountability required? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
-                        </FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(value)} 
-                          value={field.value || undefined}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="bg-white">
-                              <SelectValue placeholder="Select..." />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="true">Yes - Human must approve/review decisions</SelectItem>
-                            <SelectItem value="false">No - Fully automated acceptable</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Section 4: Data & Compliance */}
-                <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
-                  <SectionHeader icon={Globe} title="Data & Compliance" description="Data location and third-party considerations" />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="dataOutsideUkEu"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-semibold">
-                            Cross-border data transfer? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
-                          </FormLabel>
-                          <Select 
-                            onValueChange={(value) => field.onChange(value)} 
-                            value={field.value || undefined}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="bg-white">
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="true">Yes - Data transferred across jurisdictions</SelectItem>
-                              <SelectItem value="false">No - Data stays within local jurisdiction</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="thirdPartyModel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-semibold">
-                            Third party model? <Badge variant="outline" className="ml-2 text-xs">Gate Required</Badge>
-                          </FormLabel>
-                          <Select 
-                            onValueChange={(value) => field.onChange(value)} 
-                            value={field.value || undefined}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="bg-white">
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="true">Yes - Uses third-party AI/ML model</SelectItem>
-                              <SelectItem value="false">No - Internal/custom model only</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* Tab 2: Intake & Scoring - Gate 2 Requirements */}
-              <TabsContent value="assessment" className="space-y-6 mt-6">
-                <div className="space-y-6">
-                  {/* Header with progress */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5 text-blue-600" />
-                      <h3 className="text-lg font-semibold text-gray-900">Intake & Prioritization Scoring</h3>
-                    </div>
-                    <Badge variant="outline" className={`${governanceStatus.intake.passed ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                      {governanceStatus.intake.passed ? 'Gate Complete' : `${governanceStatus.intake.progress}% Complete`}
-                    </Badge>
-                  </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Section 1: Business Impact Levers */}
-                      <div className="bg-green-50/50 rounded-lg p-4 border border-green-100">
-                        <SectionHeader icon={TrendingUp} title="Business Impact Levers" description="Value and strategic alignment (5 required)" />
-                        <div className="space-y-4">
-                          <DropdownField field="revenueImpact" label="Revenue Impact" tooltip={sliderTooltips.revenueImpact} />
-                          <DropdownField field="costSavings" label="Cost Savings" tooltip={sliderTooltips.costSavings} />
-                          <DropdownField field="riskReduction" label="Risk Reduction" tooltip={sliderTooltips.riskReduction} />
-                          <DropdownField field="brokerPartnerExperience" label="Broker/Partner Experience" tooltip={sliderTooltips.brokerPartnerExperience} />
-                          <DropdownField field="strategicFit" label="Strategic Fit" tooltip={sliderTooltips.strategicFit} />
-                        </div>
-                      </div>
-
-                      {/* Section 2: Implementation Effort Levers */}
-                      <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-100">
-                        <SectionHeader icon={Wrench} title="Implementation Effort Levers" description="Complexity and readiness (5 required)" />
-                        <div className="space-y-4">
-                          <DropdownField field="dataReadiness" label="Data Readiness" tooltip={sliderTooltips.dataReadiness} />
-                          <DropdownField field="technicalComplexity" label="Technical Complexity" tooltip={sliderTooltips.technicalComplexity} />
-                          <DropdownField field="changeImpact" label="Change Impact" tooltip={sliderTooltips.changeImpact} />
-                          <DropdownField field="modelRisk" label="Model Risk" tooltip={sliderTooltips.modelRisk} />
-                          <DropdownField field="adoptionReadiness" label="Adoption Readiness" tooltip={sliderTooltips.adoptionReadiness} />
-                        </div>
-                      </div>
-                    </div>
-            
-                    {/* Section 3: Calculated Scores */}
-                    <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
-                      <SectionHeader icon={Target} title="Calculated Scores" description="Auto-calculated from the 10 levers above" />
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center p-4 bg-white rounded-lg border">
-                          <div className="text-3xl font-bold text-green-600 mb-1">{currentImpactScore.toFixed(1)}</div>
-                          <div className="text-sm text-gray-600">Impact Score</div>
-                        </div>
-                        <div className="text-center p-4 bg-white rounded-lg border">
-                          <div className="text-3xl font-bold text-orange-600 mb-1">{currentEffortScore.toFixed(1)}</div>
-                          <div className="text-sm text-gray-600">Effort Score</div>
-                        </div>
-                        <div className="text-center p-4 bg-white rounded-lg border">
-                          <div className="text-lg font-semibold text-purple-600">{currentQuadrant}</div>
-                          <div className="text-sm text-gray-600">Quadrant</div>
-                        </div>
-                      </div>
-                    </div>
-            
-                    {/* Score Override Section */}
-                    {rsaSelection.isActiveForRsa && (
-                      <ScoreOverrideLegoBlock
-                        form={form}
-                        calculatedImpact={currentImpactScore}
-                        calculatedEffort={currentEffortScore}
-                        calculatedQuadrant={currentQuadrant}
-                        onToggleChange={setIsOverrideEnabled}
-                      />
-                    )}
-            
-                  {/* Resource Planning: T-shirt Sizing */}
-                  <TShirtSizingDisplayLegoBlock
-                    impactScore={currentImpactScore}
-                    effortScore={currentEffortScore}
-                    quadrant={currentQuadrant}
-                    useCaseId={useCase?.id}
-                    useCaseTitle={form.watch('title')}
-                  />
-                </div>
-              </TabsContent>
-
-              {/* Tab 5: Governance Guide - User Help */}
-              <TabsContent value="guide" className="mt-6">
-                <GovernanceGuideLegoBlock
-                  currentGates={{
-                    operatingModel: governanceStatus.operatingModel.passed,
-                    intake: governanceStatus.intake.passed,
-                    rai: governanceStatus.rai.passed,
-                    activation: governanceStatus.operatingModel.passed && governanceStatus.intake.passed && governanceStatus.rai.passed
-                  }}
+                <OperatingModelTab
+                  form={form}
+                  metadata={metadata}
+                  mode={mode}
+                  useCase={useCase}
+                  governanceStatus={governanceStatus}
+                  rsaSelection={rsaSelection}
+                  handleRSAToggle={handleRSAToggle}
+                  handleDashboardToggle={handleDashboardToggle}
+                  handleActivationReasonChange={handleActivationReasonChange}
+                  handleDeactivationReasonChange={handleDeactivationReasonChange}
+                  handleStatusChange={handleStatusChange}
+                  useCaseStatusOptions={useCaseStatusOptions}
+                  sortedMetadata={sortedMetadata}
+                  isCheckingDuplicates={isCheckingDuplicates}
+                  similarUseCases={similarUseCases}
                 />
+              </TabsContent>
+
+              <TabsContent value="details" className="mt-6">
+                <DetailsTab
+                  form={form}
+                  metadata={metadata}
+                  isTomEnabled={isTomEnabled}
+                  tomConfig={tomConfig}
+                  tomPhases={tomPhases}
+                  currentDerivedPhase={currentDerivedPhase}
+                  scores={scores}
+                  sortedMetadata={sortedMetadata}
+                  currencySymbol={currencySymbol}
+                  aiMlTechnologiesOptions={aiMlTechnologiesOptions}
+                  dataSourcesOptions={dataSourcesOptions}
+                  stakeholderGroupsOptions={stakeholderGroupsOptions}
+                  showManualOverride={showManualOverride}
+                  setShowManualOverride={setShowManualOverride}
+                  editCapabilityTransition={editCapabilityTransition}
+                  setEditCapabilityTransition={setEditCapabilityTransition}
+                  expandedSections={expandedSections}
+                  setExpandedSections={setExpandedSections}
+                />
+              </TabsContent>
+
+              <TabsContent value="rai" className="space-y-6 mt-6">
+                <ResponsibleAITab
+                  form={form}
+                  metadata={metadata}
+                  governanceStatus={governanceStatus}
+                />
+              </TabsContent>
+
+              <TabsContent value="assessment" className="space-y-6 mt-6">
+                <ScoringTab
+                  form={form}
+                  metadata={metadata}
+                  scores={scores}
+                  handleSliderChange={handleSliderChange}
+                  governanceStatus={governanceStatus}
+                  currentImpactScore={currentImpactScore}
+                  currentEffortScore={currentEffortScore}
+                  currentQuadrant={currentQuadrant}
+                  rsaSelection={rsaSelection}
+                  setIsOverrideEnabled={setIsOverrideEnabled}
+                  sliderTooltips={sliderTooltips}
+                  useCase={useCase}
+                />
+              </TabsContent>
+
+              <TabsContent value="guide" className="mt-6">
+                <GuideTab governanceStatus={governanceStatus} />
               </TabsContent>
             </Tabs>
 
@@ -2773,7 +1286,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       </DialogContent>
     </Dialog>
 
-    {/* Phase Transition Warning Dialog - Per replit.md Phase Transition Governance */}
     <Dialog open={showPhaseTransitionWarning} onOpenChange={cancelPhaseTransition}>
       <DialogContent className="max-w-lg" data-testid="phase-transition-warning-dialog">
         <DialogHeader>
@@ -2788,7 +1300,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         </DialogHeader>
         
         <div className="space-y-4 py-4">
-          {/* Phase Transition Visualization */}
           {phaseReadiness?.currentPhase && (
             <div className="flex items-center justify-center gap-3 py-2">
               <Badge 
@@ -2817,7 +1328,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
             </div>
           )}
 
-          {/* Exit Requirements Status */}
           {phaseReadiness && (
             <div className="bg-muted/50 rounded-lg p-4 space-y-3">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
