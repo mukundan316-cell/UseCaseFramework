@@ -25,7 +25,7 @@ export interface IndustryBenchmark {
 }
 
 export type KpiType = 'financial' | 'operational' | 'strategic' | 'compliance';
-export type ValueStream = 'operational_savings' | 'cor_improvement' | 'revenue_uplift';
+export type ValueStream = 'operational_savings' | 'cor_improvement' | 'revenue_uplift' | 'risk_mitigation' | 'customer_experience' | 'regulatory_compliance';
 export type AggregationMethod = 'sum' | 'average' | 'latest' | 'none';
 
 export interface KpiDefinition {

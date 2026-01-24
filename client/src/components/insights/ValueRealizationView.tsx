@@ -11,10 +11,8 @@ import {
   TrendingUp, DollarSign, Clock, Target, 
   Loader2, AlertCircle, HelpCircle, ArrowUpRight, BarChart3, PieChart, ShieldCheck, Filter, Activity
 } from 'lucide-react';
-import type { PortfolioValueSummary, ValueRealizationConfig, ValidationStatus } from '@shared/valueRealization';
+import type { PortfolioValueSummary, ValueRealizationConfig, ValidationStatus, ValueStream, KpiType } from '@shared/valueRealization';
 import type { TomConfig } from '@shared/tom';
-
-type ValueStream = 'operational_savings' | 'cor_improvement' | 'revenue_uplift' | 'risk_mitigation' | 'customer_experience' | 'regulatory_compliance' | null;
 
 interface UseCase {
   id: string;
@@ -28,8 +26,8 @@ interface UseCase {
     kpiEstimates?: Array<{ 
       kpiId: string; 
       kpiName: string; 
-      kpiType?: 'financial' | 'operational' | 'strategic' | 'compliance';
-      valueStream?: ValueStream;
+      kpiType?: KpiType;
+      valueStream?: ValueStream | null;
       estimatedAnnualValueGbp?: { min: number; max: number } | null;
     }>;
     investment?: { initialInvestment: number; ongoingMonthlyCost: number };
@@ -38,6 +36,8 @@ interface UseCase {
       validationStatus: ValidationStatus;
       adjustedValueGbp: number | null;
       rationale: string | null;
+      lastValidatedAt?: string;
+      lastValidatedBy?: string;
     };
   } | null;
 }
