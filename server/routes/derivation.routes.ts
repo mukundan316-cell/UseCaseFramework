@@ -103,6 +103,18 @@ export function registerDerivationRoutes(app: Express): void {
           roi: {
             formula: metadata?.valueRealizationConfig?.calculationConfig?.roiFormula || '((cumulativeValue - totalInvestment) / totalInvestment) × 100',
             description: 'Return on Investment as a percentage'
+          },
+          valueConfidence: {
+            defaultConservativeFactor: 1.0,
+            defaultValidationStatus: 'unvalidated',
+            adjustedValueFormula: {
+              formula: 'Adjusted Value = Raw Value × Conservative Factor',
+              description: 'Applies a confidence-based discount (50%-100%) to value estimates. Lower factors indicate more conservative projections pending validation.'
+            },
+            validationWorkflow: {
+              stages: ['unvalidated', 'pending_finance', 'pending_actuarial', 'fully_validated'],
+              description: 'Four-stage validation process: Unvalidated → Finance Review → Actuarial Review → Fully Validated. Each stage increases confidence in value estimates.'
+            }
           }
         },
         tom: {

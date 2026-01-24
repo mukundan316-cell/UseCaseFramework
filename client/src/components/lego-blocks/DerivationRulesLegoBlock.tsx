@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Calculator, 
   TrendingUp, 
@@ -54,6 +55,12 @@ interface DerivationFormulas {
     kpiMatching?: { formula: string; description?: string };
     maturityLevel?: { formula: string; description?: string };
     hourlyRate?: number;
+    valueConfidence?: {
+      defaultConservativeFactor?: number;
+      defaultValidationStatus?: string;
+      adjustedValueFormula?: { formula: string; description?: string };
+      validationWorkflow?: { stages: string[]; description?: string };
+    };
   };
   capability?: {
     baseFte?: { formula: string; description?: string; values?: Record<string, number> };
@@ -87,7 +94,19 @@ const DEFAULT_FORMULAS: DerivationFormulas = {
       formula: 'Match use case processes to applicable KPIs from library',
       description: 'Automatically finds relevant KPIs based on which business processes a use case affects (e.g., Claims Processing → Claims Cycle Time KPI).'
     },
-    hourlyRate: 45
+    hourlyRate: 45,
+    valueConfidence: {
+      defaultConservativeFactor: 1.0,
+      defaultValidationStatus: 'unvalidated',
+      adjustedValueFormula: {
+        formula: 'Adjusted Value = Raw Value × Conservative Factor',
+        description: 'Applies a confidence-based discount (50%-100%) to value estimates. Lower factors indicate more conservative projections pending validation.'
+      },
+      validationWorkflow: {
+        stages: ['unvalidated', 'pending_finance', 'pending_actuarial', 'fully_validated'],
+        description: 'Four-stage validation process: Unvalidated → Finance Review → Actuarial Review → Fully Validated. Each stage increases confidence in value estimates.'
+      }
+    }
   },
   capability: {
     baseFte: {
@@ -245,6 +264,23 @@ export default function DerivationRulesLegoBlock() {
       valueRealization: {
         ...prev.valueRealization,
         hourlyRate: value
+      }
+    }));
+    setHasChanges(true);
+  };
+
+  const updateValueConfidence = (key: string, value: any, nestedKey?: string) => {
+    setEditedFormulas(prev => ({
+      ...prev,
+      valueRealization: {
+        ...prev.valueRealization,
+        valueConfidence: {
+          ...prev.valueRealization?.valueConfidence,
+          ...(nestedKey 
+            ? { [key]: { ...(prev.valueRealization?.valueConfidence as any)?.[key], [nestedKey]: value } }
+            : { [key]: value }
+          )
+        }
       }
     }));
     setHasChanges(true);
@@ -504,6 +540,109 @@ export default function DerivationRulesLegoBlock() {
                       className="font-mono text-sm"
                       data-testid="input-kpi-matching-formula"
                     />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-base">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                      Value Confidence
+                    </Badge>
+                  </div>
+                  <span className="text-sm text-gray-500">Validation workflow & adjusted values</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <h4 className="font-medium text-purple-800 dark:text-purple-200 mb-2">Adjusted Value Formula</h4>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-purple-700 dark:text-purple-300">Formula</Label>
+                      <Input
+                        value={displayFormulas?.valueRealization?.valueConfidence?.adjustedValueFormula?.formula || 'Adjusted Value = Raw Value × Conservative Factor'}
+                        onChange={(e) => updateValueConfidence('adjustedValueFormula', e.target.value, 'formula')}
+                        className="font-mono text-sm"
+                        data-testid="input-adjusted-value-formula"
+                      />
+                    </div>
+                    <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
+                      {displayFormulas?.valueRealization?.valueConfidence?.adjustedValueFormula?.description || 'Applies a confidence-based discount (50%-100%) to value estimates.'}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <h4 className="font-medium text-indigo-800 dark:text-indigo-200 mb-2">Default Settings</h4>
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-indigo-700 dark:text-indigo-300">Default Conservative Factor</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            min="0.5"
+                            max="1"
+                            step="0.05"
+                            value={displayFormulas?.valueRealization?.valueConfidence?.defaultConservativeFactor ?? 1.0}
+                            onChange={(e) => {
+                              const parsed = parseFloat(e.target.value);
+                              const value = isNaN(parsed) ? 1.0 : Math.max(0.5, Math.min(1, parsed));
+                              updateValueConfidence('defaultConservativeFactor', value);
+                            }}
+                            className="w-24 font-mono text-sm"
+                            data-testid="input-default-conservative-factor"
+                          />
+                          <Badge variant="outline" className="font-mono">
+                            {((displayFormulas?.valueRealization?.valueConfidence?.defaultConservativeFactor ?? 1.0) * 100).toFixed(0)}%
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-indigo-700 dark:text-indigo-300">Default Validation Status</Label>
+                        <Select
+                          value={displayFormulas?.valueRealization?.valueConfidence?.defaultValidationStatus || 'unvalidated'}
+                          onValueChange={(value) => updateValueConfidence('defaultValidationStatus', value)}
+                        >
+                          <SelectTrigger className="w-full" data-testid="select-default-validation-status">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="unvalidated" data-testid="select-item-unvalidated">Unvalidated</SelectItem>
+                            <SelectItem value="pending_finance" data-testid="select-item-pending-finance">Pending Finance</SelectItem>
+                            <SelectItem value="pending_actuarial" data-testid="select-item-pending-actuarial">Pending Actuarial</SelectItem>
+                            <SelectItem value="fully_validated" data-testid="select-item-fully-validated">Fully Validated</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <h4 className="font-medium text-amber-800 dark:text-amber-200 mb-2">Validation Workflow Stages</h4>
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">
+                    {displayFormulas?.valueRealization?.valueConfidence?.validationWorkflow?.description || 'Four-stage validation process for value estimates.'}
+                  </p>
+                  <div className="flex flex-wrap gap-2" data-testid="badge-group-workflow-stages">
+                    {(displayFormulas?.valueRealization?.valueConfidence?.validationWorkflow?.stages || 
+                      ['unvalidated', 'pending_finance', 'pending_actuarial', 'fully_validated']
+                    ).map((stage, index) => (
+                      <Badge 
+                        key={stage} 
+                        variant="outline" 
+                        data-testid={`badge-workflow-stage-${stage}`}
+                        className={`capitalize ${
+                          index === 0 ? 'border-gray-400 text-gray-600' :
+                          index === 1 ? 'border-blue-400 text-blue-600' :
+                          index === 2 ? 'border-purple-400 text-purple-600' :
+                          'border-green-400 text-green-600'
+                        }`}
+                      >
+                        {index + 1}. {stage.replace(/_/g, ' ')}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </CardContent>
