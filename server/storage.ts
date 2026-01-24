@@ -114,6 +114,12 @@ async function findSimilarUseCases(title: string, description: string, excludeId
   return similarCases.sort((a, b) => b.similarityScore - a.similarityScore).slice(0, 5);
 }
 
+// Nested governance fields that require granular audit tracking
+const NESTED_GOVERNANCE_PATHS = [
+  { parent: 'valueRealization', child: 'valueConfidence', field: 'validationStatus' },
+  { parent: 'valueRealization', child: 'valueConfidence', field: 'conservativeFactor' }
+];
+
 // Audit Trail Helper (Topic 8.2 - Markel 9 Topics)
 async function logUseCaseChange(
   useCaseId: string,
@@ -133,6 +139,19 @@ async function logUseCaseChange(
       for (const key of allKeys) {
         if (JSON.stringify(beforeState[key]) !== JSON.stringify(afterState[key])) {
           changedFields.push(key);
+          
+          // Add granular tracking for governance fields in nested objects
+          if (key === 'valueRealization') {
+            for (const path of NESTED_GOVERNANCE_PATHS) {
+              if (path.parent === key) {
+                const beforeVal = beforeState[key]?.[path.child]?.[path.field];
+                const afterVal = afterState[key]?.[path.child]?.[path.field];
+                if (JSON.stringify(beforeVal) !== JSON.stringify(afterVal)) {
+                  changedFields.push(`${path.parent}.${path.child}.${path.field}`);
+                }
+              }
+            }
+          }
         }
       }
     }
