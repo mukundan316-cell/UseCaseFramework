@@ -108,6 +108,17 @@ export default function OperatingModelTab({
             <p className="text-xs text-gray-500 mt-1">The accountable person for this use case</p>
           </div>
           <div>
+            <Label className="text-sm font-semibold">Delivery Owner</Label>
+            <Input
+              placeholder="e.g., IT/CoE lead name"
+              className="mt-1 bg-white"
+              value={form.watch('deliveryOwner') || ''}
+              onChange={(e) => form.setValue('deliveryOwner', e.target.value)}
+              data-testid="input-delivery-owner"
+            />
+            <p className="text-xs text-gray-500 mt-1">IT/CoE lead responsible for delivery</p>
+          </div>
+          <div>
             <Label className="text-sm font-semibold">Business Function</Label>
             <Select 
               value={form.watch('businessFunction') || ''} 
@@ -122,6 +133,23 @@ export default function OperatingModelTab({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div>
+            <Label className="text-sm font-semibold">Value Governance Model</Label>
+            <Select 
+              value={form.watch('valueGovernanceModel') || ''} 
+              onValueChange={(value) => form.setValue('valueGovernanceModel', value as any)}
+            >
+              <SelectTrigger className="mt-1 bg-white" data-testid="select-governance-model">
+                <SelectValue placeholder="Select model..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="business_led">Business-Led</SelectItem>
+                <SelectItem value="it_led">IT-Led</SelectItem>
+                <SelectItem value="joint">Joint Steering</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500 mt-1">Who leads value accountability</p>
           </div>
         </div>
       </div>

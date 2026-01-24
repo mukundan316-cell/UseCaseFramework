@@ -274,6 +274,77 @@ export default function DetailsTab({
                 <p className="text-xs text-gray-500 mt-1">Maintenance, support, licensing</p>
               </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="valueValidator" className="text-sm font-semibold text-gray-700">
+                  Value Validator
+                </Label>
+                <Input
+                  id="valueValidator"
+                  placeholder="e.g., Finance Director, Actuary"
+                  className="mt-1 bg-white"
+                  data-testid="input-value-validator"
+                  value={form.watch('valueValidator') || ''}
+                  onChange={(e) => form.setValue('valueValidator', e.target.value)}
+                />
+                <p className="text-xs text-gray-500 mt-1">Person responsible for signing off value</p>
+              </div>
+              <div>
+                <Label htmlFor="validationStatus" className="text-sm font-semibold text-gray-700">
+                  Validation Status
+                </Label>
+                <Select
+                  value={form.watch('validationStatus') || 'unvalidated'}
+                  onValueChange={(value) => form.setValue('validationStatus', value as any)}
+                >
+                  <SelectTrigger className="mt-1 bg-white" data-testid="select-validation-status">
+                    <SelectValue placeholder="Select status..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unvalidated">Unvalidated</SelectItem>
+                    <SelectItem value="pending_finance">Pending Finance Review</SelectItem>
+                    <SelectItem value="pending_actuarial">Pending Actuarial Review</SelectItem>
+                    <SelectItem value="fully_validated">Fully Validated</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">Value sign-off workflow stage</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="border rounded-lg p-4 bg-muted/20 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="conservativeFactor" className="text-sm font-semibold text-gray-700">
+                Conservative Factor
+              </Label>
+              <span className="text-sm font-medium text-gray-900">
+                {Math.round((form.watch('conservativeFactor') ?? 1) * 100)}%
+              </span>
+            </div>
+            <input
+              type="range"
+              id="conservativeFactor"
+              min="0.5"
+              max="1"
+              step="0.05"
+              value={form.watch('conservativeFactor') ?? 1}
+              onChange={(e) => form.setValue('conservativeFactor', parseFloat(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              data-testid="slider-conservative-factor"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>50% (Conservative)</span>
+              <span>100% (Full estimate)</span>
+            </div>
+            <div className="mt-2">
+              <Input
+                placeholder="Rationale for conservative adjustment..."
+                className="mt-1 bg-white text-sm"
+                data-testid="input-rationale"
+                value={form.watch('rationale') || ''}
+                onChange={(e) => form.setValue('rationale', e.target.value)}
+              />
+            </div>
           </div>
           
           <ValueEstimationLegoBlock

@@ -84,6 +84,9 @@ export const useCases = pgTable("use_cases", {
   
   // Tab 3: Implementation & Governance fields
   primaryBusinessOwner: text("primary_business_owner"),
+  deliveryOwner: text("delivery_owner"), // IT/CoE lead responsible for delivery
+  valueValidator: text("value_validator"), // Finance/Actuarial role who signs off on value
+  valueGovernanceModel: text("value_governance_model"), // 'business_led' | 'it_led' | 'joint'
   useCaseStatus: text("use_case_status").default('Discovery'), // Discovery, Backlog, In-flight, Implemented, On Hold
   keyDependencies: text("key_dependencies"),
   implementationTimeline: text("implementation_timeline"),
@@ -199,6 +202,15 @@ export const useCases = pgTable("use_cases", {
       estimatedAnnualValueGbp: { min: number; max: number } | null;
       benchmarkProcess: string | null;
     }>;
+    // Value Confidence / Conservative Factor
+    valueConfidence?: {
+      conservativeFactor: number;
+      validationStatus: 'unvalidated' | 'pending_finance' | 'pending_actuarial' | 'fully_validated';
+      adjustedValueGbp: number | null;
+      rationale: string | null;
+      lastValidatedAt?: string;
+      lastValidatedBy?: string;
+    };
   }>(),
   
   // Capability Transition tracking ("Teach Us to Fish")
@@ -409,6 +421,9 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   overrideReason: z.union([z.string(), z.null()]).optional(),
   // Tab 3: Implementation & Governance fields - allow null for import compatibility
   primaryBusinessOwner: z.union([z.string(), z.null()]).optional(),
+  deliveryOwner: z.union([z.string(), z.null()]).optional(),
+  valueValidator: z.union([z.string(), z.null()]).optional(),
+  valueGovernanceModel: z.union([z.enum(['business_led', 'it_led', 'joint']), z.null()]).optional(),
   useCaseStatus: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
   keyDependencies: z.union([z.string(), z.null()]).optional(),
   implementationTimeline: z.union([z.string(), z.null()]).optional(),
@@ -637,6 +652,11 @@ export const metadataConfig = pgTable('metadata_config', {
         range: { min: number; max: number };
         confidence: 'high' | 'medium' | 'low';
       }>;
+      kpiType: 'financial' | 'operational' | 'strategic' | 'compliance';
+      valueStream?: 'operational_savings' | 'cor_improvement' | 'revenue_uplift';
+      isMonetizable: boolean;
+      monetizationFormula?: string;
+      aggregationMethod: 'sum' | 'average' | 'latest' | 'none';
     }>;
     calculationConfig: {
       roiFormula: string;

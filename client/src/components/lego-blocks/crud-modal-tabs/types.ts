@@ -21,6 +21,9 @@ export type FormData = {
   activity?: string;
   librarySource: string;
   primaryBusinessOwner?: string;
+  deliveryOwner?: string;
+  valueValidator?: string;
+  valueGovernanceModel?: 'business_led' | 'it_led' | 'joint' | null;
   useCaseStatus?: string;
   keyDependencies?: string;
   implementationTimeline?: string;
@@ -82,6 +85,9 @@ export type FormData = {
   capabilityVendorFte?: number | string | null;
   capabilityClientFte?: number | string | null;
   capabilityIndependence?: number | string | null;
+  conservativeFactor?: number | null;
+  validationStatus?: 'unvalidated' | 'pending_finance' | 'pending_actuarial' | 'fully_validated';
+  rationale?: string;
 };
 
 export type CRUDModalForm = UseFormReturn<FormData>;

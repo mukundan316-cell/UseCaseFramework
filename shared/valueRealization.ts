@@ -24,6 +24,10 @@ export interface IndustryBenchmark {
   };
 }
 
+export type KpiType = 'financial' | 'operational' | 'strategic' | 'compliance';
+export type ValueStream = 'operational_savings' | 'cor_improvement' | 'revenue_uplift';
+export type AggregationMethod = 'sum' | 'average' | 'latest' | 'none';
+
 export interface KpiDefinition {
   id: string;
   name: string;
@@ -33,6 +37,11 @@ export interface KpiDefinition {
   applicableProcesses: string[];
   industryBenchmarks?: Record<string, IndustryBenchmark>;
   maturityRules: MaturityRule[];
+  kpiType: KpiType;
+  valueStream?: ValueStream;
+  isMonetizable: boolean;
+  monetizationFormula?: string;
+  aggregationMethod: AggregationMethod;
 }
 
 export interface KpiValue {
@@ -67,6 +76,17 @@ export interface CalculatedMetrics {
   lastCalculated: string | null;
 }
 
+export type ValidationStatus = 'unvalidated' | 'pending_finance' | 'pending_actuarial' | 'fully_validated';
+
+export interface ValueConfidence {
+  conservativeFactor: number;
+  validationStatus: ValidationStatus;
+  adjustedValueGbp: number | null;
+  rationale: string | null;
+  lastValidatedAt?: string;
+  lastValidatedBy?: string;
+}
+
 export interface ValueRealization {
   selectedKpis: string[];
   kpiValues: Record<string, KpiValue>;
@@ -75,6 +95,7 @@ export interface ValueRealization {
     entries: TrackingEntry[];
   };
   calculatedMetrics: CalculatedMetrics;
+  valueConfidence?: ValueConfidence;
 }
 
 export interface ValueRealizationConfig {
@@ -599,7 +620,12 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 20, max: 30 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      monetizationFormula: 'time_saved_hours * hourly_rate',
+      aggregationMethod: 'sum'
     },
     cost_per_transaction: {
       id: 'cost_per_transaction',
@@ -668,7 +694,11 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 8, max: 15 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'sum'
     },
     fte_efficiency: {
       id: 'fte_efficiency',
@@ -724,7 +754,12 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 50, max: 200 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      monetizationFormula: 'hours_saved * 75',
+      aggregationMethod: 'sum'
     },
     accuracy_improvement: {
       id: 'accuracy_improvement',
@@ -780,7 +815,11 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 2, max: 5 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: false,
+      aggregationMethod: 'average'
     },
     loss_ratio_reduction: {
       id: 'loss_ratio_reduction',
@@ -823,7 +862,12 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 0.5, max: 1.5 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      isMonetizable: true,
+      monetizationFormula: 'loss_ratio_points * premium_volume * 0.01',
+      aggregationMethod: 'sum'
     },
     customer_satisfaction: {
       id: 'customer_satisfaction',
@@ -866,7 +910,11 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 3, max: 7 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'strategic',
+      valueStream: 'revenue_uplift',
+      isMonetizable: false,
+      aggregationMethod: 'average'
     },
     decision_consistency: {
       id: 'decision_consistency',
@@ -909,7 +957,11 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 5, max: 10 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: false,
+      aggregationMethod: 'average'
     },
     conversion_rate: {
       id: 'conversion_rate',
@@ -952,7 +1004,12 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 1, max: 3 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'financial',
+      valueStream: 'revenue_uplift',
+      isMonetizable: true,
+      monetizationFormula: 'conversion_improvement * average_premium',
+      aggregationMethod: 'sum'
     },
     compliance_rate: {
       id: 'compliance_rate',
@@ -995,7 +1052,10 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
           range: { min: 2, max: 4 },
           confidence: 'low'
         }
-      ]
+      ],
+      kpiType: 'compliance',
+      isMonetizable: false,
+      aggregationMethod: 'average'
     }
   },
   calculationConfig: {

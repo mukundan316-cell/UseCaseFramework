@@ -113,6 +113,12 @@ const formSchema = z.object({
   capabilityVendorFte: z.union([z.number(), z.string(), z.null()]).optional(),
   capabilityClientFte: z.union([z.number(), z.string(), z.null()]).optional(),
   capabilityIndependence: z.union([z.number(), z.string(), z.null()]).optional(),
+  deliveryOwner: z.string().optional(),
+  valueValidator: z.string().optional(),
+  valueGovernanceModel: z.enum(['business_led', 'it_led', 'joint']).nullable().optional(),
+  conservativeFactor: z.number().nullable().optional(),
+  validationStatus: z.enum(['unvalidated', 'pending_finance', 'pending_actuarial', 'fully_validated']).optional(),
+  rationale: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -487,6 +493,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         capabilityVendorFte: (useCase as any).capabilityTransition?.staffing?.current?.vendor?.total || null,
         capabilityClientFte: (useCase as any).capabilityTransition?.staffing?.current?.client?.total || null,
         capabilityIndependence: (useCase as any).capabilityTransition?.independencePercentage || null,
+        conservativeFactor: (useCase as any).valueRealization?.valueConfidence?.conservativeFactor ?? 1,
+        validationStatus: (useCase as any).valueRealization?.valueConfidence?.validationStatus || 'unvalidated',
+        rationale: (useCase as any).valueRealization?.valueConfidence?.rationale || '',
       };
       
       setScores({
@@ -599,6 +608,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       libraryTier: 'reference',
       activationReason: '',
       primaryBusinessOwner: '',
+      deliveryOwner: '',
+      valueValidator: '',
+      valueGovernanceModel: null,
       useCaseStatus: 'Discovery',
       keyDependencies: '',
       implementationTimeline: '',
@@ -620,6 +632,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       capabilityVendorFte: null,
       capabilityClientFte: null,
       capabilityIndependence: null,
+      conservativeFactor: 1,
+      validationStatus: 'unvalidated' as const,
+      rationale: '',
       ...scores,
     };
     form.reset(defaultData);
@@ -671,6 +686,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         problemStatement: data.problemStatement || '',
         useCaseType: data.useCaseType || '',
         primaryBusinessOwner: data.primaryBusinessOwner || '',
+        deliveryOwner: (data as any).deliveryOwner || '',
+        valueValidator: (data as any).valueValidator || '',
+        valueGovernanceModel: (data as any).valueGovernanceModel || null,
         useCaseStatus: data.useCaseStatus || 'Discovery',
         keyDependencies: data.keyDependencies || '',
         implementationTimeline: data.implementationTimeline || '',
@@ -760,15 +778,24 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         }
         
         const hasInvestmentData = sanitizedData.initialInvestment || sanitizedData.ongoingMonthlyCost || (sanitizedData.selectedKpis && sanitizedData.selectedKpis.length > 0);
-        if (hasInvestmentData) {
+        const hasValueConfidenceData = sanitizedData.conservativeFactor !== undefined || sanitizedData.validationStatus || sanitizedData.rationale;
+        if (hasInvestmentData || hasValueConfidenceData) {
           const existingValueRealization = (useCase as any).valueRealization || {};
           changedData.valueRealization = {
             ...existingValueRealization,
-            selectedKpis: sanitizedData.selectedKpis || [],
+            selectedKpis: sanitizedData.selectedKpis || existingValueRealization.selectedKpis || [],
             investment: {
-              initialInvestment: Number(sanitizedData.initialInvestment) || 0,
-              ongoingMonthlyCost: Number(sanitizedData.ongoingMonthlyCost) || 0,
+              initialInvestment: Number(sanitizedData.initialInvestment) || existingValueRealization.investment?.initialInvestment || 0,
+              ongoingMonthlyCost: Number(sanitizedData.ongoingMonthlyCost) || existingValueRealization.investment?.ongoingMonthlyCost || 0,
               currency: 'GBP'
+            },
+            valueConfidence: {
+              conservativeFactor: sanitizedData.conservativeFactor ?? existingValueRealization.valueConfidence?.conservativeFactor ?? 1,
+              validationStatus: sanitizedData.validationStatus || existingValueRealization.valueConfidence?.validationStatus || 'unvalidated',
+              rationale: sanitizedData.rationale || existingValueRealization.valueConfidence?.rationale || null,
+              adjustedValueGbp: existingValueRealization.valueConfidence?.adjustedValueGbp || null,
+              lastValidatedAt: existingValueRealization.valueConfidence?.lastValidatedAt || null,
+              lastValidatedBy: existingValueRealization.valueConfidence?.lastValidatedBy || null
             },
             calculatedMetrics: existingValueRealization.calculatedMetrics || {
               currentRoi: null,
@@ -780,6 +807,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           delete changedData.initialInvestment;
           delete changedData.ongoingMonthlyCost;
           delete changedData.selectedKpis;
+          delete changedData.conservativeFactor;
+          delete changedData.validationStatus;
+          delete changedData.rationale;
         }
         
         const vendorFteVal = sanitizedData.capabilityVendorFte;
@@ -906,7 +936,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         });
         
         const hasInvestmentData = sanitizedData.initialInvestment || sanitizedData.ongoingMonthlyCost || (sanitizedData.selectedKpis && sanitizedData.selectedKpis.length > 0);
-        if (hasInvestmentData) {
+        const hasValueConfidenceData = sanitizedData.conservativeFactor !== undefined || sanitizedData.validationStatus || sanitizedData.rationale;
+        if (hasInvestmentData || hasValueConfidenceData) {
           createData.valueRealization = {
             selectedKpis: sanitizedData.selectedKpis || [],
             kpiValues: {},
@@ -914,6 +945,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
               initialInvestment: Number(sanitizedData.initialInvestment) || 0,
               ongoingMonthlyCost: Number(sanitizedData.ongoingMonthlyCost) || 0,
               currency: 'GBP'
+            },
+            valueConfidence: {
+              conservativeFactor: sanitizedData.conservativeFactor ?? 1,
+              validationStatus: sanitizedData.validationStatus || 'unvalidated',
+              rationale: sanitizedData.rationale || null,
+              adjustedValueGbp: null,
+              lastValidatedAt: null,
+              lastValidatedBy: null
             },
             tracking: { entries: [] },
             calculatedMetrics: {
@@ -926,6 +965,9 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
           delete createData.initialInvestment;
           delete createData.ongoingMonthlyCost;
           delete createData.selectedKpis;
+          delete createData.conservativeFactor;
+          delete createData.validationStatus;
+          delete createData.rationale;
         }
         
         const vendorFteValCreate = sanitizedData.capabilityVendorFte;

@@ -103,7 +103,7 @@ function KpiCard({ kpiId, kpi, onEdit }: KpiCardProps) {
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+          <div className="flex items-center flex-wrap gap-2 text-sm text-gray-600 mb-2">
             <div className="flex items-center gap-1">
               <Building2 className="h-3 w-3" />
               <span>{processCount} processes</span>
@@ -115,6 +115,27 @@ function KpiCard({ kpiId, kpi, onEdit }: KpiCardProps) {
             <Badge variant="secondary" className="text-xs">
               Unit: {kpi.unit}
             </Badge>
+            <Badge 
+              variant="outline" 
+              className={`text-xs ${
+                kpi.kpiType === 'financial' ? 'bg-green-50 text-green-700 border-green-200' :
+                kpi.kpiType === 'operational' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                kpi.kpiType === 'strategic' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                'bg-orange-50 text-orange-700 border-orange-200'
+              }`}
+            >
+              {kpi.kpiType || 'financial'}
+            </Badge>
+            {kpi.valueStream && (
+              <Badge variant="outline" className="text-xs bg-gray-50">
+                {kpi.valueStream.replace(/_/g, ' ')}
+              </Badge>
+            )}
+            {kpi.isMonetizable === false && (
+              <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600">
+                Non-monetary
+              </Badge>
+            )}
           </div>
 
           <CollapsibleTrigger asChild>
@@ -227,6 +248,11 @@ function KpiEditModal({ isOpen, onClose, kpiId, kpi, allProcesses, onSave, isNew
         direction: kpi.direction,
         applicableProcesses: kpi.applicableProcesses || [],
         maturityRules: kpi.maturityRules,
+        kpiType: kpi.kpiType || 'financial',
+        valueStream: kpi.valueStream,
+        isMonetizable: kpi.isMonetizable ?? true,
+        monetizationFormula: kpi.monetizationFormula,
+        aggregationMethod: kpi.aggregationMethod || 'sum',
       });
     } else if (isNew) {
       setFormData({
@@ -240,6 +266,9 @@ function KpiEditModal({ isOpen, onClose, kpiId, kpi, allProcesses, onSave, isNew
           { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 20, max: 40 }, confidence: 'medium' },
           { level: 'foundational', conditions: {}, range: { min: 5, max: 20 }, confidence: 'low' },
         ],
+        kpiType: 'financial',
+        isMonetizable: true,
+        aggregationMethod: 'sum',
       });
     }
   }, [isOpen, kpiId, isNew, kpi]);
@@ -345,6 +374,104 @@ function KpiEditModal({ isOpen, onClose, kpiId, kpi, allProcesses, onSave, isNew
               </Button>
             </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="kpi-type">KPI Type</Label>
+              <Select
+                value={formData.kpiType || 'financial'}
+                onValueChange={(value) => setFormData({ ...formData, kpiType: value as any })}
+              >
+                <SelectTrigger data-testid="select-kpi-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="financial">Financial</SelectItem>
+                  <SelectItem value="operational">Operational</SelectItem>
+                  <SelectItem value="strategic">Strategic</SelectItem>
+                  <SelectItem value="compliance">Compliance</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">How this KPI's value is categorized</p>
+            </div>
+            <div>
+              <Label htmlFor="value-stream">Value Stream</Label>
+              <Select
+                value={formData.valueStream || ''}
+                onValueChange={(value) => setFormData({ ...formData, valueStream: value as any || undefined })}
+              >
+                <SelectTrigger data-testid="select-value-stream">
+                  <SelectValue placeholder="Select value stream..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="operational_savings">Operational Savings</SelectItem>
+                  <SelectItem value="cor_improvement">COR Improvement</SelectItem>
+                  <SelectItem value="revenue_uplift">Revenue Uplift</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">Insurance portfolio classification</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="aggregation-method">Aggregation Method</Label>
+              <Select
+                value={formData.aggregationMethod || 'sum'}
+                onValueChange={(value) => setFormData({ ...formData, aggregationMethod: value as any })}
+              >
+                <SelectTrigger data-testid="select-aggregation-method">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sum">Sum (total across use cases)</SelectItem>
+                  <SelectItem value="average">Average (mean value)</SelectItem>
+                  <SelectItem value="latest">Latest (most recent value)</SelectItem>
+                  <SelectItem value="none">None (track individually)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Monetizable</Label>
+              <div className="flex gap-2 mt-1">
+                <Button
+                  type="button"
+                  variant={formData.isMonetizable ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFormData({ ...formData, isMonetizable: true })}
+                  data-testid="button-monetizable-yes"
+                >
+                  <DollarSign className="h-4 w-4 mr-1" />
+                  Yes
+                </Button>
+                <Button
+                  type="button"
+                  variant={!formData.isMonetizable ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFormData({ ...formData, isMonetizable: false })}
+                  data-testid="button-monetizable-no"
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  No
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Can be converted to GBP value?</p>
+            </div>
+          </div>
+
+          {formData.isMonetizable && (
+            <div>
+              <Label htmlFor="monetization-formula">Monetization Formula</Label>
+              <Input
+                id="monetization-formula"
+                value={formData.monetizationFormula || ''}
+                onChange={(e) => setFormData({ ...formData, monetizationFormula: e.target.value })}
+                placeholder="e.g., hours_saved * 75"
+                data-testid="input-monetization-formula"
+              />
+              <p className="text-xs text-gray-500 mt-1">Formula to convert KPI value to GBP (optional)</p>
+            </div>
+          )}
 
           <div>
             <Label>Applicable Processes</Label>

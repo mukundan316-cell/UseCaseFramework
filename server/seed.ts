@@ -377,6 +377,8 @@ async function seedMetadataConfig() {
           cycle_time_reduction: {
             id: 'cycle_time_reduction', name: 'Cycle Time Reduction',
             description: 'Reduction in end-to-end processing time', unit: '%', direction: 'decrease',
+            kpiType: 'operational', valueStream: 'operational_savings', isMonetizable: true,
+            monetizationFormula: 'hours_saved * 75', aggregationMethod: 'sum',
             applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Submission & Quote', 'Policy Servicing', 'Billing', 'Financial Management', 'Regulatory & Compliance', 'Reinsurance', 'Customer Servicing', 'Product & Rating', 'Human Resources'],
             industryBenchmarks: {
               'Claims Management': { baselineValue: 45, baselineUnit: 'minutes', baselineSource: 'McKinsey Insurance Operations 2024', improvementRange: { min: 40, max: 70 }, improvementUnit: '%', typicalTimeline: '6-12 months', maturityTiers: { foundational: { min: 20, max: 30 }, developing: { min: 40, max: 50 }, advanced: { min: 60, max: 70 } } },
@@ -391,6 +393,8 @@ async function seedMetadataConfig() {
           cost_per_transaction: {
             id: 'cost_per_transaction', name: 'Cost Per Transaction Reduction',
             description: 'Reduction in cost to process each transaction', unit: '%', direction: 'decrease',
+            kpiType: 'financial', valueStream: 'operational_savings', isMonetizable: true,
+            monetizationFormula: 'transaction_count * cost_reduction_pct * avg_transaction_cost', aggregationMethod: 'sum',
             applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Submission & Quote', 'Policy Servicing', 'Billing', 'Financial Management', 'Reinsurance'],
             industryBenchmarks: {
               'Claims Management': { baselineValue: 125, baselineUnit: 'GBP', baselineSource: 'McKinsey Insurance Operations 2024', improvementRange: { min: 20, max: 35 }, improvementUnit: '%', typicalTimeline: '6-12 months', maturityTiers: { foundational: { min: 8, max: 15 }, developing: { min: 20, max: 28 }, advanced: { min: 30, max: 35 } } },
@@ -405,6 +409,8 @@ async function seedMetadataConfig() {
           fte_efficiency: {
             id: 'fte_efficiency', name: 'FTE Efficiency Gain',
             description: 'FTE hours saved or reallocated per month', unit: 'hours/month', direction: 'increase',
+            kpiType: 'financial', valueStream: 'operational_savings', isMonetizable: true,
+            monetizationFormula: 'hours_saved * 75', aggregationMethod: 'sum',
             applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Submission & Quote', 'Policy Servicing', 'Billing', 'Financial Management', 'Regulatory & Compliance', 'Risk Consulting', 'Sales & Distribution (Including Broker Relationships)', 'Customer Servicing', 'General', 'Product & Rating', 'Human Resources', 'Reinsurance'],
             industryBenchmarks: {
               'Claims Management': { baselineValue: 160, baselineUnit: 'hours/FTE/month', baselineSource: 'Industry Average', improvementRange: { min: 15, max: 40 }, improvementUnit: '%', typicalTimeline: '6-12 months', maturityTiers: { foundational: { min: 50, max: 100 }, developing: { min: 200, max: 400 }, advanced: { min: 500, max: 800 } } }
@@ -418,6 +424,8 @@ async function seedMetadataConfig() {
           accuracy_improvement: {
             id: 'accuracy_improvement', name: 'Accuracy Improvement',
             description: 'Improvement in decision or data accuracy', unit: '%', direction: 'increase',
+            kpiType: 'operational', valueStream: undefined, isMonetizable: false,
+            aggregationMethod: 'average',
             applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Policy Servicing', 'Billing', 'Financial Management', 'Regulatory & Compliance', 'Reinsurance', 'Product & Rating'],
             industryBenchmarks: {
               'Claims Management': { baselineValue: 85, baselineUnit: '% accuracy', baselineSource: 'Industry Average', improvementRange: { min: 5, max: 12 }, improvementUnit: 'percentage points', typicalTimeline: '6-12 months', maturityTiers: { foundational: { min: 2, max: 4 }, developing: { min: 5, max: 8 }, advanced: { min: 10, max: 12 } } }
@@ -431,6 +439,8 @@ async function seedMetadataConfig() {
           customer_satisfaction: {
             id: 'customer_satisfaction', name: 'Customer Satisfaction Improvement',
             description: 'Improvement in CSAT or NPS scores', unit: 'points', direction: 'increase',
+            kpiType: 'strategic', valueStream: 'revenue_uplift', isMonetizable: false,
+            aggregationMethod: 'average',
             applicableProcesses: ['Customer Servicing', 'Claims Management', 'Sales & Distribution (Including Broker Relationships)', 'Risk Consulting'],
             industryBenchmarks: {},
             maturityRules: [
@@ -442,6 +452,8 @@ async function seedMetadataConfig() {
           loss_ratio_reduction: {
             id: 'loss_ratio_reduction', name: 'Loss Ratio Reduction',
             description: 'Reduction in claims loss ratio', unit: 'percentage points', direction: 'decrease',
+            kpiType: 'financial', valueStream: 'cor_improvement', isMonetizable: true,
+            monetizationFormula: 'gwp * loss_ratio_reduction_pct', aggregationMethod: 'sum',
             applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Risk Consulting'],
             industryBenchmarks: {},
             maturityRules: [
