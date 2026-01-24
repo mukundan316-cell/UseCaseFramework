@@ -16,6 +16,27 @@ import {
   ACTIVATION_STATUSES
 } from '../services/governance-enforcement';
 
+function ensureValueConfidenceDefaults(valueRealization: any): any {
+  if (!valueRealization) return valueRealization;
+  
+  const defaultValueConfidence = {
+    conservativeFactor: 1.0,
+    validationStatus: 'unvalidated' as const,
+    adjustedValueGbp: null,
+    rationale: null,
+    lastValidatedAt: undefined,
+    lastValidatedBy: undefined
+  };
+  
+  return {
+    ...valueRealization,
+    valueConfidence: {
+      ...defaultValueConfidence,
+      ...(valueRealization.valueConfidence || {})
+    }
+  };
+}
+
 interface DerivedPhaseInfo {
   id: string;
   name: string;
@@ -321,6 +342,10 @@ export function registerUseCaseRoutes(app: Express): void {
           
           const phaseDefaults = applyPhaseDefaults(newUseCase, null, derived.tomPhase, configs.tomConfig);
           Object.assign(derived, phaseDefaults);
+        }
+        
+        if (derived.valueRealization) {
+          derived.valueRealization = ensureValueConfidenceDefaults(derived.valueRealization);
         }
         
         if (Object.keys(derived).length > 0) {
@@ -700,7 +725,7 @@ export function registerUseCaseRoutes(app: Express): void {
             
             const fieldsToUpdate: Record<string, any> = {};
             if (derived.valueRealization && canOverwriteValue) {
-              fieldsToUpdate.valueRealization = derived.valueRealization;
+              fieldsToUpdate.valueRealization = ensureValueConfidenceDefaults(derived.valueRealization);
             }
             const canOverwriteCapability = triggers.capability && 
               (!refreshedUseCase.capabilityTransition || refreshedUseCase.capabilityTransition?.derived === true);
@@ -760,8 +785,9 @@ export function registerUseCaseRoutes(app: Express): void {
               }
             };
             
-            await storage.updateUseCase(id, { valueRealization: updatedVR });
-            updatedUseCase.valueRealization = updatedVR;
+            const vrWithConfidence = ensureValueConfidenceDefaults(updatedVR);
+            await storage.updateUseCase(id, { valueRealization: vrWithConfidence });
+            updatedUseCase.valueRealization = vrWithConfidence;
           } catch (vrError) {
             console.error("Value realization calculation error:", vrError);
           }

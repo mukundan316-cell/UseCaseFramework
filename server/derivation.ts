@@ -107,7 +107,14 @@ export function deriveAllFields(
     const valueEstimates = deriveValueEstimates(processes, scores, kpiLibrary, 1000, valueOptions);
     const totalValue = calculateTotalEstimatedValue(valueEstimates);
 
-    // Merge with existing data to preserve investment, selectedKpis, calculatedMetrics
+    const defaultValueConfidence = {
+      conservativeFactor: 1.0,
+      validationStatus: 'unvalidated' as const,
+      adjustedValueGbp: null,
+      rationale: null
+    };
+
+    // Merge with existing data to preserve investment, selectedKpis, calculatedMetrics, valueConfidence
     derived.valueRealization = {
       ...(existingVR || {}),
       derived: true,
@@ -122,7 +129,11 @@ export function deriveAllFields(
         benchmarkProcess: est.benchmarkProcess
       })),
       totalEstimatedValue: totalValue,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      valueConfidence: {
+        ...defaultValueConfidence,
+        ...(existingVR?.valueConfidence || {})
+      }
     };
   }
 
