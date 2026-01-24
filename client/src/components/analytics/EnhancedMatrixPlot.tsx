@@ -28,6 +28,40 @@ import { useCurrency } from '@/hooks/useCurrency';
  * Professional Gartner-style Magic Quadrant with executive insights
  */
 
+// Apply jittering to spread out overlapping bubbles with same coordinates
+function applyJitterToOverlappingPoints<T extends { x: number; y: number }>(data: T[]): (T & { jitteredX: number; jitteredY: number })[] {
+  const positionMap = new Map<string, T[]>();
+  
+  // Group points by their coordinates
+  data.forEach(point => {
+    const key = `${point.x.toFixed(1)}-${point.y.toFixed(1)}`;
+    if (!positionMap.has(key)) {
+      positionMap.set(key, []);
+    }
+    positionMap.get(key)!.push(point);
+  });
+  
+  // Apply circular jittering to overlapping points
+  return data.map(point => {
+    const key = `${point.x.toFixed(1)}-${point.y.toFixed(1)}`;
+    const group = positionMap.get(key)!;
+    const index = group.indexOf(point);
+    const count = group.length;
+    
+    if (count <= 1) {
+      return { ...point, jitteredX: point.x, jitteredY: point.y };
+    }
+    
+    // Spread points in a circle around the original position
+    const angle = (2 * Math.PI * index) / count;
+    const radius = 0.15 + (count > 4 ? 0.05 : 0); // Increase radius for larger groups
+    const jitteredX = point.x + radius * Math.cos(angle);
+    const jitteredY = point.y + radius * Math.sin(angle);
+    
+    return { ...point, jitteredX, jitteredY };
+  });
+}
+
 export default function EnhancedMatrixPlot() {
   const { useCases, dashboardUseCases, metadata } = useUseCases();
   const { selectedClientId } = useEngagement();
@@ -89,7 +123,7 @@ export default function EnhancedMatrixPlot() {
   // Enhanced chart data with authentic database values (LEGO principle: reusable configuration)
   // useMemo to ensure proper recalculation when dashboardUseCases change
   const chartData = React.useMemo(() => {
-    return filteredDashboardUseCases.map(useCase => {
+    const rawData = filteredDashboardUseCases.map(useCase => {
       const effectiveQuadrant = getEffectiveQuadrant(useCase as any);
       const effectiveImpact = getEffectiveImpactScore(useCase as any);
       const effectiveEffort = getEffectiveEffortScore(useCase as any);
@@ -119,6 +153,9 @@ export default function EnhancedMatrixPlot() {
         effort: effectiveEffort
       };
     });
+    
+    // Apply jittering to spread out overlapping bubbles so all are visible
+    return applyJitterToOverlappingPoints(rawData);
   }, [filteredDashboardUseCases]);
 
   // LEGO principle: Centralized configuration for consistent styling
@@ -585,7 +622,7 @@ export default function EnhancedMatrixPlot() {
                     {/* Enhanced Axes with Better Typography */}
                     <XAxis 
                       type="number" 
-                      dataKey="x" 
+                      dataKey="jitteredX" 
                       domain={[0.5, 5.5]} 
                       name="Implementation Effort"
                       tickCount={6}
@@ -642,7 +679,7 @@ export default function EnhancedMatrixPlot() {
                     <RechartsTooltip content={<CustomTooltip />} />
                     
                     <Scatter 
-                      dataKey="y" 
+                      dataKey="jitteredY" 
                       fill="#3B82F6"
                       shape={(props: any) => {
                         const { cx, cy, payload } = props;
