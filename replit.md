@@ -25,7 +25,7 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 ### Modular Architecture (Refactored Jan 2026)
 - **Server Routes**: Domain-based modular structure in `server/routes/` with 17 specialized modules:
   - `use-cases.routes.ts` - Core CRUD operations (856 lines)
-  - `value.routes.ts` - Value realization endpoints (438 lines)
+  - `value.routes.ts` - Value realization endpoints (593 lines)
   - `responses.routes.ts` - Questionnaire responses (377 lines)
   - `assessments.routes.ts` - Assessment management (379 lines)
   - `capability.routes.ts` - Capability transitions (336 lines)
@@ -72,6 +72,16 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 
 ### Insights Dashboard Structure
 All four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) follow a consistent pattern: Summary Cards, Distribution Charts, and Use Case Table.
+
+### Recent Enhancements (Jan 2026)
+- **Value Realization API Expansion**: New endpoints for adjusted value calculations (`/api/value/adjusted/:id`) and KPI aggregation by type/stream (`/api/value/kpi-aggregation`)
+- **Auto-Derivation Enhancement**: Automatic population of valueConfidence defaults (conservativeFactor: 1.0, validationStatus: 'unvalidated') on use case creation/update
+- **Governance Audit Trail**: Extended change logging to track deliveryOwner, valueValidator, valueGovernanceModel, and valueConfidence changes (validationStatus, conservativeFactor)
+- **Excel Export Enhancement**: Added 11 new columns including governance fields, valueConfidence data, and KPI type/stream metadata from KPI library
+- **Excel Import Enhancement**: Parsing for governance fields and valueConfidence from strategic and AI inventory import flows
+- **PDF Export Enhancement**: Adjusted values, color-coded validation status badges, and governance roles in executive summary and use case pages
+- **TOM Phase Requirements**: validationFullyValidated exit requirement for steady_state and RSA TOM's Operate phase (values must be fully validated before completing final phases)
+- **Schema Type Alignment**: ValueStream type now includes all 6 insurance-specific categories across shared/schema.ts and shared/valueRealization.ts
 
 ## External Dependencies
 
