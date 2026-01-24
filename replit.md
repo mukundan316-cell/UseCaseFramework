@@ -42,6 +42,7 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 - **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table.
 - **Compliance Features**: Duplicate detection, full audit trail (`use_case_change_log`), and role evolution tracking.
 - **Governance Workflow**: Foundation Layer gates must be cleared before use cases enter active portfolio. Backend enforcement blocks activation API calls and auto-deactivates if gates regress.
+- **Phase Derivation vs Governance (NIST AI RMF 2024)**: Phase derivation is applied to ALL use cases for categorization and browsing. Governance gates are enforced ONLY when activating (moving from Reference Library to Active Portfolio). This separation allows Reference Library use cases to display phases for discovery while maintaining strict governance at activation.
 - **Soft Progressive Data Capture**: Phase-aligned guidance system shows required data for each TOM phase via "Focus" badges.
 - **Phase Transition Governance**: Checks for exit requirements during phase transitions, requiring justification for incomplete requirements.
 - **Navigation**: All features accessible via tab navigation from home page: Dashboard View, Explorer, Insights, AI Assessment, Admin.

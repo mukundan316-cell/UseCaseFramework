@@ -690,20 +690,14 @@ export function derivePhase(
     return { id: 'disabled', name: 'TOM Disabled', color: '#6B7280', isOverride: false, matchedBy: 'disabled' };
   }
 
-  // GOVERNANCE GATE CHECK: Operating Model gate must be passed to enter TOM lifecycle
-  // This aligns with AI governance best practices (NIST AI RMF, ISO 42001):
-  // "Every AI initiative needs a named owner" before proceeding
-  if (governanceGates && !governanceGates.operatingModelPassed) {
-    return { 
-      id: 'unphased', 
-      name: 'Unphased', 
-      color: '#9CA3AF', 
-      isOverride: false, 
-      matchedBy: 'unphased' 
-    };
-  }
+  // NIST AI RMF 2024 ALIGNED: Phase derivation is SEPARATE from governance enforcement
+  // - Phase derivation: Applied to ALL use cases for categorization and browsing
+  // - Governance enforcement: Applied only at activation (Reference → Active Portfolio)
+  // This allows Reference Library use cases to display phases for discovery and planning,
+  // while governance gates are enforced separately when activating use cases.
+  // See: governance-enforcement.ts for activation blocking logic
 
-  // Manual override takes precedence (if governance gate passed)
+  // Manual override takes precedence
   if (tomPhaseOverride) {
     const overridePhase = tomConfig.phases.find(p => p.id === tomPhaseOverride);
     if (overridePhase) {
@@ -726,12 +720,14 @@ export function derivePhase(
     }
   }
 
-  // METADATA-DRIVEN ENTRY: If no status match but OM gate passed, 
-  // enter the FIRST phase of the active preset (works for any TOM preset)
+  // NO STATUS MATCH: Use case status doesn't map to any TOM phase
+  // This can happen when:
+  // - Status is null/undefined (truly unclassified)
+  // - Status exists but isn't in the current TOM preset's phase mappings
   if (matchingPhases.length === 0) {
-    // Check if governance gates were provided (indicating gate-based flow)
-    if (governanceGates && governanceGates.operatingModelPassed) {
-      // Get phases sorted by order to find the entry phase
+    // If a valid status exists but doesn't match any phase, use entry phase as default
+    // This ensures Reference Library use cases with status can still display a phase for browsing
+    if (useCaseStatus && useCaseStatus.trim().length > 0) {
       const sortedPhases = [...tomConfig.phases].sort((a, b) => a.order - b.order);
       const entryPhase = sortedPhases.find(p => !p.manualOnly);
       if (entryPhase) {
@@ -740,10 +736,11 @@ export function derivePhase(
           name: entryPhase.name,
           color: entryPhase.color,
           isOverride: false,
-          matchedBy: 'governance_entry'
+          matchedBy: 'status' // Status exists but mapped to entry phase
         };
       }
     }
+    // No status at all - truly unmapped
     return { id: 'unmapped', name: 'Unmapped', color: '#9CA3AF', isOverride: false, matchedBy: 'unmapped' };
   }
 
