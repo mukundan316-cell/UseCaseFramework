@@ -1,0 +1,143 @@
+INDEPENDENT AUDIT PROMPT FOR REPLIT AGENT
+Please run the following audit and provide the exact output for each section. Do not summarize or interpret - provide raw data.
+
+SECTION 1: FILE STRUCTURE VERIFICATION
+bash# 1.1 - List all directories in project root
+ls -la
+
+# 1.2 - Count files by type
+echo "=== TypeScript files ===" && find . -name "*.ts" -o -name "*.tsx" | wc -l
+echo "=== Server files ===" && ls -la server/ 2>/dev/null || echo "server/ not found"
+echo "=== Client src ===" && ls -la client/src/ 2>/dev/null || echo "client/src/ not found"
+echo "=== Shared files ===" && ls -la shared/ 2>/dev/null || echo "shared/ not found"
+
+# 1.3 - File sizes for key files (bytes)
+wc -c server/routes.ts server/storage.ts shared/schema.ts shared/calculations.ts shared/tom.ts 2>/dev/null
+
+# 1.4 - Count LEGO block components
+ls client/src/components/lego-blocks/ 2>/dev/null | wc -l
+ls client/src/components/lego-blocks/ 2>/dev/null
+
+SECTION 2: GOVERNANCE ENFORCEMENT VERIFICATION
+bash# 2.1 - Check if governance-enforcement.ts exists
+ls -la server/services/governance-enforcement.ts 2>/dev/null || echo "FILE NOT FOUND"
+
+# 2.2 - If exists, show first 100 lines
+head -100 server/services/governance-enforcement.ts 2>/dev/null || echo "Cannot read file"
+
+# 2.3 - Search for checkActivationAllowed function
+grep -n "checkActivationAllowed" server/services/*.ts server/routes.ts 2>/dev/null || echo "Function not found"
+
+# 2.4 - Search for 403 GOVERNANCE_INCOMPLETE response in routes
+grep -n "GOVERNANCE_INCOMPLETE\|403" server/routes.ts 2>/dev/null | head -20
+
+# 2.5 - Search for Gate 1 requirements (businessFunction check)
+grep -n "businessFunction" shared/calculations.ts 2>/dev/null | head -10
+
+SECTION 3: GATE 1 REQUIREMENTS VERIFICATION
+bash# 3.1 - Find the calculateOperatingModelGate or checkGate1 function
+grep -n -A 30 "calculateOperatingModelGate\|checkGate1\|operatingModel.*gate" shared/calculations.ts 2>/dev/null
+
+# 3.2 - Check what fields Gate 1 validates
+grep -n "primaryBusinessOwner\|businessFunction\|Discovery" shared/calculations.ts 2>/dev/null
+
+SECTION 4: PHASE DERIVATION (NIST ALIGNMENT) VERIFICATION
+bash# 4.1 - Find derivePhase function and check if governance blocks it
+grep -n -A 20 "derivePhase\|deriveTomPhase" shared/tom.ts 2>/dev/null | head -40
+
+# 4.2 - Check for "Unphased" logic
+grep -n "Unphased\|unphased" shared/tom.ts 2>/dev/null
+
+SECTION 5: CASCADE BENCHMARK ENGINE VERIFICATION
+bash# 5.1 - Check if cascade-benchmark-engine.ts exists
+ls -la server/services/cascade-benchmark-engine.ts 2>/dev/null || echo "FILE NOT FOUND"
+
+# 5.2 - Check capabilityTransition derivation
+grep -n "deriveCapability\|BENCHMARK_ARCHETYPES" server/services/*.ts shared/*.ts 2>/dev/null | head -20
+
+SECTION 6: DATABASE VERIFICATION
+bash# 6.1 - Count use cases with capability data
+# Run this SQL query via your database connection:
+echo "SELECT COUNT(*) as total, COUNT(capability_transition) as with_capability FROM use_cases;" 
+
+# 6.2 - Count Active Portfolio vs Reference Library
+echo "SELECT COUNT(*) as active FROM use_cases WHERE is_active_for_rsa = 'true';"
+echo "SELECT COUNT(*) as reference FROM use_cases WHERE library_tier = 'reference' OR is_active_for_rsa != 'true';"
+
+# 6.3 - Check governance audit log entries
+echo "SELECT COUNT(*) FROM governance_audit_log;" 2>/dev/null || echo "Table may not exist"
+
+SECTION 7: UI COMPONENT VERIFICATION
+bash# 7.1 - Check if CollapsibleSectionLegoBlock exists
+ls -la client/src/components/lego-blocks/CollapsibleSectionLegoBlock.tsx 2>/dev/null || echo "FILE NOT FOUND"
+
+# 7.2 - Check GovernanceGuideLegoBlock for Gate 1 requirements display
+grep -n "Business Function\|businessFunction\|beyond Discovery" client/src/components/lego-blocks/GovernanceGuideLegoBlock.tsx 2>/dev/null | head -10
+
+# 7.3 - Check CRUDUseCaseModal for Gate Required badges
+grep -n "Gate Required" client/src/components/CRUDUseCaseModal.tsx 2>/dev/null | head -10
+
+# 7.4 - Check for Discovery status warning
+grep -n "Discovery.*cannot\|cannot pass Gate" client/src/components/CRUDUseCaseModal.tsx 2>/dev/null
+
+SECTION 8: TEST COVERAGE VERIFICATION
+bash# 8.1 - List test files
+find . -name "*.test.ts" -o -name "*.spec.ts" 2>/dev/null
+
+# 8.2 - Check governance enforcement tests
+ls -la server/services/__tests__/governance-enforcement.test.ts 2>/dev/null || echo "FILE NOT FOUND"
+
+# 8.3 - If exists, count test cases
+grep -c "it('\|test('\|describe('" server/services/__tests__/governance-enforcement.test.ts 2>/dev/null || echo "0"
+
+SECTION 9: TECH DEBT ASSESSMENT
+bash# 9.1 - Large file detection (files > 50KB)
+find . -name "*.ts" -o -name "*.tsx" | xargs wc -c 2>/dev/null | sort -rn | head -10
+
+# 9.2 - Console errors/warnings in code
+grep -rn "console.error\|console.warn" client/src/ 2>/dev/null | wc -l
+
+# 9.3 - TODO/FIXME count
+grep -rn "TODO\|FIXME\|HACK" server/ client/src/ shared/ 2>/dev/null | wc -l
+
+# 9.4 - Any type usage (TypeScript anti-pattern)
+grep -rn ": any" shared/*.ts server/*.ts 2>/dev/null | wc -l
+
+SECTION 10: API ENDPOINT VERIFICATION
+bash# 10.1 - Count API endpoints
+grep -n "app.get\|app.post\|app.put\|app.delete\|app.patch" server/routes.ts 2>/dev/null | wc -l
+
+# 10.2 - List key endpoints
+grep -n "/api/use-cases\|/api/capability\|/api/governance" server/routes.ts 2>/dev/null | head -20
+```
+
+---
+
+### SECTION 11: LIVE DATA VERIFICATION (Run in App)
+
+Please navigate to the running application and provide:
+
+1. **Dashboard Screenshot**: How many Active Portfolio use cases are shown?
+2. **Reference Library Count**: How many total use cases in Reference Library?
+3. **Create New Use Case Modal**:
+   - Does Business Function field have "Gate Required" badge?
+   - Does Status field have "Gate Required" badge?
+   - When selecting "Discovery" status, does a warning appear?
+4. **Guide Tab**: Does Gate 1 show 3 requirements (Owner, Function, Status beyond Discovery)?
+5. **Insights → Capability Transition**: Does the dashboard show data or empty values?
+
+---
+
+### OUTPUT FORMAT
+
+Please provide results in this format:
+```
+=== SECTION 1: FILE STRUCTURE ===
+[paste actual output]
+
+=== SECTION 2: GOVERNANCE ENFORCEMENT ===
+[paste actual output]
+
+... etc for each section
+
+Once you provide the raw audit output, I will conduct an independent assessment and generate the Final Audit Report with verified ratings.
