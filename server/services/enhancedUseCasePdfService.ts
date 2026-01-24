@@ -362,6 +362,60 @@ export class EnhancedUseCasePdfService {
       }
     }
     
+    // Value Realization section - ALWAYS render when value data or governance exists (outside hasImplementationDetails)
+    if (useCase.valueRealization) {
+      const vr = useCase.valueRealization;
+      const hasValue = vr.totalValueGbp !== null || vr.adjustedValueGbp !== null;
+      const hasGovernance = vr.deliveryOwner || vr.valueValidator || vr.valueGovernanceModel;
+      
+      if (hasValue || hasGovernance) {
+        doc.fontSize(11)
+           .fillColor('#005DAA')
+           .font('Helvetica-Bold')
+           .text('Value Realization', leftMargin + 20, doc.y);
+        doc.y += 15;
+        
+        // Value metrics with adjusted value
+        if (hasValue) {
+          const formatCurrency = (v: number | null) => v !== null ? `£${v.toLocaleString('en-GB')}` : 'N/A';
+          const validationColors: Record<string, string> = {
+            'unvalidated': '#9CA3AF',
+            'pending_finance': '#F59E0B',
+            'pending_actuarial': '#3B82F6',
+            'fully_validated': '#22C55E'
+          };
+          
+          doc.fontSize(10)
+             .fillColor('#374151')
+             .font('Helvetica')
+             .text(`Raw Value: ${formatCurrency(vr.totalValueGbp)} | Adjusted Value: ${formatCurrency(vr.adjustedValueGbp)} (${(vr.conservativeFactor * 100).toFixed(0)}% confidence)`, leftMargin + 20, doc.y);
+          doc.y += 12;
+          
+          // Validation status badge
+          const statusColor = validationColors[vr.validationStatus] || '#9CA3AF';
+          doc.fontSize(9)
+             .fillColor(statusColor)
+             .font('Helvetica-Bold')
+             .text(`[${vr.validationStatusDisplay}]`, leftMargin + 20, doc.y);
+          doc.y += 15;
+        }
+        
+        // Governance roles
+        if (hasGovernance) {
+          const roles: string[] = [];
+          if (vr.deliveryOwner) roles.push(`Delivery: ${vr.deliveryOwner}`);
+          if (vr.valueValidator) roles.push(`Validator: ${vr.valueValidator}`);
+          if (vr.valueGovernanceModel) roles.push(`Model: ${vr.valueGovernanceModel}`);
+          
+          doc.fontSize(10)
+             .fillColor('#6B7280')
+             .font('Helvetica')
+             .text(roles.join(' | '), leftMargin + 20, doc.y, { width: tableWidth - 40 });
+          doc.y += 15;
+        }
+      }
+    }
+    
     doc.y = currentY + 30; // Space between use cases
   }
 
@@ -449,6 +503,36 @@ export class EnhancedUseCasePdfService {
       
       doc.y += 40;
       
+      // Value Realization Summary section
+      if (summary.useCasesWithValue > 0) {
+        doc.fontSize(18)
+           .fillColor('#005DAA')
+           .font('Helvetica-Bold')
+           .text('Value Realization Summary');
+        
+        doc.y += 15;
+        
+        const formatCurrency = (v: number) => `£${v.toLocaleString('en-GB')}`;
+        
+        // Value metrics
+        doc.fontSize(12)
+           .fillColor('#374151')
+           .font('Helvetica')
+           .text(`Total Raw Value: ${formatCurrency(summary.totalRawValueGbp)}`, { continued: false });
+        doc.y += 10;
+        doc.text(`Total Adjusted Value: ${formatCurrency(summary.totalAdjustedValueGbp)} (risk-adjusted)`, { continued: false });
+        doc.y += 10;
+        doc.text(`Use Cases with Value Data: ${summary.useCasesWithValue}`, { continued: false });
+        doc.y += 10;
+        
+        // Validation status summary
+        doc.fontSize(11)
+           .fillColor('#6B7280')
+           .text(`Validation Status: ${summary.validatedUseCases} fully validated, ${summary.pendingValidation} pending, ${summary.unvalidatedUseCases} unvalidated`, { continued: false });
+        
+        doc.y += 30;
+      }
+      
       // Use Case Inventory section (matching your layout)
       doc.fontSize(18)
          .fillColor('#005DAA')
@@ -531,6 +615,36 @@ export class EnhancedUseCasePdfService {
          });
       
       doc.y += 40;
+      
+      // Value Realization Summary section for portfolio
+      if (summary.useCasesWithValue > 0) {
+        doc.fontSize(18)
+           .fillColor('#005DAA')
+           .font('Helvetica-Bold')
+           .text('Value Realization Summary');
+        
+        doc.y += 15;
+        
+        const formatCurrency = (v: number) => `£${v.toLocaleString('en-GB')}`;
+        
+        // Value metrics
+        doc.fontSize(12)
+           .fillColor('#374151')
+           .font('Helvetica')
+           .text(`Total Raw Value: ${formatCurrency(summary.totalRawValueGbp)}`, { continued: false });
+        doc.y += 10;
+        doc.text(`Total Adjusted Value: ${formatCurrency(summary.totalAdjustedValueGbp)} (risk-adjusted)`, { continued: false });
+        doc.y += 10;
+        doc.text(`Use Cases with Value Data: ${summary.useCasesWithValue}`, { continued: false });
+        doc.y += 10;
+        
+        // Validation status summary
+        doc.fontSize(11)
+           .fillColor('#6B7280')
+           .text(`Validation Status: ${summary.validatedUseCases} fully validated, ${summary.pendingValidation} pending, ${summary.unvalidatedUseCases} unvalidated`, { continued: false });
+        
+        doc.y += 30;
+      }
       
       // Add active use cases with enhanced tables
       activeUseCases.forEach((useCase, index) => {

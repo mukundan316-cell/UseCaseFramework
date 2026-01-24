@@ -114,6 +114,19 @@ export interface ExtractedUseCaseData {
     regulatoryCompliance: number | null;
   };
 
+  // Value Realization & Governance
+  valueRealization: {
+    totalValueGbp: number | null;
+    adjustedValueGbp: number | null;
+    conservativeFactor: number;
+    validationStatus: string;
+    validationStatusDisplay: string;
+    selectedKpisCount: number;
+    deliveryOwner: string | null;
+    valueValidator: string | null;
+    valueGovernanceModel: string | null;
+  };
+
   // Display Helpers
   display: {
     statusBadge: string;
@@ -241,6 +254,33 @@ export class UseCaseDataExtractor {
       regulatoryCompliance: useCase.regulatoryCompliance !== null ? useCase.regulatoryCompliance : null,
     };
 
+    // Value Realization & Governance extraction
+    const vr = useCase.valueRealization as any || {};
+    const vc = vr.valueConfidence || {};
+    const conservativeFactor = typeof vc.conservativeFactor === 'number' ? vc.conservativeFactor : 1.0;
+    const totalValueGbp = typeof vr.totalValueGbp === 'number' ? vr.totalValueGbp : null;
+    const adjustedValueGbp = totalValueGbp !== null ? totalValueGbp * conservativeFactor : (vc.adjustedValueGbp || null);
+    
+    const validationStatusMap: Record<string, string> = {
+      'unvalidated': 'Unvalidated',
+      'pending_finance': 'Pending Finance Review',
+      'pending_actuarial': 'Pending Actuarial Review',
+      'fully_validated': 'Fully Validated'
+    };
+    const validationStatus = vc.validationStatus || 'unvalidated';
+    
+    const valueRealization = {
+      totalValueGbp,
+      adjustedValueGbp,
+      conservativeFactor,
+      validationStatus,
+      validationStatusDisplay: validationStatusMap[validationStatus] || validationStatus,
+      selectedKpisCount: Array.isArray(vr.selectedKpis) ? vr.selectedKpis.length : 0,
+      deliveryOwner: useCase.deliveryOwner || null,
+      valueValidator: useCase.valueValidator || null,
+      valueGovernanceModel: useCase.valueGovernanceModel || null,
+    };
+
     // Display Helpers
     const isAiInventory = useCase.librarySource === 'ai_inventory';
     const hasScoring = !isAiInventory && portfolioStatus.isActiveForRsa; // AI Inventory is for governance tracking, not scoring
@@ -264,6 +304,7 @@ export class UseCaseDataExtractor {
       scoring,
       portfolioStatus,
       aiInventory,
+      valueRealization,
       display,
     };
   }
@@ -297,13 +338,16 @@ export class UseCaseDataExtractor {
   }
 
   /**
-   * Get formatted summary statistics
+   * Get formatted summary statistics including value realization metrics
    */
   static getSummaryStats(useCases: UseCase[]) {
     const totalUseCases = useCases.length;
     const activeUseCases = useCases.filter(uc => uc.isActiveForRsa === 'true').length;
     const aiInventoryItems = useCases.filter(uc => uc.librarySource === 'ai_inventory').length;
     const strategicUseCases = useCases.filter(uc => uc.librarySource !== 'ai_inventory').length;
+    
+    // Calculate value realization metrics
+    const valueStats = this.calculateValueRealizationStats(useCases);
     
     return {
       totalUseCases,
@@ -313,6 +357,61 @@ export class UseCaseDataExtractor {
       strategicUseCases,
       averageImpactScore: this.calculateAverageScore(useCases, 'impact'),
       averageEffortScore: this.calculateAverageScore(useCases, 'effort'),
+      ...valueStats,
+    };
+  }
+  
+  /**
+   * Calculate value realization summary statistics
+   * Handles both totalValueGbp and adjustedValueGbp (when only adjusted is stored)
+   */
+  private static calculateValueRealizationStats(useCases: UseCase[]) {
+    let totalRawValue = 0;
+    let totalAdjustedValue = 0;
+    let useCasesWithValue = 0;
+    const validationCounts: Record<string, number> = {
+      'unvalidated': 0,
+      'pending_finance': 0,
+      'pending_actuarial': 0,
+      'fully_validated': 0
+    };
+    
+    for (const uc of useCases) {
+      const vr = uc.valueRealization as any;
+      if (!vr) continue;
+      
+      const vc = vr.valueConfidence || {};
+      const totalValueGbp = typeof vr.totalValueGbp === 'number' ? vr.totalValueGbp : null;
+      const storedAdjustedValue = typeof vc.adjustedValueGbp === 'number' ? vc.adjustedValueGbp : null;
+      const conservativeFactor = typeof vc.conservativeFactor === 'number' ? vc.conservativeFactor : 1.0;
+      
+      // Count use case as having value if either raw or adjusted value exists
+      if (totalValueGbp !== null || storedAdjustedValue !== null) {
+        useCasesWithValue++;
+        
+        if (totalValueGbp !== null) {
+          totalRawValue += totalValueGbp;
+          totalAdjustedValue += totalValueGbp * conservativeFactor;
+        } else if (storedAdjustedValue !== null) {
+          // Only adjustedValueGbp stored - use it directly for adjusted, estimate raw
+          totalAdjustedValue += storedAdjustedValue;
+          totalRawValue += conservativeFactor > 0 ? storedAdjustedValue / conservativeFactor : storedAdjustedValue;
+        }
+      }
+      
+      const status = vc.validationStatus || 'unvalidated';
+      if (validationCounts[status] !== undefined) {
+        validationCounts[status]++;
+      }
+    }
+    
+    return {
+      totalRawValueGbp: totalRawValue,
+      totalAdjustedValueGbp: totalAdjustedValue,
+      useCasesWithValue,
+      validatedUseCases: validationCounts['fully_validated'],
+      pendingValidation: validationCounts['pending_finance'] + validationCounts['pending_actuarial'],
+      unvalidatedUseCases: validationCounts['unvalidated'],
     };
   }
 
