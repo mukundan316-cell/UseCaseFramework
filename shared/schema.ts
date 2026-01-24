@@ -653,7 +653,7 @@ export const metadataConfig = pgTable('metadata_config', {
         confidence: 'high' | 'medium' | 'low';
       }>;
       kpiType: 'financial' | 'operational' | 'strategic' | 'compliance';
-      valueStream?: 'operational_savings' | 'cor_improvement' | 'revenue_uplift';
+      valueStream?: 'operational_savings' | 'cor_improvement' | 'revenue_uplift' | 'risk_mitigation' | 'customer_experience' | 'regulatory_compliance';
       isMonetizable: boolean;
       monetizationFormula?: string;
       aggregationMethod: 'sum' | 'average' | 'latest' | 'none';

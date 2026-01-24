@@ -435,4 +435,159 @@ export function registerValueRoutes(app: Express): void {
       res.status(500).json({ error: "Failed to derive value estimates" });
     }
   });
+
+  // Calculate adjusted value for a use case based on conservativeFactor
+  app.get("/api/value/adjusted/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const useCase = await storage.getAllUseCases().then(cases => cases.find(c => c.id === id));
+      
+      if (!useCase) {
+        res.status(404).json({ error: "Use case not found" });
+        return;
+      }
+      
+      const valueRealization = useCase.valueRealization as any;
+      if (!valueRealization) {
+        res.json({
+          useCaseId: id,
+          rawValueGbp: null,
+          adjustedValueGbp: null,
+          conservativeFactor: 1.0,
+          validationStatus: 'unvalidated'
+        });
+        return;
+      }
+      
+      const conservativeFactor = valueRealization.valueConfidence?.conservativeFactor ?? 1.0;
+      const validationStatus = valueRealization.valueConfidence?.validationStatus ?? 'unvalidated';
+      const rawValueGbp = valueRealization.totalValueGbp ?? valueRealization.totalEstimatedValue ?? null;
+      const adjustedValueGbp = rawValueGbp !== null ? rawValueGbp * conservativeFactor : null;
+      
+      res.json({
+        useCaseId: id,
+        rawValueGbp,
+        adjustedValueGbp,
+        conservativeFactor,
+        validationStatus
+      });
+    } catch (error) {
+      console.error("Error calculating adjusted value:", error);
+      res.status(500).json({ error: "Failed to calculate adjusted value" });
+    }
+  });
+
+  // Aggregate KPIs across portfolio by type and stream
+  app.get("/api/value/kpi-aggregation", async (req, res) => {
+    try {
+      const scope = req.query.scope as string | undefined;
+      const useCases = scope === 'dashboard' 
+        ? await storage.getDashboardUseCases() 
+        : await storage.getAllUseCases();
+      
+      const metadata = await storage.getMetadataConfig();
+      const { DEFAULT_VALUE_REALIZATION_CONFIG } = await import("@shared/valueRealization");
+      const valueConfig = metadata?.valueRealizationConfig || DEFAULT_VALUE_REALIZATION_CONFIG;
+      const kpiLibrary = valueConfig.kpiLibrary || {};
+      
+      // Initialize aggregation structures
+      const byKpiType: Record<string, { count: number; totalValueGbp: number; adjustedValueGbp: number; kpis: string[] }> = {
+        financial: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] },
+        operational: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] },
+        strategic: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] },
+        compliance: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] }
+      };
+      
+      const byValueStream: Record<string, { count: number; totalValueGbp: number; adjustedValueGbp: number; kpis: string[] }> = {
+        operational_savings: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] },
+        cor_improvement: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] },
+        revenue_uplift: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] },
+        risk_mitigation: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] },
+        customer_experience: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] },
+        regulatory_compliance: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0, kpis: [] }
+      };
+      
+      const byValidationStatus: Record<string, { count: number; totalValueGbp: number; adjustedValueGbp: number }> = {
+        unvalidated: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0 },
+        pending_finance: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0 },
+        pending_actuarial: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0 },
+        fully_validated: { count: 0, totalValueGbp: 0, adjustedValueGbp: 0 }
+      };
+      
+      let totalRawValue = 0;
+      let totalAdjustedValue = 0;
+      let useCasesWithValue = 0;
+      
+      for (const useCase of useCases) {
+        const valueRealization = useCase.valueRealization as any;
+        if (!valueRealization) continue;
+        
+        const conservativeFactor = valueRealization.valueConfidence?.conservativeFactor ?? 1.0;
+        const validationStatus = valueRealization.valueConfidence?.validationStatus ?? 'unvalidated';
+        const rawValue = valueRealization.totalValueGbp ?? valueRealization.totalEstimatedValue ?? 0;
+        const adjustedValue = rawValue * conservativeFactor;
+        
+        if (rawValue > 0) {
+          useCasesWithValue++;
+          totalRawValue += rawValue;
+          totalAdjustedValue += adjustedValue;
+        }
+        
+        // Aggregate by validation status
+        if (byValidationStatus[validationStatus]) {
+          byValidationStatus[validationStatus].count++;
+          byValidationStatus[validationStatus].totalValueGbp += rawValue;
+          byValidationStatus[validationStatus].adjustedValueGbp += adjustedValue;
+        }
+        
+        // Process KPI estimates
+        const kpiEstimates = valueRealization.kpiEstimates || [];
+        for (const estimate of kpiEstimates) {
+          const kpiDef = kpiLibrary[estimate.kpiId] as any;
+          if (!kpiDef) continue;
+          
+          const kpiType = kpiDef.kpiType || 'operational';
+          const valueStream = kpiDef.valueStream || 'operational_savings';
+          const estimatedValue = estimate.estimatedAnnualValueGbp || 0;
+          const adjustedKpiValue = estimatedValue * conservativeFactor;
+          
+          // Aggregate by KPI type
+          if (byKpiType[kpiType]) {
+            byKpiType[kpiType].count++;
+            byKpiType[kpiType].totalValueGbp += estimatedValue;
+            byKpiType[kpiType].adjustedValueGbp += adjustedKpiValue;
+            if (!byKpiType[kpiType].kpis.includes(estimate.kpiId)) {
+              byKpiType[kpiType].kpis.push(estimate.kpiId);
+            }
+          }
+          
+          // Aggregate by value stream
+          if (byValueStream[valueStream]) {
+            byValueStream[valueStream].count++;
+            byValueStream[valueStream].totalValueGbp += estimatedValue;
+            byValueStream[valueStream].adjustedValueGbp += adjustedKpiValue;
+            if (!byValueStream[valueStream].kpis.includes(estimate.kpiId)) {
+              byValueStream[valueStream].kpis.push(estimate.kpiId);
+            }
+          }
+        }
+      }
+      
+      res.json({
+        summary: {
+          totalUseCases: useCases.length,
+          useCasesWithValue,
+          totalRawValueGbp: totalRawValue,
+          totalAdjustedValueGbp: totalAdjustedValue,
+          averageConservativeFactor: useCasesWithValue > 0 ? totalAdjustedValue / totalRawValue : 1.0
+        },
+        byKpiType,
+        byValueStream,
+        byValidationStatus
+      });
+    } catch (error) {
+      console.error("Error aggregating KPIs:", error);
+      res.status(500).json({ error: "Failed to aggregate KPIs" });
+    }
+  });
 }
