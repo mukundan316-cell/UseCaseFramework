@@ -8,6 +8,8 @@ npm run dev  # Starts application on port 5000
 ```
 
 ## Latest Accomplishments (Jan 2026)
+- ✅ **Modular Architecture Refactor**: Server routes split into 17 domain modules (97% reduction in routes.ts)
+- ✅ **CRUD Modal Modularization**: Tab components extracted to 6 specialized modules (52% reduction)
 - ✅ **Value Realization System**: KPI-based ROI tracking with 9 insurance-specific metrics
 - ✅ **Capability Transition**: "Teach Us to Fish" staffing curves and independence projections
 - ✅ **Markel 9 Topics Compliance**: Duplicate detection, full audit trails, role evolution tracking
@@ -37,7 +39,7 @@ npm run dev  # Starts application on port 5000
 - **Excel Import/Export**: Multi-worksheet structure with comprehensive validation
 - **Manual Override System**: Toggle-based score customization with reason tracking
 - **Admin Panel**: Comprehensive configuration with dynamic metadata management
-- **LEGO Architecture**: Rationalized component system with SmartRating, UnifiedValue, and ConfigurationToggle blocks
+- **LEGO Architecture**: 70+ rationalized components with modular route and modal architectures
 
 ## Database
 - **PostgreSQL**: Production-ready schema with 4+ core tables and hybrid JSON blob storage
@@ -56,12 +58,13 @@ npm run dev  # Starts application on port 5000
 - **Dependencies**: 100+ specialized packages including T-shirt sizing engine
 
 ## Key Directories
-- `client/` - React frontend application with 40+ LEGO components
+- `client/` - React frontend application with 70+ LEGO components
+  - `client/src/components/lego-blocks/crud-modal-tabs/` - Modular CRUD modal tabs
 - `server/` - Express backend API with automated systems
+  - `server/routes/` - 17 domain-based route modules (use-cases, value, tom, capability, etc.)
 - `shared/` - Common schemas and types with unified utilities
 - `attached_assets/` - User-uploaded assets and images
-- `temp-presentation-storage/` - Local file storage with metadata
-- `temp-questionnaire-storage/` - Assessment data with JSON blob storage
+- `uploads/` - File storage with metadata tracking
 
 ## Documentation
 - **Technical Details**: `replit.md` - Architecture, data model, deployment guide
