@@ -504,9 +504,26 @@ export class ExcelImportService {
         activities: safeArrayParse(getValue('Process Activities')),
         presentationFileName: getValue('Presentation File Name') || null,
         hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')) || 'false',
-        deactivationReason: getValue('Deactivation Reason') || null
+        deactivationReason: getValue('Deactivation Reason') || null,
+        // Governance fields
+        deliveryOwner: getValue('Delivery Owner') || null,
+        valueValidator: getValue('Value Validator') || null,
+        valueGovernanceModel: getValue('Value Governance Model') || null
         // Removed legacy fields: activity (single), valueChainComponent, lastStatusUpdate, createdDate
       });
+      
+      // Parse valueConfidence from import data if present for strategic use cases
+      const conservativeFactor = ExcelImportService.parseNumber(getValue('Conservative Factor'));
+      const validationStatus = getValue('Validation Status');
+      if (conservativeFactor !== undefined || validationStatus) {
+        (useCase as any).valueRealization = (useCase as any).valueRealization || {};
+        (useCase as any).valueRealization.valueConfidence = {
+          conservativeFactor: conservativeFactor ?? 1.0,
+          validationStatus: validationStatus || 'unvalidated',
+          adjustedValueGbp: null,
+          rationale: null
+        };
+      }
 
     } else if (type === 'ai_inventory') {
       // Business Context fields for AI Inventory
@@ -577,9 +594,27 @@ export class ExcelImportService {
         validationResponsibility: getValue('Are you responsible for validation / testing, or is a Third Party?') || getValue('Validation Responsibility') || getValue('Validation Process') || null,
         informedBy: getValue('Informed By') || null,
         
+        // Governance fields
+        deliveryOwner: getValue('Delivery Owner') || null,
+        valueValidator: getValue('Value Validator') || null,
+        valueGovernanceModel: getValue('Value Governance Model') || null,
+        
         // Presentation field
         hasPresentation: ExcelImportService.parseBoolean(getValue('Has Presentation')) || 'false'
       });
+      
+      // Parse valueConfidence from import data if present
+      const aiConservativeFactor = ExcelImportService.parseNumber(getValue('Conservative Factor'));
+      const aiValidationStatus = getValue('Validation Status');
+      if (aiConservativeFactor !== undefined || aiValidationStatus) {
+        (useCase as any).valueRealization = (useCase as any).valueRealization || {};
+        (useCase as any).valueRealization.valueConfidence = {
+          conservativeFactor: aiConservativeFactor ?? 1.0,
+          validationStatus: aiValidationStatus || 'unvalidated',
+          adjustedValueGbp: null,
+          rationale: null
+        };
+      }
       
       // Map Purpose of Use to description if not already set
       if (!useCase.description || useCase.description === '') {
