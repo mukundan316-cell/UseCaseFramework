@@ -1,0 +1,197 @@
+RECOMMENDED APPROACH: P1 + Portfolio Seeding
+Execution Order
+Phase A: Capability Transition Data Population (P1)
+├── A1: Create Cascade Benchmark Engine
+├── A2: Auto-derive capability defaults from use case attributes
+├── A3: Populate all 126 use cases with derived capability data
+└── A4: Verify Insights → Capability Transition dashboard displays data
+
+Phase B: Active Portfolio Seeding (Quick Win)
+├── B1: Identify 10-15 high-quality use cases from Reference Library
+├── B2: Ensure they have complete governance data (all 3 gates)
+├── B3: Activate them (move to Active Portfolio)
+└── B4: Verify executive dashboards show meaningful data
+Why This Order?
+
+P1 first: Capability data should be populated BEFORE seeding Active Portfolio, so activated use cases have rich data
+Seeding second: Quick 30-minute task once capability data exists
+
+
+SEND TO REPLIT AGENT
+Please proceed with Capability Transition Data Population. Here's the implementation directive:
+Context
+The Capability Transition dashboard in Insights currently shows empty values because none of the 126 use cases have capability_transition JSONB data populated. We need to implement the "Cascade Benchmark Engine" that auto-derives capability defaults from existing use case attributes.
+Reference Documentation
+From project knowledge (replit.md):
+Capability Transition Benchmark Derivation: Automated population of capability 
+transition data from use case attributes, using benchmark archetypes and pace modifiers.
+From your staffing transition chart, the capability data should include:
+
+Staffing curves (Hexaware FTE vs Client FTE over time)
+Independence targets by phase
+Knowledge transfer milestones
+Role evolution tracking
+
+Task 1: Understand Existing Capability Transition Schema
+File: shared/capabilityTransition.ts
+Review the existing interfaces and identify what fields need to be populated:
+typescriptinterface UseCaseCapabilityTransition {
+  derived?: boolean;
+  derivedAt?: string;
+  derivedFrom?: object;
+  staffingModel?: StaffingModel;
+  independenceTargets?: IndependenceTargets;
+  ktMilestones?: KTMilestone[];
+  roleEvolution?: RoleEvolutionEntry[];
+}
+Task 2: Create Benchmark Archetype Mapping
+Create derivation logic that maps use case attributes to capability defaults:
+Use Case AttributeMaps ToExampleT-shirt Size (XS/S/M/L/XL)Base staffing levelsL = 8-10 FTETOM PhaseIndependence timelineStrategic = 6-12 monthsQuadrantPace modifierQuick Win = acceleratedOperating ModelTransition approachHybrid = parallel ramp
+File to create: server/services/capability-derivation.ts
+typescriptexport interface BenchmarkArchetype {
+  tshirtSize: string;
+  baseHexawareFTE: number;
+  baseClientFTE: number;
+  rampDurationMonths: number;
+  independenceMonth: number;
+  ktMilestones: string[];
+}
+
+export const BENCHMARK_ARCHETYPES: Record<string, BenchmarkArchetype> = {
+  'XS': { baseHexawareFTE: 2, baseClientFTE: 1, rampDurationMonths: 3, independenceMonth: 6, ... },
+  'S':  { baseHexawareFTE: 4, baseClientFTE: 2, rampDurationMonths: 4, independenceMonth: 9, ... },
+  'M':  { baseHexawareFTE: 6, baseClientFTE: 3, rampDurationMonths: 6, independenceMonth: 12, ... },
+  'L':  { baseHexawareFTE: 10, baseClientFTE: 5, rampDurationMonths: 9, independenceMonth: 15, ... },
+  'XL': { baseHexawareFTE: 15, baseClientFTE: 7, rampDurationMonths: 12, independenceMonth: 18, ... },
+};
+
+export function deriveCapabilityTransition(useCase: UseCase): UseCaseCapabilityTransition {
+  const archetype = BENCHMARK_ARCHETYPES[useCase.tshirtSize || 'M'];
+  const paceModifier = getPaceModifier(useCase.quadrant);
+  
+  return {
+    derived: true,
+    derivedAt: new Date().toISOString(),
+    derivedFrom: {
+      tshirtSize: useCase.tshirtSize,
+      quadrant: useCase.quadrant,
+      tomPhase: useCase.tomPhase,
+    },
+    staffingModel: generateStaffingCurve(archetype, paceModifier),
+    independenceTargets: generateIndependenceTargets(archetype, paceModifier),
+    ktMilestones: generateKTMilestones(archetype),
+    roleEvolution: [],
+  };
+}
+Task 3: Generate Staffing Curves
+The staffing curve should match the visualization from the project (showing Hexaware FTE ramping down as Client FTE ramps up):
+typescriptinterface StaffingDataPoint {
+  month: number;
+  hexawareFTE: number;
+  clientFTE: number;
+  phase: string;
+  milestone?: string;
+}
+
+function generateStaffingCurve(archetype: BenchmarkArchetype, paceModifier: number): StaffingDataPoint[] {
+  const curve: StaffingDataPoint[] = [];
+  const totalMonths = 18;
+  
+  for (let month = 0; month <= totalMonths; month++) {
+    const progress = month / archetype.independenceMonth;
+    
+    // Hexaware ramps up then down
+    const hexawareFTE = calculateHexawareFTE(archetype.baseHexawareFTE, month, archetype);
+    
+    // Client ramps up over time
+    const clientFTE = calculateClientFTE(archetype.baseClientFTE, progress);
+    
+    curve.push({
+      month,
+      hexawareFTE: Math.round(hexawareFTE * 10) / 10,
+      clientFTE: Math.round(clientFTE * 10) / 10,
+      phase: getPhaseForMonth(month, archetype),
+      milestone: getMilestoneForMonth(month, archetype),
+    });
+  }
+  
+  return curve;
+}
+Task 4: Add Derivation API Endpoint
+File: server/routes.ts
+typescript// Derive capability for single use case
+app.post('/api/use-cases/:id/derive-capability', async (req, res) => {
+  const useCase = await storage.getUseCase(req.params.id);
+  const capability = deriveCapabilityTransition(useCase);
+  
+  await storage.updateUseCase(req.params.id, {
+    capabilityTransition: capability
+  });
+  
+  return res.json({ success: true, capability });
+});
+
+// Bulk derive for all use cases
+app.post('/api/use-cases/derive-capability-bulk', async (req, res) => {
+  const useCases = await storage.getAllUseCases();
+  let updated = 0;
+  
+  for (const useCase of useCases) {
+    // Skip if already has manual capability data
+    if (useCase.capabilityTransition && !useCase.capabilityTransition.derived) {
+      continue;
+    }
+    
+    const capability = deriveCapabilityTransition(useCase);
+    await storage.updateUseCase(useCase.id, { capabilityTransition: capability });
+    updated++;
+  }
+  
+  return res.json({ success: true, updated, total: useCases.length });
+});
+Task 5: Run Bulk Derivation
+After implementing, run the bulk derivation to populate all 126 use cases:
+bashcurl -X POST http://localhost:5000/api/use-cases/derive-capability-bulk
+Task 6: Verify Dashboard
+Navigate to Insights → Capability Transition and verify:
+
+ Summary cards show aggregated data (not empty/zero)
+ Staffing distribution chart displays
+ Use case table shows capability data
+
+
+Acceptance Criteria
+
+ capability_transition JSONB populated for all 126 use cases
+ Data marked as derived: true with derivation source tracked
+ Staffing curves generated based on T-shirt size
+ Pace modifiers applied based on quadrant
+ Insights dashboard displays meaningful data
+ Manual overrides protected (not overwritten by derivation)
+
+
+After P1: Active Portfolio Seeding (Phase B)
+Once capability data is populated, we'll seed the Active Portfolio:
+sql-- Identify candidates: use cases with complete governance data
+SELECT id, title, quadrant, tshirt_size
+FROM use_cases
+WHERE primary_business_owner IS NOT NULL
+  AND primary_business_owner != ''
+  AND business_function IS NOT NULL
+  AND business_function != ''
+  AND use_case_status != 'Discovery'
+  AND revenue_impact BETWEEN 1 AND 5
+  AND cost_savings BETWEEN 1 AND 5
+  -- ... all 10 scoring levers
+  AND explainability_required IS NOT NULL
+  -- ... all 5 RAI fields
+ORDER BY 
+  CASE quadrant 
+    WHEN 'Quick Win' THEN 1 
+    WHEN 'Strategic Bet' THEN 2 
+    ELSE 3 
+  END
+LIMIT 15;
+Then activate these via the API (which will now pass governance checks).
+
+Please proceed with Task 1 (reviewing existing schema) and provide findings before implementing Tasks 2-6.
