@@ -1,0 +1,196 @@
+# Value Realization System Enhancement - Implementation Task List
+
+## Pre-Implementation Acknowledgment
+The following already exist and should NOT be modified:
+- ✅ primaryBusinessOwner (Operating Model tab)
+- ✅ modelOwner, validationResponsibility (Details tab - AI Governance)
+- ✅ KPI Library with Admin UI (metadata_config.valueRealizationConfig.kpiLibrary)
+- ✅ Process → Activity → KPI chain with auto-matching
+- ✅ Monthly actuals tracking with ROI/breakeven calculations
+- ✅ Industry benchmarks per KPI
+
+This enhancement EXTENDS the existing system without replacing it.
+
+---
+
+## TASK 1: Non-Financial KPI Support (Priority 1 - Critical)
+
+### Problem
+All current KPI calculations assume GBP conversion. KPIs like "cycle time reduction" or "accuracy %" cannot be meaningfully aggregated as currency.
+
+### Schema Change
+Extend the `KpiDefinition` type in the KPI Library schema:
+```typescript
+// Add to existing KpiDefinition interface
+{
+  // ... existing fields (id, name, unit, direction, applicableProcesses, industryBenchmarks)
+  
+  // NEW FIELDS
+  kpiType: 'financial' | 'operational' | 'strategic' | 'compliance';
+  isMonetizable: boolean;
+  monetizationFormula?: string; // e.g., "hours_saved * 75" (£75/hour rate)
+  aggregationMethod: 'sum' | 'average' | 'latest' | 'none';
+}
+```
+
+### Implementation Steps
+1. Update TypeScript type definition for KpiDefinition
+2. Add new fields to KPI Library Admin UI (KpiLibraryManagementLegoBlock)
+3. Update value aggregation logic:
+   - Financial KPIs → sum to `cumulativeValueGbp`
+   - Operational KPIs → aggregate separately by unit (e.g., "42 days saved total")
+   - Strategic KPIs → show as individual metrics (e.g., "NPS: +15 points")
+4. Update Insights > Value Realization dashboard to show:
+   - Financial value summary (existing)
+   - Operational improvements summary (NEW - grouped by unit)
+   - Strategic/Compliance metrics list (NEW)
+
+### Migration
+- Update existing KPIs in kpiLibrary to include new fields
+- Default values: `kpiType: 'financial'`, `isMonetizable: true`, `aggregationMethod: 'sum'`
+
+---
+
+## TASK 2: Conservative Factor / Confidence Multiplier (Priority 2)
+
+### Problem
+Raw value estimates are presented without risk adjustment. Finance/actuarial teams expect conservative factors applied until validation occurs.
+
+### Schema Change
+Extend the `valueRealization` JSONB field on use_cases:
+```typescript
+// Add to existing valueRealization structure
+valueConfidence: {
+  conservativeFactor: number; // 0.0-1.0, default 0.5
+  validationStatus: 'unvalidated' | 'pending_finance' | 'pending_actuarial' | 'fully_validated';
+  adjustedValueGbp: number; // Calculated: rawValue × conservativeFactor
+  rationale: string;
+  lastValidatedAt?: string;
+  lastValidatedBy?: string;
+}
+```
+
+### Implementation Steps
+1. Extend valueRealization TypeScript type
+2. Add UI fields to Value Realization tab in use case CRUD modal:
+   - Conservative Factor slider (0.3 - 1.0, step 0.1, default 0.5)
+   - Validation Status dropdown
+   - Rationale textarea
+3. Auto-calculate `adjustedValueGbp` on save: `estimatedAnnualValueGbp × conservativeFactor`
+4. Update Insights dashboard to show:
+   - Raw Value vs Adjusted Value comparison
+   - Breakdown by validation status (pie chart)
+5. Default rules (implement as derivation logic):
+   - If validationStatus = 'unvalidated' → suggest conservativeFactor = 0.5
+   - If validationStatus = 'pending_finance' → suggest conservativeFactor = 0.7
+   - If validationStatus = 'fully_validated' → suggest conservativeFactor = 1.0
+
+---
+
+## TASK 3: Governance Role Expansion (Priority 3)
+
+### Problem
+Only `primaryBusinessOwner` exists. Missing delivery accountability and value sign-off roles.
+
+### Schema Change
+Add 3 new columns to `use_cases` table:
+```sql
+ALTER TABLE use_cases ADD COLUMN delivery_owner TEXT;
+ALTER TABLE use_cases ADD COLUMN value_validator TEXT;
+ALTER TABLE use_cases ADD COLUMN value_governance_model TEXT; -- 'business_led' | 'it_led' | 'joint'
+```
+
+### Implementation Steps
+1. Create Drizzle migration for new columns
+2. Update use_cases TypeScript type
+3. Add fields to Operating Model tab in CRUD modal (alongside existing primaryBusinessOwner):
+   - Delivery Owner (text input)
+   - Value Validator (text input)
+   - Value Governance Model (dropdown: Business-Led, IT-Led, Joint Steering)
+4. Update Insights > Value Realization to show governance model distribution
+5. Include in PDF export
+
+### Field Placement Rationale
+These belong in Operating Model tab (not Value Realization) because they define WHO is accountable, not WHAT the value is.
+
+---
+
+## TASK 4: Value Stream Taxonomy (Priority 4)
+
+### Problem
+No way to categorize KPIs by value stream for insurance portfolio analysis.
+
+### Schema Change
+Add `valueStream` to KpiDefinition:
+```typescript
+{
+  // ... existing fields
+  valueStream?: 'operational_savings' | 'cor_improvement' | 'revenue_uplift';
+}
+```
+
+### Implementation Steps
+1. Extend KpiDefinition type
+2. Add dropdown to KPI Library Admin UI
+3. Update KPI selection UI to show value stream as tag/badge
+4. Add value stream filter to Insights > Value Realization
+5. Add value stream breakdown chart (pie/donut) to dashboard
+
+### Seed Data
+Tag existing insurance-specific KPIs:
+- Claims Processing Time → operational_savings
+- Cost per Claim → operational_savings
+- Loss Ratio → cor_improvement
+- Combined Ratio → cor_improvement
+- Quote-to-Bind Ratio → revenue_uplift
+- Premium Leakage → revenue_uplift
+
+---
+
+## TASK 5: Insurance-Specific KPI Additions (Priority 4 - Content)
+
+### Action
+Add these KPIs via KPI Library Admin UI (no code change needed):
+
+| ID | Name | Type | Value Stream | Unit | Monetizable | Benchmark |
+|----|------|------|--------------|------|-------------|-----------|
+| INS001 | COR Points Improvement | financial | cor_improvement | points | Yes (× £84M/point) | 0.5-2.0 pts/year |
+| INS002 | Loss Ratio Impact | financial | cor_improvement | percentage | Yes | 1-3% reduction |
+| INS003 | Expense Ratio Impact | financial | cor_improvement | percentage | Yes | 0.5-1.5% reduction |
+| INS004 | Claims Severity Reduction | operational | cor_improvement | percentage | Yes | 10-20% reduction |
+| INS005 | Underwriting Cycle Time | operational | operational_savings | days | Yes (× daily cost) | 30-50% reduction |
+| INS006 | Quote-to-Bind Ratio | strategic | revenue_uplift | percentage | No | 5-15% improvement |
+| INS007 | Premium Leakage Reduction | financial | revenue_uplift | percentage | Yes | 2-5% recovery |
+| INS008 | Claims Handling Cost | financial | operational_savings | £/claim | Yes | £20-50 reduction |
+| INS009 | FNOL Response Time | operational | operational_savings | hours | Yes (× hourly rate) | 40-60% reduction |
+
+---
+
+## DEFERRED: Phased Value Attribution (Phase 2)
+
+Do NOT implement now. Current TOM phases exist but phase-by-phase value projections add significant complexity. Revisit after Tasks 1-4 are complete.
+
+---
+
+## Implementation Order
+
+1. **Task 1** (Non-Financial KPIs) - Foundational; affects all downstream aggregation
+2. **Task 2** (Conservative Factor) - Simple JSONB extension
+3. **Task 3** (Governance Roles) - Simple column additions
+4. **Task 4** (Value Stream) - KPI metadata extension
+5. **Task 5** (Seed KPIs) - Content addition via Admin UI
+
+## Testing Checklist
+
+- [ ] Create a non-financial KPI (e.g., "Days Reduced") and verify it doesn't roll into GBP totals
+- [ ] Set conservative factor to 0.5 and verify adjusted value calculates correctly
+- [ ] Verify governance roles appear in Operating Model tab and export correctly
+- [ ] Filter Insights dashboard by value stream
+- [ ] Verify all 9 insurance KPIs appear in library with correct tags
+
+## Success Criteria
+
+- [ ] Insights dashboard shows separate sections for Financial vs Operational vs Strategic KPIs
+- [ ] All value figures show "Adjusted" value (with conservative factor applied) as primary
+- [ ] Governance model distribution visible in Value Realization insights
+- [ ] Value stream filter works across all value-related views
