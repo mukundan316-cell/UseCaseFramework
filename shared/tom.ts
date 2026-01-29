@@ -100,6 +100,16 @@ export interface PhaseTransitionRule {
   description?: string;
 }
 
+export interface GateDefinition {
+  id: 'operatingModel' | 'intake' | 'rai';
+  title: string;
+  subtitle: string;
+  principle: string;
+  requirements: string[];
+  color: string;
+  order: number;
+}
+
 export interface TomConfig {
   enabled: string;
   activePreset: string;
@@ -109,6 +119,7 @@ export interface TomConfig {
   governanceBodies: TomGovernanceBody[];
   derivationRules: TomDerivationRules;
   phaseTransitions?: PhaseTransitionRule[];  // Config-driven gate requirements per transition
+  gateDefinitions?: GateDefinition[];  // Config-driven gate metadata for UI display
 }
 
 export interface DerivedPhaseResult {

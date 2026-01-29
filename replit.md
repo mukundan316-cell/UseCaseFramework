@@ -86,6 +86,7 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
   - **Sequential gating**: Gate 2 requires Gate 1 to pass first; Gate 3 requires Gate 2 to pass first
   - **Architecture**: `PhaseTransitionRule` interface in `shared/tom.ts`, `checkPhaseTransition()` helper, and enforcement in `governance-enforcement.ts`
   - **Re-derivation endpoint**: `POST /api/tom/rederive-phases` recalculates phases for all use cases using preset-aware derivation
+  - **Gate UI Definitions**: `GateDefinition` interface in `shared/tom.ts` with `gateDefinitions` array in TomConfig enables fully config-driven gate display (title, subtitle, principle, requirements, color, order). GovernanceGuideLegoBlock loads gates from config with sensible defaults.
 - **Navigation**: All features accessible via tab navigation from home page: Dashboard View, Explorer, Insights, AI Assessment, Admin.
 
 ### Insights Dashboard Structure

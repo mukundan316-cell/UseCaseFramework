@@ -1,7 +1,7 @@
 import { User, BarChart3, Shield, Rocket, CheckCircle2 } from 'lucide-react';
 import type { ElementType } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { TomConfig, PhaseTransitionRule } from '@shared/tom';
+import type { TomConfig, GateDefinition } from '@shared/tom';
 import { useEngagement } from '@/contexts/EngagementContext';
 
 interface GovernanceGuideProps {
@@ -9,19 +9,11 @@ interface GovernanceGuideProps {
     operatingModel: boolean;
     intake: boolean;
     rai: boolean;
-    activation: boolean;
   };
 }
 
-interface GateStep {
-  id: string;
-  gateKey: 'operatingModel' | 'intake' | 'rai' | 'activation';
-  title: string;
-  subtitle: string;
+interface GateStep extends GateDefinition {
   icon: ElementType;
-  requirements: string[];
-  principle: string;
-  color: string;
   bgClass: string;
   borderClass: string;
 }
@@ -29,107 +21,52 @@ interface GateStep {
 const gateIconMap: Record<string, ElementType> = {
   operatingModel: User,
   intake: BarChart3,
-  rai: Shield,
-  activation: Rocket
+  rai: Shield
 };
 
-const gateMetadata: Record<string, Omit<GateStep, 'id' | 'gateKey' | 'requirements'>> = {
-  operatingModel: {
+const DEFAULT_GATE_DEFINITIONS: GateDefinition[] = [
+  {
+    id: 'operatingModel',
     title: 'Operating Model',
     subtitle: 'Accountability',
-    icon: User,
     principle: 'Accountability and organizational alignment must be established before AI work begins',
+    requirements: ['Primary Business Owner', 'Business Function assigned', 'Status beyond Discovery'],
     color: '#3C2CDA',
-    bgClass: 'bg-[#3C2CDA]',
-    borderClass: 'border-[#3C2CDA]'
+    order: 1
   },
-  intake: {
+  {
+    id: 'intake',
     title: 'Intake & Prioritization',
     subtitle: 'Assessment',
-    icon: BarChart3,
     principle: 'Must be properly assessed before building',
+    requirements: ['Complete 10-lever scoring (Impact & Effort)'],
     color: '#1D86FF',
-    bgClass: 'bg-[#1D86FF]',
-    borderClass: 'border-[#1D86FF]'
+    order: 2
   },
-  rai: {
+  {
+    id: 'rai',
     title: 'Responsible AI',
     subtitle: 'Compliance',
-    icon: Shield,
     principle: 'Must clear ethical/compliance review',
+    requirements: ['Complete RAI questionnaire (5 fields)'],
     color: '#14CBDE',
-    bgClass: 'bg-[#14CBDE]',
-    borderClass: 'border-[#14CBDE]'
-  },
-  activation: {
-    title: 'Activation',
-    subtitle: 'Enter Portfolio',
-    icon: Rocket,
-    principle: 'Ready for TOM lifecycle tracking',
-    color: '#07125E',
-    bgClass: 'bg-[#07125E]',
-    borderClass: 'border-[#07125E]'
+    order: 3
   }
-};
+];
 
-const defaultGateRequirements: Record<string, string[]> = {
-  operatingModel: [
-    'Primary Business Owner',
-    'Business Function assigned',
-    'Status beyond Discovery'
-  ],
-  intake: ['Complete 10-lever scoring (Impact & Effort)'],
-  rai: ['Complete RAI questionnaire (5 fields)'],
-  activation: ['All gates passed']
-};
-
-function buildGatesFromConfig(phaseTransitions?: PhaseTransitionRule[]): GateStep[] {
-  const uniqueGates = new Set<string>();
+function buildGates(gateDefinitions?: GateDefinition[]): GateStep[] {
+  const defs = gateDefinitions && gateDefinitions.length > 0 
+    ? gateDefinitions 
+    : DEFAULT_GATE_DEFINITIONS;
   
-  if (phaseTransitions && phaseTransitions.length > 0) {
-    phaseTransitions.forEach(t => {
-      if (t.requiredGate && t.requiredGate !== 'none') {
-        uniqueGates.add(t.requiredGate);
-      }
-    });
-  }
-  
-  const gateOrder: ('operatingModel' | 'intake' | 'rai')[] = ['operatingModel', 'intake', 'rai'];
-  const orderedGates = gateOrder.filter(g => 
-    uniqueGates.size === 0 || uniqueGates.has(g)
-  );
-  
-  const gates: GateStep[] = orderedGates.map((gateKey, index) => {
-    const meta = gateMetadata[gateKey];
-    const transitionForGate = phaseTransitions?.find(t => t.requiredGate === gateKey);
-    
-    let requirements = defaultGateRequirements[gateKey];
-    if (transitionForGate?.description) {
-      requirements = [transitionForGate.description.replace(/^Gate \d+: /, '')];
-    }
-    
-    return {
-      id: `gate-${index + 1}`,
-      gateKey,
-      title: meta.title,
-      subtitle: meta.subtitle,
-      icon: meta.icon,
-      requirements,
-      principle: meta.principle,
-      color: meta.color,
-      bgClass: meta.bgClass,
-      borderClass: meta.borderClass
-    };
-  });
-  
-  gates.push({
-    id: 'gate-activation',
-    gateKey: 'activation',
-    ...gateMetadata.activation,
-    requirements: defaultGateRequirements.activation
-  });
-  
-  return gates;
+  return defs
+    .sort((a, b) => a.order - b.order)
+    .map(gate => ({
+      ...gate,
+      icon: gateIconMap[gate.id] || User,
+      bgClass: `bg-[${gate.color}]`,
+      borderClass: `border-[${gate.color}]`
+    }));
 }
 
 export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGuideProps) {
@@ -139,17 +76,17 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
     queryKey: ['/api/tom/config', selectedClientId],
   });
   
-  const gates = buildGatesFromConfig(tomConfig?.phaseTransitions);
+  const gates = buildGates(tomConfig?.gateDefinitions);
   
   const getGateStatus = (index: number): 'passed' | 'current' | 'pending' => {
     if (!currentGates) return 'pending';
     
     const gate = gates[index];
-    const passed = currentGates[gate.gateKey];
+    const passed = currentGates[gate.id];
     
     if (passed) return 'passed';
     
-    const previousPassed = index === 0 || gates.slice(0, index).every(g => currentGates[g.gateKey]);
+    const previousPassed = index === 0 || gates.slice(0, index).every(g => currentGates[g.id]);
     if (previousPassed) return 'current';
     
     return 'pending';
@@ -177,24 +114,22 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
           const Icon = gate.icon;
           
           return (
-            <div key={gate.id} className="relative" data-testid={`gate-step-${gate.gateKey}`}>
+            <div key={gate.id} className="relative" data-testid={`gate-step-${gate.id}`}>
               <div 
                 className={`flex items-start gap-4 p-4 rounded-lg border transition-all ${
                   status === 'passed' 
                     ? 'bg-green-50 border-green-200' 
                     : status === 'current'
-                    ? `bg-white border-2 ${gate.borderClass} shadow-sm`
+                    ? 'bg-white border-2 shadow-sm'
                     : 'bg-gray-50 border-gray-200'
                 }`}
+                style={status === 'current' ? { borderColor: gate.color } : undefined}
               >
                 <div 
                   className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                    status === 'passed' 
-                      ? 'bg-green-500' 
-                      : status === 'current'
-                      ? gate.bgClass
-                      : 'bg-gray-300'
+                    status === 'passed' ? 'bg-green-500' : status === 'pending' ? 'bg-gray-300' : ''
                   }`}
+                  style={status === 'current' ? { backgroundColor: gate.color } : undefined}
                 >
                   {status === 'passed' ? (
                     <CheckCircle2 className="h-5 w-5 text-white" />
@@ -210,7 +145,7 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
                       <span 
                         className="text-xs px-2 py-0.5 rounded-full text-white"
                         style={{ backgroundColor: gate.color }}
-                        data-testid={`badge-current-${gate.gateKey}`}
+                        data-testid={`badge-current-${gate.id}`}
                       >
                         Current
                       </span>
@@ -218,14 +153,14 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
                   </div>
                   <h4 
                     className={`font-semibold ${status === 'pending' ? 'text-gray-500' : 'text-gray-900'}`}
-                    data-testid={`text-gate-title-${gate.gateKey}`}
+                    data-testid={`text-gate-title-${gate.id}`}
                   >
                     {gate.title}
                   </h4>
-                  <p className="text-xs text-gray-500" data-testid={`text-gate-subtitle-${gate.gateKey}`}>{gate.subtitle}</p>
+                  <p className="text-xs text-gray-500" data-testid={`text-gate-subtitle-${gate.id}`}>{gate.subtitle}</p>
                   
                   <div className="mt-2 space-y-1">
-                    <div className="text-sm" data-testid={`text-gate-requirement-${gate.gateKey}`}>
+                    <div className="text-sm" data-testid={`text-gate-requirement-${gate.id}`}>
                       <span className="text-gray-400">Requires:</span>
                       {gate.requirements.length === 1 ? (
                         <span className={`ml-2 ${status === 'pending' ? 'text-gray-500' : 'text-gray-700'}`}>
@@ -239,7 +174,7 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
                         </ul>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 italic" data-testid={`text-gate-principle-${gate.gateKey}`}>
+                    <p className="text-xs text-gray-400 italic" data-testid={`text-gate-principle-${gate.id}`}>
                       "{gate.principle}"
                     </p>
                   </div>
