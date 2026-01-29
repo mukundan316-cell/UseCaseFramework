@@ -78,6 +78,14 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 - **Phase Derivation vs Governance (NIST AI RMF 2024)**: Phase derivation is applied to ALL use cases for categorization and browsing. Governance gates are enforced ONLY when activating (moving from Reference Library to Active Portfolio). This separation allows Reference Library use cases to display phases for discovery while maintaining strict governance at activation.
 - **Soft Progressive Data Capture**: Phase-aligned guidance system shows required data for each TOM phase via "Focus" badges.
 - **Phase Transition Governance**: Checks for exit requirements during phase transitions, requiring justification for incomplete requirements.
+- **Config-Driven Phase Transition Gates (Jan 2026)**: Phase transitions are governed by config-driven rules in `phaseTransitions` array within TOM config:
+  - **Gate 1 (Operating Model)**: Ideation → Assessment requires business ownership (primaryBusinessOwner, businessFunction, status beyond Discovery)
+  - **Gate 2 (Intake)**: Assessment → Foundation requires complete 10-lever scoring
+  - **Gate 3 (RAI)**: Foundation → Build requires Responsible AI clearance (5 RAI fields)
+  - **Post-gate transitions**: Build → Scale → Operate have no gate requirements
+  - **Sequential gating**: Gate 2 requires Gate 1 to pass first; Gate 3 requires Gate 2 to pass first
+  - **Architecture**: `PhaseTransitionRule` interface in `shared/tom.ts`, `checkPhaseTransition()` helper, and enforcement in `governance-enforcement.ts`
+  - **Re-derivation endpoint**: `POST /api/tom/rederive-phases` recalculates phases for all use cases using preset-aware derivation
 - **Navigation**: All features accessible via tab navigation from home page: Dashboard View, Explorer, Insights, AI Assessment, Admin.
 
 ### Insights Dashboard Structure
@@ -109,6 +117,7 @@ All 126 use cases now have complete, contextually relevant data across all four 
 - **PDF Export Enhancement**: Adjusted values, color-coded validation status badges, and governance roles in executive summary and use case pages
 - **TOM Phase Requirements**: validationFullyValidated exit requirement for steady_state and RSA TOM's Operate phase (values must be fully validated before completing final phases)
 - **Schema Type Alignment**: ValueStream type now includes all 6 insurance-specific categories across shared/schema.ts and shared/valueRealization.ts
+- **Preset-Aware Phase Derivation Fix**: `derivePhase()` now uses `mergePresetProfile()` to resolve preset-specific phases (e.g., `rsa_tom.phases`) before matching, fixing misclassification when active preset phases differ from base config phases
 
 ## Critical Input Files (attached_assets/)
 - **AI-Tool-Inventory-Source-Data.xlsx** - Source data for AI use case inventory
