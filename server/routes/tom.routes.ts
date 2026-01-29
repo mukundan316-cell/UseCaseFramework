@@ -310,4 +310,68 @@ export function registerTomRoutes(app: Express): void {
       res.status(500).json({ error: "Failed to seed TOM configuration" });
     }
   });
+
+  app.post("/api/tom/rederive-phases", async (req, res) => {
+    try {
+      const { 
+        ensureTomConfig, 
+        derivePhase, 
+        mergePresetProfile 
+      } = await import("@shared/tom");
+      
+      const metadata = await storage.getMetadataConfig();
+      const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
+      
+      if (tomConfig.enabled !== 'true') {
+        return res.json({ 
+          success: false, 
+          message: "TOM is not enabled",
+          total: 0, 
+          updated: 0 
+        });
+      }
+      
+      const useCases = await storage.getAllUseCases();
+      
+      const results = {
+        total: useCases.length,
+        updated: 0,
+        phaseDistribution: {} as Record<string, number>,
+        errors: [] as string[]
+      };
+      
+      for (const useCase of useCases) {
+        try {
+          const phaseResult = derivePhase(
+            useCase.useCaseStatus,
+            useCase.deploymentStatus,
+            useCase.tomPhaseOverride,
+            tomConfig
+          );
+          
+          if (phaseResult.id !== useCase.tomPhase) {
+            await storage.updateUseCase(useCase.id, { 
+              tomPhase: phaseResult.id,
+              phaseEnteredAt: new Date()
+            });
+            results.updated++;
+          }
+          
+          results.phaseDistribution[phaseResult.id] = 
+            (results.phaseDistribution[phaseResult.id] || 0) + 1;
+        } catch (err) {
+          results.errors.push(`${useCase.id}: ${(err as Error).message}`);
+        }
+      }
+      
+      res.json({ 
+        success: true,
+        message: `Re-derived TOM phases for ${results.updated}/${results.total} use cases`,
+        ...results
+      });
+    } catch (error) {
+      console.error("Error re-deriving TOM phases:", error);
+      res.status(500).json({ error: "Failed to re-derive TOM phases" });
+    }
+  });
 }
