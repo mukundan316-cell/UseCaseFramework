@@ -439,8 +439,9 @@ export function getApplicableKpis(
           results.push({
             kpiId,
             kpi,
-            matchedProcess: 'Organization-wide',
-            benchmark: null,
+            matchedProcesses: ['Organization-wide'],
+            industryBenchmark: null,
+            benchmarkProcess: null,
           });
           addedKpis.add(kpiId);
         }
@@ -1371,7 +1372,7 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       categoryId: 'finance_actuarial' as KpiCategoryId,
       applicableProcesses: ['reinsurance'],
       kpiType: 'compliance',
-      valueStream: 'risk_reduction',
+      valueStream: 'risk_mitigation',
       benchmark: '98%+',
       isMonetizable: true
     },
@@ -1514,7 +1515,7 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       categoryId: 'customer_exp' as KpiCategoryId,
       applicableProcesses: ['customer_service'],
       kpiType: 'compliance',
-      valueStream: 'risk_reduction',
+      valueStream: 'risk_mitigation',
       benchmark: '60% reduction',
       isMonetizable: true
     },
@@ -1605,7 +1606,7 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       categoryId: 'distribution' as KpiCategoryId,
       applicableProcesses: ['distribution'],
       kpiType: 'compliance',
-      valueStream: 'risk_reduction',
+      valueStream: 'risk_mitigation',
       benchmark: '100%',
       isMonetizable: true
     },
@@ -1826,7 +1827,7 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       categoryId: 'finance_actuarial' as KpiCategoryId,
       applicableProcesses: ['compliance'],
       kpiType: 'compliance',
-      valueStream: 'risk_reduction',
+      valueStream: 'risk_mitigation',
       benchmark: '100%',
       isMonetizable: true
     },
@@ -1878,7 +1879,7 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       categoryId: 'finance_actuarial' as KpiCategoryId,
       applicableProcesses: ['compliance'],
       kpiType: 'compliance',
-      valueStream: 'risk_reduction',
+      valueStream: 'risk_mitigation',
       benchmark: '50% reduction',
       isMonetizable: true
     },

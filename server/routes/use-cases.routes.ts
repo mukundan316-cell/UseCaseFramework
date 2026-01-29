@@ -173,6 +173,30 @@ export function registerUseCaseRoutes(app: Express): void {
     try {
       const { id } = req.params;
       const { reason } = req.body;
+      
+      const currentUseCase = await storage.getAllUseCases().then(cases => 
+        cases.find(c => c.id === id)
+      );
+      
+      if (!currentUseCase) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      
+      const activationCheck = checkActivationAllowed(currentUseCase, 'In-flight');
+      
+      if (activationCheck.blocked) {
+        await storage.createGovernanceAuditLog({
+          useCaseId: id,
+          useCaseMeaningfulId: currentUseCase.meaningfulId || undefined,
+          gateType: 'activation',
+          action: 'ACTIVATION_BLOCKED',
+          notes: `Attempted to activate use case but governance gates incomplete`,
+          tomPhaseAtDecision: currentUseCase.tomPhase || undefined
+        });
+        
+        return res.status(403).json(buildActivationBlockedResponse(activationCheck));
+      }
+      
       const useCase = await storage.activateUseCase(id, reason);
       if (!useCase) {
         return res.status(404).json({ error: "Use case not found" });
