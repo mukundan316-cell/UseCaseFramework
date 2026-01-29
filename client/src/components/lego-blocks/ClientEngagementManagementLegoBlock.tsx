@@ -34,7 +34,7 @@ const TOM_PRESETS = [
   { id: 'coe_led', name: 'CoE-Led with Business Pods', description: 'CoE leads with embedded business pods' },
   { id: 'federated', name: 'Federated Model', description: 'Business units own AI with central standards' },
   { id: 'centralized', name: 'Centralized CoE', description: 'Fully centralized AI operations' },
-  { id: 'rsa_tom', name: 'RSA Enterprise TOM', description: 'Six-phase enterprise model' },
+  { id: 'enterprise_tom', name: 'Enterprise TOM', description: 'Six-phase enterprise model' },
 ];
 
 export default function ClientEngagementManagementLegoBlock() {

@@ -85,7 +85,7 @@ export default function ExportButton({
       case 'library':
         return 'Export filtered use case library as PDF or Excel';
       case 'portfolio':
-        return 'Generate executive report of RSA active AI portfolio';
+        return 'Generate executive report of active AI portfolio';
       case 'use-case':
         return 'Download detailed use case analysis and implementation guide';
       default:

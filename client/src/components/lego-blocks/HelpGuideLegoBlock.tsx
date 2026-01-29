@@ -193,7 +193,7 @@ const adminStepGuides = [
     color: '#14CBDE',
     steps: [
       { step: 1, action: 'Go to Admin → TOM tab' },
-      { step: 2, action: 'Select TOM Preset (NIST, RSA, or Custom)' },
+      { step: 2, action: 'Select TOM Preset (NIST, Enterprise, or Custom)' },
       { step: 3, action: 'Review Gate Definitions (requirements for each gate)' },
       { step: 4, action: 'Configure Phase Transition Rules (which gate unlocks which phase)' },
       { step: 5, action: 'Use "Re-derive Phases" to recalculate all use cases' }

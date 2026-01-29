@@ -511,7 +511,7 @@ export default function AdminPanel() {
               <div className="text-center py-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Assessment Content Management</h3>
                 <p className="text-sm text-gray-600">
-                  Manage RSA's comprehensive question template library with 100+ assessment questions.
+                  Manage the comprehensive question template library with 100+ assessment questions.
                   Configure sections, question types, and dynamic assessment flows.
                 </p>
               </div>

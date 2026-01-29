@@ -146,7 +146,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
     federated: { name: 'Federated Model', description: 'Business units own AI with central standards' },
     hybrid: { name: 'Hybrid Model', description: 'Central platform, distributed execution' },
     coe_led: { name: 'CoE-Led with Business Pods', description: 'CoE leads with embedded business pods' },
-    rsa_tom: { name: 'RSA Enterprise TOM', description: 'Six-phase enterprise model with extended governance' }
+    enterprise_tom: { name: 'Enterprise TOM', description: 'Six-phase enterprise model with extended governance' }
   },
   presetProfiles: {
     centralized: {
@@ -219,7 +219,7 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
         { id: 'pod_track', name: 'Business Pods', description: 'Embedded teams handling domain-specific initiatives' }
       ]
     },
-    rsa_tom: {
+    enterprise_tom: {
       phaseOverrides: {
         ideation: { governanceGate: 'innovation_board', expectedDurationWeeks: 4 },
         assessment: { governanceGate: 'ai_steerco', expectedDurationWeeks: 6 },

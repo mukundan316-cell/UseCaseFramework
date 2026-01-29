@@ -246,7 +246,7 @@ export const AssessmentStatsLegoBlock: React.FC<AssessmentStatsLegoBlockProps> =
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              No assessment data available. The RSA Assessment may need to be created.
+              No assessment data available. The Assessment may need to be created.
             </AlertDescription>
           </Alert>
         </CardContent>

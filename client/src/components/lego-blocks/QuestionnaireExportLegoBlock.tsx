@@ -150,7 +150,7 @@ export default function QuestionnaireExportLegoBlock({
       const timestamp = new Date().toISOString().split('T')[0];
       const sanitizedTitle = assessmentTitle.replace(/[^a-zA-Z0-9]/g, '_');
       const typeLabel = type === 'template' ? 'Template' : 'Responses';
-      const filename = `RSA_${sanitizedTitle}_${typeLabel}_${timestamp}.pdf`;
+      const filename = `Assessment_${sanitizedTitle}_${typeLabel}_${timestamp}.pdf`;
 
       console.log('Generating PDF with filename:', filename);
       

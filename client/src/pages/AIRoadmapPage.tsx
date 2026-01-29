@@ -174,9 +174,9 @@ const AIRoadmapPage = () => {
           
           <Card className="p-6 bg-blue-50 border-blue-200">
             <p className="text-gray-700">
-              This comprehensive assessment enables RSA to develop a tailored AI strategy that moves beyond current data 
-              management focus to unlock £10-50M in annual value through targeted AI initiatives across Commercial and Specialty 
-              insurance operations.
+              This comprehensive assessment enables organizations to develop a tailored AI strategy that moves beyond current data 
+              management focus to unlock significant annual value through targeted AI initiatives across business 
+              operations.
             </p>
           </Card>
 
