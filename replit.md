@@ -60,6 +60,9 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
   - **Value Confidence**: Conservative factor (50%-100%), 4-level validation workflow (unvalidated → pending_finance → pending_actuarial → fully_validated), adjusted value calculations
   - **Governance Roles**: deliveryOwner, valueValidator, valueGovernanceModel fields for accountability tracking
   - **Insights Dashboard**: Raw vs Adjusted Value comparison, Validation Status breakdown, Value Stream distribution, KPI Type analysis
+  - **KPI Categories (16 total)**: Category-based organization with `categoryId` field. 5 Insurance categories (Underwriting, Claims, Policy Admin, Distribution, Finance/Actuarial) + 11 Enterprise/AI categories (Model Performance, Data Quality, Tech Debt, Talent, Innovation, Business Alignment, GenAI, IT Infrastructure, Security, Customer Experience, Operational Efficiency)
+  - **Value Chain Filtering**: UI toggle in KPI Library to filter by Insurance vs Enterprise KPIs, with accordion-style category grouping
+  - **Org-wide KPIs**: KPIs with empty `applicableProcesses` are treated as organization-wide, matching any process context
 - **Capability Transition Benchmark Derivation**: Automated population of capability transition data from use case attributes, using benchmark archetypes.
 - **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations with override protection.
 - **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table.

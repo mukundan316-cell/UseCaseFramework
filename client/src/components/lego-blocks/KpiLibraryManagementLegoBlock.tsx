@@ -718,14 +718,32 @@ export default function KpiLibraryManagementLegoBlock({ className }: KpiLibraryM
       return category?.valueChain === valueChainFilter;
     });
 
+    // Separate uncategorized KPIs
+    const uncategorizedKpis = filteredKpis.filter(([, kpi]) => 
+      !kpi.categoryId || !KPI_CATEGORIES.find(c => c.id === kpi.categoryId)
+    );
+
     // Group by category
-    return KPI_CATEGORIES
+    const categorizedGroups = KPI_CATEGORIES
       .filter(cat => valueChainFilter === 'all' || cat.valueChain === valueChainFilter)
       .map(category => ({
         ...category,
         kpis: filteredKpis.filter(([, kpi]) => kpi.categoryId === category.id)
       }))
       .filter(group => group.kpis.length > 0);
+
+    // Add uncategorized group if any exist
+    if (uncategorizedKpis.length > 0) {
+      categorizedGroups.push({
+        id: 'uncategorized' as KpiCategoryId,
+        name: 'Uncategorized',
+        icon: 'HelpCircle',
+        valueChain: 'enterprise' as const,
+        kpis: uncategorizedKpis
+      });
+    }
+
+    return categorizedGroups;
   }, [kpiLibrary, valueChainFilter]);
 
   // Calculate summary stats

@@ -423,8 +423,17 @@ export function getApplicableKpis(
 
   for (const process of processes) {
     for (const [kpiId, kpi] of Object.entries(kpiLibrary)) {
-      // Skip org-wide KPIs (no applicableProcesses) - they match based on category
+      // Org-wide KPIs (no applicableProcesses) match any process
       if (!kpi.applicableProcesses || kpi.applicableProcesses.length === 0) {
+        if (!addedKpis.has(kpiId)) {
+          results.push({
+            kpiId,
+            kpi,
+            matchedProcess: 'Organization-wide',
+            benchmark: null,
+          });
+          addedKpis.add(kpiId);
+        }
         continue;
       }
       // Use fuzzy matching instead of exact match
