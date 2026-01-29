@@ -88,6 +88,18 @@ export interface TomDerivationRules {
   nullDeploymentHandling: string;
 }
 
+/**
+ * Phase transition rule defining which governance gate must pass
+ * to allow transition from one phase to another.
+ * Config-driven to support different client TOM configurations.
+ */
+export interface PhaseTransitionRule {
+  fromPhase: string;
+  toPhase: string;
+  requiredGate: 'operatingModel' | 'intake' | 'rai' | 'none';
+  description?: string;
+}
+
 export interface TomConfig {
   enabled: string;
   activePreset: string;
@@ -96,6 +108,7 @@ export interface TomConfig {
   phases: TomPhase[];
   governanceBodies: TomGovernanceBody[];
   derivationRules: TomDerivationRules;
+  phaseTransitions?: PhaseTransitionRule[];  // Config-driven gate requirements per transition
 }
 
 export interface DerivedPhaseResult {
@@ -632,7 +645,18 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
     matchOrder: ['useCaseStatus', 'deploymentStatus'],
     fallbackBehavior: 'lowestPriority',
     nullDeploymentHandling: 'ignoreInMatching'
-  }
+  },
+  // RSA TOM aligned phase transitions with governance gate requirements
+  // Gate 1 (Operating Model): Ideation → Assessment (basic ownership required)
+  // Gate 2 (Intake): Assessment → Foundation (all 10 scoring levers)
+  // Gate 3 (RAI): Foundation → Build (responsible AI clearance)
+  phaseTransitions: [
+    { fromPhase: 'ideation', toPhase: 'assessment', requiredGate: 'operatingModel', description: 'Gate 1: Business ownership and function assignment' },
+    { fromPhase: 'assessment', toPhase: 'foundation', requiredGate: 'intake', description: 'Gate 2: Full 10-lever scoring complete' },
+    { fromPhase: 'foundation', toPhase: 'build', requiredGate: 'rai', description: 'Gate 3: Responsible AI clearance' },
+    { fromPhase: 'build', toPhase: 'scale', requiredGate: 'none', description: 'Post-gate progression' },
+    { fromPhase: 'scale', toPhase: 'operate', requiredGate: 'none', description: 'Post-gate progression' }
+  ]
 };
 
 export function ensureTomConfig(config: Partial<TomConfig> | null | undefined): TomConfig {
@@ -644,7 +668,47 @@ export function ensureTomConfig(config: Partial<TomConfig> | null | undefined): 
     presets: config.presets || DEFAULT_TOM_CONFIG.presets,
     phases: config.phases || DEFAULT_TOM_CONFIG.phases,
     governanceBodies: config.governanceBodies || DEFAULT_TOM_CONFIG.governanceBodies,
-    derivationRules: config.derivationRules || DEFAULT_TOM_CONFIG.derivationRules
+    derivationRules: config.derivationRules || DEFAULT_TOM_CONFIG.derivationRules,
+    phaseTransitions: config.phaseTransitions || DEFAULT_TOM_CONFIG.phaseTransitions
+  };
+}
+
+/**
+ * Check if a phase transition is allowed based on governance gate status.
+ * Returns the required gate and whether it passes.
+ */
+export function checkPhaseTransition(
+  fromPhase: string,
+  toPhase: string,
+  gates: GovernanceGateInput,
+  tomConfig: TomConfig
+): { allowed: boolean; requiredGate: string | null; gateDescription: string | null } {
+  const resolvedConfig = mergePresetProfile(tomConfig);
+  const transitions = resolvedConfig.phaseTransitions || [];
+  
+  const rule = transitions.find(t => t.fromPhase === fromPhase && t.toPhase === toPhase);
+  
+  if (!rule || rule.requiredGate === 'none') {
+    return { allowed: true, requiredGate: null, gateDescription: null };
+  }
+  
+  let gatePassed = false;
+  switch (rule.requiredGate) {
+    case 'operatingModel':
+      gatePassed = gates.operatingModelPassed;
+      break;
+    case 'intake':
+      gatePassed = gates.intakePassed === true;
+      break;
+    case 'rai':
+      gatePassed = gates.raiPassed === true;
+      break;
+  }
+  
+  return {
+    allowed: gatePassed,
+    requiredGate: rule.requiredGate,
+    gateDescription: rule.description || null
   };
 }
 
@@ -690,6 +754,11 @@ export function derivePhase(
     return { id: 'disabled', name: 'TOM Disabled', color: '#6B7280', isOverride: false, matchedBy: 'disabled' };
   }
 
+  // CRITICAL: Resolve preset-specific phases before derivation
+  // This ensures we use the active preset's phase mappings (e.g., rsa_tom.phases)
+  // rather than the base tom_config.phases, enabling client-specific TOM configurations
+  const resolvedConfig = mergePresetProfile(tomConfig);
+
   // NIST AI RMF 2024 ALIGNED: Phase derivation is SEPARATE from governance enforcement
   // - Phase derivation: Applied to ALL use cases for categorization and browsing
   // - Governance enforcement: Applied only at activation (Reference → Active Portfolio)
@@ -699,7 +768,7 @@ export function derivePhase(
 
   // Manual override takes precedence
   if (tomPhaseOverride) {
-    const overridePhase = tomConfig.phases.find(p => p.id === tomPhaseOverride);
+    const overridePhase = resolvedConfig.phases.find(p => p.id === tomPhaseOverride);
     if (overridePhase) {
       return {
         id: overridePhase.id,
@@ -713,7 +782,7 @@ export function derivePhase(
 
   // Find phases that match the current status
   const matchingPhases: TomPhase[] = [];
-  for (const phase of tomConfig.phases) {
+  for (const phase of resolvedConfig.phases) {
     if (phase.manualOnly) continue;
     if (useCaseStatus && phase.mappedStatuses.includes(useCaseStatus)) {
       matchingPhases.push(phase);
@@ -728,7 +797,7 @@ export function derivePhase(
     // If a valid status exists but doesn't match any phase, use entry phase as default
     // This ensures Reference Library use cases with status can still display a phase for browsing
     if (useCaseStatus && useCaseStatus.trim().length > 0) {
-      const sortedPhases = [...tomConfig.phases].sort((a, b) => a.order - b.order);
+      const sortedPhases = [...resolvedConfig.phases].sort((a, b) => a.order - b.order);
       const entryPhase = sortedPhases.find(p => !p.manualOnly);
       if (entryPhase) {
         return {
