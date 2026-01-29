@@ -620,7 +620,7 @@ const roleConfigs = {
     workflow: adminWorkflow,
     tips: [
       "169+ KPIs available across Insurance and Enterprise categories",
-      "Choose NIST, RSA or custom TOM presets",
+      "Choose from standard or client-specific TOM presets",
       "Always export data before making major configuration changes"
     ],
     detailGuideType: 'admin' as const

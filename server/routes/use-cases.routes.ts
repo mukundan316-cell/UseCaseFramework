@@ -821,37 +821,30 @@ export function registerUseCaseRoutes(app: Express): void {
 
   app.post("/api/use-cases/check-duplicates", async (req, res) => {
     try {
-      const { title, description } = req.body;
-      if (!title && !description) {
-        return res.status(400).json({ error: "Title or description required" });
+      const { title, description, excludeId } = req.body;
+      if (!title) {
+        return res.status(400).json({ error: "Title is required" });
       }
-      const duplicates = await storage.checkDuplicateUseCases(title, description);
-      res.json(duplicates);
+      const similarCases = await storage.findSimilarUseCases(title, description || '', excludeId);
+      res.json({ similarCases });
     } catch (error) {
-      console.error("Error checking duplicates:", error);
+      console.error("Error checking for duplicates:", error);
       res.status(500).json({ error: "Failed to check for duplicates" });
     }
   });
 
-  app.get("/api/use-cases/potential-duplicates", async (req, res) => {
+  app.post("/api/use-cases/:id/resolve-duplicate", async (req, res) => {
     try {
-      const limit = parseInt(req.query.limit as string) || 50;
-      const duplicateGroups = await storage.findPotentialDuplicates(limit);
-      res.json(duplicateGroups);
-    } catch (error) {
-      console.error("Error finding potential duplicates:", error);
-      res.status(500).json({ error: "Failed to find potential duplicates" });
-    }
-  });
-
-  app.post("/api/use-cases/resolve-duplicate", async (req, res) => {
-    try {
-      const { keepId, removeId, mergeFields } = req.body;
-      if (!keepId || !removeId) {
-        return res.status(400).json({ error: "keepId and removeId required" });
+      const { id } = req.params;
+      const { status, reviewedBy } = req.body;
+      if (!status || !['confirmed_duplicate', 'reviewed_not_duplicate'].includes(status)) {
+        return res.status(400).json({ error: "Valid status required: 'confirmed_duplicate' or 'reviewed_not_duplicate'" });
       }
-      const result = await storage.resolveDuplicate(keepId, removeId, mergeFields);
-      res.json(result);
+      const result = await storage.resolveDuplicate(id, status, reviewedBy || 'system');
+      if (!result) {
+        return res.status(404).json({ error: "Use case not found" });
+      }
+      res.json(mapUseCaseToFrontend(result));
     } catch (error) {
       console.error("Error resolving duplicate:", error);
       res.status(500).json({ error: "Failed to resolve duplicate" });

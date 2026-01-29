@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { Download, Upload, RotateCcw, Settings, Database, ClipboardList, Workflow, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,6 +22,8 @@ import KpiLibraryManagementLegoBlock from './lego-blocks/KpiLibraryManagementLeg
 import DerivationRulesLegoBlock from './lego-blocks/DerivationRulesLegoBlock';
 import ClientEngagementManagementLegoBlock from './lego-blocks/ClientEngagementManagementLegoBlock';
 
+const DEFAULT_QUESTIONNAIRE_ID = '91684df8-9700-4605-bc3e-2320120e5e1b';
+
 export default function AdminPanel() {
   const { 
     metadata, 
@@ -32,6 +34,10 @@ export default function AdminPanel() {
   
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const activeQuestionnaireId = useMemo(() => {
+    return (metadata as { activeQuestionnaireId?: string })?.activeQuestionnaireId || DEFAULT_QUESTIONNAIRE_ID;
+  }, [metadata]);
 
   // Question Template Library handlers - using available questionnaire APIs
   const handleAddQuestionTemplate = async (template: any) => {
@@ -513,13 +519,13 @@ export default function AdminPanel() {
               {/* Assessment Statistics */}
               <div className="space-y-6">
                 <AssessmentStatsLegoBlock 
-                  questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b"
+                  questionnaireId={activeQuestionnaireId}
                 />
                 
                 {/* Question Configuration */}
                 <QuestionConfigurationLegoBlock 
                   className="w-full"
-                  questionnaireId="91684df8-9700-4605-bc3e-2320120e5e1b"
+                  questionnaireId={activeQuestionnaireId}
                 />
                 
                 {/* Question Template Library */}

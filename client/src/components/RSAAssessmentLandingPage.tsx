@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { Clock, CheckCircle2, Target, TrendingUp, Shield, Users, Play, RotateCcw, Eye, ArrowLeft, Home, ClipboardCheck, MapIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +17,8 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { TIME_ESTIMATION } from '../../../shared/timeEstimation';
 
+const DEFAULT_QUESTIONNAIRE_ID = '91684df8-9700-4605-bc3e-2320120e5e1b';
+
 interface RSAAssessmentLandingPageProps {
   className?: string;
 }
@@ -31,9 +33,11 @@ export default function RSAAssessmentLandingPage({
   const [, setLocation] = useLocation();
   const [assessmentState, setAssessmentState] = useState<'none' | 'in-progress' | 'completed'>('none');
   const [progressData, setProgressData] = useState<any>(null);
+  const { metadata } = useUseCases();
 
-  // Use the same questionnaire ID as the main assessment
-  const questionnaireId = '91684df8-9700-4605-bc3e-2320120e5e1b';
+  const questionnaireId = useMemo(() => {
+    return (metadata as { activeQuestionnaireId?: string })?.activeQuestionnaireId || DEFAULT_QUESTIONNAIRE_ID;
+  }, [metadata]);
   
   // Fetch questionnaire data for dynamic sections
   const { questionnaire } = useQuestionnaire(questionnaireId);

@@ -154,7 +154,8 @@ export function registerTomRoutes(app: Express): void {
       };
       
       const result = await storage.updateMetadataConfigById(clientId, updatedMetadata);
-      res.json(result?.tomConfig?.phaseTransitions || phaseTransitions);
+      const tomResult = result?.tomConfig as { phaseTransitions?: typeof phaseTransitions } | undefined;
+      res.json(tomResult?.phaseTransitions || phaseTransitions);
     } catch (error) {
       console.error("Error updating phase transitions:", error);
       res.status(500).json({ error: "Failed to update phase transitions" });
@@ -194,7 +195,8 @@ export function registerTomRoutes(app: Express): void {
       };
       
       const result = await storage.updateMetadataConfigById(clientId, updatedMetadata);
-      res.json(result?.tomConfig?.gateDefinitions || gateDefinitions);
+      const tomResult = result?.tomConfig as { gateDefinitions?: typeof gateDefinitions } | undefined;
+      res.json(tomResult?.gateDefinitions || gateDefinitions);
     } catch (error) {
       console.error("Error updating gate definitions:", error);
       res.status(500).json({ error: "Failed to update gate definitions" });

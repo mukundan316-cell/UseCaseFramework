@@ -51,6 +51,13 @@ The platform uses Hexaware's official branding, colors, and typography. UI compo
 - **Soft Progressive Data Capture**: Phase-aligned guidance system indicates required data for each TOM phase.
 - **Insights Dashboard Structure**: All four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) follow a consistent pattern: Summary Cards, Distribution Charts, and Use Case Table.
 
+## Recent Changes (Jan 2026)
+- **Multi-tenancy**: Removed client-specific hardcoding (RSA/Markel references) for reusability across clients
+- **Questionnaire Config**: Assessment questionnaire ID now configurable via `metadata.activeQuestionnaireId` with fallback to default
+- **Duplicate Routes**: Consolidated `/api/derive/value-all` and `/api/value/derive-all` into single endpoint
+- **LSP Fixes**: Resolved TypeScript errors for optional TOM config properties (phaseTransitions, gateDefinitions)
+- **API Cleanup**: Aligned duplicate detection endpoints with storage interface (`/api/use-cases/check-duplicates`, `/api/use-cases/:id/resolve-duplicate`)
+
 ## External Dependencies
 
 - **UI**: shadcn/ui, TailwindCSS, Recharts, Wouter, Framer Motion, Radix UI primitives
