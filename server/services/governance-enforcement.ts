@@ -23,7 +23,8 @@ import {
   TomConfig,
   UseCaseDataForReadiness,
   PhaseTransitionInfo,
-  GovernanceGateInput
+  GovernanceGateInput,
+  checkPhaseTransition
 } from '../../shared/tom';
 
 // Use cases active before this date bypass auto-deactivation (warning logged instead)
@@ -81,6 +82,10 @@ export interface PhaseTransitionResult {
   targetPhase: string;
   pendingExitRequirements: string[];
   isExitingUnphasedOrDisabled: boolean;
+  // Gate enforcement (config-driven phase transitions)
+  gateBlocked?: boolean;
+  requiredGate?: string | null;
+  gateDescription?: string | null;
 }
 
 // Helper to convert GovernanceGateStatus to GateResult
@@ -301,6 +306,46 @@ export function checkPhaseTransitionRequirements(
     };
   }
 
+  // Config-driven gate enforcement for phase transitions
+  // Uses phaseTransitions rules from TOM config (e.g., ideation→assessment requires Gate 1)
+  const fromPhaseId = transitionInfo.fromPhaseId || '';
+  const toPhaseId = transitionInfo.toPhaseId || '';
+  
+  // Build governance gate status from use case with SEQUENTIAL gating logic:
+  // Gate 2 (Intake) requires Gate 1 (Operating Model) to pass first
+  // Gate 3 (RAI) requires Gate 2 (Intake) to pass first
+  let gateStatus: GovernanceGateInput;
+  if (governanceGates) {
+    gateStatus = governanceGates;
+  } else {
+    const gate1Passed = calculateOperatingModelGate(useCase).passed;
+    const gate2Passed = gate1Passed ? calculateIntakeGate(useCase).passed : false;
+    const gate3Passed = gate2Passed ? calculateRAIGate(useCase).passed : false;
+    
+    gateStatus = {
+      operatingModelPassed: gate1Passed,
+      intakePassed: gate2Passed,
+      raiPassed: gate3Passed
+    };
+  }
+  
+  const gateCheck = checkPhaseTransition(fromPhaseId, toPhaseId, gateStatus, tomConfig);
+  
+  // Block if required gate hasn't passed
+  if (!gateCheck.allowed) {
+    return {
+      allowed: false,
+      requiresJustification: false,
+      currentPhase: transitionInfo.fromPhase?.name || transitionInfo.fromPhaseId || 'unknown',
+      targetPhase: transitionInfo.toPhase?.name || transitionInfo.toPhaseId || 'unknown',
+      pendingExitRequirements: [],
+      isExitingUnphasedOrDisabled: false,
+      gateBlocked: true,
+      requiredGate: gateCheck.requiredGate,
+      gateDescription: gateCheck.gateDescription
+    };
+  }
+
   // Get human-readable requirement labels
   const pendingLabels = transitionInfo.exitRequirementsPending.map(r => getRequirementLabel(r));
 
@@ -381,5 +426,32 @@ export function buildPhaseTransitionRequiredResponse(result: PhaseTransitionResu
     currentPhase: result.currentPhase,
     targetPhase: result.targetPhase,
     pendingExitRequirements: result.pendingExitRequirements
+  };
+}
+
+/**
+ * Build error response for phase transition blocked by governance gate
+ */
+export function buildPhaseTransitionGateBlockedResponse(result: PhaseTransitionResult): {
+  error: string;
+  message: string;
+  currentPhase: string;
+  targetPhase: string;
+  requiredGate: string | null;
+  gateDescription: string | null;
+} {
+  const gateNames: Record<string, string> = {
+    operatingModel: 'Operating Model Gate (Gate 1)',
+    intake: 'Intake & Prioritization Gate (Gate 2)',
+    rai: 'Responsible AI Gate (Gate 3)'
+  };
+  
+  return {
+    error: 'PHASE_TRANSITION_GATE_BLOCKED',
+    message: `Phase transition from ${result.currentPhase} to ${result.targetPhase} requires ${gateNames[result.requiredGate || ''] || result.requiredGate} to pass`,
+    currentPhase: result.currentPhase,
+    targetPhase: result.targetPhase,
+    requiredGate: result.requiredGate || null,
+    gateDescription: result.gateDescription || null
   };
 }
