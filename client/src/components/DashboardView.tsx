@@ -3,9 +3,10 @@ import EnhancedMatrixPlot from './analytics/EnhancedMatrixPlot';
 import SummaryMetricsLegoBlock from './lego-blocks/SummaryMetricsLegoBlock';
 import TomPhaseBreakdownLegoBlock from './lego-blocks/TomPhaseBreakdownLegoBlock';
 import ReportsTabLegoBlock from './lego-blocks/ReportsTabLegoBlock';
+import HelpGuideLegoBlock from './lego-blocks/HelpGuideLegoBlock';
 import ExportButton from './lego-blocks/ExportButton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Target, Download } from 'lucide-react';
+import { BarChart3, Target, Download, HelpCircle } from 'lucide-react';
 
 
 /**
@@ -38,7 +39,7 @@ export default function DashboardView() {
       
       {/* Dashboard Tabs */}
       <Tabs defaultValue="matrix" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-white to-slate-50 border border-gray-200 shadow-lg rounded-xl p-2">
+        <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-white to-slate-50 border border-gray-200 shadow-lg rounded-xl p-2">
           <TabsTrigger value="matrix" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg font-semibold transition-all duration-300" data-testid="tab-matrix">
             <Target className="h-4 w-4" />
             Hexaware AI Value Matrix
@@ -46,6 +47,10 @@ export default function DashboardView() {
           <TabsTrigger value="reports" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-violet-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg font-semibold transition-all duration-300" data-testid="tab-reports">
             <BarChart3 className="h-4 w-4" />
             Analytics & Reports
+          </TabsTrigger>
+          <TabsTrigger value="help" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg font-semibold transition-all duration-300" data-testid="tab-help">
+            <HelpCircle className="h-4 w-4" />
+            Help & Guidance
           </TabsTrigger>
         </TabsList>
 
@@ -55,6 +60,10 @@ export default function DashboardView() {
 
         <TabsContent value="reports">
           <ReportsTabLegoBlock />
+        </TabsContent>
+
+        <TabsContent value="help">
+          <HelpGuideLegoBlock />
         </TabsContent>
       </Tabs>
     </div>
