@@ -48,6 +48,12 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 - **Assessment System**: Multi-questionnaire platform using Survey.js.
 - **File Management**: Local filesystem storage (`uploads/`) with metadata tracking and a 50MB per file limit.
 - **Modularity**: ~70 active LEGO components for reusability, with modular route and modal architectures.
+- **In-App Help & Guidance**: Role-based documentation accessible from Dashboard tab, covering:
+  - Platform Overview with 6 core dimensions (Inventory, Prioritization, Lifecycle, Value, Compliance, Capability)
+  - Navigation Guide showing tab purposes and intended users
+  - TOM Phases visual guide with 5-phase lifecycle
+  - Key Rules and Quick Reference for common actions
+  - Role-specific content for Business Users, Strategy/PMO, and Admins (workflows, key tasks, tips, locations)
 - **Validation**: Minimal validation using Zod schemas and centralized configuration.
 - **Excel Integration**: Multi-worksheet import/export with auto-ID generation.
 - **API Design**: RESTful patterns with structured error responses and server-side validation.
