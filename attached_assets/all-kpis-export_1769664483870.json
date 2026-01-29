@@ -1,0 +1,4025 @@
+[
+  {
+    "id": "uw_001",
+    "name": "Submission Processing Time",
+    "description": "Submission Processing Time - measures submission intake & triage within Underwriting",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "50-70%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 24,
+        "max": 72,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "uw_002",
+    "name": "Auto-Classification Accuracy",
+    "description": "Auto-Classification Accuracy - measures submission intake & triage within Underwriting",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": false,
+    "categoryId": "underwriting",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 85,
+        "max": 95,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": null
+  },
+  {
+    "id": "uw_003",
+    "name": "Submission Leakage Rate",
+    "description": "Submission Leakage Rate - measures submission intake & triage within Underwriting",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "financial",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "50% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 8,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_volume"
+      }
+    ]
+  },
+  {
+    "id": "uw_004",
+    "name": "Risk Assessment Time",
+    "description": "Risk Assessment Time - measures risk assessment & scoring within Underwriting",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "60-80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 4,
+        "max": 24,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "uw_005",
+    "name": "Risk Score Accuracy",
+    "description": "Risk Score Accuracy - measures risk assessment & scoring within Underwriting",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "85%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 75,
+        "max": 90,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "loss_ratio_points"
+      }
+    ]
+  },
+  {
+    "id": "uw_006",
+    "name": "Adverse Selection Rate",
+    "description": "Adverse Selection Rate - measures risk assessment & scoring within Underwriting",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "30% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 5,
+        "max": 15,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cor_points"
+      }
+    ]
+  },
+  {
+    "id": "uw_007",
+    "name": "Quote Generation Time",
+    "description": "Quote Generation Time - measures pricing & rate adequacy within Underwriting",
+    "unit": "minutes",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "70-90%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 15,
+        "max": 60,
+        "unit": "minutes"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "uw_008",
+    "name": "Rate Adequacy Index",
+    "description": "Rate Adequacy Index - measures pricing & rate adequacy within Underwriting",
+    "unit": "ratio",
+    "direction": "increase",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "Within 2% of target",
+    "industryBenchmarks": {
+      "default": {
+        "min": 0.95,
+        "max": 1.05,
+        "unit": "ratio"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cor_points"
+      }
+    ]
+  },
+  {
+    "id": "uw_009",
+    "name": "Premium Leakage",
+    "description": "Premium Leakage - measures pricing & rate adequacy within Underwriting",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "financial",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "50% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 5,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_volume"
+      }
+    ]
+  },
+  {
+    "id": "uw_010",
+    "name": "Referral Rate",
+    "description": "Referral Rate - measures referral & exception handling within Underwriting",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "30% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 15,
+        "max": 40,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "uw_011",
+    "name": "Referral Resolution Time",
+    "description": "Referral Resolution Time - measures referral & exception handling within Underwriting",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "50%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 24,
+        "max": 72,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "uw_012",
+    "name": "False Positive Referral Rate",
+    "description": "False Positive Referral Rate - measures referral & exception handling within Underwriting",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "60% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 10,
+        "max": 30,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "uw_013",
+    "name": "Quote-to-Bind Ratio",
+    "description": "Quote-to-Bind Ratio - measures bind & policy issuance within Underwriting",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "financial",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "10-15% improvement",
+    "industryBenchmarks": {
+      "default": {
+        "min": 25,
+        "max": 45,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_volume"
+      }
+    ]
+  },
+  {
+    "id": "uw_014",
+    "name": "Policy Issuance Time",
+    "description": "Policy Issuance Time - measures bind & policy issuance within Underwriting",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 4,
+        "max": 24,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "uw_015",
+    "name": "Document Accuracy Rate",
+    "description": "Document Accuracy Rate - measures bind & policy issuance within Underwriting",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "underwriting"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "underwriting",
+    "benchmark": "99%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 92,
+        "max": 98,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "cl_001",
+    "name": "FNOL Capture Time",
+    "description": "FNOL Capture Time - measures first notice of loss (fnol) within Claims Management",
+    "unit": "minutes",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "60-80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 10,
+        "max": 30,
+        "unit": "minutes"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cl_002",
+    "name": "FNOL Data Completeness",
+    "description": "FNOL Data Completeness - measures first notice of loss (fnol) within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "95%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 70,
+        "max": 90,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "cl_003",
+    "name": "Self-Service FNOL Rate",
+    "description": "Self-Service FNOL Rate - measures first notice of loss (fnol) within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "50%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 15,
+        "max": 40,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_claim"
+      }
+    ]
+  },
+  {
+    "id": "cl_004",
+    "name": "Triage Accuracy",
+    "description": "Triage Accuracy - measures claims triage & assignment within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "95%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 80,
+        "max": 92,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "cl_005",
+    "name": "Auto-Triage Rate",
+    "description": "Auto-Triage Rate - measures claims triage & assignment within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "70%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 60,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_claim"
+      }
+    ]
+  },
+  {
+    "id": "cl_006",
+    "name": "Routing Efficiency",
+    "description": "Routing Efficiency - measures claims triage & assignment within Claims Management",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 8,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cl_007",
+    "name": "Investigation Cycle Time",
+    "description": "Investigation Cycle Time - measures claims investigation within Claims Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "40-60%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 7,
+        "max": 21,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cl_008",
+    "name": "Document Collection Time",
+    "description": "Document Collection Time - measures claims investigation within Claims Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "70%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 3,
+        "max": 10,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cl_009",
+    "name": "Fraud Detection Rate",
+    "description": "Fraud Detection Rate - measures claims investigation within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "50% improvement",
+    "industryBenchmarks": {
+      "default": {
+        "min": 3,
+        "max": 8,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "fraud_savings"
+      }
+    ]
+  },
+  {
+    "id": "cl_010",
+    "name": "Reserve Accuracy",
+    "description": "Reserve Accuracy - measures reserve setting & management within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "Within 5% of actual",
+    "industryBenchmarks": {
+      "default": {
+        "min": 85,
+        "max": 95,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "reserve_volatility"
+      }
+    ]
+  },
+  {
+    "id": "cl_011",
+    "name": "Initial Reserve Time",
+    "description": "Initial Reserve Time - measures reserve setting & management within Claims Management",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 4,
+        "max": 24,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cl_012",
+    "name": "Reserve Development Volatility",
+    "description": "Reserve Development Volatility - measures reserve setting & management within Claims Management",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "50% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 5,
+        "max": 15,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "capital_cost"
+      }
+    ]
+  },
+  {
+    "id": "cl_013",
+    "name": "Average Settlement Time",
+    "description": "Average Settlement Time - measures settlement & payment within Claims Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "40-60%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 14,
+        "max": 45,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cl_014",
+    "name": "Straight-Through Processing Rate",
+    "description": "Straight-Through Processing Rate - measures settlement & payment within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "60%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 20,
+        "max": 50,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_claim"
+      }
+    ]
+  },
+  {
+    "id": "cl_015",
+    "name": "Payment Accuracy",
+    "description": "Payment Accuracy - measures settlement & payment within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "99.5%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 95,
+        "max": 99,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "cl_016",
+    "name": "Claims Severity",
+    "description": "Claims Severity - measures settlement & payment within Claims Management",
+    "unit": "currency",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "10-20% reduction",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "basis": "direct_savings"
+      }
+    ]
+  },
+  {
+    "id": "cl_017",
+    "name": "Subrogation Identification Rate",
+    "description": "Subrogation Identification Rate - measures subrogation & recovery within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 60,
+        "max": 85,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "recovery_amount"
+      }
+    ]
+  },
+  {
+    "id": "cl_018",
+    "name": "Recovery Rate",
+    "description": "Recovery Rate - measures subrogation & recovery within Claims Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "20% improvement",
+    "industryBenchmarks": {
+      "default": {
+        "min": 40,
+        "max": 70,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "recovery_amount"
+      }
+    ]
+  },
+  {
+    "id": "cl_019",
+    "name": "Recovery Cycle Time",
+    "description": "Recovery Cycle Time - measures subrogation & recovery within Claims Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "claims"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "claims",
+    "benchmark": "40%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 60,
+        "max": 180,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "time_value_money"
+      }
+    ]
+  },
+  {
+    "id": "pa_001",
+    "name": "Policy Issuance Time",
+    "description": "Policy Issuance Time - measures policy issuance within Policy Administration",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 4,
+        "max": 48,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "pa_002",
+    "name": "Straight-Through Issuance Rate",
+    "description": "Straight-Through Issuance Rate - measures policy issuance within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "85%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 40,
+        "max": 75,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_policy"
+      }
+    ]
+  },
+  {
+    "id": "pa_003",
+    "name": "Policy Document Accuracy",
+    "description": "Policy Document Accuracy - measures policy issuance within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "99%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 92,
+        "max": 98,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "pa_004",
+    "name": "Endorsement Processing Time",
+    "description": "Endorsement Processing Time - measures endorsements & changes within Policy Administration",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "70%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 24,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "pa_005",
+    "name": "Auto-Endorsement Rate",
+    "description": "Auto-Endorsement Rate - measures endorsements & changes within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "70%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 25,
+        "max": 60,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_transaction"
+      }
+    ]
+  },
+  {
+    "id": "pa_006",
+    "name": "Premium Adjustment Accuracy",
+    "description": "Premium Adjustment Accuracy - measures endorsements & changes within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "operational",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "99.5%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 95,
+        "max": 99,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_leakage"
+      }
+    ]
+  },
+  {
+    "id": "pa_007",
+    "name": "Renewal Rate",
+    "description": "Renewal Rate - measures renewal processing within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "strategic",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "5% improvement",
+    "industryBenchmarks": {
+      "default": {
+        "min": 80,
+        "max": 92,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_volume"
+      }
+    ]
+  },
+  {
+    "id": "pa_008",
+    "name": "Auto-Renewal Rate",
+    "description": "Auto-Renewal Rate - measures renewal processing within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "75%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 65,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_policy"
+      }
+    ]
+  },
+  {
+    "id": "pa_009",
+    "name": "Renewal Cycle Time",
+    "description": "Renewal Cycle Time - measures renewal processing within Policy Administration",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "50%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 60,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "pa_010",
+    "name": "Non-Renewal Prediction Accuracy",
+    "description": "Non-Renewal Prediction Accuracy - measures renewal processing within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "strategic",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "85%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 60,
+        "max": 80,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_retention"
+      }
+    ]
+  },
+  {
+    "id": "pa_011",
+    "name": "Cancellation Processing Time",
+    "description": "Cancellation Processing Time - measures cancellation & reinstatement within Policy Administration",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 1,
+        "max": 8,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "pa_012",
+    "name": "Reinstatement Rate",
+    "description": "Reinstatement Rate - measures cancellation & reinstatement within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "strategic",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "50% improvement",
+    "industryBenchmarks": {
+      "default": {
+        "min": 15,
+        "max": 35,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_volume"
+      }
+    ]
+  },
+  {
+    "id": "pa_013",
+    "name": "Premium Refund Accuracy",
+    "description": "Premium Refund Accuracy - measures cancellation & reinstatement within Policy Administration",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "policy_admin"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "policy_admin",
+    "benchmark": "99.5%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 95,
+        "max": 99,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "bl_001",
+    "name": "Invoice Generation Time",
+    "description": "Invoice Generation Time - measures premium invoicing within Billing & Collections",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "90%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 1,
+        "max": 24,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "bl_002",
+    "name": "Invoice Accuracy",
+    "description": "Invoice Accuracy - measures premium invoicing within Billing & Collections",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "99.5%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 95,
+        "max": 99,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "bl_003",
+    "name": "Digital Invoice Adoption",
+    "description": "Digital Invoice Adoption - measures premium invoicing within Billing & Collections",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 50,
+        "max": 80,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_invoice"
+      }
+    ]
+  },
+  {
+    "id": "bl_004",
+    "name": "Payment Posting Time",
+    "description": "Payment Posting Time - measures payment processing within Billing & Collections",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "95%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 1,
+        "max": 24,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "bl_005",
+    "name": "Auto-Reconciliation Rate",
+    "description": "Auto-Reconciliation Rate - measures payment processing within Billing & Collections",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "95%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 60,
+        "max": 85,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_transaction"
+      }
+    ]
+  },
+  {
+    "id": "bl_006",
+    "name": "Payment Exception Rate",
+    "description": "Payment Exception Rate - measures payment processing within Billing & Collections",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "80% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 8,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "bl_007",
+    "name": "Collection Rate",
+    "description": "Collection Rate - measures collections & delinquency within Billing & Collections",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "financial",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "5% improvement",
+    "industryBenchmarks": {
+      "default": {
+        "min": 85,
+        "max": 95,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_collected"
+      }
+    ]
+  },
+  {
+    "id": "bl_008",
+    "name": "Days Sales Outstanding",
+    "description": "Days Sales Outstanding - measures collections & delinquency within Billing & Collections",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "30% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 60,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "time_value_money"
+      }
+    ]
+  },
+  {
+    "id": "bl_009",
+    "name": "Write-Off Rate",
+    "description": "Write-Off Rate - measures collections & delinquency within Billing & Collections",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "billing"
+    ],
+    "kpiType": "financial",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "50% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 1,
+        "max": 4,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "direct_savings"
+      }
+    ]
+  },
+  {
+    "id": "ri_001",
+    "name": "Placement Cycle Time",
+    "description": "Placement Cycle Time - measures treaty placement & negotiation within Reinsurance",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "40%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 90,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ri_002",
+    "name": "Reinsurance Cost Optimization",
+    "description": "Reinsurance Cost Optimization - measures treaty placement & negotiation within Reinsurance",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "10-15% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 8,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "reinsurance_spend"
+      }
+    ]
+  },
+  {
+    "id": "ri_003",
+    "name": "Coverage Gap Analysis Accuracy",
+    "description": "Coverage Gap Analysis Accuracy - measures treaty placement & negotiation within Reinsurance",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "compliance",
+    "valueStream": "risk_reduction",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "98%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 85,
+        "max": 95,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "exposure_reduction"
+      }
+    ]
+  },
+  {
+    "id": "ri_004",
+    "name": "Bordereaux Generation Time",
+    "description": "Bordereaux Generation Time - measures bordereaux processing within Reinsurance",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 8,
+        "max": 40,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ri_005",
+    "name": "Bordereaux Accuracy",
+    "description": "Bordereaux Accuracy - measures bordereaux processing within Reinsurance",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "99%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 90,
+        "max": 98,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "ri_006",
+    "name": "Auto-Population Rate",
+    "description": "Auto-Population Rate - measures bordereaux processing within Reinsurance",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 40,
+        "max": 70,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_report"
+      }
+    ]
+  },
+  {
+    "id": "ri_007",
+    "name": "Settlement Cycle Time",
+    "description": "Settlement Cycle Time - measures reinsurance settlement within Reinsurance",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "50%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 90,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "time_value_money"
+      }
+    ]
+  },
+  {
+    "id": "ri_008",
+    "name": "Recovery Rate",
+    "description": "Recovery Rate - measures reinsurance settlement within Reinsurance",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "99%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 90,
+        "max": 98,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "recovery_amount"
+      }
+    ]
+  },
+  {
+    "id": "ri_009",
+    "name": "Commutation Opportunity Identification",
+    "description": "Commutation Opportunity Identification - measures reinsurance settlement within Reinsurance",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "reinsurance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "reinsurance",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 50,
+        "max": 80,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "commutation_savings"
+      }
+    ]
+  },
+  {
+    "id": "cs_001",
+    "name": "First Contact Resolution Rate",
+    "description": "First Contact Resolution Rate - measures inquiry handling within Customer Service",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "operational",
+    "valueStream": "customer_experience",
+    "isMonetizable": true,
+    "categoryId": "customer_exp",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 65,
+        "max": 85,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_contact"
+      }
+    ]
+  },
+  {
+    "id": "cs_002",
+    "name": "Average Handle Time",
+    "description": "Average Handle Time - measures inquiry handling within Customer Service",
+    "unit": "minutes",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "customer_exp",
+    "benchmark": "40%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 5,
+        "max": 12,
+        "unit": "minutes"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cs_003",
+    "name": "Self-Service Deflection Rate",
+    "description": "Self-Service Deflection Rate - measures inquiry handling within Customer Service",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "customer_exp",
+    "benchmark": "60%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 20,
+        "max": 50,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_contact"
+      }
+    ]
+  },
+  {
+    "id": "cs_004",
+    "name": "Complaint Resolution Time",
+    "description": "Complaint Resolution Time - measures complaint resolution within Customer Service",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "operational",
+    "valueStream": "customer_experience",
+    "isMonetizable": true,
+    "categoryId": "customer_exp",
+    "benchmark": "50%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 3,
+        "max": 14,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cs_005",
+    "name": "Complaint Escalation Rate",
+    "description": "Complaint Escalation Rate - measures complaint resolution within Customer Service",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "compliance",
+    "valueStream": "risk_reduction",
+    "isMonetizable": true,
+    "categoryId": "customer_exp",
+    "benchmark": "60% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 5,
+        "max": 15,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "escalation_cost"
+      }
+    ]
+  },
+  {
+    "id": "cs_006",
+    "name": "Customer Satisfaction Post-Complaint",
+    "description": "Customer Satisfaction Post-Complaint - measures complaint resolution within Customer Service",
+    "unit": "score",
+    "direction": "increase",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "operational",
+    "valueStream": "customer_experience",
+    "isMonetizable": false,
+    "categoryId": "customer_exp",
+    "benchmark": "4.5+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 3.5,
+        "max": 4.2,
+        "unit": "score"
+      }
+    },
+    "maturityRules": null
+  },
+  {
+    "id": "cs_007",
+    "name": "Certificate Issuance Time",
+    "description": "Certificate Issuance Time - measures certificate & evidence issuance within Customer Service",
+    "unit": "minutes",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "customer_exp",
+    "benchmark": "90%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 5,
+        "max": 60,
+        "unit": "minutes"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cs_008",
+    "name": "Auto-Issuance Rate",
+    "description": "Auto-Issuance Rate - measures certificate & evidence issuance within Customer Service",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "customer_exp",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 40,
+        "max": 75,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_certificate"
+      }
+    ]
+  },
+  {
+    "id": "cs_009",
+    "name": "Certificate Accuracy",
+    "description": "Certificate Accuracy - measures certificate & evidence issuance within Customer Service",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "customer_service"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "customer_exp",
+    "benchmark": "99.5%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 95,
+        "max": 99,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "ds_001",
+    "name": "Onboarding Cycle Time",
+    "description": "Onboarding Cycle Time - measures agent onboarding & licensing within Distribution & Agency Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "60%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 14,
+        "max": 45,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ds_002",
+    "name": "License Verification Automation",
+    "description": "License Verification Automation - measures agent onboarding & licensing within Distribution & Agency Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 70,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cost_per_agent"
+      }
+    ]
+  },
+  {
+    "id": "ds_003",
+    "name": "Compliance Verification Rate",
+    "description": "Compliance Verification Rate - measures agent onboarding & licensing within Distribution & Agency Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "compliance",
+    "valueStream": "risk_reduction",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "100%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 90,
+        "max": 98,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "compliance_penalty_avoidance"
+      }
+    ]
+  },
+  {
+    "id": "ds_004",
+    "name": "Commission Processing Time",
+    "description": "Commission Processing Time - measures commission processing within Distribution & Agency Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "70%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 5,
+        "max": 15,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ds_005",
+    "name": "Commission Accuracy",
+    "description": "Commission Accuracy - measures commission processing within Distribution & Agency Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "99.5%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 95,
+        "max": 99,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "rework_cost"
+      }
+    ]
+  },
+  {
+    "id": "ds_006",
+    "name": "Commission Dispute Rate",
+    "description": "Commission Dispute Rate - measures commission processing within Distribution & Agency Management",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "80% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 8,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "dispute_resolution_cost"
+      }
+    ]
+  },
+  {
+    "id": "ds_007",
+    "name": "Agency Scorecard Automation",
+    "description": "Agency Scorecard Automation - measures agency performance management within Distribution & Agency Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "95%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 40,
+        "max": 70,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ds_008",
+    "name": "Book Roll Prediction Accuracy",
+    "description": "Book Roll Prediction Accuracy - measures agency performance management within Distribution & Agency Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "strategic",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "85%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 60,
+        "max": 80,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "premium_retention"
+      }
+    ]
+  },
+  {
+    "id": "ds_009",
+    "name": "Cross-Sell Recommendation Accuracy",
+    "description": "Cross-Sell Recommendation Accuracy - measures agency performance management within Distribution & Agency Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "distribution"
+    ],
+    "kpiType": "financial",
+    "valueStream": "revenue_uplift",
+    "isMonetizable": true,
+    "categoryId": "distribution",
+    "benchmark": "40%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 15,
+        "max": 35,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "new_premium"
+      }
+    ]
+  },
+  {
+    "id": "ac_001",
+    "name": "Rate Filing Cycle Time",
+    "description": "Rate Filing Cycle Time - measures rate development & filing within Actuarial & Pricing",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "actuarial",
+    "benchmark": "40%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 90,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ac_002",
+    "name": "Rate Model Accuracy",
+    "description": "Rate Model Accuracy - measures rate development & filing within Actuarial & Pricing",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "actuarial",
+    "benchmark": "97%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 85,
+        "max": 95,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "cor_points"
+      }
+    ]
+  },
+  {
+    "id": "ac_003",
+    "name": "Competitive Rate Analysis Time",
+    "description": "Competitive Rate Analysis Time - measures rate development & filing within Actuarial & Pricing",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "actuarial",
+    "benchmark": "70%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 40,
+        "max": 120,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ac_004",
+    "name": "Reserve Analysis Cycle Time",
+    "description": "Reserve Analysis Cycle Time - measures loss reserving within Actuarial & Pricing",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "actuarial",
+    "benchmark": "50%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 10,
+        "max": 30,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ac_005",
+    "name": "Reserve Adequacy",
+    "description": "Reserve Adequacy - measures loss reserving within Actuarial & Pricing",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "actuarial",
+    "benchmark": "Within 2%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 95,
+        "max": 105,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "capital_cost"
+      }
+    ]
+  },
+  {
+    "id": "ac_006",
+    "name": "IBNR Estimation Accuracy",
+    "description": "IBNR Estimation Accuracy - measures loss reserving within Actuarial & Pricing",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "actuarial",
+    "benchmark": "97%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 85,
+        "max": 95,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "reserve_volatility"
+      }
+    ]
+  },
+  {
+    "id": "ac_007",
+    "name": "Experience Report Generation Time",
+    "description": "Experience Report Generation Time - measures experience analysis & reporting within Actuarial & Pricing",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "actuarial",
+    "benchmark": "80%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 20,
+        "max": 80,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "ac_008",
+    "name": "Trend Identification Lead Time",
+    "description": "Trend Identification Lead Time - measures experience analysis & reporting within Actuarial & Pricing",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "actuarial",
+    "benchmark": "60%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 30,
+        "max": 90,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "early_action_savings"
+      }
+    ]
+  },
+  {
+    "id": "ac_009",
+    "name": "Data Quality Score",
+    "description": "Data Quality Score - measures experience analysis & reporting within Actuarial & Pricing",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "actuarial"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": false,
+    "categoryId": "actuarial",
+    "benchmark": "98%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 85,
+        "max": 95,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": null
+  },
+  {
+    "id": "cm_001",
+    "name": "Regulatory Filing Cycle Time",
+    "description": "Regulatory Filing Cycle Time - measures regulatory reporting within Compliance & Risk Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "50%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 10,
+        "max": 30,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cm_002",
+    "name": "Filing Accuracy Rate",
+    "description": "Filing Accuracy Rate - measures regulatory reporting within Compliance & Risk Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "compliance",
+    "valueStream": "risk_reduction",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "100%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 95,
+        "max": 99,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "penalty_avoidance"
+      }
+    ]
+  },
+  {
+    "id": "cm_003",
+    "name": "Auto-Population Rate",
+    "description": "Auto-Population Rate - measures regulatory reporting within Compliance & Risk Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "financial",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "90%+",
+    "industryBenchmarks": {
+      "default": {
+        "min": 40,
+        "max": 75,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cm_004",
+    "name": "Audit Response Time",
+    "description": "Audit Response Time - measures audit & examination support within Compliance & Risk Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "60%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 5,
+        "max": 20,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cm_005",
+    "name": "Document Retrieval Time",
+    "description": "Document Retrieval Time - measures audit & examination support within Compliance & Risk Management",
+    "unit": "hours",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "90%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 24,
+        "unit": "hours"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "hourly_rate"
+      }
+    ]
+  },
+  {
+    "id": "cm_006",
+    "name": "Audit Finding Rate",
+    "description": "Audit Finding Rate - measures audit & examination support within Compliance & Risk Management",
+    "unit": "count",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "compliance",
+    "valueStream": "risk_reduction",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "50% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 2,
+        "max": 10,
+        "unit": "count"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "remediation_cost"
+      }
+    ]
+  },
+  {
+    "id": "cm_007",
+    "name": "Fraud Detection Rate",
+    "description": "Fraud Detection Rate - measures fraud detection & prevention within Compliance & Risk Management",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "financial",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "50% improvement",
+    "industryBenchmarks": {
+      "default": {
+        "min": 3,
+        "max": 8,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "fraud_savings"
+      }
+    ]
+  },
+  {
+    "id": "cm_008",
+    "name": "False Positive Rate",
+    "description": "False Positive Rate - measures fraud detection & prevention within Compliance & Risk Management",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "operational_savings",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "70% reduction",
+    "industryBenchmarks": {
+      "default": {
+        "min": 20,
+        "max": 50,
+        "unit": "percentage"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "investigation_cost"
+      }
+    ]
+  },
+  {
+    "id": "cm_009",
+    "name": "Time to Fraud Identification",
+    "description": "Time to Fraud Identification - measures fraud detection & prevention within Compliance & Risk Management",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [
+      "compliance"
+    ],
+    "kpiType": "operational",
+    "valueStream": "cor_improvement",
+    "isMonetizable": true,
+    "categoryId": "compliance",
+    "benchmark": "70%",
+    "industryBenchmarks": {
+      "default": {
+        "min": 14,
+        "max": 60,
+        "unit": "days"
+      }
+    },
+    "maturityRules": [
+      {
+        "basis": "early_detection_savings"
+      }
+    ]
+  },
+  {
+    "id": "mp_001",
+    "name": "Model Accuracy Degradation Rate",
+    "description": "Percentage performance decline from baseline over time",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "model_performance",
+    "benchmark": "<5% per quarter",
+    "industryBenchmarks": {
+      "source": "MLOps Industry Standard"
+    },
+    "maturityRules": [
+      {
+        "measurement": "Model monitoring tools"
+      }
+    ]
+  },
+  {
+    "id": "mp_002",
+    "name": "Prediction Confidence Distribution",
+    "description": "Percentage of predictions above confidence threshold",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "model_performance",
+    "benchmark": ">85% high-confidence",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Inference logs"
+      }
+    ]
+  },
+  {
+    "id": "mp_003",
+    "name": "Inference Latency (p95)",
+    "description": "95th percentile response time",
+    "unit": "milliseconds",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "model_performance",
+    "benchmark": "<200ms real-time, <2s batch",
+    "industryBenchmarks": {
+      "source": "Gartner MLOps 2024"
+    },
+    "maturityRules": [
+      {
+        "measurement": "APM tools"
+      }
+    ]
+  },
+  {
+    "id": "mp_004",
+    "name": "Model Drift Detection Rate",
+    "description": "Percentage of models with detected drift addressed within SLA",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "model_performance",
+    "benchmark": "100% within 72hrs",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "MLOps platform"
+      }
+    ]
+  },
+  {
+    "id": "mp_005",
+    "name": "Feature Importance Stability",
+    "description": "Variance in top feature importance rankings over time",
+    "unit": "variance",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "model_performance",
+    "benchmark": "<10% variance",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Model explainability tools"
+      }
+    ]
+  },
+  {
+    "id": "mp_006",
+    "name": "A/B Test Statistical Power",
+    "description": "Percentage of experiments reaching statistical significance",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "model_performance",
+    "benchmark": ">80%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Experimentation platform"
+      }
+    ]
+  },
+  {
+    "id": "dq_001",
+    "name": "Data Freshness Score",
+    "description": "Percentage of features within defined staleness threshold",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "data_quality",
+    "benchmark": ">95% fresh",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Feature store metadata"
+      }
+    ]
+  },
+  {
+    "id": "dq_002",
+    "name": "Feature Store Coverage",
+    "description": "Percentage of production models using governed features",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "data_quality",
+    "benchmark": ">80% Y2, >95% Y3",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Platform analytics"
+      }
+    ]
+  },
+  {
+    "id": "dq_003",
+    "name": "Feature Reuse Rate",
+    "description": "Average times each feature used across models",
+    "unit": "ratio",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "data_quality",
+    "benchmark": ">3 models/feature",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Feature store"
+      }
+    ]
+  },
+  {
+    "id": "dq_004",
+    "name": "Data Quality Score (DQS)",
+    "description": "Composite: completeness, accuracy, consistency",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "data_quality",
+    "benchmark": ">90%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Data quality framework"
+      }
+    ]
+  },
+  {
+    "id": "dq_005",
+    "name": "Data Pipeline SLA Adherence",
+    "description": "Percentage of pipelines meeting freshness/reliability targets",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "data_quality",
+    "benchmark": ">99%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Orchestration tools"
+      }
+    ]
+  },
+  {
+    "id": "dq_006",
+    "name": "Schema Drift Incidents",
+    "description": "Monthly count of unexpected schema changes causing issues",
+    "unit": "count",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "data_quality",
+    "benchmark": "<5/month",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Data catalog"
+      }
+    ]
+  },
+  {
+    "id": "td_001",
+    "name": "Technical Debt Ratio",
+    "description": "Rework hours / total development hours",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "tech_debt",
+    "benchmark": "<15%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Engineering tracking"
+      }
+    ]
+  },
+  {
+    "id": "td_002",
+    "name": "API Error Rate",
+    "description": "Percentage of API calls returning errors",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "tech_debt",
+    "benchmark": "<0.1%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "API gateway metrics"
+      }
+    ]
+  },
+  {
+    "id": "td_003",
+    "name": "Security Vulnerability Remediation Time",
+    "description": "Time to patch critical/high vulnerabilities",
+    "unit": "hours/days",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "tech_debt",
+    "benchmark": "Critical <24hrs, High <7 days",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Security tools"
+      }
+    ]
+  },
+  {
+    "id": "td_004",
+    "name": "Platform Currency Score",
+    "description": "Percentage of stack on supported/current versions",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "tech_debt",
+    "benchmark": ">90%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Infrastructure audit"
+      }
+    ]
+  },
+  {
+    "id": "td_005",
+    "name": "Infrastructure Cost Efficiency",
+    "description": "Cost per 1M inferences",
+    "unit": "currency",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "financial",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "tech_debt",
+    "benchmark": "Declining QoQ",
+    "industryBenchmarks": {
+      "source": "Gartner 2024"
+    },
+    "maturityRules": [
+      {
+        "measurement": "Cloud cost tools"
+      }
+    ]
+  },
+  {
+    "id": "td_006",
+    "name": "Environment Parity",
+    "description": "Configuration consistency across dev/staging/prod",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "tech_debt",
+    "benchmark": ">95%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "IaC drift detection"
+      }
+    ]
+  },
+  {
+    "id": "ta_001",
+    "name": "AI Talent Retention Rate",
+    "description": "Percentage of AI/ML staff retained annually",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "talent",
+    "benchmark": ">85%",
+    "industryBenchmarks": {
+      "source": "Gartner 2024"
+    },
+    "maturityRules": [
+      {
+        "measurement": "HR systems"
+      }
+    ]
+  },
+  {
+    "id": "ta_002",
+    "name": "Skill Gap Closure Velocity",
+    "description": "Time to close identified capability gaps",
+    "unit": "months",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "talent",
+    "benchmark": "<6 months",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "L&D tracking"
+      }
+    ]
+  },
+  {
+    "id": "ta_003",
+    "name": "Knowledge Documentation Coverage",
+    "description": "Percentage of models with complete runbooks/documentation",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "talent",
+    "benchmark": ">90%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Knowledge base audit"
+      }
+    ]
+  },
+  {
+    "id": "ta_004",
+    "name": "Bus Factor Risk",
+    "description": "Percentage of models with single-person dependency",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "talent",
+    "benchmark": "<10%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Team assessment"
+      }
+    ]
+  },
+  {
+    "id": "ta_005",
+    "name": "Team Utilization Rate",
+    "description": "Productive hours / available hours",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "talent",
+    "benchmark": "70-80% (sustainable)",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Resource management"
+      }
+    ]
+  },
+  {
+    "id": "ta_006",
+    "name": "Internal Mobility/Growth",
+    "description": "Percentage of promotions/role expansions within AI team",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "talent",
+    "benchmark": ">20%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "HR systems"
+      }
+    ]
+  },
+  {
+    "id": "in_001",
+    "name": "Idea-to-PoC Conversion Rate",
+    "description": "Percentage of submitted ideas reaching PoC stage",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "innovation",
+    "benchmark": "20-30%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Innovation tracking"
+      }
+    ]
+  },
+  {
+    "id": "in_002",
+    "name": "PoC Cycle Time",
+    "description": "Average time from approval to PoC completion",
+    "unit": "weeks",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "innovation",
+    "benchmark": "<6 weeks",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Project tracking"
+      }
+    ]
+  },
+  {
+    "id": "in_003",
+    "name": "Experimentation Velocity",
+    "description": "Number of experiments completed per quarter",
+    "unit": "count",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "innovation",
+    "benchmark": "10-15 Y1, 25+ Y3",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Lab tracking"
+      }
+    ]
+  },
+  {
+    "id": "in_004",
+    "name": "Failed Experiment Learning Capture",
+    "description": "Percentage of failed experiments with documented learnings",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "innovation",
+    "benchmark": "100%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Knowledge base"
+      }
+    ]
+  },
+  {
+    "id": "in_005",
+    "name": "Innovation Funnel Health",
+    "description": "Ratio of ideas:PoC:pilot:production",
+    "unit": "ratio",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "innovation",
+    "benchmark": "10:3:1.5:1",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Pipeline tracking"
+      }
+    ]
+  },
+  {
+    "id": "in_006",
+    "name": "External Partnership Value",
+    "description": "Number of vendor/academic partnerships delivering value",
+    "unit": "count",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "innovation",
+    "benchmark": ">2 active",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Partnership reviews"
+      }
+    ]
+  },
+  {
+    "id": "sh_001",
+    "name": "Business Sponsor Satisfaction",
+    "description": "NPS/satisfaction score from business stakeholders",
+    "unit": "NPS",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "stakeholder",
+    "benchmark": ">70 NPS",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Quarterly survey"
+      }
+    ]
+  },
+  {
+    "id": "sh_002",
+    "name": "Strategic Priority Alignment",
+    "description": "Percentage of active projects tied to top-5 strategic priorities",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "stakeholder",
+    "benchmark": ">80%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Portfolio review"
+      }
+    ]
+  },
+  {
+    "id": "sh_003",
+    "name": "Demand Backlog Age",
+    "description": "Average age of items in intake queue",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "stakeholder",
+    "benchmark": "<90 days",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Intake system"
+      }
+    ]
+  },
+  {
+    "id": "sh_004",
+    "name": "Stakeholder Engagement Frequency",
+    "description": "Regular touchpoints with business sponsors",
+    "unit": "count",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "stakeholder",
+    "benchmark": "Monthly minimum",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Meeting tracking"
+      }
+    ]
+  },
+  {
+    "id": "sh_005",
+    "name": "Value Realization Communication",
+    "description": "Percentage of deployed models with communicated business impact",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "stakeholder",
+    "benchmark": ">90%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Value reports"
+      }
+    ]
+  },
+  {
+    "id": "sh_006",
+    "name": "Executive Dashboard Access",
+    "description": "Number of executives actively using AI performance dashboards",
+    "unit": "count",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "stakeholder",
+    "benchmark": ">5 active users",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Analytics platform"
+      }
+    ]
+  },
+  {
+    "id": "ga_001",
+    "name": "Hallucination Rate",
+    "description": "Percentage of outputs with factual errors/fabrications",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "genai",
+    "benchmark": "<2% high-risk, <5% low-risk",
+    "industryBenchmarks": {
+      "source": "Gartner GenAI 2024"
+    },
+    "maturityRules": [
+      {
+        "measurement": "Human review sampling"
+      }
+    ]
+  },
+  {
+    "id": "ga_002",
+    "name": "Human Override Rate",
+    "description": "Percentage of GenAI outputs requiring human correction",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "genai",
+    "benchmark": "<10% at steady state",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Workflow tracking"
+      }
+    ]
+  },
+  {
+    "id": "ga_003",
+    "name": "Prompt Effectiveness Rate",
+    "description": "Percentage of prompts achieving intended outcome",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "genai",
+    "benchmark": ">85%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Usage analytics"
+      }
+    ]
+  },
+  {
+    "id": "ga_004",
+    "name": "Token Cost Efficiency",
+    "description": "Cost per 1,000 successful completions",
+    "unit": "currency",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "financial",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "genai",
+    "benchmark": "Declining MoM",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "LLM cost tracking"
+      }
+    ]
+  },
+  {
+    "id": "ga_005",
+    "name": "Guardrail Trigger Rate",
+    "description": "Percentage of requests hitting safety/compliance guardrails",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "genai",
+    "benchmark": "<5%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Guardrail logs"
+      }
+    ]
+  },
+  {
+    "id": "ga_006",
+    "name": "Context Window Utilization",
+    "description": "Average context window usage per request",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "genai",
+    "benchmark": "60-80% optimal",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "LLM analytics"
+      }
+    ]
+  },
+  {
+    "id": "ga_007",
+    "name": "RAG Retrieval Precision",
+    "description": "Relevance of retrieved documents in RAG pipelines",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "genai",
+    "benchmark": ">90%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Evaluation framework"
+      }
+    ]
+  },
+  {
+    "id": "ga_008",
+    "name": "Response Time SLA Compliance",
+    "description": "Percentage of GenAI responses meeting latency SLA",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "genai",
+    "benchmark": ">95%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "APM tools"
+      }
+    ]
+  },
+  {
+    "id": "it_001",
+    "name": "Cloud Cost Optimization",
+    "description": "Cost savings through rightsizing, reserved instances, spot usage",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "financial",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "it_infrastructure",
+    "benchmark": "20-30% reduction Y1",
+    "industryBenchmarks": {
+      "source": "Gartner 2024"
+    },
+    "maturityRules": [
+      {
+        "measurement": "Cloud cost tools"
+      }
+    ]
+  },
+  {
+    "id": "it_002",
+    "name": "Infrastructure Utilization",
+    "description": "Average compute/GPU utilization across AI workloads",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "it_infrastructure",
+    "benchmark": ">70%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Cloud monitoring"
+      }
+    ]
+  },
+  {
+    "id": "it_003",
+    "name": "Deployment Frequency",
+    "description": "Number of production deployments per time period",
+    "unit": "count",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "it_infrastructure",
+    "benchmark": "Daily for mature orgs",
+    "industryBenchmarks": {
+      "source": "DORA Metrics"
+    },
+    "maturityRules": [
+      {
+        "measurement": "CI/CD metrics"
+      }
+    ]
+  },
+  {
+    "id": "it_004",
+    "name": "Mean Time to Recovery (MTTR)",
+    "description": "Average time to restore service after incident",
+    "unit": "minutes",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "it_infrastructure",
+    "benchmark": "<60 mins",
+    "industryBenchmarks": {
+      "source": "DORA Metrics"
+    },
+    "maturityRules": [
+      {
+        "measurement": "Incident management"
+      }
+    ]
+  },
+  {
+    "id": "it_005",
+    "name": "Change Failure Rate",
+    "description": "Percentage of deployments causing degraded service",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "it_infrastructure",
+    "benchmark": "<15%",
+    "industryBenchmarks": {
+      "source": "DORA Metrics"
+    },
+    "maturityRules": [
+      {
+        "measurement": "CI/CD metrics"
+      }
+    ]
+  },
+  {
+    "id": "it_006",
+    "name": "Lead Time for Changes",
+    "description": "Time from code commit to production deployment",
+    "unit": "days",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "it_infrastructure",
+    "benchmark": "<1 day for elite",
+    "industryBenchmarks": {
+      "source": "DORA Metrics"
+    },
+    "maturityRules": [
+      {
+        "measurement": "CI/CD metrics"
+      }
+    ]
+  },
+  {
+    "id": "sp_001",
+    "name": "AI Security Incidents",
+    "description": "Number of security breaches related to AI systems",
+    "unit": "count",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "security_privacy",
+    "benchmark": "0 critical",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "SIEM/SOC"
+      }
+    ]
+  },
+  {
+    "id": "sp_002",
+    "name": "Privacy Compliance Rate",
+    "description": "Percentage of AI models compliant with GDPR/CCPA/sector regs",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "security_privacy",
+    "benchmark": "100%",
+    "industryBenchmarks": {
+      "source": "EU AI Act 2026"
+    },
+    "maturityRules": [
+      {
+        "measurement": "Compliance audits"
+      }
+    ]
+  },
+  {
+    "id": "sp_003",
+    "name": "Access Control Adherence",
+    "description": "Percentage of AI resources with proper RBAC implementation",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "security_privacy",
+    "benchmark": ">99%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "IAM audits"
+      }
+    ]
+  },
+  {
+    "id": "sp_004",
+    "name": "Data Encryption Coverage",
+    "description": "Percentage of AI data encrypted at rest and in transit",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "security_privacy",
+    "benchmark": "100%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Security scans"
+      }
+    ]
+  },
+  {
+    "id": "sp_005",
+    "name": "Model Adversarial Testing",
+    "description": "Percentage of models tested for adversarial vulnerabilities",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "security_privacy",
+    "benchmark": ">80% of high-risk",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Security testing"
+      }
+    ]
+  },
+  {
+    "id": "sp_006",
+    "name": "PII Detection Coverage",
+    "description": "Percentage of training datasets scanned for PII",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "compliance",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "security_privacy",
+    "benchmark": "100% of training data",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Data governance tools"
+      }
+    ]
+  },
+  {
+    "id": "cx_001",
+    "name": "AI-Assisted Resolution Rate",
+    "description": "Percentage of customer issues resolved with AI assistance",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "customer_experience",
+    "benchmark": ">60%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "CRM analytics"
+      }
+    ]
+  },
+  {
+    "id": "cx_002",
+    "name": "Self-Service Adoption Rate",
+    "description": "Percentage of customers using AI-powered self-service",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "customer_experience",
+    "benchmark": ">40%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Digital analytics"
+      }
+    ]
+  },
+  {
+    "id": "cx_003",
+    "name": "Response Time Improvement",
+    "description": "Reduction in average customer wait/response time",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "customer_experience",
+    "benchmark": "50% reduction",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Service metrics"
+      }
+    ]
+  },
+  {
+    "id": "cx_004",
+    "name": "Customer Effort Score (AI)",
+    "description": "Customer effort for AI-assisted interactions",
+    "unit": "score",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "customer_experience",
+    "benchmark": "<3 (1-7 scale)",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Post-interaction surveys"
+      }
+    ]
+  },
+  {
+    "id": "cx_005",
+    "name": "First Contact Resolution (AI)",
+    "description": "Percentage of issues resolved in first AI interaction",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "customer_experience",
+    "benchmark": ">70%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "CRM analytics"
+      }
+    ]
+  },
+  {
+    "id": "cx_006",
+    "name": "AI NPS Impact",
+    "description": "NPS improvement attributable to AI-powered experiences",
+    "unit": "points",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "strategic",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "customer_experience",
+    "benchmark": "+5-10 pts",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "NPS surveys"
+      }
+    ]
+  },
+  {
+    "id": "oe_001",
+    "name": "Process Automation Rate",
+    "description": "Percentage of automatable processes using AI",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "operational_efficiency",
+    "benchmark": ">50% of eligible",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Process mining"
+      }
+    ]
+  },
+  {
+    "id": "oe_002",
+    "name": "Straight-Through Processing Rate",
+    "description": "Percentage of transactions completed without human touch",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "operational_efficiency",
+    "benchmark": ">60%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Workflow analytics"
+      }
+    ]
+  },
+  {
+    "id": "oe_003",
+    "name": "Manual Intervention Reduction",
+    "description": "Reduction in manual steps through AI automation",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "operational_efficiency",
+    "benchmark": "30-50% reduction",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Process analytics"
+      }
+    ]
+  },
+  {
+    "id": "oe_004",
+    "name": "Exception Handling Time",
+    "description": "Reduction in time to handle process exceptions",
+    "unit": "percentage",
+    "direction": "decrease",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "operational_efficiency",
+    "benchmark": "40% reduction",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Workflow analytics"
+      }
+    ]
+  },
+  {
+    "id": "oe_005",
+    "name": "Predictive Accuracy (Operations)",
+    "description": "Accuracy of AI predictions for operational planning",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "operational",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "operational_efficiency",
+    "benchmark": ">85%",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Forecast vs actual"
+      }
+    ]
+  },
+  {
+    "id": "oe_006",
+    "name": "Resource Optimization Savings",
+    "description": "Efficiency gains from AI-driven resource allocation",
+    "unit": "percentage",
+    "direction": "increase",
+    "applicableProcesses": [],
+    "kpiType": "financial",
+    "valueStream": null,
+    "isMonetizable": false,
+    "categoryId": "operational_efficiency",
+    "benchmark": "15-25% efficiency gain",
+    "industryBenchmarks": null,
+    "maturityRules": [
+      {
+        "measurement": "Resource utilization"
+      }
+    ]
+  }
+]
