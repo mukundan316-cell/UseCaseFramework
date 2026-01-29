@@ -2,6 +2,7 @@ import { db } from './db';
 import { metadataConfig, useCases, clients, engagements } from '@shared/schema';
 import { eq, isNull } from "drizzle-orm";
 import { QuestionnaireDemoService } from './services/questionnaireDemo';
+import { deriveAllFields, getDefaultConfigs, type UseCaseForDerivation } from './derivation';
 import fs from 'fs';
 import path from 'path';
 
@@ -25,6 +26,9 @@ export async function seedDatabase() {
     
     // Ensure default client/engagement and backfill use cases
     await ensureEngagementBackfill();
+    
+    // Populate showcase use cases with complete Insights data
+    await seedShowcaseUseCases();
     
     console.log('Use case database ready for user input');
   } catch (error) {
@@ -794,5 +798,365 @@ async function seedMarkelClientConfig() {
     console.log("✅ Markel client configuration seeded with Hybrid TOM preset");
   } catch (error) {
     console.error('Error seeding Markel client config:', error);
+  }
+}
+
+/**
+ * Seeds 15 showcase use cases with complete data for all Insights tabs
+ * Mix of Business (Claims, Underwriting, Operations) and IT/HR use cases
+ * Populates: statuses, investment, valueConfidence, governance roles, value streams
+ */
+async function seedShowcaseUseCases() {
+  try {
+    const showcaseUseCases = [
+      {
+        id: 'a042dfaf-2ea2-46c9-bbdb-e5aa41eb5741',
+        title: 'Agentic AI for Underwriting',
+        updates: {
+          useCaseStatus: 'Discovery',
+          deploymentStatus: 'PoC',
+          dataReadiness: 4,
+          technicalComplexity: 4,
+          adoptionReadiness: 3,
+          deliveryOwner: 'Sarah Mitchell',
+          valueValidator: 'David Chen',
+          valueGovernanceModel: 'AI Steering Committee',
+          investment: { initialInvestment: 350000, ongoingMonthlyCost: 25000 },
+          valueConfidence: { conservativeFactor: 0.7, validationStatus: 'pending_finance' as const },
+          valueStream: 'operational_savings'
+        }
+      },
+      {
+        id: '22ae4421-76a0-4a6b-8c88-a0b91d886da2',
+        title: 'Claims FNOL: Fault/Liability & Repair Cost Estimation',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'Pilot',
+          dataReadiness: 4,
+          technicalComplexity: 3,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Michael Torres',
+          valueValidator: 'Amanda Reenan',
+          valueGovernanceModel: 'Business Owner Review',
+          investment: { initialInvestment: 280000, ongoingMonthlyCost: 18000 },
+          valueConfidence: { conservativeFactor: 0.8, validationStatus: 'pending_actuarial' as const },
+          valueStream: 'cor_improvement'
+        }
+      },
+      {
+        id: 'b30c4f4a-6898-4b6c-8557-e814877dcb9e',
+        title: 'Fraud Analytics & Detection (Quote + Claims)',
+        updates: {
+          useCaseStatus: 'Implemented',
+          deploymentStatus: 'Production',
+          dataReadiness: 5,
+          technicalComplexity: 4,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Jennifer Walsh',
+          valueValidator: 'Robert Kim',
+          valueGovernanceModel: 'AI Working Group',
+          investment: { initialInvestment: 420000, ongoingMonthlyCost: 35000 },
+          valueConfidence: { conservativeFactor: 0.9, validationStatus: 'fully_validated' as const },
+          valueStream: 'risk_mitigation'
+        }
+      },
+      {
+        id: '2c667373-aee6-4f86-aaed-5ad4fa242b29',
+        title: 'Claims triage (Home & Commercial Property)',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'PoC',
+          dataReadiness: 3,
+          technicalComplexity: 3,
+          adoptionReadiness: 3,
+          deliveryOwner: 'Emma Richardson',
+          valueValidator: 'Andy Flower',
+          valueGovernanceModel: 'Business Owner Review',
+          investment: { initialInvestment: 180000, ongoingMonthlyCost: 12000 },
+          valueConfidence: { conservativeFactor: 0.65, validationStatus: 'pending_finance' as const },
+          valueStream: 'operational_savings'
+        }
+      },
+      {
+        id: '6c7534f6-f61a-465c-9ca8-cc6d6019e88a',
+        title: 'Emerging risk signal detection from claims documents',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'Pilot',
+          dataReadiness: 3,
+          technicalComplexity: 3,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Thomas Grant',
+          valueValidator: 'Andy Flower',
+          valueGovernanceModel: 'AI Working Group',
+          investment: { initialInvestment: 95000, ongoingMonthlyCost: 8000 },
+          valueConfidence: { conservativeFactor: 0.75, validationStatus: 'pending_actuarial' as const },
+          valueStream: 'risk_mitigation'
+        }
+      },
+      {
+        id: 'dfe9c524-4a70-44a5-815b-2e5b51ba470d',
+        title: 'Customer 360 + Customer Lifetime Value & Next-Best-Action',
+        updates: {
+          useCaseStatus: 'Discovery',
+          deploymentStatus: 'PoC',
+          dataReadiness: 3,
+          technicalComplexity: 4,
+          adoptionReadiness: 3,
+          deliveryOwner: 'Olivia Barnes',
+          valueValidator: 'Elaine Robinson',
+          valueGovernanceModel: 'AI Steering Committee',
+          investment: { initialInvestment: 320000, ongoingMonthlyCost: 22000 },
+          valueConfidence: { conservativeFactor: 0.6, validationStatus: 'pending_finance' as const },
+          valueStream: 'revenue_uplift'
+        }
+      },
+      {
+        id: 'e51e98c2-f22b-48d6-b805-d40e324ec514',
+        title: 'Document Processing & Centralised Document Management (ECM + APIs)',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'Pilot',
+          dataReadiness: 4,
+          technicalComplexity: 3,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Daniel Foster',
+          valueValidator: 'Amanda Reenan',
+          valueGovernanceModel: 'Business Owner Review',
+          investment: { initialInvestment: 240000, ongoingMonthlyCost: 15000 },
+          valueConfidence: { conservativeFactor: 0.85, validationStatus: 'pending_actuarial' as const },
+          valueStream: 'operational_savings'
+        }
+      },
+      {
+        id: 'fed6df03-36f7-4b38-b248-86207239c8eb',
+        title: 'Recoveries / subrogation opportunity identification',
+        updates: {
+          useCaseStatus: 'Implemented',
+          deploymentStatus: 'Production',
+          dataReadiness: 4,
+          technicalComplexity: 3,
+          adoptionReadiness: 5,
+          deliveryOwner: 'Catherine Moore',
+          valueValidator: 'Andy Flower',
+          valueGovernanceModel: 'Business Owner Review',
+          investment: { initialInvestment: 150000, ongoingMonthlyCost: 10000 },
+          valueConfidence: { conservativeFactor: 0.95, validationStatus: 'fully_validated' as const },
+          valueStream: 'cor_improvement'
+        }
+      },
+      {
+        id: '12d60f7b-c466-4991-ab9e-265cfb2d29b4',
+        title: 'Provide Broker Insights both internally & externally  for proactive cross-sell / prospecting insights → AI-Driven Broker Analytics',
+        updates: {
+          useCaseStatus: 'Discovery',
+          deploymentStatus: null,
+          dataReadiness: 3,
+          technicalComplexity: 3,
+          adoptionReadiness: 3,
+          deliveryOwner: 'Kevin O\'Brien',
+          valueValidator: 'James Gregory',
+          valueGovernanceModel: 'AI Working Group',
+          investment: { initialInvestment: 120000, ongoingMonthlyCost: 9000 },
+          valueConfidence: { conservativeFactor: 0.55, validationStatus: 'unvalidated' as const },
+          valueStream: 'revenue_uplift'
+        }
+      },
+      {
+        id: 'f04b9aff-218e-49ed-ae08-c75729138871',
+        title: 'Conversational AI->High call volumes in contact center, manual QA of calls slow & inconsistent → AI Speech Analytics & Real-Time Support (part of this is already live)',
+        updates: {
+          useCaseStatus: 'Implemented',
+          deploymentStatus: 'Production',
+          dataReadiness: 4,
+          technicalComplexity: 2,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Lisa Chen',
+          valueValidator: 'James Gregory',
+          valueGovernanceModel: 'Business Owner Review',
+          investment: { initialInvestment: 180000, ongoingMonthlyCost: 12000 },
+          valueConfidence: { conservativeFactor: 0.9, validationStatus: 'fully_validated' as const },
+          valueStream: 'customer_experience'
+        }
+      },
+      {
+        id: '428c6569-d69b-43c8-9e92-fbad5e20d3fd',
+        title: 'Developer & Knowledge-Worker Productivity (Microsoft Copilot family)',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'Pilot',
+          dataReadiness: 4,
+          technicalComplexity: 2,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Ryan Patterson',
+          valueValidator: 'Amanda Reenan',
+          valueGovernanceModel: 'AI Working Group',
+          investment: { initialInvestment: 75000, ongoingMonthlyCost: 15000 },
+          valueConfidence: { conservativeFactor: 0.8, validationStatus: 'pending_finance' as const },
+          valueStream: 'operational_savings'
+        }
+      },
+      {
+        id: '7ca1e712-f49a-4cef-88e7-84482736d278',
+        title: 'HR Data Lake/Warehouse Enablement',
+        updates: {
+          useCaseStatus: 'Discovery',
+          deploymentStatus: 'PoC',
+          dataReadiness: 3,
+          technicalComplexity: 4,
+          adoptionReadiness: 3,
+          deliveryOwner: 'Michelle Adams',
+          valueValidator: 'Jess Jubb',
+          valueGovernanceModel: 'AI Steering Committee',
+          investment: { initialInvestment: 280000, ongoingMonthlyCost: 20000 },
+          valueConfidence: { conservativeFactor: 0.65, validationStatus: 'pending_finance' as const },
+          valueStream: 'operational_savings'
+        }
+      },
+      {
+        id: '05a60f99-478e-49db-8b13-b7c2f0f4d7cd',
+        title: 'Semantic HR Policy Search & Q&A',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'PoC',
+          dataReadiness: 4,
+          technicalComplexity: 2,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Alex Wright',
+          valueValidator: 'Jess Jubb',
+          valueGovernanceModel: 'Business Owner Review',
+          investment: { initialInvestment: 65000, ongoingMonthlyCost: 5000 },
+          valueConfidence: { conservativeFactor: 0.75, validationStatus: 'pending_actuarial' as const },
+          valueStream: 'operational_savings'
+        }
+      },
+      {
+        id: 'feb4dbdb-72ee-413b-b585-e02ab7c105ee',
+        title: 'AI Access Enablement & Governance (HR)',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'Pilot',
+          dataReadiness: 3,
+          technicalComplexity: 3,
+          adoptionReadiness: 3,
+          deliveryOwner: 'Patricia Garcia',
+          valueValidator: 'Jess Jubb',
+          valueGovernanceModel: 'AI Steering Committee',
+          investment: { initialInvestment: 95000, ongoingMonthlyCost: 8000 },
+          valueConfidence: { conservativeFactor: 0.7, validationStatus: 'pending_finance' as const },
+          valueStream: 'regulatory_compliance'
+        }
+      },
+      {
+        id: '06f0e01f-7301-4fb7-9790-381d8e91cddf',
+        title: 'Intelligent Email & Communication Assistant',
+        updates: {
+          useCaseStatus: 'Backlog',
+          deploymentStatus: null,
+          dataReadiness: 3,
+          technicalComplexity: 3,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Mark Johnson',
+          valueValidator: 'Amanda Reenan',
+          valueGovernanceModel: 'AI Working Group',
+          investment: { initialInvestment: 85000, ongoingMonthlyCost: 7000 },
+          valueConfidence: { conservativeFactor: 0.5, validationStatus: 'unvalidated' as const },
+          valueStream: 'operational_savings'
+        }
+      }
+    ];
+
+    let updatedCount = 0;
+    for (const showcase of showcaseUseCases) {
+      const { id, updates } = showcase;
+      
+      const existing = await db.select().from(useCases).where(eq(useCases.id, id));
+      if (existing.length === 0) continue;
+      
+      const currentUseCase = existing[0];
+      const existingVR = (currentUseCase.valueRealization as any) || {};
+      
+      const updatedValueRealization = {
+        ...existingVR,
+        investment: updates.investment,
+        valueConfidence: {
+          ...existingVR.valueConfidence,
+          conservativeFactor: updates.valueConfidence.conservativeFactor,
+          validationStatus: updates.valueConfidence.validationStatus,
+          adjustedValueGbp: null,
+          rationale: null
+        }
+      };
+
+      if (existingVR.kpiEstimates && existingVR.kpiEstimates.length > 0) {
+        updatedValueRealization.kpiEstimates = existingVR.kpiEstimates.map((kpi: any) => ({
+          ...kpi,
+          valueStream: updates.valueStream
+        }));
+      }
+
+      // First update the basic fields
+      await db.update(useCases)
+        .set({
+          useCaseStatus: updates.useCaseStatus,
+          deploymentStatus: updates.deploymentStatus,
+          dataReadiness: updates.dataReadiness,
+          technicalComplexity: updates.technicalComplexity,
+          adoptionReadiness: updates.adoptionReadiness,
+          deliveryOwner: updates.deliveryOwner,
+          valueValidator: updates.valueValidator,
+          valueGovernanceModel: updates.valueGovernanceModel,
+          valueRealization: updatedValueRealization
+        })
+        .where(eq(useCases.id, id));
+      
+      // Now apply TOM phase derivation based on new statuses
+      try {
+        const metadata = await db.select().from(metadataConfig).limit(1);
+        const configs = getDefaultConfigs(metadata[0] || {});
+        const useCaseForDerivation: UseCaseForDerivation = {
+          id,
+          title: currentUseCase.title,
+          useCaseStatus: updates.useCaseStatus,
+          deploymentStatus: updates.deploymentStatus,
+          tomPhaseOverride: currentUseCase.tomPhaseOverride,
+          processes: currentUseCase.processes as string[] | null,
+          quadrant: currentUseCase.quadrant,
+          tShirtSize: currentUseCase.tShirtSize,
+          dataReadiness: updates.dataReadiness,
+          technicalComplexity: updates.technicalComplexity,
+          adoptionReadiness: updates.adoptionReadiness,
+          capabilityTransition: currentUseCase.capabilityTransition,
+          valueRealization: updatedValueRealization,
+          tomPhase: currentUseCase.tomPhase,
+          primaryBusinessOwner: currentUseCase.primaryBusinessOwner,
+          businessFunction: currentUseCase.businessFunction,
+          governanceStatus: currentUseCase.governanceStatus
+        };
+
+        const derived = deriveAllFields(useCaseForDerivation, configs, { overwriteCapability: true });
+        
+        if (derived.tomPhase) {
+          await db.update(useCases)
+            .set({ tomPhase: derived.tomPhase })
+            .where(eq(useCases.id, id));
+        }
+        if (derived.capabilityTransition) {
+          await db.update(useCases)
+            .set({ capabilityTransition: derived.capabilityTransition })
+            .where(eq(useCases.id, id));
+        }
+      } catch (deriveError) {
+        console.warn(`Warning: Could not derive fields for ${id}:`, deriveError);
+      }
+      
+      updatedCount++;
+    }
+
+    if (updatedCount > 0) {
+      console.log(`✅ Updated ${updatedCount} showcase use cases with complete Insights data (including TOM phase derivation)`);
+    }
+  } catch (error) {
+    console.error('Error seeding showcase use cases:', error);
   }
 }
