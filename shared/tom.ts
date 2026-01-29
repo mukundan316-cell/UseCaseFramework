@@ -658,16 +658,47 @@ export const DEFAULT_TOM_CONFIG: TomConfig = {
     fallbackBehavior: 'lowestPriority',
     nullDeploymentHandling: 'ignoreInMatching'
   },
-  // RSA TOM aligned phase transitions with governance gate requirements
-  // Gate 1 (Operating Model): Ideation → Assessment (basic ownership required)
-  // Gate 2 (Intake): Assessment → Foundation (all 10 scoring levers)
-  // Gate 3 (RAI): Foundation → Build (responsible AI clearance)
+  // Default 4-phase model transitions with governance gate requirements
+  // Gate 1 (Operating Model): Entry to Foundation - ownership & function required
+  // Gate 2 (Intake): Foundation → Strategic - 10-lever scoring complete
+  // Gate 3 (RAI): Strategic → Transition - Responsible AI clearance
   phaseTransitions: [
-    { fromPhase: 'ideation', toPhase: 'assessment', requiredGate: 'operatingModel', description: 'Gate 1: Business ownership and function assignment' },
-    { fromPhase: 'assessment', toPhase: 'foundation', requiredGate: 'intake', description: 'Gate 2: Full 10-lever scoring complete' },
-    { fromPhase: 'foundation', toPhase: 'build', requiredGate: 'rai', description: 'Gate 3: Responsible AI clearance' },
-    { fromPhase: 'build', toPhase: 'scale', requiredGate: 'none', description: 'Post-gate progression' },
-    { fromPhase: 'scale', toPhase: 'operate', requiredGate: 'none', description: 'Post-gate progression' }
+    { fromPhase: 'foundation', toPhase: 'strategic', requiredGate: 'intake', description: 'Gate 2: Full 10-lever scoring must be complete before active development' },
+    { fromPhase: 'strategic', toPhase: 'transition', requiredGate: 'rai', description: 'Gate 3: Responsible AI clearance required before production deployment' },
+    { fromPhase: 'transition', toPhase: 'steady_state', requiredGate: 'none', description: 'Transition to full client ownership' }
+  ],
+  // Gate definitions aligned with default 4-phase model
+  gateDefinitions: [
+    {
+      id: 'operatingModel',
+      title: 'Operating Model',
+      subtitle: 'Accountability',
+      principle: 'Accountability and organizational alignment must be established before AI work begins',
+      requirements: ['Primary Business Owner assigned', 'Business Function identified', 'Status beyond Discovery'],
+      color: '#3C2CDA',
+      order: 1,
+      targetPhase: 'foundation'
+    },
+    {
+      id: 'intake',
+      title: 'Intake & Prioritization',
+      subtitle: 'Assessment',
+      principle: 'Must be properly assessed before building',
+      requirements: ['Complete 10-lever scoring (all Impact & Effort levers)'],
+      color: '#1D86FF',
+      order: 2,
+      targetPhase: 'strategic'
+    },
+    {
+      id: 'rai',
+      title: 'Responsible AI',
+      subtitle: 'Compliance',
+      principle: 'Must clear ethical/compliance review before production',
+      requirements: ['Complete RAI questionnaire (5 key fields)'],
+      color: '#14CBDE',
+      order: 3,
+      targetPhase: 'transition'
+    }
   ]
 };
 
@@ -681,7 +712,8 @@ export function ensureTomConfig(config: Partial<TomConfig> | null | undefined): 
     phases: config.phases || DEFAULT_TOM_CONFIG.phases,
     governanceBodies: config.governanceBodies || DEFAULT_TOM_CONFIG.governanceBodies,
     derivationRules: config.derivationRules || DEFAULT_TOM_CONFIG.derivationRules,
-    phaseTransitions: config.phaseTransitions || DEFAULT_TOM_CONFIG.phaseTransitions
+    phaseTransitions: config.phaseTransitions || DEFAULT_TOM_CONFIG.phaseTransitions,
+    gateDefinitions: config.gateDefinitions || DEFAULT_TOM_CONFIG.gateDefinitions
   };
 }
 
