@@ -35,7 +35,7 @@ The platform uses Hexaware's official branding, colors, and typography. UI compo
 - **Assessment System**: Multi-questionnaire platform using Survey.js.
 - **File Management**: Local filesystem storage (`uploads/`) with metadata tracking and a 50MB per file limit.
 - **Modularity**: ~70 active LEGO components for reusability, with modular route and modal architectures.
-- **In-App Help & Guidance**: Role-based documentation covering platform overview, navigation, TOM phases, key rules, and quick reference.
+- **In-App Help & Guidance**: Role-based documentation with step-by-step visual guides for Business Users (create use cases, link KPIs, scoring), Strategy/PMO (priority matrix, insights analysis, value validation), and Admins (client management, TOM configuration, gate definitions, KPI library). Uses visual cards with numbered steps and color-coded role sections.
 - **Validation**: Minimal validation using Zod schemas and centralized configuration.
 - **Excel Integration**: Multi-worksheet import/export with auto-ID generation.
 - **API Design**: RESTful patterns with structured error responses and server-side validation.
@@ -47,7 +47,7 @@ The platform uses Hexaware's official branding, colors, and typography. UI compo
 - **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations with override protection.
 - **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table.
 - **Compliance Features**: Duplicate detection, full audit trail (`use_case_change_log`), and role evolution tracking.
-- **Governance Workflow**: Foundation Layer gates must be cleared before use cases enter an active portfolio. Governance gates are enforced only when activating use cases.
+- **Governance Workflow**: Foundation Layer gates must be cleared before use cases enter an active portfolio. Governance gates are enforced only when activating use cases. Includes visual gate-to-phase flow diagram showing which gates unlock which transitions, loaded dynamically from phaseTransitions config.
 - **Soft Progressive Data Capture**: Phase-aligned guidance system indicates required data for each TOM phase.
 - **Insights Dashboard Structure**: All four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) follow a consistent pattern: Summary Cards, Distribution Charts, and Use Case Table.
 

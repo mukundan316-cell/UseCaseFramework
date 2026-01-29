@@ -1,8 +1,9 @@
-import { User, BarChart3, Shield, Rocket, CheckCircle2 } from 'lucide-react';
+import { User, BarChart3, Shield, Rocket, CheckCircle2, ArrowRight, Layers } from 'lucide-react';
 import type { ElementType } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { TomConfig, GateDefinition } from '@shared/tom';
+import type { TomConfig, GateDefinition, PhaseTransitionRule, TomPhase } from '@shared/tom';
 import { useEngagement } from '@/contexts/EngagementContext';
+import { Badge } from '@/components/ui/badge';
 
 interface GovernanceGuideProps {
   currentGates?: Record<string, boolean>;
@@ -20,42 +21,12 @@ const gateIconMap: Record<string, ElementType> = {
   rai: Shield
 };
 
-const DEFAULT_GATE_DEFINITIONS: GateDefinition[] = [
-  {
-    id: 'operatingModel',
-    title: 'Operating Model',
-    subtitle: 'Accountability',
-    principle: 'Accountability and organizational alignment must be established before AI work begins',
-    requirements: ['Primary Business Owner', 'Business Function assigned', 'Status beyond Discovery'],
-    color: '#3C2CDA',
-    order: 1
-  },
-  {
-    id: 'intake',
-    title: 'Intake & Prioritization',
-    subtitle: 'Assessment',
-    principle: 'Must be properly assessed before building',
-    requirements: ['Complete 10-lever scoring (Impact & Effort)'],
-    color: '#1D86FF',
-    order: 2
-  },
-  {
-    id: 'rai',
-    title: 'Responsible AI',
-    subtitle: 'Compliance',
-    principle: 'Must clear ethical/compliance review',
-    requirements: ['Complete RAI questionnaire (5 fields)'],
-    color: '#14CBDE',
-    order: 3
-  }
-];
-
 function buildGates(gateDefinitions?: GateDefinition[]): GateStep[] {
-  const defs = gateDefinitions && gateDefinitions.length > 0 
-    ? gateDefinitions 
-    : DEFAULT_GATE_DEFINITIONS;
+  if (!gateDefinitions || gateDefinitions.length === 0) {
+    return [];
+  }
   
-  return defs
+  return [...gateDefinitions]
     .sort((a, b) => a.order - b.order)
     .map(gate => ({
       ...gate,
@@ -75,9 +46,10 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
   const gates = buildGates(tomConfig?.gateDefinitions);
   
   const getGateStatus = (index: number): 'passed' | 'current' | 'pending' => {
-    if (!currentGates) return 'pending';
+    if (!currentGates || gates.length === 0) return 'pending';
     
     const gate = gates[index];
+    if (!gate) return 'pending';
     const passed = currentGates[gate.id];
     
     if (passed) return 'passed';
@@ -87,6 +59,32 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
     
     return 'pending';
   };
+  
+  // Show empty state if no gates configured
+  if (gates.length === 0) {
+    return (
+      <div className="space-y-6" data-testid="governance-guide">
+        <div className="text-center pb-4 border-b border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-900" data-testid="text-guide-title">Governance Flow</h3>
+          <p className="text-sm text-gray-500 mt-1" data-testid="text-guide-subtitle">
+            Following NIST AI RMF & ISO 42001 best practices
+          </p>
+        </div>
+        <div className="text-center py-8 text-muted-foreground">
+          <Shield className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+          <p className="text-sm">No governance gates configured for this client.</p>
+          <p className="text-xs text-gray-400 mt-1">Configure gates in Admin → TOM Configuration.</p>
+        </div>
+        
+        {/* Still show phase flow if transitions exist */}
+        <GateToPhaseFlowDiagram 
+          phases={tomConfig?.phases || []}
+          phaseTransitions={tomConfig?.phaseTransitions || []}
+          gateDefinitions={[]}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" data-testid="governance-guide">
@@ -203,6 +201,131 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
             <span>Pending</span>
           </div>
         </div>
+      </div>
+      
+      {/* Gate-to-Phase Flow Diagram */}
+      <GateToPhaseFlowDiagram 
+        phases={tomConfig?.phases || []}
+        phaseTransitions={tomConfig?.phaseTransitions || []}
+        gateDefinitions={gates}
+      />
+    </div>
+  );
+}
+
+function GateToPhaseFlowDiagram({ 
+  phases, 
+  phaseTransitions, 
+  gateDefinitions 
+}: { 
+  phases: TomPhase[];
+  phaseTransitions: PhaseTransitionRule[];
+  gateDefinitions: GateStep[];
+}) {
+  const getPhaseById = (id: string) => phases.find(p => p.id === id);
+  const getGateById = (id: string) => gateDefinitions.find(g => g.id === id);
+  
+  // Show empty state if no transitions configured
+  if (phaseTransitions.length === 0) {
+    return (
+      <div className="pt-6 border-t border-gray-100" data-testid="gate-phase-flow">
+        <div className="flex items-center gap-2 mb-4">
+          <Layers className="h-4 w-4 text-primary" />
+          <h4 className="text-sm font-semibold text-gray-900">Phase Transition Flow</h4>
+        </div>
+        <div className="text-center py-6 text-muted-foreground">
+          <ArrowRight className="h-6 w-6 mx-auto mb-2 text-gray-300" />
+          <p className="text-sm">No phase transition rules configured.</p>
+          <p className="text-xs text-gray-400 mt-1">Configure rules in Admin → Phase Management.</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Sort transitions by fromPhase order for better visualization
+  const sortedTransitions = [...phaseTransitions].sort((a, b) => {
+    const fromA = getPhaseById(a.fromPhase);
+    const fromB = getPhaseById(b.fromPhase);
+    return (fromA?.order || 0) - (fromB?.order || 0);
+  });
+  
+  return (
+    <div className="pt-6 border-t border-gray-100" data-testid="gate-phase-flow">
+      <div className="flex items-center gap-2 mb-4">
+        <Layers className="h-4 w-4 text-primary" />
+        <h4 className="text-sm font-semibold text-gray-900">Phase Transition Flow</h4>
+      </div>
+      <p className="text-xs text-gray-500 mb-4">
+        Each arrow shows which gate must be passed to move between phases
+      </p>
+      
+      <div className="space-y-2">
+        {sortedTransitions.map((transition) => {
+          const fromPhase = getPhaseById(transition.fromPhase);
+          const toPhase = getPhaseById(transition.toPhase);
+          const gate = transition.requiredGate !== 'none' ? getGateById(transition.requiredGate) : null;
+          
+          // Skip if phases don't exist (graceful handling)
+          if (!fromPhase || !toPhase) return null;
+          
+          return (
+            <div 
+              key={`${transition.fromPhase}-${transition.toPhase}`}
+              className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 border border-gray-100"
+              data-testid={`flow-${transition.fromPhase}-${transition.toPhase}`}
+            >
+              <Badge 
+                variant="outline" 
+                className="text-xs flex-shrink-0"
+                style={{ borderColor: fromPhase.color, color: fromPhase.color }}
+              >
+                <div 
+                  className="w-2 h-2 rounded-full mr-1.5" 
+                  style={{ backgroundColor: fromPhase.color }} 
+                />
+                {fromPhase.name}
+              </Badge>
+              
+              <div className="flex items-center gap-1.5 flex-1 justify-center">
+                <div className="h-px flex-1 bg-gray-300" />
+                {gate ? (
+                  <div 
+                    className="px-2 py-1 rounded text-xs font-medium text-white flex items-center gap-1"
+                    style={{ backgroundColor: gate.color }}
+                  >
+                    <Shield className="h-3 w-3" />
+                    {gate.title}
+                  </div>
+                ) : (
+                  <div className="px-2 py-1 rounded text-xs text-gray-400 bg-gray-100">
+                    No Gate
+                  </div>
+                )}
+                <div className="h-px flex-1 bg-gray-300" />
+                <ArrowRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+              </div>
+              
+              <Badge 
+                variant="outline" 
+                className="text-xs flex-shrink-0"
+                style={{ borderColor: toPhase.color, color: toPhase.color }}
+              >
+                <div 
+                  className="w-2 h-2 rounded-full mr-1.5" 
+                  style={{ backgroundColor: toPhase.color }} 
+                />
+                {toPhase.name}
+              </Badge>
+            </div>
+          );
+        })}
+      </div>
+      
+      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+        <p className="text-xs text-blue-800">
+          <strong>How it works:</strong> Use cases must pass the required gate before transitioning to the next phase. 
+          Gates are evaluated automatically when use case data is updated.
+        </p>
       </div>
     </div>
   );
