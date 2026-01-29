@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import type { TomConfig } from '@shared/tom';
+import { useEngagement } from '@/contexts/EngagementContext';
 import { 
   Download, 
   Users, 
@@ -86,13 +89,27 @@ const adminWorkflow = [
   { icon: Upload, label: "Import/Export", color: "#10B981" }
 ];
 
-const tomPhases = [
+const defaultTomPhases = [
   { name: "Foundation", icon: Building2, color: "#6366F1", desc: "Setup & Feasibility" },
   { name: "Build", icon: Zap, color: "#8B5CF6", desc: "Development" },
   { name: "Pilot", icon: Target, color: "#A855F7", desc: "Testing" },
   { name: "Production", icon: Gauge, color: "#D946EF", desc: "Full Deploy" },
   { name: "Steady State", icon: CheckCircle2, color: "#10B981", desc: "Mature Ops" }
 ];
+
+const phaseIconMap: Record<string, any> = {
+  foundation: Building2,
+  build: Zap,
+  pilot: Target,
+  scale: Gauge,
+  production: Gauge,
+  steady_state: CheckCircle2,
+  operate: CheckCircle2,
+  strategic: Target,
+  transition: Zap,
+  ideation: Lightbulb,
+  default: Gauge
+};
 
 const dimensions = [
   { icon: FolderOpen, name: "Inventory", desc: "Track all use cases", color: "#3C2CDA" },
@@ -155,32 +172,42 @@ function WorkflowStep({ step, isLast, index }: { step: { icon: any; label: strin
   );
 }
 
-function TOMTimeline() {
+interface DynamicPhase {
+  name: string;
+  color: string;
+  desc: string;
+  icon: any;
+}
+
+function TOMTimeline({ phases }: { phases: DynamicPhase[] }) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-2 py-4" data-testid="tom-timeline">
-      {tomPhases.map((phase, idx) => (
-        <motion.div
-          key={phase.name}
-          className="flex items-center gap-2"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: idx * 0.1 }}
-        >
-          <div className="flex flex-col items-center" data-testid={`phase-${phase.name.toLowerCase()}`}>
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg"
-              style={{ backgroundColor: phase.color }}
-            >
-              <phase.icon className="h-6 w-6" />
+      {phases.map((phase, idx) => {
+        const PhaseIcon = phase.icon;
+        return (
+          <motion.div
+            key={phase.name}
+            className="flex items-center gap-2"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: idx * 0.1 }}
+          >
+            <div className="flex flex-col items-center" data-testid={`phase-${phase.name.toLowerCase().replace(/\s+/g, '-')}`}>
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg"
+                style={{ backgroundColor: phase.color }}
+              >
+                <PhaseIcon className="h-6 w-6" />
+              </div>
+              <span className="text-xs font-semibold mt-2 text-gray-900">{phase.name}</span>
+              <span className="text-[10px] text-gray-500">{phase.desc}</span>
             </div>
-            <span className="text-xs font-semibold mt-2 text-gray-900">{phase.name}</span>
-            <span className="text-[10px] text-gray-500">{phase.desc}</span>
-          </div>
-          {idx < tomPhases.length - 1 && (
-            <div className="w-8 h-0.5 bg-gradient-to-r from-gray-300 to-gray-400 mx-1" />
-          )}
-        </motion.div>
-      ))}
+            {idx < phases.length - 1 && (
+              <div className="w-8 h-0.5 bg-gradient-to-r from-gray-300 to-gray-400 mx-1" />
+            )}
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
@@ -368,6 +395,20 @@ const roleConfigs = {
 
 export default function HelpGuideLegoBlock() {
   const [selectedRole, setSelectedRole] = useState<UserRole>('business');
+  const { selectedClientId } = useEngagement();
+  
+  const { data: tomConfig } = useQuery<TomConfig>({
+    queryKey: ['/api/tom/config', selectedClientId],
+  });
+
+  const dynamicPhases: DynamicPhase[] = tomConfig?.phases?.length 
+    ? tomConfig.phases.map(p => ({
+        name: p.name,
+        color: p.color,
+        desc: p.description,
+        icon: phaseIconMap[p.id] || phaseIconMap.default
+      }))
+    : defaultTomPhases;
 
   return (
     <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-slate-50" data-testid="help-guide-block">
@@ -468,7 +509,7 @@ export default function HelpGuideLegoBlock() {
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 pt-2">
-              <TOMTimeline />
+              <TOMTimeline phases={dynamicPhases} />
             </AccordionContent>
           </AccordionItem>
 

@@ -51,9 +51,10 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 - **In-App Help & Guidance**: Role-based documentation accessible from Dashboard tab, covering:
   - Platform Overview with 6 core dimensions (Inventory, Prioritization, Lifecycle, Value, Compliance, Capability)
   - Navigation Guide showing tab purposes and intended users
-  - TOM Phases visual guide with 5-phase lifecycle
+  - TOM Phases visual guide - **dynamically loaded from TOM configuration** (not hardcoded)
   - Key Rules and Quick Reference for common actions
   - Role-specific content for Business Users, Strategy/PMO, and Admins (workflows, key tasks, tips, locations)
+  - Visual icon cards, Framer Motion animations, and Hexaware brand colors
 - **Validation**: Minimal validation using Zod schemas and centralized configuration.
 - **Excel Integration**: Multi-worksheet import/export with auto-ID generation.
 - **API Design**: RESTful patterns with structured error responses and server-side validation.
