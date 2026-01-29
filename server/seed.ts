@@ -813,7 +813,7 @@ async function seedShowcaseUseCases() {
         id: 'a042dfaf-2ea2-46c9-bbdb-e5aa41eb5741',
         title: 'Agentic AI for Underwriting',
         updates: {
-          useCaseStatus: 'Discovery',
+          useCaseStatus: 'In-flight',  // Active portfolio requires status beyond Discovery for governance gates
           deploymentStatus: 'PoC',
           dataReadiness: 4,
           technicalComplexity: 4,
@@ -898,8 +898,8 @@ async function seedShowcaseUseCases() {
         id: 'dfe9c524-4a70-44a5-815b-2e5b51ba470d',
         title: 'Customer 360 + Customer Lifetime Value & Next-Best-Action',
         updates: {
-          useCaseStatus: 'Discovery',
-          deploymentStatus: 'PoC',
+          useCaseStatus: 'In-flight',  // Active portfolio requires status beyond Discovery for governance gates
+          deploymentStatus: 'Pilot',
           dataReadiness: 3,
           technicalComplexity: 4,
           adoptionReadiness: 3,
@@ -1086,8 +1086,8 @@ async function seedShowcaseUseCases() {
         id: '51fcdcb3-08be-4b60-9269-6d1c06fa98a6',
         title: 'Coverage decision support at FNOL (data‑dependent)',
         updates: {
-          useCaseStatus: 'Discovery',
-          deploymentStatus: 'PoC',
+          useCaseStatus: 'In-flight',  // Active portfolio requires status beyond Discovery for governance gates
+          deploymentStatus: 'Pilot',
           dataReadiness: 3,
           technicalComplexity: 4,
           adoptionReadiness: 3,
