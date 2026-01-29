@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA Dual-Path Strategy - Learning-Led Transformation (INDUSTRY-VALIDATED)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 1.5rem;
+        }
+
+        .header-label {
+            font-size: 0.875rem;
+            color: #9333ea;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        /* Priority Badge */
+        .priority-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .validation-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #059669 0%, #047857 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        /* Main Container */
+        .dual-path-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .dual-path-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .path-column {
+            position: relative;
+        }
+
+        .path-divider {
+            border-right: 2px solid #e2e8f0;
+            padding-right: 1.5rem;
+        }
+
+        .path-left {
+            padding-left: 1.5rem;
+        }
+
+        /* Path Headers */
+        .path-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .path-icon {
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-orange {
+            background-color: #f97316;
+        }
+
+        .icon-blue {
+            background-color: #3b82f6;
+        }
+
+        .path-icon svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: white;
+        }
+
+        .path-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .path-subtitle {
+            font-size: 0.875rem;
+            color: #475569;
+        }
+
+        /* Learning Section */
+        .learning-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid #fbbf24;
+        }
+
+        .learning-title {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #78350f;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .learning-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #78350f;
+        }
+
+        .learning-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        .learning-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: #78350f;
+            line-height: 1.4;
+        }
+
+        .star {
+            color: #f59e0b;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        /* Value Section */
+        .value-section {
+            background-color: #f0fdf4;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #86efac;
+        }
+
+        .value-title {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #14532d;
+            margin-bottom: 0.5rem;
+        }
+
+        .value-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #15803d;
+            margin-bottom: 0.25rem;
+        }
+
+        .value-subtitle {
+            font-size: 0.75rem;
+            color: #166534;
+            margin-bottom: 0.75rem;
+        }
+
+        .value-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        .value-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: #166534;
+        }
+
+        .checkmark {
+            color: #16a34a;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        .learning-diversity {
+            background-color: #faf5ff;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            border: 1px solid #d8b4fe;
+            margin-bottom: 1rem;
+        }
+
+        .diversity-title {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #581c87;
+            margin-bottom: 0.5rem;
+        }
+
+        .diversity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .diversity-item {
+            font-size: 0.7rem;
+            color: #6b21a8;
+            padding-left: 0.75rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 2px;
+        }
+
+        .timeline-line-orange {
+            background-color: #fed7aa;
+        }
+
+        .timeline-line-blue {
+            background-color: #bfdbfe;
+        }
+
+        .timeline-items {
+            position: relative;
+            padding-left: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .timeline-item {
+            position: relative;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -1.875rem;
+            top: 0.25rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            border: 2px solid white;
+            z-index: 1;
+        }
+
+        .timeline-dot-orange {
+            background-color: #f97316;
+        }
+
+        .timeline-dot-blue {
+            background-color: #3b82f6;
+        }
+
+        .timeline-content {
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .timeline-content-orange {
+            background-color: #fff7ed;
+        }
+
+        .timeline-content-blue {
+            background-color: #eff6ff;
+        }
+
+        .timeline-period {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-period-orange {
+            color: #7c2d12;
+        }
+
+        .timeline-period-blue {
+            color: #1e3a8a;
+        }
+
+        .timeline-description {
+            font-size: 0.75rem;
+            color: #334155;
+            line-height: 1.4;
+        }
+
+        .timeline-learning {
+            font-size: 0.7rem;
+            font-style: italic;
+            color: #7c2d12;
+            margin-top: 0.375rem;
+        }
+
+        /* Integration Bridge */
+        .integration-bridge {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .bridge-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .bridge-item {
+            text-align: center;
+        }
+
+        .bridge-label {
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+
+        .bridge-label-orange {
+            color: #ea580c;
+        }
+
+        .bridge-label-blue {
+            color: #2563eb;
+        }
+
+        .bridge-sublabel {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .bridge-center {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            border: 2px solid #fbbf24;
+        }
+
+        .bridge-center-title {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #78350f;
+        }
+
+        .bridge-center-text {
+            font-size: 0.75rem;
+            color: #78350f;
+        }
+
+        .arrow {
+            color: #94a3b8;
+        }
+
+        /* Bottom Grid */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Proof Points Box */
+        .proof-box {
+            background: linear-gradient(90deg, #065f46 0%, #047857 100%);
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            color: white;
+        }
+
+        .proof-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .proof-title {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .proof-source {
+            font-size: 0.7rem;
+            color: #d1fae5;
+            margin-bottom: 0.75rem;
+        }
+
+        .proof-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .proof-item {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* Outcomes Box */
+        .outcomes-box {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 2px solid #fbbf24;
+            padding: 1rem;
+        }
+
+        .outcomes-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+        }
+
+        .outcomes-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .outcome-item {
+            padding-left: 0.75rem;
+            border-left: 4px solid;
+        }
+
+        .outcome-orange {
+            border-color: #fbbf24;
+        }
+
+        .outcome-blue {
+            border-color: #3b82f6;
+        }
+
+        .outcome-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #78350f;
+        }
+
+        .outcome-text {
+            font-size: 0.8rem;
+            color: #334155;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 0.75rem;
+            font-size: 0.65rem;
+            color: #475569;
+            line-height: 1.5;
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            border-left: 4px solid #9333ea;
+        }
+
+        .footer-section {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .footer-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        sup {
+            font-size: 0.65rem;
+            vertical-align: super;
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-label">INDUSTRY-VALIDATED EXECUTIVE SUMMARY</div>
+            <h1 class="header-title">
+                Dual-Path Strategy: Learning-Led Transformation
+                <span class="priority-badge">LEARNING FIRST</span>
+                <span class="validation-badge">VALIDATED</span>
+            </h1>
+            <p class="header-subtitle">Building organizational AI capability through structured learning agenda, with industry-validated metrics and realistic expectations for stakeholder credibility</p>
+        </div>
+
+        <!-- Main Dual Path Container -->
+        <div class="dual-path-container">
+            <div class="dual-path-grid">
+                
+                <!-- Path 1: Quick Wins -->
+                <div class="path-column path-divider">
+                    <div class="path-header">
+                        <div class="path-icon icon-orange">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="path-title">Path 1: Quick Wins Learning Agenda</div>
+                            <div class="path-subtitle">Q1-Q2 2025</div>
+                        </div>
+                    </div>
+
+                    <!-- Learning Section -->
+                    <div class="learning-section">
+                        <div class="learning-title">
+                            <svg class="learning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                            PRIMARY OBJECTIVE: ORGANIZATIONAL LEARNING<sup>1</sup>
+                        </div>
+                        <div class="learning-list">
+                            <div class="learning-item">
+                                <span class="star">★</span>
+                                <span>Challenge business thinking on AI capabilities (expand horizons)</span>
+                            </div>
+                            <div class="learning-item">
+                                <span class="star">★</span>
+                                <span>Build cross-functional design & delivery muscles</span>
+                            </div>
+                            <div class="learning-item">
+                                <span class="star">★</span>
+                                <span>Test governance & operating model MVP</span>
+                            </div>
+                            <div class="learning-item">
+                                <span class="star">★</span>
+                                <span>Validate AI-to-value linkage for stakeholder credibility</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Value Section -->
+                    <div class="value-section">
+                        <div class="value-title">SECONDARY OBJECTIVE: DEMONSTRATED VALUE<sup>2</sup></div>
+                        <div class="value-amount">Target: £8-12M</div>
+                        <div class="value-subtitle">Run-rate benefit target by end of Q1 2025</div>
+                        <div class="value-list">
+                            <div class="value-item">
+                                <span class="checkmark">✓</span>
+                                <span><strong>Email triage (Power UP)</strong>: 40% faster response target<sup>3</sup></span>
+                            </div>
+                            <div class="value-item">
+                                <span class="checkmark">✓</span>
+                                <span><strong>Document extraction (Instabase)</strong>: 60% data entry reduction</span>
+                            </div>
+                            <div class="value-item">
+                                <span class="checkmark">✓</span>
+                                <span><strong>Broker insights (CRM/ML)</strong>: 10-12% retention improvement</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Learning Diversity -->
+                    <div class="learning-diversity">
+                        <div class="diversity-title">TECHNICAL LEARNING DIVERSITY<sup>4</sup></div>
+                        <div class="diversity-list">
+                            <div class="diversity-item">→ Microsoft Power Platform integration (email triage)</div>
+                            <div class="diversity-item">→ External AI system integration (Instabase)</div>
+                            <div class="diversity-item">→ ML model deployment & CRM enrichment (broker analytics)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Path 2: Enterprise Evolution -->
+                <div class="path-column path-left">
+                    <div class="path-header">
+                        <div class="path-icon icon-blue">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="path-title">Path 2: Enterprise Evolution</div>
+                            <div class="path-subtitle">2025-2027 Foundation</div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="timeline">
+                        <div class="timeline-line timeline-line-blue"></div>
+                        
+                        <div class="timeline-items">
+                            <div class="timeline-item">
+                                <div class="timeline-dot timeline-dot-blue"></div>
+                                <div class="timeline-content timeline-content-blue">
+                                    <div class="timeline-period timeline-period-blue">2025: Data Foundation</div>
+                                    <div class="timeline-description">
+                                        • Connect to Intact Enterprise Data Model<br/>
+                                        • EDP integration & quality frameworks<br/>
+                                        • Analytics infrastructure
+                                    </div>
+                                    <div class="timeline-learning">Learning: Enterprise data architecture at scale</div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item">
+                                <div class="timeline-dot timeline-dot-blue"></div>
+                                <div class="timeline-content timeline-content-blue">
+                                    <div class="timeline-period timeline-period-blue">2026: Tech Orchestration</div>
+                                    <div class="timeline-description">
+                                        • Power Platform scaling (based on Q1 learnings)<br/>
+                                        • Instabase enterprise deployment<br/>
+                                        • Guidewire AI integration
+                                    </div>
+                                    <div class="timeline-learning">Learning: Enterprise system integration patterns</div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item">
+                                <div class="timeline-dot timeline-dot-blue"></div>
+                                <div class="timeline-content timeline-content-blue">
+                                    <div class="timeline-period timeline-period-blue">2027: Operating Model</div>
+                                    <div class="timeline-description">
+                                        • Agile pods at scale<br/>
+                                        • FCA/EU AI Act compliance embedded<br/>
+                                        • Workforce AI readiness programs
+                                    </div>
+                                    <div class="timeline-learning">Learning: Organizational transformation at scale</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Value Proposition -->
+                    <div class="value-section">
+                        <div class="value-title">LONG-TERM VALUE TRAJECTORY<sup>5</sup></div>
+                        <div class="value-list">
+                            <div class="value-item">
+                                <span class="checkmark">✓</span>
+                                <span>Sustainable growth aligned to Intact playbook</span>
+                            </div>
+                            <div class="value-item">
+                                <span class="checkmark">✓</span>
+                                <span>Target: ~90% CR by 2026 (from 92.8% 2024 baseline)</span>
+                            </div>
+                            <div class="value-item">
+                                <span class="checkmark">✓</span>
+                                <span>Target: £5B DPW by 2030 (from £2.7B 2024)</span>
+                            </div>
+                            <div class="value-item">
+                                <span class="checkmark">✓</span>
+                                <span>Industry-validated: 15-20% revenue | 5-15% cost benefits<sup>6</sup></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Bridge -->
+            <div class="integration-bridge">
+                <div class="bridge-content">
+                    <div class="bridge-item">
+                        <div class="bridge-label bridge-label-orange">Q1 Learning</div>
+                        <div class="bridge-sublabel">Validate patterns</div>
+                    </div>
+                    <div class="arrow">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </div>
+                    <div class="bridge-center">
+                        <div class="bridge-center-title">INTEGRATION LEARNING POINT (Q2 2025)</div>
+                        <div class="bridge-center-text">Insights inform architecture | Successful patterns scaled | Team maturity assessed</div>
+                    </div>
+                    <div class="arrow">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </div>
+                    <div class="bridge-item">
+                        <div class="bridge-label bridge-label-blue">Enterprise Scale</div>
+                        <div class="bridge-sublabel">Informed decisions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="bottom-grid">
+            <!-- Intact Proof Points -->
+            <div class="proof-box">
+                <div class="proof-header">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="proof-title">Intact Canada + Industry Benchmarks</div>
+                </div>
+                <div class="proof-source">Sources: Intact Financial Investor Day 2025 | EY/KPMG/McKinsey Research<sup>7</sup></div>
+                <div class="proof-items">
+                    <div class="proof-item">✓ Intact: 200+ AI apps, $150M+ recurring benefits, 4.7 CR pts</div>
+                    <div class="proof-item">✓ Industry: 15-20% revenue uplift, 5-15% cost reduction (EY)</div>
+                    <div class="proof-item">✓ Value horizon: 3-5 years to ROI realization (KPMG CEO Survey)</div>
+                    <div class="proof-item">✓ Aviva case study: £60M claims savings in 2024 (McKinsey)</div>
+                </div>
+            </div>
+
+            <!-- Expected Outcomes -->
+            <div class="outcomes-box">
+                <div class="outcomes-title">Expected Outcomes: Learning + Incremental Value</div>
+                <div class="outcomes-items">
+                    <div class="outcome-item outcome-orange">
+                        <div class="outcome-label">SHORT-TERM (2025):</div>
+                        <div class="outcome-text">
+                            • Organizational capability: AI delivery at speed<br/>
+                            • Technical capability: Diverse integration patterns validated<br/>
+                            • Stakeholder credibility: Demonstrated AI-to-value link<br/>
+                            • Foundation: Informed enterprise architecture decisions<br/>
+                            • Target £8-12M run-rate benefits (12-18mo adoption curve)
+                        </div>
+                    </div>
+                    <div class="outcome-item outcome-blue">
+                        <div class="outcome-label">LONG-TERM (2026-2030):</div>
+                        <div class="outcome-text">
+                            • Incremental growth & efficiency aligned to Intact playbook<br/>
+                            • ~90% CR target | £5B DPW target<br/>
+                            • Enterprise-wide AI capability at scale<br/>
+                            • Benefits will be incremental, not transformational<sup>8</sup>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer with Sources -->
+        <div class="footer">
+            <div class="footer-section">
+                <div class="footer-title">SOURCES, VALIDATION & CRITICAL ADJUSTMENTS:</div>
+            </div>
+            
+            <div class="footer-section">
+                <strong><sup>1</sup> Learning Agenda Framework:</strong> Based on stakeholder meeting with Toby Harris (CIO) and Graham Wilde (Enterprise Architect), August 2024. Direct quote: "I would weight value in these early steps much more to how much we're learning than how much benefit it's delivering...I'm generally more concerned that we're learning."
+            </div>
+            
+            <div class="footer-section">
+                <strong><sup>2</sup> Q1 Benefits (RECALIBRATED):</strong> Target £8-12M run-rate (reduced from £10-15M) based on more conservative adoption assumptions from external research. <sup>3</sup>Email triage: 40% improvement validated by Celent Research showing customer service as highest GenAI impact area. Assumes successful 8-12 week deployment and gradual 12-18 month adoption curve per industry experience.
+            </div>
+            
+            <div class="footer-section">
+                <strong><sup>4</sup> Technical Learning Diversity:</strong> Framework per Graham Wilde requirement for diverse integration patterns across Microsoft ecosystem, external AI platforms, and ML deployment to maximize organizational learning and prevent redundancy.
+            </div>
+            
+            <div class="footer-section">
+                <strong><sup>5,6</sup> Industry-Validated Long-Term Projections:</strong> RSA UK&I 2024 verified baseline: £2.7B DPW, 92.8% CR (Insurance Age). Targets: ~90% CR by 2026, £5B DPW by 2030 from RSA Strategy. <strong>CRITICAL ADJUSTMENT:</strong> <sup>6</sup>Benefits recalibrated to industry-validated ranges: 15-20% revenue uplift and 5-15% cost reduction per EY Research (May 2024) based on North American insurer expectations, replacing original "10-15:1 ROI" claim not supported by external research.
+            </div>
+            
+            <div class="footer-section">
+                <strong><sup>7</sup> External Validation Sources:</strong> <strong>Intact Canada:</strong> All metrics verified from Intact Financial Corporation Investor Day 2025 (May 21, 2025). Note: Canada context differs from RSA UK&I - these are directional benchmarks. <strong>Industry Research:</strong> EY "Generative AI in Insurance" (May 2024) – only 32% of insurers anticipate >15% revenue uplift. KPMG CEO Survey (2025) – 58% of insurance CEOs say GenAI takes 3-5 years for ROI. McKinsey case study – Aviva motor claims AI saved £60M in 2024. Everest Group Reports – data quality and organizational buy-in are #1/#2 success factors.
+            </div>
+            
+            <div class="footer-section">
+                <strong><sup>8</sup> Implementation Reality (Economist Impact & IBM Research):</strong> AI benefits have been "more incremental than transformational" with uneven adoption. 77% of insurance executives acknowledge AI productivity gains don't translate immediately to cost savings as resources are typically reinvested. 64% cite "fast-evolving technology landscape" as top challenge (Everest Group).
+            </div>
+            
+            <div class="footer-section">
+                <strong>Market Context Not in Original Slides:</strong> UK market softening with 11-20% average pricing reductions across classes in 2024 (Aon). Commercial combined/liability premiums fell negative for first time since 2021. UK market aggregate CR: 102.2% for 2023/24 vs RSA's 92.8%, indicating strong relative performance but competitive pressure on growth assumptions.
+            </div>
+            
+            <div class="footer-section">
+                <strong>Forward-Looking Statement:</strong> All projections subject to material risks including technology delivery, execution capabilities, adoption rates, market conditions (including UK pricing pressure), regulatory changes, and competitive dynamics. <strong>Benefits expected to be incremental rather than transformational per external research.</strong> Detailed business cases, risk assessments, and governance frameworks available for Board review.
+            </div>
+            
+            <div class="footer-section">
+                <strong>Key Recalibrations from Original Version:</strong> (1) ROI changed from "10-15:1" to industry-validated "15-20% revenue/5-15% cost"; (2) Payback extended from "18-24 months" to "3-5 years"; (3) Q1 benefits reduced from "£10-15M" to "£8-12M"; (4) Cumulative returns statement replaced with incremental benefit language; (5) Added UK market context; (6) Emphasized learning over transformation; (7) Added implementation barriers acknowledgment.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
