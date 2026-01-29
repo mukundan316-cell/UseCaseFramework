@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,9 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { 
@@ -25,9 +26,28 @@ import {
   DollarSign,
   Info,
   CheckCircle2,
-  XCircle
+  XCircle,
+  FileSearch,
+  ClipboardCheck,
+  FileText,
+  Users,
+  Calculator,
+  Activity,
+  Database,
+  Shield,
+  UserCheck,
+  Lightbulb,
+  Handshake,
+  Sparkles,
+  Server,
+  Lock,
+  Smile,
+  Settings,
+  Layers,
+  Filter
 } from 'lucide-react';
-import type { KpiDefinition, IndustryBenchmark, MaturityRule } from '@shared/valueRealization';
+import type { KpiDefinition, IndustryBenchmark, MaturityRule, KpiCategoryId } from '@shared/valueRealization';
+import { KPI_CATEGORIES, getCategoryName } from '@shared/valueRealization';
 
 interface ValueConfig {
   enabled: string;
@@ -35,6 +55,31 @@ interface ValueConfig {
 }
 
 const MATURITY_LEVEL_ORDER = ['advanced', 'developing', 'foundational'] as const;
+
+type ValueChainFilter = 'all' | 'insurance' | 'enterprise';
+
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  underwriting: FileSearch,
+  claims: ClipboardCheck,
+  policy_admin: FileText,
+  distribution: Users,
+  finance_actuarial: Calculator,
+  model_performance: Activity,
+  data_quality: Database,
+  tech_debt: Shield,
+  talent: UserCheck,
+  innovation: Lightbulb,
+  business_alignment: Handshake,
+  genai: Sparkles,
+  it_infra: Server,
+  security: Lock,
+  customer_exp: Smile,
+  operational_eff: Settings,
+};
+
+function getCategoryIcon(categoryId: string): React.ComponentType<{ className?: string }> {
+  return CATEGORY_ICONS[categoryId] || Target;
+}
 
 function findMaturityRule(rules: MaturityRule[] | undefined, level: string): MaturityRule | undefined {
   return rules?.find(r => r.level === level);
@@ -104,14 +149,22 @@ function KpiCard({ kpiId, kpi, onEdit }: KpiCardProps) {
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex items-center flex-wrap gap-2 text-sm text-gray-600 mb-2">
-            <div className="flex items-center gap-1">
-              <Building2 className="h-3 w-3" />
-              <span>{processCount} processes</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Target className="h-3 w-3" />
-              <span>{benchmarkCount} benchmarks</span>
-            </div>
+            {processCount > 0 ? (
+              <div className="flex items-center gap-1">
+                <Building2 className="h-3 w-3" />
+                <span>{processCount} processes</span>
+              </div>
+            ) : (
+              <Badge variant="outline" className="text-xs bg-indigo-50 text-indigo-700 border-indigo-200">
+                Org-wide
+              </Badge>
+            )}
+            {benchmarkCount > 0 && (
+              <div className="flex items-center gap-1">
+                <Target className="h-3 w-3" />
+                <span>{benchmarkCount} benchmarks</span>
+              </div>
+            )}
             <Badge variant="secondary" className="text-xs">
               Unit: {kpi.unit}
             </Badge>
@@ -134,6 +187,11 @@ function KpiCard({ kpiId, kpi, onEdit }: KpiCardProps) {
             {kpi.isMonetizable === false && (
               <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600">
                 Non-monetary
+              </Badge>
+            )}
+            {kpi.benchmark && (
+              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                Target: {kpi.benchmark}
               </Badge>
             )}
           </div>
@@ -253,6 +311,8 @@ function KpiEditModal({ isOpen, onClose, kpiId, kpi, allProcesses, onSave, isNew
         isMonetizable: kpi.isMonetizable ?? true,
         monetizationFormula: kpi.monetizationFormula,
         aggregationMethod: kpi.aggregationMethod || 'sum',
+        categoryId: kpi.categoryId,
+        benchmark: kpi.benchmark,
       });
     } else if (isNew) {
       setFormData({
@@ -269,6 +329,7 @@ function KpiEditModal({ isOpen, onClose, kpiId, kpi, allProcesses, onSave, isNew
         kpiType: 'financial',
         isMonetizable: true,
         aggregationMethod: 'sum',
+        categoryId: 'operational_eff',
       });
     }
   }, [isOpen, kpiId, isNew, kpi]);
@@ -317,6 +378,34 @@ function KpiEditModal({ isOpen, onClose, kpiId, kpi, allProcesses, onSave, isNew
               />
             </div>
             <div>
+              <Label htmlFor="kpi-category">Category</Label>
+              <Select
+                value={formData.categoryId || ''}
+                onValueChange={(value) => setFormData({ ...formData, categoryId: value as KpiCategoryId })}
+              >
+                <SelectTrigger data-testid="select-kpi-category">
+                  <SelectValue placeholder="Select category..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Insurance Value Chain</SelectLabel>
+                    {KPI_CATEGORIES.filter(c => c.valueChain === 'insurance').map(cat => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>Enterprise / AI Operations</SelectLabel>
+                    {KPI_CATEGORIES.filter(c => c.valueChain === 'enterprise').map(cat => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="kpi-unit">Unit</Label>
               <Select
                 value={formData.unit || '%'}
@@ -329,11 +418,27 @@ function KpiEditModal({ isOpen, onClose, kpiId, kpi, allProcesses, onSave, isNew
                   <SelectItem value="%">Percentage (%)</SelectItem>
                   <SelectItem value="minutes">Minutes</SelectItem>
                   <SelectItem value="hours">Hours</SelectItem>
+                  <SelectItem value="hours/month">Hours/Month</SelectItem>
+                  <SelectItem value="ms">Milliseconds</SelectItem>
                   <SelectItem value="GBP">GBP (£)</SelectItem>
                   <SelectItem value="days">Days</SelectItem>
+                  <SelectItem value="weeks">Weeks</SelectItem>
                   <SelectItem value="score">Score</SelectItem>
+                  <SelectItem value="count">Count</SelectItem>
+                  <SelectItem value="count/week">Count/Week</SelectItem>
+                  <SelectItem value="count/quarter">Count/Quarter</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label htmlFor="kpi-benchmark">Benchmark Target</Label>
+              <Input
+                id="kpi-benchmark"
+                value={formData.benchmark || ''}
+                onChange={(e) => setFormData({ ...formData, benchmark: e.target.value })}
+                placeholder="e.g., 90-95% accuracy"
+                data-testid="input-kpi-benchmark"
+              />
             </div>
           </div>
 
@@ -549,6 +654,7 @@ export default function KpiLibraryManagementLegoBlock({ className }: KpiLibraryM
   const { toast } = useToast();
   const [editingKpiId, setEditingKpiId] = useState<string | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [valueChainFilter, setValueChainFilter] = useState<ValueChainFilter>('all');
 
   const { data: valueConfig, isLoading } = useQuery<ValueConfig>({
     queryKey: ['/api/value/config'],
@@ -601,6 +707,41 @@ export default function KpiLibraryManagementLegoBlock({ className }: KpiLibraryM
     'Human Resources',
   ];
 
+  // Group KPIs by category and filter by value chain
+  const groupedKpis = useMemo(() => {
+    const kpiEntries = Object.entries(kpiLibrary);
+    
+    // Filter by value chain
+    const filteredKpis = kpiEntries.filter(([, kpi]) => {
+      if (valueChainFilter === 'all') return true;
+      const category = KPI_CATEGORIES.find(c => c.id === kpi.categoryId);
+      return category?.valueChain === valueChainFilter;
+    });
+
+    // Group by category
+    return KPI_CATEGORIES
+      .filter(cat => valueChainFilter === 'all' || cat.valueChain === valueChainFilter)
+      .map(category => ({
+        ...category,
+        kpis: filteredKpis.filter(([, kpi]) => kpi.categoryId === category.id)
+      }))
+      .filter(group => group.kpis.length > 0);
+  }, [kpiLibrary, valueChainFilter]);
+
+  // Calculate summary stats
+  const stats = useMemo(() => {
+    const totalKpis = Object.keys(kpiLibrary).length;
+    const insuranceKpis = Object.values(kpiLibrary).filter(kpi => {
+      const cat = KPI_CATEGORIES.find(c => c.id === kpi.categoryId);
+      return cat?.valueChain === 'insurance';
+    }).length;
+    const enterpriseKpis = totalKpis - insuranceKpis;
+    const visibleCategories = groupedKpis.length;
+    const visibleKpis = groupedKpis.reduce((sum, g) => sum + g.kpis.length, 0);
+    
+    return { totalKpis, insuranceKpis, enterpriseKpis, visibleCategories, visibleKpis };
+  }, [kpiLibrary, groupedKpis]);
+
   const handleSaveKpi = (kpiId: string, updates: Partial<KpiDefinition>) => {
     const updatedLibrary = {
       ...kpiLibrary,
@@ -649,7 +790,7 @@ export default function KpiLibraryManagementLegoBlock({ className }: KpiLibraryM
     <div className={className}>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-[#3C2CDA]" />
@@ -669,30 +810,138 @@ export default function KpiLibraryManagementLegoBlock({ className }: KpiLibraryM
           </div>
         </CardHeader>
         <CardContent>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 flex items-start gap-2">
-            <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-blue-800">
-              <strong>{Object.keys(kpiLibrary).length} KPIs configured</strong> with industry benchmarks. 
-              These KPIs are automatically suggested when users select processes in use case forms.
+          {/* Summary Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-[#3C2CDA]">{stats.totalKpis}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Total KPIs</div>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">{stats.insuranceKpis}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Insurance</div>
+            </div>
+            <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-purple-700 dark:text-purple-400">{stats.enterpriseKpis}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Enterprise</div>
+            </div>
+            <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-green-700 dark:text-green-400">{stats.visibleCategories}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Categories</div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {Object.entries(kpiLibrary).map(([kpiId, kpi]) => (
-              <KpiCard
-                key={kpiId}
-                kpiId={kpiId}
-                kpi={kpi}
-                onEdit={setEditingKpiId}
-              />
-            ))}
+          {/* Value Chain Filter */}
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <Filter className="h-4 w-4 text-gray-500" />
+            <span className="text-sm text-gray-600 dark:text-gray-400">Filter:</span>
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                variant={valueChainFilter === 'all' ? 'default' : 'outline'}
+                onClick={() => setValueChainFilter('all')}
+                data-testid="button-filter-all"
+              >
+                <Layers className="h-3 w-3 mr-1" />
+                All ({stats.totalKpis})
+              </Button>
+              <Button
+                size="sm"
+                variant={valueChainFilter === 'insurance' ? 'default' : 'outline'}
+                onClick={() => setValueChainFilter('insurance')}
+                className={valueChainFilter === 'insurance' ? '' : 'border-blue-200 text-blue-700 hover:bg-blue-50'}
+                data-testid="button-filter-insurance"
+              >
+                Insurance ({stats.insuranceKpis})
+              </Button>
+              <Button
+                size="sm"
+                variant={valueChainFilter === 'enterprise' ? 'default' : 'outline'}
+                onClick={() => setValueChainFilter('enterprise')}
+                className={valueChainFilter === 'enterprise' ? '' : 'border-purple-200 text-purple-700 hover:bg-purple-50'}
+                data-testid="button-filter-enterprise"
+              >
+                Enterprise ({stats.enterpriseKpis})
+              </Button>
+            </div>
           </div>
 
-          {Object.keys(kpiLibrary).length === 0 && (
+          {/* Category Accordion */}
+          {groupedKpis.length > 0 ? (
+            <Accordion type="multiple" className="space-y-2" defaultValue={[groupedKpis[0]?.id]}>
+              {groupedKpis.map((category) => {
+                const CategoryIcon = getCategoryIcon(category.id);
+                const isInsurance = category.valueChain === 'insurance';
+                
+                return (
+                  <AccordionItem 
+                    key={category.id} 
+                    value={category.id}
+                    className={`border rounded-lg ${
+                      isInsurance 
+                        ? 'border-blue-200 dark:border-blue-800' 
+                        : 'border-purple-200 dark:border-purple-800'
+                    }`}
+                  >
+                    <AccordionTrigger 
+                      className={`px-4 py-3 hover:no-underline ${
+                        isInsurance 
+                          ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20' 
+                          : 'hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                      }`}
+                      data-testid={`accordion-category-${category.id}`}
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className={`p-2 rounded-lg ${
+                          isInsurance 
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' 
+                            : 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
+                        }`}>
+                          <CategoryIcon className="h-4 w-4" />
+                        </div>
+                        <div className="text-left">
+                          <div className="font-medium">{category.name}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {category.kpis.length} KPIs
+                            <Badge 
+                              variant="outline" 
+                              className={`ml-2 text-xs ${
+                                isInsurance 
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                                  : 'bg-purple-50 text-purple-700 border-purple-200'
+                              }`}
+                            >
+                              {isInsurance ? 'Insurance' : 'Enterprise'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 pt-2">
+                        {category.kpis.map(([kpiId, kpi]) => (
+                          <KpiCard
+                            key={kpiId}
+                            kpiId={kpiId}
+                            kpi={kpi}
+                            onEdit={setEditingKpiId}
+                          />
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          ) : (
             <div className="text-center py-12 text-gray-500">
               <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-medium">No KPIs Configured</h3>
-              <p className="text-sm mt-1">Add your first KPI to start tracking value realization</p>
+              <h3 className="text-lg font-medium">No KPIs Found</h3>
+              <p className="text-sm mt-1">
+                {valueChainFilter !== 'all' 
+                  ? `No ${valueChainFilter} KPIs configured. Try changing the filter.`
+                  : 'Add your first KPI to start tracking value realization.'
+                }
+              </p>
             </div>
           )}
         </CardContent>

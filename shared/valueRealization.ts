@@ -423,6 +423,10 @@ export function getApplicableKpis(
 
   for (const process of processes) {
     for (const [kpiId, kpi] of Object.entries(kpiLibrary)) {
+      // Skip org-wide KPIs (no applicableProcesses) - they match based on category
+      if (!kpi.applicableProcesses || kpi.applicableProcesses.length === 0) {
+        continue;
+      }
       // Use fuzzy matching instead of exact match
       const matchedKpiProcess = findMatchingProcess(process, kpi.applicableProcesses);
       
