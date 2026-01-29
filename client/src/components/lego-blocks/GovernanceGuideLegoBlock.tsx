@@ -5,11 +5,7 @@ import type { TomConfig, GateDefinition } from '@shared/tom';
 import { useEngagement } from '@/contexts/EngagementContext';
 
 interface GovernanceGuideProps {
-  currentGates?: {
-    operatingModel: boolean;
-    intake: boolean;
-    rai: boolean;
-  };
+  currentGates?: Record<string, boolean>;
 }
 
 interface GateStep extends GateDefinition {
@@ -162,13 +158,13 @@ export default function GovernanceGuideLegoBlock({ currentGates }: GovernanceGui
                   <div className="mt-2 space-y-1">
                     <div className="text-sm" data-testid={`text-gate-requirement-${gate.id}`}>
                       <span className="text-gray-400">Requires:</span>
-                      {gate.requirements.length === 1 ? (
+                      {(gate.requirements?.length ?? 0) === 1 ? (
                         <span className={`ml-2 ${status === 'pending' ? 'text-gray-500' : 'text-gray-700'}`}>
-                          {gate.requirements[0]}
+                          {gate.requirements?.[0]}
                         </span>
                       ) : (
                         <ul className={`list-disc list-inside mt-1 ${status === 'pending' ? 'text-gray-500' : 'text-gray-700'}`}>
-                          {gate.requirements.map((req, i) => (
+                          {(gate.requirements || []).map((req, i) => (
                             <li key={i} className="text-sm">{req}</li>
                           ))}
                         </ul>

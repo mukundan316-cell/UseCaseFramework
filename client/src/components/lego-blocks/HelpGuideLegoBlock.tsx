@@ -75,18 +75,167 @@ const strategyWorkflow = [
 ];
 
 const adminTasks = [
-  { icon: Database, label: "Configure KPIs", location: "Admin → KPIs" },
-  { icon: Gauge, label: "Set TOM Presets", location: "Admin → TOM" },
-  { icon: Sliders, label: "Adjust Scoring", location: "Admin → Scoring" },
-  { icon: Upload, label: "Bulk Import", location: "Admin → Import" }
+  { icon: Building2, label: "Manage Clients", location: "Admin → Data" },
+  { icon: Gauge, label: "Configure TOM", location: "Admin → TOM" },
+  { icon: Database, label: "Configure KPIs", location: "Admin → Library" },
+  { icon: Upload, label: "Import/Export", location: "Admin → Data" }
 ];
 
 const adminWorkflow = [
   { icon: Settings, label: "Admin Tab", color: "#3C2CDA" },
-  { icon: Database, label: "KPIs", color: "#1D86FF" },
+  { icon: Building2, label: "Clients", color: "#1D86FF" },
   { icon: Gauge, label: "TOM Config", color: "#14CBDE" },
-  { icon: Sliders, label: "Scoring", color: "#07125E" },
+  { icon: Database, label: "Library", color: "#07125E" },
   { icon: Upload, label: "Import/Export", color: "#10B981" }
+];
+
+const businessStepGuides = [
+  {
+    id: 'create',
+    title: 'Create a New Use Case',
+    icon: PlusCircle,
+    color: '#3C2CDA',
+    steps: [
+      { step: 1, action: 'Go to Explorer tab' },
+      { step: 2, action: 'Click "+ Add Use Case" button' },
+      { step: 3, action: 'Fill in Title, Description, and Business Function' },
+      { step: 4, action: 'Assign a Primary Business Owner' },
+      { step: 5, action: 'Save to create the use case' }
+    ]
+  },
+  {
+    id: 'value',
+    title: 'Link KPIs for Value Tracking',
+    icon: Link2,
+    color: '#8B5CF6',
+    steps: [
+      { step: 1, action: 'Open a use case and go to Value tab' },
+      { step: 2, action: 'Select a Process that matches the use case' },
+      { step: 3, action: 'Browse available KPIs for that process' },
+      { step: 4, action: 'Click "Link" to associate KPIs' },
+      { step: 5, action: 'Enter baseline and target values' }
+    ]
+  },
+  {
+    id: 'scoring',
+    title: 'Complete 10-Lever Scoring',
+    icon: BarChart3,
+    color: '#1D86FF',
+    steps: [
+      { step: 1, action: 'Open a use case and go to Scoring tab' },
+      { step: 2, action: 'Rate each Impact lever (1-5 scale)' },
+      { step: 3, action: 'Rate each Effort lever (1-5 scale)' },
+      { step: 4, action: 'Total score is auto-calculated' },
+      { step: 5, action: 'Scoring is required for Gate 2 clearance' }
+    ]
+  }
+];
+
+const strategyStepGuides = [
+  {
+    id: 'matrix',
+    title: 'Use Priority Matrix',
+    icon: Target,
+    color: '#3C2CDA',
+    steps: [
+      { step: 1, action: 'Go to Dashboard View' },
+      { step: 2, action: 'Review the 4-quadrant matrix' },
+      { step: 3, action: 'Quick Win = High Value + Low Effort' },
+      { step: 4, action: 'Strategic Bet = High Value + High Effort' },
+      { step: 5, action: 'Click bubbles to open use case details' }
+    ]
+  },
+  {
+    id: 'insights',
+    title: 'Analyze Portfolio Insights',
+    icon: BarChart3,
+    color: '#8B5CF6',
+    steps: [
+      { step: 1, action: 'Go to Insights tab' },
+      { step: 2, action: 'Value Realization: ROI metrics and KPI tracking' },
+      { step: 3, action: 'Operating Model: Phase distribution' },
+      { step: 4, action: 'Capability Transition: Staffing and timeline' },
+      { step: 5, action: 'Responsible AI: Risk tier breakdown' }
+    ]
+  },
+  {
+    id: 'validate',
+    title: 'Validate Value Estimates',
+    icon: CheckCircle2,
+    color: '#10B981',
+    steps: [
+      { step: 1, action: 'Open use case → Value tab' },
+      { step: 2, action: 'Review linked KPIs and estimates' },
+      { step: 3, action: 'Set validation status (Unvalidated → Pending → Validated)' },
+      { step: 4, action: 'Adjust conservative factor if needed' },
+      { step: 5, action: 'Fully validated values unlock final TOM phases' }
+    ]
+  }
+];
+
+const adminStepGuides = [
+  {
+    id: 'client',
+    title: 'Manage Clients',
+    icon: Building2,
+    color: '#3C2CDA',
+    steps: [
+      { step: 1, action: 'Go to Admin → Data Management' },
+      { step: 2, action: 'Use the Client dropdown in the header' },
+      { step: 3, action: 'Each client has its own TOM config and use cases' },
+      { step: 4, action: 'Export data before switching clients' }
+    ]
+  },
+  {
+    id: 'tom',
+    title: 'Configure TOM (Target Operating Model)',
+    icon: Gauge,
+    color: '#14CBDE',
+    steps: [
+      { step: 1, action: 'Go to Admin → TOM tab' },
+      { step: 2, action: 'Select TOM Preset (NIST, RSA, or Custom)' },
+      { step: 3, action: 'Review Gate Definitions (requirements for each gate)' },
+      { step: 4, action: 'Configure Phase Transition Rules (which gate unlocks which phase)' },
+      { step: 5, action: 'Use "Re-derive Phases" to recalculate all use cases' }
+    ]
+  },
+  {
+    id: 'gates',
+    title: 'Configure Governance Gates',
+    icon: Shield,
+    color: '#F59E0B',
+    steps: [
+      { step: 1, action: 'Gates control when use cases can move to active status' },
+      { step: 2, action: 'Gate 1 (Operating Model): Requires business owner assigned' },
+      { step: 3, action: 'Gate 2 (Intake): Requires 10-lever scoring complete' },
+      { step: 4, action: 'Gate 3 (RAI): Requires Responsible AI questionnaire complete' },
+      { step: 5, action: 'Gates are enforced only when activating use cases' }
+    ]
+  },
+  {
+    id: 'kpi',
+    title: 'Configure KPI Library',
+    icon: Database,
+    color: '#8B5CF6',
+    steps: [
+      { step: 1, action: 'Go to Admin → Library tab' },
+      { step: 2, action: '169+ KPIs available across Insurance and Enterprise categories' },
+      { step: 3, action: 'Toggle between Insurance and Enterprise value chains' },
+      { step: 4, action: 'KPIs are linked to use cases in the Value tab' }
+    ]
+  },
+  {
+    id: 'import',
+    title: 'Import/Export Data',
+    icon: Upload,
+    color: '#10B981',
+    steps: [
+      { step: 1, action: 'Go to Admin → Data Management tab' },
+      { step: 2, action: 'Export Data: Download use cases and metadata as JSON' },
+      { step: 3, action: 'Import Data: Upload JSON configuration file' },
+      { step: 4, action: 'Always export before making major changes' }
+    ]
+  }
 ];
 
 const defaultTomPhases = [
@@ -142,6 +291,72 @@ function TaskCard({ icon: Icon, label, location }: { icon: any; label: string; l
       <Badge variant="outline" className="text-xs">{location}</Badge>
     </motion.div>
   );
+}
+
+function AdminStepGuide({ guide }: { guide: typeof adminStepGuides[0] }) {
+  const Icon = guide.icon;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm"
+      data-testid={`admin-guide-${guide.id}`}
+    >
+      <div 
+        className="px-4 py-3 flex items-center gap-3"
+        style={{ backgroundColor: `${guide.color}10`, borderLeft: `4px solid ${guide.color}` }}
+      >
+        <div 
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: `${guide.color}20` }}
+        >
+          <Icon className="h-4 w-4" style={{ color: guide.color }} />
+        </div>
+        <span className="font-semibold text-gray-900 text-sm">{guide.title}</span>
+      </div>
+      <div className="p-3 space-y-2">
+        {guide.steps.map((step, idx) => (
+          <div key={idx} className="flex items-start gap-2" data-testid={`step-${guide.id}-${step.step}`}>
+            <div 
+              className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-semibold mt-0.5"
+              style={{ backgroundColor: guide.color }}
+            >
+              {step.step}
+            </div>
+            <span className="text-sm text-gray-700">{step.action}</span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function DetailGuides({ guides, title }: { guides: typeof adminStepGuides; title: string }) {
+  return (
+    <div className="space-y-4" data-testid="detail-guides">
+      <div className="flex items-center gap-2 mb-3">
+        <Lightbulb className="h-4 w-4 text-amber-500" />
+        <span className="font-semibold text-gray-900 text-sm">{title}</span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {guides.map((guide) => (
+          <AdminStepGuide key={guide.id} guide={guide} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AdminDetailGuides() {
+  return <DetailGuides guides={adminStepGuides} title="Step-by-Step Admin Guides" />;
+}
+
+function BusinessDetailGuides() {
+  return <DetailGuides guides={businessStepGuides} title="Step-by-Step Business User Guides" />;
+}
+
+function StrategyDetailGuides() {
+  return <DetailGuides guides={strategyStepGuides} title="Step-by-Step Strategy Guides" />;
 }
 
 function WorkflowStep({ step, isLast, index }: { step: { icon: any; label: string; color: string }; isLast: boolean; index: number }) {
@@ -273,7 +488,8 @@ function RoleGuide({
   tasks, 
   workflow, 
   tips,
-  roleId
+  roleId,
+  detailGuideType
 }: { 
   title: string;
   titleIcon: any;
@@ -282,7 +498,20 @@ function RoleGuide({
   workflow: { icon: any; label: string; color: string }[];
   tips: string[];
   roleId: string;
+  detailGuideType?: 'business' | 'strategy' | 'admin';
 }) {
+  const renderDetailGuides = () => {
+    switch (detailGuideType) {
+      case 'business':
+        return <BusinessDetailGuides />;
+      case 'strategy':
+        return <StrategyDetailGuides />;
+      case 'admin':
+        return <AdminDetailGuides />;
+      default:
+        return null;
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -350,6 +579,8 @@ function RoleGuide({
           ))}
         </div>
       </div>
+
+      {renderDetailGuides()}
     </motion.div>
   );
 }
@@ -362,10 +593,11 @@ const roleConfigs = {
     tasks: businessTasks,
     workflow: businessWorkflow,
     tips: [
-      "Focus badges show required data",
-      "Guide tab shows phase requirements",
-      "Bulk import via Admin tab"
-    ]
+      "Focus badges show required data for each phase",
+      "Guide tab shows phase-specific requirements",
+      "Auto-derivation populates fields automatically"
+    ],
+    detailGuideType: 'business' as const
   },
   strategy: {
     title: "Strategy/PMO Guide",
@@ -374,10 +606,11 @@ const roleConfigs = {
     tasks: strategyTasks,
     workflow: strategyWorkflow,
     tips: [
-      "Validate values before final phases",
-      "PDF exports include adjusted values",
-      "Click use cases for detail drawer"
-    ]
+      "Validate value estimates before final phases",
+      "PDF exports include adjusted values with validation status",
+      "Click bubbles/rows to open use case details"
+    ],
+    detailGuideType: 'strategy' as const
   },
   admin: {
     title: "Admin Guide",
@@ -386,10 +619,11 @@ const roleConfigs = {
     tasks: adminTasks,
     workflow: adminWorkflow,
     tips: [
-      "169+ KPIs available in library",
-      "Choose NIST, RSA or custom TOM",
-      "Export before major changes"
-    ]
+      "169+ KPIs available across Insurance and Enterprise categories",
+      "Choose NIST, RSA or custom TOM presets",
+      "Always export data before making major configuration changes"
+    ],
+    detailGuideType: 'admin' as const
   }
 };
 
