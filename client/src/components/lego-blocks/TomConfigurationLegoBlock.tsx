@@ -9,8 +9,8 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Settings, Target, Users, Clock, ChevronDown, ChevronUp, Loader2, Building2, Layers } from 'lucide-react';
-import type { TomConfig, TomPhase, TomGovernanceBody, TomPresetProfile } from '@shared/tom';
+import { Settings, Target, Users, Clock, ChevronDown, ChevronUp, Loader2, Building2, Layers, RefreshCw, Shield, User, BarChart3, ArrowRight } from 'lucide-react';
+import type { TomConfig, TomPhase, TomGovernanceBody, TomPresetProfile, GateDefinition, PhaseTransitionRule } from '@shared/tom';
 
 interface ClientOption {
   id: string;
@@ -108,6 +108,30 @@ export default function TomConfigurationLegoBlock() {
     },
   });
 
+  const rederiveMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/tom/rederive-phases?clientId=${selectedClientId}`, {
+        method: 'POST',
+      });
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/config', selectedClientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/phase-summary', selectedClientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
+      toast({
+        title: 'Phases Re-derived',
+        description: `Updated ${data.updated || 0} use cases with current phase derivation rules.`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Re-derive Failed',
+        description: 'Failed to re-derive TOM phases.',
+        variant: 'destructive',
+      });
+    },
+  });
+
   const activePresetProfile = tomConfig?.presetProfiles?.[tomConfig.activePreset] as TomPresetProfile | undefined;
 
   const handleToggleEnabled = (checked: boolean) => {
@@ -170,7 +194,21 @@ export default function TomConfigurationLegoBlock() {
                 Configure the operating model framework that drives use case lifecycle phases
               </CardDescription>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => rederiveMutation.mutate()}
+                disabled={rederiveMutation.isPending}
+                data-testid="button-rederive-phases"
+              >
+                {rederiveMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                )}
+                Re-derive Phases
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -321,6 +359,52 @@ export default function TomConfigurationLegoBlock() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Shield className="h-4 w-4" />
+            Gate Definitions
+          </CardTitle>
+          <CardDescription>
+            Quality gates that control phase transitions and ensure governance compliance
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {(tomConfig.gateDefinitions || []).length > 0 ? (
+            (tomConfig.gateDefinitions || []).map((gate: GateDefinition, index: number) => (
+              <GateDefinitionCard key={gate.id || index} gate={gate} phases={tomConfig.phases} />
+            ))
+          ) : (
+            <div className="text-sm text-muted-foreground text-center py-4">
+              No gate definitions configured. Gates control phase transitions.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <ArrowRight className="h-4 w-4" />
+            Phase Transition Rules
+          </CardTitle>
+          <CardDescription>
+            Rules defining which gates must be passed to transition between lifecycle phases
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {(tomConfig.phaseTransitions || []).length > 0 ? (
+            (tomConfig.phaseTransitions || []).map((rule: PhaseTransitionRule, index: number) => (
+              <PhaseTransitionRuleCard key={index} rule={rule} phases={tomConfig.phases} gateDefinitions={tomConfig.gateDefinitions || []} />
+            ))
+          ) : (
+            <div className="text-sm text-muted-foreground text-center py-4">
+              No phase transition rules configured. Rules define gate requirements between phases.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
@@ -432,6 +516,103 @@ function GovernanceBodyCard({ body }: { body: TomGovernanceBody }) {
         </div>
         <Badge variant="outline">{body.cadence}</Badge>
       </div>
+    </div>
+  );
+}
+
+function GateDefinitionCard({ gate, phases }: { gate: GateDefinition; phases: TomPhase[] }) {
+  const getPhaseById = (phaseId: string) => phases.find(p => p.id === phaseId);
+  const targetPhase = getPhaseById(gate.targetPhase || '');
+  
+  return (
+    <div
+      className="rounded-lg border p-4"
+      style={{ borderLeftColor: gate.color || '#6366f1', borderLeftWidth: '4px' }}
+      data-testid={`gate-definition-${gate.id}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <Shield className="h-4 w-4" style={{ color: gate.color || '#6366f1' }} />
+            <span className="font-medium">{gate.title}</span>
+            <Badge variant="secondary" className="text-xs">Gate {gate.order}</Badge>
+          </div>
+          {gate.subtitle && (
+            <p className="text-sm text-muted-foreground mb-2">{gate.subtitle}</p>
+          )}
+          {gate.principle && (
+            <p className="text-xs text-muted-foreground italic mb-2">"{gate.principle}"</p>
+          )}
+          {gate.requirements && gate.requirements.length > 0 && (
+            <div className="mt-2">
+              <Label className="text-xs text-muted-foreground">Requirements</Label>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {gate.requirements.map((req: string, i: number) => (
+                  <Badge key={i} variant="outline" className="text-xs">
+                    {req}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        {targetPhase && (
+          <div className="text-right">
+            <Label className="text-xs text-muted-foreground">Unlocks</Label>
+            <Badge 
+              variant="outline" 
+              style={{ borderColor: targetPhase.color, color: targetPhase.color }}
+              className="mt-1"
+            >
+              {targetPhase.name}
+            </Badge>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PhaseTransitionRuleCard({ 
+  rule, 
+  phases, 
+  gateDefinitions 
+}: { 
+  rule: PhaseTransitionRule; 
+  phases: TomPhase[]; 
+  gateDefinitions: GateDefinition[];
+}) {
+  const fromPhase = phases.find(p => p.id === rule.fromPhase);
+  const toPhase = phases.find(p => p.id === rule.toPhase);
+  const gate = gateDefinitions.find(g => g.id === rule.requiredGate);
+  
+  return (
+    <div
+      className="rounded-lg border p-3 flex items-center gap-3 flex-wrap"
+      data-testid={`transition-rule-${rule.fromPhase}-${rule.toPhase}`}
+    >
+      <Badge 
+        variant="outline" 
+        style={{ borderColor: fromPhase?.color, color: fromPhase?.color }}
+      >
+        {fromPhase?.name || rule.fromPhase}
+      </Badge>
+      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+      <Badge 
+        variant="outline" 
+        style={{ borderColor: toPhase?.color, color: toPhase?.color }}
+      >
+        {toPhase?.name || rule.toPhase}
+      </Badge>
+      <div className="flex-1" />
+      {gate ? (
+        <Badge style={{ backgroundColor: `${gate.color}20`, color: gate.color, borderColor: gate.color }}>
+          <Shield className="h-3 w-3 mr-1" />
+          {gate.title}
+        </Badge>
+      ) : (
+        <span className="text-xs text-muted-foreground">No gate required</span>
+      )}
     </div>
   );
 }

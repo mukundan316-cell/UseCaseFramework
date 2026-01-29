@@ -1,6 +1,33 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { calculateGovernanceStatus } from "@shared/calculations";
+import { z } from "zod";
+
+const PhaseTransitionRuleSchema = z.object({
+  fromPhase: z.string(),
+  toPhase: z.string(),
+  requiredGate: z.string(),
+  description: z.string().optional(),
+});
+
+const GateDefinitionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  subtitle: z.string().optional(),
+  principle: z.string().optional(),
+  requirements: z.array(z.string()).optional(),
+  color: z.string().optional(),
+  order: z.number(),
+  targetPhase: z.string().optional(),
+});
+
+const PhaseTransitionsUpdateSchema = z.object({
+  phaseTransitions: z.array(PhaseTransitionRuleSchema),
+});
+
+const GateDefinitionsUpdateSchema = z.object({
+  gateDefinitions: z.array(GateDefinitionSchema),
+});
 
 export function registerTomRoutes(app: Express): void {
   app.get("/api/tom/clients", async (req, res) => {
@@ -91,6 +118,86 @@ export function registerTomRoutes(app: Express): void {
     } catch (error) {
       console.error("Error updating phases:", error);
       res.status(500).json({ error: "Failed to update phases" });
+    }
+  });
+
+  // Update phase transition rules
+  app.put("/api/tom/transitions", async (req, res) => {
+    try {
+      const validationResult = PhaseTransitionsUpdateSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid phase transitions data", 
+          details: validationResult.error.errors 
+        });
+      }
+      
+      const { phaseTransitions } = validationResult.data;
+      const clientId = (req.query.clientId as string) || 'default';
+      const currentMetadata = await storage.getMetadataConfigById(clientId);
+      
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      
+      const { ensureTomConfig } = await import("@shared/tom");
+      const currentTom = ensureTomConfig(currentMetadata.tomConfig);
+      
+      const updatedTom = {
+        ...currentTom,
+        phaseTransitions
+      };
+      
+      const updatedMetadata = {
+        ...currentMetadata,
+        tomConfig: updatedTom
+      };
+      
+      const result = await storage.updateMetadataConfigById(clientId, updatedMetadata);
+      res.json(result?.tomConfig?.phaseTransitions || phaseTransitions);
+    } catch (error) {
+      console.error("Error updating phase transitions:", error);
+      res.status(500).json({ error: "Failed to update phase transitions" });
+    }
+  });
+
+  // Update gate definitions
+  app.put("/api/tom/gates", async (req, res) => {
+    try {
+      const validationResult = GateDefinitionsUpdateSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid gate definitions data", 
+          details: validationResult.error.errors 
+        });
+      }
+      
+      const { gateDefinitions } = validationResult.data;
+      const clientId = (req.query.clientId as string) || 'default';
+      const currentMetadata = await storage.getMetadataConfigById(clientId);
+      
+      if (!currentMetadata) {
+        return res.status(404).json({ error: "Metadata configuration not found" });
+      }
+      
+      const { ensureTomConfig } = await import("@shared/tom");
+      const currentTom = ensureTomConfig(currentMetadata.tomConfig);
+      
+      const updatedTom = {
+        ...currentTom,
+        gateDefinitions
+      };
+      
+      const updatedMetadata = {
+        ...currentMetadata,
+        tomConfig: updatedTom
+      };
+      
+      const result = await storage.updateMetadataConfigById(clientId, updatedMetadata);
+      res.json(result?.tomConfig?.gateDefinitions || gateDefinitions);
+    } catch (error) {
+      console.error("Error updating gate definitions:", error);
+      res.status(500).json({ error: "Failed to update gate definitions" });
     }
   });
 

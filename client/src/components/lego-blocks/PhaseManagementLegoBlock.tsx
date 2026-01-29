@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,8 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Layers, Plus, Pencil, Trash2, GripVertical, Loader2, Sparkles } from 'lucide-react';
-import type { TomPhase, TomConfig, TomGovernanceBody, PhaseDefaults } from '@shared/tom';
+import { Layers, Plus, Pencil, Trash2, GripVertical, Loader2, Sparkles, ArrowRight, Shield, User, BarChart3 } from 'lucide-react';
+import type { TomPhase, TomConfig, TomGovernanceBody, PhaseDefaults, PhaseTransitionRule, GateDefinition } from '@shared/tom';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -418,8 +418,194 @@ export default function PhaseManagementLegoBlock() {
             ))
           )}
         </div>
+        
+        {/* Phase Transition Rules Section */}
+        <PhaseTransitionRulesSection 
+          phases={phases}
+          phaseTransitions={tomConfig?.phaseTransitions || []}
+          gateDefinitions={tomConfig?.gateDefinitions}
+          clientId={clientId}
+        />
       </CardContent>
     </Card>
+  );
+}
+
+const FALLBACK_GATE_OPTIONS: { id: string; title: string; color: string }[] = [
+  { id: 'none', title: 'No Gate Required', color: '#9CA3AF' },
+  { id: 'operatingModel', title: 'Operating Model', color: '#3C2CDA' },
+  { id: 'intake', title: 'Intake & Scoring', color: '#1D86FF' },
+  { id: 'rai', title: 'Responsible AI', color: '#14CBDE' },
+];
+
+function PhaseTransitionRulesSection({ 
+  phases, 
+  phaseTransitions,
+  gateDefinitions,
+  clientId 
+}: { 
+  phases: TomPhase[];
+  phaseTransitions: PhaseTransitionRule[];
+  gateDefinitions?: GateDefinition[];
+  clientId: string;
+}) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const updateTransitionsMutation = useMutation({
+    mutationFn: async (transitions: PhaseTransitionRule[]) => {
+      return apiRequest(`/api/tom/transitions?clientId=${clientId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ phaseTransitions: transitions }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tom/config', clientId] });
+      toast({ title: 'Transition Rules Updated', description: 'Phase transition governance rules saved.' });
+    },
+    onError: () => {
+      toast({ title: 'Update Failed', description: 'Failed to save transition rules.', variant: 'destructive' });
+    },
+  });
+
+  const orderedPhases = [...phases].sort((a, b) => a.order - b.order);
+  
+  const getTransitionRule = (fromPhase: string, toPhase: string): PhaseTransitionRule | undefined => {
+    return phaseTransitions.find(t => t.fromPhase === fromPhase && t.toPhase === toPhase);
+  };
+
+  const gateOptions = useMemo(() => {
+    if (gateDefinitions && gateDefinitions.length > 0) {
+      const noneOption = { id: 'none', title: 'No Gate Required', color: '#9CA3AF', order: -1 };
+      return [noneOption, ...gateDefinitions.map(g => ({
+        id: g.id,
+        title: g.title,
+        color: g.color || '#6366f1',
+        order: g.order
+      }))].sort((a, b) => a.order - b.order);
+    }
+    return FALLBACK_GATE_OPTIONS;
+  }, [gateDefinitions]);
+
+  const handleGateChange = (fromPhase: string, toPhase: string, gate: string) => {
+    const existing = phaseTransitions.find(t => t.fromPhase === fromPhase && t.toPhase === toPhase);
+    
+    let updated: PhaseTransitionRule[];
+    if (existing) {
+      updated = phaseTransitions.map(t => 
+        t.fromPhase === fromPhase && t.toPhase === toPhase 
+          ? { ...t, requiredGate: gate as any }
+          : t
+      );
+    } else {
+      updated = [...phaseTransitions, { fromPhase, toPhase, requiredGate: gate as any }];
+    }
+    
+    updateTransitionsMutation.mutate(updated);
+  };
+
+  const getGateLabel = (gateId: string): string => {
+    const opt = gateOptions.find(o => o.id === gateId);
+    return opt?.title || gateId;
+  };
+
+  const getGateColor = (gateId: string): string => {
+    const opt = gateOptions.find(o => o.id === gateId);
+    return opt?.color || '#9CA3AF';
+  };
+
+  if (orderedPhases.length < 2) {
+    return null;
+  }
+
+  return (
+    <div className="mt-6 pt-6 border-t" data-testid="phase-transition-rules">
+      <div className="mb-4">
+        <h4 className="font-semibold flex items-center gap-2 text-sm">
+          <ArrowRight className="h-4 w-4 text-primary" />
+          Phase Transition Rules
+        </h4>
+        <p className="text-xs text-muted-foreground mt-1">
+          Configure which governance gate must pass before a use case can move between phases
+        </p>
+      </div>
+      
+      <div className="space-y-2">
+        {orderedPhases.slice(0, -1).map((fromPhase, idx) => {
+          const toPhase = orderedPhases[idx + 1];
+          const rule = getTransitionRule(fromPhase.id, toPhase.id);
+          const currentGate = rule?.requiredGate || 'none';
+          
+          return (
+            <div 
+              key={`${fromPhase.id}-${toPhase.id}`}
+              className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30"
+              data-testid={`transition-rule-${fromPhase.id}-${toPhase.id}`}
+            >
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div 
+                  className="w-3 h-3 rounded-full flex-shrink-0" 
+                  style={{ backgroundColor: fromPhase.color }}
+                />
+                <span className="font-medium text-sm truncate">{fromPhase.name}</span>
+                <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div 
+                  className="w-3 h-3 rounded-full flex-shrink-0" 
+                  style={{ backgroundColor: toPhase.color }}
+                />
+                <span className="font-medium text-sm truncate">{toPhase.name}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Required Gate:</span>
+                <Select 
+                  value={currentGate} 
+                  onValueChange={(v) => handleGateChange(fromPhase.id, toPhase.id, v as any)}
+                >
+                  <SelectTrigger 
+                    className="w-[180px] h-8 text-xs"
+                    data-testid={`select-gate-${fromPhase.id}-${toPhase.id}`}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {gateOptions.map(opt => (
+                      <SelectItem key={opt.id} value={opt.id}>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: opt.color }}
+                          />
+                          <span>{opt.title}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {currentGate !== 'none' && (
+                <Badge 
+                  variant="outline" 
+                  className="text-xs border-none"
+                  style={{ 
+                    backgroundColor: `${getGateColor(currentGate)}20`,
+                    color: getGateColor(currentGate)
+                  }}
+                >
+                  {getGateLabel(currentGate)}
+                </Badge>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      <p className="text-xs text-muted-foreground mt-3 italic">
+        Gates enforce sequential validation: Gate 2 requires Gate 1 to pass first, Gate 3 requires Gate 2.
+      </p>
+    </div>
   );
 }
 

@@ -101,13 +101,14 @@ export interface PhaseTransitionRule {
 }
 
 export interface GateDefinition {
-  id: 'operatingModel' | 'intake' | 'rai';
+  id: string;
   title: string;
-  subtitle: string;
-  principle: string;
-  requirements: string[];
-  color: string;
+  subtitle?: string;
+  principle?: string;
+  requirements?: string[];
+  color?: string;
   order: number;
+  targetPhase?: string;
 }
 
 export interface TomConfig {
