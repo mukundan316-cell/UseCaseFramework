@@ -72,12 +72,12 @@ export interface KpiDefinition {
   direction: 'increase' | 'decrease';
   applicableProcesses?: string[]; // Optional - empty/undefined means org-wide KPI
   industryBenchmarks?: Record<string, IndustryBenchmark>;
-  maturityRules: MaturityRule[];
-  kpiType: KpiType;
+  maturityRules?: MaturityRule[]; // Optional - defaults applied when deriving values
+  kpiType?: KpiType; // Optional - defaults to 'operational'
   valueStream?: ValueStream;
   isMonetizable: boolean;
   monetizationFormula?: string;
-  aggregationMethod: AggregationMethod;
+  aggregationMethod?: AggregationMethod; // Optional - defaults to 'sum'
   // New category fields
   categoryId: KpiCategoryId;
   benchmark?: string; // Human-readable benchmark target e.g., "90-95% accuracy"
@@ -180,8 +180,18 @@ export interface UseCaseScores {
 
 export function deriveMaturityLevel(
   scores: UseCaseScores,
-  maturityRules: MaturityRule[]
+  maturityRules?: MaturityRule[]
 ): MaturityDerivationResult {
+  // If no maturity rules provided, return foundational defaults
+  if (!maturityRules || maturityRules.length === 0) {
+    return {
+      level: 'foundational',
+      range: { min: 0, max: 10 },
+      confidence: 'low',
+      matchedConditions: {}
+    };
+  }
+  
   for (const rule of maturityRules) {
     const matchedConditions: Record<string, { actual: number; required: MaturityCondition }> = {};
     let allConditionsMet = true;
@@ -598,1262 +608,2066 @@ export const PROCESS_KPI_MAPPING: Record<string, string[]> = {
 export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
   enabled: 'true',
   kpiLibrary: {
-    cycle_time_reduction: {
-      id: 'cycle_time_reduction',
-      name: 'Cycle Time Reduction',
-      description: 'Reduction in end-to-end processing time',
-      unit: '%',
+    'uw_001': {
+      id: 'uw_001',
+      name: 'Submission Processing Time',
+      description: 'Submission Processing Time - measures submission intake & triage within Underwriting',
+      unit: 'hours',
       direction: 'decrease',
-      applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Submission & Quote', 'Policy Servicing', 'Billing', 'Financial Management', 'Regulatory & Compliance', 'Reinsurance', 'Customer Servicing', 'Product & Rating', 'Human Resources'],
-      industryBenchmarks: {
-        'Claims Management': {
-          baselineValue: 45,
-          baselineUnit: 'minutes',
-          baselineSource: 'McKinsey Insurance Operations 2024',
-          improvementRange: { min: 40, max: 70 },
-          improvementUnit: '%',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 20, max: 30 },
-            developing: { min: 40, max: 50 },
-            advanced: { min: 60, max: 70 }
-          }
-        },
-        'Underwriting & Triage': {
-          baselineValue: 120,
-          baselineUnit: 'minutes',
-          baselineSource: 'BCG Insurance Benchmarks 2024',
-          improvementRange: { min: 30, max: 60 },
-          improvementUnit: '%',
-          typicalTimeline: '9-18 months',
-          maturityTiers: {
-            foundational: { min: 15, max: 25 },
-            developing: { min: 30, max: 45 },
-            advanced: { min: 50, max: 60 }
-          }
-        },
-        'Submission & Quote': {
-          baselineValue: 60,
-          baselineUnit: 'minutes',
-          baselineSource: 'Deloitte Insurance Study 2023',
-          improvementRange: { min: 35, max: 65 },
-          improvementUnit: '%',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 20, max: 30 },
-            developing: { min: 35, max: 50 },
-            advanced: { min: 55, max: 65 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: {
-            dataReadiness: { min: 4 },
-            technicalComplexity: { max: 2 },
-            adoptionReadiness: { min: 4 }
-          },
-          range: { min: 60, max: 70 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: {
-            dataReadiness: { min: 3 },
-            technicalComplexity: { max: 3 }
-          },
-          range: { min: 40, max: 50 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 20, max: 30 },
-          confidence: 'low'
-        }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      monetizationFormula: 'time_saved_hours * hourly_rate',
-      aggregationMethod: 'sum',
-      categoryId: 'operational_eff',
-      benchmark: '40-70% reduction in processing time'
+      benchmark: '50-70%',
+      isMonetizable: true
     },
-    cost_per_transaction: {
-      id: 'cost_per_transaction',
-      name: 'Cost Per Transaction Reduction',
-      description: 'Reduction in cost to process each transaction',
+    'uw_002': {
+      id: 'uw_002',
+      name: 'Auto-Classification Accuracy',
+      description: 'Auto-Classification Accuracy - measures submission intake & triage within Underwriting',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '90%+',
+      isMonetizable: false
+    },
+    'uw_003': {
+      id: 'uw_003',
+      name: 'Submission Leakage Rate',
+      description: 'Submission Leakage Rate - measures submission intake & triage within Underwriting',
       unit: '%',
       direction: 'decrease',
-      applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Submission & Quote', 'Policy Servicing', 'Billing', 'Financial Management', 'Reinsurance'],
-      industryBenchmarks: {
-        'Claims Management': {
-          baselineValue: 125,
-          baselineUnit: 'GBP',
-          baselineSource: 'McKinsey Insurance Operations 2024',
-          improvementRange: { min: 20, max: 35 },
-          improvementUnit: '%',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 8, max: 15 },
-            developing: { min: 20, max: 28 },
-            advanced: { min: 30, max: 35 }
-          }
-        },
-        'Underwriting & Triage': {
-          baselineValue: 450,
-          baselineUnit: 'GBP',
-          baselineSource: 'BCG Insurance Benchmarks 2024',
-          improvementRange: { min: 15, max: 30 },
-          improvementUnit: '%',
-          typicalTimeline: '9-18 months',
-          maturityTiers: {
-            foundational: { min: 8, max: 12 },
-            developing: { min: 15, max: 22 },
-            advanced: { min: 25, max: 30 }
-          }
-        },
-        'Billing': {
-          baselineValue: 35,
-          baselineUnit: 'GBP',
-          baselineSource: 'Deloitte Insurance Study 2023',
-          improvementRange: { min: 25, max: 45 },
-          improvementUnit: '%',
-          typicalTimeline: '3-6 months',
-          maturityTiers: {
-            foundational: { min: 15, max: 22 },
-            developing: { min: 28, max: 36 },
-            advanced: { min: 40, max: 45 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: { dataReadiness: { min: 4 }, changeImpact: { max: 2 } },
-          range: { min: 25, max: 35 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: { dataReadiness: { min: 3 } },
-          range: { min: 15, max: 25 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 8, max: 15 },
-          confidence: 'low'
-        }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'financial',
-      valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'sum',
-      categoryId: 'finance_actuarial',
-      benchmark: '20-35% cost reduction per transaction'
+      valueStream: 'revenue_uplift',
+      benchmark: '50% reduction',
+      isMonetizable: true
     },
-    fte_efficiency: {
-      id: 'fte_efficiency',
-      name: 'FTE Efficiency Gain',
-      description: 'FTE hours saved or reallocated per month',
-      unit: 'hours/month',
-      direction: 'increase',
-      applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Submission & Quote', 'Policy Servicing', 'Billing', 'Financial Management', 'Regulatory & Compliance', 'Risk Consulting', 'Sales & Distribution (Including Broker Relationships)', 'Customer Servicing', 'General', 'Product & Rating', 'Human Resources'],
-      industryBenchmarks: {
-        'Claims Management': {
-          baselineValue: 160,
-          baselineUnit: 'hours/FTE/month',
-          baselineSource: 'Industry Average',
-          improvementRange: { min: 15, max: 40 },
-          improvementUnit: '%',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 50, max: 100 },
-            developing: { min: 200, max: 400 },
-            advanced: { min: 500, max: 800 }
-          }
-        },
-        'Underwriting & Triage': {
-          baselineValue: 160,
-          baselineUnit: 'hours/FTE/month',
-          baselineSource: 'Industry Average',
-          improvementRange: { min: 20, max: 45 },
-          improvementUnit: '%',
-          typicalTimeline: '9-18 months',
-          maturityTiers: {
-            foundational: { min: 80, max: 150 },
-            developing: { min: 250, max: 450 },
-            advanced: { min: 600, max: 1000 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: { dataReadiness: { min: 4 }, adoptionReadiness: { min: 4 } },
-          range: { min: 500, max: 1000 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: { dataReadiness: { min: 3 } },
-          range: { min: 200, max: 500 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 50, max: 200 },
-          confidence: 'low'
-        }
-      ],
+    'uw_004': {
+      id: 'uw_004',
+      name: 'Risk Assessment Time',
+      description: 'Risk Assessment Time - measures risk assessment & scoring within Underwriting',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      monetizationFormula: 'hours_saved * 75',
-      aggregationMethod: 'sum',
-      categoryId: 'operational_eff',
-      benchmark: '200-800 hours saved per month'
+      benchmark: '60-80%',
+      isMonetizable: true
     },
-    accuracy_improvement: {
-      id: 'accuracy_improvement',
-      name: 'Accuracy Improvement',
-      description: 'Improvement in decision or data accuracy',
+    'uw_005': {
+      id: 'uw_005',
+      name: 'Risk Score Accuracy',
+      description: 'Risk Score Accuracy - measures risk assessment & scoring within Underwriting',
       unit: '%',
       direction: 'increase',
-      applicableProcesses: ['Claims Management', 'Underwriting & Triage', 'Policy Servicing', 'Billing', 'Financial Management', 'Regulatory & Compliance', 'Reinsurance', 'Product & Rating'],
-      industryBenchmarks: {
-        'Claims Management': {
-          baselineValue: 85,
-          baselineUnit: '% accuracy',
-          baselineSource: 'Industry Average',
-          improvementRange: { min: 5, max: 12 },
-          improvementUnit: 'percentage points',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 2, max: 4 },
-            developing: { min: 5, max: 8 },
-            advanced: { min: 10, max: 12 }
-          }
-        },
-        'Underwriting & Triage': {
-          baselineValue: 82,
-          baselineUnit: '% accuracy',
-          baselineSource: 'BCG Insurance Benchmarks 2024',
-          improvementRange: { min: 8, max: 15 },
-          improvementUnit: 'percentage points',
-          typicalTimeline: '12-18 months',
-          maturityTiers: {
-            foundational: { min: 3, max: 6 },
-            developing: { min: 8, max: 11 },
-            advanced: { min: 13, max: 15 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: { dataReadiness: { min: 4 }, technicalComplexity: { max: 3 } },
-          range: { min: 10, max: 15 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: { dataReadiness: { min: 3 } },
-          range: { min: 5, max: 10 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 2, max: 5 },
-          confidence: 'low'
-        }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
-      valueStream: 'operational_savings',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'data_quality',
-      benchmark: '5-15 percentage point improvement'
+      valueStream: 'cor_improvement',
+      benchmark: '85%+',
+      isMonetizable: true
     },
-    loss_ratio_reduction: {
-      id: 'loss_ratio_reduction',
-      name: 'Loss Ratio Reduction',
-      description: 'Reduction in claims loss ratio',
-      unit: 'percentage points',
+    'uw_006': {
+      id: 'uw_006',
+      name: 'Adverse Selection Rate',
+      description: 'Adverse Selection Rate - measures risk assessment & scoring within Underwriting',
+      unit: '%',
       direction: 'decrease',
-      applicableProcesses: ['Claims Management', 'Risk Consulting', 'Underwriting & Triage'],
-      industryBenchmarks: {
-        'Claims Management': {
-          baselineValue: 65,
-          baselineUnit: '% loss ratio',
-          baselineSource: 'McKinsey Insurance Operations 2024',
-          improvementRange: { min: 1, max: 5 },
-          improvementUnit: 'percentage points',
-          typicalTimeline: '12-24 months',
-          maturityTiers: {
-            foundational: { min: 0.5, max: 1.5 },
-            developing: { min: 2, max: 3.5 },
-            advanced: { min: 4, max: 5 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: { dataReadiness: { min: 4 }, adoptionReadiness: { min: 4 } },
-          range: { min: 4, max: 5 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: { dataReadiness: { min: 3 } },
-          range: { min: 2, max: 3.5 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 0.5, max: 1.5 },
-          confidence: 'low'
-        }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'financial',
       valueStream: 'cor_improvement',
-      isMonetizable: true,
-      monetizationFormula: 'loss_ratio_points * premium_volume * 0.01',
-      aggregationMethod: 'sum',
-      categoryId: 'claims',
-      benchmark: '1-5 percentage points reduction'
+      benchmark: '30% reduction',
+      isMonetizable: true
     },
-    customer_satisfaction: {
-      id: 'customer_satisfaction',
-      name: 'Customer/Broker Satisfaction',
-      description: 'Improvement in NPS or satisfaction scores',
-      unit: 'NPS points',
-      direction: 'increase',
-      applicableProcesses: ['Customer Servicing', 'Sales & Distribution (Including Broker Relationships)', 'Risk Consulting', 'Claims Management'],
-      industryBenchmarks: {
-        'Customer Servicing': {
-          baselineValue: 35,
-          baselineUnit: 'NPS',
-          baselineSource: 'Industry Average',
-          improvementRange: { min: 5, max: 20 },
-          improvementUnit: 'NPS points',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 3, max: 7 },
-            developing: { min: 8, max: 14 },
-            advanced: { min: 15, max: 20 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: { adoptionReadiness: { min: 4 }, changeImpact: { max: 2 } },
-          range: { min: 15, max: 20 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: { adoptionReadiness: { min: 3 } },
-          range: { min: 8, max: 14 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 3, max: 7 },
-          confidence: 'low'
-        }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'revenue_uplift',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'customer_exp',
-      benchmark: '5-20 NPS point improvement'
-    },
-    decision_consistency: {
-      id: 'decision_consistency',
-      name: 'Decision Consistency',
-      description: 'Improvement in consistency of underwriting decisions',
-      unit: '%',
-      direction: 'increase',
-      applicableProcesses: ['Underwriting & Triage', 'Claims Management'],
-      industryBenchmarks: {
-        'Underwriting & Triage': {
-          baselineValue: 72,
-          baselineUnit: '% consistency',
-          baselineSource: 'Industry Average',
-          improvementRange: { min: 10, max: 25 },
-          improvementUnit: 'percentage points',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 5, max: 10 },
-            developing: { min: 12, max: 18 },
-            advanced: { min: 20, max: 25 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: { dataReadiness: { min: 4 }, technicalComplexity: { max: 2 } },
-          range: { min: 20, max: 25 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: { dataReadiness: { min: 3 } },
-          range: { min: 12, max: 18 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 5, max: 10 },
-          confidence: 'low'
-        }
-      ],
+    'uw_007': {
+      id: 'uw_007',
+      name: 'Quote Generation Time',
+      description: 'Quote Generation Time - measures pricing & rate adequacy within Underwriting',
+      unit: 'minutes',
+      direction: 'decrease',
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'underwriting',
-      benchmark: '10-25 percentage point improvement'
+      benchmark: '70-90%',
+      isMonetizable: true
     },
-    conversion_rate: {
-      id: 'conversion_rate',
-      name: 'Conversion Rate Improvement',
-      description: 'Improvement in quote-to-bind or lead-to-policy conversion',
-      unit: 'percentage points',
-      direction: 'increase',
-      applicableProcesses: ['Submission & Quote', 'Sales & Distribution (Including Broker Relationships)'],
-      industryBenchmarks: {
-        'Submission & Quote': {
-          baselineValue: 25,
-          baselineUnit: '% conversion',
-          baselineSource: 'Industry Average',
-          improvementRange: { min: 3, max: 10 },
-          improvementUnit: 'percentage points',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 1, max: 3 },
-            developing: { min: 4, max: 7 },
-            advanced: { min: 8, max: 10 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: { dataReadiness: { min: 4 }, adoptionReadiness: { min: 4 } },
-          range: { min: 8, max: 10 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: { dataReadiness: { min: 3 } },
-          range: { min: 4, max: 7 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 1, max: 3 },
-          confidence: 'low'
-        }
-      ],
-      kpiType: 'financial',
-      valueStream: 'revenue_uplift',
-      isMonetizable: true,
-      monetizationFormula: 'conversion_improvement * average_premium',
-      aggregationMethod: 'sum',
-      categoryId: 'distribution',
-      benchmark: '3-10 percentage point improvement'
-    },
-    compliance_rate: {
-      id: 'compliance_rate',
-      name: 'Compliance Rate Improvement',
-      description: 'Improvement in regulatory compliance and audit pass rates',
-      unit: '%',
-      direction: 'increase',
-      applicableProcesses: ['Regulatory & Compliance'],
-      industryBenchmarks: {
-        'Regulatory & Compliance': {
-          baselineValue: 88,
-          baselineUnit: '% compliance',
-          baselineSource: 'Industry Average',
-          improvementRange: { min: 5, max: 10 },
-          improvementUnit: 'percentage points',
-          typicalTimeline: '6-12 months',
-          maturityTiers: {
-            foundational: { min: 2, max: 4 },
-            developing: { min: 5, max: 7 },
-            advanced: { min: 8, max: 10 }
-          }
-        }
-      },
-      maturityRules: [
-        {
-          level: 'advanced',
-          conditions: { dataReadiness: { min: 4 } },
-          range: { min: 8, max: 10 },
-          confidence: 'high'
-        },
-        {
-          level: 'developing',
-          conditions: { dataReadiness: { min: 3 } },
-          range: { min: 5, max: 7 },
-          confidence: 'medium'
-        },
-        {
-          level: 'foundational',
-          conditions: {},
-          range: { min: 2, max: 4 },
-          confidence: 'low'
-        }
-      ],
-      kpiType: 'compliance',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'security',
-      benchmark: '5-10 percentage point improvement'
-    },
-    // ========== ENTERPRISE / AI OPERATIONS KPIs ==========
-    // Model Performance & Reliability (6 KPIs)
-    model_accuracy: {
-      id: 'model_accuracy',
-      name: 'Model Accuracy',
-      description: 'Percentage of correct predictions vs total predictions',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 93, max: 98 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 88, max: 93 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 80, max: 88 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'model_performance',
-      benchmark: '90-95% accuracy target'
-    },
-    model_precision: {
-      id: 'model_precision',
-      name: 'Model Precision',
-      description: 'True positives / (True positives + False positives)',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 90, max: 98 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 82, max: 90 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 70, max: 82 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'model_performance',
-      benchmark: '85-95% precision'
-    },
-    model_recall: {
-      id: 'model_recall',
-      name: 'Model Recall',
-      description: 'True positives / (True positives + False negatives)',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 88, max: 95 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 78, max: 88 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 65, max: 78 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'model_performance',
-      benchmark: '80-90% recall'
-    },
-    model_f1_score: {
-      id: 'model_f1_score',
-      name: 'F1 Score',
-      description: 'Harmonic mean of precision and recall',
+    'uw_008': {
+      id: 'uw_008',
+      name: 'Rate Adequacy Index',
+      description: 'Rate Adequacy Index - measures pricing & rate adequacy within Underwriting',
       unit: 'score',
       direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 0.90, max: 0.98 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 0.80, max: 0.90 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 0.65, max: 0.80 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'model_performance',
-      benchmark: '0.85-0.95 F1'
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: 'Within 2% of target',
+      isMonetizable: true
     },
-    model_drift_rate: {
-      id: 'model_drift_rate',
-      name: 'Model Drift Rate',
-      description: 'Rate of performance degradation over time',
+    'uw_009': {
+      id: 'uw_009',
+      name: 'Premium Leakage',
+      description: 'Premium Leakage - measures pricing & rate adequacy within Underwriting',
       unit: '%',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 0, max: 2 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 2, max: 5 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 5, max: 10 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'model_performance',
-      benchmark: '<5% drift threshold'
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
+      kpiType: 'financial',
+      valueStream: 'revenue_uplift',
+      benchmark: '50% reduction',
+      isMonetizable: true
     },
-    inference_latency: {
-      id: 'inference_latency',
-      name: 'Inference Latency',
-      description: 'Time to generate model prediction (p95)',
-      unit: 'ms',
+    'uw_010': {
+      id: 'uw_010',
+      name: 'Referral Rate',
+      description: 'Referral Rate - measures referral & exception handling within Underwriting',
+      unit: '%',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 10, max: 50 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 50, max: 100 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 100, max: 500 }, confidence: 'low' }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'model_performance',
-      benchmark: '<100ms p95 latency'
+      benchmark: '30% reduction',
+      isMonetizable: true
     },
-    // Data Quality & Feature Management (6 KPIs)
-    data_completeness: {
-      id: 'data_completeness',
-      name: 'Data Completeness',
-      description: 'Percentage of required fields populated',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 98, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 92, max: 98 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 80, max: 92 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'data_quality',
-      benchmark: '>95% completeness'
-    },
-    data_accuracy: {
-      id: 'data_accuracy',
-      name: 'Data Accuracy',
-      description: 'Percentage of data values that are correct',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 99, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 95, max: 99 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 88, max: 95 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'data_quality',
-      benchmark: '>98% accuracy'
-    },
-    data_freshness: {
-      id: 'data_freshness',
-      name: 'Data Freshness',
-      description: 'Time since last data update',
+    'uw_011': {
+      id: 'uw_011',
+      name: 'Referral Resolution Time',
+      description: 'Referral Resolution Time - measures referral & exception handling within Underwriting',
       unit: 'hours',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 0, max: 4 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 4, max: 12 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 12, max: 48 }, confidence: 'low' }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'data_quality',
-      benchmark: '<24hr lag for critical data'
+      benchmark: '50%',
+      isMonetizable: true
     },
-    data_consistency: {
-      id: 'data_consistency',
-      name: 'Data Consistency',
-      description: 'Agreement of data across different systems',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 99, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 95, max: 99 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 85, max: 95 }, confidence: 'low' }
-      ],
-      kpiType: 'compliance',
-      valueStream: 'regulatory_compliance',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'data_quality',
-      benchmark: '100% cross-system consistency'
-    },
-    feature_store_coverage: {
-      id: 'feature_store_coverage',
-      name: 'Feature Store Coverage',
-      description: 'Percentage of ML features centrally managed',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 90, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 70, max: 90 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 40, max: 70 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'data_quality',
-      benchmark: '>80% features in store'
-    },
-    pipeline_success_rate: {
-      id: 'pipeline_success_rate',
-      name: 'Pipeline Success Rate',
-      description: 'Percentage of data pipelines completing successfully',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 99.5, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 97, max: 99.5 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 90, max: 97 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'data_quality',
-      benchmark: '>99% success rate'
-    },
-    // Technical Debt & Platform Health (6 KPIs)
-    code_coverage: {
-      id: 'code_coverage',
-      name: 'Code Coverage',
-      description: 'Percentage of code covered by automated tests',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 85, max: 95 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 70, max: 85 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 50, max: 70 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'tech_debt',
-      benchmark: '>80% test coverage'
-    },
-    tech_debt_ratio: {
-      id: 'tech_debt_ratio',
-      name: 'Technical Debt Ratio',
-      description: 'Time spent on tech debt vs new features',
+    'uw_012': {
+      id: 'uw_012',
+      name: 'False Positive Referral Rate',
+      description: 'False Positive Referral Rate - measures referral & exception handling within Underwriting',
       unit: '%',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 0, max: 5 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 5, max: 15 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 15, max: 30 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'tech_debt',
-      benchmark: '<5% of development time'
-    },
-    security_vulnerabilities: {
-      id: 'security_vulnerabilities',
-      name: 'Security Vulnerabilities',
-      description: 'Number of unresolved security issues',
-      unit: 'count',
-      direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 0, max: 0 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 0, max: 3 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 3, max: 10 }, confidence: 'low' }
-      ],
-      kpiType: 'compliance',
-      valueStream: 'risk_mitigation',
-      isMonetizable: true,
-      aggregationMethod: 'sum',
-      categoryId: 'tech_debt',
-      benchmark: '0 critical/high vulnerabilities'
-    },
-    platform_uptime: {
-      id: 'platform_uptime',
-      name: 'Platform Uptime',
-      description: 'Percentage of time platform is operational',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 99.95, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 99.5, max: 99.95 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 98, max: 99.5 }, confidence: 'low' }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'tech_debt',
-      benchmark: '>99.9% availability'
+      benchmark: '60% reduction',
+      isMonetizable: true
     },
-    mttr: {
-      id: 'mttr',
-      name: 'Mean Time to Recovery',
-      description: 'Average time to restore service after incident',
+    'uw_013': {
+      id: 'uw_013',
+      name: 'Quote-to-Bind Ratio',
+      description: 'Quote-to-Bind Ratio - measures bind & policy issuance within Underwriting',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
+      kpiType: 'financial',
+      valueStream: 'revenue_uplift',
+      benchmark: '10-15% improvement',
+      isMonetizable: true
+    },
+    'uw_014': {
+      id: 'uw_014',
+      name: 'Policy Issuance Time',
+      description: 'Policy Issuance Time - measures bind & policy issuance within Underwriting',
       unit: 'hours',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 0, max: 0.5 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 0.5, max: 2 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 2, max: 8 }, confidence: 'low' }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'tech_debt',
-      benchmark: '<1 hour MTTR'
+      benchmark: '80%',
+      isMonetizable: true
     },
-    deployment_frequency: {
-      id: 'deployment_frequency',
-      name: 'Deployment Frequency',
-      description: 'Number of production deployments per time period',
-      unit: 'count/week',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 10, max: 50 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 3, max: 10 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 0.5, max: 3 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'operational_savings',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'tech_debt',
-      benchmark: 'Multiple deployments per day'
-    },
-    // Talent & Team Sustainability (6 KPIs)
-    ai_ml_headcount: {
-      id: 'ai_ml_headcount',
-      name: 'AI/ML Headcount',
-      description: 'Number of AI/ML specialists on team',
-      unit: 'count',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 20, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 8, max: 20 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 2, max: 8 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'operational_savings',
-      isMonetizable: false,
-      aggregationMethod: 'sum',
-      categoryId: 'talent',
-      benchmark: 'Per organizational target'
-    },
-    skill_coverage: {
-      id: 'skill_coverage',
-      name: 'Skill Coverage',
-      description: 'Percentage of required AI skills present in team',
+    'uw_015': {
+      id: 'uw_015',
+      name: 'Document Accuracy Rate',
+      description: 'Document Accuracy Rate - measures bind & policy issuance within Underwriting',
       unit: '%',
       direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 95, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 80, max: 95 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 60, max: 80 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'operational_savings',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'talent',
-      benchmark: '>90% critical skills covered'
-    },
-    training_hours: {
-      id: 'training_hours',
-      name: 'Training Hours per Employee',
-      description: 'Average AI training hours per team member',
-      unit: 'hours/year',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 60, max: 120 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 30, max: 60 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 10, max: 30 }, confidence: 'low' }
-      ],
+      categoryId: 'underwriting' as KpiCategoryId,
+      applicableProcesses: ['underwriting'],
       kpiType: 'operational',
-      valueStream: 'customer_experience',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'talent',
-      benchmark: '40+ hours/year'
+      valueStream: 'operational_savings',
+      benchmark: '99%+',
+      isMonetizable: true
     },
-    certification_rate: {
-      id: 'certification_rate',
-      name: 'Certification Rate',
-      description: 'Percentage of team with AI certifications',
+    'cl_001': {
+      id: 'cl_001',
+      name: 'FNOL Capture Time',
+      description: 'FNOL Capture Time - measures first notice of loss (fnol) within Claims Management',
+      unit: 'minutes',
+      direction: 'decrease',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '60-80%',
+      isMonetizable: true
+    },
+    'cl_002': {
+      id: 'cl_002',
+      name: 'FNOL Data Completeness',
+      description: 'FNOL Data Completeness - measures first notice of loss (fnol) within Claims Management',
       unit: '%',
       direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 75, max: 95 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 50, max: 75 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 20, max: 50 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'customer_experience',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'talent',
-      benchmark: '>60% certified'
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '95%+',
+      isMonetizable: true
     },
-    ai_team_attrition: {
-      id: 'ai_team_attrition',
-      name: 'AI Team Attrition Rate',
-      description: 'Annual turnover rate for AI specialists',
+    'cl_003': {
+      id: 'cl_003',
+      name: 'Self-Service FNOL Rate',
+      description: 'Self-Service FNOL Rate - measures first notice of loss (fnol) within Claims Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '50%+',
+      isMonetizable: true
+    },
+    'cl_004': {
+      id: 'cl_004',
+      name: 'Triage Accuracy',
+      description: 'Triage Accuracy - measures claims triage & assignment within Claims Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '95%+',
+      isMonetizable: true
+    },
+    'cl_005': {
+      id: 'cl_005',
+      name: 'Auto-Triage Rate',
+      description: 'Auto-Triage Rate - measures claims triage & assignment within Claims Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '70%+',
+      isMonetizable: true
+    },
+    'cl_006': {
+      id: 'cl_006',
+      name: 'Routing Efficiency',
+      description: 'Routing Efficiency - measures claims triage & assignment within Claims Management',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '80%',
+      isMonetizable: true
+    },
+    'cl_007': {
+      id: 'cl_007',
+      name: 'Investigation Cycle Time',
+      description: 'Investigation Cycle Time - measures claims investigation within Claims Management',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '40-60%',
+      isMonetizable: true
+    },
+    'cl_008': {
+      id: 'cl_008',
+      name: 'Document Collection Time',
+      description: 'Document Collection Time - measures claims investigation within Claims Management',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '70%',
+      isMonetizable: true
+    },
+    'cl_009': {
+      id: 'cl_009',
+      name: 'Fraud Detection Rate',
+      description: 'Fraud Detection Rate - measures claims investigation within Claims Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '50% improvement',
+      isMonetizable: true
+    },
+    'cl_010': {
+      id: 'cl_010',
+      name: 'Reserve Accuracy',
+      description: 'Reserve Accuracy - measures reserve setting & management within Claims Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: 'Within 5% of actual',
+      isMonetizable: true
+    },
+    'cl_011': {
+      id: 'cl_011',
+      name: 'Initial Reserve Time',
+      description: 'Initial Reserve Time - measures reserve setting & management within Claims Management',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '80%',
+      isMonetizable: true
+    },
+    'cl_012': {
+      id: 'cl_012',
+      name: 'Reserve Development Volatility',
+      description: 'Reserve Development Volatility - measures reserve setting & management within Claims Management',
       unit: '%',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 0, max: 8 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 8, max: 15 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 15, max: 25 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'talent',
-      benchmark: '<15% annual attrition'
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '50% reduction',
+      isMonetizable: true
     },
-    self_sufficiency_score: {
-      id: 'self_sufficiency_score',
-      name: 'Self-Sufficiency Score',
-      description: 'Percentage of AI work done without external vendors',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 85, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 60, max: 85 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 30, max: 60 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'talent',
-      benchmark: '>80% internal capability'
-    },
-    // Innovation Pipeline Metrics (6 KPIs)
-    experiments_run: {
-      id: 'experiments_run',
-      name: 'Experiments Run',
-      description: 'Number of AI experiments conducted',
-      unit: 'count/quarter',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 20, max: 50 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 8, max: 20 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 2, max: 8 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'revenue_uplift',
-      isMonetizable: false,
-      aggregationMethod: 'sum',
-      categoryId: 'innovation',
-      benchmark: '>10 experiments/quarter'
-    },
-    experiment_success_rate: {
-      id: 'experiment_success_rate',
-      name: 'Experiment Success Rate',
-      description: 'Percentage of experiments meeting success criteria',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 40, max: 60 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 25, max: 40 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 10, max: 25 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'revenue_uplift',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'innovation',
-      benchmark: '25-40% success rate'
-    },
-    idea_to_production: {
-      id: 'idea_to_production',
-      name: 'Idea to Production Time',
-      description: 'Average time from concept to production deployment',
-      unit: 'weeks',
+    'cl_013': {
+      id: 'cl_013',
+      name: 'Average Settlement Time',
+      description: 'Average Settlement Time - measures settlement & payment within Claims Management',
+      unit: 'days',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 4, max: 8 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 8, max: 16 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 16, max: 32 }, confidence: 'low' }
-      ],
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'innovation',
-      benchmark: '<12 weeks average'
+      benchmark: '40-60%',
+      isMonetizable: true
     },
-    poc_conversion_rate: {
-      id: 'poc_conversion_rate',
-      name: 'PoC to Production Rate',
-      description: 'Percentage of PoCs that reach production',
+    'cl_014': {
+      id: 'cl_014',
+      name: 'Straight-Through Processing Rate',
+      description: 'Straight-Through Processing Rate - measures settlement & payment within Claims Management',
       unit: '%',
       direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 50, max: 70 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 30, max: 50 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 15, max: 30 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'innovation',
-      benchmark: '>40% PoC to production'
+      benchmark: '60%+',
+      isMonetizable: true
     },
-    ai_portfolio_growth: {
-      id: 'ai_portfolio_growth',
-      name: 'AI Portfolio Growth',
-      description: 'Number of new AI use cases added per quarter',
-      unit: 'count/quarter',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 10, max: 25 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 4, max: 10 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 1, max: 4 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'revenue_uplift',
-      isMonetizable: false,
-      aggregationMethod: 'sum',
-      categoryId: 'innovation',
-      benchmark: '5-10 new use cases/quarter'
-    },
-    reuse_rate: {
-      id: 'reuse_rate',
-      name: 'Component Reuse Rate',
-      description: 'Percentage of AI components reused across projects',
+    'cl_015': {
+      id: 'cl_015',
+      name: 'Payment Accuracy',
+      description: 'Payment Accuracy - measures settlement & payment within Claims Management',
       unit: '%',
       direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 60, max: 80 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 35, max: 60 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 15, max: 35 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'innovation',
-      benchmark: '>50% reuse rate'
+      benchmark: '99.5%+',
+      isMonetizable: true
     },
-    // GenAI-Specific KPIs (6 KPIs)
-    token_cost_per_query: {
-      id: 'token_cost_per_query',
-      name: 'Token Cost per Query',
-      description: 'Average cost of LLM tokens per user query',
+    'cl_016': {
+      id: 'cl_016',
+      name: 'Claims Severity',
+      description: 'Claims Severity - measures settlement & payment within Claims Management',
       unit: 'GBP',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 0, max: 0.005 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 0.005, max: 0.02 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 0.02, max: 0.10 }, confidence: 'low' }
-      ],
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '10-20% reduction',
+      isMonetizable: true
+    },
+    'cl_017': {
+      id: 'cl_017',
+      name: 'Subrogation Identification Rate',
+      description: 'Subrogation Identification Rate - measures subrogation & recovery within Claims Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '90%+',
+      isMonetizable: true
+    },
+    'cl_018': {
+      id: 'cl_018',
+      name: 'Recovery Rate',
+      description: 'Recovery Rate - measures subrogation & recovery within Claims Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '20% improvement',
+      isMonetizable: true
+    },
+    'cl_019': {
+      id: 'cl_019',
+      name: 'Recovery Cycle Time',
+      description: 'Recovery Cycle Time - measures subrogation & recovery within Claims Management',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'claims' as KpiCategoryId,
+      applicableProcesses: ['claims'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '40%',
+      isMonetizable: true
+    },
+    'pa_001': {
+      id: 'pa_001',
+      name: 'Policy Issuance Time',
+      description: 'Policy Issuance Time - measures policy issuance within Policy Administration',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '80%',
+      isMonetizable: true
+    },
+    'pa_002': {
+      id: 'pa_002',
+      name: 'Straight-Through Issuance Rate',
+      description: 'Straight-Through Issuance Rate - measures policy issuance within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
       kpiType: 'financial',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'genai',
-      benchmark: '<$0.01 per query average'
+      benchmark: '85%+',
+      isMonetizable: true
     },
-    hallucination_rate: {
-      id: 'hallucination_rate',
-      name: 'Hallucination Rate',
-      description: 'Percentage of responses containing factual errors',
+    'pa_003': {
+      id: 'pa_003',
+      name: 'Policy Document Accuracy',
+      description: 'Policy Document Accuracy - measures policy issuance within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '99%+',
+      isMonetizable: true
+    },
+    'pa_004': {
+      id: 'pa_004',
+      name: 'Endorsement Processing Time',
+      description: 'Endorsement Processing Time - measures endorsements & changes within Policy Administration',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '70%',
+      isMonetizable: true
+    },
+    'pa_005': {
+      id: 'pa_005',
+      name: 'Auto-Endorsement Rate',
+      description: 'Auto-Endorsement Rate - measures endorsements & changes within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '70%+',
+      isMonetizable: true
+    },
+    'pa_006': {
+      id: 'pa_006',
+      name: 'Premium Adjustment Accuracy',
+      description: 'Premium Adjustment Accuracy - measures endorsements & changes within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'operational',
+      valueStream: 'revenue_uplift',
+      benchmark: '99.5%+',
+      isMonetizable: true
+    },
+    'pa_007': {
+      id: 'pa_007',
+      name: 'Renewal Rate',
+      description: 'Renewal Rate - measures renewal processing within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'strategic',
+      valueStream: 'revenue_uplift',
+      benchmark: '5% improvement',
+      isMonetizable: true
+    },
+    'pa_008': {
+      id: 'pa_008',
+      name: 'Auto-Renewal Rate',
+      description: 'Auto-Renewal Rate - measures renewal processing within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '75%+',
+      isMonetizable: true
+    },
+    'pa_009': {
+      id: 'pa_009',
+      name: 'Renewal Cycle Time',
+      description: 'Renewal Cycle Time - measures renewal processing within Policy Administration',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '50%',
+      isMonetizable: true
+    },
+    'pa_010': {
+      id: 'pa_010',
+      name: 'Non-Renewal Prediction Accuracy',
+      description: 'Non-Renewal Prediction Accuracy - measures renewal processing within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'strategic',
+      valueStream: 'revenue_uplift',
+      benchmark: '85%+',
+      isMonetizable: true
+    },
+    'pa_011': {
+      id: 'pa_011',
+      name: 'Cancellation Processing Time',
+      description: 'Cancellation Processing Time - measures cancellation & reinstatement within Policy Administration',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '80%',
+      isMonetizable: true
+    },
+    'pa_012': {
+      id: 'pa_012',
+      name: 'Reinstatement Rate',
+      description: 'Reinstatement Rate - measures cancellation & reinstatement within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'strategic',
+      valueStream: 'revenue_uplift',
+      benchmark: '50% improvement',
+      isMonetizable: true
+    },
+    'pa_013': {
+      id: 'pa_013',
+      name: 'Premium Refund Accuracy',
+      description: 'Premium Refund Accuracy - measures cancellation & reinstatement within Policy Administration',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'policy_admin' as KpiCategoryId,
+      applicableProcesses: ['policy_admin'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '99.5%+',
+      isMonetizable: true
+    },
+    'bl_001': {
+      id: 'bl_001',
+      name: 'Invoice Generation Time',
+      description: 'Invoice Generation Time - measures premium invoicing within Billing & Collections',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '90%',
+      isMonetizable: true
+    },
+    'bl_002': {
+      id: 'bl_002',
+      name: 'Invoice Accuracy',
+      description: 'Invoice Accuracy - measures premium invoicing within Billing & Collections',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '99.5%+',
+      isMonetizable: true
+    },
+    'bl_003': {
+      id: 'bl_003',
+      name: 'Digital Invoice Adoption',
+      description: 'Digital Invoice Adoption - measures premium invoicing within Billing & Collections',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '90%+',
+      isMonetizable: true
+    },
+    'bl_004': {
+      id: 'bl_004',
+      name: 'Payment Posting Time',
+      description: 'Payment Posting Time - measures payment processing within Billing & Collections',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '95%',
+      isMonetizable: true
+    },
+    'bl_005': {
+      id: 'bl_005',
+      name: 'Auto-Reconciliation Rate',
+      description: 'Auto-Reconciliation Rate - measures payment processing within Billing & Collections',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '95%+',
+      isMonetizable: true
+    },
+    'bl_006': {
+      id: 'bl_006',
+      name: 'Payment Exception Rate',
+      description: 'Payment Exception Rate - measures payment processing within Billing & Collections',
       unit: '%',
       direction: 'decrease',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 0, max: 2 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 2, max: 5 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 5, max: 15 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'genai',
-      benchmark: '<5% hallucination'
-    },
-    response_quality_score: {
-      id: 'response_quality_score',
-      name: 'Response Quality Score',
-      description: 'Human-rated quality of LLM responses (1-5 scale)',
-      unit: 'score',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 4.5, max: 5 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 3.8, max: 4.5 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 3, max: 3.8 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'customer_experience',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'genai',
-      benchmark: '>4.0 average score'
-    },
-    context_window_utilization: {
-      id: 'context_window_utilization',
-      name: 'Context Window Utilization',
-      description: 'Efficient use of LLM context window',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 70, max: 90 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 50, max: 70 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 25, max: 50 }, confidence: 'low' }
-      ],
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
       kpiType: 'operational',
       valueStream: 'operational_savings',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'genai',
-      benchmark: '60-80% efficient utilization'
+      benchmark: '80% reduction',
+      isMonetizable: true
     },
-    rag_retrieval_accuracy: {
-      id: 'rag_retrieval_accuracy',
-      name: 'RAG Retrieval Accuracy',
-      description: 'Accuracy of retrieved context in RAG systems',
+    'bl_007': {
+      id: 'bl_007',
+      name: 'Collection Rate',
+      description: 'Collection Rate - measures collections & delinquency within Billing & Collections',
       unit: '%',
       direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 90, max: 98 }, confidence: 'high' },
-        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 75, max: 90 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 55, max: 75 }, confidence: 'low' }
-      ],
-      kpiType: 'operational',
-      valueStream: 'risk_mitigation',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'genai',
-      benchmark: '>85% retrieval accuracy'
-    },
-    prompt_injection_blocks: {
-      id: 'prompt_injection_blocks',
-      name: 'Prompt Injection Block Rate',
-      description: 'Percentage of prompt injection attempts blocked',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 99, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 95, max: 99 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 85, max: 95 }, confidence: 'low' }
-      ],
-      kpiType: 'compliance',
-      valueStream: 'risk_mitigation',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'genai',
-      benchmark: '>99% block rate'
-    },
-    // Business Alignment (4 KPIs)
-    stakeholder_satisfaction: {
-      id: 'stakeholder_satisfaction',
-      name: 'Stakeholder Satisfaction',
-      description: 'Business stakeholder satisfaction with AI initiatives',
-      unit: 'score',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 4.5, max: 5 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 3.5, max: 4.5 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 2.5, max: 3.5 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'customer_experience',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'business_alignment',
-      benchmark: '>4.0 satisfaction score'
-    },
-    ai_strategy_alignment: {
-      id: 'ai_strategy_alignment',
-      name: 'AI Strategy Alignment',
-      description: 'Percentage of AI projects aligned with business strategy',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 95, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 80, max: 95 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 60, max: 80 }, confidence: 'low' }
-      ],
-      kpiType: 'strategic',
-      valueStream: 'revenue_uplift',
-      isMonetizable: false,
-      aggregationMethod: 'average',
-      categoryId: 'business_alignment',
-      benchmark: '>90% strategic alignment'
-    },
-    business_case_realization: {
-      id: 'business_case_realization',
-      name: 'Business Case Realization',
-      description: 'Percentage of projected business value actually realized',
-      unit: '%',
-      direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 90, max: 120 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 70, max: 90 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 40, max: 70 }, confidence: 'low' }
-      ],
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
       kpiType: 'financial',
       valueStream: 'revenue_uplift',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'business_alignment',
-      benchmark: '>80% value realization'
+      benchmark: '5% improvement',
+      isMonetizable: true
     },
-    adoption_rate: {
-      id: 'adoption_rate',
-      name: 'User Adoption Rate',
-      description: 'Percentage of target users actively using AI tools',
+    'bl_008': {
+      id: 'bl_008',
+      name: 'Days Sales Outstanding',
+      description: 'Days Sales Outstanding - measures collections & delinquency within Billing & Collections',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '30% reduction',
+      isMonetizable: true
+    },
+    'bl_009': {
+      id: 'bl_009',
+      name: 'Write-Off Rate',
+      description: 'Write-Off Rate - measures collections & delinquency within Billing & Collections',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['billing'],
+      kpiType: 'financial',
+      valueStream: 'revenue_uplift',
+      benchmark: '50% reduction',
+      isMonetizable: true
+    },
+    'ri_001': {
+      id: 'ri_001',
+      name: 'Placement Cycle Time',
+      description: 'Placement Cycle Time - measures treaty placement & negotiation within Reinsurance',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '40%',
+      isMonetizable: true
+    },
+    'ri_002': {
+      id: 'ri_002',
+      name: 'Reinsurance Cost Optimization',
+      description: 'Reinsurance Cost Optimization - measures treaty placement & negotiation within Reinsurance',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'operational',
+      valueStream: 'cor_improvement',
+      benchmark: '10-15% reduction',
+      isMonetizable: true
+    },
+    'ri_003': {
+      id: 'ri_003',
+      name: 'Coverage Gap Analysis Accuracy',
+      description: 'Coverage Gap Analysis Accuracy - measures treaty placement & negotiation within Reinsurance',
       unit: '%',
       direction: 'increase',
-      maturityRules: [
-        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 85, max: 100 }, confidence: 'high' },
-        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 60, max: 85 }, confidence: 'medium' },
-        { level: 'foundational', conditions: {}, range: { min: 30, max: 60 }, confidence: 'low' }
-      ],
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'compliance',
+      valueStream: 'risk_reduction',
+      benchmark: '98%+',
+      isMonetizable: true
+    },
+    'ri_004': {
+      id: 'ri_004',
+      name: 'Bordereaux Generation Time',
+      description: 'Bordereaux Generation Time - measures bordereaux processing within Reinsurance',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '80%',
+      isMonetizable: true
+    },
+    'ri_005': {
+      id: 'ri_005',
+      name: 'Bordereaux Accuracy',
+      description: 'Bordereaux Accuracy - measures bordereaux processing within Reinsurance',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '99%+',
+      isMonetizable: true
+    },
+    'ri_006': {
+      id: 'ri_006',
+      name: 'Auto-Population Rate',
+      description: 'Auto-Population Rate - measures bordereaux processing within Reinsurance',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '90%+',
+      isMonetizable: true
+    },
+    'ri_007': {
+      id: 'ri_007',
+      name: 'Settlement Cycle Time',
+      description: 'Settlement Cycle Time - measures reinsurance settlement within Reinsurance',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '50%',
+      isMonetizable: true
+    },
+    'ri_008': {
+      id: 'ri_008',
+      name: 'Recovery Rate',
+      description: 'Recovery Rate - measures reinsurance settlement within Reinsurance',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '99%+',
+      isMonetizable: true
+    },
+    'ri_009': {
+      id: 'ri_009',
+      name: 'Commutation Opportunity Identification',
+      description: 'Commutation Opportunity Identification - measures reinsurance settlement within Reinsurance',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['reinsurance'],
+      kpiType: 'operational',
+      valueStream: 'cor_improvement',
+      benchmark: '90%+',
+      isMonetizable: true
+    },
+    'cs_001': {
+      id: 'cs_001',
+      name: 'First Contact Resolution Rate',
+      description: 'First Contact Resolution Rate - measures inquiry handling within Customer Service',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
       kpiType: 'operational',
       valueStream: 'customer_experience',
-      isMonetizable: true,
-      aggregationMethod: 'average',
-      categoryId: 'business_alignment',
-      benchmark: '>75% adoption'
+      benchmark: '90%+',
+      isMonetizable: true
+    },
+    'cs_002': {
+      id: 'cs_002',
+      name: 'Average Handle Time',
+      description: 'Average Handle Time - measures inquiry handling within Customer Service',
+      unit: 'minutes',
+      direction: 'decrease',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '40%',
+      isMonetizable: true
+    },
+    'cs_003': {
+      id: 'cs_003',
+      name: 'Self-Service Deflection Rate',
+      description: 'Self-Service Deflection Rate - measures inquiry handling within Customer Service',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '60%+',
+      isMonetizable: true
+    },
+    'cs_004': {
+      id: 'cs_004',
+      name: 'Complaint Resolution Time',
+      description: 'Complaint Resolution Time - measures complaint resolution within Customer Service',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
+      kpiType: 'operational',
+      valueStream: 'customer_experience',
+      benchmark: '50%',
+      isMonetizable: true
+    },
+    'cs_005': {
+      id: 'cs_005',
+      name: 'Complaint Escalation Rate',
+      description: 'Complaint Escalation Rate - measures complaint resolution within Customer Service',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
+      kpiType: 'compliance',
+      valueStream: 'risk_reduction',
+      benchmark: '60% reduction',
+      isMonetizable: true
+    },
+    'cs_006': {
+      id: 'cs_006',
+      name: 'Customer Satisfaction Post-Complaint',
+      description: 'Customer Satisfaction Post-Complaint - measures complaint resolution within Customer Service',
+      unit: 'score',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
+      kpiType: 'operational',
+      valueStream: 'customer_experience',
+      benchmark: '4.5+',
+      isMonetizable: false
+    },
+    'cs_007': {
+      id: 'cs_007',
+      name: 'Certificate Issuance Time',
+      description: 'Certificate Issuance Time - measures certificate & evidence issuance within Customer Service',
+      unit: 'minutes',
+      direction: 'decrease',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '90%',
+      isMonetizable: true
+    },
+    'cs_008': {
+      id: 'cs_008',
+      name: 'Auto-Issuance Rate',
+      description: 'Auto-Issuance Rate - measures certificate & evidence issuance within Customer Service',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '90%+',
+      isMonetizable: true
+    },
+    'cs_009': {
+      id: 'cs_009',
+      name: 'Certificate Accuracy',
+      description: 'Certificate Accuracy - measures certificate & evidence issuance within Customer Service',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      applicableProcesses: ['customer_service'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '99.5%+',
+      isMonetizable: true
+    },
+    'ds_001': {
+      id: 'ds_001',
+      name: 'Onboarding Cycle Time',
+      description: 'Onboarding Cycle Time - measures agent onboarding & licensing within Distribution & Agency Management',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '60%',
+      isMonetizable: true
+    },
+    'ds_002': {
+      id: 'ds_002',
+      name: 'License Verification Automation',
+      description: 'License Verification Automation - measures agent onboarding & licensing within Distribution & Agency Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '90%+',
+      isMonetizable: true
+    },
+    'ds_003': {
+      id: 'ds_003',
+      name: 'Compliance Verification Rate',
+      description: 'Compliance Verification Rate - measures agent onboarding & licensing within Distribution & Agency Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'compliance',
+      valueStream: 'risk_reduction',
+      benchmark: '100%',
+      isMonetizable: true
+    },
+    'ds_004': {
+      id: 'ds_004',
+      name: 'Commission Processing Time',
+      description: 'Commission Processing Time - measures commission processing within Distribution & Agency Management',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '70%',
+      isMonetizable: true
+    },
+    'ds_005': {
+      id: 'ds_005',
+      name: 'Commission Accuracy',
+      description: 'Commission Accuracy - measures commission processing within Distribution & Agency Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '99.5%+',
+      isMonetizable: true
+    },
+    'ds_006': {
+      id: 'ds_006',
+      name: 'Commission Dispute Rate',
+      description: 'Commission Dispute Rate - measures commission processing within Distribution & Agency Management',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '80% reduction',
+      isMonetizable: true
+    },
+    'ds_007': {
+      id: 'ds_007',
+      name: 'Agency Scorecard Automation',
+      description: 'Agency Scorecard Automation - measures agency performance management within Distribution & Agency Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '95%+',
+      isMonetizable: true
+    },
+    'ds_008': {
+      id: 'ds_008',
+      name: 'Book Roll Prediction Accuracy',
+      description: 'Book Roll Prediction Accuracy - measures agency performance management within Distribution & Agency Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'strategic',
+      valueStream: 'revenue_uplift',
+      benchmark: '85%+',
+      isMonetizable: true
+    },
+    'ds_009': {
+      id: 'ds_009',
+      name: 'Cross-Sell Recommendation Accuracy',
+      description: 'Cross-Sell Recommendation Accuracy - measures agency performance management within Distribution & Agency Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'distribution' as KpiCategoryId,
+      applicableProcesses: ['distribution'],
+      kpiType: 'financial',
+      valueStream: 'revenue_uplift',
+      benchmark: '40%+',
+      isMonetizable: true
+    },
+    'ac_001': {
+      id: 'ac_001',
+      name: 'Rate Filing Cycle Time',
+      description: 'Rate Filing Cycle Time - measures rate development & filing within Actuarial & Pricing',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '40%',
+      isMonetizable: true
+    },
+    'ac_002': {
+      id: 'ac_002',
+      name: 'Rate Model Accuracy',
+      description: 'Rate Model Accuracy - measures rate development & filing within Actuarial & Pricing',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '97%+',
+      isMonetizable: true
+    },
+    'ac_003': {
+      id: 'ac_003',
+      name: 'Competitive Rate Analysis Time',
+      description: 'Competitive Rate Analysis Time - measures rate development & filing within Actuarial & Pricing',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '70%',
+      isMonetizable: true
+    },
+    'ac_004': {
+      id: 'ac_004',
+      name: 'Reserve Analysis Cycle Time',
+      description: 'Reserve Analysis Cycle Time - measures loss reserving within Actuarial & Pricing',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '50%',
+      isMonetizable: true
+    },
+    'ac_005': {
+      id: 'ac_005',
+      name: 'Reserve Adequacy',
+      description: 'Reserve Adequacy - measures loss reserving within Actuarial & Pricing',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: 'Within 2%',
+      isMonetizable: true
+    },
+    'ac_006': {
+      id: 'ac_006',
+      name: 'IBNR Estimation Accuracy',
+      description: 'IBNR Estimation Accuracy - measures loss reserving within Actuarial & Pricing',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '97%+',
+      isMonetizable: true
+    },
+    'ac_007': {
+      id: 'ac_007',
+      name: 'Experience Report Generation Time',
+      description: 'Experience Report Generation Time - measures experience analysis & reporting within Actuarial & Pricing',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '80%',
+      isMonetizable: true
+    },
+    'ac_008': {
+      id: 'ac_008',
+      name: 'Trend Identification Lead Time',
+      description: 'Trend Identification Lead Time - measures experience analysis & reporting within Actuarial & Pricing',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '60%',
+      isMonetizable: true
+    },
+    'ac_009': {
+      id: 'ac_009',
+      name: 'Data Quality Score',
+      description: 'Data Quality Score - measures experience analysis & reporting within Actuarial & Pricing',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['actuarial'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '98%+',
+      isMonetizable: false
+    },
+    'cm_001': {
+      id: 'cm_001',
+      name: 'Regulatory Filing Cycle Time',
+      description: 'Regulatory Filing Cycle Time - measures regulatory reporting within Compliance & Risk Management',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '50%',
+      isMonetizable: true
+    },
+    'cm_002': {
+      id: 'cm_002',
+      name: 'Filing Accuracy Rate',
+      description: 'Filing Accuracy Rate - measures regulatory reporting within Compliance & Risk Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'compliance',
+      valueStream: 'risk_reduction',
+      benchmark: '100%',
+      isMonetizable: true
+    },
+    'cm_003': {
+      id: 'cm_003',
+      name: 'Auto-Population Rate',
+      description: 'Auto-Population Rate - measures regulatory reporting within Compliance & Risk Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      benchmark: '90%+',
+      isMonetizable: true
+    },
+    'cm_004': {
+      id: 'cm_004',
+      name: 'Audit Response Time',
+      description: 'Audit Response Time - measures audit & examination support within Compliance & Risk Management',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '60%',
+      isMonetizable: true
+    },
+    'cm_005': {
+      id: 'cm_005',
+      name: 'Document Retrieval Time',
+      description: 'Document Retrieval Time - measures audit & examination support within Compliance & Risk Management',
+      unit: 'hours',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '90%',
+      isMonetizable: true
+    },
+    'cm_006': {
+      id: 'cm_006',
+      name: 'Audit Finding Rate',
+      description: 'Audit Finding Rate - measures audit & examination support within Compliance & Risk Management',
+      unit: 'count',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'compliance',
+      valueStream: 'risk_reduction',
+      benchmark: '50% reduction',
+      isMonetizable: true
+    },
+    'cm_007': {
+      id: 'cm_007',
+      name: 'Fraud Detection Rate',
+      description: 'Fraud Detection Rate - measures fraud detection & prevention within Compliance & Risk Management',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'financial',
+      valueStream: 'cor_improvement',
+      benchmark: '50% improvement',
+      isMonetizable: true
+    },
+    'cm_008': {
+      id: 'cm_008',
+      name: 'False Positive Rate',
+      description: 'False Positive Rate - measures fraud detection & prevention within Compliance & Risk Management',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      benchmark: '70% reduction',
+      isMonetizable: true
+    },
+    'cm_009': {
+      id: 'cm_009',
+      name: 'Time to Fraud Identification',
+      description: 'Time to Fraud Identification - measures fraud detection & prevention within Compliance & Risk Management',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'finance_actuarial' as KpiCategoryId,
+      applicableProcesses: ['compliance'],
+      kpiType: 'operational',
+      valueStream: 'cor_improvement',
+      benchmark: '70%',
+      isMonetizable: true
+    },
+    'mp_001': {
+      id: 'mp_001',
+      name: 'Model Accuracy Degradation Rate',
+      description: 'Percentage performance decline from baseline over time',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'model_performance' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<5% per quarter',
+      isMonetizable: false
+    },
+    'mp_002': {
+      id: 'mp_002',
+      name: 'Prediction Confidence Distribution',
+      description: 'Percentage of predictions above confidence threshold',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'model_performance' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>85% high-confidence',
+      isMonetizable: false
+    },
+    'mp_003': {
+      id: 'mp_003',
+      name: 'Inference Latency (p95)',
+      description: '95th percentile response time',
+      unit: 'ms',
+      direction: 'decrease',
+      categoryId: 'model_performance' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<200ms real-time, <2s batch',
+      isMonetizable: false
+    },
+    'mp_004': {
+      id: 'mp_004',
+      name: 'Model Drift Detection Rate',
+      description: 'Percentage of models with detected drift addressed within SLA',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'model_performance' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '100% within 72hrs',
+      isMonetizable: false
+    },
+    'mp_005': {
+      id: 'mp_005',
+      name: 'Feature Importance Stability',
+      description: 'Variance in top feature importance rankings over time',
+      unit: 'score',
+      direction: 'decrease',
+      categoryId: 'model_performance' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<10% variance',
+      isMonetizable: false
+    },
+    'mp_006': {
+      id: 'mp_006',
+      name: 'A/B Test Statistical Power',
+      description: 'Percentage of experiments reaching statistical significance',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'model_performance' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '>80%',
+      isMonetizable: false
+    },
+    'dq_001': {
+      id: 'dq_001',
+      name: 'Data Freshness Score',
+      description: 'Percentage of features within defined staleness threshold',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'data_quality' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>95% fresh',
+      isMonetizable: false
+    },
+    'dq_002': {
+      id: 'dq_002',
+      name: 'Feature Store Coverage',
+      description: 'Percentage of production models using governed features',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'data_quality' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: '>80% Y2, >95% Y3',
+      isMonetizable: false
+    },
+    'dq_003': {
+      id: 'dq_003',
+      name: 'Feature Reuse Rate',
+      description: 'Average times each feature used across models',
+      unit: 'score',
+      direction: 'increase',
+      categoryId: 'data_quality' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>3 models/feature',
+      isMonetizable: false
+    },
+    'dq_004': {
+      id: 'dq_004',
+      name: 'Data Quality Score (DQS)',
+      description: 'Composite: completeness, accuracy, consistency',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'data_quality' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>90%',
+      isMonetizable: false
+    },
+    'dq_005': {
+      id: 'dq_005',
+      name: 'Data Pipeline SLA Adherence',
+      description: 'Percentage of pipelines meeting freshness/reliability targets',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'data_quality' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>99%',
+      isMonetizable: false
+    },
+    'dq_006': {
+      id: 'dq_006',
+      name: 'Schema Drift Incidents',
+      description: 'Monthly count of unexpected schema changes causing issues',
+      unit: 'count',
+      direction: 'decrease',
+      categoryId: 'data_quality' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<5/month',
+      isMonetizable: false
+    },
+    'td_001': {
+      id: 'td_001',
+      name: 'Technical Debt Ratio',
+      description: 'Rework hours / total development hours',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'tech_debt' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<15%',
+      isMonetizable: false
+    },
+    'td_002': {
+      id: 'td_002',
+      name: 'API Error Rate',
+      description: 'Percentage of API calls returning errors',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'tech_debt' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<0.1%',
+      isMonetizable: false
+    },
+    'td_003': {
+      id: 'td_003',
+      name: 'Security Vulnerability Remediation Time',
+      description: 'Time to patch critical/high vulnerabilities',
+      unit: 'hours/days',
+      direction: 'increase',
+      categoryId: 'tech_debt' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: 'Critical <24hrs, High <7 days',
+      isMonetizable: false
+    },
+    'td_004': {
+      id: 'td_004',
+      name: 'Platform Currency Score',
+      description: 'Percentage of stack on supported/current versions',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'tech_debt' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>90%',
+      isMonetizable: false
+    },
+    'td_005': {
+      id: 'td_005',
+      name: 'Infrastructure Cost Efficiency',
+      description: 'Cost per 1M inferences',
+      unit: 'GBP',
+      direction: 'increase',
+      categoryId: 'tech_debt' as KpiCategoryId,
+      kpiType: 'financial',
+      benchmark: 'Declining QoQ',
+      isMonetizable: false
+    },
+    'td_006': {
+      id: 'td_006',
+      name: 'Environment Parity',
+      description: 'Configuration consistency across dev/staging/prod',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'tech_debt' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>95%',
+      isMonetizable: false
+    },
+    'ta_001': {
+      id: 'ta_001',
+      name: 'AI Talent Retention Rate',
+      description: 'Percentage of AI/ML staff retained annually',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'talent' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '>85%',
+      isMonetizable: false
+    },
+    'ta_002': {
+      id: 'ta_002',
+      name: 'Skill Gap Closure Velocity',
+      description: 'Time to close identified capability gaps',
+      unit: 'months',
+      direction: 'decrease',
+      categoryId: 'talent' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '<6 months',
+      isMonetizable: false
+    },
+    'ta_003': {
+      id: 'ta_003',
+      name: 'Knowledge Documentation Coverage',
+      description: 'Percentage of models with complete runbooks/documentation',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'talent' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>90%',
+      isMonetizable: false
+    },
+    'ta_004': {
+      id: 'ta_004',
+      name: 'Bus Factor Risk',
+      description: 'Percentage of models with single-person dependency',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'talent' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: '<10%',
+      isMonetizable: false
+    },
+    'ta_005': {
+      id: 'ta_005',
+      name: 'Team Utilization Rate',
+      description: 'Productive hours / available hours',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'talent' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '70-80% (sustainable)',
+      isMonetizable: false
+    },
+    'ta_006': {
+      id: 'ta_006',
+      name: 'Internal Mobility/Growth',
+      description: 'Percentage of promotions/role expansions within AI team',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'talent' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '>20%',
+      isMonetizable: false
+    },
+    'in_001': {
+      id: 'in_001',
+      name: 'Idea-to-PoC Conversion Rate',
+      description: 'Percentage of submitted ideas reaching PoC stage',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'innovation' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '20-30%',
+      isMonetizable: false
+    },
+    'in_002': {
+      id: 'in_002',
+      name: 'PoC Cycle Time',
+      description: 'Average time from approval to PoC completion',
+      unit: 'weeks',
+      direction: 'decrease',
+      categoryId: 'innovation' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<6 weeks',
+      isMonetizable: false
+    },
+    'in_003': {
+      id: 'in_003',
+      name: 'Experimentation Velocity',
+      description: 'Number of experiments completed per quarter',
+      unit: 'count',
+      direction: 'increase',
+      categoryId: 'innovation' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '10-15 Y1, 25+ Y3',
+      isMonetizable: false
+    },
+    'in_004': {
+      id: 'in_004',
+      name: 'Failed Experiment Learning Capture',
+      description: 'Percentage of failed experiments with documented learnings',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'innovation' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '100%',
+      isMonetizable: false
+    },
+    'in_005': {
+      id: 'in_005',
+      name: 'Innovation Funnel Health',
+      description: 'Ratio of ideas:PoC:pilot:production',
+      unit: 'score',
+      direction: 'increase',
+      categoryId: 'innovation' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '10:3:1.5:1',
+      isMonetizable: false
+    },
+    'in_006': {
+      id: 'in_006',
+      name: 'External Partnership Value',
+      description: 'Number of vendor/academic partnerships delivering value',
+      unit: 'count',
+      direction: 'increase',
+      categoryId: 'innovation' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '>2 active',
+      isMonetizable: false
+    },
+    'sh_001': {
+      id: 'sh_001',
+      name: 'Business Sponsor Satisfaction',
+      description: 'NPS/satisfaction score from business stakeholders',
+      unit: 'score',
+      direction: 'increase',
+      categoryId: 'business_alignment' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '>70 NPS',
+      isMonetizable: false
+    },
+    'sh_002': {
+      id: 'sh_002',
+      name: 'Strategic Priority Alignment',
+      description: 'Percentage of active projects tied to top-5 strategic priorities',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'business_alignment' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '>80%',
+      isMonetizable: false
+    },
+    'sh_003': {
+      id: 'sh_003',
+      name: 'Demand Backlog Age',
+      description: 'Average age of items in intake queue',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'business_alignment' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<90 days',
+      isMonetizable: false
+    },
+    'sh_004': {
+      id: 'sh_004',
+      name: 'Stakeholder Engagement Frequency',
+      description: 'Regular touchpoints with business sponsors',
+      unit: 'count',
+      direction: 'increase',
+      categoryId: 'business_alignment' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: 'Monthly minimum',
+      isMonetizable: false
+    },
+    'sh_005': {
+      id: 'sh_005',
+      name: 'Value Realization Communication',
+      description: 'Percentage of deployed models with communicated business impact',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'business_alignment' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>90%',
+      isMonetizable: false
+    },
+    'sh_006': {
+      id: 'sh_006',
+      name: 'Executive Dashboard Access',
+      description: 'Number of executives actively using AI performance dashboards',
+      unit: 'count',
+      direction: 'increase',
+      categoryId: 'business_alignment' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>5 active users',
+      isMonetizable: false
+    },
+    'ga_001': {
+      id: 'ga_001',
+      name: 'Hallucination Rate',
+      description: 'Percentage of outputs with factual errors/fabrications',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'genai' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<2% high-risk, <5% low-risk',
+      isMonetizable: false
+    },
+    'ga_002': {
+      id: 'ga_002',
+      name: 'Human Override Rate',
+      description: 'Percentage of GenAI outputs requiring human correction',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'genai' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<10% at steady state',
+      isMonetizable: false
+    },
+    'ga_003': {
+      id: 'ga_003',
+      name: 'Prompt Effectiveness Rate',
+      description: 'Percentage of prompts achieving intended outcome',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'genai' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>85%',
+      isMonetizable: false
+    },
+    'ga_004': {
+      id: 'ga_004',
+      name: 'Token Cost Efficiency',
+      description: 'Cost per 1,000 successful completions',
+      unit: 'GBP',
+      direction: 'increase',
+      categoryId: 'genai' as KpiCategoryId,
+      kpiType: 'financial',
+      benchmark: 'Declining MoM',
+      isMonetizable: false
+    },
+    'ga_005': {
+      id: 'ga_005',
+      name: 'Guardrail Trigger Rate',
+      description: 'Percentage of requests hitting safety/compliance guardrails',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'genai' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<5%',
+      isMonetizable: false
+    },
+    'ga_006': {
+      id: 'ga_006',
+      name: 'Context Window Utilization',
+      description: 'Average context window usage per request',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'genai' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '60-80% optimal',
+      isMonetizable: false
+    },
+    'ga_007': {
+      id: 'ga_007',
+      name: 'RAG Retrieval Precision',
+      description: 'Relevance of retrieved documents in RAG pipelines',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'genai' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>90%',
+      isMonetizable: false
+    },
+    'ga_008': {
+      id: 'ga_008',
+      name: 'Response Time SLA Compliance',
+      description: 'Percentage of GenAI responses meeting latency SLA',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'genai' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>95%',
+      isMonetizable: false
+    },
+    'it_001': {
+      id: 'it_001',
+      name: 'Cloud Cost Optimization',
+      description: 'Cost savings through rightsizing, reserved instances, spot usage',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'it_infra' as KpiCategoryId,
+      kpiType: 'financial',
+      benchmark: '20-30% reduction Y1',
+      isMonetizable: false
+    },
+    'it_002': {
+      id: 'it_002',
+      name: 'Infrastructure Utilization',
+      description: 'Average compute/GPU utilization across AI workloads',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'it_infra' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>70%',
+      isMonetizable: false
+    },
+    'it_003': {
+      id: 'it_003',
+      name: 'Deployment Frequency',
+      description: 'Number of production deployments per time period',
+      unit: 'count',
+      direction: 'increase',
+      categoryId: 'it_infra' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: 'Daily for mature orgs',
+      isMonetizable: false
+    },
+    'it_004': {
+      id: 'it_004',
+      name: 'Mean Time to Recovery (MTTR)',
+      description: 'Average time to restore service after incident',
+      unit: 'minutes',
+      direction: 'decrease',
+      categoryId: 'it_infra' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<60 mins',
+      isMonetizable: false
+    },
+    'it_005': {
+      id: 'it_005',
+      name: 'Change Failure Rate',
+      description: 'Percentage of deployments causing degraded service',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'it_infra' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<15%',
+      isMonetizable: false
+    },
+    'it_006': {
+      id: 'it_006',
+      name: 'Lead Time for Changes',
+      description: 'Time from code commit to production deployment',
+      unit: 'days',
+      direction: 'decrease',
+      categoryId: 'it_infra' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '<1 day for elite',
+      isMonetizable: false
+    },
+    'sp_001': {
+      id: 'sp_001',
+      name: 'AI Security Incidents',
+      description: 'Number of security breaches related to AI systems',
+      unit: 'count',
+      direction: 'increase',
+      categoryId: 'security' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: '0 critical',
+      isMonetizable: false
+    },
+    'sp_002': {
+      id: 'sp_002',
+      name: 'Privacy Compliance Rate',
+      description: 'Percentage of AI models compliant with GDPR/CCPA/sector regs',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'security' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: '100%',
+      isMonetizable: false
+    },
+    'sp_003': {
+      id: 'sp_003',
+      name: 'Access Control Adherence',
+      description: 'Percentage of AI resources with proper RBAC implementation',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'security' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: '>99%',
+      isMonetizable: false
+    },
+    'sp_004': {
+      id: 'sp_004',
+      name: 'Data Encryption Coverage',
+      description: 'Percentage of AI data encrypted at rest and in transit',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'security' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: '100%',
+      isMonetizable: false
+    },
+    'sp_005': {
+      id: 'sp_005',
+      name: 'Model Adversarial Testing',
+      description: 'Percentage of models tested for adversarial vulnerabilities',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'security' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: '>80% of high-risk',
+      isMonetizable: false
+    },
+    'sp_006': {
+      id: 'sp_006',
+      name: 'PII Detection Coverage',
+      description: 'Percentage of training datasets scanned for PII',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'security' as KpiCategoryId,
+      kpiType: 'compliance',
+      benchmark: '100% of training data',
+      isMonetizable: false
+    },
+    'cx_001': {
+      id: 'cx_001',
+      name: 'AI-Assisted Resolution Rate',
+      description: 'Percentage of customer issues resolved with AI assistance',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>60%',
+      isMonetizable: false
+    },
+    'cx_002': {
+      id: 'cx_002',
+      name: 'Self-Service Adoption Rate',
+      description: 'Percentage of customers using AI-powered self-service',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>40%',
+      isMonetizable: false
+    },
+    'cx_003': {
+      id: 'cx_003',
+      name: 'Response Time Improvement',
+      description: 'Reduction in average customer wait/response time',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '50% reduction',
+      isMonetizable: false
+    },
+    'cx_004': {
+      id: 'cx_004',
+      name: 'Customer Effort Score (AI)',
+      description: 'Customer effort for AI-assisted interactions',
+      unit: 'score',
+      direction: 'decrease',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '<3 (1-7 scale)',
+      isMonetizable: false
+    },
+    'cx_005': {
+      id: 'cx_005',
+      name: 'First Contact Resolution (AI)',
+      description: 'Percentage of issues resolved in first AI interaction',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>70%',
+      isMonetizable: false
+    },
+    'cx_006': {
+      id: 'cx_006',
+      name: 'AI NPS Impact',
+      description: 'NPS improvement attributable to AI-powered experiences',
+      unit: 'points',
+      direction: 'increase',
+      categoryId: 'customer_exp' as KpiCategoryId,
+      kpiType: 'strategic',
+      benchmark: '+5-10 pts',
+      isMonetizable: false
+    },
+    'oe_001': {
+      id: 'oe_001',
+      name: 'Process Automation Rate',
+      description: 'Percentage of automatable processes using AI',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'operational_eff' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>50% of eligible',
+      isMonetizable: false
+    },
+    'oe_002': {
+      id: 'oe_002',
+      name: 'Straight-Through Processing Rate',
+      description: 'Percentage of transactions completed without human touch',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'operational_eff' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>60%',
+      isMonetizable: false
+    },
+    'oe_003': {
+      id: 'oe_003',
+      name: 'Manual Intervention Reduction',
+      description: 'Reduction in manual steps through AI automation',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'operational_eff' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '30-50% reduction',
+      isMonetizable: false
+    },
+    'oe_004': {
+      id: 'oe_004',
+      name: 'Exception Handling Time',
+      description: 'Reduction in time to handle process exceptions',
+      unit: '%',
+      direction: 'decrease',
+      categoryId: 'operational_eff' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '40% reduction',
+      isMonetizable: false
+    },
+    'oe_005': {
+      id: 'oe_005',
+      name: 'Predictive Accuracy (Operations)',
+      description: 'Accuracy of AI predictions for operational planning',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'operational_eff' as KpiCategoryId,
+      kpiType: 'operational',
+      benchmark: '>85%',
+      isMonetizable: false
+    },
+    'oe_006': {
+      id: 'oe_006',
+      name: 'Resource Optimization Savings',
+      description: 'Efficiency gains from AI-driven resource allocation',
+      unit: '%',
+      direction: 'increase',
+      categoryId: 'operational_eff' as KpiCategoryId,
+      kpiType: 'financial',
+      benchmark: '15-25% efficiency gain',
+      isMonetizable: false
     }
   },
   calculationConfig: {

@@ -632,7 +632,8 @@ export const metadataConfig = pgTable('metadata_config', {
       description: string;
       unit: string;
       direction: 'increase' | 'decrease';
-      applicableProcesses: string[];
+      categoryId: 'underwriting' | 'claims' | 'policy_admin' | 'distribution' | 'finance_actuarial' | 'model_performance' | 'data_quality' | 'tech_debt' | 'talent' | 'innovation' | 'business_alignment' | 'genai' | 'it_infra' | 'security' | 'customer_exp' | 'operational_eff'; // Required: category identifier from KPI_CATEGORIES
+      applicableProcesses?: string[]; // Optional: empty means org-wide KPI
       industryBenchmarks?: Record<string, {
         baselineValue: number;
         baselineUnit: string;
@@ -646,17 +647,18 @@ export const metadataConfig = pgTable('metadata_config', {
           advanced: { min: number; max: number };
         };
       }>;
-      maturityRules: Array<{
+      maturityRules?: Array<{
         level: 'advanced' | 'developing' | 'foundational';
         conditions: Record<string, { min?: number; max?: number }>;
         range: { min: number; max: number };
         confidence: 'high' | 'medium' | 'low';
       }>;
-      kpiType: 'financial' | 'operational' | 'strategic' | 'compliance';
+      kpiType?: 'financial' | 'operational' | 'strategic' | 'compliance';
       valueStream?: 'operational_savings' | 'cor_improvement' | 'revenue_uplift' | 'risk_mitigation' | 'customer_experience' | 'regulatory_compliance';
       isMonetizable: boolean;
       monetizationFormula?: string;
-      aggregationMethod: 'sum' | 'average' | 'latest' | 'none';
+      aggregationMethod?: 'sum' | 'average' | 'latest' | 'none';
+      benchmark?: string; // Human-readable benchmark target
     }>;
     calculationConfig: {
       roiFormula: string;

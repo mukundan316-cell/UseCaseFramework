@@ -77,6 +77,11 @@ The platform adopts Hexaware's official branding, utilizing specified colors and
 All four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) follow a consistent pattern: Summary Cards, Distribution Charts, and Use Case Table.
 
 ### Recent Enhancements (Jan 2026)
+- **Comprehensive KPI Library (169 KPIs)**: Imported and integrated a comprehensive KPI library with 169 industry-validated KPIs:
+  - Insurance Value Chain (107 KPIs): Underwriting (15), Claims (19), Policy Admin (13), Distribution (18), Finance/Actuarial (27), Customer Experience (15)
+  - Enterprise/AI Operations (62 KPIs): Model Performance (6), Data Quality (6), Tech Debt (6), Talent (6), Innovation (6), Business Alignment (6), GenAI (8), IT Infrastructure (6), Security (6), Operational Efficiency (6)
+  - Category mapping normalized from source (actuarial, reinsurance, compliance → finance_actuarial; stakeholder → business_alignment; security_privacy → security)
+  - Optional fields in KpiDefinition interface (maturityRules, kpiType, aggregationMethod) allow simpler KPI definitions
 - **Value Realization API Expansion**: New endpoints for adjusted value calculations (`/api/value/adjusted/:id`) and KPI aggregation by type/stream (`/api/value/kpi-aggregation`)
 - **Auto-Derivation Enhancement**: Automatic population of valueConfidence defaults (conservativeFactor: 1.0, validationStatus: 'unvalidated') on use case creation/update
 - **Governance Audit Trail**: Extended change logging to track deliveryOwner, valueValidator, valueGovernanceModel, and valueConfidence changes (validationStatus, conservativeFactor)
