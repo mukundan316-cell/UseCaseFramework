@@ -28,13 +28,49 @@ export type KpiType = 'financial' | 'operational' | 'strategic' | 'compliance';
 export type ValueStream = 'operational_savings' | 'cor_improvement' | 'revenue_uplift' | 'risk_mitigation' | 'customer_experience' | 'regulatory_compliance';
 export type AggregationMethod = 'sum' | 'average' | 'latest' | 'none';
 
+// KPI Category definitions - 5 insurance + 11 enterprise categories
+export const KPI_CATEGORIES = [
+  // Insurance Value Chain Categories
+  { id: 'underwriting', name: 'Underwriting & Risk Selection', icon: 'FileSearch', valueChain: 'insurance' },
+  { id: 'claims', name: 'Claims Management', icon: 'ClipboardCheck', valueChain: 'insurance' },
+  { id: 'policy_admin', name: 'Policy Administration', icon: 'FileText', valueChain: 'insurance' },
+  { id: 'distribution', name: 'Distribution & Broker', icon: 'Users', valueChain: 'insurance' },
+  { id: 'finance_actuarial', name: 'Finance & Actuarial', icon: 'Calculator', valueChain: 'insurance' },
+  // Enterprise / AI Operations Categories
+  { id: 'model_performance', name: 'Model Performance & Reliability', icon: 'Activity', valueChain: 'enterprise' },
+  { id: 'data_quality', name: 'Data Quality & Feature Management', icon: 'Database', valueChain: 'enterprise' },
+  { id: 'tech_debt', name: 'Technical Debt & Platform Health', icon: 'Shield', valueChain: 'enterprise' },
+  { id: 'talent', name: 'Talent & Team Sustainability', icon: 'UserCheck', valueChain: 'enterprise' },
+  { id: 'innovation', name: 'Innovation Pipeline Metrics', icon: 'Lightbulb', valueChain: 'enterprise' },
+  { id: 'business_alignment', name: 'Business Alignment & Stakeholder Health', icon: 'Handshake', valueChain: 'enterprise' },
+  { id: 'genai', name: 'GenAI-Specific KPIs', icon: 'Sparkles', valueChain: 'enterprise' },
+  { id: 'it_infra', name: 'IT Infrastructure & Operations', icon: 'Server', valueChain: 'enterprise' },
+  { id: 'security', name: 'Security & Privacy Metrics', icon: 'Lock', valueChain: 'enterprise' },
+  { id: 'customer_exp', name: 'Customer Experience KPIs', icon: 'Smile', valueChain: 'enterprise' },
+  { id: 'operational_eff', name: 'Operational Efficiency Metrics', icon: 'Settings', valueChain: 'enterprise' },
+] as const;
+
+export type KpiCategoryId = typeof KPI_CATEGORIES[number]['id'];
+export type KpiValueChain = 'insurance' | 'enterprise';
+
+// Helper function to get category name from id
+export function getCategoryName(categoryId: string): string {
+  const category = KPI_CATEGORIES.find(c => c.id === categoryId);
+  return category?.name || categoryId;
+}
+
+// Helper function to get category by id
+export function getCategory(categoryId: string) {
+  return KPI_CATEGORIES.find(c => c.id === categoryId);
+}
+
 export interface KpiDefinition {
   id: string;
   name: string;
   description: string;
   unit: string;
   direction: 'increase' | 'decrease';
-  applicableProcesses: string[];
+  applicableProcesses?: string[]; // Optional - empty/undefined means org-wide KPI
   industryBenchmarks?: Record<string, IndustryBenchmark>;
   maturityRules: MaturityRule[];
   kpiType: KpiType;
@@ -42,6 +78,9 @@ export interface KpiDefinition {
   isMonetizable: boolean;
   monetizationFormula?: string;
   aggregationMethod: AggregationMethod;
+  // New category fields
+  categoryId: KpiCategoryId;
+  benchmark?: string; // Human-readable benchmark target e.g., "90-95% accuracy"
 }
 
 export interface KpiValue {
@@ -625,7 +664,9 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       valueStream: 'operational_savings',
       isMonetizable: true,
       monetizationFormula: 'time_saved_hours * hourly_rate',
-      aggregationMethod: 'sum'
+      aggregationMethod: 'sum',
+      categoryId: 'operational_eff',
+      benchmark: '40-70% reduction in processing time'
     },
     cost_per_transaction: {
       id: 'cost_per_transaction',
@@ -698,7 +739,9 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       kpiType: 'financial',
       valueStream: 'operational_savings',
       isMonetizable: true,
-      aggregationMethod: 'sum'
+      aggregationMethod: 'sum',
+      categoryId: 'finance_actuarial',
+      benchmark: '20-35% cost reduction per transaction'
     },
     fte_efficiency: {
       id: 'fte_efficiency',
@@ -759,7 +802,9 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       valueStream: 'operational_savings',
       isMonetizable: true,
       monetizationFormula: 'hours_saved * 75',
-      aggregationMethod: 'sum'
+      aggregationMethod: 'sum',
+      categoryId: 'operational_eff',
+      benchmark: '200-800 hours saved per month'
     },
     accuracy_improvement: {
       id: 'accuracy_improvement',
@@ -819,7 +864,9 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       kpiType: 'operational',
       valueStream: 'operational_savings',
       isMonetizable: false,
-      aggregationMethod: 'average'
+      aggregationMethod: 'average',
+      categoryId: 'data_quality',
+      benchmark: '5-15 percentage point improvement'
     },
     loss_ratio_reduction: {
       id: 'loss_ratio_reduction',
@@ -867,7 +914,9 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       valueStream: 'cor_improvement',
       isMonetizable: true,
       monetizationFormula: 'loss_ratio_points * premium_volume * 0.01',
-      aggregationMethod: 'sum'
+      aggregationMethod: 'sum',
+      categoryId: 'claims',
+      benchmark: '1-5 percentage points reduction'
     },
     customer_satisfaction: {
       id: 'customer_satisfaction',
@@ -914,7 +963,9 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       kpiType: 'strategic',
       valueStream: 'revenue_uplift',
       isMonetizable: false,
-      aggregationMethod: 'average'
+      aggregationMethod: 'average',
+      categoryId: 'customer_exp',
+      benchmark: '5-20 NPS point improvement'
     },
     decision_consistency: {
       id: 'decision_consistency',
@@ -961,7 +1012,9 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       kpiType: 'operational',
       valueStream: 'operational_savings',
       isMonetizable: false,
-      aggregationMethod: 'average'
+      aggregationMethod: 'average',
+      categoryId: 'underwriting',
+      benchmark: '10-25 percentage point improvement'
     },
     conversion_rate: {
       id: 'conversion_rate',
@@ -1009,7 +1062,9 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       valueStream: 'revenue_uplift',
       isMonetizable: true,
       monetizationFormula: 'conversion_improvement * average_premium',
-      aggregationMethod: 'sum'
+      aggregationMethod: 'sum',
+      categoryId: 'distribution',
+      benchmark: '3-10 percentage point improvement'
     },
     compliance_rate: {
       id: 'compliance_rate',
@@ -1055,7 +1110,737 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       ],
       kpiType: 'compliance',
       isMonetizable: false,
-      aggregationMethod: 'average'
+      aggregationMethod: 'average',
+      categoryId: 'security',
+      benchmark: '5-10 percentage point improvement'
+    },
+    // ========== ENTERPRISE / AI OPERATIONS KPIs ==========
+    // Model Performance & Reliability (6 KPIs)
+    model_accuracy: {
+      id: 'model_accuracy',
+      name: 'Model Accuracy',
+      description: 'Percentage of correct predictions vs total predictions',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 93, max: 98 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 88, max: 93 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 80, max: 88 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'model_performance',
+      benchmark: '90-95% accuracy target'
+    },
+    model_precision: {
+      id: 'model_precision',
+      name: 'Model Precision',
+      description: 'True positives / (True positives + False positives)',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 90, max: 98 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 82, max: 90 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 70, max: 82 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'model_performance',
+      benchmark: '85-95% precision'
+    },
+    model_recall: {
+      id: 'model_recall',
+      name: 'Model Recall',
+      description: 'True positives / (True positives + False negatives)',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 88, max: 95 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 78, max: 88 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 65, max: 78 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'model_performance',
+      benchmark: '80-90% recall'
+    },
+    model_f1_score: {
+      id: 'model_f1_score',
+      name: 'F1 Score',
+      description: 'Harmonic mean of precision and recall',
+      unit: 'score',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 0.90, max: 0.98 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 0.80, max: 0.90 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 0.65, max: 0.80 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'model_performance',
+      benchmark: '0.85-0.95 F1'
+    },
+    model_drift_rate: {
+      id: 'model_drift_rate',
+      name: 'Model Drift Rate',
+      description: 'Rate of performance degradation over time',
+      unit: '%',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 0, max: 2 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 2, max: 5 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 5, max: 10 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'model_performance',
+      benchmark: '<5% drift threshold'
+    },
+    inference_latency: {
+      id: 'inference_latency',
+      name: 'Inference Latency',
+      description: 'Time to generate model prediction (p95)',
+      unit: 'ms',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 10, max: 50 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 50, max: 100 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 100, max: 500 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'model_performance',
+      benchmark: '<100ms p95 latency'
+    },
+    // Data Quality & Feature Management (6 KPIs)
+    data_completeness: {
+      id: 'data_completeness',
+      name: 'Data Completeness',
+      description: 'Percentage of required fields populated',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 98, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 92, max: 98 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 80, max: 92 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'data_quality',
+      benchmark: '>95% completeness'
+    },
+    data_accuracy: {
+      id: 'data_accuracy',
+      name: 'Data Accuracy',
+      description: 'Percentage of data values that are correct',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 99, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 95, max: 99 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 88, max: 95 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'data_quality',
+      benchmark: '>98% accuracy'
+    },
+    data_freshness: {
+      id: 'data_freshness',
+      name: 'Data Freshness',
+      description: 'Time since last data update',
+      unit: 'hours',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 0, max: 4 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 4, max: 12 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 12, max: 48 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'data_quality',
+      benchmark: '<24hr lag for critical data'
+    },
+    data_consistency: {
+      id: 'data_consistency',
+      name: 'Data Consistency',
+      description: 'Agreement of data across different systems',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 99, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 95, max: 99 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 85, max: 95 }, confidence: 'low' }
+      ],
+      kpiType: 'compliance',
+      valueStream: 'regulatory_compliance',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'data_quality',
+      benchmark: '100% cross-system consistency'
+    },
+    feature_store_coverage: {
+      id: 'feature_store_coverage',
+      name: 'Feature Store Coverage',
+      description: 'Percentage of ML features centrally managed',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 90, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 70, max: 90 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 40, max: 70 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'data_quality',
+      benchmark: '>80% features in store'
+    },
+    pipeline_success_rate: {
+      id: 'pipeline_success_rate',
+      name: 'Pipeline Success Rate',
+      description: 'Percentage of data pipelines completing successfully',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 99.5, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 97, max: 99.5 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 90, max: 97 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'data_quality',
+      benchmark: '>99% success rate'
+    },
+    // Technical Debt & Platform Health (6 KPIs)
+    code_coverage: {
+      id: 'code_coverage',
+      name: 'Code Coverage',
+      description: 'Percentage of code covered by automated tests',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 85, max: 95 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 70, max: 85 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 50, max: 70 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'tech_debt',
+      benchmark: '>80% test coverage'
+    },
+    tech_debt_ratio: {
+      id: 'tech_debt_ratio',
+      name: 'Technical Debt Ratio',
+      description: 'Time spent on tech debt vs new features',
+      unit: '%',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 0, max: 5 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 5, max: 15 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 15, max: 30 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'tech_debt',
+      benchmark: '<5% of development time'
+    },
+    security_vulnerabilities: {
+      id: 'security_vulnerabilities',
+      name: 'Security Vulnerabilities',
+      description: 'Number of unresolved security issues',
+      unit: 'count',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 0, max: 0 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 0, max: 3 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 3, max: 10 }, confidence: 'low' }
+      ],
+      kpiType: 'compliance',
+      valueStream: 'risk_mitigation',
+      isMonetizable: true,
+      aggregationMethod: 'sum',
+      categoryId: 'tech_debt',
+      benchmark: '0 critical/high vulnerabilities'
+    },
+    platform_uptime: {
+      id: 'platform_uptime',
+      name: 'Platform Uptime',
+      description: 'Percentage of time platform is operational',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 99.95, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 99.5, max: 99.95 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 98, max: 99.5 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'tech_debt',
+      benchmark: '>99.9% availability'
+    },
+    mttr: {
+      id: 'mttr',
+      name: 'Mean Time to Recovery',
+      description: 'Average time to restore service after incident',
+      unit: 'hours',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 0, max: 0.5 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 0.5, max: 2 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 2, max: 8 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'tech_debt',
+      benchmark: '<1 hour MTTR'
+    },
+    deployment_frequency: {
+      id: 'deployment_frequency',
+      name: 'Deployment Frequency',
+      description: 'Number of production deployments per time period',
+      unit: 'count/week',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 10, max: 50 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 3, max: 10 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 0.5, max: 3 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'tech_debt',
+      benchmark: 'Multiple deployments per day'
+    },
+    // Talent & Team Sustainability (6 KPIs)
+    ai_ml_headcount: {
+      id: 'ai_ml_headcount',
+      name: 'AI/ML Headcount',
+      description: 'Number of AI/ML specialists on team',
+      unit: 'count',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 20, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 8, max: 20 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 2, max: 8 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'operational_savings',
+      isMonetizable: false,
+      aggregationMethod: 'sum',
+      categoryId: 'talent',
+      benchmark: 'Per organizational target'
+    },
+    skill_coverage: {
+      id: 'skill_coverage',
+      name: 'Skill Coverage',
+      description: 'Percentage of required AI skills present in team',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 95, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 80, max: 95 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 60, max: 80 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'operational_savings',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'talent',
+      benchmark: '>90% critical skills covered'
+    },
+    training_hours: {
+      id: 'training_hours',
+      name: 'Training Hours per Employee',
+      description: 'Average AI training hours per team member',
+      unit: 'hours/year',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 60, max: 120 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 30, max: 60 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 10, max: 30 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'customer_experience',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'talent',
+      benchmark: '40+ hours/year'
+    },
+    certification_rate: {
+      id: 'certification_rate',
+      name: 'Certification Rate',
+      description: 'Percentage of team with AI certifications',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 75, max: 95 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 50, max: 75 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 20, max: 50 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'customer_experience',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'talent',
+      benchmark: '>60% certified'
+    },
+    ai_team_attrition: {
+      id: 'ai_team_attrition',
+      name: 'AI Team Attrition Rate',
+      description: 'Annual turnover rate for AI specialists',
+      unit: '%',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 0, max: 8 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 8, max: 15 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 15, max: 25 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'talent',
+      benchmark: '<15% annual attrition'
+    },
+    self_sufficiency_score: {
+      id: 'self_sufficiency_score',
+      name: 'Self-Sufficiency Score',
+      description: 'Percentage of AI work done without external vendors',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 85, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 60, max: 85 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 30, max: 60 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'talent',
+      benchmark: '>80% internal capability'
+    },
+    // Innovation Pipeline Metrics (6 KPIs)
+    experiments_run: {
+      id: 'experiments_run',
+      name: 'Experiments Run',
+      description: 'Number of AI experiments conducted',
+      unit: 'count/quarter',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 20, max: 50 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 8, max: 20 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 2, max: 8 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'revenue_uplift',
+      isMonetizable: false,
+      aggregationMethod: 'sum',
+      categoryId: 'innovation',
+      benchmark: '>10 experiments/quarter'
+    },
+    experiment_success_rate: {
+      id: 'experiment_success_rate',
+      name: 'Experiment Success Rate',
+      description: 'Percentage of experiments meeting success criteria',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 40, max: 60 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 25, max: 40 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 10, max: 25 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'revenue_uplift',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'innovation',
+      benchmark: '25-40% success rate'
+    },
+    idea_to_production: {
+      id: 'idea_to_production',
+      name: 'Idea to Production Time',
+      description: 'Average time from concept to production deployment',
+      unit: 'weeks',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 4, max: 8 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 8, max: 16 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 16, max: 32 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'innovation',
+      benchmark: '<12 weeks average'
+    },
+    poc_conversion_rate: {
+      id: 'poc_conversion_rate',
+      name: 'PoC to Production Rate',
+      description: 'Percentage of PoCs that reach production',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 50, max: 70 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 30, max: 50 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 15, max: 30 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'innovation',
+      benchmark: '>40% PoC to production'
+    },
+    ai_portfolio_growth: {
+      id: 'ai_portfolio_growth',
+      name: 'AI Portfolio Growth',
+      description: 'Number of new AI use cases added per quarter',
+      unit: 'count/quarter',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 10, max: 25 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 4, max: 10 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 1, max: 4 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'revenue_uplift',
+      isMonetizable: false,
+      aggregationMethod: 'sum',
+      categoryId: 'innovation',
+      benchmark: '5-10 new use cases/quarter'
+    },
+    reuse_rate: {
+      id: 'reuse_rate',
+      name: 'Component Reuse Rate',
+      description: 'Percentage of AI components reused across projects',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 60, max: 80 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 35, max: 60 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 15, max: 35 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'innovation',
+      benchmark: '>50% reuse rate'
+    },
+    // GenAI-Specific KPIs (6 KPIs)
+    token_cost_per_query: {
+      id: 'token_cost_per_query',
+      name: 'Token Cost per Query',
+      description: 'Average cost of LLM tokens per user query',
+      unit: 'GBP',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 0, max: 0.005 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 0.005, max: 0.02 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 0.02, max: 0.10 }, confidence: 'low' }
+      ],
+      kpiType: 'financial',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'genai',
+      benchmark: '<$0.01 per query average'
+    },
+    hallucination_rate: {
+      id: 'hallucination_rate',
+      name: 'Hallucination Rate',
+      description: 'Percentage of responses containing factual errors',
+      unit: '%',
+      direction: 'decrease',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 0, max: 2 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 2, max: 5 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 5, max: 15 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'genai',
+      benchmark: '<5% hallucination'
+    },
+    response_quality_score: {
+      id: 'response_quality_score',
+      name: 'Response Quality Score',
+      description: 'Human-rated quality of LLM responses (1-5 scale)',
+      unit: 'score',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 4.5, max: 5 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 3.8, max: 4.5 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 3, max: 3.8 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'customer_experience',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'genai',
+      benchmark: '>4.0 average score'
+    },
+    context_window_utilization: {
+      id: 'context_window_utilization',
+      name: 'Context Window Utilization',
+      description: 'Efficient use of LLM context window',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 70, max: 90 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 50, max: 70 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 25, max: 50 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'operational_savings',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'genai',
+      benchmark: '60-80% efficient utilization'
+    },
+    rag_retrieval_accuracy: {
+      id: 'rag_retrieval_accuracy',
+      name: 'RAG Retrieval Accuracy',
+      description: 'Accuracy of retrieved context in RAG systems',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { dataReadiness: { min: 4 } }, range: { min: 90, max: 98 }, confidence: 'high' },
+        { level: 'developing', conditions: { dataReadiness: { min: 3 } }, range: { min: 75, max: 90 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 55, max: 75 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'risk_mitigation',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'genai',
+      benchmark: '>85% retrieval accuracy'
+    },
+    prompt_injection_blocks: {
+      id: 'prompt_injection_blocks',
+      name: 'Prompt Injection Block Rate',
+      description: 'Percentage of prompt injection attempts blocked',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { technicalComplexity: { max: 2 } }, range: { min: 99, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { technicalComplexity: { max: 3 } }, range: { min: 95, max: 99 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 85, max: 95 }, confidence: 'low' }
+      ],
+      kpiType: 'compliance',
+      valueStream: 'risk_mitigation',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'genai',
+      benchmark: '>99% block rate'
+    },
+    // Business Alignment (4 KPIs)
+    stakeholder_satisfaction: {
+      id: 'stakeholder_satisfaction',
+      name: 'Stakeholder Satisfaction',
+      description: 'Business stakeholder satisfaction with AI initiatives',
+      unit: 'score',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 4.5, max: 5 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 3.5, max: 4.5 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 2.5, max: 3.5 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'customer_experience',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'business_alignment',
+      benchmark: '>4.0 satisfaction score'
+    },
+    ai_strategy_alignment: {
+      id: 'ai_strategy_alignment',
+      name: 'AI Strategy Alignment',
+      description: 'Percentage of AI projects aligned with business strategy',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 95, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 80, max: 95 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 60, max: 80 }, confidence: 'low' }
+      ],
+      kpiType: 'strategic',
+      valueStream: 'revenue_uplift',
+      isMonetizable: false,
+      aggregationMethod: 'average',
+      categoryId: 'business_alignment',
+      benchmark: '>90% strategic alignment'
+    },
+    business_case_realization: {
+      id: 'business_case_realization',
+      name: 'Business Case Realization',
+      description: 'Percentage of projected business value actually realized',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 90, max: 120 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 70, max: 90 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 40, max: 70 }, confidence: 'low' }
+      ],
+      kpiType: 'financial',
+      valueStream: 'revenue_uplift',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'business_alignment',
+      benchmark: '>80% value realization'
+    },
+    adoption_rate: {
+      id: 'adoption_rate',
+      name: 'User Adoption Rate',
+      description: 'Percentage of target users actively using AI tools',
+      unit: '%',
+      direction: 'increase',
+      maturityRules: [
+        { level: 'advanced', conditions: { adoptionReadiness: { min: 4 } }, range: { min: 85, max: 100 }, confidence: 'high' },
+        { level: 'developing', conditions: { adoptionReadiness: { min: 3 } }, range: { min: 60, max: 85 }, confidence: 'medium' },
+        { level: 'foundational', conditions: {}, range: { min: 30, max: 60 }, confidence: 'low' }
+      ],
+      kpiType: 'operational',
+      valueStream: 'customer_experience',
+      isMonetizable: true,
+      aggregationMethod: 'average',
+      categoryId: 'business_alignment',
+      benchmark: '>75% adoption'
     }
   },
   calculationConfig: {
