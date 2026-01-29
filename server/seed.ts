@@ -1063,6 +1063,58 @@ async function seedShowcaseUseCases() {
           valueConfidence: { conservativeFactor: 0.5, validationStatus: 'unvalidated' as const },
           valueStream: 'operational_savings'
         }
+      },
+      // Additional Active Portfolio use cases
+      {
+        id: 'c2cb358a-313e-4e0a-8078-cd11115785e5',
+        title: 'Call summarization for claims interactions',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'Pilot',
+          dataReadiness: 4,
+          technicalComplexity: 3,
+          adoptionReadiness: 4,
+          deliveryOwner: 'Sarah Mitchell',
+          valueValidator: 'Amanda Reenan',
+          valueGovernanceModel: 'Business Owner Review',
+          investment: { initialInvestment: 175000, ongoingMonthlyCost: 12000 },
+          valueConfidence: { conservativeFactor: 0.8, validationStatus: 'pending_finance' as const },
+          valueStream: 'operational_savings'
+        }
+      },
+      {
+        id: '51fcdcb3-08be-4b60-9269-6d1c06fa98a6',
+        title: 'Coverage decision support at FNOL (data‑dependent)',
+        updates: {
+          useCaseStatus: 'Discovery',
+          deploymentStatus: 'PoC',
+          dataReadiness: 3,
+          technicalComplexity: 4,
+          adoptionReadiness: 3,
+          deliveryOwner: 'James Patterson',
+          valueValidator: 'Amanda Reenan',
+          valueGovernanceModel: 'AI Steering Committee',
+          investment: { initialInvestment: 225000, ongoingMonthlyCost: 18000 },
+          valueConfidence: { conservativeFactor: 0.65, validationStatus: 'pending_actuarial' as const },
+          valueStream: 'cor_improvement'
+        }
+      },
+      {
+        id: '3065e463-129e-4980-9af4-46c5459a4bc7',
+        title: 'Document Scanning and Analysis Project',
+        updates: {
+          useCaseStatus: 'In-flight',
+          deploymentStatus: 'Pilot',
+          dataReadiness: 4,
+          technicalComplexity: 3,
+          adoptionReadiness: 4,
+          deliveryOwner: 'David Chen',
+          valueValidator: 'Amanda Reenan',
+          valueGovernanceModel: 'Business Owner Review',
+          investment: { initialInvestment: 145000, ongoingMonthlyCost: 10000 },
+          valueConfidence: { conservativeFactor: 0.75, validationStatus: 'pending_finance' as const },
+          valueStream: 'operational_savings'
+        }
       }
     ];
 
