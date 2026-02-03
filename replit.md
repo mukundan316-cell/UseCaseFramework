@@ -67,20 +67,14 @@ Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
   2. **Active Pipeline Section**: Shows Assessment → Operate phases only (Ideation filtered out from Active Portfolio view)
 
 ## Recent Changes (Feb 2026)
-- **Visibility Enforcement**: Active portfolio use cases are always visible on dashboard - UI toggle locked and backend enforces visibility
-- **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with industry frameworks
-- **Phase Derivation Refactor**: Added `libraryTier` parameter to `derivePhase()` for Reference Library use cases to always return Ideation
-- **Activation Flow Update**: Scored use cases auto-enter Assessment phase on activation; unscored enter Ideation
-- **Phase Summary API**: Updated to correctly calculate phase distribution based on scope (reference vs active vs all)
-- **Admin Phase Distribution Fix**: When scope='all', API now uses each use case's actual libraryTier for correct phase counts in Admin panel
-- **View Library Navigation**: /insights route now wrapped with Layout component for consistent navigation; tab clicks now navigate to proper URLs
-- **Tab Navigation Fix**: Layout tabs now use wouter routing to navigate between pages, not just state updates
-- **UI Descriptions**: Updated tooltips and dialog text to reflect "Idea pool" vs "Active Pipeline" mental model
-- **Multi-tenancy**: Removed client-specific hardcoding (RSA/Markel references) for reusability across clients
-- **Questionnaire Config**: Assessment questionnaire ID now configurable via `metadata.activeQuestionnaireId` with fallback to default
-- **Duplicate Routes**: Consolidated `/api/derive/value-all` and `/api/value/derive-all` into single endpoint
-- **LSP Fixes**: Resolved TypeScript errors for optional TOM config properties (phaseTransitions, gateDefinitions)
-- **API Cleanup**: Aligned duplicate detection endpoints with storage interface (`/api/use-cases/check-duplicates`, `/api/use-cases/:id/resolve-duplicate`)
+- **High Risk Actions Required**: Added actionable guidance section to Responsible AI Insights tab - shows specific mitigations per NIST AI RMF for high-risk use cases (human oversight, explainability, quarterly review, impact assessment requirements)
+- **Business Segment Analytics Fix**: Fixed Executive Analytics charts to correctly use `businessSegments` array instead of deprecated `businessSegment` field
+- **Flexible Governance Model**: Schema now accepts any text value for `valueGovernanceModel` field to support legacy data
+- **Complete Use Case Data Population**: 6 reference library use cases populated with complete data across all governance tabs (scoring, value realization, capability transition, responsible AI)
+- **Documentation Cleanup**: Removed redundant documentation files (HEXAWARE_USER_GUIDE.md, INSTALLATION.md, QUICKSTART.md, VALUE_FRAMEWORK_GUIDE.md) - replit.md is the single source of truth
+- **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with AWS Five V's Framework and HBR Portfolio Model
+- **Visibility Enforcement**: Active portfolio use cases always visible on dashboard - UI toggle locked and backend enforces visibility
+- **Multi-tenancy**: Removed client-specific hardcoding for reusability across clients
 
 ## External Dependencies
 
