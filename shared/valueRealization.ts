@@ -71,6 +71,8 @@ export interface KpiDefinition {
   unit: string;
   direction: 'increase' | 'decrease';
   applicableProcesses?: string[]; // Optional - empty/undefined means org-wide KPI
+  applicableActivities?: string[]; // Optional - activity-level filtering for more precise matching
+  relevanceScore?: number; // 1-10: Higher = more commonly used, suggested first
   industryBenchmarks?: Record<string, IndustryBenchmark>;
   maturityRules?: MaturityRule[]; // Optional - defaults applied when deriving values
   kpiType?: KpiType; // Optional - defaults to 'operational'
@@ -366,8 +368,11 @@ export interface ApplicableKpiResult {
   kpiId: string;
   kpi: KpiDefinition;
   matchedProcesses: string[];
+  matchedActivities: string[];
   industryBenchmark: IndustryBenchmark | null;
   benchmarkProcess: string | null;
+  relevanceScore: number; // Combined score: base relevance + activity match bonus
+  isSuggested: boolean; // Top 5 by relevance are marked as suggested
 }
 
 export interface ValueEstimateResult {
@@ -424,10 +429,40 @@ function findMatchingProcess(
   return null;
 }
 
+/**
+ * Find matching activity in KPI applicableActivities with fuzzy matching
+ */
+function findMatchingActivity(
+  activityToMatch: string,
+  applicableActivities: string[]
+): string | null {
+  if (!applicableActivities || applicableActivities.length === 0) return null;
+  
+  const normalizedInput = normalizeProcessName(activityToMatch);
+  for (const kpiActivity of applicableActivities) {
+    const normalizedKpiActivity = normalizeProcessName(kpiActivity);
+    if (normalizedInput === normalizedKpiActivity) {
+      return kpiActivity;
+    }
+    // Partial match
+    if (normalizedInput.includes(normalizedKpiActivity) || normalizedKpiActivity.includes(normalizedInput)) {
+      return kpiActivity;
+    }
+  }
+  return null;
+}
+
+export interface GetApplicableKpisOptions {
+  activities?: string[];
+  suggestedCount?: number; // Number of top KPIs to mark as suggested (default: 5)
+}
+
 export function getApplicableKpis(
   processes: string[],
-  kpiLibrary: Record<string, KpiDefinition>
+  kpiLibrary: Record<string, KpiDefinition>,
+  options: GetApplicableKpisOptions = {}
 ): ApplicableKpiResult[] {
+  const { activities = [], suggestedCount = 5 } = options;
   const results: ApplicableKpiResult[] = [];
   const addedKpis = new Set<string>();
 
@@ -440,23 +475,49 @@ export function getApplicableKpis(
             kpiId,
             kpi,
             matchedProcesses: ['Organization-wide'],
+            matchedActivities: [],
             industryBenchmark: null,
             benchmarkProcess: null,
+            relevanceScore: kpi.relevanceScore || 3, // Lower relevance for org-wide
+            isSuggested: false,
           });
           addedKpis.add(kpiId);
         }
         continue;
       }
-      // Use fuzzy matching instead of exact match
+      
+      // Use fuzzy matching for process
       const matchedKpiProcess = findMatchingProcess(process, kpi.applicableProcesses);
       
       if (matchedKpiProcess && !addedKpis.has(kpiId)) {
-        // Use the matched KPI process name for benchmark lookup
         const benchmark = kpi.industryBenchmarks?.[matchedKpiProcess] || null;
+        
+        // Check activity matching for bonus relevance
+        const matchedActivities: string[] = [];
+        let activityBonus = 0;
+        
+        if (kpi.applicableActivities && kpi.applicableActivities.length > 0) {
+          for (const activity of activities) {
+            const matchedActivity = findMatchingActivity(activity, kpi.applicableActivities);
+            if (matchedActivity && !matchedActivities.includes(matchedActivity)) {
+              matchedActivities.push(matchedActivity);
+              activityBonus += 3; // +3 relevance per activity match
+            }
+          }
+        }
+        
+        // Calculate relevance: base score + activity bonus
+        const baseRelevance = kpi.relevanceScore || 5;
+        const relevanceScore = baseRelevance + activityBonus;
+        
         const existingResult = results.find(r => r.kpiId === kpiId);
         
         if (existingResult) {
           existingResult.matchedProcesses.push(process);
+          if (matchedActivities.length > 0) {
+            existingResult.matchedActivities.push(...matchedActivities);
+          }
+          existingResult.relevanceScore = Math.max(existingResult.relevanceScore, relevanceScore);
           if (!existingResult.industryBenchmark && benchmark) {
             existingResult.industryBenchmark = benchmark;
             existingResult.benchmarkProcess = matchedKpiProcess;
@@ -466,13 +527,23 @@ export function getApplicableKpis(
             kpiId,
             kpi,
             matchedProcesses: [process],
+            matchedActivities,
             industryBenchmark: benchmark,
-            benchmarkProcess: benchmark ? matchedKpiProcess : null
+            benchmarkProcess: benchmark ? matchedKpiProcess : null,
+            relevanceScore,
+            isSuggested: false,
           });
           addedKpis.add(kpiId);
         }
       }
     }
+  }
+
+  // Sort by relevance (highest first) and mark top N as suggested
+  results.sort((a, b) => b.relevanceScore - a.relevanceScore);
+  
+  for (let i = 0; i < Math.min(suggestedCount, results.length); i++) {
+    results[i].isSuggested = true;
   }
 
   return results;
@@ -617,6 +688,8 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       direction: 'decrease',
       categoryId: 'underwriting' as KpiCategoryId,
       applicableProcesses: ['underwriting'],
+      applicableActivities: ['Submission Intake', 'Quote Generation', 'Triage'],
+      relevanceScore: 9,
       kpiType: 'operational',
       valueStream: 'operational_savings',
       benchmark: '50-70%',
@@ -656,6 +729,8 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       direction: 'decrease',
       categoryId: 'underwriting' as KpiCategoryId,
       applicableProcesses: ['underwriting'],
+      applicableActivities: ['Risk Assessment', 'Risk Scoring', 'Risk Analysis'],
+      relevanceScore: 10,
       kpiType: 'operational',
       valueStream: 'operational_savings',
       benchmark: '60-80%',
@@ -669,6 +744,8 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       direction: 'increase',
       categoryId: 'underwriting' as KpiCategoryId,
       applicableProcesses: ['underwriting'],
+      applicableActivities: ['Risk Assessment', 'Risk Scoring', 'Risk Analysis'],
+      relevanceScore: 9,
       kpiType: 'operational',
       valueStream: 'cor_improvement',
       benchmark: '85%+',
@@ -812,6 +889,8 @@ export const DEFAULT_VALUE_REALIZATION_CONFIG: ValueRealizationConfig = {
       direction: 'decrease',
       categoryId: 'claims' as KpiCategoryId,
       applicableProcesses: ['claims'],
+      applicableActivities: ['First Notice of Loss (FNOL)', 'First Report of Injury (FROI)', 'Claims Intake'],
+      relevanceScore: 10,
       kpiType: 'operational',
       valueStream: 'operational_savings',
       benchmark: '60-80%',

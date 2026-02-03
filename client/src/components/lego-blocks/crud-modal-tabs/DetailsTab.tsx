@@ -349,6 +349,7 @@ export default function DetailsTab({
           
           <ValueEstimationLegoBlock
             processes={(form.watch('processes') as string[]) || []}
+            activities={(form.watch('activities') as string[]) || []}
             scores={{
               dataReadiness: scores.dataReadiness || null,
               technicalComplexity: scores.technicalComplexity || null,

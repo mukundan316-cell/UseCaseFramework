@@ -26,6 +26,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 
 interface ValueEstimationLegoBlockProps {
   processes: string[];
+  activities?: string[];
   scores: UseCaseScores;
   className?: string;
   volumeMultiplier?: number;
@@ -37,6 +38,7 @@ interface ValueEstimationLegoBlockProps {
 
 export default function ValueEstimationLegoBlock({
   processes,
+  activities = [],
   scores,
   className = '',
   volumeMultiplier = 1000,
@@ -63,7 +65,7 @@ export default function ValueEstimationLegoBlock({
       };
     }
 
-    const applicable = getApplicableKpis(processes, kpiLibrary);
+    const applicable = getApplicableKpis(processes, kpiLibrary, { activities });
     const estimates = deriveValueEstimates(processes, scores, kpiLibrary, volumeMultiplier);
     const total = calculateTotalEstimatedValue(estimates);
 
@@ -72,18 +74,21 @@ export default function ValueEstimationLegoBlock({
       valueEstimates: estimates,
       totalValue: total
     };
-  }, [processes, scores, kpiLibrary, volumeMultiplier]);
+  }, [processes, activities, scores, kpiLibrary, volumeMultiplier]);
 
-  // Auto-select all suggested KPIs when processes change (if selection mode is enabled)
+  // Auto-select only SUGGESTED KPIs (top 5 by relevance) when processes change
   useEffect(() => {
-    if (showSelection && onKpiSelectionChange && valueEstimates.length > 0) {
-      const suggestedKpiIds = valueEstimates.map(e => e.kpiId);
+    if (showSelection && onKpiSelectionChange && applicableKpis.length > 0) {
+      // Only auto-select the suggested KPIs (top 5 by relevance), not all
+      const suggestedKpiIds = applicableKpis
+        .filter(k => k.isSuggested)
+        .map(k => k.kpiId);
       // Only auto-select if no KPIs are currently selected
       if (selectedKpis.length === 0 && suggestedKpiIds.length > 0) {
         onKpiSelectionChange(suggestedKpiIds);
       }
     }
-  }, [valueEstimates, showSelection, onKpiSelectionChange, selectedKpis.length]);
+  }, [applicableKpis, showSelection, onKpiSelectionChange, selectedKpis.length]);
 
   const handleKpiToggle = (kpiId: string, checked: boolean) => {
     if (!onKpiSelectionChange) return;
