@@ -23,6 +23,7 @@ interface UseCase {
   valueRealization?: {
     derived?: boolean;
     totalEstimatedValue?: { min: number; max: number; currency: string };
+    selectedKpis?: string[];
     kpiEstimates?: Array<{ 
       kpiId: string; 
       kpiName: string; 
@@ -123,22 +124,25 @@ function computeValueMetrics(useCases: UseCase[]): ValueMetrics {
     const validationStatus = vr?.valueConfidence?.validationStatus || 'unvalidated';
     metrics.validationBreakdown[validationStatus]++;
 
-    // Track KPI types and value streams
-    if (vr?.kpiEstimates) {
-      vr.kpiEstimates.forEach(kpi => {
-        const kpiType = kpi.kpiType || 'financial';
-        metrics.kpiTypeBreakdown[kpiType]++;
-        
-        if (kpi.valueStream) {
-          if (!metrics.valueStreamBreakdown[kpi.valueStream]) {
-            metrics.valueStreamBreakdown[kpi.valueStream] = { count: 0, value: 0 };
+    // Track KPI types and value streams - only count SELECTED KPIs (not all applicable)
+    const selectedKpiIds = new Set(vr?.selectedKpis || []);
+    if (vr?.kpiEstimates && selectedKpiIds.size > 0) {
+      vr.kpiEstimates
+        .filter(kpi => selectedKpiIds.has(kpi.kpiId))
+        .forEach(kpi => {
+          const kpiType = kpi.kpiType || 'operational';
+          metrics.kpiTypeBreakdown[kpiType]++;
+          
+          if (kpi.valueStream) {
+            if (!metrics.valueStreamBreakdown[kpi.valueStream]) {
+              metrics.valueStreamBreakdown[kpi.valueStream] = { count: 0, value: 0 };
+            }
+            metrics.valueStreamBreakdown[kpi.valueStream].count++;
+            if (kpi.estimatedAnnualValueGbp) {
+              metrics.valueStreamBreakdown[kpi.valueStream].value += kpi.estimatedAnnualValueGbp.max || 0;
+            }
           }
-          metrics.valueStreamBreakdown[kpi.valueStream].count++;
-          if (kpi.estimatedAnnualValueGbp) {
-            metrics.valueStreamBreakdown[kpi.valueStream].value += kpi.estimatedAnnualValueGbp.max || 0;
-          }
-        }
-      });
+        });
     }
 
     // Check for tracking (investment data) - can coexist with estimates
@@ -650,7 +654,7 @@ export default function ValueRealizationView({ scope = 'reference' }: ValueReali
                   {useCases?.map((uc) => {
                     const status = getValueStatus(uc);
                     const vr = uc.valueRealization;
-                    const kpiCount = vr?.kpiEstimates?.length || 0;
+                    const kpiCount = vr?.selectedKpis?.length || 0;
                     const displayValue = getDisplayValue(vr);
                     const conservativeFactor = vr?.valueConfidence?.conservativeFactor ?? 1;
                     const adjustedMax = displayValue?.max ? displayValue.max * conservativeFactor : null;
