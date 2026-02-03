@@ -322,11 +322,11 @@ export default function EnhancedMatrixPlot() {
                   </div>
                 </div>
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <HelpCircle className="w-4 h-4 text-blue-400 hover:text-blue-600 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>Total number of AI use cases in your active portfolio. These represent all initiatives being evaluated for Hexaware implementation.</p>
+                    <p>Total number of AI use cases in your active portfolio. These represent all initiatives being evaluated for implementation.</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -344,11 +344,17 @@ export default function EnhancedMatrixPlot() {
                   </div>
                 </div>
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <HelpCircle className="w-4 h-4 text-emerald-400 hover:text-emerald-600 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>Initiatives with Impact Score ≥ 4.0. These represent high business value opportunities that should be prioritized for implementation.</p>
+                    <div className="space-y-2">
+                      <p className="font-medium">Impact Score ≥ 4.0 (Significant or Major)</p>
+                      <p className="text-xs text-muted-foreground">High business value opportunities that should be prioritized for implementation.</p>
+                      <div className="text-xs border-t pt-1 mt-1">
+                        <span className="font-medium">Scoring Scale:</span> 1=None, 2=Minor, 3=Moderate, 4=Significant, 5=Major
+                      </div>
+                    </div>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -366,11 +372,17 @@ export default function EnhancedMatrixPlot() {
                   </div>
                 </div>
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <HelpCircle className="w-4 h-4 text-amber-400 hover:text-amber-600 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>Initiatives with Effort Score ≤ 2.0. These are quick wins requiring minimal resources and can deliver fast results.</p>
+                    <div className="space-y-2">
+                      <p className="font-medium">Effort Score ≤ 2.0 (None or Minor)</p>
+                      <p className="text-xs text-muted-foreground">Quick wins requiring minimal resources that can deliver fast results.</p>
+                      <div className="text-xs border-t pt-1 mt-1">
+                        <span className="font-medium">Scoring Scale:</span> 1=None, 2=Minor, 3=Moderate, 4=Significant, 5=Major
+                      </div>
+                    </div>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -390,11 +402,17 @@ export default function EnhancedMatrixPlot() {
                   </div>
                 </div>
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <HelpCircle className="w-4 h-4 text-purple-400 hover:text-purple-600 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>Average business impact across your portfolio (1-5 scale). Higher scores indicate greater potential business value and ROI.</p>
+                    <div className="space-y-2">
+                      <p className="font-medium">Average Impact Score (1-5)</p>
+                      <p className="text-xs text-muted-foreground">Higher scores indicate greater potential business value and ROI.</p>
+                      <div className="text-xs border-t pt-1 mt-1">
+                        <span className="font-medium">Scoring Scale:</span> 1=None, 2=Minor, 3=Moderate, 4=Significant, 5=Major
+                      </div>
+                    </div>
                   </TooltipContent>
                 </Tooltip>
               </div>
