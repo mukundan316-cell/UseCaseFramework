@@ -213,11 +213,24 @@ const strategyStepGuides = [
     icon: BarChart3,
     color: '#8B5CF6',
     steps: [
-      { step: 1, action: 'Go to Insights tab' },
+      { step: 1, action: 'Go to Insights tab and toggle Active Portfolio or Reference Library' },
       { step: 2, action: 'Value Realization: ROI metrics and KPI tracking' },
-      { step: 3, action: 'Operating Model: Phase distribution' },
-      { step: 4, action: 'Capability Transition: Staffing and timeline' },
-      { step: 5, action: 'Responsible AI: Risk tier breakdown' }
+      { step: 3, action: 'Operating Model: Phase distribution with Idea Pool vs Active Pipeline' },
+      { step: 4, action: 'Capability Transition: Staffing curves and self-sufficiency timeline' },
+      { step: 5, action: 'Responsible AI: Risk tiers and High Risk Actions Required' }
+    ]
+  },
+  {
+    id: 'high-risk',
+    title: 'Review High Risk Actions',
+    icon: Shield,
+    color: '#EF4444',
+    steps: [
+      { step: 1, action: 'Go to Insights → Responsible AI tab → Active Portfolio' },
+      { step: 2, action: 'Scroll to "High Risk Actions Required" section' },
+      { step: 3, action: 'Review each flagged use case for required mitigations' },
+      { step: 4, action: 'Ensure human oversight, explainability, and quarterly reviews are set' },
+      { step: 5, action: 'Complete impact assessments for bias testing and fairness' }
     ]
   },
   {
@@ -668,9 +681,9 @@ const roleConfigs = {
     tasks: strategyTasks,
     workflow: strategyWorkflow,
     tips: [
-      "Validate value estimates before final phases",
-      "PDF exports include adjusted values with validation status",
-      "Click bubbles/rows to open use case details"
+      "Toggle between Active Portfolio and Reference Library in Insights",
+      "Review High Risk Actions in Responsible AI tab for NIST AI RMF mitigations",
+      "Validate value estimates before activating use cases"
     ],
     detailGuideType: 'strategy' as const
   },
