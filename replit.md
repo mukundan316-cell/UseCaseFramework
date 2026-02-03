@@ -67,6 +67,7 @@ Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
   2. **Active Pipeline Section**: Shows Assessment → Operate phases only (Ideation filtered out from Active Portfolio view)
 
 ## Recent Changes (Feb 2026)
+- **Visibility Enforcement**: Active portfolio use cases are always visible on dashboard - UI toggle locked and backend enforces visibility
 - **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with industry frameworks
 - **Phase Derivation Refactor**: Added `libraryTier` parameter to `derivePhase()` for Reference Library use cases to always return Ideation
 - **Activation Flow Update**: Scored use cases auto-enter Assessment phase on activation; unscored enter Ideation
