@@ -323,10 +323,18 @@ export default function EnhancedMatrixPlot() {
                 </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="w-4 h-4 text-blue-400 hover:text-blue-600 cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <HelpCircle className="w-4 h-4 text-blue-400 hover:text-blue-600 cursor-help" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>Total number of AI use cases in your active portfolio. These represent all initiatives being evaluated for implementation.</p>
+                    <div className="space-y-2">
+                      <p className="font-medium">Total Active Portfolio</p>
+                      <p className="text-xs text-muted-foreground">All AI use cases being evaluated for implementation.</p>
+                      <div className="text-xs border-t pt-1 mt-1">
+                        <span className="font-medium">Scoring Scale:</span> 1=None, 2=Minor, 3=Moderate, 4=Significant, 5=Major
+                      </div>
+                    </div>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -345,7 +353,9 @@ export default function EnhancedMatrixPlot() {
                 </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="w-4 h-4 text-emerald-400 hover:text-emerald-600 cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <HelpCircle className="w-4 h-4 text-emerald-400 hover:text-emerald-600 cursor-help" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
                     <div className="space-y-2">
@@ -373,7 +383,9 @@ export default function EnhancedMatrixPlot() {
                 </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="w-4 h-4 text-amber-400 hover:text-amber-600 cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <HelpCircle className="w-4 h-4 text-amber-400 hover:text-amber-600 cursor-help" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
                     <div className="space-y-2">
@@ -403,7 +415,9 @@ export default function EnhancedMatrixPlot() {
                 </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="w-4 h-4 text-purple-400 hover:text-purple-600 cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <HelpCircle className="w-4 h-4 text-purple-400 hover:text-purple-600 cursor-help" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
                     <div className="space-y-2">
