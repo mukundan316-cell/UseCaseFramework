@@ -469,6 +469,8 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
         manualQuadrant: (useCase as any).manualQuadrant,
         overrideReason: (useCase as any).overrideReason || '',
         primaryBusinessOwner: (useCase as any).primaryBusinessOwner || '',
+        deliveryOwner: (useCase as any).deliveryOwner || '',
+        valueGovernanceModel: (useCase as any).valueGovernanceModel || null,
         useCaseStatus: (useCase as any).useCaseStatus || 'Discovery',
         keyDependencies: (useCase as any).keyDependencies || '',
         implementationTimeline: (useCase as any).implementationTimeline || '',
