@@ -423,7 +423,7 @@ export const insertUseCaseSchema = createInsertSchema(useCases).omit({
   primaryBusinessOwner: z.union([z.string(), z.null()]).optional(),
   deliveryOwner: z.union([z.string(), z.null()]).optional(),
   valueValidator: z.union([z.string(), z.null()]).optional(),
-  valueGovernanceModel: z.union([z.enum(['business_led', 'it_led', 'joint']), z.null()]).optional(),
+  valueGovernanceModel: z.union([z.string(), z.null()]).optional(),
   useCaseStatus: z.union([z.string(), z.null()]).optional(), // Now dynamic from metadata
   keyDependencies: z.union([z.string(), z.null()]).optional(),
   implementationTimeline: z.union([z.string(), z.null()]).optional(),
