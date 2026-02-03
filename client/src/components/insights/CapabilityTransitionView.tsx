@@ -20,12 +20,13 @@ import RoleEvolutionLegoBlock from '@/components/lego-blocks/RoleEvolutionLegoBl
 import AuditTimelineLegoBlock from '@/components/lego-blocks/AuditTimelineLegoBlock';
 
 interface CapabilityTransitionViewProps {
-  scope?: 'active' | 'all';
+  scope?: 'active' | 'reference';
 }
 
-export default function CapabilityTransitionView({ scope = 'all' }: CapabilityTransitionViewProps) {
-  const summaryEndpoint = scope === 'active' ? '/api/capability/portfolio-summary?scope=dashboard' : '/api/capability/portfolio-summary?scope=all';
-  const projectionEndpoint = scope === 'active' ? '/api/capability/staffing-projection?scope=dashboard' : '/api/capability/staffing-projection?scope=all';
+export default function CapabilityTransitionView({ scope = 'reference' }: CapabilityTransitionViewProps) {
+  // TWO-TIER PORTFOLIO MODEL: Active Portfolio = active tier only, Reference Library = reference tier only
+  const summaryEndpoint = scope === 'active' ? '/api/capability/portfolio-summary?scope=dashboard' : '/api/capability/portfolio-summary?scope=reference';
+  const projectionEndpoint = scope === 'active' ? '/api/capability/staffing-projection?scope=dashboard' : '/api/capability/staffing-projection?scope=reference';
   
   const { data: portfolioSummary, isLoading: summaryLoading, isError: summaryError } = useQuery<PortfolioCapabilitySummary>({
     queryKey: [summaryEndpoint],
@@ -50,12 +51,14 @@ export default function CapabilityTransitionView({ scope = 'all' }: CapabilityTr
       return response;
     },
     onSuccess: (data: { derived: number; skipped: number; total: number }) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/capability/portfolio-summary?scope=all'] });
+      // Invalidate all scope variants for Two-Tier Portfolio Model
       queryClient.invalidateQueries({ queryKey: ['/api/capability/portfolio-summary?scope=dashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/capability/staffing-projection?scope=all'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/capability/portfolio-summary?scope=reference'] });
       queryClient.invalidateQueries({ queryKey: ['/api/capability/staffing-projection?scope=dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/capability/staffing-projection?scope=reference'] });
       queryClient.invalidateQueries({ queryKey: ['/api/use-cases'] });
       queryClient.invalidateQueries({ queryKey: ['/api/use-cases/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/use-cases/reference'] });
       toast({
         title: 'Capability Defaults Derived',
         description: `Auto-populated ${data.derived} use cases from benchmark data (${data.skipped} skipped)`,

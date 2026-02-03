@@ -208,7 +208,7 @@ function getDisplayValue(vr: UseCase['valueRealization']): { min: number; max: n
 }
 
 interface ValueRealizationViewProps {
-  scope?: 'active' | 'all';
+  scope?: 'active' | 'reference';
 }
 
 const VALUE_STREAM_LABELS: Record<string, string> = {
@@ -227,14 +227,15 @@ const VALIDATION_STATUS_LABELS: Record<ValidationStatus, string> = {
   fully_validated: 'Fully Validated'
 };
 
-export default function ValueRealizationView({ scope = 'all' }: ValueRealizationViewProps) {
+export default function ValueRealizationView({ scope = 'reference' }: ValueRealizationViewProps) {
   const [valueStreamFilter, setValueStreamFilter] = useState<string>('all');
   const { selectedEngagementId, selectedClientId } = useEngagement();
   const { formatCompact: formatCurrency, symbol: currencySymbol } = useCurrency();
+  // TWO-TIER PORTFOLIO MODEL: Active Portfolio = active tier only, Reference Library = reference tier only
   const useCasesEndpoint = scope === 'active' 
     ? (selectedEngagementId ? `/api/use-cases/dashboard?engagementId=${selectedEngagementId}` : '/api/use-cases/dashboard')
-    : (selectedEngagementId ? `/api/use-cases?engagementId=${selectedEngagementId}` : '/api/use-cases');
-  const summaryEndpoint = scope === 'active' ? '/api/value/portfolio-summary?scope=dashboard' : '/api/value/portfolio-summary?scope=all';
+    : (selectedEngagementId ? `/api/use-cases/reference?engagementId=${selectedEngagementId}` : '/api/use-cases/reference');
+  const summaryEndpoint = scope === 'active' ? '/api/value/portfolio-summary?scope=dashboard' : '/api/value/portfolio-summary?scope=reference';
   
   const { data: useCases, isLoading: useCasesLoading } = useQuery<UseCase[]>({
     queryKey: [useCasesEndpoint],

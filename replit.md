@@ -53,11 +53,15 @@ The platform uses Hexaware's official branding, colors, and typography. UI compo
 
 ### Two-Tier Portfolio Model (Feb 2026)
 Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
-- **Reference Library = Ideation Phase**: Idea pool for strategic planning. All Reference Library use cases are in Ideation regardless of status.
-- **Active Portfolio = Assessment → Operate**: Committed pipeline. Scored and activated use cases progress through lifecycle phases.
+- **Reference Library = Ideation Phase**: Idea pool for strategic planning. Only includes reference-tier use cases, all counted as Ideation.
+- **Active Portfolio = Assessment → Operate**: Committed pipeline. Only includes active-tier use cases with actual phase progression.
 - **Activation Logic**: When activating a use case, scored use cases enter Assessment phase; unscored remain in Ideation until scored.
 - **Phase Derivation**: `derivePhase()` in `shared/tom.ts` accepts `libraryTier` parameter to enforce phase logic.
-- **API Scope Parameter**: `/api/tom/phase-summary` supports `scope` parameter ('all'/'reference' vs 'active'/'dashboard') to calculate phase distribution correctly.
+- **API Scope Parameters**: 
+  - `scope=active` or `scope=dashboard` → Active Portfolio only (active-tier use cases)
+  - `scope=reference` → Reference Library only (reference-tier use cases, all Ideation)
+  - `scope=all` → All use cases (for admin/reporting)
+- **Insights Views**: All 4 tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) support scope toggle.
 
 ## Recent Changes (Feb 2026)
 - **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with industry frameworks

@@ -56,9 +56,15 @@ export function registerValueRoutes(app: Express): void {
   app.get("/api/value/portfolio-summary", async (req, res) => {
     try {
       const scope = req.query.scope as string | undefined;
-      const useCases = scope === 'dashboard' 
-        ? await storage.getDashboardUseCases() 
-        : await storage.getAllUseCases();
+      // TWO-TIER PORTFOLIO MODEL: dashboard/active = Active Portfolio, reference = Reference Library
+      let useCases;
+      if (scope === 'dashboard' || scope === 'active') {
+        useCases = await storage.getDashboardUseCases();
+      } else if (scope === 'reference') {
+        useCases = await storage.getReferenceLibraryUseCases();
+      } else {
+        useCases = await storage.getAllUseCases();
+      }
       const metadata = await storage.getMetadataConfig();
       const tomModule = await import("@shared/tom");
       const { aggregatePortfolioValue } = await import("@shared/valueRealization");
@@ -66,15 +72,22 @@ export function registerValueRoutes(app: Express): void {
       
       const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
       
+      // TWO-TIER PORTFOLIO MODEL: Reference Library scope forces Ideation phase
+      const isReferenceScope = scope === 'reference';
+      
       // Map use cases with derived phases
       const useCasesWithPhases = useCases.map(uc => {
         let derivedPhase = null;
         if (tomConfig.enabled === 'true') {
+          // Pass libraryTier to derivePhase for correct phase calculation
+          const effectiveTier = isReferenceScope ? 'reference' : 'active';
           const phaseResult = derivePhase(
             uc.useCaseStatus,
             uc.deploymentStatus,
             uc.tomPhaseOverride,
-            tomConfig
+            tomConfig,
+            undefined, // governanceGates
+            effectiveTier
           );
           derivedPhase = phaseResult;
         }

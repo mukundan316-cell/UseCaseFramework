@@ -96,15 +96,16 @@ function getPhaseIcon(phaseName: string) {
 }
 
 interface OperatingModelViewProps {
-  scope?: 'active' | 'all';
+  scope?: 'active' | 'reference';
 }
 
-export default function OperatingModelView({ scope = 'all' }: OperatingModelViewProps) {
+export default function OperatingModelView({ scope = 'reference' }: OperatingModelViewProps) {
   const { selectedEngagementId, selectedClientId } = useEngagement();
+  // TWO-TIER PORTFOLIO MODEL: Active Portfolio = active tier only, Reference Library = reference tier only
   const useCasesEndpoint = scope === 'active' 
     ? (selectedEngagementId ? `/api/use-cases/dashboard?engagementId=${selectedEngagementId}` : '/api/use-cases/dashboard')
-    : (selectedEngagementId ? `/api/use-cases?engagementId=${selectedEngagementId}` : '/api/use-cases');
-  const phaseSummaryEndpoint = scope === 'active' ? '/api/tom/phase-summary?scope=dashboard' : '/api/tom/phase-summary?scope=all';
+    : (selectedEngagementId ? `/api/use-cases/reference?engagementId=${selectedEngagementId}` : '/api/use-cases/reference');
+  const phaseSummaryEndpoint = scope === 'active' ? '/api/tom/phase-summary?scope=active' : '/api/tom/phase-summary?scope=reference';
   
   const { data: useCases, isLoading: useCasesLoading, isError: useCasesError } = useQuery<UseCase[]>({
     queryKey: [useCasesEndpoint],

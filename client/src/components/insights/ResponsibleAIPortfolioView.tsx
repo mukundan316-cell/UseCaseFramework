@@ -158,14 +158,15 @@ function FieldIndicator({ value, label }: { value: string | null; label: string 
 }
 
 interface ResponsibleAIPortfolioViewProps {
-  scope?: 'active' | 'all';
+  scope?: 'active' | 'reference';
 }
 
-export default function ResponsibleAIPortfolioView({ scope = 'all' }: ResponsibleAIPortfolioViewProps) {
+export default function ResponsibleAIPortfolioView({ scope = 'reference' }: ResponsibleAIPortfolioViewProps) {
   const { selectedEngagementId } = useEngagement();
+  // TWO-TIER PORTFOLIO MODEL: Active Portfolio = active tier only, Reference Library = reference tier only
   const useCasesEndpoint = scope === 'active' 
     ? (selectedEngagementId ? `/api/use-cases/dashboard?engagementId=${selectedEngagementId}` : '/api/use-cases/dashboard')
-    : (selectedEngagementId ? `/api/use-cases?engagementId=${selectedEngagementId}` : '/api/use-cases');
+    : (selectedEngagementId ? `/api/use-cases/reference?engagementId=${selectedEngagementId}` : '/api/use-cases/reference');
   
   const { data: useCases, isLoading, isError } = useQuery<UseCase[]>({
     queryKey: [useCasesEndpoint],

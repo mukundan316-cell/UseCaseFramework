@@ -102,9 +102,15 @@ export function registerCapabilityRoutes(app: Express): void {
   app.get("/api/capability/portfolio-summary", async (req, res) => {
     try {
       const scope = req.query.scope as string | undefined;
-      const useCases = scope === 'dashboard' 
-        ? await storage.getDashboardUseCases() 
-        : await storage.getAllUseCases();
+      // TWO-TIER PORTFOLIO MODEL: dashboard/active = Active Portfolio, reference = Reference Library
+      let useCases;
+      if (scope === 'dashboard' || scope === 'active') {
+        useCases = await storage.getDashboardUseCases();
+      } else if (scope === 'reference') {
+        useCases = await storage.getReferenceLibraryUseCases();
+      } else {
+        useCases = await storage.getAllUseCases();
+      }
       const metadata = await storage.getMetadataConfig();
       const { 
         aggregatePortfolioCapability, 
@@ -130,9 +136,15 @@ export function registerCapabilityRoutes(app: Express): void {
   app.get("/api/capability/staffing-projection", async (req, res) => {
     try {
       const scope = req.query.scope as string | undefined;
-      const useCases = scope === 'dashboard' 
-        ? await storage.getDashboardUseCases() 
-        : await storage.getAllUseCases();
+      // TWO-TIER PORTFOLIO MODEL: dashboard/active = Active Portfolio, reference = Reference Library
+      let useCases;
+      if (scope === 'dashboard' || scope === 'active') {
+        useCases = await storage.getDashboardUseCases();
+      } else if (scope === 'reference') {
+        useCases = await storage.getReferenceLibraryUseCases();
+      } else {
+        useCases = await storage.getAllUseCases();
+      }
       const { generateAggregateStaffingProjection } = await import("@shared/capabilityTransition");
       
       const useCasesWithCapability = useCases.map(uc => ({

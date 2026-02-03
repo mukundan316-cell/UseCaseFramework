@@ -10,7 +10,7 @@ import CapabilityTransitionView from '@/components/insights/CapabilityTransition
 import ResponsibleAIPortfolioView from '@/components/insights/ResponsibleAIPortfolioView';
 
 type InsightsSubTab = 'value-realization' | 'operating-model' | 'capability-transition' | 'responsible-ai';
-export type InsightsScope = 'active' | 'all';
+export type InsightsScope = 'active' | 'reference';
 
 interface InsightsPageProps {
   defaultTab?: InsightsSubTab;
@@ -18,7 +18,7 @@ interface InsightsPageProps {
 
 export default function InsightsPage({ defaultTab = 'value-realization' }: InsightsPageProps) {
   const [activeSubTab, setActiveSubTab] = useState<InsightsSubTab>(defaultTab);
-  const [scope, setScope] = useState<InsightsScope>('all');
+  const [scope, setScope] = useState<InsightsScope>('reference');
 
   return (
     <div className="space-y-6">
@@ -63,11 +63,11 @@ export default function InsightsPage({ defaultTab = 'value-realization' }: Insig
               Active Portfolio
             </Button>
             <Button
-              variant={scope === 'all' ? 'default' : 'ghost'}
+              variant={scope === 'reference' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setScope('all')}
+              onClick={() => setScope('reference')}
               className="flex items-center gap-1.5"
-              data-testid="scope-toggle-all"
+              data-testid="scope-toggle-reference"
             >
               <Library className="h-3.5 w-3.5" />
               Reference Library

@@ -309,14 +309,20 @@ export function registerTomRoutes(app: Express): void {
         return res.json({ enabled: false, summary: {} });
       }
       
-      // REFERENCE LIBRARY = IDEATION MODEL
-      // - scope='dashboard' or scope='active' → Active Portfolio (Assessment+ phases)
-      // - scope='all' or scope='reference' → Reference Library (all Ideation)
-      const isReferenceScope = scope === 'all' || scope === 'reference';
+      // TWO-TIER PORTFOLIO MODEL (aligned with AWS Five V's & HBR Portfolio Model)
+      // - scope='dashboard' or scope='active' → Active Portfolio (Assessment+ phases) - only active tier use cases
+      // - scope='reference' → Reference Library (Ideation) - only reference tier use cases
+      // - scope='all' → All use cases (for admin/reporting purposes)
+      const isReferenceScope = scope === 'reference';
       
-      const useCases = scope === 'dashboard' || scope === 'active'
-        ? await storage.getDashboardUseCases() 
-        : await storage.getAllUseCases();
+      let useCases;
+      if (scope === 'dashboard' || scope === 'active') {
+        useCases = await storage.getDashboardUseCases();
+      } else if (scope === 'reference') {
+        useCases = await storage.getReferenceLibraryUseCases();
+      } else {
+        useCases = await storage.getAllUseCases();
+      }
       
       // For Reference Library scope, calculate phase summary with libraryTier='reference'
       // This ensures all Reference Library use cases show as Ideation
@@ -379,26 +385,47 @@ export function registerTomRoutes(app: Express): void {
         return res.json({ enabled: false, summary: {} });
       }
       
-      const useCases = scope === 'dashboard' 
-        ? await storage.getDashboardUseCases() 
-        : await storage.getAllUseCases();
+      // TWO-TIER PORTFOLIO MODEL (aligned with AWS Five V's & HBR Portfolio Model)
+      const { derivePhase } = await import("@shared/tom");
+      const isReferenceScope = scope === 'reference';
       
-      const summary = calculatePhaseSummary(
-        useCases.map(uc => {
-          const govStatus = calculateGovernanceStatus(uc);
-          return {
-            useCaseStatus: uc.useCaseStatus,
-            deploymentStatus: uc.deploymentStatus,
-            tomPhaseOverride: uc.tomPhaseOverride,
-            governanceGates: {
-              operatingModelPassed: govStatus.operatingModel.passed,
-              intakePassed: govStatus.intake.passed,
-              raiPassed: govStatus.rai.passed
-            }
-          };
-        }),
-        tomConfig
-      );
+      let useCases;
+      if (scope === 'dashboard' || scope === 'active') {
+        useCases = await storage.getDashboardUseCases();
+      } else if (scope === 'reference') {
+        useCases = await storage.getReferenceLibraryUseCases();
+      } else {
+        useCases = await storage.getAllUseCases();
+      }
+      
+      // Calculate phase distribution per-use-case for correct tier handling
+      const summary: Record<string, number> = {};
+      tomConfig.phases.forEach(p => { summary[p.id] = 0; });
+      summary['unphased'] = 0;
+      
+      useCases.forEach(uc => {
+        const govStatus = calculateGovernanceStatus(uc);
+        const effectiveTier = isReferenceScope ? 'reference' : 'active';
+        
+        const phaseResult = derivePhase(
+          uc.useCaseStatus,
+          uc.deploymentStatus,
+          uc.tomPhaseOverride,
+          tomConfig,
+          {
+            operatingModelPassed: govStatus.operatingModel.passed,
+            intakePassed: govStatus.intake.passed,
+            raiPassed: govStatus.rai.passed
+          },
+          effectiveTier
+        );
+        
+        if (phaseResult.id === 'unmapped' || phaseResult.id === 'disabled') {
+          summary['unphased'] = (summary['unphased'] || 0) + 1;
+        } else {
+          summary[phaseResult.id] = (summary[phaseResult.id] || 0) + 1;
+        }
+      });
       
       res.json({ 
         enabled: true, 
