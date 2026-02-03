@@ -412,6 +412,112 @@ export default function ResponsibleAIPortfolioView({ scope = 'reference' }: Resp
           </Card>
         </div>
 
+        {/* High Risk Actions Required - Actionable Guidance Section */}
+        {(() => {
+          const highRiskCases = useCases.filter(uc => {
+            const risk = uc.customerHarmRisk?.toLowerCase();
+            return risk === 'high' || risk === 'critical' || risk === 'severe' || risk === 'significant';
+          });
+          
+          if (highRiskCases.length === 0) return null;
+          
+          return (
+            <Card className="border-red-200 bg-gradient-to-r from-red-50 to-orange-50">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-red-600" />
+                    <CardTitle className="text-base text-red-900">High Risk Actions Required</CardTitle>
+                  </div>
+                  <Badge className="bg-red-100 text-red-700 border-red-300">
+                    {highRiskCases.length} Use Case{highRiskCases.length > 1 ? 's' : ''} Require Attention
+                  </Badge>
+                </div>
+                <CardDescription className="text-red-700">
+                  These use cases have been flagged as high risk and require specific mitigations per NIST AI RMF guidelines
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {highRiskCases.map(uc => (
+                    <div key={uc.id} className="bg-white rounded-lg border border-red-200 p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{uc.title}</h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="text-xs">{uc.quadrant}</Badge>
+                            <Badge variant="outline" className="text-xs">{uc.useCaseStatus}</Badge>
+                          </div>
+                        </div>
+                        <Badge className="bg-red-600 text-white">High Risk</Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                        <div className="bg-amber-50 rounded p-3 border border-amber-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Users className="h-4 w-4 text-amber-600" />
+                            <span className="text-sm font-medium text-amber-800">Required: Human Oversight</span>
+                          </div>
+                          <p className="text-xs text-amber-700">
+                            {uc.humanAccountability === 'true' 
+                              ? '✓ Human-in-the-loop confirmed' 
+                              : '⚠ Assign human reviewer for all AI decisions'}
+                          </p>
+                        </div>
+                        
+                        <div className="bg-blue-50 rounded p-3 border border-blue-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Eye className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-800">Required: Explainability</span>
+                          </div>
+                          <p className="text-xs text-blue-700">
+                            {uc.explainabilityRequired === 'true' 
+                              ? '✓ Explainable AI requirement set' 
+                              : '⚠ Document decision explanation methodology'}
+                          </p>
+                        </div>
+                        
+                        <div className="bg-purple-50 rounded p-3 border border-purple-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Shield className="h-4 w-4 text-purple-600" />
+                            <span className="text-sm font-medium text-purple-800">Required: Quarterly Review</span>
+                          </div>
+                          <p className="text-xs text-purple-700">
+                            Schedule AI Ethics Committee review every 90 days
+                          </p>
+                        </div>
+                        
+                        <div className="bg-green-50 rounded p-3 border border-green-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            <span className="text-sm font-medium text-green-800">Required: Impact Assessment</span>
+                          </div>
+                          <p className="text-xs text-green-700">
+                            Complete bias testing and fairness documentation
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {(uc.dataOutsideUkEu === 'true' || uc.thirdPartyModel === 'true') && (
+                        <div className="mt-3 p-2 bg-gray-100 rounded border border-gray-200">
+                          <p className="text-xs text-gray-600 flex items-center gap-2">
+                            <AlertCircle className="h-3 w-3" />
+                            <span>
+                              Additional Controls: 
+                              {uc.dataOutsideUkEu === 'true' && ' Cross-border data transfer agreements required.'}
+                              {uc.thirdPartyModel === 'true' && ' Third-party vendor risk assessment required.'}
+                            </span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Use Case RAI Status</CardTitle>
