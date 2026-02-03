@@ -22,7 +22,7 @@ interface ExportButtonProps {
 
 /**
  * Reusable LEGO Export Button Component
- * Handles both PDF and Excel export for different content types with RSA branding
+ * Handles both PDF and Excel export for different content types
  */
 export default function ExportButton({
   exportType,
@@ -99,19 +99,35 @@ export default function ExportButton({
       
       const exportUrl = getExportUrl(format);
       
-      // Create download link
-      const link = document.createElement('a');
-      link.href = exportUrl;
-      link.download = ''; // Let server determine filename
+      const response = await fetch(exportUrl);
       
-      // Trigger download
+      if (!response.ok) {
+        throw new Error(`Export failed with status ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `export.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          filename = match[1].replace(/['"]/g, '');
+        }
+      }
+      
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
       
       toast({
-        title: "Export Started",
-        description: `Your ${format.toUpperCase()} report is being generated. Download will begin shortly.`,
+        title: "Export Complete",
+        description: `Your ${format.toUpperCase()} report has been downloaded.`,
       });
       
     } catch (error) {
