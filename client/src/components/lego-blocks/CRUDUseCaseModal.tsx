@@ -235,11 +235,14 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     );
   }, [isTomEnabled, tomConfig, watchedStatus, watchedDeploymentStatus, watchedTomOverride]);
 
+  // Watch all form values for real-time phase readiness updates
+  const formValues = form.watch();
+
   const phaseReadiness = React.useMemo(() => {
     if (!isTomEnabled || !tomConfig || !currentDerivedPhase || currentDerivedPhase.id === 'unphased' || currentDerivedPhase.id === 'disabled') {
       return null;
     }
-    const formValues = form.getValues();
+    // Use watched formValues for real-time updates
     const useCaseData: UseCaseDataForReadiness = {
       title: formValues.title,
       description: formValues.description,
@@ -263,14 +266,17 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       humanAccountability: formValues.humanAccountability ?? null,
       dataOutsideUkEu: formValues.dataOutsideUkEu ?? null,
       thirdPartyModel: formValues.thirdPartyModel ?? null,
-      investmentCostGbp: (useCase as any)?.investmentCostGbp ?? null,
-      runCostPerYearGbp: (useCase as any)?.runCostPerYearGbp ?? null,
-      targetIndependence: (useCase as any)?.targetIndependence ?? null,
-      currentIndependence: (useCase as any)?.currentIndependence ?? null,
-      selectedKpis: (useCase as any)?.selectedKpis ?? null
+      // Use form values for real-time updates, fallback to stored useCase values
+      investmentCostGbp: formValues.initialInvestment ? Number(formValues.initialInvestment) : ((useCase as any)?.investmentCostGbp ?? null),
+      runCostPerYearGbp: formValues.ongoingMonthlyCost ? Number(formValues.ongoingMonthlyCost) * 12 : ((useCase as any)?.runCostPerYearGbp ?? null),
+      // Capability transition - form uses capabilityIndependence for current, targetIndependence comes from saved data
+      targetIndependence: (useCase as any)?.capabilityTransition?.selfSufficiencyTarget?.targetIndependence ?? (useCase as any)?.targetIndependence ?? null,
+      currentIndependence: formValues.capabilityIndependence ? Number(formValues.capabilityIndependence) : ((useCase as any)?.capabilityTransition?.independencePercentage ?? (useCase as any)?.currentIndependence ?? null),
+      // KPI selection from form
+      selectedKpis: formValues.selectedKpis?.length ? formValues.selectedKpis : ((useCase as any)?.valueRealization?.selectedKpis ?? (useCase as any)?.selectedKpis ?? null)
     };
     return calculatePhaseReadiness(useCaseData, currentDerivedPhase.id, tomConfig);
-  }, [isTomEnabled, tomConfig, currentDerivedPhase, form, useCase]);
+  }, [isTomEnabled, tomConfig, currentDerivedPhase, formValues, useCase]);
 
   const handleSliderChange = (field: keyof ScoresState, value: number) => {
     const newScores = { ...scores, [field]: value };
@@ -345,8 +351,6 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
     setPendingStatusChange(null);
     setPhaseTransitionReason('');
   };
-
-  const formValues = form.watch();
 
   const governanceStatus = React.useMemo(() => {
     const useCaseData = {
