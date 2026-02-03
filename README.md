@@ -7,12 +7,17 @@ Strategic AI use case prioritization platform for Hexaware featuring comprehensi
 npm run dev  # Starts application on port 5000
 ```
 
-## Latest Accomplishments (Jan 2026)
+## Latest Accomplishments (Feb 2026)
+- ✅ **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with AWS Five V's Framework
+- ✅ **Phase Distribution UI**: Intuitive "Idea Pool" and "Active Pipeline" sections with smart phase counts
+- ✅ **Tab Navigation Fix**: Proper URL routing between views with state synchronization
+- ✅ **Multi-tenancy Ready**: Removed client-specific hardcoding for cross-client reusability
+
+## Previous Accomplishments (Jan 2026)
 - ✅ **Modular Architecture Refactor**: Server routes split into 17 domain modules (97% reduction in routes.ts)
 - ✅ **CRUD Modal Modularization**: Tab components extracted to 6 specialized modules (52% reduction)
-- ✅ **Value Realization System**: KPI-based ROI tracking with 9 insurance-specific metrics
+- ✅ **Value Realization System**: KPI-based ROI tracking with insurance-specific metrics
 - ✅ **Capability Transition**: "Teach Us to Fish" staffing curves and independence projections
-- ✅ **Markel 9 Topics Compliance**: Duplicate detection, full audit trails, role evolution tracking
 - ✅ **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults
 - ✅ **Database-Driven Config**: All features driven by metadata_config table
 
@@ -27,13 +32,14 @@ npm run dev  # Starts application on port 5000
 - ✅ **Horizontal Use Case Tracking**: Cross-functional use case identification
 
 ## Core Features
+- **Two-Tier Portfolio Model**: Reference Library (idea pool) and Active Portfolio (committed pipeline) with automatic phase management
 - **AI Use Case Management**: Complete CRUD with 10-lever scoring framework and automated recalculation
 - **Assessment System**: 6-section AI maturity questionnaire with 25+ advanced question types  
 - **Analytics Dashboard**: AI Value Matrix with interactive charts and quadrant-based ROI analysis
 - **Value Realization**: KPI-based ROI tracking with industry benchmarks and confidence levels
 - **Capability Transition**: Staffing curves, KT milestones, and path to self-sufficiency
 - **Target Operating Model (TOM)**: 4 presets with phase-based governance gates
-- **Markel 9 Topics Compliance**: Duplicate detection, audit trails, role evolution tracking
+- **Governance & Compliance**: Duplicate detection, audit trails, role evolution tracking
 - **File Management System**: PowerPoint/image→PDF conversion with 50MB limit
 - **PDF Export System**: Professional reports for use cases, assessments, and portfolios
 - **Excel Import/Export**: Multi-worksheet structure with comprehensive validation
