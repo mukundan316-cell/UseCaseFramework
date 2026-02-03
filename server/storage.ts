@@ -702,6 +702,13 @@ export class DatabaseStorage implements IStorage {
       return currentUseCase;
     }
     
+    // IDEATION → ASSESSMENT PROGRESSION
+    // When activating from Reference Library (Ideation) to Active Portfolio:
+    // - If scored (has impact/effort scores), enter at Assessment phase
+    // - If not scored, enter at Ideation phase (will progress to Assessment when scored)
+    const hasScores = currentUseCase.impactScore !== null && currentUseCase.effortScore !== null;
+    const entryPhase = hasScores ? 'assessment' : 'ideation';
+    
     const [useCase] = await db
       .update(useCases)
       .set({
@@ -709,7 +716,10 @@ export class DatabaseStorage implements IStorage {
         libraryTier: 'active',
         isDashboardVisible: 'true',
         activationDate: new Date(),
-        deactivationReason: null
+        deactivationReason: null,
+        tomPhase: entryPhase,
+        phaseEnteredAt: new Date(),
+        lastPhaseTransitionReason: reason || (hasScores ? 'Activated with scores - entering Assessment' : 'Activated to Ideation - pending scoring')
       })
       .where(eq(useCases.id, id))
       .returning();

@@ -40,10 +40,14 @@ export default function InsightsPage({ defaultTab = 'value-realization' }: Insig
                 <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
               </TooltipTrigger>
               <TooltipContent side="left" className="max-w-xs">
-                <p className="text-sm">
-                  <strong>Active Portfolio:</strong> Use cases that passed all governance gates<br/>
-                  <strong>Reference Library:</strong> All use cases for strategic planning
-                </p>
+                <div className="text-sm space-y-2">
+                  <p>
+                    <strong>Active Portfolio:</strong> Scored and activated use cases progressing through Assessment → Operate phases
+                  </p>
+                  <p>
+                    <strong>Reference Library:</strong> Idea pool (Ideation phase) - all use cases before scoring and activation
+                  </p>
+                </div>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

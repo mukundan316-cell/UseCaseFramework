@@ -302,33 +302,53 @@ export function registerTomRoutes(app: Express): void {
       const clientId = (req.query.clientId as string) || 'default';
       const scope = (req.query.scope as string) || 'all';
       const metadata = await storage.getMetadataConfigById(clientId);
-      const { ensureTomConfig, calculatePhaseSummary, mergePresetProfile } = await import("@shared/tom");
+      const { ensureTomConfig, calculatePhaseSummary, mergePresetProfile, derivePhase } = await import("@shared/tom");
       const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
       
       if (tomConfig.enabled !== 'true') {
         return res.json({ enabled: false, summary: {} });
       }
       
-      const useCases = scope === 'dashboard' 
+      // REFERENCE LIBRARY = IDEATION MODEL
+      // - scope='dashboard' or scope='active' → Active Portfolio (Assessment+ phases)
+      // - scope='all' or scope='reference' → Reference Library (all Ideation)
+      const isReferenceScope = scope === 'all' || scope === 'reference';
+      
+      const useCases = scope === 'dashboard' || scope === 'active'
         ? await storage.getDashboardUseCases() 
         : await storage.getAllUseCases();
       
-      const summary = calculatePhaseSummary(
-        useCases.map(uc => {
-          const govStatus = calculateGovernanceStatus(uc);
-          return {
-            useCaseStatus: uc.useCaseStatus,
-            deploymentStatus: uc.deploymentStatus,
-            tomPhaseOverride: uc.tomPhaseOverride,
-            governanceGates: {
-              operatingModelPassed: govStatus.operatingModel.passed,
-              intakePassed: govStatus.intake.passed,
-              raiPassed: govStatus.rai.passed
-            }
-          };
-        }),
-        tomConfig
-      );
+      // For Reference Library scope, calculate phase summary with libraryTier='reference'
+      // This ensures all Reference Library use cases show as Ideation
+      const summary: Record<string, number> = {};
+      tomConfig.phases.forEach(p => { summary[p.id] = 0; });
+      summary['unphased'] = 0;
+      
+      useCases.forEach(uc => {
+        const govStatus = calculateGovernanceStatus(uc);
+        // For Reference Library scope: force ALL use cases to show as Ideation
+        // For Active Portfolio scope: use actual tier (should all be 'active' from getDashboardUseCases)
+        const effectiveTier = isReferenceScope ? 'reference' : 'active';
+        
+        const phaseResult = derivePhase(
+          uc.useCaseStatus,
+          uc.deploymentStatus,
+          uc.tomPhaseOverride,
+          tomConfig,
+          {
+            operatingModelPassed: govStatus.operatingModel.passed,
+            intakePassed: govStatus.intake.passed,
+            raiPassed: govStatus.rai.passed
+          },
+          effectiveTier
+        );
+        
+        if (phaseResult.id === 'unmapped' || phaseResult.id === 'disabled') {
+          summary['unphased'] = (summary['unphased'] || 0) + 1;
+        } else {
+          summary[phaseResult.id] = (summary[phaseResult.id] || 0) + 1;
+        }
+      });
       
       res.json({ 
         enabled: true, 

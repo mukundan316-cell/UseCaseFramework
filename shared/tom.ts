@@ -792,7 +792,8 @@ export function derivePhase(
   deploymentStatus: string | null | undefined,
   tomPhaseOverride: string | null | undefined,
   tomConfig: TomConfig,
-  governanceGates?: GovernanceGateInput
+  governanceGates?: GovernanceGateInput,
+  libraryTier?: 'active' | 'reference' | string | null
 ): DerivedPhaseResult {
   if (!tomConfig || tomConfig.enabled !== 'true') {
     return { id: 'disabled', name: 'TOM Disabled', color: '#6B7280', isOverride: false, matchedBy: 'disabled' };
@@ -803,11 +804,37 @@ export function derivePhase(
   // rather than the base tom_config.phases, enabling client-specific TOM configurations
   const resolvedConfig = mergePresetProfile(tomConfig);
 
-  // NIST AI RMF 2024 ALIGNED: Phase derivation is SEPARATE from governance enforcement
-  // - Phase derivation: Applied to ALL use cases for categorization and browsing
-  // - Governance enforcement: Applied only at activation (Reference → Active Portfolio)
-  // This allows Reference Library use cases to display phases for discovery and planning,
-  // while governance gates are enforced separately when activating use cases.
+  // REFERENCE LIBRARY = IDEATION PHASE
+  // All use cases in Reference Library are considered to be in the Ideation phase.
+  // Only scored + activated use cases in Active Portfolio progress to Assessment+.
+  // This aligns with industry best practice (AWS Five V's, HBR Portfolio Model).
+  if (libraryTier === 'reference') {
+    const ideationPhase = resolvedConfig.phases.find(p => p.id === 'ideation');
+    if (ideationPhase) {
+      return {
+        id: ideationPhase.id,
+        name: ideationPhase.name,
+        color: ideationPhase.color,
+        isOverride: false,
+        matchedBy: 'governance_entry'
+      };
+    }
+    // Fallback if no ideation phase defined - use first phase
+    const firstPhase = [...resolvedConfig.phases].sort((a, b) => a.order - b.order)[0];
+    if (firstPhase) {
+      return {
+        id: firstPhase.id,
+        name: firstPhase.name,
+        color: firstPhase.color,
+        isOverride: false,
+        matchedBy: 'governance_entry'
+      };
+    }
+  }
+
+  // NIST AI RMF 2024 ALIGNED: Phase derivation for Active Portfolio use cases
+  // - Active Portfolio use cases derive phase from status/deployment mappings
+  // - Governance gates are enforced at phase transitions
   // See: governance-enforcement.ts for activation blocking logic
 
   // Manual override takes precedence

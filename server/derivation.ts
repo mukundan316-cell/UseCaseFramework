@@ -40,6 +40,8 @@ export interface UseCaseForDerivation {
   primaryBusinessOwner?: string | null;
   businessFunction?: string | null;
   governanceStatus?: any;
+  // Library tier for phase derivation (Reference Library = Ideation only)
+  libraryTier?: 'active' | 'reference' | string | null;
 }
 
 export interface DerivedFields {
@@ -79,7 +81,8 @@ export function deriveAllFields(
       useCase.deploymentStatus,
       useCase.tomPhaseOverride,
       configs.tomConfig,
-      governanceGates
+      governanceGates,
+      useCase.libraryTier
     );
     derived.tomPhase = phaseResult.id;
   }

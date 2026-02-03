@@ -356,8 +356,8 @@ export default function LibraryManagementLegoBlock() {
               {dialogAction === 'bulk' && 'Bulk Tier Update'}
             </DialogTitle>
             <DialogDescription>
-              {dialogAction === 'activate' && 'Move this use case to the active portfolio.'}
-              {dialogAction === 'deactivate' && 'Move this use case to the reference library.'}
+              {dialogAction === 'activate' && 'Activate this use case to move from Reference Library (Ideation) to Active Portfolio. Scored use cases enter Assessment phase; unscored use cases remain in Ideation until scored.'}
+              {dialogAction === 'deactivate' && 'Move this use case back to the Reference Library (Ideation phase) for future consideration.'}
               {dialogAction === 'bulk' && `Update ${selectedUseCases.length} selected use cases.`}
             </DialogDescription>
           </DialogHeader>

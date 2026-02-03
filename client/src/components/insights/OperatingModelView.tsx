@@ -166,10 +166,13 @@ export default function OperatingModelView({ scope = 'all' }: OperatingModelView
         <div className="text-center py-2">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Target Operating Model</h3>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            AI lifecycle phase distribution and status tracking across {metrics.totalUseCases} use cases in the {scope === 'active' ? 'active portfolio' : 'reference library'}.
+            {scope === 'active' 
+              ? `Active pipeline: ${metrics.totalUseCases} use cases progressing through Assessment → Operate phases.`
+              : `Idea pool: ${metrics.totalUseCases} use cases in Ideation phase available for scoring and activation.`
+            }
           </p>
           <Badge variant="outline" className={`mt-2 text-xs ${scope === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
-            {scope === 'active' ? 'Active Portfolio' : 'Reference Library Analytics'}
+            {scope === 'active' ? 'Active Portfolio (Assessment+)' : 'Reference Library (Ideation)'}
           </Badge>
         </div>
 

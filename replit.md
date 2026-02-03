@@ -51,7 +51,20 @@ The platform uses Hexaware's official branding, colors, and typography. UI compo
 - **Soft Progressive Data Capture**: Phase-aligned guidance system indicates required data for each TOM phase.
 - **Insights Dashboard Structure**: All four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) follow a consistent pattern: Summary Cards, Distribution Charts, and Use Case Table.
 
-## Recent Changes (Jan 2026)
+### Two-Tier Portfolio Model (Feb 2026)
+Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
+- **Reference Library = Ideation Phase**: Idea pool for strategic planning. All Reference Library use cases are in Ideation regardless of status.
+- **Active Portfolio = Assessment → Operate**: Committed pipeline. Scored and activated use cases progress through lifecycle phases.
+- **Activation Logic**: When activating a use case, scored use cases enter Assessment phase; unscored remain in Ideation until scored.
+- **Phase Derivation**: `derivePhase()` in `shared/tom.ts` accepts `libraryTier` parameter to enforce phase logic.
+- **API Scope Parameter**: `/api/tom/phase-summary` supports `scope` parameter ('all'/'reference' vs 'active'/'dashboard') to calculate phase distribution correctly.
+
+## Recent Changes (Feb 2026)
+- **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with industry frameworks
+- **Phase Derivation Refactor**: Added `libraryTier` parameter to `derivePhase()` for Reference Library use cases to always return Ideation
+- **Activation Flow Update**: Scored use cases auto-enter Assessment phase on activation; unscored enter Ideation
+- **Phase Summary API**: Updated to correctly calculate phase distribution based on scope (reference vs active)
+- **UI Descriptions**: Updated tooltips and dialog text to reflect "Idea pool" vs "Active Pipeline" mental model
 - **Multi-tenancy**: Removed client-specific hardcoding (RSA/Markel references) for reusability across clients
 - **Questionnaire Config**: Assessment questionnaire ID now configurable via `metadata.activeQuestionnaireId` with fallback to default
 - **Duplicate Routes**: Consolidated `/api/derive/value-all` and `/api/value/derive-all` into single endpoint
