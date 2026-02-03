@@ -1,5 +1,6 @@
 import React from 'react';
 import { Brain, PlusCircle, Sparkle, Search, Settings, ClipboardCheck } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { useUseCases } from '../contexts/UseCaseContext';
 import { useEngagement } from '../contexts/EngagementContext';
 import { TabType } from '../types';
@@ -9,18 +10,30 @@ import EngagementContextLegoBlock from './lego-blocks/EngagementContextLegoBlock
 
 interface LayoutProps {
   children: React.ReactNode;
-  activeTabOverride?: TabType;
 }
 
-export default function Layout({ children, activeTabOverride }: LayoutProps) {
+export default function Layout({ children }: LayoutProps) {
   const { activeTab, setActiveTab } = useUseCases();
-  const displayTab = activeTabOverride || activeTab;
+  const [, setLocation] = useLocation();
   const { 
     selectedClientId, 
     selectedEngagementId, 
     setSelectedClientId, 
     setSelectedEngagementId 
   } = useEngagement();
+
+  const handleTabClick = (tabId: TabType) => {
+    setActiveTab(tabId);
+    const routes: Record<TabType, string> = {
+      'dashboard': '/',
+      'explorer': '/explorer',
+      'insights': '/insights',
+      'assessment': '/assessment',
+      'admin': '/admin',
+      'both': '/'
+    };
+    setLocation(routes[tabId] || '/');
+  };
 
   const tabs = [
     { id: 'dashboard' as TabType, label: 'Dashboard View', icon: Sparkle },
@@ -45,8 +58,8 @@ export default function Layout({ children, activeTabOverride }: LayoutProps) {
                 id={id}
                 label={label}
                 icon={icon}
-                isActive={displayTab === id}
-                onClick={setActiveTab}
+                isActive={activeTab === id}
+                onClick={handleTabClick}
               />
             ))}
           </nav>
