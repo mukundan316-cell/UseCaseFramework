@@ -82,13 +82,19 @@ function formatRoi(roi: number | null): string {
 function getEstimatedValueFromKpis(vr: UseCase['valueRealization']): { min: number; max: number } {
   if (!vr?.kpiEstimates || vr.kpiEstimates.length === 0) return { min: 0, max: 0 };
   
+  // Only sum values from SELECTED KPIs (not all applicable)
+  const selectedKpiIds = new Set(vr.selectedKpis || []);
+  
   let totalMin = 0;
   let totalMax = 0;
   
   for (const kpi of vr.kpiEstimates) {
-    if (kpi.estimatedAnnualValueGbp) {
-      totalMin += kpi.estimatedAnnualValueGbp.min || 0;
-      totalMax += kpi.estimatedAnnualValueGbp.max || 0;
+    // Only include value if KPI is selected (or if no selections exist, include all for backward compatibility)
+    if (selectedKpiIds.size === 0 || selectedKpiIds.has(kpi.kpiId)) {
+      if (kpi.estimatedAnnualValueGbp) {
+        totalMin += kpi.estimatedAnnualValueGbp.min || 0;
+        totalMax += kpi.estimatedAnnualValueGbp.max || 0;
+      }
     }
   }
   
