@@ -243,7 +243,9 @@ export function registerValueRoutes(app: Express): void {
           expectedRange: est.expectedRange,
           confidence: est.confidence,
           estimatedAnnualValueGbp: est.estimatedAnnualValueGbp,
-          benchmarkProcess: est.benchmarkProcess
+          benchmarkProcess: est.benchmarkProcess,
+          kpiType: est.kpiType || 'operational',
+          valueStream: est.valueStream
         })),
         totalEstimatedValue: totalValue,
         lastUpdated: new Date().toISOString()
@@ -358,7 +360,9 @@ export function registerValueRoutes(app: Express): void {
               expectedRange: est.expectedRange,
               confidence: est.confidence,
               estimatedAnnualValueGbp: est.estimatedAnnualValueGbp,
-              benchmarkProcess: est.benchmarkProcess
+              benchmarkProcess: est.benchmarkProcess,
+              kpiType: est.kpiType || 'operational',
+              valueStream: est.valueStream
             })),
             totalEstimatedValue: totalValue,
             lastUpdated: new Date().toISOString()

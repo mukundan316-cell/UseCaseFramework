@@ -384,6 +384,8 @@ export interface ValueEstimateResult {
   benchmark: IndustryBenchmark | null;
   benchmarkProcess: string | null;
   estimatedAnnualValueGbp: { min: number; max: number } | null;
+  kpiType?: KpiType; // For Insights KPI Type Distribution
+  valueStream?: ValueStream; // For Insights Value by Stream
 }
 
 /**
@@ -539,11 +541,49 @@ export function getApplicableKpis(
     }
   }
 
-  // Sort by relevance (highest first) and mark top N as suggested
+  // Sort by relevance (highest first)
   results.sort((a, b) => b.relevanceScore - a.relevanceScore);
   
-  for (let i = 0; i < Math.min(suggestedCount, results.length); i++) {
-    results[i].isSuggested = true;
+  // Prioritize KPI type diversity in suggestions
+  // Group by kpiType and pick top from each available type
+  const kpiTypes: KpiType[] = ['financial', 'operational', 'strategic', 'compliance'];
+  const byType: Record<KpiType, ApplicableKpiResult[]> = {
+    financial: [],
+    operational: [],
+    strategic: [],
+    compliance: []
+  };
+  
+  for (const result of results) {
+    const type = result.kpi.kpiType || 'operational';
+    byType[type].push(result);
+  }
+  
+  // Select diverse KPIs: 1-2 from each available type, prioritized by relevance
+  const suggestedIds = new Set<string>();
+  const kpisPerType = Math.max(1, Math.floor(suggestedCount / 4)); // At least 1 per type
+  
+  // First pass: pick top N from each type that has KPIs
+  for (const type of kpiTypes) {
+    const typeKpis = byType[type];
+    for (let i = 0; i < Math.min(kpisPerType, typeKpis.length); i++) {
+      suggestedIds.add(typeKpis[i].kpiId);
+    }
+  }
+  
+  // Second pass: fill remaining slots with highest relevance KPIs
+  let remainingSlots = suggestedCount - suggestedIds.size;
+  for (const result of results) {
+    if (remainingSlots <= 0) break;
+    if (!suggestedIds.has(result.kpiId)) {
+      suggestedIds.add(result.kpiId);
+      remainingSlots--;
+    }
+  }
+  
+  // Mark suggested KPIs
+  for (const result of results) {
+    result.isSuggested = suggestedIds.has(result.kpiId);
   }
 
   return results;
@@ -627,7 +667,9 @@ export function deriveValueEstimates(
       confidence: maturityResult.confidence,
       benchmark: industryBenchmark,
       benchmarkProcess,
-      estimatedAnnualValueGbp
+      estimatedAnnualValueGbp,
+      kpiType: kpi.kpiType || 'operational',
+      valueStream: kpi.valueStream
     });
   }
 
