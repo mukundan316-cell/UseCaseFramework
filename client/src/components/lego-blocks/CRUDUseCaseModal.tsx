@@ -257,6 +257,12 @@ export default function CRUDUseCaseModal({ isOpen, onClose, mode, useCase, conte
       integrationComplexity: formValues.modelRisk,
       regulatoryCompliance: formValues.adoptionReadiness,
       raiQuestionnaireComplete: (useCase as any)?.raiQuestionnaireComplete ?? null,
+      // RAI fields for phase readiness calculation
+      explainabilityRequired: formValues.explainabilityRequired ?? null,
+      customerHarmRisk: formValues.customerHarmRisk ?? null,
+      humanAccountability: formValues.humanAccountability ?? null,
+      dataOutsideUkEu: formValues.dataOutsideUkEu ?? null,
+      thirdPartyModel: formValues.thirdPartyModel ?? null,
       investmentCostGbp: (useCase as any)?.investmentCostGbp ?? null,
       runCostPerYearGbp: (useCase as any)?.runCostPerYearGbp ?? null,
       targetIndependence: (useCase as any)?.targetIndependence ?? null,

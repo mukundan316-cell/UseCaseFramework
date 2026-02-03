@@ -1014,6 +1014,12 @@ export interface UseCaseDataForReadiness {
   integrationComplexity?: number | null;
   regulatoryCompliance?: number | null;
   raiQuestionnaireComplete?: string | null;
+  // RAI fields for direct assessment check
+  explainabilityRequired?: string | null;
+  customerHarmRisk?: string | null;
+  humanAccountability?: string | null;
+  dataOutsideUkEu?: string | null;
+  thirdPartyModel?: string | null;
   investmentCostGbp?: number | null;
   runCostPerYearGbp?: number | null;
   targetIndependence?: number | null;
@@ -1056,7 +1062,28 @@ export function checkDataRequirement(
     case 'strategicAlignment':
       return Boolean(useCase.strategicFit !== null && useCase.strategicFit !== undefined);
     case 'raiAssessment':
-      return useCase.raiQuestionnaireComplete === 'true';
+      // Check if raiQuestionnaireComplete is explicitly set, or check the actual RAI fields
+      if (useCase.raiQuestionnaireComplete === 'true') return true;
+      
+      // Check actual RAI fields - all 5 must be answered
+      const isBooleanStringSet = (v: any): boolean => {
+        if (typeof v === 'boolean') return true;
+        return v === 'true' || v === 'false';
+      };
+      const isSelectFieldSet = (v: any): boolean => {
+        if (typeof v !== 'string') return false;
+        const trimmed = v.trim();
+        return trimmed !== '' && trimmed !== 'undefined' && trimmed !== 'null';
+      };
+      
+      const raiComplete = 
+        isBooleanStringSet(useCase.explainabilityRequired) &&
+        isSelectFieldSet(useCase.customerHarmRisk) &&
+        isBooleanStringSet(useCase.humanAccountability) &&
+        isBooleanStringSet(useCase.dataOutsideUkEu) &&
+        isBooleanStringSet(useCase.thirdPartyModel);
+      
+      return raiComplete;
     case 'processMapping':
       const hasProcesses = Array.isArray(useCase.processes) && useCase.processes.length > 0;
       const hasActivities = Array.isArray(useCase.activities) && useCase.activities.length > 0;
