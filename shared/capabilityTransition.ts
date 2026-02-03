@@ -412,7 +412,13 @@ export function aggregatePortfolioCapability(
   }>,
   config: CapabilityTransitionConfig
 ): PortfolioCapabilitySummary {
-  const trackedCases = useCases.filter(uc => uc.capabilityTransition !== null);
+  // Filter to only include use cases with complete capability transition data
+  // This ensures counts and totals are consistent - only valid cases are counted
+  const validCases = useCases.filter(uc => 
+    uc.capabilityTransition !== null &&
+    uc.capabilityTransition.staffing?.current?.vendor &&
+    uc.capabilityTransition.staffing?.current?.client
+  );
   
   let totalVendorFte = 0;
   let totalClientFte = 0;
@@ -422,25 +428,26 @@ export function aggregatePortfolioCapability(
   let totalWeightedIndependence = 0;
   let totalWeight = 0;
   
-  for (const uc of trackedCases) {
+  for (const uc of validCases) {
     const ct = uc.capabilityTransition!;
     const investment = uc.valueRealization?.investment?.initialInvestment || 1;
     
-    totalVendorFte += ct.staffing.current.vendor.total;
-    totalClientFte += ct.staffing.current.client.total;
-    ktMilestonesCompleted += ct.knowledgeTransfer.completedMilestones.length;
-    trainingHoursCompleted += ct.training.totalTrainingHoursCompleted;
-    trainingHoursPlanned += ct.training.totalTrainingHoursPlanned;
+    totalVendorFte += ct.staffing.current.vendor.total || 0;
+    totalClientFte += ct.staffing.current.client.total || 0;
+    ktMilestonesCompleted += ct.knowledgeTransfer?.completedMilestones?.length || 0;
+    trainingHoursCompleted += ct.training?.totalTrainingHoursCompleted || 0;
+    trainingHoursPlanned += ct.training?.totalTrainingHoursPlanned || 0;
     
-    totalWeightedIndependence += ct.independencePercentage * investment;
+    totalWeightedIndependence += (ct.independencePercentage || 0) * investment;
     totalWeight += investment;
   }
   
-  const ktMilestonesTotal = trackedCases.length * config.knowledgeTransferMilestones.length;
+  // Use validCases.length for consistent counts (only complete data contributes)
+  const ktMilestonesTotal = validCases.length * config.knowledgeTransferMilestones.length;
   const overallIndependence = totalWeight > 0 ? Math.round(totalWeightedIndependence / totalWeight) : 0;
   
   let projectedFullIndependence: string | null = null;
-  if (overallIndependence < 85 && trackedCases.length > 0) {
+  if (overallIndependence < 85 && validCases.length > 0) {
     const avgMonthlyGrowth = 5;
     const monthsToGo = Math.ceil((85 - overallIndependence) / avgMonthlyGrowth);
     const projectedDate = new Date();
@@ -450,7 +457,7 @@ export function aggregatePortfolioCapability(
   
   return {
     overallIndependence,
-    useCasesTracked: trackedCases.length,
+    useCasesTracked: validCases.length,
     totalVendorFte,
     totalClientFte,
     ktMilestonesCompleted,
@@ -464,9 +471,14 @@ export function aggregatePortfolioCapability(
 export function generateAggregateStaffingProjection(
   useCases: Array<{ capabilityTransition: UseCaseCapabilityTransition | null }>
 ): StaffingProjectionPoint[] {
-  const trackedCases = useCases.filter(uc => uc.capabilityTransition !== null);
+  // Filter to only include use cases with complete staffing data for consistent aggregation
+  const validCases = useCases.filter(uc => 
+    uc.capabilityTransition !== null &&
+    uc.capabilityTransition.staffing?.current?.vendor &&
+    uc.capabilityTransition.staffing?.current?.client
+  );
   
-  if (trackedCases.length === 0) {
+  if (validCases.length === 0) {
     return [];
   }
   
@@ -482,16 +494,25 @@ export function generateAggregateStaffingProjection(
   let month18Vendor = 0;
   let month18Client = 0;
   
-  for (const uc of trackedCases) {
+  for (const uc of validCases) {
     const ct = uc.capabilityTransition!;
-    currentVendor += ct.staffing.current.vendor.total;
-    currentClient += ct.staffing.current.client.total;
-    month6Vendor += ct.staffing.planned.month6.vendor;
-    month6Client += ct.staffing.planned.month6.client;
-    month12Vendor += ct.staffing.planned.month12.vendor;
-    month12Client += ct.staffing.planned.month12.client;
-    month18Vendor += ct.staffing.planned.month18.vendor;
-    month18Client += ct.staffing.planned.month18.client;
+    
+    currentVendor += ct.staffing.current.vendor.total || 0;
+    currentClient += ct.staffing.current.client.total || 0;
+    
+    // Handle cases where planned staffing data may not exist yet
+    if (ct.staffing.planned?.month6) {
+      month6Vendor += ct.staffing.planned.month6.vendor || 0;
+      month6Client += ct.staffing.planned.month6.client || 0;
+    }
+    if (ct.staffing.planned?.month12) {
+      month12Vendor += ct.staffing.planned.month12.vendor || 0;
+      month12Client += ct.staffing.planned.month12.client || 0;
+    }
+    if (ct.staffing.planned?.month18) {
+      month18Vendor += ct.staffing.planned.month18.vendor || 0;
+      month18Client += ct.staffing.planned.month18.client || 0;
+    }
   }
   
   const calcIndependence = (vendor: number, client: number) => {
