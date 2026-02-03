@@ -13,6 +13,7 @@ import SurveyJsAssessment from "./pages/SurveyJsAssessment";
 import AIRoadmapPage from "./pages/AIRoadmapPage";
 import InsightsPage from "./pages/InsightsPage";
 import { AssessmentSessionStart } from "./components/AssessmentSessionStart";
+import Layout from "./components/Layout";
 import NotFound from "@/pages/not-found";
 import type { TabType } from "./types";
 
@@ -24,6 +25,16 @@ function TabSyncedHomePage({ tab }: { tab: TabType }) {
   }, [tab, setActiveTab]);
   
   return <HomePage />;
+}
+
+function TabSyncedWrapper({ tab, children }: { tab: TabType; children: React.ReactNode }) {
+  const { setActiveTab } = useUseCases();
+  
+  useEffect(() => {
+    setActiveTab(tab);
+  }, [tab, setActiveTab]);
+  
+  return <>{children}</>;
 }
 
 function Router() {
@@ -86,12 +97,20 @@ function Router() {
 
         <Route path="/insights" component={() => 
           <ErrorBoundary>
-            <InsightsPage />
+            <TabSyncedWrapper tab="insights">
+              <Layout>
+                <InsightsPage />
+              </Layout>
+            </TabSyncedWrapper>
           </ErrorBoundary>
         } />
         <Route path="/insights/:subTab" component={({ params: { subTab } }) => 
           <ErrorBoundary>
-            <InsightsPage defaultTab={subTab as 'value-realization' | 'operating-model' | 'capability-transition' | 'responsible-ai'} />
+            <TabSyncedWrapper tab="insights">
+              <Layout>
+                <InsightsPage defaultTab={subTab as 'value-realization' | 'operating-model' | 'capability-transition' | 'responsible-ai'} />
+              </Layout>
+            </TabSyncedWrapper>
           </ErrorBoundary>
         } />
         <Route component={() => 

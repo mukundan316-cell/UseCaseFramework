@@ -79,6 +79,9 @@ async function enrichUseCasesWithTomPhase(
         raiPassed: govStatus.rai.passed
       };
       
+      // TWO-TIER PORTFOLIO MODEL: Use each use case's actual libraryTier for correct phase derivation
+      const effectiveTier = (uc.libraryTier === 'reference') ? 'reference' : 'active';
+      
       return {
         ...uc,
         derivedPhase: derivePhase(
@@ -86,7 +89,8 @@ async function enrichUseCasesWithTomPhase(
           uc.deploymentStatus || null,
           (uc as any).tomPhaseOverride || null,
           tomConfig,
-          governanceGates
+          governanceGates,
+          effectiveTier
         ) as DerivedPhaseInfo
       };
     });
@@ -645,11 +649,15 @@ export function registerUseCaseRoutes(app: Express): void {
           cases.find(c => c.id === id)
         );
         if (currentUseCaseForPhase) {
+          // TWO-TIER PORTFOLIO MODEL: Use actual libraryTier for correct phase derivation
+          const effectiveTier = (currentUseCaseForPhase.libraryTier === 'reference') ? 'reference' : 'active';
           const oldPhaseResult = derivePhase(
             currentUseCaseForPhase.useCaseStatus,
             currentUseCaseForPhase.deploymentStatus,
             currentUseCaseForPhase.tomPhaseOverride,
-            tomConfig
+            tomConfig,
+            undefined,
+            effectiveTier
           );
           oldDerivedPhaseId = oldPhaseResult?.id || null;
         }
@@ -661,11 +669,15 @@ export function registerUseCaseRoutes(app: Express): void {
       }
       
       if (tomConfig?.enabled === 'true') {
+        // TWO-TIER PORTFOLIO MODEL: Use actual libraryTier for correct phase derivation
+        const effectiveTierForNew = (updatedUseCase.libraryTier === 'reference') ? 'reference' : 'active';
         const newPhaseResult = derivePhase(
           updatedUseCase.useCaseStatus,
           updatedUseCase.deploymentStatus,
           updatedUseCase.tomPhaseOverride,
-          tomConfig
+          tomConfig,
+          undefined,
+          effectiveTierForNew
         );
         const newDerivedPhaseId = newPhaseResult?.id || null;
         

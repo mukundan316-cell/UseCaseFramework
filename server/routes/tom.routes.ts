@@ -332,9 +332,19 @@ export function registerTomRoutes(app: Express): void {
       
       useCases.forEach(uc => {
         const govStatus = calculateGovernanceStatus(uc);
-        // For Reference Library scope: force ALL use cases to show as Ideation
-        // For Active Portfolio scope: use actual tier (should all be 'active' from getDashboardUseCases)
-        const effectiveTier = isReferenceScope ? 'reference' : 'active';
+        // TWO-TIER PORTFOLIO MODEL phase derivation:
+        // - scope='reference': force ALL use cases to Ideation (Reference Library view)
+        // - scope='active'/'dashboard': force 'active' tier (Active Portfolio view)
+        // - scope='all': use each use case's ACTUAL libraryTier for accurate admin reporting
+        let effectiveTier: 'active' | 'reference';
+        if (isReferenceScope) {
+          effectiveTier = 'reference';
+        } else if (scope === 'all') {
+          // For admin view, use actual tier from database
+          effectiveTier = (uc.libraryTier === 'reference') ? 'reference' : 'active';
+        } else {
+          effectiveTier = 'active';
+        }
         
         const phaseResult = derivePhase(
           uc.useCaseStatus,
@@ -405,7 +415,18 @@ export function registerTomRoutes(app: Express): void {
       
       useCases.forEach(uc => {
         const govStatus = calculateGovernanceStatus(uc);
-        const effectiveTier = isReferenceScope ? 'reference' : 'active';
+        // TWO-TIER PORTFOLIO MODEL phase derivation:
+        // - scope='reference': force ALL use cases to Ideation (Reference Library view)
+        // - scope='active'/'dashboard': force 'active' tier (Active Portfolio view)
+        // - scope='all': use each use case's ACTUAL libraryTier for accurate admin reporting
+        let effectiveTier: 'active' | 'reference';
+        if (isReferenceScope) {
+          effectiveTier = 'reference';
+        } else if (scope === 'all') {
+          effectiveTier = (uc.libraryTier === 'reference') ? 'reference' : 'active';
+        } else {
+          effectiveTier = 'active';
+        }
         
         const phaseResult = derivePhase(
           uc.useCaseStatus,

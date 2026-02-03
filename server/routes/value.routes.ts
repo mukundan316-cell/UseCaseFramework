@@ -72,15 +72,27 @@ export function registerValueRoutes(app: Express): void {
       
       const tomConfig = mergePresetProfile(ensureTomConfig(metadata?.tomConfig));
       
-      // TWO-TIER PORTFOLIO MODEL: Reference Library scope forces Ideation phase
+      // TWO-TIER PORTFOLIO MODEL phase derivation:
+      // - scope='reference': force ALL use cases to Ideation (Reference Library view)
+      // - scope='active'/'dashboard': force 'active' tier (Active Portfolio view)
+      // - scope='all' (default): use each use case's ACTUAL libraryTier for accurate admin reporting
       const isReferenceScope = scope === 'reference';
       
       // Map use cases with derived phases
       const useCasesWithPhases = useCases.map(uc => {
         let derivedPhase = null;
         if (tomConfig.enabled === 'true') {
-          // Pass libraryTier to derivePhase for correct phase calculation
-          const effectiveTier = isReferenceScope ? 'reference' : 'active';
+          // Determine effective tier based on scope
+          let effectiveTier: 'active' | 'reference';
+          if (isReferenceScope) {
+            effectiveTier = 'reference';
+          } else if (!scope || scope === 'all') {
+            // For admin view, use actual tier from database
+            effectiveTier = (uc.libraryTier === 'reference') ? 'reference' : 'active';
+          } else {
+            effectiveTier = 'active';
+          }
+          
           const phaseResult = derivePhase(
             uc.useCaseStatus,
             uc.deploymentStatus,

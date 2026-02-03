@@ -7,8 +7,14 @@ import RSAHeader from './RSAHeader';
 import TabButton from './lego-blocks/TabButton';
 import EngagementContextLegoBlock from './lego-blocks/EngagementContextLegoBlock';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+interface LayoutProps {
+  children: React.ReactNode;
+  activeTabOverride?: TabType;
+}
+
+export default function Layout({ children, activeTabOverride }: LayoutProps) {
   const { activeTab, setActiveTab } = useUseCases();
+  const displayTab = activeTabOverride || activeTab;
   const { 
     selectedClientId, 
     selectedEngagementId, 
@@ -39,7 +45,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 id={id}
                 label={label}
                 icon={icon}
-                isActive={activeTab === id}
+                isActive={displayTab === id}
                 onClick={setActiveTab}
               />
             ))}

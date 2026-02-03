@@ -70,7 +70,9 @@ Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
 - **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with industry frameworks
 - **Phase Derivation Refactor**: Added `libraryTier` parameter to `derivePhase()` for Reference Library use cases to always return Ideation
 - **Activation Flow Update**: Scored use cases auto-enter Assessment phase on activation; unscored enter Ideation
-- **Phase Summary API**: Updated to correctly calculate phase distribution based on scope (reference vs active)
+- **Phase Summary API**: Updated to correctly calculate phase distribution based on scope (reference vs active vs all)
+- **Admin Phase Distribution Fix**: When scope='all', API now uses each use case's actual libraryTier for correct phase counts in Admin panel
+- **View Library Navigation**: /insights route now wrapped with Layout component for consistent navigation
 - **UI Descriptions**: Updated tooltips and dialog text to reflect "Idea pool" vs "Active Pipeline" mental model
 - **Multi-tenancy**: Removed client-specific hardcoding (RSA/Markel references) for reusability across clients
 - **Questionnaire Config**: Assessment questionnaire ID now configurable via `metadata.activeQuestionnaireId` with fallback to default
