@@ -8,16 +8,24 @@ import TShirtSizingDisplayLegoBlock from '../TShirtSizingDisplayLegoBlock';
 import { SectionHeader } from './utils';
 import type { ScoringTabProps, ScoresState } from './types';
 
+const scoreLabels: Record<number, string> = {
+  1: "None",
+  2: "Minor", 
+  3: "Moderate",
+  4: "Significant",
+  5: "Major"
+};
+
 const leverScoreDescriptions: Record<keyof ScoresState, Record<number, string>> = {
   revenueImpact: {
-    1: "Minimal revenue impact (<1% annually)",
-    2: "Small revenue potential (1-3%)",
-    3: "Moderate revenue opportunity (3-5%)",
-    4: "Significant revenue impact (5-10%)",
-    5: "Transformational revenue potential (>10%)"
+    1: "No measurable effect or potential loss",
+    2: "Minimal revenue impact (1-3% annually)",
+    3: "Moderate revenue opportunity (3-5% annually)",
+    4: "Large revenue impact (5-10% annually)",
+    5: "Transformational revenue impact (>10% annually)"
   },
   costSavings: {
-    1: "Negligible cost reduction (<2%)",
+    1: "No measurable savings or potential increase",
     2: "Minor operational savings (2-5%)",
     3: "Moderate efficiency gains (5-15%)",
     4: "Substantial cost reduction (15-25%)",
@@ -133,11 +141,14 @@ export default function ScoringTab({
             <SelectValue placeholder="Select score (1-5)..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">1 - {descriptions[1]}</SelectItem>
-            <SelectItem value="2">2 - {descriptions[2]}</SelectItem>
-            <SelectItem value="3">3 - {descriptions[3]}</SelectItem>
-            <SelectItem value="4">4 - {descriptions[4]}</SelectItem>
-            <SelectItem value="5">5 - {descriptions[5]}</SelectItem>
+            {[1, 2, 3, 4, 5].map((score) => (
+              <SelectItem key={score} value={String(score)} className="py-2">
+                <div className="flex flex-col">
+                  <span className="font-medium">{score} - {scoreLabels[score]}</span>
+                  <span className="text-xs text-muted-foreground">{descriptions[score]}</span>
+                </div>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
