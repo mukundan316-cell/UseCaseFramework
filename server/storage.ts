@@ -348,9 +348,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDashboardUseCases(): Promise<UseCase[]> {
+    // Two-Tier Model: library_tier is the source of truth for active portfolio
+    // isActiveForRsa is legacy - we use library_tier + isDashboardVisible only
     return await db.select().from(useCases)
       .where(and(
-        eq(useCases.isActiveForRsa, 'true'),
         eq(useCases.isDashboardVisible, 'true'),
         eq(useCases.libraryTier, 'active')
       ))
