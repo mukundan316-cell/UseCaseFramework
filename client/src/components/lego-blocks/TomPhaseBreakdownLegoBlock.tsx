@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { useEngagement } from '@/contexts/EngagementContext';
-import { Target, Loader2 } from 'lucide-react';
+import { Target, Loader2, Lightbulb, Rocket, ArrowRight } from 'lucide-react';
+import { Link } from 'wouter';
 import type { TomConfig } from '@shared/tom';
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -19,7 +20,7 @@ interface PhaseSummary {
 }
 
 interface TomPhaseBreakdownLegoBlockProps {
-  scope?: 'dashboard' | 'all';
+  scope?: 'dashboard' | 'all' | 'reference';
 }
 
 export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomPhaseBreakdownLegoBlockProps) {
@@ -28,10 +29,18 @@ export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomP
     queryKey: ['/api/tom/config', selectedClientId],
   });
 
+  const effectiveScope = scope === 'dashboard' ? 'active' : scope;
+  
   const { data: phaseSummary, isLoading } = useQuery<PhaseSummary>({
-    queryKey: ['/api/tom/phase-summary', selectedClientId, scope],
-    queryFn: () => fetch(`/api/tom/phase-summary?scope=${scope}${selectedClientId ? `&clientId=${selectedClientId}` : ''}`).then(res => res.json()),
+    queryKey: ['/api/tom/phase-summary', selectedClientId, effectiveScope],
+    queryFn: () => fetch(`/api/tom/phase-summary?scope=${effectiveScope}${selectedClientId ? `&clientId=${selectedClientId}` : ''}`).then(res => res.json()),
     enabled: tomConfig?.enabled === 'true',
+  });
+
+  const { data: referenceLibrarySummary } = useQuery<PhaseSummary>({
+    queryKey: ['/api/tom/phase-summary', selectedClientId, 'reference'],
+    queryFn: () => fetch(`/api/tom/phase-summary?scope=reference${selectedClientId ? `&clientId=${selectedClientId}` : ''}`).then(res => res.json()),
+    enabled: tomConfig?.enabled === 'true' && scope === 'dashboard',
   });
 
   if (!tomConfig || tomConfig.enabled !== 'true') {
@@ -48,7 +57,13 @@ export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomP
     );
   }
 
-  const totalUseCases = phaseSummary?.phases.reduce((sum, p) => sum + p.count, 0) || 0;
+  const isActivePortfolio = scope === 'dashboard';
+  const displayPhases = isActivePortfolio 
+    ? phaseSummary?.phases.filter(p => p.id !== 'ideation') || []
+    : phaseSummary?.phases || [];
+  
+  const totalUseCases = displayPhases.reduce((sum, p) => sum + p.count, 0) || 0;
+  const ideaPoolCount = referenceLibrarySummary?.summary?.ideation || 0;
 
   return (
     <Card className="bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
@@ -59,8 +74,37 @@ export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomP
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        {isActivePortfolio && (
+          <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200 mb-3">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Lightbulb className="h-5 w-5 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-purple-900">Idea Pool</span>
+                <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                  {ideaPoolCount} in Ideation
+                </Badge>
+              </div>
+              <p className="text-xs text-purple-600">
+                {ideaPoolCount > 0 ? 'Use cases available for scoring and activation' : 'No use cases in the idea pool yet'}
+              </p>
+            </div>
+            <Link href="/insights?scope=reference" className="text-xs text-purple-600 flex items-center gap-1" data-testid="link-view-library">
+              View Library <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        )}
+
+        {isActivePortfolio && (
+          <div className="flex items-center gap-2 text-xs text-indigo-700 font-medium mb-1">
+            <Rocket className="h-3.5 w-3.5" />
+            Active Pipeline
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2">
-          {phaseSummary?.phases.map((phase) => {
+          {displayPhases.map((phase) => {
             const percentage = totalUseCases > 0 ? Math.round((phase.count / totalUseCases) * 100) : 0;
             return (
               <Badge
@@ -88,7 +132,7 @@ export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomP
         </div>
 
         <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden flex">
-          {phaseSummary?.phases.map((phase) => {
+          {displayPhases.map((phase) => {
             const percentage = totalUseCases > 0 ? (phase.count / totalUseCases) * 100 : 0;
             if (percentage === 0) return null;
             return (
@@ -106,7 +150,7 @@ export default function TomPhaseBreakdownLegoBlock({ scope = 'dashboard' }: TomP
         </div>
 
         <div className="text-xs text-muted-foreground text-center">
-          {totalUseCases} {scope === 'dashboard' ? 'active portfolio' : 'reference library'} use cases across {phaseSummary?.phases.filter(p => p.count > 0).length || 0} phases
+          {totalUseCases} {isActivePortfolio ? 'active portfolio' : 'reference library'} use cases across {displayPhases.filter(p => p.count > 0).length || 0} phases
         </div>
       </CardContent>
     </Card>

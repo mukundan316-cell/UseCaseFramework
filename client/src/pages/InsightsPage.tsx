@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import ValueRealizationView from '@/components/insights/ValueRealizationView';
 import OperatingModelView from '@/components/insights/OperatingModelView';
 import CapabilityTransitionView from '@/components/insights/CapabilityTransitionView';
 import ResponsibleAIPortfolioView from '@/components/insights/ResponsibleAIPortfolioView';
+import { useSearch } from 'wouter';
 
 type InsightsSubTab = 'value-realization' | 'operating-model' | 'capability-transition' | 'responsible-ai';
 export type InsightsScope = 'active' | 'reference';
@@ -18,7 +19,24 @@ interface InsightsPageProps {
 
 export default function InsightsPage({ defaultTab = 'value-realization' }: InsightsPageProps) {
   const [activeSubTab, setActiveSubTab] = useState<InsightsSubTab>(defaultTab);
-  const [scope, setScope] = useState<InsightsScope>('reference');
+  const searchString = useSearch();
+  
+  // Parse scope from URL query parameter
+  const getScopeFromSearch = (search: string): InsightsScope => {
+    const urlParams = new URLSearchParams(search);
+    const scopeParam = urlParams.get('scope');
+    return scopeParam === 'active' || scopeParam === 'reference' ? scopeParam : 'reference';
+  };
+  
+  const [scope, setScope] = useState<InsightsScope>(() => getScopeFromSearch(searchString));
+  
+  // Sync scope with URL changes using wouter's useSearch hook
+  useEffect(() => {
+    const newScope = getScopeFromSearch(searchString);
+    if (newScope !== scope) {
+      setScope(newScope);
+    }
+  }, [searchString]);
 
   return (
     <div className="space-y-6">

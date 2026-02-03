@@ -62,6 +62,9 @@ Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
   - `scope=reference` → Reference Library only (reference-tier use cases, all Ideation)
   - `scope=all` → All use cases (for admin/reporting)
 - **Insights Views**: All 4 tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) support scope toggle.
+- **TOM Phase Distribution UI**: Two-section design for intuitive display:
+  1. **Idea Pool Card** (purple): Shows Reference Library count with "View Library" link (only in Active Portfolio view)
+  2. **Active Pipeline Section**: Shows Assessment → Operate phases only (Ideation filtered out from Active Portfolio view)
 
 ## Recent Changes (Feb 2026)
 - **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with industry frameworks
