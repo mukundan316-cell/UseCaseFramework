@@ -10,74 +10,74 @@ import type { ScoringTabProps, ScoresState } from './types';
 
 const leverScoreDescriptions: Record<keyof ScoresState, Record<number, string>> = {
   revenueImpact: {
-    1: "No direct revenue impact",
-    2: "Minor revenue uplift (<1%)",
-    3: "Moderate revenue growth (1-3%)",
-    4: "Significant new revenue (3-5%)",
-    5: "Major new revenue stream (>5%)"
+    1: "Minimal revenue impact (<1% annually)",
+    2: "Small revenue potential (1-3%)",
+    3: "Moderate revenue opportunity (3-5%)",
+    4: "Significant revenue impact (5-10%)",
+    5: "Transformational revenue potential (>10%)"
   },
   costSavings: {
-    1: "No measurable savings",
-    2: "Minor efficiency gains (<5%)",
-    3: "Moderate cost reduction (5-15%)",
-    4: "Significant savings (15-30%)",
-    5: "Transformational savings (>30%)"
+    1: "Negligible cost reduction (<2%)",
+    2: "Minor operational savings (2-5%)",
+    3: "Moderate efficiency gains (5-15%)",
+    4: "Substantial cost reduction (15-25%)",
+    5: "Major cost transformation (>25%)"
   },
   riskReduction: {
-    1: "No risk mitigation",
-    2: "Minor risk reduction",
-    3: "Moderate risk mitigation",
-    4: "Significant risk reduction",
-    5: "Critical risk elimination"
+    1: "No material risk mitigation",
+    2: "Addresses minor compliance/operational risks",
+    3: "Reduces moderate regulatory/financial exposure",
+    4: "Significantly improves risk profile",
+    5: "Eliminates critical business risks"
   },
   brokerPartnerExperience: {
-    1: "No partner impact",
-    2: "Minor convenience improvement",
-    3: "Notable experience enhancement",
-    4: "Significant relationship value",
-    5: "Competitive differentiation"
+    1: "No noticeable improvement",
+    2: "Minor convenience improvements",
+    3: "Moderate enhancement to partner workflows",
+    4: "Significant improvement in partner satisfaction",
+    5: "Game-changing partner experience"
   },
   strategicFit: {
-    1: "Not aligned with strategy",
-    2: "Loosely aligned",
-    3: "Moderately aligned",
-    4: "Strongly aligned",
-    5: "Core strategic initiative"
+    1: "Peripheral to business strategy",
+    2: "Loosely aligned with strategic goals",
+    3: "Supports core strategic initiatives",
+    4: "Critical enabler of strategic objectives",
+    5: "Essential to strategic transformation"
   },
   dataReadiness: {
-    1: "Data not available",
-    2: "Significant data gaps",
-    3: "Partial data availability",
-    4: "Most data ready",
-    5: "Data fully prepared"
+    1: "Data doesn't exist or is inaccessible",
+    2: "Data exists but requires major cleaning/preparation",
+    3: "Data available with moderate preparation needed",
+    4: "Good quality data, minor preparation required",
+    5: "Clean, accessible, ready-to-use data"
   },
   technicalComplexity: {
-    1: "Cutting-edge R&D required",
-    2: "Complex custom development",
-    3: "Moderate complexity",
-    4: "Standard implementation",
-    5: "Simple/off-the-shelf solution"
+    1: "Standard tools, proven approaches",
+    2: "Minor technical challenges",
+    3: "Moderate complexity, some custom development",
+    4: "Complex integration, significant development",
+    5: "Cutting-edge tech, major R&D required"
   },
   changeImpact: {
-    1: "Massive org restructuring",
-    2: "Significant process changes",
-    3: "Moderate workflow updates",
-    4: "Minor adjustments",
-    5: "No process changes needed"
+    1: "No process changes required",
+    2: "Minor adjustments to existing workflows",
+    3: "Moderate process redesign needed",
+    4: "Significant organizational change",
+    5: "Complete transformation required"
   },
   modelRisk: {
-    1: "Critical regulatory/safety risk",
-    2: "High reputational risk",
-    3: "Moderate oversight needed",
-    4: "Low risk with monitoring",
-    5: "Minimal risk exposure"
+    1: "Simple rules-based system",
+    2: "Well-understood ML models",
+    3: "Moderate model complexity",
+    4: "Complex models with explainability challenges",
+    5: "Black-box AI with regulatory concerns"
   },
   adoptionReadiness: {
     1: "Strong resistance expected",
-    2: "Significant change management",
-    3: "Mixed stakeholder buy-in",
-    4: "Good user acceptance",
-    5: "Champions ready to adopt"
+    2: "Significant change management needed",
+    3: "Moderate user training required",
+    4: "Users receptive with minimal training",
+    5: "Eager adoption, minimal barriers"
   }
 };
 

@@ -39,7 +39,8 @@ import {
   Upload,
   Database,
   Sliders,
-  Building2
+  Building2,
+  Wrench
 } from 'lucide-react';
 
 type UserRole = 'business' | 'strategy' | 'admin';
@@ -130,16 +131,29 @@ const businessStepGuides = [
     ]
   },
   {
-    id: 'scoring-guide',
-    title: 'Understanding Score Values',
-    icon: Sliders,
+    id: 'impact-levers',
+    title: 'Business Impact Levers (1-5)',
+    icon: TrendingUp,
+    color: '#10B981',
+    steps: [
+      { step: 1, action: 'Revenue Impact: Minimal (<1%) to Transformational (>10%)' },
+      { step: 2, action: 'Cost Savings: Negligible (<2%) to Major transformation (>25%)' },
+      { step: 3, action: 'Risk Reduction: No mitigation to Eliminates critical risks' },
+      { step: 4, action: 'Broker/Partner: No improvement to Game-changing experience' },
+      { step: 5, action: 'Strategic Fit: Peripheral to Essential for transformation' }
+    ]
+  },
+  {
+    id: 'effort-levers',
+    title: 'Implementation Effort Levers (1-5)',
+    icon: Wrench,
     color: '#F59E0B',
     steps: [
-      { step: 1, action: 'Score 1: Lowest impact/readiness (e.g., "No revenue impact")' },
-      { step: 2, action: 'Score 2: Minor benefits (e.g., "<5% cost savings")' },
-      { step: 3, action: 'Score 3: Moderate impact (e.g., "5-15% improvement")' },
-      { step: 4, action: 'Score 4: Significant value (e.g., "15-30% gains")' },
-      { step: 5, action: 'Score 5: Transformational (e.g., ">30% or strategic priority")' }
+      { step: 1, action: 'Data Readiness: 1=Inaccessible, 5=Clean and ready-to-use' },
+      { step: 2, action: 'Technical Complexity: 1=Standard tools, 5=Cutting-edge R&D' },
+      { step: 3, action: 'Change Impact: 1=No changes, 5=Complete transformation' },
+      { step: 4, action: 'Model Risk: 1=Rules-based, 5=Black-box with regulatory concerns' },
+      { step: 5, action: 'Adoption Readiness: 1=Strong resistance, 5=Eager adoption' }
     ]
   },
   {
