@@ -128,7 +128,7 @@ export interface DerivedPhaseResult {
   name: string;
   color: string;
   isOverride: boolean;
-  matchedBy: 'status' | 'deployment' | 'priority' | 'manual' | 'disabled' | 'unmapped' | 'governance_entry' | 'unphased';
+  matchedBy: 'status' | 'deployment' | 'priority' | 'manual' | 'disabled' | 'unmapped' | 'governance_entry' | 'unphased' | 'active_portfolio_minimum';
 }
 
 // Governance status interface for gate-based phase assignment
@@ -885,10 +885,24 @@ export function derivePhase(
   }
 
   if (matchingPhases.length === 1) {
+    const singleMatch = matchingPhases[0];
+    // ACTIVE PORTFOLIO MINIMUM: If Ideation but active tier, upgrade to Assessment
+    if (libraryTier === 'active' && singleMatch.id === 'ideation') {
+      const assessmentPhase = resolvedConfig.phases.find(p => p.id === 'assessment');
+      if (assessmentPhase) {
+        return {
+          id: assessmentPhase.id,
+          name: assessmentPhase.name,
+          color: assessmentPhase.color,
+          isOverride: false,
+          matchedBy: 'active_portfolio_minimum'
+        };
+      }
+    }
     return {
-      id: matchingPhases[0].id,
-      name: matchingPhases[0].name,
-      color: matchingPhases[0].color,
+      id: singleMatch.id,
+      name: singleMatch.name,
+      color: singleMatch.color,
       isOverride: false,
       matchedBy: 'status'
     };
@@ -909,13 +923,34 @@ export function derivePhase(
   }
 
   const sortedByPriority = matchingPhases.sort((a, b) => a.priority - b.priority);
-  return {
+  const derivedResult = {
     id: sortedByPriority[0].id,
     name: sortedByPriority[0].name,
     color: sortedByPriority[0].color,
     isOverride: false,
-    matchedBy: 'priority'
+    matchedBy: 'priority' as const
   };
+  
+  // ACTIVE PORTFOLIO MINIMUM PHASE ENFORCEMENT
+  // Industry best practice (AWS Five V's, HBR Portfolio Model):
+  // - Reference Library = Ideation (idea pool)
+  // - Active Portfolio = Assessment → Operate (committed pipeline)
+  // Active Portfolio use cases should have a MINIMUM phase of Assessment.
+  // If derived phase is Ideation but use case is in Active tier, upgrade to Assessment.
+  if (libraryTier === 'active' && derivedResult.id === 'ideation') {
+    const assessmentPhase = resolvedConfig.phases.find(p => p.id === 'assessment');
+    if (assessmentPhase) {
+      return {
+        id: assessmentPhase.id,
+        name: assessmentPhase.name,
+        color: assessmentPhase.color,
+        isOverride: false,
+        matchedBy: 'active_portfolio_minimum'
+      };
+    }
+  }
+  
+  return derivedResult;
 }
 
 export function calculatePhaseSummary(
