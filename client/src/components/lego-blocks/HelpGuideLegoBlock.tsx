@@ -62,6 +62,13 @@ const businessWorkflow = [
   { icon: Save, label: "Save", color: "#10B981" }
 ];
 
+// Role display names for user-friendly labeling
+const roleDisplayNames = {
+  business: 'Business / IT User',
+  strategy: 'Strategy / PMO',
+  admin: 'Admin'
+};
+
 const strategyTasks = [
   { icon: Target, label: "Priority Matrix", location: "Dashboard" },
   { icon: Gauge, label: "Track Phases", location: "Insights" },
@@ -642,14 +649,14 @@ function RoleGuide({
 
 const roleConfigs = {
   business: {
-    title: "Business User Guide",
+    title: "Business / IT User Guide",
     titleIcon: Users,
     titleColor: "#3C2CDA",
     tasks: businessTasks,
     workflow: businessWorkflow,
     tips: [
+      "Both Business and IT users can create and edit use cases",
       "Focus badges show required data for each phase",
-      "Guide tab shows phase-specific requirements",
       "Auto-derivation populates fields automatically"
     ],
     detailGuideType: 'business' as const
@@ -803,8 +810,8 @@ export default function HelpGuideLegoBlock() {
               data-testid="tab-role-business"
             >
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Business User</span>
-              <span className="sm:hidden">Business</span>
+              <span className="hidden sm:inline">Business / IT</span>
+              <span className="sm:hidden">Business/IT</span>
             </TabsTrigger>
             <TabsTrigger 
               value="strategy" 

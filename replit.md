@@ -35,7 +35,7 @@ The platform uses Hexaware's official branding, colors, and typography. UI compo
 - **Assessment System**: Multi-questionnaire platform using Survey.js.
 - **File Management**: Local filesystem storage (`uploads/`) with metadata tracking and a 50MB per file limit.
 - **Modularity**: ~70 active LEGO components for reusability, with modular route and modal architectures.
-- **In-App Help & Guidance**: Role-based documentation with step-by-step visual guides for Business Users (create use cases, link KPIs, scoring), Strategy/PMO (priority matrix, insights analysis, value validation), and Admins (client management, TOM configuration, gate definitions, KPI library). Uses visual cards with numbered steps and color-coded role sections.
+- **In-App Help & Guidance**: Role-based documentation with step-by-step visual guides for Business/IT Users (create use cases, link KPIs, scoring), Strategy/PMO (priority matrix, insights analysis, value validation), and Admins (client management, TOM configuration, gate definitions, KPI library). Uses visual cards with numbered steps and color-coded role sections. Includes Two-Tier Portfolio Overview explaining Idea Pool → Active Pipeline workflow.
 - **Validation**: Minimal validation using Zod schemas and centralized configuration.
 - **Excel Integration**: Multi-worksheet import/export with auto-ID generation.
 - **API Design**: RESTful patterns with structured error responses and server-side validation.
