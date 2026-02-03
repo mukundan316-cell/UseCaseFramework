@@ -64,7 +64,7 @@ export const InteractiveCharts: React.FC<InteractiveChartsProps> = ({
 
   // Business Segment Performance
   const segmentPerformance = activeUseCases.reduce((acc, uc) => {
-    const segment = uc.businessSegment || 'Unspecified';
+    const segment = (uc.businessSegments && uc.businessSegments.length > 0) ? uc.businessSegments[0] : 'Unspecified';
     if (!acc[segment]) {
       acc[segment] = { 
         name: segment, 

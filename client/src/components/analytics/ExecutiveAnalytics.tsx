@@ -180,7 +180,7 @@ export default function ExecutiveAnalytics() {
 
   // Business Segment Analysis
   const segmentAnalysis = useCases.reduce((acc, uc) => {
-    const segment = uc.businessSegment || 'Unspecified';
+    const segment = (uc.businessSegments && uc.businessSegments.length > 0) ? uc.businessSegments[0] : 'Unspecified';
     if (!acc[segment]) {
       acc[segment] = { 
         name: segment, 
