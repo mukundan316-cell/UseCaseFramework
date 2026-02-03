@@ -8,6 +8,79 @@ import TShirtSizingDisplayLegoBlock from '../TShirtSizingDisplayLegoBlock';
 import { SectionHeader } from './utils';
 import type { ScoringTabProps, ScoresState } from './types';
 
+const leverScoreDescriptions: Record<keyof ScoresState, Record<number, string>> = {
+  revenueImpact: {
+    1: "No direct revenue impact",
+    2: "Minor revenue uplift (<1%)",
+    3: "Moderate revenue growth (1-3%)",
+    4: "Significant new revenue (3-5%)",
+    5: "Major new revenue stream (>5%)"
+  },
+  costSavings: {
+    1: "No measurable savings",
+    2: "Minor efficiency gains (<5%)",
+    3: "Moderate cost reduction (5-15%)",
+    4: "Significant savings (15-30%)",
+    5: "Transformational savings (>30%)"
+  },
+  riskReduction: {
+    1: "No risk mitigation",
+    2: "Minor risk reduction",
+    3: "Moderate risk mitigation",
+    4: "Significant risk reduction",
+    5: "Critical risk elimination"
+  },
+  brokerPartnerExperience: {
+    1: "No partner impact",
+    2: "Minor convenience improvement",
+    3: "Notable experience enhancement",
+    4: "Significant relationship value",
+    5: "Competitive differentiation"
+  },
+  strategicFit: {
+    1: "Not aligned with strategy",
+    2: "Loosely aligned",
+    3: "Moderately aligned",
+    4: "Strongly aligned",
+    5: "Core strategic initiative"
+  },
+  dataReadiness: {
+    1: "Data not available",
+    2: "Significant data gaps",
+    3: "Partial data availability",
+    4: "Most data ready",
+    5: "Data fully prepared"
+  },
+  technicalComplexity: {
+    1: "Cutting-edge R&D required",
+    2: "Complex custom development",
+    3: "Moderate complexity",
+    4: "Standard implementation",
+    5: "Simple/off-the-shelf solution"
+  },
+  changeImpact: {
+    1: "Massive org restructuring",
+    2: "Significant process changes",
+    3: "Moderate workflow updates",
+    4: "Minor adjustments",
+    5: "No process changes needed"
+  },
+  modelRisk: {
+    1: "Critical regulatory/safety risk",
+    2: "High reputational risk",
+    3: "Moderate oversight needed",
+    4: "Low risk with monitoring",
+    5: "Minimal risk exposure"
+  },
+  adoptionReadiness: {
+    1: "Strong resistance expected",
+    2: "Significant change management",
+    3: "Mixed stakeholder buy-in",
+    4: "Good user acceptance",
+    5: "Champions ready to adopt"
+  }
+};
+
 export default function ScoringTab({
   form,
   scores,
@@ -29,43 +102,47 @@ export default function ScoringTab({
     field: keyof ScoresState; 
     label: string; 
     tooltip?: string 
-  }) => (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <Label className="text-sm font-semibold flex items-center gap-1">
-          {label}
-          {tooltip && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent side="right" className="max-w-xs">
-                <p className="text-sm">{tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
+  }) => {
+    const descriptions = leverScoreDescriptions[field];
+    
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <Label className="text-sm font-semibold flex items-center gap-1">
+            {label}
+            {tooltip && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-xs">
+                  <p className="text-sm">{tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </Label>
+          {scores[field] > 0 && (
+            <Badge variant="outline" className="text-xs">{scores[field]}/5</Badge>
           )}
-        </Label>
-        {scores[field] > 0 && (
-          <Badge variant="outline" className="text-xs">{scores[field]}/5</Badge>
-        )}
+        </div>
+        <Select
+          value={scores[field] > 0 ? String(scores[field]) : ''}
+          onValueChange={(value) => handleSliderChange(field, parseInt(value))}
+        >
+          <SelectTrigger className="bg-white" data-testid={`select-${field.replace(/([A-Z])/g, '-$1').toLowerCase()}`}>
+            <SelectValue placeholder="Select score (1-5)..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">1 - {descriptions[1]}</SelectItem>
+            <SelectItem value="2">2 - {descriptions[2]}</SelectItem>
+            <SelectItem value="3">3 - {descriptions[3]}</SelectItem>
+            <SelectItem value="4">4 - {descriptions[4]}</SelectItem>
+            <SelectItem value="5">5 - {descriptions[5]}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <Select
-        value={scores[field] > 0 ? String(scores[field]) : ''}
-        onValueChange={(value) => handleSliderChange(field, parseInt(value))}
-      >
-        <SelectTrigger className="bg-white" data-testid={`select-${field.replace(/([A-Z])/g, '-$1').toLowerCase()}`}>
-          <SelectValue placeholder="Select score (1-5)..." />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="1">1 - Very Low</SelectItem>
-          <SelectItem value="2">2 - Low</SelectItem>
-          <SelectItem value="3">3 - Medium</SelectItem>
-          <SelectItem value="4">4 - High</SelectItem>
-          <SelectItem value="5">5 - Very High</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">

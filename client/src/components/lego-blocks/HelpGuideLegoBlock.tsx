@@ -104,6 +104,45 @@ const businessStepGuides = [
     ]
   },
   {
+    id: 'details',
+    title: 'Fill Out Details Tab',
+    icon: FileText,
+    color: '#10B981',
+    steps: [
+      { step: 1, action: 'Title: Clear, descriptive name for the AI initiative' },
+      { step: 2, action: 'Description: Business problem and proposed AI solution' },
+      { step: 3, action: 'Business Function: Primary department (Claims, UW, etc.)' },
+      { step: 4, action: 'Primary Owner: Accountable business stakeholder' },
+      { step: 5, action: 'Optional: Add Line of Business, Geography, Segment' }
+    ]
+  },
+  {
+    id: 'scoring',
+    title: 'Complete 10-Lever Scoring',
+    icon: BarChart3,
+    color: '#1D86FF',
+    steps: [
+      { step: 1, action: 'Open Intake & Scoring tab in the use case modal' },
+      { step: 2, action: 'Impact Levers: Rate Revenue, Cost, Risk, Experience, Strategy (1-5)' },
+      { step: 3, action: 'Effort Levers: Rate Data, Technical, Change, Model Risk, Adoption (1-5)' },
+      { step: 4, action: 'Each dropdown shows contextual descriptions for scores' },
+      { step: 5, action: 'All 10 levers required for Gate 2 clearance' }
+    ]
+  },
+  {
+    id: 'scoring-guide',
+    title: 'Understanding Score Values',
+    icon: Sliders,
+    color: '#F59E0B',
+    steps: [
+      { step: 1, action: 'Score 1: Lowest impact/readiness (e.g., "No revenue impact")' },
+      { step: 2, action: 'Score 2: Minor benefits (e.g., "<5% cost savings")' },
+      { step: 3, action: 'Score 3: Moderate impact (e.g., "5-15% improvement")' },
+      { step: 4, action: 'Score 4: Significant value (e.g., "15-30% gains")' },
+      { step: 5, action: 'Score 5: Transformational (e.g., ">30% or strategic priority")' }
+    ]
+  },
+  {
     id: 'value',
     title: 'Link KPIs for Value Tracking',
     icon: Link2,
@@ -117,16 +156,16 @@ const businessStepGuides = [
     ]
   },
   {
-    id: 'scoring',
-    title: 'Complete 10-Lever Scoring',
-    icon: BarChart3,
-    color: '#1D86FF',
+    id: 'operating-model',
+    title: 'Set Operating Model',
+    icon: Building2,
+    color: '#14CBDE',
     steps: [
-      { step: 1, action: 'Open a use case and go to Scoring tab' },
-      { step: 2, action: 'Rate each Impact lever (1-5 scale)' },
-      { step: 3, action: 'Rate each Effort lever (1-5 scale)' },
-      { step: 4, action: 'Total score is auto-calculated' },
-      { step: 5, action: 'Scoring is required for Gate 2 clearance' }
+      { step: 1, action: 'Open Operating Model tab in the use case modal' },
+      { step: 2, action: 'Assign Primary Business Owner (required for Gate 1)' },
+      { step: 3, action: 'Select Business Function for the initiative' },
+      { step: 4, action: 'Optionally add sponsors and stakeholders' },
+      { step: 5, action: 'Gate 1 clears when owner and function are set' }
     ]
   }
 ];
