@@ -60,11 +60,18 @@ export default function RSASelectionToggleLegoBlock({
       return;
     }
     onRSAToggle(checked ? 'true' : 'false');
+    // Auto-enable dashboard visibility when activating (active portfolio = always visible)
+    if (checked && isDashboardVisible !== 'true') {
+      onDashboardToggle('true');
+    }
     // Auto-disable dashboard visibility when RSA is deactivated
     if (!checked && isDashboardVisible === 'true') {
       onDashboardToggle('false');
     }
   };
+  
+  // Active portfolio use cases must always be visible - visibility is locked ON
+  const isVisibilityLocked = libraryTier === 'active' || isActiveForRsa === 'true';
 
   const getStatusBadge = () => {
     if (isActiveForRsa === 'true' && isDashboardVisible === 'true') {
@@ -186,31 +193,44 @@ export default function RSASelectionToggleLegoBlock({
         {isActiveForRsa === 'true' && (
           <div className="ml-6 space-y-4 border-l-3 border-rsa-blue/30 pl-6">
             {/* Dashboard Visibility Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50/50 border-2 border-blue-200 hover:border-blue-300 transition-all duration-200">
+            <div className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 ${
+              isVisibilityLocked 
+                ? 'bg-green-50/50 border-green-200' 
+                : 'bg-blue-50/50 border-blue-200 hover:border-blue-300'
+            }`}>
               <div className="flex-1">
-                <Label htmlFor="dashboard-visible" className="text-sm font-medium text-gray-900 cursor-pointer">
+                <Label htmlFor="dashboard-visible" className="text-sm font-medium text-gray-900 cursor-pointer flex items-center gap-2">
                   Show on Dashboard Matrix
+                  {isVisibilityLocked && (
+                    <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                      <Lock className="h-3 w-3 mr-1" />
+                      Always On
+                    </Badge>
+                  )}
                 </Label>
                 <p className="text-xs text-gray-600 mt-1">
-                  Display this use case in the main dashboard prioritization matrix
+                  {isVisibilityLocked 
+                    ? 'Active portfolio use cases are always visible on the dashboard' 
+                    : 'Display this use case in the main dashboard prioritization matrix'}
                 </p>
               </div>
               <div className="flex items-center ml-3">
                 <div className={`px-2 py-1 rounded border-2 transition-all duration-200 ${
                   isDashboardVisible === 'true'
-                    ? 'bg-blue-50 border-blue-300 text-blue-800' 
+                    ? 'bg-green-50 border-green-300 text-green-800' 
                     : 'bg-gray-50 border-gray-300 text-gray-600'
                 }`}>
                   <Switch 
                     id="dashboard-visible"
                     checked={isDashboardVisible === 'true'}
                     onCheckedChange={(checked) => onDashboardToggle(checked ? 'true' : 'false')}
-                    className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-gray-400 scale-105"
+                    disabled={isVisibilityLocked}
+                    className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-400 scale-105"
                   />
                 </div>
                 <div className="ml-2 text-xs font-medium">
                   <div className={`transition-all duration-200 ${
-                    isDashboardVisible === 'true' ? 'text-blue-700' : 'text-gray-500'
+                    isDashboardVisible === 'true' ? 'text-green-700' : 'text-gray-500'
                   }`}>
                     {isDashboardVisible === 'true' ? 'YES' : 'NO'}
                   </div>

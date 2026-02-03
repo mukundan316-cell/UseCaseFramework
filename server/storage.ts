@@ -612,6 +612,14 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
+    // VISIBILITY ENFORCEMENT: Active portfolio use cases must always be visible
+    // This prevents users from accidentally hiding active use cases from the dashboard
+    const finalLibraryTier = cleanUpdates.libraryTier ?? beforeUseCase.libraryTier;
+    const finalIsActive = (cleanUpdates.isActiveForRsa ?? beforeUseCase.isActiveForRsa) === 'true';
+    if (finalLibraryTier === 'active' || finalIsActive) {
+      cleanUpdates.isDashboardVisible = 'true';
+    }
+    
     if (shouldRecalculateTShirtSizing) {
       // Calculate new T-shirt sizing with updated scores
       const newImpactScore = cleanUpdates.impactScore ?? beforeUseCase.impactScore;
