@@ -164,11 +164,16 @@ export default function SummaryMetricsLegoBlock() {
     <div className="mb-8">
       {/* Header Section */}
       <div className="mb-6">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 bg-clip-text text-transparent mb-2">
-          Portfolio Overview
-        </h2>
+        <div className="flex items-center gap-3 mb-2">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 bg-clip-text text-transparent">
+            Active Pipeline
+          </h2>
+          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+            Assessment → Operate
+          </span>
+        </div>
         <p className="text-gray-600 mb-3">
-          Current metrics across {filteredUseCases.length} use cases
+          {filteredUseCases.length} committed use cases in the active portfolio
           {filters.quadrant || filters.search || filters.process ? (
             <button 
               onClick={clearAllFilters}

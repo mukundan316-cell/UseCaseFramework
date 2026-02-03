@@ -150,7 +150,7 @@ export default function RSASelectionToggleLegoBlock({
               Include in Hexaware Active Portfolio
             </Label>
             <p className="text-sm text-gray-600 mt-1">
-              Move this use case from reference library to active portfolio for scoring and evaluation
+              Commit this use case from the idea pool to the active pipeline. It will enter the <strong>Assessment</strong> phase.
             </p>
           </div>
           <div className="flex items-center ml-4">
@@ -287,9 +287,9 @@ export default function RSASelectionToggleLegoBlock({
           <div className="flex items-start gap-3">
             <Info className="h-4 w-4 text-gray-500 mt-0.5" />
             <div className="text-xs text-gray-600 space-y-1">
-              <p><strong>Reference Library:</strong> Available for browsing and selection</p>
-              <p><strong>Hexaware Active:</strong> Included in portfolio analysis and scoring</p>
-              <p><strong>Dashboard Visible:</strong> Shown in prioritization matrix</p>
+              <p><strong>Idea Pool (Reference Library):</strong> Browse and evaluate ideas - all in Ideation phase</p>
+              <p><strong>Active Pipeline (Hexaware Active):</strong> Committed initiatives - Assessment → Operate phases</p>
+              <p><strong>Dashboard:</strong> Shows only Active Pipeline use cases</p>
             </div>
           </div>
         </div>
@@ -297,13 +297,13 @@ export default function RSASelectionToggleLegoBlock({
         {/* Additional Context Section */}
         <div className="space-y-3">
           <Label className="text-sm font-medium text-gray-900">
-            Additional Context
+            Activation Checklist
           </Label>
           <div className="text-xs text-gray-600 space-y-1 p-3 bg-gray-50 rounded-lg">
-            <p>• Use cases start in Reference Library by default</p>
-            <p>• Scoring sections become available after Hexaware activation</p>
-            <p>• Dashboard visibility requires Hexaware portfolio inclusion</p>
-            <p>• Changes are saved automatically when modal is submitted</p>
+            <p>• All use cases start in the Idea Pool (Reference Library)</p>
+            <p>• Complete the 3 governance gates to unlock activation</p>
+            <p>• Activation moves the use case to Assessment phase</p>
+            <p>• Active pipeline use cases always appear on the Dashboard</p>
           </div>
         </div>
       </CardContent>

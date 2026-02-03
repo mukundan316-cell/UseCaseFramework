@@ -40,7 +40,9 @@ import {
   Database,
   Sliders,
   Building2,
-  Wrench
+  Wrench,
+  Library,
+  Play
 } from 'lucide-react';
 
 type UserRole = 'business' | 'strategy' | 'admin';
@@ -730,6 +732,69 @@ export default function HelpGuideLegoBlock() {
       </CardHeader>
       
       <CardContent className="space-y-6">
+        {/* Two-Tier Portfolio Overview - The Essential Mental Model */}
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-5" data-testid="two-tier-overview">
+          <div className="flex items-center gap-2 mb-4">
+            <Lightbulb className="h-5 w-5 text-amber-500" />
+            <h3 className="font-bold text-gray-900">How the Platform Works</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+            {/* Idea Pool */}
+            <motion.div 
+              className="bg-white rounded-xl p-4 border-2 border-purple-200 shadow-sm"
+              whileHover={{ scale: 1.02 }}
+              data-testid="tier-idea-pool"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Library className="h-5 w-5 text-purple-600" />
+                </div>
+                <span className="font-semibold text-purple-900">Idea Pool</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                Browse and evaluate AI ideas. All use cases start here in the <strong>Ideation</strong> phase.
+              </p>
+              <div className="mt-2 text-xs text-purple-600 font-medium">Reference Library</div>
+            </motion.div>
+
+            {/* Arrow */}
+            <div className="flex flex-col items-center justify-center py-2">
+              <motion.div 
+                className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Play className="h-4 w-4 text-green-600" />
+                <span className="text-sm font-medium text-gray-700">Activate</span>
+                <ArrowRight className="h-4 w-4 text-gray-400" />
+              </motion.div>
+              <p className="text-xs text-gray-500 mt-2 text-center">Score + Complete Gates</p>
+            </div>
+
+            {/* Active Pipeline */}
+            <motion.div 
+              className="bg-white rounded-xl p-4 border-2 border-green-200 shadow-sm"
+              whileHover={{ scale: 1.02 }}
+              data-testid="tier-active-pipeline"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                </div>
+                <span className="font-semibold text-green-900">Active Pipeline</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                Committed initiatives the organization is executing. Phases: <strong>Assessment → Operate</strong>
+              </p>
+              <div className="mt-2 text-xs text-green-600 font-medium">Active Portfolio (Dashboard)</div>
+            </motion.div>
+          </div>
+
+          <p className="text-xs text-gray-500 mt-4 text-center">
+            The Dashboard shows only Active Pipeline use cases. Use Insights to view both.
+          </p>
+        </div>
+
         <Tabs value={selectedRole} onValueChange={(v) => setSelectedRole(v as UserRole)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-lg">
             <TabsTrigger 
