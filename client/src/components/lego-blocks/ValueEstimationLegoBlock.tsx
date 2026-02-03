@@ -67,14 +67,20 @@ export default function ValueEstimationLegoBlock({
 
     const applicable = getApplicableKpis(processes, kpiLibrary, { activities });
     const estimates = deriveValueEstimates(processes, scores, kpiLibrary, volumeMultiplier);
-    const total = calculateTotalEstimatedValue(estimates);
+    
+    // Filter estimates to only include selected KPIs when in selection mode
+    const filteredEstimates = showSelection && selectedKpis.length > 0
+      ? estimates.filter(est => selectedKpis.includes(est.kpiId))
+      : estimates;
+    
+    const total = calculateTotalEstimatedValue(filteredEstimates);
 
     return {
       applicableKpis: applicable,
       valueEstimates: estimates,
       totalValue: total
     };
-  }, [processes, activities, scores, kpiLibrary, volumeMultiplier]);
+  }, [processes, activities, scores, kpiLibrary, volumeMultiplier, showSelection, selectedKpis]);
 
   // Auto-select only SUGGESTED KPIs (top 5 by relevance) when processes change
   useEffect(() => {
