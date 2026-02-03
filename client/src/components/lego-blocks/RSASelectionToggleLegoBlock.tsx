@@ -85,7 +85,7 @@ export default function RSASelectionToggleLegoBlock({
       return (
         <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
           <Target className="h-3 w-3 mr-1" />
-          Hexaware Active
+          Active Portfolio
         </Badge>
       );
     } else {
@@ -110,7 +110,7 @@ export default function RSASelectionToggleLegoBlock({
             </div>
             <div>
               <CardTitle className="text-lg font-bold text-gray-900">
-                Hexaware Portfolio Selection
+                Portfolio Selection
               </CardTitle>
               <CardDescription className="text-sm">
                 Control active portfolio inclusion and dashboard visibility
@@ -147,7 +147,7 @@ export default function RSASelectionToggleLegoBlock({
         }`}>
           <div className="flex-1">
             <Label htmlFor="rsa-active" className={`text-base font-medium cursor-pointer ${isGovernanceBlocked ? 'text-gray-500' : 'text-gray-900'}`}>
-              Include in Hexaware Active Portfolio
+              Include in Active Portfolio
             </Label>
             <p className="text-sm text-gray-600 mt-1">
               Commit this use case from the idea pool to the active pipeline. It will enter the <strong>Assessment</strong> phase.
@@ -244,14 +244,14 @@ export default function RSASelectionToggleLegoBlock({
                 Activation Reason <span className="text-red-500">*</span>
               </Label>
               <Textarea 
-                placeholder="Explain why this use case is selected for Hexaware portfolio..."
+                placeholder="Explain why this use case is selected for the active portfolio..."
                 value={activationReason}
                 onChange={(e) => onActivationReasonChange(e.target.value)}
                 className="min-h-[80px] resize-none"
                 maxLength={500}
               />
               <div className="flex justify-between text-xs text-gray-500">
-                <span>Required for Hexaware portfolio inclusion</span>
+                <span>Required for active portfolio inclusion</span>
                 <span>{activationReason.length}/500</span>
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function RSASelectionToggleLegoBlock({
                 Deactivation Reason
               </Label>
               <Textarea 
-                placeholder="Explain why this use case was removed from Hexaware portfolio..."
+                placeholder="Explain why this use case was removed from active portfolio..."
                 value={deactivationReason}
                 onChange={(e) => onDeactivationReasonChange!(e.target.value)}
                 className="min-h-[80px] resize-none"
@@ -288,7 +288,7 @@ export default function RSASelectionToggleLegoBlock({
             <Info className="h-4 w-4 text-gray-500 mt-0.5" />
             <div className="text-xs text-gray-600 space-y-1">
               <p><strong>Idea Pool (Reference Library):</strong> Browse and evaluate ideas - all in Ideation phase</p>
-              <p><strong>Active Pipeline (Hexaware Active):</strong> Committed initiatives - Assessment → Operate phases</p>
+              <p><strong>Active Pipeline:</strong> Committed initiatives - Assessment → Operate phases</p>
               <p><strong>Dashboard:</strong> Shows only Active Pipeline use cases</p>
             </div>
           </div>
