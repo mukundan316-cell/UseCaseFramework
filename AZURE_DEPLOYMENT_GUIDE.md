@@ -10,11 +10,28 @@ This guide provides everything needed to deploy the Hexaware AI Use Case Value F
 
 | File | Description |
 |------|-------------|
-| `azure-database-export.sql` | Complete PostgreSQL schema + all data (138 use cases) |
+| `azure-database-export.sql` | Complete PostgreSQL schema + all data (uses snake_case column names) |
 | `AZURE_DEPLOYMENT_GUIDE.md` | This deployment guide |
 | `/client/` | React frontend source |
 | `/server/` | Express.js backend source |
-| `/shared/` | Shared TypeScript schemas |
+| `/shared/` | Shared TypeScript schemas (SSOT for database schema) |
+
+---
+
+## 1.1 Regenerating the SQL Export (SSOT Compliance)
+
+The `azure-database-export.sql` file can be regenerated programmatically to ensure it stays in sync with the schema:
+
+**Via API Endpoint:**
+```bash
+# Download fresh SQL export
+curl http://localhost:5000/api/export/azure-sql -o azure-database-export.sql
+
+# Preview SQL export in browser
+GET /api/export/azure-sql/preview
+```
+
+**Important:** The SQL export uses snake_case column names (e.g., `meaningful_id`, `engagement_id`, `created_at`) to match PostgreSQL conventions. The schema in `shared/schema.ts` is the single source of truth (SSOT).
 
 ---
 

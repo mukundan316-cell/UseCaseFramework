@@ -4,6 +4,7 @@ import { EnhancedUseCasePdfService } from '../services/enhancedUseCasePdfService
 import { CompactPdfService } from '../services/compactPdfService';
 import { TabularPdfService } from '../services/tabularPdfService';
 import { ExcelExportService } from '../services/excelExportService';
+import { SqlExportService } from '../services/sqlExportService';
 import { questionnaireServiceInstance } from '../services/questionnaireService';
 // PDF services removed - using client-side Survey.js PDF export instead
 
@@ -202,6 +203,50 @@ router.get('/backup/use-cases', async (req, res) => {
   } catch (error) {
     console.error('Use case backup export error:', error);
     res.status(500).json({ error: 'Failed to export use case backup' });
+  }
+});
+
+// =============================================================================
+// AZURE SQL EXPORT ROUTES (SSOT Compliance)
+// Generates SQL export with correct snake_case column names from schema.ts
+// =============================================================================
+
+/**
+ * Generate Azure PostgreSQL export SQL file
+ * GET /api/export/azure-sql
+ * 
+ * This endpoint generates a complete SQL file for Azure PostgreSQL deployment,
+ * using snake_case column names derived from the schema.ts definitions.
+ * This ensures SSOT (Single Source of Truth) compliance.
+ */
+router.get('/azure-sql', async (req, res) => {
+  try {
+    const sqlContent = await SqlExportService.generateAzureExportSql();
+    
+    const filename = `azure-database-export-${new Date().toISOString().split('T')[0]}.sql`;
+    
+    res.setHeader('Content-Type', 'application/sql');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(sqlContent);
+  } catch (error) {
+    console.error('Azure SQL export error:', error);
+    res.status(500).json({ error: 'Failed to generate Azure SQL export' });
+  }
+});
+
+/**
+ * Preview Azure PostgreSQL export (returns SQL as text for review)
+ * GET /api/export/azure-sql/preview
+ */
+router.get('/azure-sql/preview', async (req, res) => {
+  try {
+    const sqlContent = await SqlExportService.generateAzureExportSql();
+    
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(sqlContent);
+  } catch (error) {
+    console.error('Azure SQL preview error:', error);
+    res.status(500).json({ error: 'Failed to generate Azure SQL preview' });
   }
 });
 
