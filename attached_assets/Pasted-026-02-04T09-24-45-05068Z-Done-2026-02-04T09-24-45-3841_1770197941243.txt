@@ -1,0 +1,47 @@
+026-02-04T09:24:45.05068Z Done.
+2026-02-04T09:24:45.3841021Z npm info using npm@10.9.2
+2026-02-04T09:24:45.3846373Z npm info using node@v20.20.0
+2026-02-04T09:24:45.9628973Z
+2026-02-04T09:24:45.9629541Z > rest-express@1.0.0 start
+2026-02-04T09:24:45.9629581Z > cross-env NODE_ENV=production node dist/index.js
+2026-02-04T09:24:45.9629623Z
+2026-02-04T09:24:47.5122146Z (node:1891) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+2026-02-04T09:24:47.5122654Z In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+2026-02-04T09:24:47.5122706Z
+2026-02-04T09:24:47.5122752Z To prepare for this change:
+2026-02-04T09:24:47.5122868Z - If you want the current behavior, explicitly use 'sslmode=verify-full'
+2026-02-04T09:24:47.5122903Z - If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+2026-02-04T09:24:47.5122928Z
+2026-02-04T09:24:47.5122958Z See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+2026-02-04T09:24:47.5122987Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-02-04T09:24:49.9793651Z Existing metadata found, preserving user data...
+2026-02-04T09:25:16.5470424Z ✅ Updated 18 showcase use cases with complete Insights data (including TOM phase derivation)
+2026-02-04T09:25:16.5476342Z Use case database ready for user input
+2026-02-04T09:25:16.54767Z ✅ Database initialization complete - ready for user data
+2026-02-04T09:25:16.6133033Z 9:25:16 AM [express] serving on port 8080
+2026-02-04T09:25:50.4833585Z 9:25:50 AM [express] GET /api/clients 200 in 2170ms :: [{"id":"d2beb623-6807-4b52-a7c3-6f175b8e7e2a"…
+2026-02-04T09:25:51.3126077Z 9:25:51 AM [express] GET /api/clients/d2beb623-6807-4b52-a7c3-6f175b8e7e2a 200 in 257ms :: {"id":"d2…
+2026-02-04T09:25:51.9249164Z 9:25:51 AM [express] GET /api/metadata 200 in 2490ms :: {"id":"default","valueChainComponents":["Ris…
+2026-02-04T09:25:52.9663278Z 9:25:52 AM [express] GET /api/use-cases/reference 200 in 3524ms :: [{"id":"3065e463-129e-4980-9af4-4…
+2026-02-04T09:25:53.0699907Z 9:25:53 AM [express] GET /api/use-cases 200 in 3637ms :: [{"id":"f30eb5e4-517a-497a-beb6-b6bb41619f4…
+2026-02-04T09:25:53.6982562Z 9:25:53 AM [express] GET /api/use-cases 200 in 1935ms :: []
+2026-02-04T09:25:54.1321682Z 9:25:54 AM [express] GET /api/use-cases/reference 200 in 1518ms :: []
+2026-02-04T09:25:54.9287248Z 9:25:54 AM [express] GET /api/tom/phase-summary 200 in 902ms :: {"enabled":true,"summary":{"ideation…
+2026-02-04T09:25:58.700263Z 9:25:58 AM [express] GET /api/clients/d2beb623-6807-4b52-a7c3-6f175b8e7e2a 304 in 256ms :: {"id":"d2…
+2026-02-04T09:25:59.269376Z 9:25:59 AM [express] GET /api/metadata 304 in 270ms :: {"id":"default","valueChainComponents":["Risk…
+2026-02-04T09:25:59.3544282Z 9:25:59 AM [express] GET /api/use-cases/dashboard 304 in 893ms :: []
+2026-02-04T09:26:16.2969989Z 9:26:16 AM [express] GET /api/engagements 304 in 2140ms :: [{"id":"db4440aa-a5ff-4e33-9990-0b59226a0…
+2026-02-04T09:26:16.7301302Z 9:26:16 AM [express] GET /api/tom/config/d2beb623-6807-4b52-a7c3-6f175b8e7e2a 304 in 2627ms :: {"ena…
+2026-02-04T09:26:17.9799403Z 9:26:17 AM [express] GET /api/use-cases 304 in 3825ms :: []
+2026-02-04T09:26:18.3420857Z 9:26:18 AM [express] GET /api/use-cases/reference 304 in 1777ms :: []
+2026-02-04T09:31:17.453Z No new trace in the past 1 min(s).
+2026-02-04T09:32:17.453Z No new trace in the past 2 min(s).
+2026-02-04T09:33:17.453Z No new trace in the past 3 min(s).
+2026-02-04T09:34:17.453Z No new trace in the past 4 min(s).
+2026-02-04T09:35:17.453Z No new trace in the past 5 min(s).
+2026-02-04T09:36:17.453Z No new trace in the past 6 min(s).
+2026-02-04T09:37:17.453Z No new trace in the past 7 min(s).
+2026-02-04T09:38:17.453Z No new trace in the past 8 min(s).
+2026-02-04T09:39:17.453Z No new trace in the past 9 min(s).
+2026-02-04T09:40:17.453Z No new trace in the past 10 min(s).
+2026-02-04T09:41:17.453Z No new trace in the past
