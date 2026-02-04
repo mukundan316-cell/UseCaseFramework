@@ -1,0 +1,82 @@
+de:internal/util/inspect:2280
+
+  if (desc.value !== undefined) {
+
+           ^
+ 
+TypeError: Cannot read properties of undefined (reading 'value')
+
+    at formatProperty (node:internal/util/inspect:2280:12)
+
+    at formatRaw (node:internal/util/inspect:1176:9)
+
+    at formatValue (node:internal/util/inspect:932:10)
+
+    at inspect (node:internal/util/inspect:409:10)
+
+    at formatWithOptionsInternal (node:internal/util/inspect:2645:40)
+
+    at formatWithOptions (node:internal/util/inspect:2507:10)
+
+    at console.value (node:internal/console/constructor:377:14)
+
+    at console.error (node:internal/console/constructor:444:61)
+
+    at <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:389:15)
+
+    at Layer.handle [as handle_request] (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\layer.js:95:5)
+
+    at next (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\route.js:149:13)
+
+    at Route.dispatch (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\route.js:119:3)   
+
+    at Layer.handle [as handle_request] (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\layer.js:95:5)
+
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:284:15
+
+    at router.process_params (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:346:12)
+
+    at next (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:280:10)
+
+    at <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\index.ts:40:3)
+
+    at Layer.handle [as handle_request] (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\layer.js:95:5)
+
+    at trim_prefix (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:328:13)     
+
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:286:9
+
+    at router.process_params (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:346:12)
+
+    at next (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:280:10)
+
+    at urlencodedParser (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\body-parser\lib\types\urlencoded.js:85:7)
+
+    at Layer.handle [as handle_request] (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\layer.js:95:5)
+
+    at trim_prefix (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:328:13)     
+
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:286:9
+
+    at router.process_params (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:346:12)
+
+    at next (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\express\lib\router\index.js:280:10)
+
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\body-parser\lib\read.js:137:5
+
+    at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+
+    at invokeCallback (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\raw-body\index.js:238:16)
+
+    at done (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\raw-body\index.js:227:7)
+
+    at IncomingMessage.onEnd (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\raw-body\index.js:287:7)      
+
+    at IncomingMessage.emit (node:events:508:28)
+
+    at endReadableNT (node:internal/streams/readable:1701:12)
+
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+ 
+Node.js v24.12.0
+ 
