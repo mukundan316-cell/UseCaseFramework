@@ -16,6 +16,21 @@ import {
   ACTIVATION_STATUSES
 } from '../services/governance-enforcement';
 
+// Safe error logging helper to prevent Node.js 24+ crashes with complex error objects
+function safeErrorLog(message: string, error: unknown): void {
+  try {
+    if (error instanceof Error) {
+      console.error(message, { name: error.name, message: error.message, stack: error.stack });
+    } else if (error && typeof error === 'object') {
+      console.error(message, JSON.stringify(error, null, 2));
+    } else {
+      console.error(message, String(error));
+    }
+  } catch {
+    console.error(message, '[Error object could not be serialized]');
+  }
+}
+
 function ensureValueConfidenceDefaults(valueRealization: any): any {
   if (!valueRealization) return valueRealization;
   
@@ -95,7 +110,7 @@ async function enrichUseCasesWithTomPhase(
       };
     });
   } catch (error) {
-    console.error('Error enriching use cases with TOM phase:', error);
+    safeErrorLog('Error enriching use cases with TOM phase:', error);
     return useCases;
   }
 }
@@ -114,7 +129,7 @@ export function registerUseCaseRoutes(app: Express): void {
       const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases, engagementId);
       res.json(enrichedUseCases);
     } catch (error) {
-      console.error("Error fetching all use cases:", error);
+      safeErrorLog("Error fetching all use cases:", error);
       res.status(500).json({ error: "Failed to fetch use cases" });
     }
   });
@@ -132,7 +147,7 @@ export function registerUseCaseRoutes(app: Express): void {
       const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases, engagementId);
       res.json(enrichedUseCases);
     } catch (error) {
-      console.error("Error fetching dashboard use cases:", error);
+      safeErrorLog("Error fetching dashboard use cases:", error);
       res.status(500).json({ error: "Failed to fetch dashboard use cases" });
     }
   });
@@ -150,7 +165,7 @@ export function registerUseCaseRoutes(app: Express): void {
       const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases, engagementId);
       res.json(enrichedUseCases);
     } catch (error) {
-      console.error("Error fetching active use cases:", error);
+      safeErrorLog("Error fetching active use cases:", error);
       res.status(500).json({ error: "Failed to fetch active use cases" });
     }
   });
@@ -168,7 +183,7 @@ export function registerUseCaseRoutes(app: Express): void {
       const enrichedUseCases = await enrichUseCasesWithTomPhase(mappedUseCases, engagementId);
       res.json(enrichedUseCases);
     } catch (error) {
-      console.error("Error fetching reference library use cases:", error);
+      safeErrorLog("Error fetching reference library use cases:", error);
       res.status(500).json({ error: "Failed to fetch reference library use cases" });
     }
   });
@@ -207,7 +222,7 @@ export function registerUseCaseRoutes(app: Express): void {
       }
       res.json(mapUseCaseToFrontend(useCase));
     } catch (error) {
-      console.error("Error activating use case:", error);
+      safeErrorLog("Error activating use case:", error);
       res.status(500).json({ error: "Failed to activate use case" });
     }
   });
@@ -222,7 +237,7 @@ export function registerUseCaseRoutes(app: Express): void {
       }
       res.json(mapUseCaseToFrontend(useCase));
     } catch (error) {
-      console.error("Error deactivating use case:", error);
+      safeErrorLog("Error deactivating use case:", error);
       res.status(500).json({ error: "Failed to deactivate use case" });
     }
   });
@@ -236,7 +251,7 @@ export function registerUseCaseRoutes(app: Express): void {
       }
       res.json(mapUseCaseToFrontend(useCase));
     } catch (error) {
-      console.error("Error toggling dashboard visibility:", error);
+      safeErrorLog("Error toggling dashboard visibility:", error);
       res.status(500).json({ error: "Failed to toggle dashboard visibility" });
     }
   });
@@ -251,7 +266,7 @@ export function registerUseCaseRoutes(app: Express): void {
       const mappedUseCases = useCases.map(mapUseCaseToFrontend);
       res.json(mappedUseCases);
     } catch (error) {
-      console.error("Error bulk updating use case tier:", error);
+      safeErrorLog("Error bulk updating use case tier:", error);
       res.status(500).json({ error: "Failed to bulk update use case tier" });
     }
   });
@@ -262,7 +277,7 @@ export function registerUseCaseRoutes(app: Express): void {
         try {
           req.body.presentationUploadedAt = new Date(req.body.presentationUploadedAt);
         } catch (dateError) {
-          console.error('Date conversion error:', dateError);
+          safeErrorLog('Date conversion error:', dateError);
           req.body.presentationUploadedAt = null;
         }
       }
@@ -381,14 +396,14 @@ export function registerUseCaseRoutes(app: Express): void {
           Object.assign(newUseCase, derived);
         }
       } catch (derivationError) {
-        console.error("Auto-derivation warning (use case created successfully):", derivationError);
+        safeErrorLog("Auto-derivation warning (use case created successfully):", derivationError);
       }
       
       res.status(201).json(mapUseCaseToFrontend(newUseCase));
     } catch (error) {
-      console.error("Error creating use case:", error);
+      safeErrorLog("Error creating use case:", error);
       if (error instanceof z.ZodError) {
-        console.error("Validation errors:", error.issues);
+        safeErrorLog("Validation errors:", error.issues);
         
         const friendlyMessages = error.issues.map(issue => {
           const field = issue.path.join('.');
@@ -424,7 +439,7 @@ export function registerUseCaseRoutes(app: Express): void {
           type: "validation"
         });
       } else {
-        console.error("Unexpected error:", error);
+        safeErrorLog("Unexpected error:", error);
         res.status(500).json({ 
           error: "Unable to save use case", 
           message: "Please try again. If the problem continues, contact support.",
@@ -442,7 +457,7 @@ export function registerUseCaseRoutes(app: Express): void {
         try {
           req.body.presentationUploadedAt = new Date(req.body.presentationUploadedAt);
         } catch (dateError) {
-          console.error('Date conversion error:', dateError);
+          safeErrorLog('Date conversion error:', dateError);
           req.body.presentationUploadedAt = null;
         }
       }
@@ -775,7 +790,7 @@ export function registerUseCaseRoutes(app: Express): void {
             }
           }
         } catch (derivationError) {
-          console.error("Smart derivation warning:", derivationError);
+          safeErrorLog("Smart derivation warning:", derivationError);
         }
       }
       
@@ -825,14 +840,14 @@ export function registerUseCaseRoutes(app: Express): void {
             await storage.updateUseCase(id, { valueRealization: vrWithConfidence });
             updatedUseCase.valueRealization = vrWithConfidence;
           } catch (vrError) {
-            console.error("Value realization calculation error:", vrError);
+            safeErrorLog("Value realization calculation error:", vrError);
           }
         }
       }
       
       res.json(mapUseCaseToFrontend(updatedUseCase));
     } catch (error) {
-      console.error("Error updating use case:", error);
+      safeErrorLog("Error updating use case:", error);
       if (error instanceof z.ZodError) {
         res.status(400).json({ error: "Invalid use case data", issues: error.issues });
       } else {
@@ -850,7 +865,7 @@ export function registerUseCaseRoutes(app: Express): void {
       }
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting use case:", error);
+      safeErrorLog("Error deleting use case:", error);
       res.status(500).json({ error: "Failed to delete use case" });
     }
   });
@@ -864,7 +879,7 @@ export function registerUseCaseRoutes(app: Express): void {
       const similarCases = await storage.findSimilarUseCases(title, description || '', excludeId);
       res.json({ similarCases });
     } catch (error) {
-      console.error("Error checking for duplicates:", error);
+      safeErrorLog("Error checking for duplicates:", error);
       res.status(500).json({ error: "Failed to check for duplicates" });
     }
   });
@@ -882,7 +897,7 @@ export function registerUseCaseRoutes(app: Express): void {
       }
       res.json(mapUseCaseToFrontend(result));
     } catch (error) {
-      console.error("Error resolving duplicate:", error);
+      safeErrorLog("Error resolving duplicate:", error);
       res.status(500).json({ error: "Failed to resolve duplicate" });
     }
   });
@@ -893,7 +908,7 @@ export function registerUseCaseRoutes(app: Express): void {
       const logs = await storage.getUseCaseChangeLog(id);
       res.json(logs);
     } catch (error) {
-      console.error("Error getting audit log:", error);
+      safeErrorLog("Error getting audit log:", error);
       res.status(500).json({ error: "Failed to get audit log" });
     }
   });
@@ -904,7 +919,7 @@ export function registerUseCaseRoutes(app: Express): void {
       const logs = await storage.getAllChangeLogs(limit);
       res.json(logs);
     } catch (error) {
-      console.error("Error getting all audit logs:", error);
+      safeErrorLog("Error getting all audit logs:", error);
       res.status(500).json({ error: "Failed to get audit logs" });
     }
   });
