@@ -1,0 +1,366 @@
+ne: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:25 PM [express] GET /api/use-cases/reference 200 in 1037ms :: [{"id":"3065e463-129e-4980-9af4-4…
+3:37:28 PM [express] GET /api/clients 304 in 618ms :: [{"id":"93dbeac0-58c3-41a0-9d6b-affbfe0be923",…
+3:37:29 PM [express] GET /api/clients/93dbeac0-58c3-41a0-9d6b-affbfe0be923 304 in 668ms :: {"id":"93…
+Error fetching TOM config: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfigById (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:865:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\tom.routes.ts:63:24) {
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:29 PM [express] GET /api/tom/config/93dbeac0-58c3-41a0-9d6b-affbfe0be923 500 in 673ms :: {"erro…
+3:37:29 PM [express] GET /api/engagements 304 in 679ms :: [{"id":"93dbeac0-58c3-41a0-9d6b-affbfe0be9…
+Error loading metadata: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfig (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:813:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\metadata.routes.ts:56:24) {      
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:29 PM [express] GET /api/metadata 500 in 88ms :: {"error":"Failed to load metadata"}
+Error enriching use cases with TOM phase: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfig (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:813:22)
+    at async enrichUseCasesWithTomPhase (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:53:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:168:32) {    
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:29 PM [express] GET /api/use-cases/reference 304 in 412ms :: [{"id":"3065e463-129e-4980-9af4-46…
+Error enriching use cases with TOM phase: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfig (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:813:22)
+    at async enrichUseCasesWithTomPhase (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:53:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:114:32) {    
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:29 PM [express] GET /api/use-cases 304 in 1141ms :: [{"id":"f30eb5e4-517a-497a-beb6-b6bb41619f4…
+Error enriching use cases with TOM phase: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfig (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:813:22)
+    at async enrichUseCasesWithTomPhase (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:53:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:132:32) {    
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:30 PM [express] GET /api/use-cases/dashboard 304 in 2035ms :: [{"id":"f30eb5e4-517a-497a-beb6-b…
+3:37:34 PM [express] GET /api/clients 304 in 60ms :: [{"id":"93dbeac0-58c3-41a0-9d6b-affbfe0be923","…
+Error enriching use cases with TOM phase: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfig (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:813:22)
+    at async enrichUseCasesWithTomPhase (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:53:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:168:32) {    
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:35 PM [express] GET /api/use-cases/reference 304 in 412ms :: [{"id":"3065e463-129e-4980-9af4-46…
+Error fetching TOM config: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfigById (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:865:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\tom.routes.ts:63:24) {
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:35 PM [express] GET /api/tom/config/93dbeac0-58c3-41a0-9d6b-affbfe0be923 500 in 701ms :: {"erro…
+3:37:35 PM [express] GET /api/clients/93dbeac0-58c3-41a0-9d6b-affbfe0be923 304 in 708ms :: {"id":"93…
+3:37:35 PM [express] GET /api/engagements 304 in 726ms :: [{"id":"93dbeac0-58c3-41a0-9d6b-affbfe0be9…
+Error enriching use cases with TOM phase: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfig (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:813:22)
+    at async enrichUseCasesWithTomPhase (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:53:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:132:32) {    
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:35 PM [express] GET /api/use-cases/dashboard 304 in 987ms :: [{"id":"f30eb5e4-517a-497a-beb6-b6…
+Error loading metadata: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfig (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:813:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\metadata.routes.ts:56:24) {      
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:35 PM [express] GET /api/metadata 500 in 582ms :: {"error":"Failed to load metadata"}
+Error enriching use cases with TOM phase: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfig (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:813:22)
+    at async enrichUseCasesWithTomPhase (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:53:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\use-cases.routes.ts:114:32) {    
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:35 PM [express] GET /api/use-cases 304 in 1122ms :: [{"id":"f30eb5e4-517a-497a-beb6-b6bb41619f4…
+Error fetching TOM config: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfigById (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:865:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\tom.routes.ts:63:24) {
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:37 PM [express] GET /api/tom/config/93dbeac0-58c3-41a0-9d6b-affbfe0be923 500 in 53ms :: {"error…
+Error fetching TOM config: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfigById (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:865:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\tom.routes.ts:63:24) {
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:37:39 PM [express] GET /api/tom/config/93dbeac0-58c3-41a0-9d6b-affbfe0be923 500 in 50ms :: {"error…
+Error fetching TOM config: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfigById (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:865:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\tom.routes.ts:63:24) {
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+3:38:06 PM [express] GET /api/tom/config/93dbeac0-58c3-41a0-9d6b-affbfe0be923 500 in 650ms :: {"erro…
+Error fetching TOM config: error: column "processes" does not exist
+    at C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\node_modules\src\node-postgres\session.ts:104:19)
+    at async DatabaseStorage.getMetadataConfigById (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\storage.ts:865:22)
+    at async <anonymous> (C:\Users\2000138886\Downloads\UseCaseFramework-main\UseCaseFramework-main\server\routes\tom.routes.ts:63:24) {
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+ 
