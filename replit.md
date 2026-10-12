@@ -1,7 +1,16 @@
 # Hexaware AI Use Case Value Framework
 
 ## Overview
-This project is a production-ready strategic platform for prioritizing AI use cases within Hexaware. It features a comprehensive scoring framework, an executive analytics dashboard, and a full CRUD management system. The platform aims to streamline AI strategy and decision-making by enabling efficient management, evaluation, and tracking of AI initiatives, ultimately supporting Hexaware's business vision and market potential in the AI domain.
+This project is a strategic decision-support platform for organizing and prioritizing AI use cases, including insurance opportunities. It includes scoring, executive analytics, use case management, value planning, and governance features. See [README.md](README.md) for the business-facing functional guide, insurer benefits, and verification boundaries. It manages initiatives rather than executing insurance AI solutions; production readiness has not been established.
+
+## Verification and Maintenance Caveats (12 October 2026)
+- Deployment metadata reports no active published deployment for this workspace; a production database read reports no production database. Development observations must not be described as production verification.
+- Development dashboard and Insights rendered; read services returned portfolio and configuration data. The assessment landing page rendered with two missing-resource errors. Write flows, assessment completion, exports, and uploads were not acceptance-tested.
+- `npm run check` currently fails with existing TypeScript errors. The configured publishing command names `dist/index.cjs`, while the build script emits `dist/index.js`; resolve and verify this before publishing.
+- The server entry point does not install authentication, authorization, or session middleware. Installed session packages and organizational client/engagement filters do not establish secure access or tenant isolation.
+- Startup performs questionnaire initialization, client/engagement backfill, and showcase updates, not just empty-database seeding. This review observed 18 showcase updates on development startup. Data and benefit figures must not be represented as measured customer outcomes without provenance.
+- The roadmap contains fixed illustrative progress values. Portfolio value aggregation can mix estimates and tracked values. Currency settings are not proof of audited currency conversion.
+- User-facing documentation should emphasize functional features and insurer benefits rather than implementation details. Keep maintenance details here, and keep verification limits explicit.
 
 ## User Preferences
 - **Communication**: Simple, everyday language
@@ -30,29 +39,29 @@ The platform uses Hexaware's official branding, colors, and typography. UI compo
 ### Feature Specifications
 - **Core Data Management**: Full CRUD for AI use cases, including a 10-lever scoring framework with automated recalculation and manual override.
 - **Data Model**: `clients`, `engagements`, `use_cases`, `file_attachments`, `metadata_config`, `response_sessions`, and `users` entities, forming a Client → Engagement → Use Cases hierarchy.
-- **Target Operating Model (TOM)**: Configurable layer mapping use cases to lifecycle phases, aligned with NIST AI RMF and ISO 42001. Phase transitions are config-driven with specific gate requirements.
+- **Target Operating Model (TOM)**: Configurable lifecycle phases and gate requirements with framework-oriented NIST AI RMF/ISO 42001 guidance, not certification or independently verified regulatory compliance.
 - **Analytics**: Interactive matrix plots, executive dashboards, and PDF export with ROI explanations.
 - **Assessment System**: Multi-questionnaire platform using Survey.js.
-- **File Management**: Local filesystem storage (`uploads/`) with metadata tracking and a 50MB per file limit.
-- **Modularity**: ~70 active LEGO components for reusability, with modular route and modal architectures.
+- **File Management**: Presentations use `temp-presentation-storage/`, questionnaire materials use `temp-questionnaire-storage/`, and presentation upload staging uses `/tmp/presentations`. Presentation uploads have a 50MB limit. Confirm durability and backups before business use.
+- **Modularity**: Reusable LEGO-style components with modular route and modal architectures; no fixed active-component count is asserted.
 - **In-App Help & Guidance**: Role-based documentation with step-by-step visual guides for Business/IT Users (create use cases, link KPIs, scoring), Strategy/PMO (priority matrix, insights analysis, value validation), and Admins (client management, TOM configuration, gate definitions, KPI library). Uses visual cards with numbered steps and color-coded role sections. Includes Two-Tier Portfolio Overview explaining Idea Pool → Active Pipeline workflow.
 - **Validation**: Minimal validation using Zod schemas and centralized configuration.
 - **Excel Integration**: Multi-worksheet import/export with auto-ID generation.
 - **API Design**: RESTful patterns with structured error responses and server-side validation.
-- **Security**: Input sanitization, parameterized queries, and secure session management.
-- **Performance**: Client-side PDF generation, debounced search, and optimized rendering.
-- **T-shirt Sizing**: Implements benchmark compliance for cost and timeline estimations.
+- **Security**: Some input validation and ORM queries are implemented; secure session management and comprehensive access control are not wired into the current server. No security assurance is implied.
+- **Reporting**: PDF generation includes server-side export services; downloadable reports were not exercised in the October review.
+- **T-shirt Sizing**: Benchmark-based cost and timeline estimates, not quotes, commitments, or a compliance guarantee.
 - **Value Realization System**: KPI-based ROI tracking for use cases, including a comprehensive KPI library (169 KPIs), process mapping, and automated value estimation, supporting multi-currency. Includes KPI types, value streams, confidence factors, and a validation workflow. Features activity-level KPI filtering that suggests top 5 most relevant KPIs based on process AND activity combination (relevance scoring with activity match bonus). **KPI Type Diversity**: Smart selection algorithm prioritizes picking 1-2 KPIs from each available type (Financial, Operational, Strategic, Compliance) before filling remaining slots by relevance score - ensures balanced value tracking across all dimensions.
 - **Capability Transition Benchmark Derivation**: Automated population of capability transition data from use case attributes, using benchmark archetypes.
 - **Auto-Derivation System**: Smart cascading derivation of TOM phase, value estimates, and capability defaults integrated into CRUD operations with override protection.
-- **Database-Driven Configuration**: All framework features are driven by the `metadata_config` table.
-- **Compliance Features**: Duplicate detection, full audit trail (`use_case_change_log`), and role evolution tracking.
-- **Governance Workflow**: Foundation Layer gates must be cleared before use cases enter an active portfolio. Governance gates are enforced only when activating use cases. Includes visual gate-to-phase flow diagram showing which gates unlock which transitions, loaded dynamically from phaseTransitions config.
+- **Configuration**: Framework configuration is persisted in `metadata_config`, with additional code defaults and static guidance content; not every feature is exclusively database-driven.
+- **Review History**: Duplicate-detection, change-log, governance-decision history, and role-evolution features support review. Complete, tamper-proof auditing has not been established.
+- **Governance Workflow**: Dedicated activation and status-transition paths include gate checks, and phase guidance uses configured transitions. Enforcement across all create/update/bulk paths has not been established; do not claim universal gate enforcement.
 - **Soft Progressive Data Capture**: Phase-aligned guidance system indicates required data for each TOM phase.
 - **Insights Dashboard Structure**: All four Insights tabs (Value Realization, Operating Model, Capability Transition, Responsible AI) follow a consistent pattern: Summary Cards, Distribution Charts, and Use Case Table.
 
 ### Two-Tier Portfolio Model (Feb 2026)
-Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
+The implementation separates ideation from committed delivery; external best-practice references are not independent validation:
 - **Reference Library = Ideation Phase**: Idea pool for strategic planning. Only includes reference-tier use cases, all counted as Ideation.
 - **Active Portfolio = Assessment → Operate**: Committed pipeline. Only includes active-tier use cases. **Minimum phase is Assessment** (Ideation reserved for Reference Library only).
 - **Activation Logic**: When activating a use case, it enters Assessment phase (minimum). Further progression based on status/deployment.
@@ -66,15 +75,15 @@ Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
   1. **Idea Pool Card** (purple): Shows Reference Library count with "View Library" link (only in Active Portfolio view)
   2. **Active Pipeline Section**: Shows Assessment → Operate phases only (Ideation filtered out from Active Portfolio view)
 
-## Recent Changes (Feb 2026)
+## Historical Notes (Feb 2026; not current verification)
 - **High Risk Actions Required**: Added actionable guidance section to Responsible AI Insights tab - shows specific mitigations per NIST AI RMF for high-risk use cases (human oversight, explainability, quarterly review, impact assessment requirements)
 - **Business Segment Analytics Fix**: Fixed Executive Analytics charts to correctly use `businessSegments` array instead of deprecated `businessSegment` field
 - **Flexible Governance Model**: Schema now accepts any text value for `valueGovernanceModel` field to support legacy data
 - **Complete Use Case Data Population**: 6 reference library use cases populated with complete data across all governance tabs (scoring, value realization, capability transition, responsible AI)
-- **Documentation Cleanup**: Removed redundant documentation files (HEXAWARE_USER_GUIDE.md, INSTALLATION.md, QUICKSTART.md, VALUE_FRAMEWORK_GUIDE.md) - replit.md is the single source of truth
+- **Documentation Cleanup**: Earlier redundant guides were removed. README.md is now the business-facing functional guide; replit.md retains project-maintenance context.
 - **Two-Tier Portfolio Model**: Reference Library (Ideation) vs Active Portfolio (Assessment+) aligned with AWS Five V's Framework and HBR Portfolio Model
 - **Visibility Enforcement**: Active portfolio use cases always visible on dashboard - UI toggle locked and backend enforces visibility
-- **Multi-tenancy**: Removed client-specific hardcoding for reusability across clients
+- **Multi-client organization**: Client/engagement organization supports reuse; it is not verified security isolation between tenants, and some seeded content and defaults remain client-specific.
 
 ## External Dependencies
 
@@ -82,5 +91,5 @@ Aligned with AWS Five V's Framework and HBR Portfolio Model best practices:
 - **Data Management**: Drizzle ORM, TanStack Query, Zod
 - **File Processing**: PDFKit, Survey.js, LibreOffice, Multer
 - **Database**: PostgreSQL (@neondatabase/serverless)
-- **Session Management**: express-session, connect-pg-simple
+- **Installed session libraries**: express-session, connect-pg-simple (not wired into the current server entry point)
 - **Specialized**: Survey.js ecosystem
