@@ -3,10 +3,15 @@
 ## Overview
 This project is a strategic decision-support platform for organizing and prioritizing AI use cases, including insurance opportunities. It includes scoring, executive analytics, use case management, value planning, and governance features. See [README.md](README.md) for the business-facing functional guide, insurer benefits, and verification boundaries. It manages initiatives rather than executing insurance AI solutions; production readiness has not been established.
 
-## Verification and Maintenance Caveats (12 October 2026)
+## Publishing Check (15 October 2026)
+- A private deployment is now configured, but its latest publish attempt was blocked before compilation by seven critical dependency findings. Dependency updates resolved those findings; the subsequent dependency audit reported zero critical findings, with 45 high, 32 moderate, and 6 low findings remaining. This is not a clean security audit.
+- Publishing now uses `npm run start`, matching the build output and setting production mode. The local production build and a Survey.js model/PDF-generation smoke test passed. A new publish attempt is still required to verify hosted startup.
+- Keep Survey.js core, React UI, and PDF packages on matching versions. The `jspdf` and `proxy-addr` overrides prevent the lockfile from retaining vulnerable transitive versions still allowed by parent dependency ranges; review compatibility and security findings before removing them.
+
+## Verification and Maintenance Caveats (12 October 2026 snapshot)
 - Deployment metadata reports no active published deployment for this workspace; a production database read reports no production database. Development observations must not be described as production verification.
 - Development dashboard and Insights rendered; read services returned portfolio and configuration data. The assessment landing page rendered with two missing-resource errors. Write flows, assessment completion, exports, and uploads were not acceptance-tested.
-- `npm run check` currently fails with existing TypeScript errors. The configured publishing command names `dist/index.cjs`, while the build script emits `dist/index.js`; resolve and verify this before publishing.
+- `npm run check` failed with existing TypeScript errors during this review. The publishing-command mismatch found then was corrected on 15 October; see the publishing check above.
 - The server entry point does not install authentication, authorization, or session middleware. Installed session packages and organizational client/engagement filters do not establish secure access or tenant isolation.
 - Startup performs questionnaire initialization, client/engagement backfill, and showcase updates, not just empty-database seeding. This review observed 18 showcase updates on development startup. Data and benefit figures must not be represented as measured customer outcomes without provenance.
 - The roadmap contains fixed illustrative progress values. Portfolio value aggregation can mix estimates and tracked values. Currency settings are not proof of audited currency conversion.
