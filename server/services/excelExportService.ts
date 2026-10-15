@@ -1,4 +1,4 @@
-import XLSX from 'xlsx';
+import * as XLSX from '@stackline/xlsx';
 import { db } from '../db';
 import { useCases, metadataConfig } from '@shared/schema';
 import { eq } from 'drizzle-orm';

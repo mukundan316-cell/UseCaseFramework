@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll, afterAll, afterEach } from '@jest/globals';
 import request from 'supertest';
 import fs from 'fs';
-import XLSX from 'xlsx';
+import * as XLSX from '@stackline/xlsx';
 
 // Test against the running server
 const baseURL = 'http://localhost:5000';

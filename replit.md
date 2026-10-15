@@ -9,7 +9,7 @@ This project is a strategic decision-support platform for organizing and priorit
 - Keep Survey.js core, React UI, and PDF packages on matching versions. The `jspdf` and `proxy-addr` overrides prevent the lockfile from retaining vulnerable transitive versions still allowed by parent dependency ranges; review compatibility and security findings before removing them.
 
 ## Dependency Maintenance (15 October 2026)
-- Dependency remediation now yields zero findings from `npm audit`. Replit's dependency scanner still returns two SheetJS advisories against the publisher's patched 0.20.3 release because its advisory ranges lack fixed versions; it must not be described as clean.
+- Dependency remediation now yields zero findings from both `npm audit` and Replit's dependency scanner. The original SheetJS dependency was replaced with the security-hardened `@stackline/xlsx` fork, preserving `.xls` and `.xlsx` import/export support.
 - See [dependency security maintenance](docs/dependency-security.md) for sources, the pinned guarded Braces derivative, toolchain compatibility constraints, and verification boundaries. Run `npm run test:dependencies` alongside the production build when changing overrides.
 
 ## Verification and Maintenance Caveats (12 October 2026 snapshot)

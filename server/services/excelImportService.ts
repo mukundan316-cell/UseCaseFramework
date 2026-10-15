@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import * as XLSX from '@stackline/xlsx';
 import { storage } from '../storage';
 import { insertUseCaseSchema, type InsertUseCase } from '../../shared/schema';
 import { z } from 'zod';
