@@ -1,0 +1,4 @@
+# The application is Node.js-only. Keep unused Python tooling out of publishing.
+.pythonlibs/
+pyproject.toml
+uv.lock
