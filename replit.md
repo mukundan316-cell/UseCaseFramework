@@ -8,6 +8,10 @@ This project is a strategic decision-support platform for organizing and priorit
 - Publishing now uses `npm run start`, matching the build output and setting production mode. The local production build and a Survey.js model/PDF-generation smoke test passed. A new publish attempt is still required to verify hosted startup.
 - Keep Survey.js core, React UI, and PDF packages on matching versions. The `jspdf` and `proxy-addr` overrides prevent the lockfile from retaining vulnerable transitive versions still allowed by parent dependency ranges; review compatibility and security findings before removing them.
 
+## Dependency Maintenance (15 October 2026)
+- Dependency remediation now yields zero findings from `npm audit`. Replit's dependency scanner still returns two SheetJS advisories against the publisher's patched 0.20.3 release because its advisory ranges lack fixed versions; it must not be described as clean.
+- See [dependency security maintenance](docs/dependency-security.md) for sources, the pinned guarded Braces derivative, toolchain compatibility constraints, and verification boundaries. Run `npm run test:dependencies` alongside the production build when changing overrides.
+
 ## Verification and Maintenance Caveats (12 October 2026 snapshot)
 - Deployment metadata reports no active published deployment for this workspace; a production database read reports no production database. Development observations must not be described as production verification.
 - Development dashboard and Insights rendered; read services returned portfolio and configuration data. The assessment landing page rendered with two missing-resource errors. Write flows, assessment completion, exports, and uploads were not acceptance-tested.

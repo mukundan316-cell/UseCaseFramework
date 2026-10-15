@@ -1,0 +1,1 @@
+- [Dependency compatibility](dependency-compatibility.md) — Advertised peer compatibility can differ from runtime schemas; preserve existing targets during security upgrades.
